@@ -38,3 +38,5 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 ## 전투 논리 방향
 
 새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation)`으로 현재 화면 방향을 얻고 해당 클립을 선택한다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.
+
+필드에서는 자기 개체의 `me.fieldFacing`, 다른 구성원의 `members[].facing`, 몬스터의 `monsters[].facing`을 같은 `screenFacing()`에 전달한다. 이전 캐시에는 값이 없을 수 있으므로 현재 정적 이미지 표시 경로와 명시적으로 구분한다. 맵 전환·재접속의 위치 차이를 새 이동 방향으로 계산하지 않는다.

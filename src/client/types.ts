@@ -69,6 +69,7 @@ export type State = {
     version: number;
     mode: string;
     position: Position;
+    fieldFacing?: WorldFacing;
     lastMapId: string;
     lastPosition: Position;
     xp: number;
@@ -117,11 +118,12 @@ export type State = {
     name?: string;
     id: string;
     position: Position;
+    facing?: WorldFacing;
     disposition: string;
     movement?: { mode: "STATIONARY" | "ROAM"; interval: number };
     state: string;
   })[];
-  members: { id: string; name: string; position: Position; mode: string }[];
+  members: { id: string; name: string; position: Position; facing?: WorldFacing; mode: string }[];
   party: { id: string; leader: string; members: string[] } | null;
   invitations: { id: string; from: string }[];
   reservation: {
