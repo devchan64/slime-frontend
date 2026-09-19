@@ -60,3 +60,31 @@ test('재접속은 설치된 cursor를 요청하고 복구 승인 후 연속 이
   old.disconnect();
  } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
 });
+
+test('마지막 이벤트 유실은 heartbeat head로 발견하고 정상 지연·옛 head·종료는 재연결하지 않는다',async()=>{
+ const keys=['WebSocket','document','location','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ const timers=new Map();let id=0,ws;
+ class Socket {static OPEN=1;readyState=1;closed=false;constructor(){ws=this;}send(){}close(){this.closed=true;this.onclose?.();}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener(){},removeEventListener(){}},location:{href:'http://localhost/'},setInterval:()=>++id,clearInterval:()=>{},setTimeout:(fn,delay)=>{timers.set(++id,{fn,delay});return id;},clearTimeout:key=>timers.delete(key)});
+  const state=(epoch,cursor)=>({protocolVersion:1,generation:3,epoch,cursor,location:{id:'map:meadow'}});
+  const client=new Client();client.stopped=false;client.state=state(4,8);client.request=async()=>({ticket:'test'});
+  const frame=msg=>ws.onmessage({data:JSON.stringify(msg)});
+  await client.connect();ws.onopen();frame({type:'snapshot',state:state(4,8)});
+  frame({type:'heartbeat',epoch:4,cursor:9});assert.equal(timers.size,1);
+  assert.equal([...timers.values()][0].delay,5000);
+  frame({type:'heartbeat',epoch:4,cursor:9});assert.equal(timers.size,1);
+  frame({type:'state',state:state(4,9)});assert.equal(timers.size,0);assert.equal(ws.closed,false);
+  frame({type:'heartbeat',epoch:3,cursor:999});assert.equal(timers.size,0);
+  frame({type:'heartbeat',epoch:4,cursor:8});assert.equal(timers.size,0);
+  frame({type:'heartbeat',epoch:4,cursor:10});
+  const lost=[...timers.values()][0];timers.clear();lost.fn();assert.equal(ws.closed,true);
+  assert.equal(client.state.cursor,9);assert.equal(timers.size,1); // 마지막 적용 순번으로 재연결 예약
+  client.disconnect();timers.clear();client.stopped=false;
+  await client.connect();ws.onopen();frame({type:'heartbeat',epoch:5,cursor:0});
+  assert.equal(timers.size,1);client.accept(state(5,0));assert.equal(timers.size,0);
+  frame({type:'heartbeat',epoch:5,cursor:1});const late=[...timers.values()][0].fn;
+  client.disconnect();assert.equal(timers.size,0);late();assert.equal(timers.size,0);
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});

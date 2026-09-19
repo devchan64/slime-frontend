@@ -8,6 +8,8 @@ const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) || "";
 const HEARTBEAT_MS = 10000;
 const RECONNECT_MAX_MS = 5000;
+const STREAM_PROGRESS_WAIT_MS = 5000;
+type StreamMark = Pick<State, "generation" | "epoch" | "cursor">;
 export class Client {
   tokens: Tokens | null = null;
   state: State | null = null;
@@ -15,6 +17,8 @@ export class Client {
   private stopActivity: (() => void) | null = null;
   private stopped = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private progressTimer: ReturnType<typeof setTimeout> | null = null;
+  private progressHead: StreamMark | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private attempts = 0;
@@ -87,6 +91,7 @@ export class Client {
     if (this.state && (state.generation !== this.state.generation || state.epoch !== this.state.epoch
         || state.location.id !== this.state.location.id)) this.disconnectChat();
     this.state = state;
+    if (!this.isBehindHead()) this.clearProgress();
     this.onState(state);
   }
   async command(path: string, body: Record<string, unknown> = {}) {
@@ -157,6 +162,8 @@ export class Client {
                 if (ws.readyState === WebSocket.OPEN)
                   ws.send(JSON.stringify({ type: "heartbeat" }));
               }, HEARTBEAT_MS);
+          } else if (msg.type === 'heartbeat') {
+            this.observeHead(msg.epoch, msg.cursor, ws);
           } else if (msg.type === "error") {
             const message = readApiMessage(msg, getLocale());
             if (message === undefined) throw new Error("API 오류 안내가 누락되었습니다.");
@@ -239,7 +246,33 @@ export class Client {
     socket?.close();
     this.onChat([]); this.onChatStatus(false);
   }
+  private isBehindHead() {
+    const head=this.progressHead,state=this.state;
+    return !!head && !!state && head.generation===state.generation &&
+      (head.epoch>state.epoch || head.epoch===state.epoch && head.cursor>state.cursor);
+  }
+  private clearProgress() {
+    if (this.progressTimer !== null) clearTimeout(this.progressTimer);
+    this.progressTimer=null;this.progressHead=null;
+  }
+  private observeHead(epoch: number, cursor: number, socket: WebSocket) {
+    if (!Number.isSafeInteger(epoch) || !Number.isSafeInteger(cursor) || epoch<0 || cursor<0)
+      throw new Error('생존 응답의 스트림 순번이 올바르지 않습니다.');
+    if (!this.state) return;
+    const head=this.progressHead;
+    if (!head || head.generation!==this.state.generation || epoch>head.epoch || epoch===head.epoch && cursor>head.cursor)
+      this.progressHead={generation:this.state.generation,epoch,cursor};
+    if (!this.isBehindHead()) {this.clearProgress();return;}
+    if (this.progressTimer !== null) return;
+    // 생존 응답 바로 뒤에 오는 정상 이벤트를 기다린 뒤 누락이 남으면 복구한다.
+    this.progressTimer=setTimeout(()=>{
+      const missing=this.isBehindHead();
+      this.clearProgress();
+      if (missing && this.socket===socket && !this.stopped) socket.close();
+    },STREAM_PROGRESS_WAIT_MS);
+  }
   private clearHeartbeat() {
+    this.clearProgress();
     if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
   }
