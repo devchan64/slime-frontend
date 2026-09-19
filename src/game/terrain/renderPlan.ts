@@ -1,4 +1,5 @@
 import type { Position, State } from '../../client/types';
+import { elevationRange } from './viewport';
 import { inBounds, type Surface } from './elevation';
 import { rotatedSurface, type MapRotation } from './rotation';
 
@@ -29,11 +30,12 @@ export function overlayCells(state: State, textured: boolean, selected: Position
   return [...cells.values()];
 }
 
-export type TerrainPlan = {signature: string; surface: Surface};
+export type TerrainPlan = {signature: string; surface: Surface; heights: {min:number;max:number}};
 
 /** 이전 계획 하나만 보존해 상태 갱신마다 고도 행렬을 재할당하지 않는다. */
 export function prepareTerrain(state: State, rotation: MapRotation, previous: TerrainPlan | null): TerrainPlan {
   const signature = terrainRenderSignature(state, rotation);
   if (previous?.signature === signature) return previous;
-  return {signature, surface: rotatedSurface(state.battle?.field ?? state.map, rotation)};
+  const surface=rotatedSurface(state.battle?.field ?? state.map, rotation);
+  return {signature, surface, heights:elevationRange(surface)};
 }

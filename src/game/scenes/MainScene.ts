@@ -1,3 +1,4 @@
+import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
 import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
@@ -74,6 +75,7 @@ export class MainScene extends Phaser.Scene {
   private terrainObjects = new Set<Phaser.GameObjects.GameObject>();
   private backdropLayer: Phaser.GameObjects.Image | null = null;
   private terrainSignature = "";
+  private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
   private waypointZoom = 0;
   constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (message: string) => void) {
@@ -97,6 +99,8 @@ export class MainScene extends Phaser.Scene {
     const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
     this.scale.on(Phaser.Scale.Events.RESIZE, resize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.terrainCache?.clear();
+      this.terrainCache=null;
       this.scale.off(Phaser.Scale.Events.RESIZE, resize);
       this.game.events.off(Phaser.Core.Events.POST_STEP, this.focus, this);
     });
@@ -206,6 +210,7 @@ export class MainScene extends Phaser.Scene {
   }
   update() {
     if (this.backdropLayer?.visible) constrainBackdropCamera(this.backdropLayer, this.cameras.main);
+    this.syncTerrainViewport();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
     for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom));
@@ -416,16 +421,21 @@ export class MainScene extends Phaser.Scene {
       (definition.columns+definition.rows)*TILE_W/2,(definition.columns+definition.rows)*TILE_H/2,theme);
     this.backdropLayer.setAlpha(.5);
     const signature=this.terrainPlan!.signature;
-    if(signature===this.terrainSignature && this.terrainObjects.size) return;
+    if(signature===this.terrainSignature && this.terrainCache) { this.syncTerrainViewport(); return; }
+    this.terrainCache?.clear();
     for(const object of this.terrainObjects)object.destroy();
     this.terrainObjects.clear();
-    const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {this.terrainObjects.add(object);return object;};
     const road=field ? new Set([...cells].filter(([,kind])=>kind==='road').map(([key])=>key)) : buildMeadowRoad(s.map);
     const blockedCells=new Set(blocked.map(p=>`${p.column},${p.row}`));
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
       : theme === "mist-lake" ? blockedCells : new Set<string>();
-    for(let row=0;row<definition.rows;row++)for(let column=0;column<definition.columns;column++){
-      const cell={column,row},p=this.project(cell),depth=this.depth(cell);
+    this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
+      const objects:Phaser.GameObjects.GameObject[]=[];
+      const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {
+        objects.push(object);this.terrainObjects.add(object);return object;
+      };
+      const cell=fromView({column:viewColumn,row:viewRow},definition,this.rotation);
+      const {column,row}=cell,p=this.project(cell),depth=this.depth(cell);
       if(field){
         const grid=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.overlay));
         grid.lineStyle(1,COLORS.edge,.5);
@@ -437,7 +447,7 @@ export class MainScene extends Phaser.Scene {
       const elevationTile=this.viewSurface!.elevationTiles?.find(t=>t.cell.column===this.viewPosition(cell).column&&t.cell.row===this.viewPosition(cell).row);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
-        continue;
+        return objects;
       }
       const sides=remember(this.add.graphics().setDepth(depth));
       drawCliffs(sides,this.viewPosition(cell),this.viewSurface!);
@@ -451,8 +461,19 @@ export class MainScene extends Phaser.Scene {
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);
       }
-    }
+      return objects;
+    }, objects=>{for(const object of objects){this.terrainObjects.delete(object);object.destroy();}});
     this.terrainSignature=signature;
+    this.syncTerrainViewport();
+  }
+
+  private syncTerrainViewport() {
+    if(!this.terrainCache || !this.terrainPlan || !this.backdropLayer?.visible)return;
+    const camera=this.cameras.main;
+    const width=camera.width/camera.zoom,height=camera.height/camera.zoom;
+    const left=camera.scrollX+(camera.width-width)/2,top=camera.scrollY+(camera.height-height)/2;
+    this.terrainCache.sync(terrainWindow(this.terrainPlan.surface,this.terrainPlan.heights,
+      {left,top,right:left+width,bottom:top+height}));
   }
 
   private points(values: number[]) {
