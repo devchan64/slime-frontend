@@ -17,8 +17,9 @@ const LABELS: Record<string, string> = {
   MOVE: "battle.move", ATTACK: "battle.attack", GUARD: "battle.guard", END_TURN: "battle.endTurn", WAIT: "battle.wait", SURRENDER: "battle.surrenderVote",
 };
 const same = (a: Position, b: Position | null) => !!b && a.column === b.column && a.row === b.row;
-function BattleConfirmation({ title, summary, disabled, close, confirm }: {
+function BattleConfirmation({ title, summary, disabled, close, confirm, confirmButtonLabel, alternateButtonLabel, alternateConfirmAction, alternateActionDisabled }: {
   title: string; summary: string; disabled: boolean; close: () => void; confirm: () => void;
+  confirmButtonLabel?: string; alternateButtonLabel?: string; alternateConfirmAction?: () => void; alternateActionDisabled?: boolean;
 }) {
   const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
@@ -35,11 +36,16 @@ function BattleConfirmation({ title, summary, disabled, close, confirm }: {
     <p id="battle-confirm-description">{summary}</p>
     <div class="battle-confirm-actions">
       <button class="secondary" autoFocus onClick={close}>{t('battle.cancel')}</button>
+      {alternateConfirmAction && <button disabled={disabled || alternateActionDisabled} onClick={() => {
+        if (disabled || alternateActionDisabled || submitted.current) return;
+        submitted.current = true;
+        alternateConfirmAction();
+      }}>{alternateButtonLabel}</button>}
       <button disabled={disabled} onClick={() => {
         if (disabled || submitted.current) return;
         submitted.current = true;
         confirm();
-      }}>{t('battle.confirm')}</button>
+      }}>{confirmButtonLabel ?? t('battle.confirm')}</button>
     </div>
   </dialog>;
 }
@@ -183,7 +189,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>}
     <div class="battle-command-content">{mode !== "ATTACK" && <div class="command-preview" aria-live="polite">
       {mode === "MOVE" ? move ? t('battle.moveSummary',{count:move.path.length}) : t('battle.chooseTile')
-        : battle.acted ? t('battle.endAfterAction') : t('battle.autoGuardHelp')}
+        : apBattle ? t('battle.turnEndChoice') : battle.acted ? t('battle.endAfterAction') : t('battle.autoGuardHelp')}
     </div>}
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
 
@@ -236,7 +242,11 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     title={t('battle.confirmAction',{action:t(LABELS[mode])})}
     summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')}) + (move.expectedApCost !== undefined ? ' · ' + t('battle.terrainApPreview',{base:move.apCost!,expected:move.expectedApCost,max:move.maximumApCost!}) : move.apCost !== undefined ? ' · ' + t('battle.apPreview',{cost:move.apCost,remaining:move.apAfter!}) : '')
       : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}` + (attack.apCost !== undefined && current?.ap !== undefined ? ' · ' + t('battle.apPreview',{cost:attack.apCost,remaining:current.ap-attack.apCost}) : '')
-      : battle.acted ? t('battle.endNoGuard') : t('battle.endWithGuard')}
+      : apBattle ? t(current && current.ap !== undefined && current.ap >= 1 ? 'battle.turnEndChoice' : 'battle.guardEndUnavailable') : battle.acted ? t('battle.endNoGuard') : t('battle.endWithGuard')}
+    confirmButtonLabel={apBattle && mode === "END_TURN" ? t('battle.plainEndTurn') : undefined}
+    alternateButtonLabel={t('battle.guardEndTurn')}
+    alternateActionDisabled={!current || current.ap === undefined || current.ap < 1}
+    alternateConfirmAction={apBattle && mode === "END_TURN" ? () => { setConfirming(false); execute("GUARD"); } : undefined}
     disabled={disabled || !valid} close={() => setConfirming(false)}
     confirm={() => { setConfirming(false); execute(mode, mode === "ATTACK" ? target?.id : undefined); }} />}
   </>;

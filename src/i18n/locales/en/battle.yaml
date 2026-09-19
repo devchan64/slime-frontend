@@ -118,3 +118,8 @@ surrenderConfirmation: "Agree to flee? Confirm to submit your flee vote."
 
 moveSummary: "Move {count} tiles · View the full path on the map and in the confirmation dialog."
 attackHelpDetail: "Choose an attack target in the controls. Review expected damage before confirming; enemy health information depends on Monster Lore."
+
+plainEndTurn: "End turn · 0 AP"
+guardEndTurn: "Guard and end · 1 AP"
+turnEndChoice: "Guard and end costs 1 AP. Ending without guarding costs no AP."
+guardEndUnavailable: "Guarding requires 1 AP. You can end without guarding at no AP cost."
