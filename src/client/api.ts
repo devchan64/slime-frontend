@@ -116,19 +116,36 @@ export class Client {
   async connect() {
     if (this.stopped) return;
     try {
-      const { ticket } = await this.request("/v1/realtime/tickets", {});
+      const { ticket, resumeSupported } = await this.request("/v1/realtime/tickets", {});
       if (this.stopped) return;
       const url = new URL(`${API_BASE}/v1/realtime`, location.href);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       const ws = new WebSocket(url);
       this.socket = ws;
-      ws.onopen = () => ws.send(JSON.stringify({ ticket, protocolVersion: 1 }));
+      let resume: Pick<State, 'generation' | 'epoch' | 'cursor'> | undefined;
+      ws.onopen = () => {
+        if (this.socket !== ws || this.stopped) return;
+        if (resumeSupported === true && this.state) {
+          const {generation, epoch, cursor} = this.state;
+          resume = {generation, epoch, cursor};
+        }
+        ws.send(JSON.stringify({ticket, protocolVersion: 1, ...(resume ? {resume} : {})}));
+      };
       ws.onmessage = (e) => {
         if (this.socket !== ws) return;
         try {
           const msg = JSON.parse(e.data);
-          if (msg.type === "snapshot" || msg.type === "state") {
-            this.accept(msg.state);
+          if (msg.type === "snapshot" || msg.type === "state" || msg.type === "resumed") {
+            if (msg.type === 'resumed') {
+              if (!resume || !this.state || msg.generation !== resume.generation
+                  || msg.epoch !== resume.epoch || msg.cursor !== resume.cursor)
+                throw new Error('복구 승인 순번이 요청과 다릅니다.');
+            } else {
+              if (msg.type === 'state' && this.state && msg.state.generation === this.state.generation
+                  && msg.state.epoch === this.state.epoch && msg.state.cursor > this.state.cursor + 1)
+                throw new Error('실시간 상태 순번이 누락되었습니다.');
+              this.accept(msg.state);
+            }
             this.attempts = 0;
             this.onStatus(true, {key: "network.connected"});
             if (!this.stopActivity) this.stopActivity = watchUserActivity(document, () => {

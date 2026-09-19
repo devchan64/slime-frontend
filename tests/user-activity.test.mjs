@@ -35,3 +35,28 @@ test('유휴 오류는 입력 감시·연결·생존 타이머를 정리하고 �
   await client.connect();assert.equal(timeouts.size,0);
  } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
 });
+
+test('재접속은 설치된 cursor를 요청하고 복구 승인 후 연속 이벤트만 적용한다',async()=>{
+ const keys=['WebSocket','document','location','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ let ws,id=0;const intervals=new Set(),listeners=new Map(),applied=[];
+ class Socket {static OPEN=1;readyState=1;sent=[];closed=false;constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.closed=true;this.onclose?.();}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)},location:{href:'http://localhost/'},setInterval:()=>{intervals.add(++id);return id;},clearInterval:id=>intervals.delete(id),setTimeout:()=>++id,clearTimeout:()=>{}});
+  const state=cursor=>({protocolVersion:1,generation:3,epoch:4,cursor,location:{id:'map:meadow'}});
+  const client=new Client();client.stopped=false;client.state=state(8);client.request=async()=>({ticket:'test',resumeSupported:true});client.onState=s=>applied.push(s.cursor);
+  await client.connect();ws.onopen();
+  assert.deepEqual(ws.sent[0],{ticket:'test',protocolVersion:1,resume:{generation:3,epoch:4,cursor:8}});
+  ws.onmessage({data:JSON.stringify({type:'resumed',generation:3,epoch:4,cursor:8})});
+  assert.equal(intervals.size,1);assert.equal(listeners.size,3);assert.deepEqual(applied,[]);
+  ws.onmessage({data:JSON.stringify({type:'state',state:state(9)})});assert.deepEqual(applied,[9]);
+  ws.onmessage({data:JSON.stringify({type:'state',state:state(11)})});assert.equal(ws.closed,true);assert.equal(client.state.cursor,9);
+  await client.connect();ws.onopen();assert.equal(ws.sent[0].resume.cursor,9);
+  ws.onmessage({data:JSON.stringify({type:'snapshot',state:state(11)})});assert.equal(client.state.cursor,11);
+  client.disconnect();assert.equal(intervals.size,0);
+  const old=new Client();old.stopped=false;old.state=state(8);old.request=async()=>({ticket:'old'});
+  await old.connect();ws.onopen();assert.deepEqual(ws.sent[0],{ticket:'old',protocolVersion:1});
+  ws.onmessage({data:JSON.stringify({type:'resumed',generation:3,epoch:4,cursor:8})});assert.equal(ws.closed,true);
+  old.disconnect();
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
