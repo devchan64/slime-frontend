@@ -9,7 +9,7 @@ import { BattleActionPoints } from "./BattleActionPoints";
 import { healthDisplay } from "../game/terrain/healthDisplay";
 import { TerrainLegend } from "./TerrainLegend";
 import { useEffect, useRef, useState } from "preact/hooks";
-import { defaultBattleMode, singleAttackTarget, type BattleMode } from "./battleSelection";
+import { defaultBattleMode, singleAttackTarget, availableSkillAction, type BattleMode } from "./battleSelection";
 import { CharacterPortrait } from "./CharacterPortrait";
 import type { Battle, Position } from "../client/types";
 
@@ -107,6 +107,8 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
   const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : true);
+  const slottedSkill = selectedSkill && (me.battleSkillLoadout ?? []).includes(selectedSkill) ? selectedSkill : null;
+  const skillAction = availableSkillAction(battle, actor, slottedSkill, slottedSkill ? me.skills[slottedSkill] : 0);
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <>
   <section class="card battle-panel battle-control-card" aria-label={t('battle.controls')}>
@@ -144,7 +146,10 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
       })}</div>
       {!(me.battleSkillLoadout ?? []).length && <p>{t("battle.noSlottedSkills")}</p>}
       {selectedSkill && (me.battleSkillLoadout ?? []).includes(selectedSkill) && <p>{localizedSkill(me.skillDefinitions![selectedSkill], locale).description}</p>}
-      <p role="status">{t("battle.skillPreviewOnly")}</p>
+      {slottedSkill === "physical_activity" ? <>
+        <p role="status">{t("battle.basicAttackSkillHelp")}</p>
+        <button disabled={disabled || !skillAction} onClick={() => { if (skillAction) chooseMode(skillAction); }}>{t("battle.attack")}</button>
+      </> : <p role="status">{t(slottedSkill ? "battle.skillPreviewOnly" : "battle.selectSkillHelp")}</p>}
     </section>}
     {!skillsOpen && mode === "ATTACK" && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
       <div class="battle-target-heading"><h4>{t('battle.targetCount',{count:battle.tactics.attacks.length})}</h4>

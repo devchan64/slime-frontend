@@ -108,3 +108,6 @@ idleTurnNotice: "No input for 5 seconds. End your turn when you have finished ac
 
 materialValue: "Value {value}p each"
 noLoot: "No loot acquired."
+
+basicAttackSkillHelp: "Basic attack is part of Physical Activity. Select a target and confirm to attack."
+selectSkillHelp: "Select a skill to view its description and available actions."

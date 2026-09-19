@@ -16,3 +16,11 @@ export function singleAttackTarget(battle: Battle): Position | null {
   const target = battle.units.find(u => u.id === battle.tactics.attacks[0].targetId && u.hp > 0);
   return target ? target.position : null;
 }
+
+/** 현재 실행 효과가 정의된 스킬만 서버 전술 후보를 통해 행동으로 연결한다. */
+export function availableSkillAction(battle: Battle, actor: string, skill: string | null, level: number): 'ATTACK' | null {
+  if (skill !== 'physical_activity' || !Number.isInteger(level) || level < 1
+      || battle.status !== 'ACTIVE' || !battle.tactics.canAct || battle.order[battle.index] !== actor
+      || (battle.rulesVersion !== '1.4.0' && battle.acted) || !battle.tactics.attacks.length) return null;
+  return 'ATTACK';
+}
