@@ -111,3 +111,5 @@ noLoot: "획득한 전리품이 없습니다."
 
 basicAttackSkillHelp: "신체활동에 포함된 일반 공격입니다. 대상을 선택하고 확인하면 실행합니다."
 selectSkillHelp: "스킬을 선택해 설명과 사용 가능한 행동을 확인하세요."
+terrainApPreview: "기본 {base} AP · 예상 {expected} AP · 최대 {max} AP. 지형 추가 소모로 AP가 0 이하가 되면 도착 전에 멈출 수 있습니다."
+terrainMovementStopped: "AP 부족으로 경로 중단"

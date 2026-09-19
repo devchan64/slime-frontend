@@ -230,7 +230,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>
     <details class="battle-records"><summary>{t('battle.logCount',{count:battle.log.length})}</summary><ol class="battle-log">
       {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">{t('battle.turnNumber',{turn:event.turnId})} · </span>{name(event.unitId)} · {LABELS[event.action] ? t(LABELS[event.action]) : event.action}
-        {event.path?.length ? ` · ${t('battle.logMove',{path:event.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})}` : ""}{event.autoGuard ? ` · ${t('battle.autoGuard')}` : ""}{event.targetId ? t('battle.logDamage',{name:name(event.targetId),damage:String(event.damage)}) : ""}</li>)}
+        {event.path?.length ? ` · ${t('battle.logMove',{path:event.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})}` : ""}{event.apCost !== undefined && event.apAfter !== undefined ? ` · ${t('battle.apPreview',{cost:event.apCost,remaining:event.apAfter})}` : ''}{event.movementStopped ? ` · ${t('battle.terrainMovementStopped')}` : ''}{event.autoGuard ? ` · ${t('battle.autoGuard')}` : ""}{event.targetId ? t('battle.logDamage',{name:name(event.targetId),damage:String(event.damage)}) : ""}</li>)}
     </ol>{battle.log.length === 0 && <p>{t('battle.emptyLog')}</p>}</details>
 
     </div>
@@ -238,7 +238,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   </section>
   {confirming && valid && mode && <BattleConfirmation
     title={t('battle.confirmAction',{action:t(LABELS[mode])})}
-    summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')}) + (move.apCost !== undefined ? ' · ' + t('battle.apPreview',{cost:move.apCost,remaining:move.apAfter!}) : '')
+    summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')}) + (move.expectedApCost !== undefined ? ' · ' + t('battle.terrainApPreview',{base:move.apCost!,expected:move.expectedApCost,max:move.maximumApCost!}) : move.apCost !== undefined ? ' · ' + t('battle.apPreview',{cost:move.apCost,remaining:move.apAfter!}) : '')
       : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}` + (attack.apCost !== undefined && current?.ap !== undefined ? ' · ' + t('battle.apPreview',{cost:attack.apCost,remaining:current.ap-attack.apCost}) : '')
       : battle.acted ? t('battle.endNoGuard') : t('battle.endWithGuard')}
     disabled={disabled || !valid} close={() => setConfirming(false)}

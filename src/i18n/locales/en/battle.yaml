@@ -111,3 +111,5 @@ noLoot: "No loot acquired."
 
 basicAttackSkillHelp: "Basic attack is part of Physical Activity. Select a target and confirm to attack."
 selectSkillHelp: "Select a skill to view its description and available actions."
+terrainApPreview: "Base {base} AP · expected {expected} AP · maximum {max} AP. Terrain costs may reduce AP to zero or below and stop movement before arrival."
+terrainMovementStopped: "Route stopped due to insufficient AP"

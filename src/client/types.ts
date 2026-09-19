@@ -37,11 +37,11 @@ export type Battle = {
   field: Battlefield;
   tactics: {
     canAct: boolean;
-    moves: { position: Position; path: Position[]; cost: number; apCost?: number; apAfter?: number; attackRange: Position[]; attacks: { targetId: string; damage: number; apCost?: number }[] }[];
+    moves: { position: Position; path: Position[]; cost: number; apCost?: number; apAfter?: number; expectedApCost?: number; maximumApCost?: number; attackRange: Position[]; attacks: { targetId: string; damage: number; apCost?: number }[] }[];
     attacks: { targetId: string; damage: number; apCost?: number }[];
   };
   log: { unitId: string; action: string; turnId: number; at: number;
-         damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean }[];
+         damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean; apCost?: number; apAfter?: number; movementStopped?: boolean }[];
   id: string;
   version: number;
   units: Unit[];
