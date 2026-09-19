@@ -78,6 +78,18 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
  assert.ok([...scene.terrainObjects].every(o=>!o.destroyed&&o.visible));
  scene.updateTerrain(state,false);assert.ok([...scene.terrainObjects].every(o=>!o.visible));
  scene.updateTerrain(state,true);assert.ok([...scene.terrainObjects].every(o=>o.visible));
+
+ // 큰 전장도 지형 불변 재표시에서는 전체 셀 색인을 다시 만들지 않는다.
+ let indexed=0;
+ const cells=Array.from({length:40000},(_,i)=>({column:i%200,row:Math.floor(i/200),terrain:'grass'}));
+ cells.map=function(callback,...args){indexed++;return Array.prototype.map.call(this,callback,...args);};
+ const battleState={...state,battle:{field:{columns:200,rows:200,cells},blocked:[]}};
+ scene.cameras.main.scrollY=0;scene.cameras.main.zoom=1;
+ scene.setState(battleState);scene.updateTerrain(battleState,true);assert.equal(indexed,1);
+ for(let repeat=0;repeat<20;repeat++)scene.updateTerrain(battleState,true);
+ assert.equal(indexed,1,'같은 지형의 반복 표시가 전체 셀 순회를 추가하지 않는다');
+ scene.rotation=1;scene.setState(battleState);scene.updateTerrain(battleState,true);assert.equal(indexed,2);
+ cells[0].terrain='water';scene.setState(battleState);scene.updateTerrain(battleState,true);assert.equal(indexed,3);
  scene.terrainCache.clear();assert.equal(scene.terrainObjects.size,0);
 });
 

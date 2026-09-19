@@ -468,7 +468,6 @@ export class MainScene extends Phaser.Scene {
     const field = s.battle?.field, definition = field ?? s.map;
     const theme = field?.environment?.themeId ?? s.map.id;
     const blocked = s.battle?.blocked ?? s.map.blocked;
-    const cells = new Map(field?.cells?.map(cell => [`${cell.column},${cell.row}`, cell.terrain]));
     if (!this.backdropLayer) this.backdropLayer = createBackdrop(this);
     fitBackdrop(this.backdropLayer, this.cameras.main,
       this.project({column:(definition.columns-1)/2,row:(definition.rows-1)/2}),
@@ -479,6 +478,7 @@ export class MainScene extends Phaser.Scene {
     this.terrainCache?.clear();
     for(const object of this.terrainObjects)object.destroy();
     this.terrainObjects.clear();
+    const cells = new Map(field?.cells?.map(cell => [`${cell.column},${cell.row}`, cell.terrain]));
     const road=field ? new Set([...cells].filter(([,kind])=>kind==='road').map(([key])=>key)) : buildMeadowRoad(s.map);
     const blockedCells=new Set(blocked.map(p=>`${p.column},${p.row}`));
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
