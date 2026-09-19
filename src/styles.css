@@ -1254,6 +1254,14 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .battle-help-card .battle-portrait { width: 48px; height: 56px; flex: 0 0 48px; }
 .battle-help-card .battle-log { padding-left: 20px; }
 .battle-help-card .battle-log li { padding: 6px 0; line-height: 1.5; border-bottom: 1px solid #35515a66; }
+.battle-help-card .battle-context-help { margin: 4px 0; font-size: 12px; line-height: 1.5; }
+.battle-help-card .command-preview { padding: 0; margin: 6px 0; background: transparent; font-size: 12px; }
+.battle-help-card .arrival-preview { padding: 6px 10px; margin: 6px 0; font-size: 12px; }
+.battle-help-card .battle-unit-details { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 6px 10px; }
+.battle-help-card .battle-unit-details p { margin: 0; font-size: 12px; }
+.battle-help-card :is(.battle-terrain-help, .battle-roster-details, .battle-records) { margin-top: 8px; border-top: 1px solid var(--border); }
+.battle-help-card :is(.battle-terrain-help, .battle-roster-details, .battle-records) > summary { display: list-item; cursor: pointer; padding: 8px 0; min-height: 44px; font-size: 12px; }
+.battle-help-card .battle-secondary { margin-top: 0; padding-top: 0; border-top: 0; }
 
 .sponsor-default { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 180px; padding: 24px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(145deg, #143e39, #10252e); text-align: center; }
 .sponsor-default span { color: var(--brand-primary); font-size: 14px; letter-spacing: .3em; }

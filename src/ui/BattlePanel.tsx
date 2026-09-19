@@ -10,14 +10,8 @@ import { healthDisplay } from "../game/terrain/healthDisplay";
 import { TerrainLegend } from "./TerrainLegend";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { defaultBattleMode, singleAttackTarget, availableSkillAction, type BattleMode } from "./battleSelection";
-import { CharacterPortrait } from "./CharacterPortrait";
 import type { Battle, Position } from "../client/types";
 
-const PORTRAITS = {
-  slime: new URL("../assets/monsters/slime-v2.png", import.meta.url).href,
-  beast: new URL("../assets/monsters/beast-v2.png", import.meta.url).href,
-  giant: new URL("../assets/monsters/giant-v2.png", import.meta.url).href,
-};
 type Mode = BattleMode;
 const LABELS: Record<string, string> = {
   MOVE: "battle.move", ATTACK: "battle.attack", GUARD: "battle.guard", END_TURN: "battle.endTurn", WAIT: "battle.wait", SURRENDER: "battle.surrenderVote",
@@ -178,19 +172,21 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   </section>
   <section class="card battle-help-card" aria-label={t('battle.help')}>
 
-    <BattleUnitDetails unit={battle.units.find(u => same(u.position, selected))} monsterLoreLevel={monsterLoreLevel} />
-    {mode !== null && <>
+    {battle.units.some(currentBattleUnit => same(currentBattleUnit.position, selected)) && <BattleUnitDetails unit={battle.units.find(currentBattleUnit => same(currentBattleUnit.position, selected))} monsterLoreLevel={monsterLoreLevel} />}
+    {skillsOpen && <p class="battle-context-help">{t(slottedSkill ? 'battle.skillPreviewOnly' : 'battle.selectSkillHelp')}</p>}
+    {!skillsOpen && mode === "ATTACK" && <p class="battle-context-help">{t('battle.attackHelpDetail')}</p>}
+    {!skillsOpen && mode !== null && <>
     {mode === "MOVE" && <div class="battle-range-legend" aria-label={t('battle.movementLegend')}>
       <span><i class="range-key range-key-move" aria-hidden="true" />{t('battle.moveTiles')}</span>
       <span><i class="range-key range-key-path" aria-hidden="true">1</i>{t('battle.pathLine')}</span>
       {move && <span><i class="range-key range-key-arrival" aria-hidden="true" />{t('battle.arrivalLine')}</span>}
     </div>}
     <div class="battle-command-content">{mode !== "ATTACK" && <div class="command-preview" aria-live="polite">
-      {mode === "MOVE" ? move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column},${p.row})`).join(' → ')}) : t('battle.chooseTile')
+      {mode === "MOVE" ? move ? t('battle.moveSummary',{count:move.path.length}) : t('battle.chooseTile')
         : battle.acted ? t('battle.endAfterAction') : t('battle.autoGuardHelp')}
     </div>}
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
-      <strong>{t('battle.arrivalHeading')}</strong>
+
       {battle.acted && !apBattle ? <p>{t('battle.moveEndsTurn')}</p> : <>
         <p>{t('battle.arrivalRange',{range:current?.range?.join('~') ?? ''})}</p>
         {move.attacks.length ? <ul>{move.attacks.map(a => <li>{name(a.targetId)} · {t('battle.expectedDamage',{damage:a.damage})}</li>)}</ul>
@@ -200,8 +196,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>}
     </div></>}
     <div class="battle-help-sections">
-    <section class="battle-status-details"><h4>{t('battle.turnCharacters')}</h4><div class="battle-status">
-    <div class="eyebrow">TURN-BASED TACTICS · {battle.field.columns} × {battle.field.rows}</div>
+    <section class="battle-status-details" aria-label={t('battle.turnCharacters')}><div class="battle-status">
     <p class="battle-round-summary">{t('battle.roundStatus',{round:battle.round,name:current?.name ?? t('battle.participant')})}</p>
     <div class="turn-order" aria-label={t('battle.turnOrder')}>
       {battle.order.map((id, index) => {
@@ -212,18 +207,19 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
       })}
     </div>
     {apBattle ? <p>{t('battle.apRules')}</p> : <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>}
-    {current && current.id !== actor && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={t('battle.portrait',{name:current.name})} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={t('battle.healthLabel',{name:current.name})} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>{healthLabel(current)}</small>}</div></div>}
+
     </div>
     </section>
-    <section class="battle-terrain-help"><h4>{t('battle.terrainControls')}</h4><div class="battle-help-content"><TerrainLegend /><p>{t('battle.terrainHelp')}</p></div></section>
+    <details class="battle-terrain-help"><summary>{t('battle.terrainControls')}</summary><div class="battle-help-content"><TerrainLegend /><p>{t('battle.terrainHelp')}</p></div></details>
     <div class="battle-secondary">
-    <h4>{t('battle.unitCount',{count:battle.units.length})}</h4>
+    <details class="battle-roster-details"><summary>{t('battle.unitCount',{count:battle.units.length})}</summary>
     <div class="units" aria-label={t('battle.units')}>
-      {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => chooseTarget(u.position)}>
+      {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => { setConfirming(false); select(u.position); }}>
         <span>{u.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {u.name}</span>
         <span>{healthLabel(u)}{u.guard ? ` · ${t('battle.guard')}` : ""}</span>
       </button>)}
     </div>
+    </details>
     <details class="battle-records"><summary>{t('battle.logCount',{count:battle.log.length})}</summary><ol class="battle-log">
       {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">{t('battle.turnNumber',{turn:event.turnId})} · </span>{name(event.unitId)} · {LABELS[event.action] ? t(LABELS[event.action]) : event.action}
         {event.path?.length ? ` · ${t('battle.logMove',{path:event.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})}` : ""}{event.apCost !== undefined && event.apAfter !== undefined ? ` · ${t('battle.apPreview',{cost:event.apCost,remaining:event.apAfter})}` : ''}{event.movementStopped ? ` · ${t('battle.terrainMovementStopped')}` : ''}{event.autoGuard ? ` · ${t('battle.autoGuard')}` : ""}{event.targetId ? t('battle.logDamage',{name:name(event.targetId),damage:String(event.damage)}) : ""}</li>)}

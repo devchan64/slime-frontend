@@ -115,3 +115,6 @@ terrainApPreview: "Base {base} AP · expected {expected} AP · maximum {max} AP.
 terrainMovementStopped: "Route stopped due to insufficient AP"
 
 surrenderConfirmation: "Agree to flee? Confirm to submit your flee vote."
+
+moveSummary: "Move {count} tiles · View the full path on the map and in the confirmation dialog."
+attackHelpDetail: "Choose an attack target in the controls. Review expected damage before confirming; enemy health information depends on Monster Lore."
