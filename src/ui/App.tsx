@@ -1,7 +1,7 @@
 import { BagPanel } from "./BagPanel";
-import { fieldActionContext, canContinueFieldAction } from './fieldActionContext';
-import { FieldInterruptionNotice } from './FieldInterruptionNotice';
 import { noticeText, LocalizedError, type Notice } from '../client/notice';
+import { FieldInterruptionNotice } from './FieldInterruptionNotice';
+import { fieldActionContext, canContinueFieldAction } from './fieldActionContext';
 import { localizedMonsters } from '../client/monsterText';
 import { BattleReport } from "./BattleReport";
 import { SponsorGate } from "./SponsorGate";
@@ -153,7 +153,6 @@ export function App() {
         stopWalking.current = true;
         setWalking(null);
       }
-
       const result = s.me.lastResult;
       if (previous?.me.id === s.me.id && s.me.mode === "FIELD" && !s.me.battleId && result?.battleId
           && result.battleId !== previous.me.lastResult?.battleId) {
@@ -578,14 +577,12 @@ export function App() {
                 disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
-
               <div class="field-card-heading"><div class="field-control-actions">
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               </div></div>
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
-
 
 </section>}
             {battle && <BattlePanel me={state.me} battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}

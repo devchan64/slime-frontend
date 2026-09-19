@@ -85,10 +85,7 @@ autoGuard: "자동 방어"
 logDamage: " → {name} ({damage} 피해)"
 confirmAction: "{action} 확인"
 
-apRules: 이동 1칸당 1 AP · 일반 공격 3 AP · 자기 턴마다 최대 AP의 50% 반올림 회복 · 잔여 AP 이월
-apRecovery: '자기 턴 시작 +{count} AP'
-apPreview: '소모 {cost} AP · 실행 후 {remaining} AP'
-
+apExhausted: AP를 모두 사용했습니다. 턴 종료를 눌러 다음 차례로 넘기세요.
 reportTitle: "전투 리포트"
 resultWin: "승리"
 resultLose: "패배"
@@ -98,14 +95,16 @@ resultPreparationFailed: "전투 준비 실패"
 earnedCurrency: "획득 재화"
 returnCountdown: "{seconds}초 후 맵 복귀를 시작합니다."
 acknowledge: 확인
-
-materialValue: "개당 가치 {value}p"
-noLoot: "획득한 전리품이 없습니다."
-
-apExhausted: AP를 모두 사용했습니다. 턴 종료를 눌러 다음 차례로 넘기세요.
-idleTurnNotice: "5초 동안 입력이 없습니다. 행동을 마쳤다면 턴 종료를 눌러 주세요."
+apRules: 이동 1칸당 1 AP · 일반 공격 3 AP · 자기 턴마다 최대 AP의 50% 반올림 회복 · 잔여 AP 이월
+apRecovery: '자기 턴 시작 +{count} AP'
+apPreview: '소모 {cost} AP · 실행 후 {remaining} AP'
 
 skills: "스킬"
 skillSelection: "스킬 선택"
 noSlottedSkills: "캐릭터 설정에서 전투 스킬을 지정하세요."
 skillPreviewOnly: "현재는 스킬 선택만 가능합니다. 전투 사용 효과는 준비 중입니다."
+
+idleTurnNotice: "5초 동안 입력이 없습니다. 행동을 마쳤다면 턴 종료를 눌러 주세요."
+
+materialValue: "개당 가치 {value}p"
+noLoot: "획득한 전리품이 없습니다."

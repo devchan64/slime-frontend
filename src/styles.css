@@ -1258,18 +1258,17 @@ button, summary { touch-action: manipulation; }
 .sponsor-default span { color: var(--brand-primary); font-size: 14px; letter-spacing: .3em; }
 .sponsor-default strong { color: #e7fff1; font-size: clamp(20px, 4vw, 28px); line-height: 1.5; }
 
-.bag-items { list-style: none; padding: 0; display: grid; gap: 8px; }
-.bag-items li { padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
-.bag-items li > div { display: flex; justify-content: space-between; gap: 12px; }
-.bag-items p { margin: 8px 0; font-size: 13px; }
-.bag-items small { color: var(--muted); }
-.bag-items strong { min-width: 0; overflow-wrap: anywhere; }
-.bag-items li > div > span { flex-shrink: 0; }
-
-.battle-idle-notice { padding: 8px 10px; border: 1px solid #c7a764; border-radius: 8px; background: #3b3425; color: #ffe2a0; font-size: 13px; }
-.battle-control-card .battle-ap-exhausted { color: #ffe2a0; }
-.battle-control-card .battle-end-suggested { border-color: #e9c373; }
-
+/* 선택 영역과 조작 카드의 현재 배치. */
+.field-control-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 6px; }
+.field-control-actions button { min-width: 0; min-height: 44px; margin: 0; padding: 6px 8px; font-size: 13px; }
+.field-control-card > .field-card-heading { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.field-control-card .field-selection-heading h3 { font-size: 14px; margin: 0; }
+.field-control-card .field-target { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 4px 0; padding: 6px 8px; }
+.field-control-card .field-target button { width: auto; min-width: 0; min-height: 44px; max-width: 140px; margin: 0; padding: 6px 10px; font-size: 13px; }
+.field-event-shortcuts { gap: 6px; margin-top: 8px; }
+.field-event-shortcuts button { gap: 2px; min-height: 44px; margin: 0; padding: 6px 8px; }
+.monster-name.is-aggressive { color: #ff8d77; }
+.monster-name.is-passive { color: #e6c789; }
 .battle-control-card .battle-button-toolbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: stretch; gap: var(--battle-button-gap); }
 .battle-control-card .battle-mode-buttons { display: grid; grid-column: 1 / 4; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--battle-button-gap); }
 .battle-control-card .battle-submit-row { display: flex; flex-direction: column; grid-column: 5; margin-left: 0; gap: var(--battle-button-gap); }
@@ -1284,14 +1283,14 @@ button, summary { touch-action: manipulation; }
 .skill-loadout-options input { width: auto; margin: 0; }
 .skill-loadout-options button { margin: 0; min-width: 0; min-height: 44px; }
 .skill-loadout-options button[aria-pressed="true"] { border-color: var(--brand-primary); background: #24463e; }
+.battle-idle-notice { padding: 8px 10px; border: 1px solid #c7a764; border-radius: 8px; background: #3b3425; color: #ffe2a0; font-size: 13px; }
+.battle-control-card .battle-ap-exhausted { color: #ffe2a0; }
+.battle-control-card .battle-end-suggested { border-color: #e9c373; }
+.bag-items { list-style: none; padding: 0; display: grid; gap: 8px; }
+.bag-items li { padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+.bag-items li > div { display: flex; justify-content: space-between; gap: 12px; }
+.bag-items p { margin: 8px 0; font-size: 13px; }
+.bag-items small { color: var(--muted); }
 
-.field-control-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 6px; }
-.field-control-actions button { min-width: 0; min-height: 44px; margin: 0; padding: 6px 8px; font-size: 13px; }
-.field-control-card > .field-card-heading { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-.field-control-card .field-selection-heading h3 { font-size: 14px; margin: 0; }
-.field-control-card .field-target { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 4px 0; padding: 6px 8px; }
-.field-control-card .field-target button { width: auto; min-width: 0; min-height: 44px; max-width: 140px; margin: 0; padding: 6px 10px; font-size: 13px; }
-.field-event-shortcuts { gap: 6px; margin-top: 8px; }
-.field-event-shortcuts button { gap: 2px; min-height: 44px; margin: 0; padding: 6px 8px; }
-.monster-name.is-aggressive { color: #ff8d77; }
-.monster-name.is-passive { color: #e6c789; }
+.bag-items strong { min-width: 0; overflow-wrap: anywhere; }
+.bag-items li > div > span { flex-shrink: 0; }

@@ -78,17 +78,14 @@ actionUsage: "Movement: {move} · Action: {action}"
 portrait: "Portrait of {name}"
 healthLabel: "{name} health"
 unitCount: "Participating units · {count}"
-logCount: "Battle log · {count} actions"
+logCount: "Battle log · Actions: {count}"
 turnNumber: "Turn {turn}"
 logMove: "Move {path}"
 autoGuard: "Auto guard"
 logDamage: " → {name} ({damage} damage)"
 confirmAction: "Confirm {action}"
 
-apRules: Movement costs 1 AP per tile · Basic attack costs 3 AP · Recover 50% of max AP rounded each turn · Unused AP carries over
-apRecovery: '+{count} AP at the start of your turn'
-apPreview: 'Cost {cost} AP · {remaining} AP after action'
-
+apExhausted: All AP has been spent. Select End turn to continue to the next turn.
 reportTitle: "Battle report"
 resultWin: "Victory"
 resultLose: "Defeat"
@@ -98,14 +95,16 @@ resultPreparationFailed: "Battle preparation failed"
 earnedCurrency: "Currency earned"
 returnCountdown: "Returning to the map in {seconds}s."
 acknowledge: OK
-
-materialValue: "Value {value}p each"
-noLoot: "No loot acquired."
-
-apExhausted: All AP has been spent. Select End turn to continue to the next turn.
-idleTurnNotice: "No input for 5 seconds. End your turn when you have finished acting."
+apRules: Movement costs 1 AP per tile · Basic attack costs 3 AP · Recover 50% of max AP rounded each turn · Unused AP carries over
+apRecovery: '+{count} AP at the start of your turn'
+apPreview: 'Cost {cost} AP · {remaining} AP after action'
 
 skills: "Skills"
 skillSelection: "Select a skill"
 noSlottedSkills: "Assign battle skills in character settings."
 skillPreviewOnly: "Skill selection is available. Battle effects are not available yet."
+
+idleTurnNotice: "No input for 5 seconds. End your turn when you have finished acting."
+
+materialValue: "Value {value}p each"
+noLoot: "No loot acquired."
