@@ -4,9 +4,9 @@ import { CharacterPortrait } from "./CharacterPortrait";
 import type { Battle, Position } from "../client/types";
 
 const PORTRAITS = {
-  slime: new URL("../assets/monsters/slime-v1.png", import.meta.url).href,
-  beast: new URL("../assets/monsters/beast-v1.png", import.meta.url).href,
-  giant: new URL("../assets/monsters/giant-v1.png", import.meta.url).href,
+  slime: new URL("../assets/monsters/slime-v2.png", import.meta.url).href,
+  beast: new URL("../assets/monsters/beast-v2.png", import.meta.url).href,
+  giant: new URL("../assets/monsters/giant-v2.png", import.meta.url).href,
 };
 type Mode = BattleMode;
 const LABELS: Record<string, string> = {

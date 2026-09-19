@@ -6,11 +6,11 @@ import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/te
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
-import { drawActor, preloadMonsters } from "../terrain/actors";
+import { drawActor, preloadActors } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { actorSize } from "../terrain/sizes";
-import { drawTerrainDetails } from "../terrain/details";
-import { drawCliffs, drawCellRoad, drawStair } from "../terrain/terraces";
+import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
+import { drawCliffs, drawStair } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const COLORS = {
   ground: 0x172e3b,
@@ -77,7 +77,7 @@ export class MainScene extends Phaser.Scene {
       this.onFailure("맵 자원을 불러오지 못했습니다. 다시 접속해 주세요.");
     });
     preloadTerrain(this);
-    preloadMonsters(this);
+    preloadActors(this);
     preloadBackdrop(this);
   }
   create() {
@@ -377,6 +377,8 @@ export class MainScene extends Phaser.Scene {
     const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {this.terrainObjects.add(object);return object;};
     const road=field ? new Set([...cells].filter(([,kind])=>kind==='road').map(([key])=>key)) : buildMeadowRoad(s.map);
     const blockedCells=new Set(blocked.map(p=>`${p.column},${p.row}`));
+    const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
+      : theme === "mist-lake" ? blockedCells : new Set<string>();
     for(let row=0;row<definition.rows;row++)for(let column=0;column<definition.columns;column++){
       const cell={column,row},p=this.project(cell),depth=cellDepth(cell);
       const terrain=field ? cells.get(`${column},${row}`) : meadowTile(column,row,road);
@@ -384,12 +386,13 @@ export class MainScene extends Phaser.Scene {
       const kind=terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
       const sides=remember(this.add.graphics().setDepth(depth));
       drawCliffs(sides,cell,definition);
-      remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,kind==='road'?'grass':kind)
+      const isWater = waterCells.has(`${column},${row}`);
+      const frame = isWater ? `water-${waterConnections(cell, definition, waterCells)}`
+        : kind === 'road' ? roadFrame(roadConnections(cell, definition, road)) : kind;
+      remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
-      const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
-      drawCellRoad(detail,cell,definition,road);
-      if(!blockedCells.has(`${column},${row}`))drawTerrainDetails(detail,kind,column,row,p.x,p.y);
-      else {
+      if (!isWater && blockedCells.has(`${column},${row}`)) {
+        const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);
       }
