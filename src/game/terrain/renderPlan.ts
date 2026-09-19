@@ -1,5 +1,6 @@
 import type { Position, State } from '../../client/types';
-import { inBounds } from './elevation';
+import { inBounds, type Surface } from './elevation';
+import { rotatedSurface, type MapRotation } from './rotation';
 
 /** 표시 이름·잔고·턴 변경은 고정 지형을 다시 만들지 않는다. */
 export function terrainRenderSignature(state: State, rotation: number): string {
@@ -26,4 +27,13 @@ export function overlayCells(state: State, textured: boolean, selected: Position
   for(const group of groups)for(const key of group){const [column,row]=key.split(',').map(Number);add({column,row});}
   if(selected)add(selected);
   return [...cells.values()];
+}
+
+export type TerrainPlan = {signature: string; surface: Surface};
+
+/** 이전 계획 하나만 보존해 상태 갱신마다 고도 행렬을 재할당하지 않는다. */
+export function prepareTerrain(state: State, rotation: MapRotation, previous: TerrainPlan | null): TerrainPlan {
+  const signature = terrainRenderSignature(state, rotation);
+  if (previous?.signature === signature) return previous;
+  return {signature, surface: rotatedSurface(state.battle?.field ?? state.map, rotation)};
 }

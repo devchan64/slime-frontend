@@ -1,6 +1,6 @@
-import { toView, fromView, rotatedSurface, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
+import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
-import { terrainRenderSignature, overlayCells } from '../terrain/renderPlan';
+import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, meadowTile, TILE_W, TILE_H } from "../terrain/meadow";
@@ -61,6 +61,7 @@ export class MainScene extends Phaser.Scene {
   private selected: Position | null = null;
   private rotation: MapRotation = 0;
   private viewSurface: Surface | null = null;
+  private terrainPlan: TerrainPlan | null = null;
   private panStart: {x:number;y:number;scrollX:number;scrollY:number} | null = null;
   private battleMode: "MOVE" | "ATTACK" | null = null;
   private onSelect: (p: Position) => void;
@@ -172,7 +173,8 @@ export class MainScene extends Phaser.Scene {
   rotateMap(direction: -1 | 1) {
     if (!this.state || !this.sys.isActive()) return;
     this.rotation = nextRotation(this.rotation, direction);
-    this.viewSurface = rotatedSurface(this.surface(), this.rotation);
+    this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
+    this.viewSurface = this.terrainPlan.surface;
     this.panStart = null;
     this.draw();
     // 회전 중 선택 좌표와 확대 배율을 유지한다.
@@ -198,7 +200,8 @@ export class MainScene extends Phaser.Scene {
   }
   setState(s: State) {
     this.state = s;
-    this.viewSurface = rotatedSurface(this.surface(), this.rotation);
+    this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
+    this.viewSurface = this.terrainPlan.surface;
     if (this.sys.isActive()) this.draw();
   }
   update() {
@@ -412,7 +415,7 @@ export class MainScene extends Phaser.Scene {
       this.project({column:(definition.columns-1)/2,row:(definition.rows-1)/2}),
       (definition.columns+definition.rows)*TILE_W/2,(definition.columns+definition.rows)*TILE_H/2,theme);
     this.backdropLayer.setAlpha(.5);
-    const signature=terrainRenderSignature(s,this.rotation);
+    const signature=this.terrainPlan!.signature;
     if(signature===this.terrainSignature && this.terrainObjects.size) return;
     for(const object of this.terrainObjects)object.destroy();
     this.terrainObjects.clear();
