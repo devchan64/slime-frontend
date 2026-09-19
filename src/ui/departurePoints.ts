@@ -11,7 +11,7 @@ type GrowthPoints = {
 /** 자원별 성장 비용으로 배분 가능한 잔고만 입장 확인에 표시한다. */
 export function unallocatedPoints({ cp, sp, attributes, skills, skillGrowthBaselines }: GrowthPoints): string {
   const cpCost = growthCost("attributes", attributes, skills, skillGrowthBaselines).cost;
-  const spCost = growthCost("skills", attributes, skills, skillGrowthBaselines).cost;
+  const spCost = Math.min(...Object.keys(skills).map(id => growthCost("skills", attributes, skills, skillGrowthBaselines, id).cost));
   const balances = [
     ["CP", cp, Object.keys(attributes).length > 0, cpCost],
     ["SP", sp, Object.keys(skills).length > 0, spCost],

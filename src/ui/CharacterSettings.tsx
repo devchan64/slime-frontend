@@ -36,7 +36,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
   const levels: Record<string, number> = category === "attributes" ? me.attributes : me.skills;
   const currency = category === "skills" ? "SP" : "CP";
   const balance = category === "skills" ? me.sp : me.cp;
-  const growth = growthCost(category, me.attributes, me.skills, me.skillGrowthBaselines);
+  const attributeGrowth = growthCost("attributes", me.attributes, me.skills, me.skillGrowthBaselines);
   const locked = !["LOBBY", "FIELD"].includes(me.mode) || !!me.battleId;
   const content = <div class="character-sheet">
     <section class="character-identity" aria-label={t("character.identity")}>
@@ -71,9 +71,10 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
             <span>{index >= 0 ? `${index + 1}. ` : ""}{name} · Lv. {me.skills[id]}</span></label>;
         })}</div>
       </section>}
-      <p class="growth-help">{t("character.nextCost", { category: t(`character.${category}`), count: growth.count, cost: growth.label, currency })}</p>
+      {category === "attributes" && <p class="growth-help">{t("character.nextCost", { category: t("character.attributes"), count: attributeGrowth.count, cost: attributeGrowth.label, currency })}</p>}
       <div class="attribute-list">{entries.map(({ id, name, icon, description }) => {
         const level = levels[id];
+        const growth = category === "skills" ? growthCost("skills", me.attributes, me.skills, me.skillGrowthBaselines, id) : attributeGrowth;
         const cost = growth.cost;
         const insufficient = balance === undefined || balance < cost;
         return <div class={`attribute-card attribute-${id}`} key={id}>

@@ -39,3 +39,9 @@ test('CP만 많이 사용했어도 남은 SP의 첫 성장을 안내한다', () 
   assert.equal(unallocatedPoints({cp:0,sp:5,attributes:{body:10},skills:{literacy:0},skillGrowthBaselines:{literacy:0}}),'5 SP');
   assert.equal(unallocatedPoints({cp:10,sp:0,attributes:{body:1},skills:{literacy:10},skillGrowthBaselines:{literacy:0}}),'10 CP');
 });
+
+test('비싼 스킬이 있어도 저렴한 다른 스킬에 배분 가능한 SP는 안내한다', () => {
+  const me={cp:0,sp:1,attributes:{body:1},skills:{literacy:10,speaking:1},skillGrowthBaselines:{literacy:1,speaking:1}};
+  assert.equal(unallocatedPoints(me),'1 SP');
+  assert.equal(unallocatedPoints({...me,skills:{literacy:10,speaking:2}}),'');
+});
