@@ -93,9 +93,10 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   }, [battle.id, battle.turnId, battle.status, canActNow, disabled]);
   const chooseMode = (next: Mode) => {
     setSkillsOpen(false);
-    select(next === "ATTACK" ? singleAttackTarget(battle) : null);
+    const automaticTarget = next === "ATTACK" ? singleAttackTarget(battle) : null;
+    select(automaticTarget);
     setMode(next);
-    setConfirming(next === "END_TURN");
+    setConfirming(next === "END_TURN" || automaticTarget !== null);
   };
   if (battle.status === "PREPARING") return <section class="card">
     <h3>{t('battle.preparing')}</h3><p>{t('battle.preparingHelp')}</p>
