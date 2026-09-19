@@ -227,7 +227,7 @@ export function App() {
       try {
         const result = await client.command(path, body);
         if (path === "/v1/characters/me") { setCharacterPage("select"); setName(""); }
-        if (path === "/v1/world/enter") setWorldGeneration(result.state.generation);
+        if (path === "/v1/world/enter") { setWorldGeneration(result.state.generation); navigateCharacterPage("#/world"); }
         return result;
       }
       finally { if (transfer) setTransferPending(false); }
@@ -451,15 +451,10 @@ export function App() {
         <main class="lobby character-lobby">
           <section class="card">
             <h1>{t('common.settings')}</h1>
-            {worldGeneration === state.generation && state.me.mode !== "LOBBY"
-              ? <button class="secondary" onClick={() => navigateCharacterPage("#/world")}>게임으로 돌아가기</button>
-              : <>
-                <CharacterDeparture me={state.me} disabled={disabled} onEnter={async () => {
-                  await command("/v1/world/enter");
-                  if (stateRef.current?.me.mode === "FIELD") navigateCharacterPage("#/world");
-                }} />
-                <button class="secondary" disabled={busy} onClick={() => { setCharacterPage("select"); navigateCharacterPage("#/characters"); }}>캐릭터 선택으로</button>
-              </>}
+            <button class="secondary" disabled={busy} onClick={() => {
+              setCharacterPage("select");
+              navigateCharacterPage(worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "#/world" : "#/characters");
+            }}>돌아가기</button>
             <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
           </section>
         </main>
