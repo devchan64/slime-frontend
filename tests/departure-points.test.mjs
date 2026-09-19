@@ -18,7 +18,7 @@ test('비용과 같은 잔고부터 안내하며 배분 가능한 자원만 표�
   assert.equal(unallocatedPoints(state({ cp: 1 }, { body: 1 })), '1 CP');
 });
 test('성장 후 오른 비용과 보유 대상 유무를 반영한다', () => {
-  assert.equal(unallocatedPoints(state({ cp: 3, sp: 3 }, { body: 3 }, { literacy: 3 })), '');
+  assert.equal(unallocatedPoints(state({ cp: 2, sp: 2 }, { body: 3 }, { literacy: 3 })), '');
   assert.equal(unallocatedPoints(state({ cp: 0, sp: 10 }, { body: 1 }, {})), '');
   assert.equal(unallocatedPoints(state({ cp: 10, sp: 0 }, {}, { literacy: 1 })), '');
   assert.equal(unallocatedPoints(state({ cp: 10, sp: 10 }, { body: 1025 })), '10 SP');

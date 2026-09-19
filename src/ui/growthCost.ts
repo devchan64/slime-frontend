@@ -1,3 +1,5 @@
+const GROWTH_COST_DIVISOR = 4n;
+
 /** 지급 당시 기준 레벨을 제외한 실제 성장 횟수를 합산한다. */
 export function growthCost(category: "attributes" | "skills", attributes: Record<string, number>, skills: Record<string, number>, baselines: Record<string, number> = {}, skillId?: string) {
   if (category === "skills" && (skillId === undefined || !Object.hasOwn(skills, skillId))) throw new Error('비용을 확인할 보유 스킬이 필요합니다.');
@@ -10,6 +12,8 @@ export function growthCost(category: "attributes" | "skills", attributes: Record
     if (category === "skills" && key === skillId) count = level - baseline;
   }
   if (!Number.isSafeInteger(count)) throw new Error('성장 횟수가 표시 범위를 벗어났습니다.');
-  const cost = 2 ** count;
-  return { count, cost, label: Number.isFinite(cost) ? String(cost) : `2^${count}` };
+  const step = BigInt(count) + 1n;
+  const quadratic = step * step / GROWTH_COST_DIVISOR;
+  const exactCost = quadratic > step ? quadratic : step;
+  return { count, cost: Number(exactCost), label: String(exactCost) };
 }
