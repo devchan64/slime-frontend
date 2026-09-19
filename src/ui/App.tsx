@@ -305,15 +305,6 @@ export function App() {
   const disabled = busy || !connected || renderFailed || loading;
   const battle = state?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
-  const remaining = battle
-    ? Math.max(
-        0,
-        Math.min(
-          45,
-          Math.ceil(battle.deadline - (clock + serverOffset.current) / 1000),
-        ),
-      )
-    : 0;
   const battleCommand = (type: string, targetId?: string) =>
     command("/v1/game/battle/commands", {
       action: {
@@ -597,7 +588,7 @@ export function App() {
 
 </section>}
             {battle && <BattlePanel battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
-              disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
+              disabled={disabled || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
             <section class="card field-help-card" aria-label={t('app.fieldHelp')}><TerrainLegend /><p>{t('app.fieldControlsHelp')}</p>

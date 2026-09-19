@@ -101,3 +101,6 @@ acknowledge: OK
 
 materialValue: "Value {value}p each"
 noLoot: "No loot acquired."
+
+apExhausted: All AP has been spent. Select End turn to continue to the next turn.
+idleTurnNotice: "No input for 5 seconds. End your turn when you have finished acting."

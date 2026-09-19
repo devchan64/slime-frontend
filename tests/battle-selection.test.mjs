@@ -21,7 +21,8 @@ test('공격 후에는 남은 이동만 선택하고 권한 없는 턴에는 선
  assert.equal(singleAttackTarget(b),null);
  b.moved=true;
  assert.equal(defaultBattleMode(b,'hero',30),null);
- for(const [actor,time] of [['other',30],['hero',0]]) assert.equal(defaultBattleMode(makeBattle(),actor,time),null);
+ assert.equal(defaultBattleMode(makeBattle(),'other'),null);
+ assert.equal(defaultBattleMode(makeBattle(),'hero',0),'MOVE');
  const preparing=makeBattle(); preparing.status='PREPARING';
  assert.equal(defaultBattleMode(preparing,'hero',30),null);
  const blocked=makeBattle(); blocked.tactics.canAct=false;

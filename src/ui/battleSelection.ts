@@ -1,8 +1,8 @@
 import type {Battle, Position} from '../client/types';
 export type BattleMode = 'MOVE' | 'ATTACK' | 'END_TURN';
 
-export function defaultBattleMode(battle: Battle, actor: string, remaining: number): BattleMode | null {
-  if (battle.status !== 'ACTIVE' || !battle.tactics.canAct || battle.order[battle.index] !== actor || remaining <= 0) return null;
+export function defaultBattleMode(battle: Battle, actor: string): BattleMode | null {
+  if (battle.status !== 'ACTIVE' || !battle.tactics.canAct || battle.order[battle.index] !== actor) return null;
   const ap = battle.rulesVersion === '1.4.0';
   if (ap && battle.moved && battle.tactics.attacks.length) return 'ATTACK';
   if ((ap || !battle.moved) && battle.tactics.moves.length) return 'MOVE';

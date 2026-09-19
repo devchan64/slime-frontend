@@ -101,3 +101,6 @@ acknowledge: 확인
 
 materialValue: "개당 가치 {value}p"
 noLoot: "획득한 전리품이 없습니다."
+
+apExhausted: AP를 모두 사용했습니다. 턴 종료를 눌러 다음 차례로 넘기세요.
+idleTurnNotice: "5초 동안 입력이 없습니다. 행동을 마쳤다면 턴 종료를 눌러 주세요."

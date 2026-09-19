@@ -51,8 +51,8 @@ export type Battle = {
   turnId: number;
   order: string[];
   index: number;
-  deadline: number;
-  absoluteDeadline: number;
+  deadline: number | null;
+  absoluteDeadline: number | null;
   status: string;
   moved: boolean;
   acted: boolean;

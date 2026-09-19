@@ -1265,3 +1265,7 @@ button, summary { touch-action: manipulation; }
 .bag-items small { color: var(--muted); }
 .bag-items strong { min-width: 0; overflow-wrap: anywhere; }
 .bag-items li > div > span { flex-shrink: 0; }
+
+.battle-idle-notice { padding: 8px 10px; border: 1px solid #c7a764; border-radius: 8px; background: #3b3425; color: #ffe2a0; font-size: 13px; }
+.battle-control-card .battle-ap-exhausted { color: #ffe2a0; }
+.battle-control-card .battle-end-suggested { border-color: #e9c373; }

@@ -1,3 +1,5 @@
+import { watchTurnIdle } from "./turnIdleNotice";
+import { actionPoints } from "./battleActionPoints";
 import { localizedBattle } from '../client/monsterText';
 import { useTranslation } from '../i18n';
 import { BattleUnitDetails } from "./BattleUnitDetails";
@@ -46,8 +48,8 @@ function BattleConfirmation({ title, summary, disabled, close, confirm }: {
   </dialog>;
 }
 
-export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
-  selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean; remaining: number;
+export function BattlePanel({ battle, actor, selected, disabled, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
+  selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean;
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
   select: (p: Position | null) => void; execute: (type: string, targetId?: string) => void;
 }) {
@@ -58,8 +60,9 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     const display = healthDisplay(unit, monsterLoreLevel);
     return t(display.labelKey, display.values);
   };
-  const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor, remaining));
+  const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor));
   useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
+  const [idleNotice, setIdleNotice] = useState(false);
   const [surrender, setSurrender] = useState(false);
   const [confirming, setConfirming] = useState(false);
   useEffect(() => { setConfirming(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
@@ -73,12 +76,17 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     select(position);
     setConfirming(!disabled && (mode === "MOVE" || mode === "ATTACK"));
   };
-  const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor && remaining > 0;
+  const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor;
   useEffect(() => {
-    const next = defaultBattleMode(battle, actor, remaining);
+    const next = defaultBattleMode(battle, actor);
     setMode(next); setSurrender(false);
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
   }, [battle.id, battle.turnId, battle.moved, battle.acted, apBattle ? battle.version : null, canActNow, battle.status]);
+  useEffect(() => {
+    setIdleNotice(false);
+    if (!canActNow || disabled || battle.status !== "ACTIVE") return;
+    return watchTurnIdle(document, setIdleNotice);
+  }, [battle.id, battle.turnId, battle.status, canActNow, disabled]);
   const chooseMode = (next: Mode) => {
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
     setMode(next);
@@ -88,7 +96,8 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     <h3>{t('battle.preparing')}</h3><p>{t('battle.preparingHelp')}</p>
   </section>;
   const current = battle.units.find(u => u.id === battle.order[battle.index]);
-  const own = battle.tactics.canAct && current?.id === actor && remaining > 0;
+  const own = battle.tactics.canAct && current?.id === actor;
+  const apExhausted = own && battle.status === "ACTIVE" && !!current && actionPoints(current)?.value === 0;
   const move = battle.tactics.moves.find(m => same(m.position, selected));
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
@@ -96,14 +105,15 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <>
   <section class="card battle-panel battle-control-card" aria-label={t('battle.controls')}>
-    <div class="battle-control-heading"><span class={`battle-turn-indicator${own ? " is-own-turn" : ""}`}>{own ? t('battle.myTurn') : t('battle.waiting')} · {t('battle.seconds',{seconds:remaining})}</span></div>
+    <div class="battle-control-heading"><span class={`battle-turn-indicator${own ? " is-own-turn" : ""}`}>{own ? t('battle.myTurn') : t('battle.waiting')}</span></div>
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
-    <p class="battle-action-hint" aria-live="polite">{!own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
+    <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
+    {idleNotice && <div class="battle-idle-notice" role="status" aria-live="polite">{t("battle.idleTurnNotice")}</div>}
     <div class="battle-button-toolbar">
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
-        class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
+        class={`${mode === value ? "" : "secondary"}${apExhausted && value === "END_TURN" ? " battle-end-suggested" : ""}`} aria-pressed={mode === value}
         disabled={disabled || !own || (value === "MOVE" && ((!apBattle && battle.moved) || battle.tactics.moves.length === 0)) || (value === "ATTACK" && ((!apBattle && battle.acted) || battle.tactics.attacks.length === 0))}
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
         onClick={() => chooseMode(value)}>{t(LABELS[value])}</button>)}
