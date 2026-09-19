@@ -23,7 +23,7 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
  scene.add={graphics:()=>object(),image:(x,y)=>object(x,y)};
  scene.sys={isActive:()=>false};scene.textures={exists:()=>true};
  scene.cameras={main:{scrollX:700,scrollY:15000,width:800,height:600,zoom:1,setBounds(){},removeBounds(){}}};
- const state={map:{id:'meadow',columns:1000,rows:1000,startPoint:{column:2,row:2},safeRadius:3,connections:[],blocked:[]},battle:null};
+ const state={location:{id:'map:meadow'},monsters:[],members:[],map:{id:'meadow',columns:1000,rows:1000,startPoint:{column:2,row:2},safeRadius:3,connections:[],blocked:[]},battle:null};
  scene.setState(state);scene.updateTerrain(state,true);
  const first=new Set(scene.terrainObjects);assert.ok(first.size>0&&first.size<6000);
  scene.updateTerrain(structuredClone(state),true);assert.deepEqual(new Set(scene.terrainObjects),first);
@@ -35,4 +35,33 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
  scene.updateTerrain(state,false);assert.ok([...scene.terrainObjects].every(o=>!o.visible));
  scene.updateTerrain(state,true);assert.ok([...scene.terrainObjects].every(o=>o.visible));
  scene.terrainCache.clear();assert.equal(scene.terrainObjects.size,0);
+});
+
+test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 논리 선택 좌표를 유지한다',()=>{
+ const scene=new MainScene(()=>{},()=>{},()=>{});
+ scene.children={list:[]};scene.textures={exists:()=>true};
+ const make=(x=0,y=0)=>{
+  const object={scene,x,y,depth:0,width:1024,height:1024};
+  const proxy=new Proxy(object,{get(o,key){if(key in o)return o[key];return (...args)=>{
+   if(key==='setPosition'){o.x=args[0];o.y=args[1];}
+   if(key==='setDepth')o.depth=args[0];
+   return proxy;
+  };}});scene.children.list.push(proxy);return proxy;
+ };
+ scene.add={graphics:()=>make(),image:(x,y)=>make(x,y),text:(x,y)=>make(x,y)};
+ scene.project=()=>({x:164,y:82});scene.depth=()=>30;
+ scene.selected={column:3,row:2};
+ const now=performance.now();
+ scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:2,row:2},point:{x:100,y:50,depth:20}}],now);
+ scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:3,row:2},point:{x:164,y:82,depth:30}}],now);
+ scene.unit({column:3,row:2},0xff0000,'슬라임',false,undefined,false,undefined,undefined,'monster:s');
+ assert.equal(scene.movingObjects.length,4);
+ scene.animateFieldActors();
+ const first=scene.movingObjects[0],offset=first.object.x-first.x;
+ assert.ok(offset<0&&offset>=-64);
+ for(const item of scene.movingObjects){
+  assert.ok(Math.abs(item.object.x-item.x-offset)<.001);
+  assert.ok(Math.abs(item.object.y-item.y-offset/2)<.001);
+ }
+ assert.deepEqual(scene.selected,{column:3,row:2});
 });

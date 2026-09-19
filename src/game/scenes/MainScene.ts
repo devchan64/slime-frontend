@@ -1,3 +1,4 @@
+import {FieldMotion} from '../terrain/fieldMotion';
 import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
 import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
@@ -59,6 +60,25 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
+  private fieldMotion = new FieldMotion();
+  private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
+  private syncFieldMotion() {
+    const s=this.state!;
+    const actors=s.battle ? [] : [
+      ...s.monsters.filter(m=>m.state!=="COOLDOWN").map(m=>({id:`monster:${m.id}`,cell:m.position})),
+      ...s.members.filter(m=>m.mode!=="IN_BATTLE").map(m=>({id:`member:${m.id}`,cell:m.position})),
+    ];
+    this.fieldMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,
+      actors.map(a=>({...a,point:{...this.project(a.cell),depth:this.depth(a.cell)}})),performance.now());
+  }
+  private animateFieldActors() {
+    const now=performance.now();
+    for(const item of this.movingObjects){
+      const offset=this.fieldMotion.offset(item.key,now);
+      item.object.setPosition(item.x+offset.x,item.y+offset.y);
+      item.object.setDepth(item.depth+(item.depth<TERRAIN_DEPTH.annotation ? offset.depth : 0));
+    }
+  }
   private selected: Position | null = null;
   private rotation: MapRotation = 0;
   private viewSurface: Surface | null = null;
@@ -99,6 +119,8 @@ export class MainScene extends Phaser.Scene {
     const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
     this.scale.on(Phaser.Scale.Events.RESIZE, resize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.fieldMotion.clear();
+      this.movingObjects=[];
       this.terrainCache?.clear();
       this.terrainCache=null;
       this.scale.off(Phaser.Scale.Events.RESIZE, resize);
@@ -180,6 +202,7 @@ export class MainScene extends Phaser.Scene {
     this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
     this.viewSurface = this.terrainPlan.surface;
     this.panStart = null;
+    this.syncFieldMotion();
     this.draw();
     // 회전 중 선택 좌표와 확대 배율을 유지한다.
     const anchor = this.selected ?? (this.state.battle
@@ -206,9 +229,11 @@ export class MainScene extends Phaser.Scene {
     this.state = s;
     this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
     this.viewSurface = this.terrainPlan.surface;
+    this.syncFieldMotion();
     if (this.sys.isActive()) this.draw();
   }
   update() {
+    this.animateFieldActors();
     if (this.backdropLayer?.visible) constrainBackdropCamera(this.backdropLayer, this.cameras.main);
     this.syncTerrainViewport();
     const zoom = this.cameras.main.zoom;
@@ -239,6 +264,7 @@ export class MainScene extends Phaser.Scene {
   private draw() {
     const s = this.state;
     if (!s || this.loadFailed) return;
+    this.movingObjects=[];
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.waypointMarkers = [];
@@ -378,7 +404,7 @@ export class MainScene extends Phaser.Scene {
           m.position,
           m.disposition === "AGGRESSIVE" ? COLORS.enemy : COLORS.passive,
           m.name || "슬라임",
-          false, undefined, false, m,
+          false, undefined, false, m, undefined, `monster:${m.id}`,
         );
       for (const member of s.members)
         if (member.mode !== "IN_BATTLE")
@@ -386,9 +412,10 @@ export class MainScene extends Phaser.Scene {
             member.position,
             member.id === s.me.id ? COLORS.player : COLORS.other,
             member.name,
-            member.id === s.me.id,
+            member.id === s.me.id, undefined, false, undefined, undefined, `member:${member.id}`,
           );
     }
+    this.animateFieldActors();
     const location = s.location.id;
     if (this.preparedLocation !== location) {
       this.preparedLocation = location;
@@ -482,7 +509,8 @@ export class MainScene extends Phaser.Scene {
       result.push(new Phaser.Geom.Point(values[i], values[i + 1]));
     return result;
   }
-  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">) {
+  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string) {
+    const firstChild=this.children.list.length;
     const p = this.project(pos),
       g = this.add.graphics();
     const size = actorSize(appearance);
@@ -514,6 +542,10 @@ export class MainScene extends Phaser.Scene {
       }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {
       this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, appearance ? { ...TEXT, color: `#${color.toString(16).padStart(6, "0")}` } : TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
+    }
+    if(motionKey)for(const child of this.children.list.slice(firstChild)){
+      const object=child as Phaser.GameObjects.Image;
+      this.movingObjects.push({key:motionKey,object,x:object.x,y:object.y,depth:object.depth});
     }
   }
 }
