@@ -154,6 +154,12 @@ export function App() {
         stopWalking.current = true;
         setWalking(null);
       }
+      // 서버가 확정한 진행 전투는 로컬 캐릭터 선택 상태보다 우선한다.
+      // 새 필드 입장 명령 없이 기존 전투의 렌더·READY·조작을 복구한다.
+      if (s.battle && s.me.mode === "IN_BATTLE" && s.me.battleId === s.battle.id) {
+        setWorldGeneration(s.generation);
+        if (location.hash !== "#/world") navigateCharacterPage("#/world");
+      }
       const result = s.me.lastResult;
       if (previous?.me.id === s.me.id && s.me.mode === "FIELD" && !s.me.battleId && result?.battleId
           && result.battleId !== previous.me.lastResult?.battleId) {
