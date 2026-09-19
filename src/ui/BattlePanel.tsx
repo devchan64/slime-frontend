@@ -159,7 +159,11 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </section>}
     {!skillsOpen && mode === "ATTACK" && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
       <div class="battle-target-heading"><h4>{t('battle.targetCount',{count:battle.tactics.attacks.length})}</h4>
-        {attack && target && <button class="secondary compact" onClick={() => { setConfirming(false); select(null); }}>{t('battle.clearSelection')}</button>}
+        {attack && target && <div class="battle-target-actions">
+          <button class="secondary compact" onClick={() => { setConfirming(false); select(null); }}>{t('battle.clearSelection')}</button>
+          <button class="compact" aria-haspopup="dialog" disabled={disabled || !own || (!apBattle && battle.acted)}
+            onClick={() => chooseTarget(target.position)}>{t('battle.attack')}</button>
+        </div>}
       </div>
       {battle.tactics.attacks.length === 0 && <p>{t('battle.noAttackTargets')}</p>}
       <div class="attack-candidates" aria-label={t('battle.attackCandidates')}>

@@ -1240,6 +1240,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .battle-target-heading, .battle-target-name { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .battle-control-card .battle-target-heading h4 { margin: 0; }
 .battle-target-heading { margin-bottom: 8px; }
+.battle-target-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .battle-control-card .attack-candidates { display: grid; grid-template-columns: 1fr; gap: 6px; }
 .battle-control-card .attack-candidates > button { display: flex; flex-direction: column; width: 100%; margin: 0; padding: 8px 10px; text-align: left; min-height: 44px; }
 .battle-target-name { width: 100%; font-size: 13px; }
