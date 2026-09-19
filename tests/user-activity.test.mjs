@@ -18,7 +18,7 @@ test('실제 입력만 전송하고 연속 입력을 병합하며 정리 후 전
 });
 
 const bundled=await build({entryPoints:['src/client/api.ts'],bundle:true,write:false,format:'esm',platform:'node',define:{'import.meta.env':'{}'},plugins:[{name:'locale-test',setup(b){b.onResolve({filter:/^\.\.\/i18n$/},()=>({path:'locale',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const getLocale=()=>"ko";'}));}}]});
-const {Client}=await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
+const {Client,ApiError}=await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 test('유휴 오류는 입력 감시·연결·생존 타이머를 정리하고 자동 재접속하지 않는다',async()=>{
  const originals=Object.fromEntries(['WebSocket','document','location','setInterval','clearInterval','setTimeout','clearTimeout'].map(k=>[k,globalThis[k]]));
  const intervals=new Set(),timeouts=new Set(),listeners=new Map(),statuses=[];let id=0,ws;
@@ -108,4 +108,40 @@ test('ACK는 적용한 서버 상태만 묶어 확인하고 HTTP의 더 큰 curs
   const late=[...timers.values()][0].fn;const before=ws.sent.length;
   client.disconnect();assert.equal(timers.size,0);late();assert.equal(ws.sent.length,before);
  } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
+
+test('늦은 티켓 응답·실패가 재로그인한 새 연결을 교체하거나 종료하지 않는다',async()=>{
+ const keys=['WebSocket','document','location','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));const sockets=[],requests=[];let id=0;
+ class Socket {static OPEN=1;readyState=1;closed=false;sent=[];constructor(){sockets.push(this);}send(data){this.sent.push(JSON.parse(data));}close(){this.closed=true;this.onclose?.();}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener(){},removeEventListener(){}},location:{href:'http://localhost/'},setInterval:()=>++id,clearInterval:()=>{},setTimeout:()=>++id,clearTimeout:()=>{}});
+  const client=new Client();client.stopped=false;
+  client.request=()=>new Promise((resolve,reject)=>requests.push({resolve,reject}));
+  const old=client.connect();client.disconnect();client.stopped=false;const current=client.connect();
+  requests[1].resolve({ticket:'new'});await current;const active=sockets.at(-1);active.onopen();
+  requests[0].resolve({ticket:'old'});await old;
+  assert.equal(sockets.length,1);assert.equal(client.socket,active);assert.equal(active.closed,false);
+  const failed=client.connect();client.disconnect();client.stopped=false;const newest=client.connect();
+  requests[3].resolve({ticket:'latest'});await newest;const latest=sockets.at(-1);
+  requests[2].reject(new ApiError('SESSION_EXPIRED','이전 세션 종료',401));await failed;
+  assert.equal(client.socket,latest);assert.equal(latest.closed,false);assert.equal(client.stopped,false);
+  client.disconnect();
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
+
+
+test('이전 세션의 늦은 HTTP 유휴 오류는 새 로그인 연결을 끊지 않는다',async()=>{
+ const previous=globalThis.fetch;let resolve;
+ try {
+  globalThis.fetch=()=>new Promise(done=>resolve=done);
+  const client=new Client();client.stopped=false;
+  const old=client.request('/v1/realtime/tickets',{});
+  client.disconnect();client.stopped=false;
+  resolve(new Response(JSON.stringify({code:'IDLE_DISCONNECTED',message:'유휴 종료',messages:{ko:'유휴 종료',en:'Idle'}}),
+    {status:409,headers:{'Content-Type':'application/json'}}));
+  await assert.rejects(old,error=>error.code==='IDLE_DISCONNECTED');
+  assert.equal(client.stopped,false);
+  client.disconnect();
+ } finally {globalThis.fetch=previous;}
 });

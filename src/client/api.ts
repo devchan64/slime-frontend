@@ -15,6 +15,8 @@ export class Client {
   tokens: Tokens | null = null;
   state: State | null = null;
   private socket: WebSocket | null = null;
+  private connectionAttempt = 0;
+  private sessionRevision = 0;
   private stopActivity: (() => void) | null = null;
   private stopped = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -32,6 +34,7 @@ export class Client {
   onState: (state: State) => void = () => {};
   onStatus: (ready: boolean, message: Notice) => void = () => {};
   async request(path: string, body?: unknown): Promise<any> {
+    const sessionRevision=this.sessionRevision;
     const response = await fetch(`${API_BASE}${path}`, {
       method: body === undefined ? "GET" : "POST",
       headers: {
@@ -46,7 +49,7 @@ export class Client {
     try {
       return await readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
     } catch (error) {
-      if (error instanceof ApiError && error.code === "IDLE_DISCONNECTED") {
+      if (sessionRevision===this.sessionRevision && error instanceof ApiError && error.code === "IDLE_DISCONNECTED") {
         this.disconnect(); this.onStatus(false, error);
       }
       throw error;
@@ -123,9 +126,14 @@ export class Client {
   }
   async connect() {
     if (this.stopped) return;
+    const attempt=++this.connectionAttempt;
+    if (this.reconnectTimer !== null) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer=null;
     try {
       const { ticket, resumeSupported, ackSupported } = await this.request("/v1/realtime/tickets", {});
-      if (this.stopped) return;
+      if (this.stopped || attempt!==this.connectionAttempt) return;
+      const previous=this.socket;this.socket=null;
+      this.clearHeartbeat();previous?.close();
       const url = new URL(`${API_BASE}/v1/realtime`, location.href);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       const ws = new WebSocket(url);
@@ -181,12 +189,14 @@ export class Client {
       };
       ws.onclose = () => {
         if (this.socket !== ws) return;
+        this.socket=null;
         this.clearHeartbeat();
         this.onStatus(false, {key: "network.reconnecting"});
         this.retry();
       };
       ws.onerror = () => ws.close();
     } catch (e) {
+      if (this.stopped || attempt!==this.connectionAttempt) return;
       this.onStatus(false, e as Error);
       if (e instanceof ApiError && (e.status === 401 || e.code === "IDLE_DISCONNECTED")) this.disconnect();
       else this.retry();
@@ -194,6 +204,7 @@ export class Client {
   }
   private retry() {
     if (this.stopped) return;
+    if (this.reconnectTimer !== null) clearTimeout(this.reconnectTimer);
     this.reconnectTimer = setTimeout(
       () => void this.connect(),
       Math.min(RECONNECT_MAX_MS, 500 * 2 ** this.attempts++) +
@@ -256,6 +267,7 @@ export class Client {
       this.pendingAck={epoch:mark.epoch,cursor:mark.cursor};
     if (this.ackTimer !== null) return;
     this.ackTimer=setTimeout(()=>{
+      if (this.socket!==socket || this.stopped) return;
       const applied=this.pendingAck;
       this.ackTimer=null;this.pendingAck=null;
       if (applied && this.socket===socket && socket.readyState===WebSocket.OPEN && !this.stopped)
@@ -282,6 +294,7 @@ export class Client {
     if (this.progressTimer !== null) return;
     // 생존 응답 바로 뒤에 오는 정상 이벤트를 기다린 뒤 누락이 남으면 복구한다.
     this.progressTimer=setTimeout(()=>{
+      if (this.socket!==socket || this.stopped) return;
       const missing=this.isBehindHead();
       this.clearProgress();
       if (missing && this.socket===socket && !this.stopped) socket.close();
@@ -295,6 +308,7 @@ export class Client {
     this.heartbeatTimer = null;
   }
   disconnect() {
+    this.connectionAttempt++;this.sessionRevision++;
     this.stopActivity?.(); this.stopActivity = null;
     this.disconnectChat();
     this.stopped = true;
