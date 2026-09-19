@@ -1100,6 +1100,22 @@
       ],
       "ramps": [
         {
+          "id": "meadow-link-6",
+          "kind": "ladder",
+          "asset": "timber-ladder",
+          "start": {
+            "column": 10,
+            "row": 24
+          },
+          "end": {
+            "column": 11,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 17,
             "row": 8
@@ -1110,16 +1126,22 @@
           }
         },
         {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 23,
-            "row": 12
+            "row": 13
           },
           "end": {
             "column": 23,
-            "row": 13
+            "row": 12
           }
         },
         {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 8,
             "row": 19
@@ -1130,16 +1152,22 @@
           }
         },
         {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
-            "column": 12,
+            "column": 13,
             "row": 24
           },
           "end": {
-            "column": 13,
+            "column": 12,
             "row": 24
           }
         },
         {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 7,
             "row": 21
@@ -1148,21 +1176,11 @@
             "column": 7,
             "row": 22
           }
-        },
-        {
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
         }
       ],
       "id": "meadow",
       "name": "이슬 초원",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "columns": 32,
       "rows": 32,
       "startPoint": {
@@ -1244,6 +1262,73 @@
           "direction": "south",
           "targetWaypointId": "gate-north",
           "targetName": "바람 구릉"
+        }
+      ],
+      "elevationTiles": [
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 18,
+            "row": 8
+          },
+          "lower": {
+            "column": 17,
+            "row": 8
+          }
+        },
+        {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 23,
+            "row": 12
+          },
+          "lower": {
+            "column": 23,
+            "row": 13
+          }
+        },
+        {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 8,
+            "row": 20
+          },
+          "lower": {
+            "column": 8,
+            "row": 19
+          }
+        },
+        {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 12,
+            "row": 24
+          },
+          "lower": {
+            "column": 13,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 7,
+            "row": 22
+          },
+          "lower": {
+            "column": 7,
+            "row": 21
+          }
         }
       ]
     },
@@ -1351,7 +1436,7 @@
         "id": "meadow-crossroads",
         "name": "세 갈래 길목",
         "description": "넓은 교차로에서 양 측면으로 전개하는 개방형 전장.",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "columns": 12,
         "rows": 10,
         "cells": [
@@ -2100,16 +2185,9 @@
         ],
         "ramps": [
           {
-            "start": {
-              "column": 2,
-              "row": 2
-            },
-            "end": {
-              "column": 3,
-              "row": 2
-            }
-          },
-          {
+            "id": "meadow-crossroads-link-2",
+            "kind": "ladder",
+            "asset": "timber-ladder",
             "start": {
               "column": 6,
               "row": 2
@@ -2117,6 +2195,19 @@
             "end": {
               "column": 6,
               "row": 3
+            }
+          },
+          {
+            "id": "meadow-crossroads-link-1",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 2,
+              "row": 2
+            },
+            "end": {
+              "column": 3,
+              "row": 2
             }
           }
         ],
@@ -2179,7 +2270,22 @@
           ]
         },
         "selection": "random",
-        "eventId": null
+        "eventId": null,
+        "elevationTiles": [
+          {
+            "id": "meadow-crossroads-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 3,
+              "row": 2
+            },
+            "lower": {
+              "column": 2,
+              "row": 2
+            }
+          }
+        ]
       },
       "round": 1,
       "turnId": 1,
@@ -4067,6 +4173,22 @@
       ],
       "ramps": [
         {
+          "id": "meadow-link-6",
+          "kind": "ladder",
+          "asset": "timber-ladder",
+          "start": {
+            "column": 10,
+            "row": 24
+          },
+          "end": {
+            "column": 11,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 17,
             "row": 8
@@ -4077,16 +4199,22 @@
           }
         },
         {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 23,
-            "row": 12
+            "row": 13
           },
           "end": {
             "column": 23,
-            "row": 13
+            "row": 12
           }
         },
         {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 8,
             "row": 19
@@ -4097,16 +4225,22 @@
           }
         },
         {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
-            "column": 12,
+            "column": 13,
             "row": 24
           },
           "end": {
-            "column": 13,
+            "column": 12,
             "row": 24
           }
         },
         {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 7,
             "row": 21
@@ -4115,21 +4249,11 @@
             "column": 7,
             "row": 22
           }
-        },
-        {
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
         }
       ],
       "id": "meadow",
       "name": "이슬 초원",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "columns": 32,
       "rows": 32,
       "startPoint": {
@@ -4211,6 +4335,73 @@
           "direction": "south",
           "targetWaypointId": "gate-north",
           "targetName": "바람 구릉"
+        }
+      ],
+      "elevationTiles": [
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 18,
+            "row": 8
+          },
+          "lower": {
+            "column": 17,
+            "row": 8
+          }
+        },
+        {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 23,
+            "row": 12
+          },
+          "lower": {
+            "column": 23,
+            "row": 13
+          }
+        },
+        {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 8,
+            "row": 20
+          },
+          "lower": {
+            "column": 8,
+            "row": 19
+          }
+        },
+        {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 12,
+            "row": 24
+          },
+          "lower": {
+            "column": 13,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 7,
+            "row": 22
+          },
+          "lower": {
+            "column": 7,
+            "row": 21
+          }
         }
       ]
     },
@@ -4406,7 +4597,7 @@
         "id": "meadow-dew-ponds",
         "name": "이슬 연못",
         "description": "남북 연못 사이의 중앙 통로와 외곽 우회로.",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "columns": 12,
         "rows": 10,
         "cells": [
@@ -5155,16 +5346,35 @@
         ],
         "ramps": [
           {
+            "id": "meadow-dew-ponds-link-4",
+            "kind": "ladder",
+            "asset": "timber-ladder",
             "start": {
-              "column": 3,
+              "column": 7,
+              "row": 9
+            },
+            "end": {
+              "column": 8,
+              "row": 9
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-1",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 4,
               "row": 4
             },
             "end": {
-              "column": 4,
+              "column": 3,
               "row": 4
             }
           },
           {
+            "id": "meadow-dew-ponds-link-2",
+            "kind": "stairs",
+            "asset": "stone-stairs",
             "start": {
               "column": 7,
               "row": 5
@@ -5175,23 +5385,16 @@
             }
           },
           {
+            "id": "meadow-dew-ponds-link-3",
+            "kind": "stairs",
+            "asset": "stone-stairs",
             "start": {
-              "column": 3,
-              "row": 0
-            },
-            "end": {
               "column": 4,
               "row": 0
-            }
-          },
-          {
-            "start": {
-              "column": 7,
-              "row": 9
             },
             "end": {
-              "column": 8,
-              "row": 9
+              "column": 3,
+              "row": 0
             }
           }
         ],
@@ -5342,7 +5545,48 @@
           ]
         },
         "selection": "random",
-        "eventId": null
+        "eventId": null,
+        "elevationTiles": [
+          {
+            "id": "meadow-dew-ponds-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 3,
+              "row": 4
+            },
+            "lower": {
+              "column": 4,
+              "row": 4
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 5
+            },
+            "lower": {
+              "column": 7,
+              "row": 5
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-3",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 3,
+              "row": 0
+            },
+            "lower": {
+              "column": 4,
+              "row": 0
+            }
+          }
+        ]
       },
       "round": 1,
       "turnId": 1,
@@ -7190,6 +7434,22 @@
       ],
       "ramps": [
         {
+          "id": "meadow-link-6",
+          "kind": "ladder",
+          "asset": "timber-ladder",
+          "start": {
+            "column": 10,
+            "row": 24
+          },
+          "end": {
+            "column": 11,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 17,
             "row": 8
@@ -7200,16 +7460,22 @@
           }
         },
         {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 23,
-            "row": 12
+            "row": 13
           },
           "end": {
             "column": 23,
-            "row": 13
+            "row": 12
           }
         },
         {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 8,
             "row": 19
@@ -7220,16 +7486,22 @@
           }
         },
         {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
-            "column": 12,
+            "column": 13,
             "row": 24
           },
           "end": {
-            "column": 13,
+            "column": 12,
             "row": 24
           }
         },
         {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 7,
             "row": 21
@@ -7238,21 +7510,11 @@
             "column": 7,
             "row": 22
           }
-        },
-        {
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
         }
       ],
       "id": "meadow",
       "name": "이슬 초원",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "columns": 32,
       "rows": 32,
       "startPoint": {
@@ -7334,6 +7596,73 @@
           "direction": "south",
           "targetWaypointId": "gate-north",
           "targetName": "바람 구릉"
+        }
+      ],
+      "elevationTiles": [
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 18,
+            "row": 8
+          },
+          "lower": {
+            "column": 17,
+            "row": 8
+          }
+        },
+        {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 23,
+            "row": 12
+          },
+          "lower": {
+            "column": 23,
+            "row": 13
+          }
+        },
+        {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 8,
+            "row": 20
+          },
+          "lower": {
+            "column": 8,
+            "row": 19
+          }
+        },
+        {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 12,
+            "row": 24
+          },
+          "lower": {
+            "column": 13,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 7,
+            "row": 22
+          },
+          "lower": {
+            "column": 7,
+            "row": 21
+          }
         }
       ]
     },
@@ -7457,7 +7786,7 @@
         "id": "meadow-flower-knolls",
         "name": "들꽃 둔덕",
         "description": "꽃밭 속 수풀 섬을 사이에 두고 진입로를 선택하는 전장.",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "columns": 12,
         "rows": 10,
         "cells": [
@@ -8206,6 +8535,22 @@
         ],
         "ramps": [
           {
+            "id": "meadow-flower-knolls-link-4",
+            "kind": "ladder",
+            "asset": "timber-ladder",
+            "start": {
+              "column": 10,
+              "row": 7
+            },
+            "end": {
+              "column": 10,
+              "row": 8
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-1",
+            "kind": "stairs",
+            "asset": "stone-stairs",
             "start": {
               "column": 2,
               "row": 1
@@ -8216,16 +8561,22 @@
             }
           },
           {
+            "id": "meadow-flower-knolls-link-2",
+            "kind": "stairs",
+            "asset": "stone-stairs",
             "start": {
-              "column": 5,
+              "column": 6,
               "row": 6
             },
             "end": {
-              "column": 6,
+              "column": 5,
               "row": 6
             }
           },
           {
+            "id": "meadow-flower-knolls-link-3",
+            "kind": "stairs",
+            "asset": "stone-stairs",
             "start": {
               "column": 6,
               "row": 4
@@ -8233,16 +8584,6 @@
             "end": {
               "column": 7,
               "row": 4
-            }
-          },
-          {
-            "start": {
-              "column": 10,
-              "row": 7
-            },
-            "end": {
-              "column": 10,
-              "row": 8
             }
           }
         ],
@@ -8321,7 +8662,48 @@
           ]
         },
         "selection": "random",
-        "eventId": null
+        "eventId": null,
+        "elevationTiles": [
+          {
+            "id": "meadow-flower-knolls-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 2,
+              "row": 2
+            },
+            "lower": {
+              "column": 2,
+              "row": 1
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 5,
+              "row": 6
+            },
+            "lower": {
+              "column": 6,
+              "row": 6
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-3",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 7,
+              "row": 4
+            },
+            "lower": {
+              "column": 6,
+              "row": 4
+            }
+          }
+        ]
       },
       "round": 1,
       "turnId": 1,
@@ -9909,6 +10291,22 @@
       ],
       "ramps": [
         {
+          "id": "meadow-link-6",
+          "kind": "ladder",
+          "asset": "timber-ladder",
+          "start": {
+            "column": 10,
+            "row": 24
+          },
+          "end": {
+            "column": 11,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 17,
             "row": 8
@@ -9919,16 +10317,22 @@
           }
         },
         {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 23,
-            "row": 12
+            "row": 13
           },
           "end": {
             "column": 23,
-            "row": 13
+            "row": 12
           }
         },
         {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 8,
             "row": 19
@@ -9939,16 +10343,22 @@
           }
         },
         {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
-            "column": 12,
+            "column": 13,
             "row": 24
           },
           "end": {
-            "column": 13,
+            "column": 12,
             "row": 24
           }
         },
         {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 7,
             "row": 21
@@ -9957,21 +10367,11 @@
             "column": 7,
             "row": 22
           }
-        },
-        {
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
         }
       ],
       "id": "meadow",
       "name": "이슬 초원",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "columns": 32,
       "rows": 32,
       "startPoint": {
@@ -10053,6 +10453,73 @@
           "direction": "south",
           "targetWaypointId": "gate-north",
           "targetName": "바람 구릉"
+        }
+      ],
+      "elevationTiles": [
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 18,
+            "row": 8
+          },
+          "lower": {
+            "column": 17,
+            "row": 8
+          }
+        },
+        {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 23,
+            "row": 12
+          },
+          "lower": {
+            "column": 23,
+            "row": 13
+          }
+        },
+        {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 8,
+            "row": 20
+          },
+          "lower": {
+            "column": 8,
+            "row": 19
+          }
+        },
+        {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 12,
+            "row": 24
+          },
+          "lower": {
+            "column": 13,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 7,
+            "row": 22
+          },
+          "lower": {
+            "column": 7,
+            "row": 21
+          }
         }
       ]
     },
@@ -10184,7 +10651,7 @@
         "id": "meadow-rock-pass",
         "name": "바위 협로",
         "description": "엇갈린 바위 능선 사이의 중앙 길과 위아래 우회로.",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "columns": 12,
         "rows": 10,
         "cells": [
@@ -10933,16 +11400,9 @@
         ],
         "ramps": [
           {
-            "start": {
-              "column": 4,
-              "row": 5
-            },
-            "end": {
-              "column": 5,
-              "row": 5
-            }
-          },
-          {
+            "id": "meadow-rock-pass-link-2",
+            "kind": "ladder",
+            "asset": "timber-ladder",
             "start": {
               "column": 7,
               "row": 4
@@ -10950,6 +11410,19 @@
             "end": {
               "column": 8,
               "row": 4
+            }
+          },
+          {
+            "id": "meadow-rock-pass-link-1",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 5,
+              "row": 5
+            },
+            "end": {
+              "column": 4,
+              "row": 5
             }
           }
         ],
@@ -11036,7 +11509,22 @@
           ]
         },
         "selection": "random",
-        "eventId": null
+        "eventId": null,
+        "elevationTiles": [
+          {
+            "id": "meadow-rock-pass-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 4,
+              "row": 5
+            },
+            "lower": {
+              "column": 5,
+              "row": 5
+            }
+          }
+        ]
       },
       "round": 1,
       "turnId": 1,
@@ -12884,6 +13372,22 @@
       ],
       "ramps": [
         {
+          "id": "meadow-link-6",
+          "kind": "ladder",
+          "asset": "timber-ladder",
+          "start": {
+            "column": 10,
+            "row": 24
+          },
+          "end": {
+            "column": 11,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 17,
             "row": 8
@@ -12894,16 +13398,22 @@
           }
         },
         {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 23,
-            "row": 12
+            "row": 13
           },
           "end": {
             "column": 23,
-            "row": 13
+            "row": 12
           }
         },
         {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 8,
             "row": 19
@@ -12914,16 +13424,22 @@
           }
         },
         {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
-            "column": 12,
+            "column": 13,
             "row": 24
           },
           "end": {
-            "column": 13,
+            "column": 12,
             "row": 24
           }
         },
         {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 7,
             "row": 21
@@ -12932,21 +13448,11 @@
             "column": 7,
             "row": 22
           }
-        },
-        {
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
         }
       ],
       "id": "meadow",
       "name": "이슬 초원",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "columns": 32,
       "rows": 32,
       "startPoint": {
@@ -13028,6 +13534,73 @@
           "direction": "south",
           "targetWaypointId": "gate-north",
           "targetName": "바람 구릉"
+        }
+      ],
+      "elevationTiles": [
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 18,
+            "row": 8
+          },
+          "lower": {
+            "column": 17,
+            "row": 8
+          }
+        },
+        {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 23,
+            "row": 12
+          },
+          "lower": {
+            "column": 23,
+            "row": 13
+          }
+        },
+        {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 8,
+            "row": 20
+          },
+          "lower": {
+            "column": 8,
+            "row": 19
+          }
+        },
+        {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 12,
+            "row": 24
+          },
+          "lower": {
+            "column": 13,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 7,
+            "row": 22
+          },
+          "lower": {
+            "column": 7,
+            "row": 21
+          }
         }
       ]
     },
@@ -13175,7 +13748,7 @@
         "id": "meadow-thicket-bend",
         "name": "수풀 굽잇길",
         "description": "서로 반대편에 열린 수풀 틈을 돌아 전진하는 전장.",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "columns": 12,
         "rows": 10,
         "cells": [
@@ -13924,23 +14497,29 @@
         ],
         "ramps": [
           {
+            "id": "meadow-thicket-bend-link-2",
+            "kind": "ladder",
+            "asset": "timber-ladder",
             "start": {
-              "column": 2,
+              "column": 9,
               "row": 4
             },
             "end": {
-              "column": 2,
+              "column": 9,
               "row": 5
             }
           },
           {
+            "id": "meadow-thicket-bend-link-1",
+            "kind": "stairs",
+            "asset": "stone-stairs",
             "start": {
-              "column": 9,
-              "row": 4
+              "column": 2,
+              "row": 5
             },
             "end": {
-              "column": 9,
-              "row": 5
+              "column": 2,
+              "row": 4
             }
           }
         ],
@@ -14043,7 +14622,22 @@
           ]
         },
         "selection": "random",
-        "eventId": null
+        "eventId": null,
+        "elevationTiles": [
+          {
+            "id": "meadow-thicket-bend-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 2,
+              "row": 4
+            },
+            "lower": {
+              "column": 2,
+              "row": 5
+            }
+          }
+        ]
       },
       "round": 1,
       "turnId": 1,
@@ -15779,6 +16373,22 @@
       ],
       "ramps": [
         {
+          "id": "meadow-link-6",
+          "kind": "ladder",
+          "asset": "timber-ladder",
+          "start": {
+            "column": 10,
+            "row": 24
+          },
+          "end": {
+            "column": 11,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 17,
             "row": 8
@@ -15789,16 +16399,22 @@
           }
         },
         {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 23,
-            "row": 12
+            "row": 13
           },
           "end": {
             "column": 23,
-            "row": 13
+            "row": 12
           }
         },
         {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 8,
             "row": 19
@@ -15809,16 +16425,22 @@
           }
         },
         {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
-            "column": 12,
+            "column": 13,
             "row": 24
           },
           "end": {
-            "column": 13,
+            "column": 12,
             "row": 24
           }
         },
         {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-stairs",
           "start": {
             "column": 7,
             "row": 21
@@ -15827,21 +16449,11 @@
             "column": 7,
             "row": 22
           }
-        },
-        {
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
         }
       ],
       "id": "meadow",
       "name": "이슬 초원",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "columns": 32,
       "rows": 32,
       "startPoint": {
@@ -15923,6 +16535,73 @@
           "direction": "south",
           "targetWaypointId": "gate-north",
           "targetName": "바람 구릉"
+        }
+      ],
+      "elevationTiles": [
+        {
+          "id": "meadow-link-1",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 18,
+            "row": 8
+          },
+          "lower": {
+            "column": 17,
+            "row": 8
+          }
+        },
+        {
+          "id": "meadow-link-2",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 23,
+            "row": 12
+          },
+          "lower": {
+            "column": 23,
+            "row": 13
+          }
+        },
+        {
+          "id": "meadow-link-3",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 8,
+            "row": 20
+          },
+          "lower": {
+            "column": 8,
+            "row": 19
+          }
+        },
+        {
+          "id": "meadow-link-4",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 12,
+            "row": 24
+          },
+          "lower": {
+            "column": 13,
+            "row": 24
+          }
+        },
+        {
+          "id": "meadow-link-5",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 7,
+            "row": 22
+          },
+          "lower": {
+            "column": 7,
+            "row": 21
+          }
         }
       ]
     },
@@ -16106,7 +16785,7 @@
         "id": "meadow-guardian-ring",
         "name": "고목 수호자의 터",
         "description": "고목 거인 조우에 고정되는 바위·수풀 원형 공터.",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "columns": 12,
         "rows": 10,
         "cells": [
@@ -16855,16 +17534,9 @@
         ],
         "ramps": [
           {
-            "start": {
-              "column": 3,
-              "row": 4
-            },
-            "end": {
-              "column": 4,
-              "row": 4
-            }
-          },
-          {
+            "id": "meadow-guardian-ring-link-2",
+            "kind": "ladder",
+            "asset": "timber-ladder",
             "start": {
               "column": 8,
               "row": 5
@@ -16872,6 +17544,19 @@
             "end": {
               "column": 9,
               "row": 5
+            }
+          },
+          {
+            "id": "meadow-guardian-ring-link-1",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 3,
+              "row": 4
+            },
+            "end": {
+              "column": 4,
+              "row": 4
             }
           }
         ],
@@ -16958,7 +17643,22 @@
           ]
         },
         "selection": "fixed",
-        "eventId": "meadow-guardian"
+        "eventId": "meadow-guardian",
+        "elevationTiles": [
+          {
+            "id": "meadow-guardian-ring-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 4,
+              "row": 4
+            },
+            "lower": {
+              "column": 3,
+              "row": 4
+            }
+          }
+        ]
       },
       "round": 1,
       "turnId": 1,

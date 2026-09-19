@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import type {Position} from '../../client/types';
-import {cliffFaces,project, type Surface} from './elevation';
+import {cliffFaces, elevationTileFaces, type ElevationTile, type Surface} from './elevation';
 
 const CLIFF = { light:0x8d7655, dark:0x675642, seam:0x4b4639, rim:0xb5bb79, strata:8 };
-const STAIR = {width:18,steps:5,base:0x726c54,tread:0xe0c994};
 export function drawCliffs(g:Phaser.GameObjects.Graphics,cell:Position,map:Surface){
   for(const [index,face] of cliffFaces(cell,map).entries()){
     const points=face.map(p=>new Phaser.Geom.Point(p.x,p.y));
@@ -16,12 +15,12 @@ export function drawCliffs(g:Phaser.GameObjects.Graphics,cell:Position,map:Surfa
     g.lineStyle(2,CLIFF.rim,.9);g.lineBetween(face[0].x,face[0].y,face[1].x,face[1].y);
   }
 }
-export function drawStair(g:Phaser.GameObjects.Graphics,start:Position,end:Position,map:Surface){
-  const a=project(start,map),b=project(end,map);
-  // 가로 폭이 있는 계단의 디딤판은 월드 지면과 함께 확대·축소된다.
-  g.lineStyle(STAIR.width,STAIR.base);g.lineBetween(a.x,a.y,b.x,b.y);
-  for(let i=0;i<=STAIR.steps;i++){
-    const t=i/STAIR.steps,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;
-    g.lineStyle(3,STAIR.tread);g.lineBetween(x-STAIR.width/2,y,x+STAIR.width/2,y);
+
+// 일반 타일을 대체하는 전체 폭의 돌 디딤면. 별도 계단 오브젝트를 올리지 않는다.
+export function drawElevationTile(g:Phaser.GameObjects.Graphics,tile:ElevationTile,map:Surface){
+  for(const face of elevationTileFaces(tile,map)){
+    const points=face.points.map(p=>new Phaser.Geom.Point(p.x,p.y));
+    g.fillStyle(face.top?0xbeb694:0x81785e);g.fillPoints(points,true);
+    g.lineStyle(.7,face.top?0xe0d7b8:0x615a48,.85);g.strokePoints(points,true);
   }
 }

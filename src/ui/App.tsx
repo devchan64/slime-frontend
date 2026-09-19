@@ -7,6 +7,7 @@ import { fieldRoute, sameCell as same } from "./fieldNavigation";
 import { TerrainLegend } from "./TerrainLegend";
 import { CharacterSettingsDialog } from "./CharacterSettingsDialog";
 import { CharacterSettings } from "./CharacterSettings";
+import { CharacterDeparture } from "./CharacterDeparture";
 import { WorldDrawer } from "./WorldDrawer";
 import { BattlePanel } from "./BattlePanel";
 import { Client } from "../client/api";
@@ -395,22 +396,14 @@ export function App() {
               </>
             ) : (
               <>
+                <CharacterDeparture me={state.me} disabled={disabled} onEnter={() => command("/v1/world/enter")} />
                 <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
-                <div class="character-departure"><p>준비되었다면, 모험을 이어가세요.<small>마지막 맵의 시작점으로 이동합니다.</small></p>
-                <button
-                  disabled={disabled || !!state.me.battleId}
-                  onClick={() => command("/v1/world/enter")}
-                >
-                  {state.me.battleId
-                    ? "진행 중 전투 정산 대기"
-                    : "게임으로 가기 →"}
-                </button></div>
               </>
             )}
             {state.me.lastResult && (
               <p class="result">
-                {RESULT_NAMES[state.me.lastResult.result]} · 경험치 +
-                {state.me.lastResult.xp}
+                {RESULT_NAMES[state.me.lastResult.result]} · 재화 +
+                {state.me.lastResult.coins}
               </p>
             )}
           </section>
@@ -430,12 +423,14 @@ export function App() {
                 </h2>
               </div>
               <nav class="map-menu" aria-label="맵 메뉴">
-                <span class="world-resources">{state.me.name} · XP {state.me.xp} · ◈ {state.me.coins}</span>
+                <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
               </nav>
             </div>
             <div class="map-stage">
               <nav class="map-camera-controls" aria-label="맵 화면 조정">              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
               <button class="secondary compact" aria-label="맵 확대" onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
+              <button class="secondary compact" aria-label="맵 왼쪽으로 90도 회전" onClick={() => renderer.current?.scene.rotateMap(-1)}>↶</button>
+              <button class="secondary compact" aria-label="맵 오른쪽으로 90도 회전" onClick={() => renderer.current?.scene.rotateMap(1)}>↷</button>
               <button
                 class="secondary compact"
                 onClick={() => renderer.current?.scene.focus()}
@@ -444,7 +439,7 @@ export function App() {
               </button>
 </nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
-            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요.</p>
+            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
             {battle?.field.description && <p class="battlefield-description">{battle.field.selection === "random" ? "랜덤 전장" : "고정 전장"} · {battle.field.description}</p>}
             <div class="map-caption">
               <span>
@@ -570,8 +565,8 @@ export function App() {
 
             {!battle && state.me.lastResult && (
               <p class="result">
-                최근 전투 {RESULT_NAMES[state.me.lastResult.result]} · XP +
-                {state.me.lastResult.xp}
+                최근 전투 {RESULT_NAMES[state.me.lastResult.result]} · 재화 +
+                {state.me.lastResult.coins}
               </p>
             )}
           </WorldDrawer>}

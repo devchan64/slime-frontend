@@ -1,7 +1,10 @@
 import type { Position } from '../../client/types';
 
+export type TerrainLink = { start: Position; end: Position; id?: string;
+  kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
+export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
 export type Surface = { columns: number; rows: number; elevations?: number[][];
-  ramps?: { start: Position; end: Position }[] };
+  ramps?: TerrainLink[]; elevationTiles?: ElevationTile[] };
 export const ELEVATION_STEP = 24;
 export const CELL_WIDTH = 64, CELL_HEIGHT = 32;
 export const MAP_ORIGIN = { x: 1040, y: 80 };
@@ -13,8 +16,28 @@ export const heightAt = (p: Position, map: Surface) => map.elevations && inBound
 export const cellDepth = (p: Position) => TERRAIN_DEPTH.base + (p.column + p.row) * TERRAIN_DEPTH.stride;
 export const project = (p: Position, map: Surface) => ({
   x: MAP_ORIGIN.x + (p.column-p.row) * CELL_WIDTH/2,
-  y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - heightAt(p,map)*ELEVATION_STEP,
+  y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - (heightAt(p,map) - (map.elevationTiles?.some(t=>same(t.cell,p)) ? 0.5 : 0))*ELEVATION_STEP,
 });
+const STEP_COUNT = 6;
+export type TileFace = { points:{x:number;y:number}[]; top:boolean };
+export function elevationTileFaces(tile: ElevationTile, map: Surface): TileFace[] {
+  const dc=tile.cell.column-tile.lower.column,dr=tile.cell.row-tile.lower.row;
+  const low=heightAt(tile.cell,map)-1;
+  const point=(u:number,v:number,z:number)=>{
+    const c=tile.cell.column+dc*u-dr*v,r=tile.cell.row+dr*u+dc*v;
+    return {x:MAP_ORIGIN.x+(c-r)*CELL_WIDTH/2,y:MAP_ORIGIN.y+(c+r)*CELL_HEIGHT/2-z*ELEVATION_STEP};
+  };
+  const blocks=Array.from({length:STEP_COUNT},(_,i)=>{
+    const u=i/STEP_COUNT-.5,w=(i+1)/STEP_COUNT-.5,z=low+(i+1)/STEP_COUNT;
+    const top=[point(u,-.5,z),point(w,-.5,z),point(w,.5,z),point(u,.5,z)];
+    const sides=top.map((a,j)=>{
+      const b=top[(j+1)%4];
+      return {points:[a,b,{x:b.x,y:b.y+(z-low)*ELEVATION_STEP+BASE_THICKNESS},{x:a.x,y:a.y+(z-low)*ELEVATION_STEP+BASE_THICKNESS}],top:false};
+    });
+    return {order:(dc+dr)*(u+w)/2,faces:[...sides,{points:top,top:true}]};
+  }).sort((a,b)=>a.order-b.order);
+  return blocks.flatMap(b=>b.faces);
+}
 export function canStep(start: Position, end: Position, map: Surface) {
   if (!inBounds(start,map) || !inBounds(end,map) || Math.abs(start.column-end.column)+Math.abs(start.row-end.row) !== 1) return false;
   return heightAt(start,map) === heightAt(end,map) || !!map.ramps?.some(e =>
@@ -47,6 +70,12 @@ export function pickSurface(x:number,y:number,map:Surface):Position|null {
       const column=diagonal-row;
       if(column>=map.columns)continue;
       const cell={column,row},p=project(cell,map);
+      const tile=map.elevationTiles?.find(t=>same(t.cell,cell));
+      if(tile){
+        for(const face of elevationTileFaces(tile,map).reverse())
+          if(contains(x,y,face.points))return face.top?cell:null;
+        continue;
+      }
       if(Math.abs(x-p.x)/(CELL_WIDTH/2)+Math.abs(y-p.y)/(CELL_HEIGHT/2)<=1)return cell;
       if(cliffFaces(cell,map).some(face=>contains(x,y,face)))return null;
     }

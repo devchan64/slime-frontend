@@ -1,3 +1,5 @@
+import { toView, fromView, rotatedSurface, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
+import type { Surface } from "../terrain/elevation";
 import { healthDisplayRatio } from "../terrain/healthDisplay";
 import Phaser from "phaser";
 import type { State, Position } from "../../client/types";
@@ -10,7 +12,8 @@ import { drawActor, preloadActors } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
-import { drawCliffs, drawStair } from "../terrain/terraces";
+import { preloadConnectors, drawConnector } from "../terrain/connectors";
+import { drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const COLORS = {
   ground: 0x172e3b,
@@ -51,6 +54,8 @@ const HEALTH_BAR = { width: 36, height: 5, offset: 5, background: 0x10202a };
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
   private selected: Position | null = null;
+  private rotation: MapRotation = 0;
+  private viewSurface: Surface | null = null;
   private panStart: {x:number;y:number;scrollX:number;scrollY:number} | null = null;
   private battleMode: "MOVE" | "ATTACK" | null = null;
   private onSelect: (p: Position) => void;
@@ -77,6 +82,7 @@ export class MainScene extends Phaser.Scene {
       this.onFailure("맵 자원을 불러오지 못했습니다. 다시 접속해 주세요.");
     });
     preloadTerrain(this);
+    preloadConnectors(this);
     preloadActors(this);
     preloadBackdrop(this);
   }
@@ -113,7 +119,8 @@ export class MainScene extends Phaser.Scene {
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({ preventScroll: true });
       const at = this.cameras.main.getWorldPoint(p.x, p.y);
       if (!this.state) return;
-      const cell = pickSurface(at.x, at.y, this.state.battle?.field ?? this.state.map);
+      const picked = pickSurface(at.x, at.y, this.viewSurface!);
+      const cell = picked ? fromView(picked, this.surface(), this.rotation) : null;
       if (cell) {
         this.selected = cell;
         this.draw();
@@ -140,7 +147,8 @@ export class MainScene extends Phaser.Scene {
       const [dc, dr] = delta[e.key];
       const columns = this.state.battle?.field.columns ?? this.state.map.columns;
       const rows = this.state.battle?.field.rows ?? this.state.map.rows;
-      const cell = { column: base.column + dc, row: base.row + dr };
+      const viewBase = this.viewPosition(base);
+      const cell = fromView({ column: viewBase.column + dc, row: viewBase.row + dr }, this.surface(), this.rotation);
       if (
         cell.column >= 0 &&
         cell.row >= 0 &&
@@ -156,6 +164,19 @@ export class MainScene extends Phaser.Scene {
   }
   adjustZoom(delta: number) {
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta,ZOOM_MIN,ZOOM_MAX));
+  }
+  rotateMap(direction: -1 | 1) {
+    if (!this.state || !this.sys.isActive()) return;
+    this.rotation = nextRotation(this.rotation, direction);
+    this.viewSurface = rotatedSurface(this.surface(), this.rotation);
+    this.panStart = null;
+    this.draw();
+    // 회전 중 선택 좌표와 확대 배율을 유지한다.
+    const anchor = this.selected ?? (this.state.battle
+      ? { column: (this.surface().columns - 1) / 2, row: (this.surface().rows - 1) / 2 }
+      : this.state.me.position);
+    const point = this.project(anchor);
+    this.cameras.main.centerOn(point.x, point.y);
   }
   setBattleMode(mode: "MOVE" | "ATTACK" | null) {
     this.battleMode = mode;
@@ -173,6 +194,7 @@ export class MainScene extends Phaser.Scene {
   }
   setState(s: State) {
     this.state = s;
+    this.viewSurface = rotatedSurface(this.surface(), this.rotation);
     if (this.sys.isActive()) this.draw();
   }
   update() {
@@ -230,7 +252,7 @@ export class MainScene extends Phaser.Scene {
     for (let row = 0; row < rows; row++)
       for (let column = 0; column < size; column++) {
         const point = this.project({ column, row });
-        const g = this.add.graphics().setDepth(cellDepth({column,row}) + TERRAIN_DEPTH.overlay);
+        const g = this.add.graphics().setDepth(this.depth({column,row}) + TERRAIN_DEPTH.overlay);
         const wall = blocked.some((p) => p.column === column && p.row === row);
         const isSafe =
           !s.battle &&
@@ -355,7 +377,10 @@ export class MainScene extends Phaser.Scene {
       this.focus();
     }
   }
-  private project = (p: Position) => project(p, this.state!.battle?.field ?? this.state!.map);
+  private surface = () => this.state!.battle?.field ?? this.state!.map;
+  private viewPosition = (p: Position) => toView(p, this.surface(), this.rotation);
+  private project = (p: Position) => project(this.viewPosition(p), this.viewSurface!);
+  private depth = (p: Position) => cellDepth(this.viewPosition(p));
 
   private updateTerrain(s: State, visible: boolean) {
     for (const object of this.terrainObjects) (object as Phaser.GameObjects.Image).setVisible(visible);
@@ -370,7 +395,7 @@ export class MainScene extends Phaser.Scene {
       this.project({column:(definition.columns-1)/2,row:(definition.rows-1)/2}),
       (definition.columns+definition.rows)*TILE_W/2,(definition.columns+definition.rows)*TILE_H/2,theme);
     this.backdropLayer.setAlpha(.5);
-    const signature=JSON.stringify(definition);
+    const signature=JSON.stringify([definition,this.rotation]);
     if(signature===this.terrainSignature && this.terrainObjects.size) return;
     for(const object of this.terrainObjects)object.destroy();
     this.terrainObjects.clear();
@@ -380,15 +405,20 @@ export class MainScene extends Phaser.Scene {
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
       : theme === "mist-lake" ? blockedCells : new Set<string>();
     for(let row=0;row<definition.rows;row++)for(let column=0;column<definition.columns;column++){
-      const cell={column,row},p=this.project(cell),depth=cellDepth(cell);
+      const cell={column,row},p=this.project(cell),depth=this.depth(cell);
       const terrain=field ? cells.get(`${column},${row}`) : meadowTile(column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
       const kind=terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
+      const elevationTile=this.viewSurface!.elevationTiles?.find(t=>t.cell.column===this.viewPosition(cell).column&&t.cell.row===this.viewPosition(cell).row);
+      if(elevationTile){
+        drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
+        continue;
+      }
       const sides=remember(this.add.graphics().setDepth(depth));
-      drawCliffs(sides,cell,definition);
+      drawCliffs(sides,this.viewPosition(cell),this.viewSurface!);
       const isWater = waterCells.has(`${column},${row}`);
-      const frame = isWater ? `water-${waterConnections(cell, definition, waterCells)}`
-        : kind === 'road' ? roadFrame(roadConnections(cell, definition, road)) : kind;
+      const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
+        : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
       if (!isWater && blockedCells.has(`${column},${row}`)) {
@@ -398,8 +428,9 @@ export class MainScene extends Phaser.Scene {
       }
     }
     for(const ramp of definition.ramps ?? []){
-      const steps=remember(this.add.graphics().setDepth(Math.max(cellDepth(ramp.start),cellDepth(ramp.end))+TERRAIN_DEPTH.overlay-1));
-      drawStair(steps,ramp.start,ramp.end,definition);
+      if(definition.elevationTiles?.some(t=>t.id===ramp.id))continue;
+      remember(drawConnector(this, { ...ramp, start:this.viewPosition(ramp.start),end:this.viewPosition(ramp.end) },
+        this.viewSurface!, Math.max(this.depth(ramp.start),this.depth(ramp.end))+TERRAIN_DEPTH.overlay-1));
     }
     this.terrainSignature=signature;
   }
@@ -414,7 +445,7 @@ export class MainScene extends Phaser.Scene {
     const p = this.project(pos),
       g = this.add.graphics();
     const size = actorSize(appearance);
-    const depth = cellDepth(pos) + TERRAIN_DEPTH.actor;
+    const depth = this.depth(pos) + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
       size.scale, size.tiles);

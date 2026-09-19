@@ -540,7 +540,7 @@ footer {
 .growth-help { font-size: 11px; color: #a6bebd; line-height: 1.7; margin: 16px 0; }
 .growth-rules { border-top: 1px solid #35515a; padding-top: 14px; font-size: 11px; color: #93acae; line-height: 1.7; }
 .growth-rules summary { font-weight: 400; }
-.character-departure { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #35515a; }
+.character-departure { display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 8px; z-index: 5; margin: 0 0 24px; padding: 14px; border: 1px solid #35515a; border-radius: 12px; background: #102a2a; box-shadow: 0 6px 18px #0003; }
 .character-departure p { margin: 0; font-size: 14px; }
 .character-departure small { display: block; margin-top: 6px; color: #91abae; font-size: 11px; }
 .character-lobby .character-departure button { width: auto; min-width: 190px; margin: 0; padding: 16px 24px; }
@@ -869,7 +869,7 @@ button, summary { touch-action: manipulation; }
   .world-shell .world .battle-panel { grid-column: 2; grid-row: 2; height: 100%; max-height: none; }
   .world-shell .battle-status-details, .world-shell .battle-records { bottom: 100%; }
 }
-.map-camera-controls { position: absolute; right: 8px; top: 8px; z-index: 3; display: flex; flex-direction: column; gap: 6px; }
+.map-camera-controls { position: absolute; right: 8px; top: 8px; z-index: 3; display: grid; grid-template-columns: repeat(2, minmax(44px, auto)); gap: 6px; }
 .map-camera-controls button { min-width: 44px; min-height: 44px; padding: 8px; background: #102a2ae8; border: 1px solid #54786d; color: #e4edf0; }
 @media (max-width: 1024px) {
   .world-shell .world-title { min-height: 40px; }
@@ -921,4 +921,15 @@ button, summary { touch-action: manipulation; }
 @media (max-width: 1024px) {
   body.battle-preview-shell > header h1 { display: none; }
   body.battle-preview-shell > header { min-height: 52px; max-height: 52px; }
+}
+
+.departure-dialog { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; border: 1px solid #527568; border-radius: 16px; background: #102a2a; color: #eef6ef; }
+.departure-dialog::backdrop { background: #031414b3; }
+.departure-dialog h2 { margin: 0 0 16px; font-size: 20px; }
+.departure-dialog p { line-height: 1.7; }
+.departure-dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.character-lobby .departure-dialog-actions button { flex: 1 1 150px; min-height: 44px; margin: 0; }
+@media (max-height: 500px) {
+  .character-departure { flex-direction: row; align-items: center; padding: 8px 12px; margin-bottom: 12px; }
+  .character-lobby .character-departure button { width: auto; min-width: 150px; padding: 12px; }
 }

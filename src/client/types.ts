@@ -69,6 +69,8 @@ export type State = {
     xp: number;
     coins: number;
     cp: number;
+    /** SP 미지원 API에서는 생략한다. */
+    sp?: number;
     cpGeneral: number;
     cpSeasonal: number;
     skills: Record<"physical_activity" | "literacy" | "speaking", number>;

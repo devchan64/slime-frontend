@@ -33,7 +33,6 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
       <div class="portrait-stage"><CharacterPortrait /></div>
       <span class="costume-label">기본 모험가 의상</span>
       <dl class="character-resources">
-        <div><dt>경험치</dt><dd>{me.xp} <small>XP</small></dd></div>
         <div><dt>보유 재화</dt><dd>{me.coins}</dd></div>
       </dl>
     </section>
