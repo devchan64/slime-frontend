@@ -39,7 +39,6 @@ const TEXT = {
   padding: { x: 5, y: 3 },
 };
 const CENTER = 0.5,
-  ZOOM = 1.7,
   LABEL_OFFSET = 25,
   BATTLE_ZOOM = 1.15,
   BATTLE_DISPLAY_SCALE = 1.2,
@@ -55,6 +54,7 @@ const CENTER = 0.5,
   PATH_NODE_RADIUS = 7,
   PATH_COLOR = 0x9eeeff,
   ARRIVAL_COLOR = 0xffbb66;
+const DEFAULT_TILE_ZOOM = Math.min(ZOOM_MAX, BATTLE_ZOOM * BATTLE_DISPLAY_SCALE);
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
   outline: 0x071e35, outlineWidth: 6, edge: 0x9ceaff, edgeWidth: 3,
@@ -147,7 +147,7 @@ export class MainScene extends Phaser.Scene {
       this.onFailure("맵 화면을 구성하지 못했습니다. 다시 접속해 주세요.");
       return;
     }
-    this.cameras.main.setZoom(ZOOM);
+    this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
       this.panStart={x:p.x,y:p.y,scrollX:this.cameras.main.scrollX,scrollY:this.cameras.main.scrollY};
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({preventScroll:true});
@@ -264,7 +264,7 @@ export class MainScene extends Phaser.Scene {
       const widthFit = this.cameras.main.width / (extent * TILE_W / 2 + CAMERA_PADDING);
       const heightFit = this.cameras.main.height / (extent * TILE_H / 2 + CAMERA_PADDING);
       this.cameras.main.setZoom(battle ? Math.min(BATTLE_ZOOM,
-        this.cameras.main.width < this.cameras.main.height ? Math.min(heightFit, widthFit * PORTRAIT_BATTLE_FILL) : Math.min(widthFit, heightFit)) : ZOOM);
+        this.cameras.main.width < this.cameras.main.height ? Math.min(heightFit, widthFit * PORTRAIT_BATTLE_FILL) : Math.min(widthFit, heightFit)) : DEFAULT_TILE_ZOOM);
       if (battle && this.backdropLayer) {
         const cover = Math.max(this.cameras.main.width / this.backdropLayer.displayWidth,
           this.cameras.main.height / this.backdropLayer.displayHeight);
