@@ -99,3 +99,19 @@ test('아군 AP와 서버 행동 비용을 표시하고 적 숨김 체력은 유
  tactics:{moves:[{position:{column:1,row:0},apCost:1,apAfter:1}],attacks:[{targetId:'e',apCost:3}]}}}));
  assert.match(text,/AP 2\/3/);assert.match(text,/1 AP → 잔여 1/);assert.match(text,/e \(3 AP\)/);
 });
+
+test('터미널 직접 상태 조회·도움말은 활동을 알리고 자동 처리는 알리지 않는다',async()=>{
+ const {client,calls}=setup([{ok:true},state(),{ok:true},{ok:true},state()]);client.accept(state());
+ await client.interact('state');
+ assert.ok(calls[0].url.endsWith('/sessions/activity'));assert.deepEqual(calls[0].body,{});
+ assert.ok(calls[1].url.endsWith('/game/state'));
+ assert.equal(await client.interact('help'),null);assert.ok(calls[2].url.endsWith('/sessions/activity'));
+ await client.heartbeat();await client.snapshot();
+ assert.ok(calls[3].url.endsWith('/sessions/heartbeat'));assert.ok(calls[4].url.endsWith('/game/state'));
+ assert.equal(await client.interact('  '),null);assert.equal(calls.length,5);
+});
+test('유휴 만료 활동 알림은 명령을 실행하거나 자동 재시도하지 않는다',async()=>{
+ const {client,calls}=setup([{status:409,body:{code:'IDLE_DISCONNECTED',message:'다시 로그인'}}]);client.accept(state());
+ await assert.rejects(client.interact('enter'),error=>error.code==='IDLE_DISCONNECTED');
+ assert.equal(calls.length,1);assert.ok(calls[0].url.endsWith('/sessions/activity'));
+});

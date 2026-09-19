@@ -86,6 +86,13 @@ export class TextClient {
     this.accept(result.state);
     return this.state;
   }
+  async interact(line) {
+    const input = line.trim();
+    if (!input) return null;
+    // 터미널의 실제 입력 경로 전용이다. 자동 snapshot/heartbeat에서 호출하지 않는다.
+    await this.request('/v1/sessions/activity', {});
+    return input === 'help' ? null : this.execute(input);
+  }
   async execute(line) {
     const [name, ...args] = line.trim().split(/\s+/);
     const arity = n => { if (args.length !== n) throw new Error('명령 인수를 확인하세요. help로 사용법을 볼 수 있습니다.'); };

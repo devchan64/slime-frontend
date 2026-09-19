@@ -31,6 +31,7 @@ if (args.length !== 1 || args[0] === '--help') {
   let timer;
   let queue = Promise.resolve();
   let stopped = false;
+  let logoutOnExit = true;
   let lastRefresh = Date.now();
   // 토큰 갱신·명령·종료를 직렬화해 사용 중인 세션 토큰이 교체되는 경합을 막는다.
   const serialize = task => { const result = queue.then(task); queue = result.catch(() => {}); return result; };
@@ -61,6 +62,7 @@ if (args.length !== 1 || args[0] === '--help') {
         await client.heartbeat();
       }).catch(error => {
         console.error(`\n연결 유지 실패: ${error.message}`);
+        if (error.code === 'IDLE_DISCONNECTED') logoutOnExit = false;
         stopped = true;
         terminal.close();
       }).finally(() => { maintenancePending = false; });
@@ -69,9 +71,15 @@ if (args.length !== 1 || args[0] === '--help') {
       const line = (await terminal.question('slime> ', { signal: inputClosed.signal })).trim();
       if (!line) continue;
       if (line === 'quit') break;
-      if (line === 'help') { console.log(HELP); continue; }
-      try { console.log(formatState(await serialize(() => client.execute(line)))); }
-      catch (error) { console.error(`명령 실패: ${error.message}`); }
+      try {
+        const result = await serialize(() => client.interact(line));
+        console.log(result ? formatState(result) : HELP);
+      } catch (error) {
+        console.error(`명령 실패: ${error.message}`);
+        if (error.code === 'IDLE_DISCONNECTED') {
+          logoutOnExit = false; stopped = true; terminal.close();
+        }
+      }
     }
   } catch (error) {
     if (!stopped) { console.error(`실행 실패: ${error.message}`); process.exitCode = 1; }
@@ -79,7 +87,7 @@ if (args.length !== 1 || args[0] === '--help') {
     stopped = true;
     clearInterval(timer);
     terminal.close();
-    if (client?.tokens) {
+    if (client?.tokens && logoutOnExit) {
       try { await serialize(() => client.logout()); }
       catch { console.error('로그아웃을 확인하지 못했습니다. 세션 만료 또는 다음 로그인 전환으로 정리됩니다.'); }
     }
