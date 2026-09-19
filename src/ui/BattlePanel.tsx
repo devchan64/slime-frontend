@@ -210,20 +210,20 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
 
     </div>
     </section>
-    <details class="battle-terrain-help"><summary>{t('battle.terrainControls')}</summary><div class="battle-help-content"><TerrainLegend /><p>{t('battle.terrainHelp')}</p></div></details>
+    <section class="battle-terrain-help"><h4>{t('battle.terrainControls')}</h4><div class="battle-help-content"><TerrainLegend /><p>{t('battle.terrainHelp')}</p></div></section>
     <div class="battle-secondary">
-    <details class="battle-roster-details"><summary>{t('battle.unitCount',{count:battle.units.length})}</summary>
+    <section class="battle-roster-details"><h4>{t('battle.unitCount',{count:battle.units.length})}</h4>
     <div class="units" aria-label={t('battle.units')}>
       {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => { setConfirming(false); select(u.position); }}>
         <span>{u.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {u.name}</span>
         <span>{healthLabel(u)}{u.guard ? ` · ${t('battle.guard')}` : ""}</span>
       </button>)}
     </div>
-    </details>
-    <details class="battle-records"><summary>{t('battle.logCount',{count:battle.log.length})}</summary><ol class="battle-log">
+    </section>
+    <section class="battle-records"><h4>{t('battle.logCount',{count:battle.log.length})}</h4><ol class="battle-log">
       {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">{t('battle.turnNumber',{turn:event.turnId})} · </span>{name(event.unitId)} · {LABELS[event.action] ? t(LABELS[event.action]) : event.action}
         {event.path?.length ? ` · ${t('battle.logMove',{path:event.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})}` : ""}{event.apCost !== undefined && event.apAfter !== undefined ? ` · ${t('battle.apPreview',{cost:event.apCost,remaining:event.apAfter})}` : ''}{event.movementStopped ? ` · ${t('battle.terrainMovementStopped')}` : ''}{event.autoGuard ? ` · ${t('battle.autoGuard')}` : ""}{event.targetId ? t('battle.logDamage',{name:name(event.targetId),damage:String(event.damage)}) : ""}</li>)}
-    </ol>{battle.log.length === 0 && <p>{t('battle.emptyLog')}</p>}</details>
+    </ol>{battle.log.length === 0 && <p>{t('battle.emptyLog')}</p>}</section>
 
     </div>
     </div>

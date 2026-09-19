@@ -1260,7 +1260,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .battle-help-card .battle-unit-details { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 6px 10px; }
 .battle-help-card .battle-unit-details p { margin: 0; font-size: 12px; }
 .battle-help-card :is(.battle-terrain-help, .battle-roster-details, .battle-records) { margin-top: 8px; border-top: 1px solid var(--border); }
-.battle-help-card :is(.battle-terrain-help, .battle-roster-details, .battle-records) > summary { display: list-item; cursor: pointer; padding: 8px 0; min-height: 44px; font-size: 12px; }
+.battle-help-card :is(.battle-terrain-help, .battle-roster-details, .battle-records) > h4 { margin: 8px 0; font-size: 12px; font-weight: 600; }
 .battle-help-card .battle-secondary { margin-top: 0; padding-top: 0; border-top: 0; }
 
 .sponsor-default { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 180px; padding: 24px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(145deg, #143e39, #10252e); text-align: center; }
