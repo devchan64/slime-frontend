@@ -5,3 +5,4 @@ invalidMessage: Unable to read the server message.
 reconnecting: Reconnecting · Controls locked
 transitioning: Checking the session transition · Please wait.
 transitionDelayed: The session transition is taking longer than expected. Sign in again to check its status.
+chatVerificationExpired: Advertisement verification or the chat connection has expired. Please try again.

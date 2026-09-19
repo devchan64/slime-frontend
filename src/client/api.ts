@@ -193,7 +193,7 @@ export class Client {
       socket.onclose = () => {
         clearTimeout(timeout);
         if (this.chatSocket === socket) this.disconnectChat();
-        if (!ready) reject(new Error('광고 검증 또는 채팅 접속이 만료되었습니다. 다시 확인하세요.'));
+        if (!ready) reject(new LocalizedError('network.chatVerificationExpired'));
       };
       socket.onerror = () => socket.close();
     });

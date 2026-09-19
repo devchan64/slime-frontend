@@ -5,3 +5,4 @@ invalidMessage: 서버 메시지를 읽을 수 없습니다.
 reconnecting: 연결 복구 중 · 입력 잠금
 transitioning: 세션 전환 확인 중 · 잠시 기다려 주세요.
 transitionDelayed: 세션 전환이 지연되고 있습니다. 다시 로그인해 상태를 확인하세요.
+chatVerificationExpired: 광고 검증 또는 채팅 접속이 만료되었습니다. 다시 확인하세요.
