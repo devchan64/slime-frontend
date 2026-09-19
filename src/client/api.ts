@@ -15,6 +15,10 @@ export class Client {
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private attempts = 0;
+  private chatSocket: WebSocket | null = null;
+  private chatHeartbeat: ReturnType<typeof setInterval> | null = null;
+  onChat: (messages: State['messages']) => void = () => {};
+  onChatStatus: (ready: boolean) => void = () => {};
   onState: (state: State) => void = () => {};
   onStatus: (ready: boolean, message: string) => void = () => {};
   async request(path: string, body?: unknown): Promise<any> {
@@ -70,6 +74,8 @@ export class Client {
         (state.epoch === this.state.epoch && state.cursor < this.state.cursor))
     )
       return;
+    if (this.state && (state.generation !== this.state.generation || state.epoch !== this.state.epoch
+        || state.location.id !== this.state.location.id)) this.disconnectChat();
     this.state = state;
     this.onState(state);
   }
@@ -152,11 +158,58 @@ export class Client {
         Math.random() * 300,
     );
   }
+  async connectChat() {
+    this.disconnectChat();
+    const state = this.state;
+    if (!state || this.stopped) throw new Error('세션이 없습니다.');
+    const { ticket } = await this.request('/v1/chat/tickets', {});
+    if (this.stopped || this.state?.generation !== state.generation || this.state?.epoch !== state.epoch
+        || this.state?.location.id !== state.location.id) throw new Error('광고 확인 중 맵이 변경되었습니다.');
+    const url = new URL(`${API_BASE}/v1/chat/realtime`, location.href);
+    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    const socket = new WebSocket(url);
+    this.chatSocket = socket;
+    await new Promise<void>((resolve, reject) => {
+      let ready = false;
+      const timeout = setTimeout(() => socket.close(), 10000);
+      socket.onopen = () => socket.send(JSON.stringify({ ticket, protocolVersion: 1 }));
+      socket.onmessage = event => {
+        if (this.chatSocket !== socket) return;
+        try {
+          const frame = JSON.parse(event.data);
+          if (frame.type !== 'chat' || frame.generation !== state.generation || frame.epoch !== state.epoch
+              || frame.room !== state.location.chatRoomId || !Array.isArray(frame.messages)) throw new Error('채팅 입장 검증에 실패했습니다.');
+          this.onChat(frame.messages);
+          if (!ready) {
+            ready = true; clearTimeout(timeout);
+            this.chatHeartbeat = setInterval(() => {
+              if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({type:'heartbeat'}));
+            }, HEARTBEAT_MS);
+            this.onChatStatus(true); resolve();
+          }
+        } catch (error) { reject(error); socket.close(); }
+      };
+      socket.onclose = () => {
+        clearTimeout(timeout);
+        if (this.chatSocket === socket) this.disconnectChat();
+        if (!ready) reject(new Error('광고 검증 또는 채팅 접속이 만료되었습니다. 다시 확인하세요.'));
+      };
+      socket.onerror = () => socket.close();
+    });
+  }
+  private disconnectChat() {
+    if (this.chatHeartbeat) clearInterval(this.chatHeartbeat);
+    this.chatHeartbeat = null;
+    const socket = this.chatSocket; this.chatSocket = null;
+    socket?.close();
+    this.onChat([]); this.onChatStatus(false);
+  }
   private clearHeartbeat() {
     if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
   }
   disconnect() {
+    this.disconnectChat();
     this.stopped = true;
     this.clearHeartbeat();
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);

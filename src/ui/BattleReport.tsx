@@ -37,7 +37,7 @@ export function BattleReport({ result, onReturn }: {
     <h2 id="battle-report-title">전투 리포트</h2>
     <p class="battle-report-result">{RESULT_LABELS[result.result] ?? result.result}</p>
     <dl><div><dt>획득 재화</dt><dd>+{result.coins}</dd></div></dl>
-    <p role="status">{seconds}초 후 맵으로 이동합니다.</p>
+    <p role="status">{seconds}초 후 맵 복귀를 시작합니다.</p>
     <button autoFocus onClick={finish}>확인</button>
   </dialog>;
 }

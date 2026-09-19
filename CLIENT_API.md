@@ -67,3 +67,13 @@ node scripts/text-client.mjs --help
 ```
 
 테스트는 모의 HTTP 응답으로 세션 전환·명령 버전/턴·중복 재시도·정보 표시를 검증한다. 실제 서버의 조우부터 승패 정산까지 완료했다는 의미는 아니다.
+
+## 광고 확인과 채팅 연결
+
+맵 입장 후 `POST /v1/sponsorship/attempts`에 빈 객체를 전송한다. 응답의 `displayUrl`에 `attemptId` 쿼리를 붙여 표시하며 같은 API를 2초 간격으로 조회한다. 현재 상태의 `generation`, `epoch`, `location.chatRoomId`와 응답이 일치해야 한다. 클라이언트가 완료를 신고하는 API는 없다.
+
+`verified: true` 후 `POST /v1/chat/tickets`로 일회용 티켓을 받고 `/v1/chat/realtime` 첫 프레임으로 `{ticket, protocolVersion: 1}`을 보낸다. `type: chat` 프레임의 `messages`만 대화 목록으로 사용한다. `{type: "heartbeat"}`를 10초 간격으로 보낸다. 일반 게임 상태의 `messages`는 빈 배열이며 게임 연결과 채팅 연결은 별개다. 채팅 송신은 기존 `POST /v1/game/messages`를 사용하며 서버가 현재 광고 승인을 검사한다.
+
+공급사 미설정은 `SPONSOR_UNAVAILABLE`, 승인 누락·만료는 `SPONSOR_REQUIRED`다. 실패·연결 종료·공간 변경 시 대화 목록과 입장 상태를 초기화하고 광고 확인 화면을 표시한다. 로컬 타이머·영상 종료 이벤트로 성공 처리하지 않는다.
+
+광고 시도 응답의 `displayUrl`은 null일 수 있다. 이 경우 `text`를 기본 광고 영역에 표시한다. `verification: unavailable`이면 검증 연동 대기 안내를 표시하고 채팅을 허용하지 않는다. 광고 선택의 시간·맵 조건은 서버에서 평가하며 클라이언트가 광고 ID를 지정하지 않는다. 조건에 맞는 광고가 없으면 서버의 기본 광고가 반환된다.

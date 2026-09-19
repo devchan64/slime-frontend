@@ -1,0 +1,86 @@
+healthAlly: 'HP {hp} / {maxHp}'
+healthFallen: Fallen
+healthHidden: Health unknown · Monster Lore required
+healthLight: Light damage · Monster Lore · Two health bands
+healthHeavy: Heavy damage · Monster Lore · Two health bands
+selectedCharacter: Selected character
+activeCharacter: Active character
+characterAp: Character AP
+remainingAp: Remaining AP
+apUnknown: AP unavailable
+apValue: 'Remaining AP {value}'
+apMaximum: 'Remaining AP {value} / {maximum}'
+unitDetails: Selected character details
+selectUnitHelp: Select a character to view their status here.
+ally: Ally
+enemy: Enemy
+incapacitated: Incapacitated
+guarding: Guarding
+noGuard: Not guarding
+unitStats: 'Attack {attack} · Defense {defense} · Speed {speed} · Move {move} · Range {range}'
+move: "Move"
+attack: "Attack"
+guard: "Guard"
+endTurn: "End turn"
+wait: "Wait (time expired)"
+surrenderVote: "Surrender vote"
+cancel: "Cancel"
+confirm: "Confirm"
+preparing: "Preparing battlefield"
+preparingHelp: "The first turn starts when the map, battle chat and all participants are ready."
+controls: "Battle controls"
+myTurn: "Your turn"
+waiting: "Waiting"
+participant: "Participant"
+moveHint: "Select a blue movement tile to open confirmation."
+attackHint: "Select an attack target on the map or in the list below."
+endHint: "Confirm in the dialog to end your turn."
+actions: "Battle actions"
+noTarget: "No attack targets are in range."
+confirmSurrender: "Confirm surrender vote"
+surrender: "Surrender"
+targetSelection: "Select attack target"
+clearSelection: "Clear selection"
+noAttackTargets: "No targets can be attacked from this position."
+attackCandidates: "Available attack targets"
+selected: "Selected"
+help: "Battle help"
+movementLegend: "Movement range legend"
+moveTiles: "Blue tiles · Reachable"
+pathLine: "Numbered line · Selected route"
+arrivalLine: "Orange inner line · Attack after arrival"
+chooseTile: "Select a tile inside the bright blue outline."
+endAfterAction: "You have used your action. End the turn without additional guard."
+autoGuardHelp: "Give up remaining movement and guard automatically. Basic attack damage received is halved until your next turn."
+arrivalHeading: "Attacks after arrival"
+moveEndsTurn: "You have used your action. Moving will end your turn."
+noArrivalTargets: "No enemies can be attacked after arrival."
+moveOnly: "Only movement is confirmed. Choose an attack separately after arrival."
+turnCharacters: "Turns and characters"
+turnOrder: "Turn order this round"
+used: "Used"
+once: "Once"
+legacyActionHelp: "Move and act in either order · The turn ends after both are used"
+terrainControls: "Terrain and controls"
+terrainHelp: "Select tiles to move or target an attack. Drag to pan; use zoom and rotation controls to inspect the terrain."
+units: "Battle units"
+emptyLog: "No battle actions recorded yet."
+endNoGuard: "End the turn without additional guard."
+endWithGuard: "Give up remaining movement and end the turn guarding."
+seconds: "{seconds}s"
+waitFor: "Waiting for {name} to act."
+targetCount: "Attack targets · {count}"
+expectedDamage: "Expected damage {damage}"
+moveRoute: "Move {count} cells: {path}"
+arrivalRange: "Orange inner line: attack range after arrival · Range {range} cells"
+roundStatus: "Round {round} · Active: {name}"
+actionUsage: "Movement: {move} · Action: {action}"
+portrait: "Portrait of {name}"
+healthLabel: "{name} health"
+unitCount: "Participating units · {count}"
+logCount: "Battle log · {count} actions"
+turnNumber: "Turn {turn}"
+logMove: "Move {path}"
+autoGuard: "Auto guard"
+logDamage: " → {name} ({damage} damage)"
+confirmAction: "Confirm {action}"

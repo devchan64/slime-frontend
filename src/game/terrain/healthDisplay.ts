@@ -1,7 +1,7 @@
 import type { Unit } from '../../client/types';
 
 type Health = Pick<Unit, 'hp' | 'maxHp' | 'side' | 'healthVisibility'>;
-export type HealthDisplay = { ratio: number | null; label: string };
+export type HealthDisplay = { ratio: number | null; labelKey: string; values?: { hp: number; maxHp: number } };
 
 // 서버의 표시 스케일과 이전 응답 모두 같은 공개 상한을 적용한다.
 export function healthDisplay(health: Health, monsterLoreLevel: number): HealthDisplay {
@@ -12,14 +12,14 @@ export function healthDisplay(health: Health, monsterLoreLevel: number): HealthD
   if (!Number.isInteger(monsterLoreLevel) || monsterLoreLevel < 0) {
     throw new Error('몬스터학 레벨은 0 이상의 정수여야 합니다.');
   }
-  if (side === 'ally') return { ratio: hp / maxHp, label: `HP ${hp} / ${maxHp}` };
+  if (side === 'ally') return { ratio: hp / maxHp, labelKey: 'battle.healthAlly', values: {hp,maxHp} };
   if (healthVisibility !== undefined && healthVisibility !== 'HIDDEN' && healthVisibility !== 'BANDED') {
     throw new Error('지원하지 않는 몬스터 체력 공개 상태입니다.');
   }
-  if (hp === 0) return { ratio: null, label: '쓰러짐' };
-  if (monsterLoreLevel === 0 || healthVisibility === 'HIDDEN') return { ratio: null, label: '체력 미확인 · 몬스터학 필요' };
+  if (hp === 0) return { ratio: null, labelKey: 'battle.healthFallen' };
+  if (monsterLoreLevel === 0 || healthVisibility === 'HIDDEN') return { ratio: null, labelKey: 'battle.healthHidden' };
   // 상위 레벨의 정밀도는 미정이므로 확정된 두 단계보다 자세히 공개하지 않는다.
   return hp * 2 > maxHp
-    ? { ratio: 1, label: '손상 적음 · 몬스터학 · 2구간 판별' }
-    : { ratio: 0.5, label: '손상 큼 · 몬스터학 · 2구간 판별' };
+    ? { ratio: 1, labelKey: 'battle.healthLight' }
+    : { ratio: 0.5, labelKey: 'battle.healthHeavy' };
 }

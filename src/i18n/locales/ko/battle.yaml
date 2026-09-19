@@ -1,0 +1,86 @@
+healthAlly: 'HP {hp} / {maxHp}'
+healthFallen: 쓰러짐
+healthHidden: 체력 미확인 · 몬스터학 필요
+healthLight: 손상 적음 · 몬스터학 · 2구간 판별
+healthHeavy: 손상 큼 · 몬스터학 · 2구간 판별
+selectedCharacter: 선택한 캐릭터
+activeCharacter: 현재 행동 캐릭터
+characterAp: 캐릭터 AP
+remainingAp: 남은 AP
+apUnknown: AP 확인 불가
+apValue: '남은 AP {value}'
+apMaximum: '남은 AP {value} / {maximum}'
+unitDetails: 선택 캐릭터 설명
+selectUnitHelp: 캐릭터를 선택하면 이곳에서 상태를 확인할 수 있습니다.
+ally: 아군
+enemy: 적
+incapacitated: 전투 불능
+guarding: 방어 중
+noGuard: 방어 없음
+unitStats: '공격 {attack} · 방어 {defense} · 속도 {speed} · 이동 {move} · 사거리 {range}'
+move: "이동"
+attack: "공격"
+guard: "방어"
+endTurn: "턴 종료"
+wait: "시간 초과 대기"
+surrenderVote: "기권 동의"
+cancel: "취소"
+confirm: "확정"
+preparing: "전투 맵 준비 중"
+preparingHelp: "맵과 전용 채팅룸, 참가자 준비가 완료된 뒤 첫 턴을 시작합니다."
+controls: "전투 컨트롤 카드"
+myTurn: "내 차례"
+waiting: "행동 대기"
+participant: "참가자"
+moveHint: "파란 이동 칸을 선택하면 확정 창이 열립니다."
+attackHint: "맵이나 아래 목록에서 공격 대상을 선택하세요."
+endHint: "턴 종료는 확정 창에서 결정합니다."
+actions: "전투 행동 선택"
+noTarget: "현재 위치에서 공격 가능한 대상이 없습니다."
+confirmSurrender: "기권 동의 확정"
+surrender: "기권"
+targetSelection: "공격 대상 선택"
+clearSelection: "선택 해제"
+noAttackTargets: "현재 위치에서 공격할 수 있는 대상이 없습니다."
+attackCandidates: "공격 가능한 몹 목록"
+selected: "선택됨"
+help: "전투 도움말 카드"
+movementLegend: "이동 범위 범례"
+moveTiles: "파란 칸 · 이동 가능"
+pathLine: "번호선 · 선택 경로"
+arrivalLine: "주황 안쪽선 · 도착 후 공격"
+chooseTile: "밝은 파란 테두리 안의 칸을 선택하세요."
+endAfterAction: "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다."
+autoGuardHelp: "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."
+arrivalHeading: "도착 후 공격 안내"
+moveEndsTurn: "행동을 이미 사용했습니다. 이동하면 턴이 종료됩니다."
+noArrivalTargets: "도착 후 공격 가능한 적이 없습니다."
+moveOnly: "이동만 확정합니다. 공격은 도착 후 따로 선택하세요."
+turnCharacters: "턴·캐릭터"
+turnOrder: "이번 라운드 행동 순서"
+used: "사용함"
+once: "1회"
+legacyActionHelp: "이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료"
+terrainControls: "지형·조작"
+terrainHelp: "타일을 선택해 이동·공격 대상을 지정하세요. 드래그로 시점을 이동하고 확대·축소 및 회전 버튼으로 지형을 확인하세요."
+units: "전투 유닛"
+emptyLog: "아직 전투 액션 기록이 없습니다."
+endNoGuard: "추가 방어 없이 턴을 종료합니다."
+endWithGuard: "남은 이동을 포기하고 방어하며 턴을 종료합니다."
+seconds: "{seconds}초"
+waitFor: "{name}의 행동을 기다리고 있습니다."
+targetCount: "공격 대상 · {count}"
+expectedDamage: "예상 피해 {damage}"
+moveRoute: "이동 {count}셀: {path}"
+arrivalRange: "주황 안쪽선: 도착 후 공격 범위 · 사거리 {range}셀"
+roundStatus: "라운드 {round} · 현재 {name}"
+actionUsage: "이동 {move} · 행동 {action}"
+portrait: "{name} 모습"
+healthLabel: "{name} 체력"
+unitCount: "참가 유닛 · {count}"
+logCount: "전투기록 보기 · {count}개 액션"
+turnNumber: "턴 {turn}"
+logMove: "이동 {path}"
+autoGuard: "자동 방어"
+logDamage: " → {name} ({damage} 피해)"
+confirmAction: "{action} 확인"

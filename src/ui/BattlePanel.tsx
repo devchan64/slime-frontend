@@ -1,3 +1,5 @@
+import { localizedBattle } from '../client/monsterText';
+import { useTranslation } from '../i18n';
 import { BattleUnitDetails } from "./BattleUnitDetails";
 import { BattleActionPoints } from "./BattleActionPoints";
 import { healthDisplay } from "../game/terrain/healthDisplay";
@@ -14,12 +16,13 @@ const PORTRAITS = {
 };
 type Mode = BattleMode;
 const LABELS: Record<string, string> = {
-  MOVE: "이동", ATTACK: "공격", GUARD: "방어", END_TURN: "턴 종료", WAIT: "시간 초과 대기", SURRENDER: "기권 동의",
+  MOVE: "battle.move", ATTACK: "battle.attack", GUARD: "battle.guard", END_TURN: "battle.endTurn", WAIT: "battle.wait", SURRENDER: "battle.surrenderVote",
 };
 const same = (a: Position, b: Position | null) => !!b && a.column === b.column && a.row === b.row;
 function BattleConfirmation({ title, summary, disabled, close, confirm }: {
   title: string; summary: string; disabled: boolean; close: () => void; confirm: () => void;
 }) {
+  const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
   const submitted = useRef(false);
   useEffect(() => {
@@ -33,26 +36,42 @@ function BattleConfirmation({ title, summary, disabled, close, confirm }: {
     <h2 id="battle-confirm-title">{title}</h2>
     <p id="battle-confirm-description">{summary}</p>
     <div class="battle-confirm-actions">
-      <button class="secondary" autoFocus onClick={close}>취소</button>
+      <button class="secondary" autoFocus onClick={close}>{t('battle.cancel')}</button>
       <button disabled={disabled} onClick={() => {
         if (disabled || submitted.current) return;
         submitted.current = true;
         confirm();
-      }}>확정</button>
+      }}>{t('battle.confirm')}</button>
     </div>
   </dialog>;
 }
 
-export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute, onMode, monsterLoreLevel = 0 }: {
-  battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean; remaining: number;
+export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
+  selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean; remaining: number;
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
   select: (p: Position | null) => void; execute: (type: string, targetId?: string) => void;
 }) {
+  const { t, locale } = useTranslation();
+  battle = localizedBattle(battle, locale);
+  const healthLabel = (unit: Battle["units"][number]) => {
+    const display = healthDisplay(unit, monsterLoreLevel);
+    return t(display.labelKey, display.values);
+  };
   const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor, remaining));
   useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [surrender, setSurrender] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  useEffect(() => { setConfirming(false); }, [battle.id, battle.turnId, battle.version, battle.status, mode, selected?.column, selected?.row]);
+  useEffect(() => { setConfirming(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
+  const lastSelectionIntent = useRef(selectionIntent);
+  useEffect(() => {
+    if (lastSelectionIntent.current === selectionIntent) return;
+    lastSelectionIntent.current = selectionIntent;
+    setConfirming(!disabled && (mode === "MOVE" || mode === "ATTACK") && !!selected);
+  }, [selectionIntent]);
+  const chooseTarget = (position: Position) => {
+    select(position);
+    setConfirming(!disabled && (mode === "MOVE" || mode === "ATTACK"));
+  };
   const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor && remaining > 0;
   useEffect(() => {
     const next = defaultBattleMode(battle, actor, remaining);
@@ -62,9 +81,10 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const chooseMode = (next: Mode) => {
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
     setMode(next);
+    setConfirming(next === "END_TURN");
   };
   if (battle.status === "PREPARING") return <section class="card">
-    <h3>전투 맵 준비 중</h3><p>맵과 전용 채팅룸, 참가자 준비가 완료된 뒤 첫 턴을 시작합니다.</p>
+    <h3>{t('battle.preparing')}</h3><p>{t('battle.preparingHelp')}</p>
   </section>;
   const current = battle.units.find(u => u.id === battle.order[battle.index]);
   const own = battle.tactics.canAct && current?.id === actor && remaining > 0;
@@ -72,112 +92,110 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
   const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : true);
-  const selectedTargets = mode === "ATTACK" && target && attack ? [{unit: target, damage: attack.damage}] : [];
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <>
-  <section class="card battle-panel battle-control-card" aria-label="전투 컨트롤 카드">
-    <div class="battle-control-heading"><h3>전투 컨트롤</h3><span class="battle-step" aria-live="polite">{!own ? "행동 대기" : mode === null ? "1 · 행동 선택" : !valid ? "2 · 대상 선택" : "3 · 확정"}</span></div>
+  <section class="card battle-panel battle-control-card" aria-label={t('battle.controls')}>
+    <div class="battle-control-heading"><span class={`battle-turn-indicator${own ? " is-own-turn" : ""}`}>{own ? t('battle.myTurn') : t('battle.waiting')} · {t('battle.seconds',{seconds:remaining})}</span></div>
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
+    <p class="battle-action-hint" aria-live="polite">{!own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
     <div class="battle-button-toolbar">
-    <div class="battle-mode-buttons" role="group" aria-label="전투 행동 선택">
+    <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
         class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
         disabled={disabled || !own || (value === "MOVE" && (battle.moved || battle.tactics.moves.length === 0)) || (value === "ATTACK" && (battle.acted || battle.tactics.attacks.length === 0))}
-        title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? "현재 위치에서 공격 가능한 대상이 없습니다." : undefined}
-        onClick={() => chooseMode(value)}>{LABELS[value]}</button>)}
+        title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
+        onClick={() => chooseMode(value)}>{t(LABELS[value])}</button>)}
     </div>
     <div class="battle-submit-row">
       {surrender ? <>
-        <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>기권 동의 확정</button>
-        <button class="secondary" onClick={() => setSurrender(false)}>취소</button>
+        <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>{t('battle.confirmSurrender')}</button>
+        <button class="secondary" onClick={() => setSurrender(false)}>{t('battle.cancel')}</button>
       </> : <>
-        <button class="battle-confirm" aria-haspopup="dialog" disabled={disabled || !valid} onClick={() => setConfirming(true)}>행동 확인</button>
-        <button class="secondary battle-surrender" disabled={disabled} onClick={() => setSurrender(true)}>기권</button>
+        <button class="secondary battle-surrender" disabled={disabled} onClick={() => setSurrender(true)}>{t('battle.surrender')}</button>
       </>}
     </div>
     </div>
     </div>
-    {mode === "ATTACK" && <section class="attack-targets" aria-label="공격 대상 선택">
-      <h4>선택한 몹 · {selectedTargets.length} / 1</h4>
-      {selectedTargets.length ? <ul aria-label="선택된 몹 목록">{selectedTargets.map(({unit, damage}) => <li key={unit.id}>
-        <div><strong>{unit.name}</strong><small>{healthDisplay(unit, monsterLoreLevel).label} · 예상 피해 {damage}</small></div>
-        <button class="secondary compact" aria-label={`${unit.name} 선택 해제`} onClick={() => select(null)}>해제</button>
-      </li>)}</ul> : <p>선택한 몹이 없습니다.</p>}
-      <p class="field-subtitle">일반 공격은 신체활동 레벨 1에 포함된 스킬이며 한 마리를 선택합니다. 자동 선택해도 확정 전에는 공격하지 않습니다.</p>
-      <div class="attack-candidates" aria-label="공격 가능한 몹 목록">
+    {mode === "ATTACK" && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
+      <div class="battle-target-heading"><h4>{t('battle.targetCount',{count:battle.tactics.attacks.length})}</h4>
+        {attack && target && <button class="secondary compact" onClick={() => { setConfirming(false); select(null); }}>{t('battle.clearSelection')}</button>}
+      </div>
+      {battle.tactics.attacks.length === 0 && <p>{t('battle.noAttackTargets')}</p>}
+      <div class="attack-candidates" aria-label={t('battle.attackCandidates')}>
         {battle.tactics.attacks.map(candidate => {
           const unit = battle.units.find(u => u.id === candidate.targetId)!;
           return <button key={unit.id} class="secondary compact" aria-pressed={target?.id === unit.id}
             disabled={disabled || !own || battle.acted}
-            onClick={() => select(target?.id === unit.id ? null : unit.position)}>{unit.name}</button>;
+            onClick={() => chooseTarget(unit.position)}>
+              <span class="battle-target-name"><strong>{unit.name}</strong>{target?.id === unit.id && <small>{t('battle.selected')}</small>}</span>
+              <span class="battle-target-info">{healthLabel(unit)} · {t('battle.expectedDamage',{damage:candidate.damage})}</span>
+            </button>;
         })}
       </div>
     </section>}
   </section>
-  <section class="card battle-help-card" aria-label="전투 도움말 카드">
-    <h3>전투 도움말</h3>
+  <section class="card battle-help-card" aria-label={t('battle.help')}>
+
     <BattleUnitDetails unit={battle.units.find(u => same(u.position, selected))} monsterLoreLevel={monsterLoreLevel} />
     {mode !== null && <>
-    {mode === "MOVE" && <div class="battle-range-legend" aria-label="이동 범위 범례">
-      <span><i class="range-key range-key-move" aria-hidden="true" />파란 칸 · 이동 가능</span>
-      <span><i class="range-key range-key-path" aria-hidden="true">1</i>번호선 · 선택 경로</span>
-      {move && <span><i class="range-key range-key-arrival" aria-hidden="true" />주황 안쪽선 · 도착 후 공격</span>}
+    {mode === "MOVE" && <div class="battle-range-legend" aria-label={t('battle.movementLegend')}>
+      <span><i class="range-key range-key-move" aria-hidden="true" />{t('battle.moveTiles')}</span>
+      <span><i class="range-key range-key-path" aria-hidden="true">1</i>{t('battle.pathLine')}</span>
+      {move && <span><i class="range-key range-key-arrival" aria-hidden="true" />{t('battle.arrivalLine')}</span>}
     </div>}
-    <div class="battle-command-content"><div class="command-preview" aria-live="polite">
-      {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "밝은 파란 테두리 안의 칸을 선택하세요."
-        : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage}` : "붉은 테두리의 사거리 내 적을 선택하세요."
-        : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
-    </div>
+    <div class="battle-command-content">{mode !== "ATTACK" && <div class="command-preview" aria-live="polite">
+      {mode === "MOVE" ? move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column},${p.row})`).join(' → ')}) : t('battle.chooseTile')
+        : battle.acted ? t('battle.endAfterAction') : t('battle.autoGuardHelp')}
+    </div>}
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
-      <strong>도착 후 공격 안내</strong>
-      {battle.acted ? <p>행동을 이미 사용했습니다. 이동하면 턴이 종료됩니다.</p> : <>
-        <p>주황 안쪽선: 도착 후 공격 범위 · 사거리 {current?.range.join("~")}셀</p>
-        {move.attacks.length ? <ul>{move.attacks.map(a => <li>{name(a.targetId)} · 예상 피해 {a.damage}</li>)}</ul>
-          : <p>도착 후 공격 가능한 적이 없습니다.</p>}
-        <small>이동만 확정합니다. 공격은 도착 후 따로 선택하세요.</small>
+      <strong>{t('battle.arrivalHeading')}</strong>
+      {battle.acted ? <p>{t('battle.moveEndsTurn')}</p> : <>
+        <p>{t('battle.arrivalRange',{range:current?.range.join('~') ?? ''})}</p>
+        {move.attacks.length ? <ul>{move.attacks.map(a => <li>{name(a.targetId)} · {t('battle.expectedDamage',{damage:a.damage})}</li>)}</ul>
+          : <p>{t('battle.noArrivalTargets')}</p>}
+        <small>{t('battle.moveOnly')}</small>
       </>}
     </div>}
     </div></>}
     <div class="battle-help-sections">
-    <section class="battle-status-details"><h4>턴·캐릭터</h4><div class="battle-status">
+    <section class="battle-status-details"><h4>{t('battle.turnCharacters')}</h4><div class="battle-status">
     <div class="eyebrow">TURN-BASED TACTICS · {battle.field.columns} × {battle.field.rows}</div>
-    <h3>라운드 {battle.round} · {current?.name} <span class="timer">{remaining}초</span></h3>
-    <p aria-live="polite">{own ? "당신의 차례 · 명령과 대상을 선택한 뒤 확정하세요." : "현재 유닛의 행동을 기다리세요."}</p>
-    <div class="turn-order" aria-label="이번 라운드 행동 순서">
+    <p class="battle-round-summary">{t('battle.roundStatus',{round:battle.round,name:current?.name ?? t('battle.participant')})}</p>
+    <div class="turn-order" aria-label={t('battle.turnOrder')}>
       {battle.order.map((id, index) => {
         const u = battle.units.find(unit => unit.id === id)!;
         return <span class={index === battle.index ? "badge current" : "badge"} style={{ opacity: u.hp <= 0 || index < battle.index ? 0.4 : 1 }}>
-          {index === battle.index ? "▶ " : ""}{u.name}{u.hp <= 0 ? " (쓰러짐)" : ""}
+          {index === battle.index ? "▶ " : ""}{u.name}{u.hp <= 0 ? ` (${t('battle.healthFallen')})` : ""}
         </span>;
       })}
     </div>
-    <p>이동 {battle.moved ? "사용함" : "1회"} · 행동 {battle.acted ? "사용함" : "1회"}<br />이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료</p>
-    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={`${current.name} 모습`} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? "아군" : "적군"} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={`${current.name} 체력`} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>{healthDisplay(current, monsterLoreLevel).label}</small>}</div></div>}
+    <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>
+    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={t('battle.portrait',{name:current.name})} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={t('battle.healthLabel',{name:current.name})} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>{healthLabel(current)}</small>}</div></div>}
     </div>
     </section>
-    <section class="battle-terrain-help"><h4>지형·조작</h4><div class="battle-help-content"><TerrainLegend /><p>타일을 선택해 이동·공격 대상을 지정하세요. 드래그로 시점을 이동하고 확대·축소 및 회전 버튼으로 지형을 확인하세요.</p><p>파랑: 이동 · 번호선: 경로 · 주황: 도착 후 공격 범위</p></div></section>
+    <section class="battle-terrain-help"><h4>{t('battle.terrainControls')}</h4><div class="battle-help-content"><TerrainLegend /><p>{t('battle.terrainHelp')}</p></div></section>
     <div class="battle-secondary">
-    <h4>참가 유닛 · {battle.units.length}</h4>
-    <div class="units" aria-label="전투 유닛">
-      {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => select(u.position)}>
-        <span>{u.side === "ally" ? "아군" : "적"} · {u.name}</span>
-        <span>{healthDisplay(u, monsterLoreLevel).label}{u.guard ? " · 방어" : ""}</span>
+    <h4>{t('battle.unitCount',{count:battle.units.length})}</h4>
+    <div class="units" aria-label={t('battle.units')}>
+      {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => chooseTarget(u.position)}>
+        <span>{u.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {u.name}</span>
+        <span>{healthLabel(u)}{u.guard ? ` · ${t('battle.guard')}` : ""}</span>
       </button>)}
     </div>
-    <details class="battle-records"><summary>전투기록 보기 · {battle.log.length}개 액션</summary><ol class="battle-log">
-      {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">턴 {event.turnId} · </span>{name(event.unitId)} · {LABELS[event.action] || event.action}
-        {event.path?.length ? ` · 이동 ${event.path.map(p => `(${p.column}, ${p.row})`).join(" → ")}` : ""}{event.autoGuard ? " · 자동 방어" : ""}{event.targetId ? ` → ${name(event.targetId)} (${event.damage} 피해)` : ""}</li>)}
-    </ol>{battle.log.length === 0 && <p>아직 전투 액션 기록이 없습니다.</p>}</details>
+    <details class="battle-records"><summary>{t('battle.logCount',{count:battle.log.length})}</summary><ol class="battle-log">
+      {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">{t('battle.turnNumber',{turn:event.turnId})} · </span>{name(event.unitId)} · {LABELS[event.action] ? t(LABELS[event.action]) : event.action}
+        {event.path?.length ? ` · ${t('battle.logMove',{path:event.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})}` : ""}{event.autoGuard ? ` · ${t('battle.autoGuard')}` : ""}{event.targetId ? t('battle.logDamage',{name:name(event.targetId),damage:String(event.damage)}) : ""}</li>)}
+    </ol>{battle.log.length === 0 && <p>{t('battle.emptyLog')}</p>}</details>
 
     </div>
     </div>
   </section>
   {confirming && valid && mode && <BattleConfirmation
-    title={`${LABELS[mode]} 확인`}
-    summary={mode === "MOVE" && move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column}, ${p.row})`).join(" → ")}`
-      : mode === "ATTACK" && target && attack ? `${target.name} · 예상 피해 ${attack.damage}`
-      : battle.acted ? "추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 방어하며 턴을 종료합니다."}
+    title={t('battle.confirmAction',{action:t(LABELS[mode])})}
+    summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})
+      : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}`
+      : battle.acted ? t('battle.endNoGuard') : t('battle.endWithGuard')}
     disabled={disabled || !valid} close={() => setConfirming(false)}
     confirm={() => { setConfirming(false); execute(mode, mode === "ATTACK" ? target?.id : undefined); }} />}
   </>;

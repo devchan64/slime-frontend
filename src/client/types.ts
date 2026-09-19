@@ -2,7 +2,7 @@ import type { Surface } from "../game/terrain/elevation";
 import type { SkillDefinition } from "./skillText";
 export type Position = { column: number; row: number };
 export type SizeClass = "small" | "medium" | "large" | "huge";
-export type Appearance = { monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
+export type Appearance = { nameTranslations?: Record<"ko" | "en", string>; monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
 export type Unit = Appearance & {
   id: string;
   name: string;

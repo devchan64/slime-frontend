@@ -1,4 +1,6 @@
+import { localizedMonsters } from '../client/monsterText';
 import { BattleReport } from "./BattleReport";
+import { SponsorGate } from "./SponsorGate";
 import { LanguageSelect } from './LanguageSelect';
 import { useTranslation, getLocale } from '../i18n';
 import { localizedFieldMap, localizedMapName } from '../client/mapText';
@@ -33,7 +35,10 @@ const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const { t, locale } = useTranslation();
+  const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
   const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
+  const [sponsorApproved, setSponsorApproved] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<State['messages']>([]);
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
     [status, setStatus] = useState(""),
@@ -148,6 +153,8 @@ export function App() {
       setConnected(ready);
       setStatus(msg);
     };
+    client.onChat = setChatMessages;
+    client.onChatStatus = ready => { if (!ready) setSponsorApproved(null); };
     const timer = setInterval(() => setClock(Date.now()), 1000);
     return () => {
       clearInterval(timer);
@@ -177,13 +184,13 @@ export function App() {
     void import("../game/createGame")
       .then(({ createGame }) => {
         if (disposed || !container.current) return;
-        renderer.current = createGame(container.current, setSelected, setRenderedLocation, message => {
+        renderer.current = createGame(container.current, position => { setSelected(position); setBattleSelectionIntent(value => value + 1); }, setRenderedLocation, message => {
           setRenderFailed(true);
           setRenderError(message);
           setStatus(message);
         });
-        if (stateRef.current) renderer.current.scene.setState({...stateRef.current,
-          map: localizedFieldMap(stateRef.current.map, getLocale())});
+        if (stateRef.current) renderer.current.scene.setState(localizedMonsters({...stateRef.current,
+          map: localizedFieldMap(stateRef.current.map, getLocale())}, getLocale()));
         canvas = renderer.current.game.canvas;
         canvas.addEventListener("webglcontextlost", lost);
       })
@@ -202,14 +209,16 @@ export function App() {
     };
   }, [inWorld]);
   useEffect(() => {
-    if (state) renderer.current?.scene.setState({...state, map: localizedFieldMap(state.map, locale)});
+    if (state) renderer.current?.scene.setState(localizedMonsters({...state, map: localizedFieldMap(state.map, locale)}, locale));
   }, [state, locale]);
+  const sponsorKey = state ? `${state.generation}:${state.epoch}:${state.location.id}` : '';
+  const sponsorPending = inWorld && sponsorApproved !== sponsorKey;
   const loadingRequested = transferPending || (inWorld &&
-    (renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING"));
+    (sponsorPending || renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING"));
   const { loading, minimumElapsed } = useMinimumLoading(loadingRequested);
   useEffect(() => {
     const battle = state?.battle;
-    if (!battle || battle.status !== "PREPARING" || !minimumElapsed || !connected || renderFailed ||
+    if (!battle || battle.status !== "PREPARING" || sponsorPending || !minimumElapsed || !connected || renderFailed ||
         renderedLocation !== state.location.id || !state.location.roomReady ||
         state.me.requiresStartSpawn || battle.ready?.includes(state.me.id) || readyRequest.current) return;
     const id = battle.id;
@@ -218,7 +227,7 @@ export function App() {
     void client.command("/v1/game/battle/commands", { action: { type: "READY", battleId: id } })
       .catch(e => { if (stateRef.current?.battle?.id === id) setPreparationError((e as Error).message); })
       .finally(() => { if (readyRequest.current === id) readyRequest.current = null; });
-  }, [state, connected, renderedLocation, renderFailed, clock, minimumElapsed]);
+  }, [state, connected, renderedLocation, renderFailed, clock, minimumElapsed, sponsorPending]);
   async function run(task: () => Promise<unknown>) {
     if (busy) return;
     setBusy(true);
@@ -305,17 +314,19 @@ export function App() {
     <div class={`app-shell ${!state ? "login-shell" : inWorld ? "world-shell" : ""}`}>
       {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
         <section class="loading-card" aria-live="polite">
-          <div class="eyebrow">SLIME · LOADING</div>
-          <h2>{renderFailed ? "화면 준비에 실패했습니다" : state?.battle ? "전투 맵으로 이동 중" : "맵으로 이동 중"}</h2>
-          <p>맵과 참가자, 채팅룸을 준비하고 있습니다.</p>
-          <ol>
-            <li>{transferPending ? "서버 공간 생성·이동 확인 중" : "서버 공간 확인 완료"}</li>
-            <li>{state && renderedLocation === state.location.id ? "맵 자원·화면 준비 완료" : "맵 자원·화면 준비 중"}</li>
-            <li>{connected && state?.location.roomReady ? "전용 채팅룸·실시간 연결 준비 완료" : "채팅룸·실시간 연결 확인 중"}</li>
-            {state?.battle?.status === "PREPARING" && <li>참가자 준비 {state.battle.ready?.length || 0}/{state.battle.participants.length} · 준비 완료 후 첫 턴 시작</li>}
-          </ol>
+          <h2>{renderFailed ? "로딩에 실패했습니다" : "로딩 중…"}</h2>
           {preparationError && <p role="alert">{preparationError}</p>}
-          {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>다시 접속</button></> : <p>최소 1.5초 대기와 모든 준비가 완료되면 자동으로 입장합니다.</p>}
+          {sponsorPending && state && <SponsorGate key={sponsorKey} client={client}
+            generation={state.generation} epoch={state.epoch} room={state.location.chatRoomId}
+            onReady={() => {
+              const current = stateRef.current;
+              if (current && `${current.generation}:${current.epoch}:${current.location.id}` === sponsorKey)
+                setSponsorApproved(sponsorKey);
+            }} onExit={() => void run(async () => {
+              await client.logout(); setBattleReport(null); setState(null); setWorldGeneration(null);
+              setConnected(false); setPassword('');
+            })} />}
+          {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>다시 접속</button></> : null}
         </section>
       </div>}
       <header>
@@ -557,7 +568,7 @@ export function App() {
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
 </div>
             {!battle && <section class="card field-command-dock field-control-card" aria-label="필드 조작 카드">
-              <div class="field-card-heading"><h3>조작</h3><div class="field-control-actions">
+              <div class="field-card-heading"><div class="field-control-actions">
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>메뉴</button>
@@ -568,11 +579,11 @@ export function App() {
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
 </section>}
-            {battle && <BattlePanel battle={battle} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
+            {battle && <BattlePanel battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
-            <section class="card field-help-card" aria-label="필드 도움말 카드"><h3>도움말</h3><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
+            <section class="card field-help-card" aria-label="필드 도움말 카드"><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
             <div class="map-caption">
               <span>
                 {battle
@@ -679,7 +690,7 @@ export function App() {
               </section>
             )}
             {drawer === "chat" && <ChatPanel title={battle ? t('common.battleChat') : t('common.channelChat')}
-              messages={state.messages} value={chat} disabled={disabled} onChange={setChat}
+              messages={chatMessages} value={chat} disabled={disabled || sponsorApproved !== sponsorKey} onChange={setChat}
               onSubmit={() => void run(async () => {
                 await client.command("/v1/game/messages", { text: chat });
                 setChat("");

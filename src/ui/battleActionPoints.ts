@@ -15,7 +15,7 @@ export function actionPoints(unit: Unit): ActionPoints | null {
 export function actionPointSubject(battle: Battle, selected: Position | null) {
   const selectedAlly = battle.units.find(unit => unit.side === 'ally' && selected &&
     unit.position.column === selected.column && unit.position.row === selected.row);
-  if (selectedAlly) return { unit: selectedAlly, label: '선택한 캐릭터' };
+  if (selectedAlly) return { unit: selectedAlly, labelKey: 'battle.selectedCharacter' };
   const current = battle.units.find(unit => unit.id === battle.order[battle.index] && unit.side === 'ally');
-  return current ? { unit: current, label: '현재 행동 캐릭터' } : null;
+  return current ? { unit: current, labelKey: 'battle.activeCharacter' } : null;
 }
