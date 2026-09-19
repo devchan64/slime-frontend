@@ -101,6 +101,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   if (battle.status === "PREPARING") return <section class="card">
     <h3>{t('battle.preparing')}</h3><p>{t('battle.preparingHelp')}</p>
   </section>;
+  const player = battle.units.find(u => u.id === actor && u.side === "ally");
   const current = battle.units.find(u => u.id === battle.order[battle.index]);
   const own = battle.tactics.canAct && current?.id === actor;
   const apExhausted = own && battle.status === "ACTIVE" && !!current && actionPoints(current)?.value === 0;
@@ -113,7 +114,13 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <>
   <section class="card battle-panel battle-control-card" aria-label={t('battle.controls')}>
-    <div class="battle-control-heading"><span class={`battle-turn-indicator${own ? " is-own-turn" : ""}`}>{own ? t('battle.myTurn') : t('battle.waiting')}</span></div>
+    <div class="battle-control-heading">
+      <span class={`battle-turn-indicator${own ? " is-own-turn" : ""}`}>{own ? t('battle.myTurn') : t('battle.waiting')}</span>
+      {player && <div class="battle-player-health" role="status" aria-live="polite" aria-atomic="true">
+        <strong>{player.name}</strong><span>HP {player.hp} / {player.maxHp}</span>
+        <progress value={player.hp} max={player.maxHp} aria-label={t('battle.healthLabel', {name:player.name})} />
+      </div>}
+    </div>
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
     <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
@@ -207,7 +214,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
       })}
     </div>
     {apBattle ? <p>{t('battle.apRules')}</p> : <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>}
-    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={t('battle.portrait',{name:current.name})} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={t('battle.healthLabel',{name:current.name})} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>{healthLabel(current)}</small>}</div></div>}
+    {current && current.id !== actor && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={t('battle.portrait',{name:current.name})} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={t('battle.healthLabel',{name:current.name})} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>{healthLabel(current)}</small>}</div></div>}
     </div>
     </section>
     <section class="battle-terrain-help"><h4>{t('battle.terrainControls')}</h4><div class="battle-help-content"><TerrainLegend /><p>{t('battle.terrainHelp')}</p></div></section>

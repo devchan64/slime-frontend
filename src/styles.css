@@ -1296,3 +1296,8 @@ body.battle-preview-shell .preview-hud { display: contents; }
 
 .bag-items strong { min-width: 0; overflow-wrap: anywhere; }
 .bag-items li > div > span { flex-shrink: 0; }
+
+.battle-player-health { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; width: min(100%, 260px); min-width: 0; font-size: 12px; }
+.battle-player-health strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.battle-player-health span { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.battle-player-health progress { grid-column: 1 / -1; width: 100%; height: 6px; accent-color: #94dec0; }
