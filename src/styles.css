@@ -992,8 +992,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .field-points strong { font-size: 13px; color: #b9ecd2; }.field-points small { font-size: 10px; color: #a2bcb2; }
 
 .language-select { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; flex-shrink: 0; }
-.language-select select { width: auto; min-height: 36px; padding: 4px 8px; font: inherit; }
-@media (max-width: 520px) { .language-select > span { display: none; } }
+.language-select select { width: auto; min-height: 36px; margin: 0; padding: 4px 8px; font: inherit; }
 
 /* 필드 행동: 대상·위험·실행의 위계를 유지하고 상세만 스크롤한다. */
 :root { --field-warning: #f3cc88; --field-card-width: 142px; }
@@ -1329,3 +1328,19 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .battle-control-card .battle-mode-buttons > button + button,
 .battle-control-card .battle-mode-buttons .battle-skill-column { border-left: 1px solid var(--border); }
 .battle-control-card .battle-mode-buttons button:focus-visible { outline-offset: -3px; }
+
+/* 공통 헤더는 한 행과 동일한 세로 중심·조작 높이를 유지한다. */
+:root { --header-control-height: 44px; --header-control-gap: 12px; }
+.app-shell > header { flex-wrap: nowrap; align-items: center; gap: var(--header-control-gap); height: auto; min-height: 60px; padding-block: 8px; }
+.app-shell > header > :is(.language-select, .brand, .connection, button) { display: inline-flex; align-items: center; min-height: var(--header-control-height); margin-top: 0; margin-bottom: 0; }
+.app-shell > header .language-select select,
+.app-shell > header > button { height: var(--header-control-height); min-height: var(--header-control-height); margin: 0; padding: 6px 10px; line-height: 1.2; }
+.app-shell > header > button { flex-shrink: 0; white-space: nowrap; }
+.app-shell > header .connection { white-space: nowrap; }
+@media (max-width: 520px) {
+  .app-shell > header { gap: 8px; padding-inline: 8px; }
+  .app-shell > header .brand { font-size: 18px !important; letter-spacing: 2px; }
+  .app-shell > header .brand span { display: none; }
+  .app-shell > header .connection { gap: 4px; font-size: 11px; }
+  .app-shell > header > button { padding-inline: 8px; font-size: 12px; }
+}
