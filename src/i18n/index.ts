@@ -19,6 +19,7 @@ function checkedLocale(value: string): Locale {
 }
 document.documentElement.lang = locale;
 const listeners = new Set<() => void>();
+export function getLocale(): Locale { return locale; }
 export function setLocale(value: Locale) {
   checkedLocale(value);
   localStorage.setItem(STORAGE_KEY, value);

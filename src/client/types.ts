@@ -8,8 +8,13 @@ export type Unit = Appearance & {
   owner: string | null;
   side: "ally" | "enemy";
   position: Position;
+  /** 적은 서버가 제한한 표시 스케일이며 실제 HP가 아니다. */
   hp: number;
   maxHp: number;
+  healthVisibility?: "HIDDEN" | "BANDED";
+  /** AP 전투에서 서버가 제공하는 실제 잔고. 이전 전투에서는 생략한다. */
+  ap?: number;
+  maxAp?: number;
   attack: number;
   defense: number;
   speed: number;
@@ -76,7 +81,9 @@ export type State = {
     sp?: number;
     cpGeneral: number;
     cpSeasonal: number;
-    skills: Record<"physical_activity" | "literacy" | "speaking", number>;
+    skills: Record<string, number>;
+    skillGrowthBaselines?: Record<string, number>;
+    skillDefinitions?: Record<string, { id: string; name: string; icon: string; description: string; initial: boolean }>;
     attributes: Record<"body" | "intellect" | "spirit", number>;
     requiresStartSpawn: boolean;
     battleId: string | null;

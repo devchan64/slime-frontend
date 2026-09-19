@@ -1033,3 +1033,20 @@ button, summary { touch-action: manipulation; }
   .field-target { flex-wrap: wrap; }
   .field-target button { width: 100%; }
 }
+
+/* 이동 가능 범위와 경로·공격 미리보기의 형태를 함께 안내한다. */
+.battle-range-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; flex-shrink: 0; margin: 0 0 8px; color: #d6e9ed; font-size: 12px; }
+.battle-range-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.range-key { display: inline-block; width: 14px; height: 14px; flex-shrink: 0; }
+.range-key-move { background: #168ee080; border: 2px solid #9ceaff; box-shadow: 0 0 0 1px #071e35; }
+.range-key-path { border-radius: 50%; background: #9eeeff; color: #10202a; text-align: center; font-style: normal; font-size: 10px; line-height: 14px; }
+.range-key-arrival { border: 2px solid #ffbb66; transform: scale(.8); }
+
+/* 선택한 아군의 AP는 상세 스크롤 밖에서 행동 버튼과 함께 유지한다. */
+.battle-action-points { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; min-height: 44px; padding: 8px 10px; margin-bottom: 8px; border: 1px solid #48796d; border-radius: 8px; background: #123b35; }
+.battle-action-points > div { min-width: 0; }
+.battle-action-points strong { display: block; font-size: 14px; overflow-wrap: anywhere; }
+.battle-action-points small { color: #b1d1c7; font-size: 11px; }
+.battle-action-points > span { flex-shrink: 0; white-space: nowrap; font-size: 12px; color: #c0f5dc; }
+.battle-action-points b { font-size: 21px; font-variant-numeric: tabular-nums; }
+.battle-action-points .ap-empty { color: #f3cc88; }

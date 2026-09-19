@@ -1,0 +1,7 @@
+protocol: Unsupported protocol.
+stateRequired: Load the game state first.
+connected: Live connection established
+invalidMessage: Unable to read the server message.
+reconnecting: Reconnecting · Controls locked
+transitioning: Checking the session transition · Please wait.
+transitionDelayed: The session transition is taking longer than expected. Sign in again to check its status.

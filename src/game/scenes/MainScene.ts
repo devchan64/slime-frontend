@@ -1,8 +1,8 @@
 import { toView, fromView, rotatedSurface, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
-import { healthDisplayRatio } from "../terrain/healthDisplay";
+import { healthDisplay } from "../terrain/healthDisplay";
 import Phaser from "phaser";
-import type { State, Position } from "../../client/types";
+import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, meadowTile, TILE_W, TILE_H } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
@@ -50,6 +50,11 @@ const CENTER = 0.5,
   PATH_NODE_RADIUS = 7,
   PATH_COLOR = 0x9eeeff,
   ARRIVAL_COLOR = 0xffbb66;
+const MOVE_OVERLAY = {
+  fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
+  outline: 0x071e35, outlineWidth: 6, edge: 0x9ceaff, edgeWidth: 3,
+  arrivalInset: 0.72, arrivalWidth: 2, targetWidth: 4, selectedWidth: 4,
+};
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const HEALTH_BAR = { width: 36, height: 5, offset: 5, background: 0x10202a };
 export class MainScene extends Phaser.Scene {
@@ -260,11 +265,10 @@ export class MainScene extends Phaser.Scene {
           Math.abs(column - s.map.startPoint.column) +
             Math.abs(row - s.map.startPoint.row) <=
             s.map.safeRadius;
-        const color = previewPath.has(`${column},${row}`) ? 0x467f96 : wall
-          ? COLORS.blocked
-          : this.reachable.has(`${column},${row}`)
-            ? 0x28536a
-            : isSafe
+        const cellKey = `${column},${row}`;
+        const reachable = !wall && this.reachable.has(cellKey);
+        const onPath = previewPath.has(cellKey);
+        const color = wall ? COLORS.blocked : isSafe
               ? COLORS.safe
               : (row + column) % 2
                 ? COLORS.ground
@@ -280,19 +284,33 @@ export class MainScene extends Phaser.Scene {
           point.y,
         ];
         if (!meadow || isSafe) {
-          const highlighted = previewPath.has(`${column},${row}`) || this.reachable.has(`${column},${row}`);
-          g.fillStyle(color, textured ? (meadow ? 0.16 : highlighted ? 0.38 : 0) : 1);
+          g.fillStyle(color, textured ? (meadow ? 0.16 : 0) : 1);
           g.fillPoints(this.points(polygon), true);
         }
         if (!meadow) {
           g.lineStyle(1, COLORS.edge, 0.5);
           g.strokePoints(this.points(polygon), true);
         }
-        if (arrivalRange.has(`${column},${row}`)) {
-          g.fillStyle(ARRIVAL_COLOR, 0.18);
+        // 지형 명암과 구별되는 이중선으로 서버가 허용한 이동 칸만 표시한다.
+        if (reachable) {
+          g.fillStyle(onPath ? MOVE_OVERLAY.pathFill : MOVE_OVERLAY.fill,
+            onPath ? MOVE_OVERLAY.pathAlpha : MOVE_OVERLAY.alpha);
           g.fillPoints(this.points(polygon), true);
-          g.lineStyle(arrivalTargets.has(`${column},${row}`) ? 4 : 1, ARRIVAL_COLOR);
+          g.lineStyle(MOVE_OVERLAY.outlineWidth, MOVE_OVERLAY.outline, 0.95);
           g.strokePoints(this.points(polygon), true);
+          g.lineStyle(MOVE_OVERLAY.edgeWidth, MOVE_OVERLAY.edge, 1);
+          g.strokePoints(this.points(polygon), true);
+        }
+        if (arrivalRange.has(cellKey)) {
+          const inset = this.points(polygon).map(p => new Phaser.Geom.Point(
+            point.x + (p.x - point.x) * MOVE_OVERLAY.arrivalInset,
+            point.y + (p.y - point.y) * MOVE_OVERLAY.arrivalInset));
+          if (!reachable) {
+            g.fillStyle(ARRIVAL_COLOR, 0.18);
+            g.fillPoints(inset, true);
+          }
+          g.lineStyle(arrivalTargets.has(cellKey) ? MOVE_OVERLAY.targetWidth : MOVE_OVERLAY.arrivalWidth, ARRIVAL_COLOR);
+          g.strokePoints(inset, true);
         }
         if (!selectedMove && attackCells.has(`${column},${row}`)) {
           g.lineStyle(3, COLORS.enemy);
@@ -300,7 +318,7 @@ export class MainScene extends Phaser.Scene {
         }
         if (this.selected?.column === column && this.selected.row === row) {
           g.setDepth(TERRAIN_DEPTH.annotation);
-          g.lineStyle(2, COLORS.selected);
+          g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 2, COLORS.selected);
           g.strokePoints(this.points(polygon), true);
         }
       }
@@ -437,7 +455,7 @@ export class MainScene extends Phaser.Scene {
       result.push(new Phaser.Geom.Point(values[i], values[i + 1]));
     return result;
   }
-  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: {hp:number; maxHp:number; side?:string}) {
+  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">) {
     const p = this.project(pos),
       g = this.add.graphics();
     const size = actorSize(appearance);
@@ -455,10 +473,11 @@ export class MainScene extends Phaser.Scene {
       annotation.lineStyle(2, active ? COLORS.player : COLORS.selected, .9);
       annotation.strokeEllipse(p.x, p.y, TILE_W * .55, TILE_H * .55);
     }
-    if (health) {
+    const display = health ? healthDisplay(health, this.state?.me.skills?.monster_lore ?? 0) : null;
+    if (display?.ratio !== null && display?.ratio !== undefined) {
       const y=p.y-height-HEALTH_BAR.offset;
       annotation.fillStyle(HEALTH_BAR.background);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width,HEALTH_BAR.height);
-      annotation.fillStyle(color);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width*healthDisplayRatio(health.hp,health.maxHp,health.side !== "enemy"),HEALTH_BAR.height);
+      annotation.fillStyle(color);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width*display.ratio,HEALTH_BAR.height);
     }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
@@ -472,7 +491,7 @@ export class MainScene extends Phaser.Scene {
         fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
-      if (active || selected) this.add.text(p.x, p.y + LABEL_OFFSET, health?.side === "ally" ? `${label} · ${health.hp}/${health.maxHp}` : `${label} · 체력 추정`, TEXT).setOrigin(CENTER, 0).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
+      if (active || selected) this.add.text(p.x, p.y + LABEL_OFFSET, `${label} · ${display?.label ?? ""}`, TEXT).setOrigin(CENTER, 0).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {
       this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     }

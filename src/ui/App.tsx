@@ -447,7 +447,7 @@ export function App() {
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
 </div>}
-            {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
+            {battle && <BattlePanel battle={battle} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>

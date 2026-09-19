@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
-type Definition = {name:string;scope:'GENERAL'|'SEASONAL';cp:number;sp?:number;checklist:Record<string,{description:string;target:number}>};
+type Definition = {name:string;scope:'GENERAL'|'SEASONAL';cp:number;sp?:number;skills?:string[];checklist:Record<string,{description:string;target:number}>};
 type Progress = {completedAt:number|null;checklist:Record<string,{count:number}>};
 export function AchievementsPage({client,disabled,onReturn}:{client:Client;disabled:boolean;onReturn:()=>unknown}){
-  const [data,setData]=useState<{catalog:Record<string,Definition>;progress:Record<string,Progress>;season:string}|null>(null);
+  const [data,setData]=useState<{catalog:Record<string,Definition>;progress:Record<string,Progress>;season:string;skills:Record<string,{name:string}>}|null>(null);
   const [error,setError]=useState('');
   const [attempt,setAttempt]=useState(0);
   useEffect(()=>{
     let cancelled=false;setError('');
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
-      .then(([catalog,progress])=>{if(!cancelled)setData({catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId});})
+      .then(([catalog,progress])=>{if(!cancelled)setData({catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,skills:catalog.skillDefinitions ?? {}});})
       .catch(e=>{if(!cancelled)setError((e as Error).message);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
@@ -21,7 +21,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
           {!items.length?<p>등록된 업적이 없습니다.</p>:items.map(([id,d])=>{
             const progress=data.progress[id];
             return <article class="achievement-item" key={id}><h3>{d.name} <small>{progress?.completedAt!=null?'달성 완료':'진행 중'}</small></h3>
-              <p>보상 · {d.cp} CP{d.sp!==undefined?` · ${d.sp} SP`:''}</p>
+              <p>보상 · {d.cp > 0 ? `${d.cp} CP` : ''}{d.sp!==undefined?` · ${d.sp} SP`:''}{(d.skills ?? []).map(id => <span key={id}> · 스킬 획득: {data.skills[id]?.name ?? id}</span>)}</p>
               <ul>{Object.entries(d.checklist).map(([key,c])=><li key={key}>{c.description} · {progress?.checklist[key]?.count ?? 0}/{c.target}</li>)}</ul></article>;
           })}</section>;
       })}

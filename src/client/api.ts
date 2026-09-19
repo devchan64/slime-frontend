@@ -1,4 +1,5 @@
-import { ApiError, readApiResponse } from "./response";
+import { getLocale, t } from "../i18n";
+import { ApiError, readApiResponse, readApiMessage } from "./response";
 export { ApiError } from "./response";
 import type { State, Tokens } from "./types";
 const API_BASE =
@@ -28,7 +29,7 @@ export class Client {
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
     });
-    return readApiResponse(response);
+    return readApiResponse(response, getLocale());
   }
 
   async login(user_id: string, password: string) {
@@ -60,7 +61,7 @@ export class Client {
   }
   accept(state: State) {
     if (state.protocolVersion !== 1)
-      throw new Error("지원하지 않는 프로토콜입니다.");
+      throw new Error(t("network.protocol"));
     if (this.state && state.generation < this.state.generation) return;
     if (
       this.state &&
@@ -73,7 +74,7 @@ export class Client {
     this.onState(state);
   }
   async command(path: string, body: Record<string, unknown> = {}) {
-    if (!this.state) throw new Error("상태를 먼저 불러와야 합니다.");
+    if (!this.state) throw new Error(t("network.stateRequired"));
     const payload = {
       ...body,
       requestId: crypto.randomUUID(),
@@ -113,25 +114,27 @@ export class Client {
           if (msg.type === "snapshot" || msg.type === "state") {
             this.accept(msg.state);
             this.attempts = 0;
-            this.onStatus(true, "실시간 연결됨");
+            this.onStatus(true, t("network.connected"));
             if (!this.heartbeatTimer)
               this.heartbeatTimer = setInterval(() => {
                 if (ws.readyState === WebSocket.OPEN)
                   ws.send(JSON.stringify({ type: "heartbeat" }));
               }, HEARTBEAT_MS);
           } else if (msg.type === "error") {
-            this.onStatus(false, msg.message);
+            const message = readApiMessage(msg, getLocale());
+            if (message === undefined) throw new Error("API 오류 안내가 누락되었습니다.");
+            this.onStatus(false, message);
             if (msg.code === "SESSION_EXPIRED") this.disconnect();
           }
         } catch {
-          this.onStatus(false, "서버 메시지를 읽을 수 없습니다.");
+          this.onStatus(false, t("network.invalidMessage"));
           ws.close();
         }
       };
       ws.onclose = () => {
         if (this.socket !== ws) return;
         this.clearHeartbeat();
-        this.onStatus(false, "연결 복구 중 · 입력 잠금");
+        this.onStatus(false, t("network.reconnecting"));
         this.retry();
       };
       ws.onerror = () => ws.close();
@@ -164,7 +167,7 @@ export class Client {
   }
   async resolve(result: any): Promise<any> {
     for (let attempt = 0; result.pending && attempt < 60; attempt++) {
-      this.onStatus(false, "세션 전환 확인 중 · 잠시 기다려 주세요.");
+      this.onStatus(false, t("network.transitioning"));
       await new Promise((resolve) => setTimeout(resolve, 1000));
       result = await this.request(
         `/v1/auth/operations/${result.operationId}/resolve`,
@@ -173,7 +176,7 @@ export class Client {
     }
     if (result.pending)
       throw new Error(
-        "세션 전환이 지연되고 있습니다. 다시 로그인해 상태를 확인하세요.",
+        t("network.transitionDelayed"),
       );
     return result;
   }
