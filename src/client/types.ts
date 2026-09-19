@@ -89,7 +89,7 @@ export type State = {
     requiresStartSpawn: boolean;
     battleId: string | null;
     partyId: string | null;
-    lastResult: { result: string; xp: number; coins: number } | null;
+    lastResult: { battleId?: string; result: string; xp: number; coins: number } | null;
   };
   map: Surface & {
     id: string;

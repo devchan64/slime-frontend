@@ -1,3 +1,4 @@
+import { BattleReport } from "./BattleReport";
 import { LanguageSelect } from './LanguageSelect';
 import { useTranslation, getLocale } from '../i18n';
 import { localizedFieldMap, localizedMapName } from '../client/mapText';
@@ -32,6 +33,7 @@ const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const { t, locale } = useTranslation();
+  const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
     [status, setStatus] = useState(""),
@@ -133,6 +135,13 @@ export function App() {
   useEffect(() => {
     client.onState = (s) => {
       serverOffset.current = s.serverTime * 1000 - Date.now();
+      const previous = stateRef.current;
+      const result = s.me.lastResult;
+      if (previous?.me.id === s.me.id && s.me.mode === "FIELD" && !s.me.battleId && result?.battleId
+          && result.battleId !== previous.me.lastResult?.battleId) {
+        setBattleReport(result);
+      }
+      stateRef.current = s;
       setState(s);
     };
     client.onStatus = (ready, msg) => {
@@ -149,7 +158,7 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
-  const inWorld = !menuPage && !settingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const inWorld = !battleReport && !menuPage && !settingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -294,7 +303,7 @@ export function App() {
     });
   return (
     <div class={`app-shell ${!state ? "login-shell" : inWorld ? "world-shell" : ""}`}>
-      {loading && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
+      {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
         <section class="loading-card" aria-live="polite">
           <div class="eyebrow">SLIME · LOADING</div>
           <h2>{renderFailed ? "화면 준비에 실패했습니다" : state?.battle ? "전투 맵으로 이동 중" : "맵으로 이동 중"}</h2>
@@ -340,6 +349,7 @@ export function App() {
             onClick={() =>
               run(async () => {
                 await client.logout();
+                setBattleReport(null);
                 setState(null);
                 setWorldGeneration(null);
                 navigateCharacterPage("#/characters");
@@ -446,6 +456,8 @@ export function App() {
             </form>
           </section>
         </main>
+      ) : battleReport ? (
+        <main aria-label="전투 결과 확인" />
       ) : state.me.mode === "AWAY" ? (
         <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
       ) : menuPage ? (
@@ -680,6 +692,10 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
+      {battleReport && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
+        setBattleReport(null);
+        navigateCharacterPage("#/world");
+      }} />}
       <footer role="status">
         <span class={connected ? "status-light" : ""}>●</span>{" "}
         {busy ? "명령 처리 중…" : status}
