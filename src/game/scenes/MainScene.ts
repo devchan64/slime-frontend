@@ -1,4 +1,5 @@
 import {FieldMotion} from '../terrain/fieldMotion';
+import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
 import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
 import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
@@ -62,6 +63,11 @@ export class MainScene extends Phaser.Scene {
   private state: State | null = null;
   private fieldMotion = new FieldMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
+  private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
+  private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
+  private queueUnit(id:string,...args:Parameters<MainScene['unit']>) {
+    this.actorEntries.push({id,...this.project(args[0]),create:()=>this.unit(...args)});
+  }
   private syncFieldMotion() {
     const s=this.state!;
     const actors=s.battle ? [] : [
@@ -119,6 +125,9 @@ export class MainScene extends Phaser.Scene {
     const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
     this.scale.on(Phaser.Scale.Events.RESIZE, resize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.actorCache?.clear();
+      this.actorCache=null;
+      this.actorEntries=[];
       this.fieldMotion.clear();
       this.movingObjects=[];
       this.terrainCache?.clear();
@@ -233,9 +242,10 @@ export class MainScene extends Phaser.Scene {
     if (this.sys.isActive()) this.draw();
   }
   update() {
-    this.animateFieldActors();
     if (this.backdropLayer?.visible) constrainBackdropCamera(this.backdropLayer, this.cameras.main);
     this.syncTerrainViewport();
+    this.syncActorViewport();
+    this.animateFieldActors();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
     for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom));
@@ -259,11 +269,16 @@ export class MainScene extends Phaser.Scene {
         this.state.battle ? { column: (this.state.battle.field.columns - 1) / 2, row: (this.state.battle.field.rows - 1) / 2 } : this.state.me.position,
       );
       this.cameras.main.centerOn(point.x, point.y);
+      this.syncActorViewport();
+      this.animateFieldActors();
     }
   }
   private draw() {
     const s = this.state;
     if (!s || this.loadFailed) return;
+    this.actorCache?.clear();
+    this.actorCache=null;
+    this.actorEntries=[];
     this.movingObjects=[];
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && child !== this.backdropLayer) child.destroy();
@@ -380,7 +395,7 @@ export class MainScene extends Phaser.Scene {
           b.position.column,
       ))
         if (unit.hp > 0)
-          this.unit(
+          this.queueUnit(unit.id,
             unit.position,
             unit.side === "enemy"
               ? COLORS.enemy
@@ -400,7 +415,7 @@ export class MainScene extends Phaser.Scene {
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
       }
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
-        this.unit(
+        this.queueUnit(`monster:${m.id}`,
           m.position,
           m.disposition === "AGGRESSIVE" ? COLORS.enemy : COLORS.passive,
           m.name || "슬라임",
@@ -408,13 +423,14 @@ export class MainScene extends Phaser.Scene {
         );
       for (const member of s.members)
         if (member.mode !== "IN_BATTLE")
-          this.unit(
+          this.queueUnit(`member:${member.id}`,
             member.position,
             member.id === s.me.id ? COLORS.player : COLORS.other,
             member.name,
             member.id === s.me.id, undefined, false, undefined, undefined, `member:${member.id}`,
           );
     }
+    this.rebuildActorViewport();
     this.animateFieldActors();
     const location = s.location.id;
     if (this.preparedLocation !== location) {
@@ -510,6 +526,21 @@ export class MainScene extends Phaser.Scene {
       result.push(new Phaser.Geom.Point(values[i], values[i + 1]));
     return result;
   }
+  private rebuildActorViewport() {
+    this.actorCache=new ActorWindowCache(this.actorEntries,objects=>{
+      const removed=new Set(objects);
+      this.movingObjects=this.movingObjects.filter(item=>!removed.has(item.object));
+      for(const object of objects)object.destroy();
+    });
+    this.syncActorViewport();
+  }
+  private syncActorViewport() {
+    if(!this.actorCache)return;
+    const camera=this.cameras.main;
+    const width=camera.width/camera.zoom,height=camera.height/camera.zoom;
+    const left=camera.scrollX+(camera.width-width)/2,top=camera.scrollY+(camera.height-height)/2;
+    this.actorCache.sync({left,top,right:left+width,bottom:top+height});
+  }
   private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string) {
     const firstChild=this.children.list.length;
     const p = this.project(pos),
@@ -548,5 +579,6 @@ export class MainScene extends Phaser.Scene {
       const object=child as Phaser.GameObjects.Image;
       this.movingObjects.push({key:motionKey,object,x:object.x,y:object.y,depth:object.depth});
     }
+    return this.children.list.slice(firstChild);
   }
 }

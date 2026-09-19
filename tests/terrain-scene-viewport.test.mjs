@@ -8,6 +8,39 @@ const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bu
  }}]});
 const {MainScene}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
+test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 이동 참조를 함께 해제한다',()=>{
+ const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
+ scene.children={list:[]};scene.textures={exists:()=>true};
+ const make=(x=0,y=0)=>{
+  const target={scene,x,y,depth:0,width:1024,height:1024,destroyed:false};
+  const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
+   if(key==='setPosition'){o.x=args[0];o.y=args[1];}
+   if(key==='setDepth')o.depth=args[0];
+   if(key==='destroy'){
+    assert.equal(o.destroyed,false);o.destroyed=true;o.scene=null;
+    scene.children.list=scene.children.list.filter(item=>item!==proxy);
+   }
+   return proxy;
+  };}});scene.children.list.push(proxy);created.push(proxy);return proxy;
+ };
+ scene.add={graphics:()=>make(),image:(x,y)=>make(x,y),text:(x,y)=>make(x,y)};
+ scene.project=p=>({x:p.column,y:p.row});scene.depth=()=>100;
+ scene.viewSurface={columns:1000,rows:1000};
+ scene.cameras={main:{scrollX:0,scrollY:0,width:200,height:200,zoom:1}};
+ scene.queueUnit('near',{column:50,row:50},0xffffff,'주변',true,undefined,false,undefined,undefined,'member:near');
+ scene.queueUnit('far',{column:3000,row:50},0xffffff,'먼 곳',true,undefined,false,undefined,undefined,'member:far');
+ scene.rebuildActorViewport();
+ assert.equal(created.length,4);assert.equal(scene.movingObjects.length,4);
+ assert.ok(scene.movingObjects.every(item=>item.key==='member:near'));
+ const initial=[...created];scene.cameras.main.scrollX=2900;scene.update();
+ assert.ok(initial.every(item=>item.destroyed));assert.equal(scene.children.list.length,4);
+ assert.ok(scene.movingObjects.every(item=>item.key==='member:far'&&!item.object.destroyed));
+ scene.cameras.main.scrollX=0;scene.update();
+ assert.equal(scene.children.list.length,4);
+ assert.ok(scene.movingObjects.every(item=>item.key==='member:near'&&!item.object.destroyed));
+ scene.actorCache.clear();assert.equal(scene.children.list.length,0);assert.equal(scene.movingObjects.length,0);
+});
+
 test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명과 표시를 갱신한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
  const object=(x=0,y=0)=>{
