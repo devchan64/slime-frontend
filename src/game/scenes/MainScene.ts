@@ -34,7 +34,8 @@ const CENTER = 0.5,
   ZOOM = 0.85,
   LABEL_OFFSET = 25,
   BATTLE_ZOOM = 1.15,
-  CAMERA_PADDING = 140,
+  PORTRAIT_BATTLE_FILL = 1.5,
+  CAMERA_PADDING = 40,
   DRAG_THRESHOLD = 6,
   ZOOM_MIN = 0.4,
   ZOOM_MAX = 1.4,
@@ -80,6 +81,13 @@ export class MainScene extends Phaser.Scene {
   }
   create() {
     if (this.loadFailed) return;
+    // 화면 회전 후 새 캔버스 크기를 기준으로 전장을 다시 맞춘다.
+    const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
+    this.scale.on(Phaser.Scale.Events.RESIZE, resize);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, resize);
+      this.game.events.off(Phaser.Core.Events.POST_STEP, this.focus, this);
+    });
     try { createTerrainAtlas(this); }
     catch {
       this.loadFailed = true;
@@ -177,9 +185,15 @@ export class MainScene extends Phaser.Scene {
     if (this.state) {
       const battle = this.state.battle;
       const extent = battle ? battle.field.columns + battle.field.rows : 0;
+      const widthFit = this.cameras.main.width / (extent * TILE_W / 2 + CAMERA_PADDING);
+      const heightFit = this.cameras.main.height / (extent * TILE_H / 2 + CAMERA_PADDING);
       this.cameras.main.setZoom(battle ? Math.min(BATTLE_ZOOM,
-        this.cameras.main.width / (extent * TILE_W / 2 + CAMERA_PADDING),
-        this.cameras.main.height / (extent * TILE_H / 2 + CAMERA_PADDING)) : ZOOM);
+        this.cameras.main.width < this.cameras.main.height ? Math.min(heightFit, widthFit * PORTRAIT_BATTLE_FILL) : Math.min(widthFit, heightFit)) : ZOOM);
+      if (battle && this.backdropLayer) {
+        const cover = Math.max(this.cameras.main.width / this.backdropLayer.displayWidth,
+          this.cameras.main.height / this.backdropLayer.displayHeight);
+        this.cameras.main.setZoom(Math.min(BATTLE_ZOOM, Math.max(this.cameras.main.zoom, cover)));
+      }
       const point = this.project(
         this.state.battle ? { column: (this.state.battle.field.columns - 1) / 2, row: (this.state.battle.field.rows - 1) / 2 } : this.state.me.position,
       );

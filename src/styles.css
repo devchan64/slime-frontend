@@ -758,3 +758,167 @@ button, summary { touch-action: manipulation; }
   .battle-command-area { grid-row: 1; }
   .battle-status { grid-row: 2; }
 }
+
+/* 확정 조작은 항상 보이고 긴 경로와 대상 목록만 내부에서 스크롤한다. */
+@media (max-width: 1024px) {
+  .battle-command-area { background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+  .battle-command-area .actions { flex-shrink: 0; margin: 0 0 8px; }
+  .battle-command-area > .battle-step, .battle-command-area > .compact { display: none; }
+  .battle-command-content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; }
+  .battle-command-content .command-preview { margin: 0 0 8px; padding: 8px; }
+  .battle-command-area > .battle-confirm { flex-shrink: 0; margin-top: 8px; }
+  .battle-panel .battle-command-area { position: fixed; z-index: 10; bottom: 0; left: env(safe-area-inset-left); right: env(safe-area-inset-right); max-height: 40dvh; padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); box-shadow: 0 -8px 24px #0005; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .battle-panel .battle-command-area { left: auto; width: var(--landscape-command-width); max-height: calc(100dvh - 60px); bottom: 0; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .world-layout--immersive .is-battle .canvas-wrap { height: calc(100dvh - 150px); min-height: 160px; }
+  .world-layout--immersive .is-battle > .battle-panel { padding-bottom: calc(100dvh - 60px); }
+}
+
+/* 모바일 로그인: 짧은 환영 배너 다음에 입력과 접속을 바로 제공한다. */
+@media (max-width: 1024px) {
+  .login-shell > header { min-height: 52px; padding: 8px 16px; }
+  .login-shell .welcome { min-height: 0; padding: 12px 12px calc(20px + env(safe-area-inset-bottom)); align-items: start; }
+  .login-shell .intro { min-height: 160px; padding: 0; border-radius: 16px; }
+  .login-shell .intro-copy { padding: 18px; }
+  .login-shell .intro h1 { font-size: 22px; margin: 0; line-height: 1.4; }
+  .login-shell .intro-copy > .eyebrow, .login-shell .intro p, .login-shell .intro-grid, .login-shell .login-jump { display: none; }
+  .login-shell .login-illustration { object-position: center 48%; }
+  .login-shell .intro::after { background: linear-gradient(90deg, #061922dd, #06192270 58%, #06192210); }
+  .login-shell .auth { padding: 20px; border-radius: 16px; max-width: 560px; }
+  .login-shell .auth > .eyebrow { display: none; }
+  .login-shell .auth h2 { font-size: 24px; margin: 0 0 4px; }
+  .login-shell .auth-intro { font-size: 12px; margin: 0 0 16px; }
+  .login-shell .auth label { margin: 12px 0; }
+  .login-shell .auth input { margin-top: 6px; }
+  .login-shell .auth button { margin-top: 8px; }
+  .login-shell .signup-hint { margin: 16px 0 4px; padding-top: 12px; }
+  .login-shell .auth-status { margin-top: 12px; padding: 10px 12px; }
+  .login-shell .signup-rules { margin-top: 8px; }
+}
+@media (max-width: 1024px) and (orientation: portrait) and (max-height: 650px) {
+  .login-shell .intro { min-height: 100px; }
+  .login-shell .intro h1 { font-size: 18px; }
+  .login-shell .welcome { gap: 10px; padding-top: 8px; }
+  .login-shell .auth { padding: 16px; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .login-shell .welcome { grid-template-columns: minmax(0,.8fr) minmax(280px,1.2fr); }
+  .login-shell .intro { position: sticky; top: 12px; min-height: calc(100dvh - 80px); }
+  .login-shell .auth { padding: 16px; }
+  .login-shell .auth-intro { display: none; }
+}
+@media (max-width: 1024px) {
+  .chat input { font-size: 16px; }
+  .chat button { flex-shrink: 0; }
+  .world-drawer .chat { display: flex; flex-direction: column; min-height: 0; }
+  .world-drawer .chat-lines { max-height: min(36dvh, 240px); }
+  .world-drawer .chat form { position: sticky; bottom: -16px; padding: 8px 0 16px; background: #102a2a; }
+  .unit-row { flex-wrap: wrap; overflow-wrap: anywhere; }
+  .world-drawer h2, .field-monster { overflow-wrap: anywhere; min-width: 0; }
+}
+
+/* 작은 배너에서도 슬라임 실루엣을 크게 보존한다. */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .login-shell .login-illustration { width: 150%; height: auto; max-width: none; left: 0; top: 50%; transform: translateY(-34%); object-fit: initial; }
+  .login-shell .intro { justify-content: center; }
+  .login-shell .intro-copy { width: 58%; padding: 14px; }
+  .login-shell .intro h1 { font-size: 18px; letter-spacing: -1px; text-shadow: 0 1px 4px #061922; }
+  .login-shell .intro::after { background: linear-gradient(90deg, #061922bb, #06192255 38%, transparent 60%); }
+}
+@media (max-width: 1024px) and (orientation: portrait) and (max-height: 650px) {
+  .login-shell .intro { min-height: 128px; }
+  .login-shell .intro h1 { font-size: 16px; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .login-shell .login-illustration { object-position: center 24%; }
+  .login-shell .intro::after { background: linear-gradient(0deg, #061922d9, transparent 58%); }
+}
+
+/* 맵 화면은 뷰포트 안에서 유지하고 정보창만 독립적으로 스크롤한다. */
+:root { --battle-dock-height: 230px; }
+@media (max-width: 1024px) {
+  .world-shell { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .world-shell > header { min-height: 44px; padding: 4px 12px; flex-wrap: nowrap; flex-shrink: 0; }
+  .world-shell > header .brand { font-size: 18px; }
+  .world-shell > footer { position: static; padding: 4px 12px; font-size: 10px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .world-shell .world-layout--immersive { min-height: 0; flex: 1; width: 100%; display: flex; }
+  .world-shell .world { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 0; }
+  .world-shell .world-title { flex-shrink: 0; padding: 4px 10px; gap: 4px; }
+  .world-shell .world-title .eyebrow, .world-shell .world-resources { display: none; }
+  .world-shell .map-menu { width: auto; margin-left: auto; flex-wrap: nowrap; }
+  .world-shell .map-stage { flex: 1; min-height: 0; position: relative; }
+  .world-shell .world .canvas-wrap { height: 100%; min-height: 0; }
+  .world-shell .world-bottom-menu { flex-shrink: 0; flex-wrap: nowrap; overflow-x: auto; padding: 4px 8px; }
+  .world-shell .world-bottom-menu button { flex: 0 0 auto; white-space: nowrap; }
+  .map-stage > .map-help { position: absolute; top: 8px; left: 8px; z-index: 4; max-width: calc(100% - 16px); max-height: calc(100% - 16px); overflow: auto; background: #102a2af2; border-radius: 10px; padding: 0 10px; }
+  .map-stage .field-selection { position: absolute; bottom: 8px; left: 8px; right: 8px; width: auto; max-height: 65%; margin: 0; overflow: auto; }
+  .world-shell .world .battle-panel { position: relative; display: block; flex: 0 0 var(--battle-dock-height); height: var(--battle-dock-height); max-height: 42dvh; min-height: 0; padding: 0; overflow: visible; }
+  .world-shell .battle-panel .battle-command-area { position: static; height: 100%; max-height: none; width: 100%; box-shadow: none; padding: 8px; }
+  .battle-status-details, .battle-records { position: absolute; bottom: 100%; z-index: 5; background: #102a2af2; border: 1px solid var(--border); border-radius: 8px; max-width: 90%; }
+  .battle-status-details { left: 4px; }.battle-records { right: 4px; }
+  .battle-status-details > summary, .battle-records > summary { padding: 10px; font-size: 12px; cursor: pointer; }
+  .battle-status-details[open], .battle-records[open] { width: min(360px,90%); max-height: 60dvh; overflow: auto; }
+  .battle-status-details .battle-status, .battle-records .battle-secondary { padding: 12px; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .world-shell .world.is-battle { display: grid; grid-template-columns: minmax(0,1fr) var(--landscape-command-width); grid-template-rows: auto minmax(0,1fr) auto; }
+  .world-shell .is-battle .map-stage { grid-row: 2; height: 100%; }
+  .world-shell .world .battle-panel { grid-column: 2; grid-row: 2; height: 100%; max-height: none; }
+  .world-shell .battle-status-details, .world-shell .battle-records { bottom: 100%; }
+}
+.map-camera-controls { position: absolute; right: 8px; top: 8px; z-index: 3; display: flex; flex-direction: column; gap: 6px; }
+.map-camera-controls button { min-width: 44px; min-height: 44px; padding: 8px; background: #102a2ae8; border: 1px solid #54786d; color: #e4edf0; }
+@media (max-width: 1024px) {
+  .world-shell .world-title { min-height: 40px; }
+  .world-shell .world-title h2 { font-size: 16px; }
+  .map-stage > .map-help { max-width: calc(100% - 92px); }
+  .terrain-shell > .preview-tools { flex-shrink: 0; max-height: 58px; overflow: auto; padding: 4px; font-size: 11px; }
+  .terrain-shell > .preview-tools #result, .terrain-shell > .preview-tools #character-settings, .terrain-shell > .preview-tools #refresh, .terrain-shell > #legend-root { display: none; }
+  .terrain-shell .preview-tools select { margin: 0; padding: 4px; }
+  .terrain-shell > .world-layout--immersive { margin: 0; }
+}
+@media (max-width: 1024px) {
+  body.battle-preview-shell > header { flex-shrink: 0; max-height: 64px; overflow: auto; padding: 4px; }
+  body.battle-preview-shell > header p, body.battle-preview-shell > header #status { display: none; }
+  body.battle-preview-shell #gallery { display: flex; margin: 0; padding: 0; max-width: none; }
+  body.battle-preview-shell .world > .world-title { font-size: 14px; margin: 0; padding: 4px 12px; }
+  body.battle-preview-shell .preview-hud { display: contents; }
+  body.battle-preview-shell .world .canvas { max-width: none; margin: 0; min-height: 0; height: 100%; }
+  body.battle-preview-shell .world .battle-panel { padding: 0; }
+  body.battle-preview-shell .world .map-stage { grid-column: 1; grid-row: 2; }
+}
+:root { --field-dock-height: 190px; }
+.field-command-dock { position: relative; }
+.field-command-dock .field-selection { position: static; width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
+.field-quick-targets { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; }
+.field-quick-targets button { flex: 1 0 auto; text-align: left; }
+.field-command-body { min-height: 0; overflow-y: auto; }
+.field-target { margin: 6px 0; padding: 8px; background: #214b40; border: 1px solid #548c73; border-radius: 10px; }
+.field-target button { min-width: 92px; min-height: 44px; flex-shrink: 0; }
+.field-tile-actions { display: flex; gap: 8px; }
+.field-tile-actions button { flex: 1; }
+.tile-description { font-size: 11px; color: #a7bdc6; }
+@media (max-width: 1024px) {
+  .field-command-dock { flex: 0 0 var(--field-dock-height); height: var(--field-dock-height); min-height: 0; max-height: 38dvh; }
+  .field-command-dock .field-selection { height: 100%; max-height: none; padding: 10px; display: flex; flex-direction: column; overflow: hidden; }
+  .field-selection-heading { flex-shrink: 0; }
+  .field-command-body { flex: 1; }
+  .field-selection h3 { font-size: 15px; }
+  .field-command-dock .field-target small { font-size: 10px; }
+  .battle-status-details[open], .battle-records[open] { position: fixed; top: 52px; bottom: auto; left: 8px; right: 8px; max-height: calc(100dvh - 68px); width: auto; max-width: none; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .world-shell .world.is-field { display: grid; grid-template-columns: minmax(0,1fr) var(--landscape-command-width); grid-template-rows: auto minmax(0,1fr) auto; }
+  .world-shell .is-field > .world-title { grid-column: 1 / -1; }
+  .world-shell .is-field > .map-stage { grid-column: 1; grid-row: 2; height: 100%; }
+  .world-shell .field-command-dock { grid-column: 2; grid-row: 2; height: 100%; max-height: none; }
+  .world-shell .is-field > .world-bottom-menu { grid-column: 1 / -1; }
+}
+
+@media (max-width: 1024px) {
+  body.battle-preview-shell > header h1 { display: none; }
+  body.battle-preview-shell > header { min-height: 52px; max-height: 52px; }
+}

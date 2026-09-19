@@ -9,11 +9,11 @@ import '/src/styles.css';
 const previewStyle=document.createElement('style');
 previewStyle.textContent='body>header{display:block;height:auto;padding:12px}body>header h1{font-size:20px;margin:0 0 8px}body>header p{margin:6px}body>header select{display:inline-block;width:auto;max-width:60%}.single .canvas{max-width:900px;margin:auto;height:clamp(300px,45vh,480px)}.canvas{height:300px}.single #gallery{padding:8px}.field .battle-panel p{margin:8px 0}.field .battle-panel .command-preview{margin:10px 0}';
 previewStyle.textContent += `
-@media(max-width:1024px) and (orientation:portrait){.single .canvas{height:38dvh;min-height:220px}.single #gallery{padding:0}}
+@media(max-width:1024px) and (orientation:portrait){body.single>header{padding:6px}body.single>header h1{font-size:14px}body.single>header p,body.single #status{display:none}.single .field>h2{margin:8px 12px;font-size:14px}.single .field>p{display:none}.single .canvas{height:38dvh;min-height:220px}.single #gallery{padding:0}}
 @media(max-width:1024px) and (orientation:landscape) and (max-height:600px){
 body.single>header{padding:6px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}body.single>header h1{font-size:14px;margin:0}body.single>header p,body.single #status{display:none}body.single>header select{margin:0;padding:4px;font-size:14px} .single #gallery{padding:0}.single .field{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start}
-.single .field>h2,.single .field>p{grid-column:1/-1}.single .canvas{grid-column:1;grid-row:3;height:78dvh;min-height:220px;position:sticky;top:0}
-.single .preview-hud{grid-column:2;grid-row:3;max-height:78dvh;overflow:auto}.single .field .battle-panel{display:grid;grid-template-columns:minmax(0,1fr)}
+.single .field>h2,.single .field>p{grid-column:1/-1}.single .canvas{grid-column:1;grid-row:3;height:calc(100dvh - 145px);min-height:160px;position:sticky;top:0}
+.single .preview-hud{grid-column:2;grid-row:3;max-height:78dvh;overflow:auto}.single .field .battle-panel{display:grid;grid-template-columns:minmax(0,1fr);padding-bottom:calc(100dvh - 60px)}
 }`;
 document.head.append(previewStyle);
 import {createGame} from '/src/game/createGame.ts';
@@ -27,16 +27,18 @@ choice.onchange=()=>{location.search='?field='+encodeURIComponent(choice.value);
 const shown=selected==='all'?fixtures:fixtures.filter(s=>s.battle.field.id===selected);
 if(!shown.length)throw new Error('존재하지 않는 전장입니다.');
 let ready=0;
-if(selected!=='all')document.querySelector('#gallery').className='world-layout--immersive';
+if(selected!=='all'){document.querySelector('#gallery').className='world-layout world-layout--immersive';document.body.classList.add('world-shell','battle-preview-shell');}
 for(const state of shown){
- const field=state.battle.field,section=document.createElement('section');section.className='field is-battle';
- const title=document.createElement('h2');title.textContent=(field.selection==='random'?'랜덤 · ':'이벤트 고정 · ')+field.name;
+ const field=state.battle.field,section=document.createElement('section');section.className='field world is-battle';
+ const title=document.createElement('h2');title.className='world-title';title.textContent=(field.selection==='random'?'랜덤 · ':'이벤트 고정 · ')+field.name;
  const description=document.createElement('p');description.textContent=field.description;
- const canvas=document.createElement('div');canvas.className='canvas canvas-wrap map-stage';section.append(title,description,canvas);document.querySelector('#gallery').append(section);
+ const canvas=document.createElement('div');canvas.className='canvas canvas-wrap';const stage=document.createElement('div');stage.className='map-stage';stage.append(canvas);section.append(title,stage);document.querySelector('#gallery').append(section);
  const hud=document.createElement('div');hud.className='preview-hud';if(selected!=='all')section.append(hud);
  let selection=null;
- const drawHud=()=>{if(selected!=='all')render(h(BattlePanel,{battle:state.battle,actor:state.me.id,selected:selection,disabled:false,remaining:30,onMode:mode=>scene.setBattleMode(mode),select:p=>{selection=p;scene.selectCell(p);drawHud();},execute:type=>{document.querySelector('#status').textContent=`디자인 미리보기: ${type} 선택 · 실제 명령은 전송하지 않습니다.`;}}),hud);};
+ const drawHud=()=>{if(selected!=='all')render(h(BattlePanel,{battle:state.battle,actor:state.me.id,selected:selection,disabled:false,remaining:30,onMode:mode=>scene.setBattleMode(mode),select:p=>{if(selection?.column===p?.column&&selection?.row===p?.row)return;selection=p;scene.selectCell(p);queueMicrotask(drawHud);},execute:type=>{document.querySelector('#status').textContent=`디자인 미리보기: ${type} 선택 · 실제 명령은 전송하지 않습니다.`;}}),hud);};
  const {scene}=createGame(canvas,p=>{selection=p;drawHud();},()=>{ready++;document.querySelector('#status').textContent=`전장 ${ready}/${shown.length} 렌더링 완료 · 12×10 타일 · 파란색은 이동 가능 범위`;},message=>{document.querySelector('#status').textContent=message;});
+ const cameraMenu=document.createElement('nav');cameraMenu.className='map-camera-controls';cameraMenu.setAttribute('aria-label','맵 화면 조정');
+ for(const [label,text,action] of [['맵 축소','−',()=>scene.adjustZoom(-0.15)],['맵 확대','＋',()=>scene.adjustZoom(0.15)],['시점 복귀','복귀',()=>scene.focus()]]){const button=document.createElement('button');button.textContent=text;button.setAttribute('aria-label',label);button.onclick=action;cameraMenu.append(button);}stage.append(cameraMenu);
  const timer=setInterval(()=>{if(scene.sys.isActive()&&scene.textures.exists('meadow-terrain')){clearInterval(timer);scene.setState(state);drawHud();}},50);
 }
 </script></body></html>

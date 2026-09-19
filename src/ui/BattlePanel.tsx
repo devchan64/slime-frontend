@@ -43,7 +43,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const selectedTargets = mode === "ATTACK" && target && attack ? [{unit: target, damage: attack.damage}] : [];
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <section class="card battle-panel" aria-label="턴제 전투 명령">
-    <div class="battle-status">
+    <details class="battle-status-details"><summary>턴·캐릭터 정보</summary><div class="battle-status">
     <div class="eyebrow">TURN-BASED TACTICS · {battle.field.columns} × {battle.field.rows}</div>
     <h3>라운드 {battle.round} · {current?.name} <span class="timer">{remaining}초</span></h3>
     <p aria-live="polite">{own ? "당신의 차례 · 명령과 대상을 선택한 뒤 확정하세요." : "현재 유닛의 행동을 기다리세요."}</p>
@@ -58,7 +58,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     <p>이동 {battle.moved ? "사용함" : "1회"} · 행동 {battle.acted ? "사용함" : "1회"}<br />이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료</p>
     {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={`${current.name} 모습`} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? "아군" : "적군"} · {current.name}</strong><progress value={current.hp} max={current.maxHp} aria-label={`${current.name} 체력`} /><small>HP {current.hp} / {current.maxHp}</small></div></div>}
     </div>
-    <div class="battle-command-area">
+    </details><div class="battle-command-area">
     <p class="battle-step" aria-live="polite">{mode === null ? "1 · 행동 선택" : (mode === "MOVE" || mode === "ATTACK") && !valid ? "2 · 맵에서 대상 선택" : "3 · 결과 확인 후 확정"}</p>
     <div class="actions">
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
@@ -68,7 +68,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         onClick={() => chooseMode(value)}>{LABELS[value]}</button>)}
     </div>
     {mode !== null && <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
-    <div class="command-preview" aria-live="polite">
+    <div class="battle-command-content"><div class="command-preview" aria-live="polite">
       {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "파란 이동 가능 셀을 선택하세요."
         : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage} · HP ${target.hp} → ${Math.max(0, target.hp - attack.damage)}` : "붉은 테두리의 사거리 내 적을 선택하세요."
         : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
@@ -98,9 +98,9 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         <small>이동만 확정합니다. 공격은 도착 후 따로 선택하세요.</small>
       </>}
     </div>}
-    <button disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : `${LABELS[mode]} 확정`}</button></>}
+    </div><button class="battle-confirm" disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : `${LABELS[mode]} 확정`}</button></>}
     </div>
-    <div class="battle-secondary">
+    <details class="battle-records"><summary>전투 기록·기권</summary><div class="battle-secondary">
     <details><summary>참가 유닛 · {battle.units.length}</summary>
     <div class="units" aria-label="전투 유닛">
       {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => select(u.position)}>
@@ -117,6 +117,6 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
       if (surrender) { execute("SURRENDER"); setSurrender(false); } else setSurrender(true);
     }}>{surrender ? "기권 동의 확정" : "기권"}</button>
     {surrender && <button class="secondary compact" onClick={() => setSurrender(false)}>기권 취소</button>}
-    </div>
+    </div></details>
   </section>;
 }

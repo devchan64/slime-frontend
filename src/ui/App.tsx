@@ -1,3 +1,4 @@
+import { ChatPanel } from "./ChatPanel";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useMinimumLoading } from "./useMinimumLoading";
 import { FieldPanel, FieldSelection, type Walking } from "./FieldPanel";
@@ -194,7 +195,7 @@ export function App() {
       },
     });
   return (
-    <div class={`app-shell ${!state ? "login-shell" : ""}`}>
+    <div class={`app-shell ${!state ? "login-shell" : inWorld ? "world-shell" : ""}`}>
       {loading && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
         <section class="loading-card" aria-live="polite">
           <div class="eyebrow">SLIME · LOADING</div>
@@ -289,6 +290,7 @@ export function App() {
                 <input
                   aria-label="아이디"
                   autoComplete="username"
+                  enterKeyHint="next"
                   autoCapitalize="none"
                   spellcheck={false}
                   maxLength={40}
@@ -303,6 +305,7 @@ export function App() {
                   aria-label="비밀번호"
                   type="password"
                   autoComplete="current-password"
+                  enterKeyHint="go"
                   maxLength={128}
                   value={password}
                   onInput={(e) => setPassword(e.currentTarget.value)}
@@ -410,7 +413,10 @@ export function App() {
               </div>
               <nav class="map-menu" aria-label="맵 메뉴">
                 <span class="world-resources">{state.me.name} · XP {state.me.xp} · ◈ {state.me.coins}</span>
-              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
+              </nav>
+            </div>
+            <div class="map-stage">
+              <nav class="map-camera-controls" aria-label="맵 화면 조정">              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
               <button class="secondary compact" aria-label="맵 확대" onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
               <button
                 class="secondary compact"
@@ -418,15 +424,9 @@ export function App() {
               >
                 시점 복귀
               </button>
-              </nav>
-            </div>
-            <div class="map-stage">
+</nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
-              {!battle && <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
-                select={selectField} command={command} walking={walking} walk={() => void run(walk)}
-                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />}
-            </div>
-            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요.</p></details>
+            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요.</p>
             {battle?.field.description && <p class="battlefield-description">{battle.field.selection === "random" ? "랜덤 전장" : "고정 전장"} · {battle.field.description}</p>}
             <div class="map-caption">
               <span>
@@ -441,6 +441,11 @@ export function App() {
                 · 방향키 선택 / 휠 확대
               </span>
             </div>
+            </details></div>
+            {!battle && <div class="field-command-dock">              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+                select={selectField} command={command} walking={walking} walk={() => void run(walk)}
+                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
+</div>}
             {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
@@ -538,34 +543,13 @@ export function App() {
                 ))}
               </section>
             )}
-            {drawer === "chat" && <section class="card chat">
-              <h3>{battle ? "전투" : "채널"} 대화</h3>
-              <div class="chat-lines" aria-live="polite">
-                {state.messages.map((m) => (
-                  <p key={m.id}>
-                    <b>{m.name}</b> {m.text}
-                  </p>
-                ))}
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void run(async () => {
-                    await client.command("/v1/game/messages", { text: chat });
-                    setChat("");
-                  });
-                }}
-              >
-                <input
-                  aria-label="채팅 메시지"
-                  maxLength={200}
-                  value={chat}
-                  onInput={(e) => setChat(e.currentTarget.value)}
-                  placeholder="함께하는 모험가에게"
-                />
-                <button disabled={disabled || !chat.trim()}>전송</button>
-              </form>
-            </section>}
+            {drawer === "chat" && <ChatPanel title={battle ? "전투 대화" : "채널 대화"}
+              messages={state.messages} value={chat} disabled={disabled} onChange={setChat}
+              onSubmit={() => void run(async () => {
+                await client.command("/v1/game/messages", { text: chat });
+                setChat("");
+              })} />}
+
             {!battle && state.me.lastResult && (
               <p class="result">
                 최근 전투 {RESULT_NAMES[state.me.lastResult.result]} · XP +

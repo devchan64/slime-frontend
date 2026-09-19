@@ -20,7 +20,16 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
     <progress value={walking.completed} max={walking.total} aria-label="이동 진행률" />
     <button class="secondary compact" disabled={walking.stopping} onClick={stop}>이동 중지</button>
   </section>;
-  if (!selected) return <div class="field-hint">맵의 지형이나 몬스터를 선택해 탐색하세요.</div>;
+  if (!selected) {
+    const nearby = [...state.monsters].filter(m => m.state === "AVAILABLE")
+      .sort((a,b) => fieldDistance(state.me.position,a.position)-fieldDistance(state.me.position,b.position)).slice(0,3);
+    return <section class="field-selection field-idle" aria-label="타일 명령">
+      <strong>탐색할 타일이나 몬스터를 선택하세요</strong>
+      <div class="field-quick-targets">{nearby.map(m => <button class="secondary" key={m.id} onClick={() => select(m.position)}>
+        {monsterName(m)}<small>{fieldDistance(state.me.position,m.position) <= 1 ? "조우 가능" : `${fieldDistance(state.me.position,m.position)}칸 거리`}</small>
+      </button>)}</div>
+    </section>;
+  }
   const blocked = state.map.blocked.some(p => sameCell(p, selected));
   const path = fieldRoute(state.me.position, selected, state.map);
   const here = sameCell(state.me.position, selected);
@@ -29,19 +38,21 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const safe = fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
   return <section class="field-selection" aria-label="선택한 위치">
-    <div class="field-selection-heading"><div><small>선택 위치 · {selected.column}, {selected.row} · 높이 {heightAt(selected, state.map)}</small>
-      <h3>{blocked ? "이동 불가 지형" : gate ? `${gate.targetName ?? gate.target} 연결 지점` : monsters.length ? "몬스터 발견" : safe ? "안전 구역" : "탐색 지점"}</h3></div>
+    <div class="field-selection-heading"><div>
+      <h3>{blocked ? "이동 불가 지형" : gate ? `${gate.targetName ?? gate.target} 연결 지점` : monsters.length ? "몬스터 조우" : safe ? "안전 구역" : "탐색 지점"}</h3></div>
       <button class="secondary compact" aria-label="선택 해제" onClick={() => select(null)}>닫기</button></div>
-    <p>{blocked ? "바위·수풀·물은 통과할 수 없습니다." : here ? "현재 서 있는 위치입니다." : path ? `걸어서 ${path.length}칸 · 장애물과 절벽을 피해 계단으로 이동합니다.` : "현재 위치에서 갈 수 있는 경로가 없습니다."}</p>
+    <div class="field-command-body">
     {monsters.map(m => {
       const distance = fieldDistance(state.me.position, m.position);
       return <div class="field-target" key={m.id}><div><strong>{monsterName(m)}</strong>
         <small>{m.disposition === "AGGRESSIVE" ? "선공 · 접근 시 주의" : "비선공"} · {m.state !== "AVAILABLE" ? "현재 조우 불가" : distance > 1 ? "1칸 이내로 접근하면 조우 가능" : "조우 가능"}</small></div>
         <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || distance > 1}
-          onClick={() => command("/v1/game/encounters/reserve", { monsterId: m.id })}>조우</button></div>;
+          onClick={() => command("/v1/game/encounters/reserve", { monsterId: m.id })}>조우 시작</button></div>;
     })}
-    {!blocked && !here && <button disabled={disabled || !field || !path?.length} onClick={walk}>여기로 이동{path ? ` · ${path.length}칸` : ""}</button>}
+    <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length} onClick={walk}>여기로 이동{path ? ` · ${path.length}칸` : ""}</button>}
     {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{gate.targetName ?? gate.target}으로 이동 ↗</button>}
+    </div><details class="tile-description"><summary>지형·경로 정보</summary><small>좌표 {selected.column}, {selected.row} · 높이 {heightAt(selected, state.map)}</small>    <p>{blocked ? "바위·수풀·물은 통과할 수 없습니다." : here ? "현재 서 있는 위치입니다." : path ? `걸어서 ${path.length}칸 · 장애물과 절벽을 피해 계단으로 이동합니다.` : "현재 위치에서 갈 수 있는 경로가 없습니다."}</p>
+</details></div>
     {!field && <small>조우 준비를 완료하거나 취소한 뒤 이동할 수 있습니다.</small>}
   </section>;
 }
