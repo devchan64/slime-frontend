@@ -98,7 +98,15 @@ export class TextClient {
     if (name === 'create') { arity(1); return this.command('/v1/characters/me', { character_name: args[0] }); }
     if (name === 'skill') { arity(1); return this.command('/v1/characters/me/skills', { skill: args[0] }); }
     if (name === 'attribute') { arity(1); return this.command('/v1/characters/me/attributes', { attribute: args[0] }); }
-    if (name === 'gate') { arity(0); return this.command('/v1/maps/transitions', { connectionId: 'gate' }); }
+    if (name === 'gate') {
+      if (args.length > 1) throw new Error('gate 또는 gate 웨이포인트ID로 입력하세요.');
+      if (this.state?.battle) throw new Error('전투 중에는 맵을 이동할 수 없습니다.');
+      const position = this.state?.me.position;
+      const candidates = (this.state?.map?.connections ?? []).filter(g =>
+        g.column === position?.column && g.row === position?.row && (!args.length || g.id === args[0]));
+      if (candidates.length !== 1) throw new Error('현재 위치의 웨이포인트를 확인하세요. state에서 ID와 좌표를 볼 수 있습니다.');
+      return this.command('/v1/maps/transitions', { connectionId: candidates[0].id });
+    }
     if (name === 'encounter') { arity(1); return this.command('/v1/game/encounters/reserve', { monsterId: args[0] }); }
     if (name === 'cancel' || (name === 'ready' && this.state?.reservation)) {
       arity(0);
@@ -126,12 +134,12 @@ export function formatState(state) {
   if (state.battle) {
     const b = state.battle;
     lines.push(`전투 ${b.id} | ${b.status} | 턴 ${b.turnId} | 현재 ${b.order[b.index]}`);
-    for (const u of b.units) lines.push(`${u.id} ${u.name} [${u.side}] (${u.position.column},${u.position.row}) ${u.side === 'enemy' ? (u.healthVisibility === 'BANDED' ? `추정 건강 단계 ${u.hp}/${u.maxHp}` : '체력 정보 없음') : `HP ${u.hp}/${u.maxHp}`}`);
-    lines.push(`이동 가능: ${(b.tactics?.moves ?? []).map(m => `${m.position.column},${m.position.row}`).join(' / ') || '없음'}`);
-    lines.push(`공격 가능: ${(b.tactics?.attacks ?? []).map(a => a.targetId).join(', ') || '없음'}`);
+    for (const u of b.units) lines.push(`${u.id} ${u.name} [${u.side}] (${u.position.column},${u.position.row}) ${u.side === 'enemy' ? (u.healthVisibility === 'BANDED' ? `추정 건강 단계 ${u.hp}/${u.maxHp}` : '체력 정보 없음') : `HP ${u.hp}/${u.maxHp}${Number.isInteger(u.ap) && Number.isInteger(u.maxAp) ? ` | AP ${u.ap}/${u.maxAp}` : ''}`}`);
+    lines.push(`이동 가능: ${(b.tactics?.moves ?? []).map(m => `${m.position.column},${m.position.row}${Number.isInteger(m.apCost) ? ` (${m.apCost} AP → 잔여 ${m.apAfter})` : ''}`).join(' / ') || '없음'}`);
+    lines.push(`공격 가능: ${(b.tactics?.attacks ?? []).map(a => `${a.targetId}${Number.isInteger(a.apCost) ? ` (${a.apCost} AP)` : ''}`).join(', ') || '없음'}`);
   } else {
     for (const m of state.monsters ?? []) lines.push(`${m.id} ${m.name ?? ''} (${m.position.column},${m.position.row}) ${m.state}`);
-    for (const g of state.map?.connections ?? []) lines.push(`웨이포인트 (${g.column},${g.row}) → ${g.targetName ?? g.target}`);
+    for (const g of state.map?.connections ?? []) lines.push(`웨이포인트 ${g.id} (${g.column},${g.row}) → ${g.targetName ?? g.target}`);
   }
   return lines.join('\n');
 }

@@ -28,7 +28,9 @@ end
 quit
 ```
 
-위 예시의 좌표·ID·순서는 실제 상태에 맞춰 바꾼다. `skill physical_activity` 등 스킬 성장 명령은 SP가 충분할 때 사용할 수 있다. 조우 예약 준비와 전투 공간 준비는 각각 `ready`로 명시하며, 솔로 조우가 바로 전투 준비로 전환되면 한 번만 입력한다. 이동은 `move 열 행`이며 좌표는 0부터 시작한다. 필드에서는 필드 이동, 전투에서는 전투 이동 요청으로 변환한다. `state`는 서버의 최신 상태·현재 턴·이동 가능한 좌표·공격 대상 ID를 표시한다. 몬스터 체력은 서버가 공개한 정보 범위만 표시한다. 공격 후 서버가 다음 턴으로 전환한 경우 `end`를 다시 보내지 않는다.
+위 예시의 좌표·ID·순서는 실제 상태에 맞춰 바꾼다. `skill physical_activity` 등 스킬 성장 명령은 SP가 충분할 때 사용할 수 있다. 조우 예약 준비와 전투 공간 준비는 각각 `ready`로 명시하며, 솔로 조우가 바로 전투 준비로 전환되면 한 번만 입력한다. 이동은 `move 열 행`이며 좌표는 0부터 시작한다. 필드에서는 필드 이동, 전투에서는 전투 이동 요청으로 변환한다. `state`는 서버의 최신 상태·현재 턴·이동 가능한 좌표·공격 대상 ID를 표시한다. 몬스터 체력은 서버가 공개한 정보 범위만 표시한다. 일반 공격은 3 AP, 이동은 경로 1칸당 1 AP를 소비한다. 현재 AP와 이동·공격 가능 목록은 서버 응답을 따른다. AP가 남으면 추가 행동이 가능하고, AP가 0이어도 `end`로 명시적으로 턴을 종료한다. 공격만으로 자동 턴 종료를 가정하지 않는다.
+
+`gate`는 현재 좌표의 유일한 웨이포인트를 사용한다. `gate gate-east`처럼 상태에 표시된 ID를 지정할 수도 있다. 다른 좌표의 웨이포인트로 순간이동하지 않으며 전투 중에는 맵 전환을 요청하지 않는다.
 
 텍스트 클라이언트는 10초마다 세션을 유지하고 토큰을 갱신하지만 상태는 `state` 또는 명령 결과로 갱신한다. 실시간 WebSocket 구독·파티 관리·채팅·회원가입 UI는 포함하지 않는다. 웹과 같은 서버 명령 검증을 적용받으므로 이동 불가·턴 변경·자원 부족은 API 오류로 표시된다.
 
@@ -49,10 +51,11 @@ quit
 |---|---|
 | `/v1/world/enter`, `/away`, `/resume` | 없음 (각 경로는 `/v1/world` 하위) |
 | `/v1/characters/me` | `character_name` |
+| `/v1/characters/me/skill-loadout` | `skills`: 보유 스킬 ID 배열 (서버의 `battleSkillSlotLimit` 이하, 중복 없음) |
 | `/v1/characters/me/skills` | 보유한 `skill` ID |
 | `/v1/characters/me/attributes` | `attribute`: body/intellect/spirit |
 | `/v1/game/moves` | `position: {column, row}` |
-| `/v1/maps/transitions` | `connectionId: "gate"` |
+| `/v1/maps/transitions` | `connectionId`: 현재 좌표에 등록된 웨이포인트 ID |
 | `/v1/game/encounters/reserve` | `monsterId` |
 | `/v1/game/encounters/ready`, `/cancel` | `reservationId` (각 경로는 `/v1/game/encounters` 하위) |
 | `/v1/game/battle/commands` | `action: {type, battleId, turnId, ...}` |
@@ -77,3 +80,9 @@ node scripts/text-client.mjs --help
 공급사 미설정은 `SPONSOR_UNAVAILABLE`, 승인 누락·만료는 `SPONSOR_REQUIRED`다. 실패·연결 종료·공간 변경 시 대화 목록과 입장 상태를 초기화하고 광고 확인 화면을 표시한다. 로컬 타이머·영상 종료 이벤트로 성공 처리하지 않는다.
 
 광고 시도 응답의 `displayUrl`은 null일 수 있다. 이 경우 `text`를 기본 광고 영역에 표시한다. `verification: unavailable`이면 검증 연동 대기 안내를 표시하고 채팅을 허용하지 않는다. 광고 선택의 시간·맵 조건은 서버에서 평가하며 클라이언트가 광고 ID를 지정하지 않는다. 조건에 맞는 광고가 없으면 서버의 기본 광고가 반환된다.
+
+## 전투 재접속과 유휴 연결
+
+진행 중 전투가 있는 계정으로 다시 로그인하면 서버가 참가 권한을 검증하고 기존 자기 캐릭터의 조작을 복구한다. AP·HP·턴을 초기화하지 않는다. 자기 턴인지 `battle.tactics.canAct`를 확인하며 정산 완료 상태에서는 반환된 필드/로비 흐름을 따른다. 이전 로그인 세대의 상태·명령은 사용하지 않는다.
+
+서버는 마지막 실제 입력으로부터 5분이 지나면 `IDLE_DISCONNECTED`를 반환한다. 자동 heartbeat·상태 조회·토큰 갱신은 입력이 아니다. 웹은 실제 입력을 `{type: "activity"}` 프레임으로 게임 WebSocket에 전송한다. 프레임에 클라이언트 시각을 추가하지 않는다. 같은 오류를 받은 클라이언트는 자동 재연결·생존 타이머를 중지하고 명시적인 재로그인으로 복귀한다. 텍스트 클라이언트는 연결 유지 실패 시 종료하며 다시 실행해 로그인한다. 현재 텍스트의 상태 조회·도움말 입력에 대한 활동 알림은 아직 지원하지 않는다.

@@ -8,7 +8,7 @@ skill 스킬ID           스킬 성장 (SP 소비)
 attribute 능력치ID     능력치 성장 (CP 소비)
 enter / away / resume  월드 입장 / 자리비움 / 복귀
 move 열 행             필드 또는 전투 이동 (0부터 시작)
-gate                   현재 웨이포인트로 맵 전환
+gate [웨이포인트ID]    현재 위치의 웨이포인트로 맵 전환
 encounter 몬스터ID     조우 예약
 ready / cancel         조우·전투 준비 / 조우 예약 취소
 attack 유닛ID          일반 공격

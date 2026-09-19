@@ -76,3 +76,26 @@ test('적의 체력은 공개 단계만 표시하고 토큰·원시 상태를 �
   assert.match(text, /체력 정보 없음/);
   assert.doesNotMatch(text, /99|123/);
 });
+
+test('여러 방향의 웨이포인트에서 현재 좌표의 ID로 이동한다', async () => {
+  for (const id of ['gate', 'gate-east', 'gate-south', 'gate-north']) {
+    const initial=state({map:{connections:[{id,column:7,row:8,targetName:'목적지'}, {id:'elsewhere',column:1,row:1}]}});
+    initial.me.position={column:7,row:8};
+    const {client,calls}=setup([{state:state({cursor:2})}]);client.accept(initial);
+    assert.match(formatState(initial),new RegExp(`웨이포인트 ${id}`));
+    await client.execute(`gate${id === 'gate' ? '' : ' '+id}`);
+    assert.equal(calls[0].body.connectionId,id);
+  }
+});
+test('원격·미등록·전투 중 웨이포인트는 요청하지 않는다',async()=>{
+ const {client,calls}=setup([]);client.accept(state({map:{connections:[{id:'gate-east',column:1,row:1}]}}));
+ for(const input of ['gate','gate missing','gate gate-east','gate a b'])await assert.rejects(client.execute(input));
+ client.state.battle={id:'b'};await assert.rejects(client.execute('gate'));
+ assert.equal(calls.length,0);
+});
+test('아군 AP와 서버 행동 비용을 표시하고 적 숨김 체력은 유지한다',()=>{
+ const text=formatState(state({battle:{id:'b',status:'ACTIVE',turnId:1,order:['a'],index:0,
+ units:[{id:'a',name:'아군',side:'ally',position:{column:0,row:0},hp:10,maxHp:10,ap:2,maxAp:3}],
+ tactics:{moves:[{position:{column:1,row:0},apCost:1,apAfter:1}],attacks:[{targetId:'e',apCost:3}]}}}));
+ assert.match(text,/AP 2\/3/);assert.match(text,/1 AP → 잔여 1/);assert.match(text,/e \(3 AP\)/);
+});
