@@ -1,3 +1,4 @@
+import { noticeText, LocalizedError, type Notice } from '../client/notice';
 import { localizedMonsters } from '../client/monsterText';
 import { BattleReport } from "./BattleReport";
 import { SponsorGate } from "./SponsorGate";
@@ -25,11 +26,11 @@ import type { createGame } from "../game/createGame";
 const WALK_STEP_DELAY_MS = 270;
 const loginIllustration = new URL("../assets/login/slime-welcome-v4.png", import.meta.url).href;
 const RESULT_NAMES: Record<string, string> = {
-  WIN: "승리",
-  LOSE: "패배",
-  TIMEOUT: "시간 초과",
-  SURRENDER: "기권",
-  PREPARATION_FAILED: "전투 준비 시간 초과 · 필드 복귀",
+  WIN: "battle.resultWin",
+  LOSE: "battle.resultLose",
+  TIMEOUT: "battle.resultTimeout",
+  SURRENDER: "battle.resultSurrender",
+  PREPARATION_FAILED: "battle.resultPreparationFailed",
 };
 const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
@@ -41,7 +42,7 @@ export function App() {
   const [chatMessages, setChatMessages] = useState<State['messages']>([]);
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
-    [status, setStatus] = useState(""),
+    [statusNotice, setStatus] = useState<Notice>(""),
     [busy, setBusy] = useState(false);
   const [user, setUser] = useState(""),
     [password, setPassword] = useState(""),
@@ -89,10 +90,10 @@ export function App() {
           await client.login(user, password);
         } else {
           const issue = registrationIssue(user, password);
-          if (issue) throw new Error(issue);
+          if (issue) throw new LocalizedError(issue);
           await client.request("/v1/auth/register", { user_id: user, password });
           navigateAuth("login");
-          setStatus(t("auth.registered"));
+          setStatus({key:"auth.registered"});
         }
       });
     } finally {
@@ -125,8 +126,11 @@ export function App() {
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
   const [transferPending, setTransferPending] = useState(false);
-  const [preparationError, setPreparationError] = useState("");
-  const [renderError, setRenderError] = useState("");
+  const [preparationNotice, setPreparationError] = useState<Notice>("");
+  const [renderNotice, setRenderError] = useState<Notice>("");
+  const status = noticeText(statusNotice, locale, t);
+  const preparationError = noticeText(preparationNotice, locale, t);
+  const renderError = noticeText(renderNotice, locale, t);
   const [walking, setWalking] = useState<Walking | null>(null);
   const stopWalking = useRef(false);
   const readyRequest = useRef<string | null>(null);
@@ -178,8 +182,8 @@ export function App() {
       setRenderFailed(true);
       client.disconnect();
       setConnected(false);
-      setRenderError("WebGL 화면을 복구하려면 다시 접속하세요.");
-      setStatus("WebGL 화면을 복구하려면 다시 접속하세요.");
+      setRenderError({key:"app.webglReconnect"});
+      setStatus({key:"app.webglReconnect"});
     };
     void import("../game/createGame")
       .then(({ createGame }) => {
@@ -197,8 +201,8 @@ export function App() {
       .catch(() => {
         setRenderFailed(true);
         client.disconnect();
-        setRenderError("이 브라우저에서 WebGL을 실행할 수 없습니다.");
-        setStatus("이 브라우저에서 WebGL을 실행할 수 없습니다.");
+        setRenderError({key:"app.webglUnsupported"});
+        setStatus({key:"app.webglUnsupported"});
         setConnected(false);
       });
     return () => {
@@ -225,7 +229,7 @@ export function App() {
     readyRequest.current = id;
     setPreparationError("");
     void client.command("/v1/game/battle/commands", { action: { type: "READY", battleId: id } })
-      .catch(e => { if (stateRef.current?.battle?.id === id) setPreparationError((e as Error).message); })
+      .catch(e => { if (stateRef.current?.battle?.id === id) setPreparationError(e as Error); })
       .finally(() => { if (readyRequest.current === id) readyRequest.current = null; });
   }, [state, connected, renderedLocation, renderFailed, clock, minimumElapsed, sponsorPending]);
   async function run(task: () => Promise<unknown>) {
@@ -234,7 +238,7 @@ export function App() {
     try {
       await task();
     } catch (e) {
-      setStatus((e as Error).message);
+      setStatus(e as Error);
     } finally {
       setBusy(false);
     }
@@ -254,7 +258,7 @@ export function App() {
   async function walk() {
     if (!state || !selected) return;
     const steps = fieldRoute(state.me.position, selected, state.map);
-    if (!steps) throw new Error("현재 위치에서 갈 수 있는 경로가 없습니다.");
+    if (!steps) throw new LocalizedError("app.noRouteError");
     const locationId = state.location.id, generation = state.generation;
     stopWalking.current = false;
     setWalking({ completed: 0, total: steps.length, stopping: false });
@@ -262,7 +266,7 @@ export function App() {
       for (let i = 0; i < steps.length; i++) {
         const current = client.state;
         if (stopWalking.current || current?.me.mode !== "FIELD" || current.location.id !== locationId || current.generation !== generation) break;
-        if (current.me.fp !== undefined && current.me.fp < 1) throw new Error("이동에 필요한 FP가 부족합니다. 1칸당 1 FP가 필요합니다.");
+        if (current.me.fp !== undefined && current.me.fp < 1) throw new LocalizedError("app.movementFpError");
         await client.command("/v1/game/moves", { position: steps[i] });
         setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });
         if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, WALK_STEP_DELAY_MS));
@@ -312,9 +316,9 @@ export function App() {
     });
   return (
     <div class={`app-shell ${!state ? "login-shell" : inWorld ? "world-shell" : ""}`}>
-      {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
+      {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label={t('app.loadingRegion')}>
         <section class="loading-card" aria-live="polite">
-          <h2>{renderFailed ? "로딩에 실패했습니다" : "로딩 중…"}</h2>
+          <h2>{renderFailed ? t('app.loadingFailed') : t('app.loading')}</h2>
           {preparationError && <p role="alert">{preparationError}</p>}
           {sponsorPending && state && <SponsorGate key={sponsorKey} client={client}
             generation={state.generation} epoch={state.epoch} room={state.location.chatRoomId}
@@ -326,7 +330,7 @@ export function App() {
               await client.logout(); setBattleReport(null); setState(null); setWorldGeneration(null);
               setConnected(false); setPassword('');
             })} />}
-          {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>다시 접속</button></> : null}
+          {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>{t('app.reconnect')}</button></> : null}
         </section>
       </div>}
       <header>
@@ -347,7 +351,7 @@ export function App() {
               client.state = null;
               setState(null);
               setStatus(
-                "다시 로그인해 주세요. 서버의 기존 전투는 계속 진행됩니다.",
+                {key:"app.sessionRelogin"},
               );
             }}
           >
@@ -365,7 +369,7 @@ export function App() {
                 setWorldGeneration(null);
                 navigateCharacterPage("#/characters");
                 setConnected(false);
-                setStatus("로그아웃했습니다.");
+                setStatus({key:"app.loggedOut"});
                 setPassword("");
               })
             }
@@ -468,16 +472,16 @@ export function App() {
           </section>
         </main>
       ) : battleReport ? (
-        <main aria-label="전투 결과 확인" />
+        <main aria-label={t('app.reportRegion')} />
       ) : state.me.mode === "AWAY" ? (
         <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
       ) : menuPage ? (
         <main class="lobby field-menu-page">
           <section class="card">
-            <div class="field-card-heading"><h1>메뉴</h1><button class="secondary" onClick={() => navigateCharacterPage("#/world")}>맵으로 돌아가기</button></div>
-            <nav class="field-menu-actions" aria-label="게임 메뉴">
+            <div class="field-card-heading"><h1>{t('app.menu')}</h1><button class="secondary" onClick={() => navigateCharacterPage("#/world")}>{t('app.backToMap')}</button></div>
+            <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
-              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? t('app.invitationCount',{count:state.invitations.length}) : ""}</button>
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
             </nav>
           </section>
@@ -486,11 +490,11 @@ export function App() {
         <main class="lobby character-lobby">
           <section class="card">
             <h1>{t('common.settings')}</h1>
-            <nav class="character-settings-navigation" aria-label="캐릭터 설정 페이지 이동">
+            <nav class="character-settings-navigation" aria-label={t('app.characterNavigation')}>
             <button class="secondary" disabled={busy} onClick={() => {
               setCharacterPage("select");
               navigateCharacterPage(worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "#/menu" : "#/characters");
-            }}>{worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "돌아가기" : "캐릭터 선택으로"}</button>
+            }}>{worldGeneration === state.generation && state.me.mode !== "LOBBY" ? t('app.back') : t('app.characterSelectLink')}</button>
             </nav>
             <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
           </section>
@@ -499,37 +503,36 @@ export function App() {
         <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
             <div class="eyebrow">{characterPage === "select" ? "CHARACTER SELECT" : characterPage === "create" ? "NEW EXPLORER" : "CHARACTER SETTINGS"}</div>
-            <h1>{characterPage === "select" ? "캐릭터 선택" : characterPage === "create" ? "캐릭터 생성" : t('common.settings')}</h1>
+            <h1>{characterPage === "select" ? t('app.characterSelect') : characterPage === "create" ? t('app.characterCreate') : t('common.settings')}</h1>
             {state.me.name && <CharacterDeparture me={state.me} disabled={disabled} onEnter={() => command("/v1/world/enter")} />}
             {characterPage === "select" ? (
               state.me.name ? <>
-                <article class="character-select-card" aria-label="내 캐릭터">
+                <article class="character-select-card" aria-label={t('app.myCharacter')}>
                   <CharacterPortrait />
-                  <div><h2>{state.me.name}</h2><p>이 캐릭터로 모험을 이어가세요.</p>
-                    <button class="secondary" disabled={disabled} onClick={() => navigateCharacterPage("#/characters/settings")}>캐릭터 설정</button>
+                  <div><h2>{state.me.name}</h2><p>{t('app.continueAdventure')}</p>
+                    <button class="secondary" disabled={disabled} onClick={() => navigateCharacterPage("#/characters/settings")}>{t('app.characterSettings')}</button>
                   </div>
                 </article>
-                <p class="growth-help">캐릭터 1 / 1 · 계정당 한 명의 캐릭터를 사용할 수 있습니다.</p>
+                <p class="growth-help">{t('app.characterLimit')}</p>
               </> : <div class="character-select-empty">
-                <p>아직 캐릭터가 없습니다. 첫 모험가를 만들어 주세요.</p>
-                <button disabled={disabled} onClick={() => setCharacterPage("create")}>캐릭터 생성</button>
-                <p class="growth-help">계정당 한 명의 캐릭터를 생성할 수 있습니다.</p>
+                <p>{t('app.noCharacter')}</p>
+                <button disabled={disabled} onClick={() => setCharacterPage("create")}>{t('app.characterCreate')}</button>
+                <p class="growth-help">{t('app.createLimit')}</p>
               </div>
             ) : characterPage === "create" && !state.me.name ? (
               <form onSubmit={event => { event.preventDefault(); if (!disabled && name.trim()) void command("/v1/characters/me", { character_name: name.trim() }); }}>
                 <label>{t('common.characterName')}<input aria-label={t('common.characterName')} maxLength={20} value={name}
                   disabled={busy} onInput={event => setName(event.currentTarget.value)} autoFocus /></label>
-                <button type="submit" disabled={disabled || !name.trim()}>{busy ? "생성 중…" : "캐릭터 생성"}</button>
-                <button type="button" class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>캐릭터 선택으로</button>
+                <button type="submit" disabled={disabled || !name.trim()}>{busy ? t('app.creating') : t('app.characterCreate')}</button>
+                <button type="button" class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>{t('app.characterSelectLink')}</button>
               </form>
             ) : <>
-              <button class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>캐릭터 선택으로</button>
+              <button class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>{t('app.characterSelectLink')}</button>
               <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
             </>}
             {state.me.lastResult && (
               <p class="result">
-                {RESULT_NAMES[state.me.lastResult.result]} · 재화 +
-                {state.me.lastResult.coins}
+                {t('app.resultSummary',{result:RESULT_NAMES[state.me.lastResult.result] ? t(RESULT_NAMES[state.me.lastResult.result]) : state.me.lastResult.result,coins:state.me.lastResult.coins})}
               </p>
             )}
           </section>
@@ -544,78 +547,79 @@ export function App() {
                 </div>
                 <h2>
                   {battle
-                    ? `${battle.field.name || "전술 전장"} · 라운드 ${battle.round}`
+                    ? t('app.battleHeading',{name:battle.field.name || t('app.battlefield'),round:battle.round})
                     : localizedMapName(state.map.name, state.map.nameTranslations, locale)}
                 </h2>
               </div>
-              <nav class="map-menu" aria-label="맵 메뉴">
+              <nav class="map-menu" aria-label={t('app.mapMenu')}>
                 <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
               </nav>
               {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
             </div>
-            <div class={`map-stage card ${battle ? "battle-map-card" : "field-map-card"}`} role="region" aria-label={battle ? "전투 맵 카드" : "필드 맵 카드"}>
-              <nav class="map-camera-controls" aria-label="맵 화면 조정">              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
-              <button class="secondary compact" aria-label="맵 확대" onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
-              <button class="secondary compact" aria-label="맵 왼쪽으로 90도 회전" onClick={() => renderer.current?.scene.rotateMap(-1)}>↶</button>
-              <button class="secondary compact" aria-label="맵 오른쪽으로 90도 회전" onClick={() => renderer.current?.scene.rotateMap(1)}>↷</button>
+            <div class={`map-stage card ${battle ? "battle-map-card" : "field-map-card"}`} role="region" aria-label={battle ? t('app.battleMap') : t('app.fieldMap')}>
+              <nav class="map-camera-controls" aria-label={t('app.cameraControls')}>              <button class="secondary compact" aria-label={t('app.zoomOut')} onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
+              <button class="secondary compact" aria-label={t('app.zoomIn')} onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
+              <button class="secondary compact" aria-label={t('app.rotateLeft')} onClick={() => renderer.current?.scene.rotateMap(-1)}>↶</button>
+              <button class="secondary compact" aria-label={t('app.rotateRight')} onClick={() => renderer.current?.scene.rotateMap(1)}>↷</button>
               <button
                 class="secondary compact"
                 onClick={() => renderer.current?.scene.focus()}
               >
-                시점 복귀
+                {t('app.resetView')}
               </button>
 </nav>
-              <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
+              <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
 </div>
-            {!battle && <section class="card field-command-dock field-control-card" aria-label="필드 조작 카드">
+            {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
+
               <div class="field-card-heading"><div class="field-control-actions">
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
-                <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>메뉴</button>
+                <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               </div></div>
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
               <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
-                disabledReason={renderFailed ? "화면을 복구하려면 다시 접속하세요." : !connected ? "서버에 연결 중입니다. 연결 후 행동할 수 있어요." : loading ? "맵을 준비하고 있습니다." : "요청을 처리하고 있습니다."}
+                disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
+
 </section>}
             {battle && <BattlePanel battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
-            <section class="card field-help-card" aria-label="필드 도움말 카드"><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
+            <section class="card field-help-card" aria-label={t('app.fieldHelp')}><TerrainLegend /><p>{t('app.fieldControlsHelp')}</p>
             <div class="map-caption">
               <span>
                 {battle
-                  ? "파랑: 이동 · 번호선: 경로 · 주황: 도착 후 공격 범위"
-                  : `내 위치 ${state.me.position.column}, ${state.me.position.row} · ${state.me.mode === "RESERVED" ? "조우 준비 중" : "탐색 중"}`}
+                  ? t('app.battleLegend')
+                  : t('app.position',{column:state.me.position.column,row:state.me.position.row,status:t(state.me.mode === 'RESERVED' ? 'app.reserved' : 'app.exploring')})}
               </span>
               <span>
                 {selected
-                  ? `선택 ${selected.column}, ${selected.row}${state.map.blocked.some(p => same(p, selected)) ? " · 이동 불가" : ""}`
-                  : "셀을 선택하세요"}{" "}
-                · 방향키 선택 / 휠 확대
+                  ? t(state.map.blocked.some(p => same(p,selected)) ? 'app.selectedBlocked' : 'app.selectedTile',{column:selected.column,row:selected.row})
+                  : t('app.selectCell')}{" "}
+                {t('app.keyboardHelp')}
               </span>
             </div>
             </section>
             </>}
-            {state.me.requiresStartSpawn && <p class="result">정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>}
+            {state.me.requiresStartSpawn && <p class="result">{t('app.settlementHelp')}</p>}
           </section>
         </main>
       )}
-          {state && drawer && (inWorld || menuPage) && <WorldDrawer title={drawer === "nearby" ? "주변 탐색과 웨이포인트" : drawer === "party" ? "함께 탐색하기" : "대화"} onClose={() => setDrawer(null)}>
+          {state && drawer && (inWorld || menuPage) && <WorldDrawer title={drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
               select={p => { selectField(p); setDrawer(null); }} command={command} />}
             {drawer === "party" && !battle && (
               <section class="card">
                 <h3>
-                  함께 탐색하기 <small>{state.members.length}/32</small>
+                  {t('app.partyHeading')} <small>{state.members.length}/32</small>
                 </h3>
                 {state.party ? (
                   <>
                     <p>
-                      {t('common.party')}{state.party.members.length}/4 · 파티장{" "}
-                      {state.party.leader}
+                      {t('app.partySummary',{count:state.party.members.length,leader:state.party.leader})}
                     </p>
                     <button
                       class="secondary"
@@ -624,7 +628,7 @@ export function App() {
                         command("/v1/game/party/commands", { action: "LEAVE" })
                       }
                     >
-                      파티 탈퇴
+                      {t('app.leaveParty')}
                     </button>
                     {state.party.leader === state.me.id && (
                       <button
@@ -636,7 +640,7 @@ export function App() {
                           })
                         }
                       >
-                        파티 해산
+                        {t('app.disbandParty')}
                       </button>
                     )}
                   </>
@@ -648,7 +652,7 @@ export function App() {
                       command("/v1/game/party/commands", { action: "CREATE" })
                     }
                   >
-                    파티 만들기
+                    {t('app.createParty')}
                   </button>
                 )}
                 {state.members
@@ -670,7 +674,7 @@ export function App() {
                           })
                         }
                       >
-                        {state.party?.members.includes(m.id) ? "추방" : "초대"}
+                        {state.party?.members.includes(m.id) ? t('app.kick') : t('app.invite')}
                       </button>
                     </div>
                   ))}
@@ -684,7 +688,7 @@ export function App() {
                       })
                     }
                   >
-                    {i.from}님의 초대 수락
+                    {t('app.acceptInvitation',{name:i.from})}
                   </button>
                 ))}
               </section>
@@ -698,8 +702,7 @@ export function App() {
 
             {!battle && state.me.lastResult && (
               <p class="result">
-                최근 전투 {RESULT_NAMES[state.me.lastResult.result]} · 재화 +
-                {state.me.lastResult.coins}
+                {t('app.recentBattle')} {t('app.resultSummary',{result:RESULT_NAMES[state.me.lastResult.result] ? t(RESULT_NAMES[state.me.lastResult.result]) : state.me.lastResult.result,coins:state.me.lastResult.coins})}
               </p>
             )}
           </WorldDrawer>}
@@ -709,7 +712,7 @@ export function App() {
       }} />}
       <footer role="status">
         <span class={connected ? "status-light" : ""}>●</span>{" "}
-        {busy ? "명령 처리 중…" : status}
+        {busy ? t('app.commandBusy') : status}
       </footer>
     </div>
   );

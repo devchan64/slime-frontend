@@ -10,9 +10,9 @@ test('가입 비밀번호는 문자 종류별 필수 포함 조건이 없다',()
 });
 test('빈 값·허용 문자·길이와 아이디 제한은 유지한다',()=>{
   for(const password of ['', 'a b', 'abc\n', '한글', '🙂', 'a'.repeat(129)]) {
-    assert.ok(registrationIssue('user1',password));
+    assert.equal(registrationIssue('user1',password), 'auth.invalidPassword');
   }
   for(const user of ['', 'USER', 'user name', '한글', 'a'.repeat(41)]) {
-    assert.ok(registrationIssue(user,'abc'));
+    assert.equal(registrationIssue(user,'abc'), 'auth.invalidUsername');
   }
 });

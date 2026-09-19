@@ -1,4 +1,5 @@
-import { getLocale, t } from "../i18n";
+import { LocalizedError, type Notice } from './notice';
+import { getLocale } from "../i18n";
 import { ApiError, readApiResponse, readApiMessage } from "./response";
 export { ApiError } from "./response";
 import type { State, Tokens } from "./types";
@@ -20,7 +21,7 @@ export class Client {
   onChat: (messages: State['messages']) => void = () => {};
   onChatStatus: (ready: boolean) => void = () => {};
   onState: (state: State) => void = () => {};
-  onStatus: (ready: boolean, message: string) => void = () => {};
+  onStatus: (ready: boolean, message: Notice) => void = () => {};
   async request(path: string, body?: unknown): Promise<any> {
     const response = await fetch(`${API_BASE}${path}`, {
       method: body === undefined ? "GET" : "POST",
@@ -57,7 +58,7 @@ export class Client {
           this.scheduleRefresh();
         } catch (e) {
           this.disconnect();
-          this.onStatus(false, (e as Error).message);
+          this.onStatus(false, e as Error);
         }
       },
       12 * 60 * 1000,
@@ -65,7 +66,7 @@ export class Client {
   }
   accept(state: State) {
     if (state.protocolVersion !== 1)
-      throw new Error(t("network.protocol"));
+      throw new LocalizedError("network.protocol");
     if (this.state && state.generation < this.state.generation) return;
     if (
       this.state &&
@@ -80,7 +81,7 @@ export class Client {
     this.onState(state);
   }
   async command(path: string, body: Record<string, unknown> = {}) {
-    if (!this.state) throw new Error(t("network.stateRequired"));
+    if (!this.state) throw new LocalizedError("network.stateRequired");
     const payload = {
       ...body,
       requestId: crypto.randomUUID(),
@@ -120,7 +121,7 @@ export class Client {
           if (msg.type === "snapshot" || msg.type === "state") {
             this.accept(msg.state);
             this.attempts = 0;
-            this.onStatus(true, t("network.connected"));
+            this.onStatus(true, {key: "network.connected"});
             if (!this.heartbeatTimer)
               this.heartbeatTimer = setInterval(() => {
                 if (ws.readyState === WebSocket.OPEN)
@@ -129,23 +130,23 @@ export class Client {
           } else if (msg.type === "error") {
             const message = readApiMessage(msg, getLocale());
             if (message === undefined) throw new Error("API 오류 안내가 누락되었습니다.");
-            this.onStatus(false, message);
+            this.onStatus(false, new ApiError(msg.code ?? "REQUEST_FAILED", message, 0, msg.messages));
             if (msg.code === "SESSION_EXPIRED") this.disconnect();
           }
         } catch {
-          this.onStatus(false, t("network.invalidMessage"));
+          this.onStatus(false, {key: "network.invalidMessage"});
           ws.close();
         }
       };
       ws.onclose = () => {
         if (this.socket !== ws) return;
         this.clearHeartbeat();
-        this.onStatus(false, t("network.reconnecting"));
+        this.onStatus(false, {key: "network.reconnecting"});
         this.retry();
       };
       ws.onerror = () => ws.close();
     } catch (e) {
-      this.onStatus(false, (e as Error).message);
+      this.onStatus(false, e as Error);
       if (e instanceof ApiError && e.status === 401) this.disconnect();
       else this.retry();
     }
@@ -220,7 +221,7 @@ export class Client {
   }
   async resolve(result: any): Promise<any> {
     for (let attempt = 0; result.pending && attempt < 60; attempt++) {
-      this.onStatus(false, t("network.transitioning"));
+      this.onStatus(false, {key: "network.transitioning"});
       await new Promise((resolve) => setTimeout(resolve, 1000));
       result = await this.request(
         `/v1/auth/operations/${result.operationId}/resolve`,
@@ -228,9 +229,7 @@ export class Client {
       );
     }
     if (result.pending)
-      throw new Error(
-        t("network.transitionDelayed"),
-      );
+      throw new LocalizedError("network.transitionDelayed");
     return result;
   }
   async logout() {

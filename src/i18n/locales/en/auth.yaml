@@ -29,3 +29,5 @@ hidePassword: Hide password
 
 registerSubtitle: Choose a username and password for your account.
 backToLogin: Back to sign in
+invalidUsername: Use only lowercase letters and digits for your username (up to 40 characters).
+invalidPassword: Use ASCII characters without spaces for your password (up to 128 characters).

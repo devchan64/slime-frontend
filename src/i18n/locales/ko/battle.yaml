@@ -88,3 +88,13 @@ confirmAction: "{action} 확인"
 apRules: 이동 1칸당 1 AP · 일반 공격 3 AP · 자기 턴마다 최대 AP의 50% 반올림 회복 · 잔여 AP 이월
 apRecovery: '자기 턴 시작 +{count} AP'
 apPreview: '소모 {cost} AP · 실행 후 {remaining} AP'
+
+reportTitle: "전투 리포트"
+resultWin: "승리"
+resultLose: "패배"
+resultTimeout: "시간 초과"
+resultSurrender: "기권"
+resultPreparationFailed: "전투 준비 실패"
+earnedCurrency: "획득 재화"
+returnCountdown: "{seconds}초 후 맵 복귀를 시작합니다."
+acknowledge: 확인

@@ -1,7 +1,12 @@
 export class ApiError extends Error {
-  constructor(public code: string, message: string, public status: number) {
+  readonly messages?: Readonly<Record<ApiLocale, string>>;
+  constructor(public code: string, message: string, public status: number, messages?: Record<ApiLocale, string>) {
     super(message);
     this.name = "ApiError";
+    if (messages !== undefined) {
+      readApiMessage({messages}, "ko");
+      this.messages = Object.freeze({...messages});
+    }
   }
 }
 
@@ -25,17 +30,17 @@ export function readApiMessage(data: Record<string, unknown>, locale: ApiLocale)
 
 export async function readApiResponse(response: Response, locale: ApiLocale = "ko", kind: "message" | "state" = "message"): Promise<any> {
   const body = await response.text();
-  const invalidResponse = () => new ApiError(
-    "INVALID_API_RESPONSE",
-    locale === "en"
-      ? (response.status >= 500
+  const invalidResponse = () => {
+    const messages = {
+      en: response.status >= 500
         ? `Server response error (HTTP ${response.status}). Check the API connection and try again.`
-        : `The server did not return valid JSON (HTTP ${response.status}).`)
-      : response.status >= 500
-      ? `서버 응답 오류 (HTTP ${response.status}). API 서버 연결 상태를 확인한 뒤 다시 시도해 주세요.`
-      : `서버가 올바른 JSON 응답을 보내지 않았습니다 (HTTP ${response.status}).`,
-    response.status,
-  );
+        : `The server did not return valid JSON (HTTP ${response.status}).`,
+      ko: response.status >= 500
+        ? `서버 응답 오류 (HTTP ${response.status}). API 서버 연결 상태를 확인한 뒤 다시 시도해 주세요.`
+        : `서버가 올바른 JSON 응답을 보내지 않았습니다 (HTTP ${response.status}).`,
+    };
+    return new ApiError("INVALID_API_RESPONSE", messages[locale], response.status, messages);
+  };
   if (!body.trim()) throw invalidResponse();
   const mediaType = response.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
   if (mediaType !== "application/json" && !mediaType?.endsWith("+json")) throw invalidResponse();
@@ -58,6 +63,7 @@ export async function readApiResponse(response: Response, locale: ApiLocale = "k
       typeof error.code === "string" ? error.code : "REQUEST_FAILED",
       message ?? (locale === "en" ? `The request failed (HTTP ${response.status}).` : `요청을 처리하지 못했습니다 (HTTP ${response.status}).`),
       response.status,
+      error.messages as Record<ApiLocale, string> | undefined,
     );
   }
   return message === undefined ? data : { ...data, message };
