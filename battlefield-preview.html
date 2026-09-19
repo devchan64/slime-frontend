@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>이슬 초원 · 전술전장 디자인</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>이슬 초원 · 전술전장 디자인</title>
 <style>
 body{margin:0;background:#0d1d28;color:#e5fff7;font:14px system-ui}header{padding:20px;text-align:center}h1{font-size:23px;margin:0 0 12px}a{color:#99e2c5}select,button{padding:10px;border-radius:8px;background:#234a49;color:#e5fff7;border:1px solid #4c7770;margin:4px}#gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:0 auto;padding:18px;max-width:1400px}.field{min-width:0;border:1px solid #395955;border-radius:12px;overflow:hidden;background:#102731}.field h2{font-size:17px;margin:16px 18px 6px}.field p{margin:0 18px 12px;color:#a6c3bc;font-size:12px}.canvas{width:100%;aspect-ratio:1100/650}.canvas canvas{display:block}.single #gallery{grid-template-columns:1fr;max-width:1100px}#status{color:#9abbb2;margin:10px}@media(max-width:640px){#gallery{grid-template-columns:1fr}}
 .overview header{padding:8px}.overview header p{margin:6px}.overview h1{font-size:18px}.overview #status{margin:6px}.overview #gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:10px}.overview .field h2{font-size:14px;margin:10px 12px 4px}.overview .field p{font-size:10px;min-height:28px;margin:0 12px 6px}@media(max-width:640px){.overview #gallery{grid-template-columns:1fr}}</style></head><body><header><h1>이슬 초원 · 전술전장 디자인</h1><p>풀밭 · 꽃밭 · 이슬 · 흙길 / 바위·수풀·연못은 이동 불가</p><select id="choice" aria-label="전장 선택"><option value="all">전체 6종 비교 (랜덤 5 + 이벤트 1)</option></select><a href="/terrain-preview.html">탐색 맵으로</a><div id="status">화면 준비 중</div></header><main id="gallery"></main>
@@ -8,6 +8,13 @@ import {BattlePanel} from '/src/ui/BattlePanel.tsx';
 import '/src/styles.css';
 const previewStyle=document.createElement('style');
 previewStyle.textContent='body>header{display:block;height:auto;padding:12px}body>header h1{font-size:20px;margin:0 0 8px}body>header p{margin:6px}body>header select{display:inline-block;width:auto;max-width:60%}.single .canvas{max-width:900px;margin:auto;height:clamp(300px,45vh,480px)}.canvas{height:300px}.single #gallery{padding:8px}.field .battle-panel p{margin:8px 0}.field .battle-panel .command-preview{margin:10px 0}';
+previewStyle.textContent += `
+@media(max-width:1024px) and (orientation:portrait){.single .canvas{height:38dvh;min-height:220px}.single #gallery{padding:0}}
+@media(max-width:1024px) and (orientation:landscape) and (max-height:600px){
+body.single>header{padding:6px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}body.single>header h1{font-size:14px;margin:0}body.single>header p,body.single #status{display:none}body.single>header select{margin:0;padding:4px;font-size:14px} .single #gallery{padding:0}.single .field{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start}
+.single .field>h2,.single .field>p{grid-column:1/-1}.single .canvas{grid-column:1;grid-row:3;height:78dvh;min-height:220px;position:sticky;top:0}
+.single .preview-hud{grid-column:2;grid-row:3;max-height:78dvh;overflow:auto}.single .field .battle-panel{display:grid;grid-template-columns:minmax(0,1fr)}
+}`;
 document.head.append(previewStyle);
 import {createGame} from '/src/game/createGame.ts';
 import fixtures from '/src/dev/battlefield-fixtures.json';
@@ -22,11 +29,11 @@ if(!shown.length)throw new Error('존재하지 않는 전장입니다.');
 let ready=0;
 if(selected!=='all')document.querySelector('#gallery').className='world-layout--immersive';
 for(const state of shown){
- const field=state.battle.field,section=document.createElement('section');section.className='field';
+ const field=state.battle.field,section=document.createElement('section');section.className='field is-battle';
  const title=document.createElement('h2');title.textContent=(field.selection==='random'?'랜덤 · ':'이벤트 고정 · ')+field.name;
  const description=document.createElement('p');description.textContent=field.description;
- const canvas=document.createElement('div');canvas.className='canvas';section.append(title,description,canvas);document.querySelector('#gallery').append(section);
- const hud=document.createElement('div');if(selected!=='all')section.append(hud);
+ const canvas=document.createElement('div');canvas.className='canvas canvas-wrap map-stage';section.append(title,description,canvas);document.querySelector('#gallery').append(section);
+ const hud=document.createElement('div');hud.className='preview-hud';if(selected!=='all')section.append(hud);
  let selection=null;
  const drawHud=()=>{if(selected!=='all')render(h(BattlePanel,{battle:state.battle,actor:state.me.id,selected:selection,disabled:false,remaining:30,onMode:mode=>scene.setBattleMode(mode),select:p=>{selection=p;scene.selectCell(p);drawHud();},execute:type=>{document.querySelector('#status').textContent=`디자인 미리보기: ${type} 선택 · 실제 명령은 전송하지 않습니다.`;}}),hud);};
  const {scene}=createGame(canvas,p=>{selection=p;drawHud();},()=>{ready++;document.querySelector('#status').textContent=`전장 ${ready}/${shown.length} 렌더링 완료 · 12×10 타일 · 파란색은 이동 가능 범위`;},message=>{document.querySelector('#status').textContent=message;});

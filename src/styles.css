@@ -673,10 +673,88 @@ footer {
 .world-layout--immersive .canvas-wrap { height: clamp(300px, 56dvh, 650px); aspect-ratio: auto; }
 .world-layout--immersive .is-battle .canvas-wrap { height: clamp(260px, 42dvh, 540px); }
 
-/* 로그인 소개 문구의 가독성은 이미지가 아닌 별도 오버레이로 관리한다. */
+/* 이미지 전체에 연속된 오버레이를 적용해 문구 아래에 경계가 생기지 않게 한다. */
 .login-shell .intro { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 70px; }
 .login-shell .login-illustration { top: 0; height: 100%; object-position: center center; }
-.login-shell .intro-copy { background: linear-gradient(180deg, transparent, #081f23c9); }
+.login-shell .intro::after {
+  background: linear-gradient(180deg, #06192280, #081f2300 38%, #081f2359 58%, #081f23b3 82%, #081f23cc);
+  pointer-events: none;
+}
 @media (max-width: 760px) {
   .login-shell .intro { min-height: 620px; }
+}
+
+.attack-targets { margin: 12px 0; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: #10272b; }
+.attack-targets h4 { margin: 0 0 10px; font-size: 13px; }
+.attack-targets ul { list-style: none; margin: 0; padding: 0; }
+.attack-targets li { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+.attack-targets small { display: block; margin-top: 4px; color: #b6cbd1; }
+.attack-candidates { display: flex; flex-wrap: wrap; gap: 8px; }
+.attack-candidates [aria-pressed="true"] { border-color: #a0e7c9; background: #31584c; }
+
+/* 모바일 우선: 세로는 위아래, 낮은 가로 화면은 전장과 명령을 나란히 둔다. */
+:root { --touch-size: 44px; --mobile-gap: 12px; --landscape-command-width: 300px; }
+button, summary { touch-action: manipulation; }
+@media (max-width: 1024px) {
+  body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  button, button.compact, summary { min-height: var(--touch-size); }
+  input, select, textarea { font-size: 16px; }
+  header { height: auto; min-height: 60px; padding: 10px 12px; gap: 12px; flex-wrap: wrap; }
+  .brand span { display: none; }
+  .connection { flex-wrap: wrap; }
+  .world-layout--immersive { padding: 0 0 env(safe-area-inset-bottom); gap: 0; }
+  .world-layout--immersive .world { border-radius: 0; min-width: 0; }
+  .world-layout--immersive .world-title { padding: 10px 12px; }
+  .world-title h2 { font-size: 18px; margin: 4px 0; overflow-wrap: anywhere; }
+  .world-layout--immersive .map-menu { width: 100%; flex-wrap: wrap; gap: 6px; }
+  .world-resources { flex: 1 1 100%; }
+  .world-layout--immersive .battle-panel { grid-template-columns: minmax(0,1fr); padding: 12px; gap: 12px; }
+  .battle-status .eyebrow { display: none; }
+  .battle-unit-summary { gap: 8px; }
+  .battle-portrait { width: 44px; height: 48px; flex-basis: 44px; }
+  .battle-status, .battle-command-area, .battle-secondary { min-width: 0; overflow-wrap: anywhere; }
+  .battle-command-area .actions { flex-wrap: nowrap; gap: 6px; }
+  .battle-command-area .actions button { padding: 10px 6px; }
+  .battle-secondary details { min-width: 0; flex-basis: 100%; }
+  .world-bottom-menu { padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); }
+  .world-bottom-menu button { flex: 1 1 40%; }
+  .map-caption { flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
+  .character-dialog, .world-drawer { max-height: calc(100dvh - 16px); width: calc(100% - 16px); padding: 16px; overflow: auto; overscroll-behavior: contain; }
+  .character-dialog-header, .drawer-heading { position: sticky; top: -16px; z-index: 3; padding: 12px 0; background: #102a2a; }
+  .character-sheet { grid-template-columns: minmax(0,1fr); }
+  .attribute-info > div { flex-wrap: wrap; gap: 4px 8px; }
+  .attribute-card { min-width: 0; }
+  .character-lobby { margin: 16px auto; padding: 0 12px; }
+  .character-departure { flex-wrap: wrap; }
+  .login-shell .welcome { grid-template-columns: minmax(0,1fr); padding: 12px; gap: 16px; }
+  .login-shell .intro { min-height: 360px; }
+  .login-shell .auth { min-width: 0; }
+}
+@media (max-width: 1024px) and (orientation: portrait) {
+  .world-layout--immersive .canvas-wrap { height: 48dvh; min-height: 240px; }
+  .world-layout--immersive .is-battle .canvas-wrap { height: 38dvh; min-height: 220px; }
+  .field-selection { position: relative; left: auto; bottom: auto; width: auto; max-height: none; margin: 0 10px 10px; }
+  .portrait-stage { max-width: 160px; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .world-layout--immersive .is-battle { display: grid; grid-template-columns: minmax(0,1fr) var(--landscape-command-width); align-items: start; }
+  .is-battle > .world-title, .is-battle > .world-bottom-menu { grid-column: 1 / -1; }
+  .is-battle > .map-stage { grid-column: 1; grid-row: 2; position: sticky; top: 0; }
+  .world-layout--immersive .is-battle .canvas-wrap { height: 78dvh; min-height: 220px; }
+  .is-battle > .battle-panel { grid-column: 2; grid-row: 2 / span 4; max-height: 78dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .is-battle > .map-help, .is-battle > .map-caption, .is-battle > .battlefield-description { grid-column: 1; }
+  .world-layout--immersive .canvas-wrap { height: 76dvh; min-height: 220px; }
+  .world-layout--immersive .map-menu { width: auto; }
+  .world-resources { flex-basis: auto; }
+  .character-sheet { grid-template-columns: minmax(180px, .7fr) minmax(0, 1.3fr); gap: 16px; }
+  .character-identity { padding: 16px; }
+  .portrait-stage { max-width: 120px; }
+  .login-shell .welcome { grid-template-columns: minmax(0,1fr) minmax(280px,1fr); align-items: start; }
+  .login-shell .intro { min-height: 320px; }
+  .login-shell .intro-copy { padding: 16px; }
+  .login-shell .intro h1 { font-size: 24px; }
+}
+@media (max-width: 1024px) {
+  .battle-command-area { grid-row: 1; }
+  .battle-status { grid-row: 2; }
 }

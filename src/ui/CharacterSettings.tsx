@@ -9,7 +9,7 @@ const ATTRIBUTES = [
 ] as const;
 
 const BASIC_SKILLS = [
-  { id: "physical_activity", name: "신체활동", icon: "◇", description: "걷기·달리기·뛰기·주먹질·발차기" },
+  { id: "physical_activity", name: "신체활동", icon: "◇", description: "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함" },
   { id: "literacy", name: "문해", icon: "▱", description: "읽고 쓰는 능숙함" },
   { id: "speaking", name: "말하기", icon: "✧", description: "말로 표현하고 전달하는 능숙함" },
 ] as const;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import { defaultBattleMode, singleAttackTarget, type BattleMode } from "./battleSelection";
 import { CharacterPortrait } from "./CharacterPortrait";
 import type { Battle, Position } from "../client/types";
 
@@ -7,7 +8,7 @@ const PORTRAITS = {
   beast: new URL("../assets/monsters/beast-v1.png", import.meta.url).href,
   giant: new URL("../assets/monsters/giant-v1.png", import.meta.url).href,
 };
-type Mode = "MOVE" | "ATTACK" | "END_TURN";
+type Mode = BattleMode;
 const LABELS: Record<string, string> = {
   MOVE: "이동", ATTACK: "공격", GUARD: "방어", END_TURN: "턴 종료", WAIT: "시간 초과 대기",
 };
@@ -17,10 +18,19 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
   select: (p: Position | null) => void; execute: (type: string, targetId?: string) => void;
 }) {
-  const [mode, setMode] = useState<Mode | null>(null);
+  const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor, remaining));
   useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [surrender, setSurrender] = useState(false);
-  useEffect(() => { setMode(null); setSurrender(false); }, [battle.id, battle.turnId, battle.moved, battle.acted]);
+  const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor && remaining > 0;
+  useEffect(() => {
+    const next = defaultBattleMode(battle, actor, remaining);
+    setMode(next); setSurrender(false);
+    select(next === "ATTACK" ? singleAttackTarget(battle) : null);
+  }, [battle.id, battle.turnId, battle.moved, battle.acted, canActNow, battle.status]);
+  const chooseMode = (next: Mode) => {
+    select(next === "ATTACK" ? singleAttackTarget(battle) : null);
+    setMode(next);
+  };
   if (battle.status === "PREPARING") return <section class="card">
     <h3>전투 맵 준비 중</h3><p>맵과 전용 채팅룸, 참가자 준비가 완료된 뒤 첫 턴을 시작합니다.</p>
   </section>;
@@ -30,6 +40,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
   const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : true);
+  const selectedTargets = mode === "ATTACK" && target && attack ? [{unit: target, damage: attack.damage}] : [];
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <section class="card battle-panel" aria-label="턴제 전투 명령">
     <div class="battle-status">
@@ -49,18 +60,35 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     </div>
     <div class="battle-command-area">
     <p class="battle-step" aria-live="polite">{mode === null ? "1 · 행동 선택" : (mode === "MOVE" || mode === "ATTACK") && !valid ? "2 · 맵에서 대상 선택" : "3 · 결과 확인 후 확정"}</p>
-    {mode === null ? <div class="actions">
+    <div class="actions">
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
         class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
-        disabled={disabled || !own || (value === "MOVE" && battle.moved) || (value === "ATTACK" && battle.acted)}
-        onClick={() => { select(null); setMode(value); }}>{LABELS[value]}</button>)}
+        disabled={disabled || !own || (value === "MOVE" && (battle.moved || battle.tactics.moves.length === 0)) || (value === "ATTACK" && (battle.acted || battle.tactics.attacks.length === 0))}
+        title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? "현재 위치에서 공격 가능한 대상이 없습니다." : undefined}
+        onClick={() => chooseMode(value)}>{LABELS[value]}</button>)}
     </div>
-    : <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
+    {mode !== null && <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
     <div class="command-preview" aria-live="polite">
       {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "파란 이동 가능 셀을 선택하세요."
         : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage} · HP ${target.hp} → ${Math.max(0, target.hp - attack.damage)}` : "붉은 테두리의 사거리 내 적을 선택하세요."
         : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
     </div>
+    {mode === "ATTACK" && <section class="attack-targets" aria-label="공격 대상 선택">
+      <h4>선택한 몹 · {selectedTargets.length} / 1</h4>
+      {selectedTargets.length ? <ul aria-label="선택된 몹 목록">{selectedTargets.map(({unit, damage}) => <li key={unit.id}>
+        <div><strong>{unit.name}</strong><small>HP {unit.hp} → {Math.max(0, unit.hp - damage)} · 예상 피해 {damage}</small></div>
+        <button class="secondary compact" aria-label={`${unit.name} 선택 해제`} onClick={() => select(null)}>해제</button>
+      </li>)}</ul> : <p>선택한 몹이 없습니다.</p>}
+      <p class="field-subtitle">일반 공격은 신체활동 레벨 1에 포함된 스킬이며 한 마리를 선택합니다. 자동 선택해도 확정 전에는 공격하지 않습니다.</p>
+      <div class="attack-candidates" aria-label="공격 가능한 몹 목록">
+        {battle.tactics.attacks.map(candidate => {
+          const unit = battle.units.find(u => u.id === candidate.targetId)!;
+          return <button key={unit.id} class="secondary compact" aria-pressed={target?.id === unit.id}
+            disabled={disabled || !own || battle.acted}
+            onClick={() => select(target?.id === unit.id ? null : unit.position)}>{unit.name} · HP {unit.hp}/{unit.maxHp}</button>;
+        })}
+      </div>
+    </section>}
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
       <strong>도착 후 공격 안내</strong>
       {battle.acted ? <p>행동을 이미 사용했습니다. 이동하면 턴이 종료됩니다.</p> : <>
