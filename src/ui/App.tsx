@@ -327,7 +327,7 @@ export function App() {
               if (current && `${current.generation}:${current.epoch}:${current.location.id}` === sponsorKey)
                 setSponsorApproved(sponsorKey);
             }} onExit={() => void run(async () => {
-              await client.logout(); setBattleReport(null); setState(null); setWorldGeneration(null);
+              if (!await client.logout()) return; setBattleReport(null); setState(null); setWorldGeneration(null);
               setConnected(false); setPassword('');
             })} />}
           {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>{t('app.reconnect')}</button></> : null}
@@ -363,7 +363,7 @@ export function App() {
             disabled={busy}
             onClick={() =>
               run(async () => {
-                await client.logout();
+                if (!await client.logout()) return;
                 setBattleReport(null);
                 setState(null);
                 setWorldGeneration(null);

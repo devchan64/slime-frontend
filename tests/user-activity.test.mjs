@@ -180,3 +180,45 @@ test('정상 토큰 갱신은 한 번 재예약하고 만료와 종료된 타이
   assert.equal(client.stopped,true);assert.equal(timers.size,0);
  } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;}
 });
+
+test('겹친 로그인과 늦은 초기 스냅샷은 마지막 로그인만 설치한다',async()=>{
+ const tick=()=>new Promise(resolve=>setImmediate(resolve));
+ for(const stage of ['login','snapshot']){
+  const client=new Client(),requests=[],installed=[];let connected=0;
+  client.request=path=>new Promise((resolve,reject)=>requests.push({path,resolve,reject}));
+  client.scheduleRefresh=()=>{};client.connect=async()=>{connected++;};client.onState=s=>installed.push(s);
+  const old=client.login('old','test');
+  if(stage==='snapshot'){requests[0].resolve({access_token:'old'});await tick();}
+  const oldRequest=requests.at(-1);
+  const current=client.login('new','test');const newLogin=requests.at(-1);
+  newLogin.resolve({access_token:'new'});await tick();
+  const newState={generation:2,me:{id:'new'}};requests.at(-1).resolve(newState);
+  assert.equal(await current,true);
+  oldRequest.resolve(stage==='login'?{access_token:'old'}:{generation:1,me:{id:'old'}});
+  assert.equal(await old,false);
+  assert.equal(client.tokens.access_token,'new');assert.equal(client.state,newState);
+  assert.deepEqual(installed,[newState]);assert.equal(connected,1);client.disconnect();
+ }
+});
+
+test('늦은 로그아웃 결과는 새 세션을 지우지 않고 현재 로그아웃만 완료한다',async()=>{
+ const client=new Client();client.tokens={access_token:'old'};client.state={generation:1};client.stopped=false;
+ let finish;client.request=()=>new Promise(resolve=>finish=resolve);
+ const old=client.logout();client.disconnect();client.stopped=false;
+ const state={generation:2};client.state=state;client.tokens={access_token:'new'};
+ finish({ok:true});assert.equal(await old,false);
+ assert.equal(client.state,state);assert.equal(client.tokens.access_token,'new');assert.equal(client.stopped,false);
+ client.request=async()=>({ok:true});assert.equal(await client.logout(),true);
+ assert.equal(client.tokens,null);assert.equal(client.state,null);assert.equal(client.stopped,true);
+});
+
+test('세션이 바뀌면 대기 중 인증 전환의 추가 조회를 중단한다',async()=>{
+ const oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout;let wake,calls=0;
+ try {
+  globalThis.setTimeout=fn=>{wake=fn;return 1;};globalThis.clearTimeout=()=>{};
+  const client=new Client();client.stopped=false;client.request=async()=>{calls++;return {pending:true,operationId:'old',receipt:'test-receipt'};};
+  const pending=client.logout();await new Promise(resolve=>setImmediate(resolve));assert.equal(calls,1);
+  client.disconnect();client.stopped=false;client.state={generation:2};wake();
+  assert.equal(await pending,false);assert.equal(calls,1);assert.equal(client.state.generation,2);client.disconnect();
+ } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;}
+});

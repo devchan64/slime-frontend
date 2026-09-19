@@ -56,16 +56,27 @@ export class Client {
     }
   }
 
-  async login(user_id: string, password: string) {
+  async login(user_id: string, password: string): Promise<boolean> {
     this.disconnect();
-    this.tokens = await this.resolve(
-      await this.request("/v1/auth/login", { user_id, password }),
-    );
-    this.state = await this.request("/v1/game/state");
-    this.onState(this.state!);
-    this.stopped = false;
-    this.scheduleRefresh();
-    await this.connect();
+    const revision=this.sessionRevision;
+    try {
+      const response=await this.request("/v1/auth/login", {user_id,password});
+      if (revision!==this.sessionRevision) return false;
+      const tokens=await this.resolve(response,revision);
+      if (revision!==this.sessionRevision) return false;
+      this.tokens=tokens;
+      const state=await this.request("/v1/game/state");
+      if (revision!==this.sessionRevision) return false;
+      this.state=state;
+      this.onState(state);
+      this.stopped=false;
+      this.scheduleRefresh();
+      await this.connect();
+      return revision===this.sessionRevision;
+    } catch (error) {
+      if (revision!==this.sessionRevision) return false;
+      throw error;
+    }
   }
   private scheduleRefresh() {
     const sessionRevision=this.sessionRevision;
@@ -326,23 +337,36 @@ export class Client {
     this.socket = null;
     ws?.close();
   }
-  async resolve(result: any): Promise<any> {
+  private async resolve(result: any, revision: number): Promise<any> {
+    if (revision!==this.sessionRevision) return null;
     for (let attempt = 0; result.pending && attempt < 60; attempt++) {
       this.onStatus(false, {key: "network.transitioning"});
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (revision!==this.sessionRevision) return null;
       result = await this.request(
         `/v1/auth/operations/${result.operationId}/resolve`,
         { receipt: result.receipt },
       );
+      if (revision!==this.sessionRevision) return null;
     }
     if (result.pending)
       throw new LocalizedError("network.transitionDelayed");
     return result;
   }
-  async logout() {
-    await this.resolve(await this.request("/v1/auth/logout", {}));
-    this.disconnect();
-    this.tokens = null;
-    this.state = null;
+  async logout(): Promise<boolean> {
+    const revision=this.sessionRevision;
+    try {
+      const response=await this.request("/v1/auth/logout", {});
+      if (revision!==this.sessionRevision) return false;
+      await this.resolve(response,revision);
+      if (revision!==this.sessionRevision) return false;
+      this.disconnect();
+      this.tokens=null;
+      this.state=null;
+      return true;
+    } catch (error) {
+      if (revision!==this.sessionRevision) return false;
+      throw error;
+    }
   }
 }
