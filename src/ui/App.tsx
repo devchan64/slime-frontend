@@ -1,3 +1,4 @@
+import { fieldActionContext, canContinueFieldAction } from './fieldActionContext';
 import { FieldInterruptionNotice } from './FieldInterruptionNotice';
 import { noticeText, LocalizedError, type Notice } from '../client/notice';
 import { localizedMonsters } from '../client/monsterText';
@@ -266,13 +267,13 @@ export function App() {
     if (!state || !selected) return;
     const steps = fieldRoute(state.me.position, selected, state.map);
     if (!steps) throw new LocalizedError("app.noRouteError");
-    const locationId = state.location.id, generation = state.generation;
+    const context = fieldActionContext(state);
     stopWalking.current = false;
     setWalking({ completed: 0, total: steps.length, stopping: false });
     try {
       for (let i = 0; i < steps.length; i++) {
         const current = client.state;
-        if (stopWalking.current || current?.me.mode !== "FIELD" || current.location.id !== locationId || current.generation !== generation) break;
+        if (stopWalking.current || !canContinueFieldAction(context, current)) break;
         if (current.me.fp !== undefined && current.me.fp < 1) throw new LocalizedError("app.movementFpError");
         await client.command("/v1/game/moves", { position: steps[i] });
         setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });
