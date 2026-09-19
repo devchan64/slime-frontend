@@ -74,10 +74,17 @@ const contains = (x:number,y:number,polygon:{x:number;y:number}[]) => {
 };
 // 앞쪽 지면/절벽부터 검사하므로 가려진 뒤쪽 타일을 선택하지 않는다.
 export function pickSurface(x:number,y:number,map:Surface):Position|null {
+  if(!Number.isFinite(x)||!Number.isFinite(y))return null;
+  // 지면·계단·절벽은 셀 중심에서 가로 반 셀 범위를 넘지 않는다.
+  // column-row 후보를 먼저 좁혀 전체 면적 대신 대각선 수에 비례해 검사한다.
+  const difference=(x-MAP_ORIGIN.x)/(CELL_WIDTH/2);
+  const first=Math.max(1-map.rows,Math.floor(difference)-1);
+  const last=Math.min(map.columns-1,Math.ceil(difference)+1);
+  if(first>last)return null;
   for(let diagonal=map.columns+map.rows-2;diagonal>=0;diagonal--)
-    for(let row=Math.min(map.rows-1,diagonal);row>=0;row--){
-      const column=diagonal-row;
-      if(column>=map.columns)continue;
+    for(let delta=first;delta<=last;delta++){
+      const row=(diagonal-delta)/2,column=diagonal-row;
+      if(!Number.isInteger(row)||row<0||row>=map.rows||column<0||column>=map.columns)continue;
       const cell={column,row},p=project(cell,map);
       const tile=map.elevationTiles?.find(t=>same(t.cell,cell));
       if(tile){
