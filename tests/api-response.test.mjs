@@ -47,3 +47,19 @@ test('WebSocket 오류에도 같은 두 언어 계약을 사용한다', () => {
   assert.throws(() => readApiMessage({...frame, messages:{ko:'만료'}}, 'en'));
   assert.equal(readApiMessage({message:'이전 서버 안내'}, 'en'), '이전 서버 안내');
 });
+
+test('로그인 직후 게임 상태의 빈 채팅과 기존 채팅을 번역 메시지로 해석하지 않는다', async () => {
+  for (const messages of [[], [{id:'chat1',name:'플레이어',text:'안녕하세요',at:1}]]) {
+    const state = {protocolVersion:1,generation:2,epoch:1,cursor:0,me:{id:'player'},messages};
+    for (const locale of ['ko','en']) {
+      assert.deepEqual(await readApiResponse(json(JSON.stringify(state)),locale,'state'),state);
+    }
+  }
+});
+test('게임 상태 요청 실패는 번역 오류 계약을 유지하며 잘못된 상태는 거절한다', async () => {
+  await assert.rejects(readApiResponse(json(JSON.stringify({code:'SESSION_EXPIRED',messages:{ko:'만료',en:'Expired'}}),401),'en','state'),
+    error => error.code === 'SESSION_EXPIRED' && error.message === 'Expired');
+  for (const state of [{protocolVersion:1,messages:{}},{protocolVersion:2,messages:[]},{}]) {
+    await assert.rejects(readApiResponse(json(JSON.stringify(state)),'ko','state'), error => error.code === 'INVALID_API_RESPONSE');
+  }
+});

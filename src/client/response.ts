@@ -23,7 +23,7 @@ export function readApiMessage(data: Record<string, unknown>, locale: ApiLocale)
   return data.message;
 }
 
-export async function readApiResponse(response: Response, locale: ApiLocale = "ko"): Promise<any> {
+export async function readApiResponse(response: Response, locale: ApiLocale = "ko", kind: "message" | "state" = "message"): Promise<any> {
   const body = await response.text();
   const invalidResponse = () => new ApiError(
     "INVALID_API_RESPONSE",
@@ -43,6 +43,12 @@ export async function readApiResponse(response: Response, locale: ApiLocale = "k
   try { data = JSON.parse(body); }
   catch { throw invalidResponse(); }
   if (data === null || typeof data !== "object") throw invalidResponse();
+  // 게임 상태의 messages는 채팅 목록이며 번역 안내 계약과 별개다.
+  if (response.ok && kind === "state") {
+    const state = data as Record<string, unknown>;
+    if (state.protocolVersion !== 1 || !Array.isArray(state.messages)) throw invalidResponse();
+    return state;
+  }
   let message: string | undefined;
   try { message = readApiMessage(data as Record<string, unknown>, locale); }
   catch { throw invalidResponse(); }

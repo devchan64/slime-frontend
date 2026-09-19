@@ -1050,3 +1050,5 @@ button, summary { touch-action: manipulation; }
 .battle-action-points > span { flex-shrink: 0; white-space: nowrap; font-size: 12px; color: #c0f5dc; }
 .battle-action-points b { font-size: 21px; font-variant-numeric: tabular-nums; }
 .battle-action-points .ap-empty { color: #f3cc88; }
+
+.login-shell .auth .password-toggle { width: auto; min-height: 44px; margin: 0 0 8px auto; padding: 6px 12px; font-size: 12px; }

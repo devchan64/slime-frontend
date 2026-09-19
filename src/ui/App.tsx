@@ -33,13 +33,41 @@ export function App() {
   const { t } = useTranslation();
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
-    [status, setStatus] = useState("계정을 만들고 슬라임의 일상에 함께하세요."),
+    [status, setStatus] = useState(""),
     [busy, setBusy] = useState(false);
   const [user, setUser] = useState(""),
     [password, setPassword] = useState(""),
     [name, setName] = useState(""),
     [selected, setSelected] = useState<Position | null>(null),
     [chat, setChat] = useState("");
+  const [authAction, setAuthAction] = useState<"login" | "register" | null>(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const passwordInput = useRef<HTMLInputElement>(null);
+  const authPending = useRef(false);
+  async function authenticate(action: "login" | "register") {
+    if (busy || authPending.current) return;
+    authPending.current = true;
+    setAuthAction(action);
+    setStatus("");
+    try {
+      await run(async () => {
+        if (action === "login") {
+          setWorldGeneration(null);
+          setSettingsOpen(false);
+          await client.login(user, password);
+        } else {
+          const issue = registrationIssue(user, password);
+          if (issue) throw new Error(issue);
+          await client.request("/v1/auth/register", { user_id: user, password });
+          setStatus(t("auth.registered"));
+        }
+      });
+    } finally {
+      authPending.current = false;
+      setAuthAction(null);
+      setPasswordVisible(false);
+    }
+  }
   const [worldGeneration, setWorldGeneration] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
@@ -305,14 +333,13 @@ export function App() {
               aria-busy={busy}
               onSubmit={(e) => {
                 e.preventDefault();
-                setWorldGeneration(null);
-                setSettingsOpen(false);
-                void run(() => client.login(user, password));
+                void authenticate("login");
               }}
             >
               <label>
                 {t('auth.username')}<input
                   aria-label={t('auth.username')}
+                  aria-describedby="auth-feedback"
                   autoComplete="username"
                   enterKeyHint="next"
                   autoCapitalize="none"
@@ -325,8 +352,10 @@ export function App() {
               </label>
               <label>
                 {t('auth.password')}<input
+                  ref={passwordInput}
                   aria-label={t('auth.password')}
-                  type="password"
+                  aria-describedby="auth-feedback"
+                  type={passwordVisible ? "text" : "password"}
                   autoComplete="current-password"
                   enterKeyHint="go"
                   maxLength={128}
@@ -335,38 +364,39 @@ export function App() {
                   required
                 />
               </label>
+              <button type="button" class="password-toggle secondary" aria-pressed={passwordVisible}
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => {
+                  const input = passwordInput.current;
+                  const start = input?.selectionStart, end = input?.selectionEnd;
+                  setPasswordVisible(visible => !visible);
+                  requestAnimationFrame(() => {
+                    input?.focus();
+                    if (start != null && end != null) input?.setSelectionRange(start, end);
+                  });
+                }}>{passwordVisible ? t("auth.hidePassword") : t("auth.showPassword")}</button>
               <button
                 disabled={busy || !user.trim() || !password}
                 type="submit"
               >
-                {t('auth.login')}<span>→</span>
+                {authAction === 'login' ? t('auth.signingIn') : t('auth.login')}<span>→</span>
               </button>
+              <div id="auth-feedback" class="auth-status" role="status" aria-live="polite" aria-atomic="true">{authAction ? t(authAction === "login" ? "auth.signingIn" : "auth.registering") : status || t("auth.inputHint")}</div>
               <p class="signup-hint">{t('auth.signupHint')}</p>
               <button
                 type="button"
                 class="secondary"
                 disabled={busy || !user.trim() || !password}
-                onClick={() =>
-                  run(async () => {
-                    const issue = registrationIssue(user, password);
-                    if (issue) throw new Error(issue);
-                    await client.request("/v1/auth/register", {
-                      user_id: user,
-                      password,
-                    });
-                    setStatus("가입되었습니다. 접속하기를 눌러 주세요.");
-                  })
-                }
+                onClick={() => void authenticate("register")}
               >
-                {t('auth.register')}</button>
-            </form>
-            <div class="auth-status" role="status" aria-live="polite" aria-atomic="true">{busy ? t('auth.busy') : status}</div>
+                {authAction === 'register' ? t('auth.registering') : t('auth.register')}</button>
             <details class="signup-rules">
               <summary>{t('auth.rules')}</summary>
               <small>
               {t('auth.usernameRule')}<br />
               {t('auth.passwordRule')}</small>
             </details>
+            </form>
           </section>
         </main>
       ) : state.me.mode === "AWAY" ? (

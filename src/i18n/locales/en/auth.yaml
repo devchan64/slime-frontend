@@ -19,3 +19,10 @@ busy: Please wait a moment…
 rules: Registration requirements
 usernameRule: "Username: lowercase Latin letters and numbers only."
 passwordRule: "Password: use ASCII characters without spaces (maximum 128 characters)."
+
+inputHint: Enter your username and password.
+signingIn: Signing in…
+registering: Creating account…
+registered: Account created. Select Sign in to continue.
+showPassword: Show password
+hidePassword: Hide password

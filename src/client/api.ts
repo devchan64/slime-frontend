@@ -29,7 +29,7 @@ export class Client {
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
     });
-    return readApiResponse(response, getLocale());
+    return readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
   }
 
   async login(user_id: string, password: string) {

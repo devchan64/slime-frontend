@@ -19,3 +19,10 @@ busy: 처리 중이에요. 잠시만 기다려 주세요.
 rules: 가입 조건 확인하기
 usernameRule: "가입 아이디: 영문 소문자·숫자만 허용합니다."
 passwordRule: "비밀번호: 공백 없이 ASCII 문자만 사용할 수 있습니다(최대 128자)."
+
+inputHint: 아이디와 비밀번호를 입력해 주세요.
+signingIn: 접속 중…
+registering: 계정 만드는 중…
+registered: 가입되었습니다. 접속하기를 눌러 주세요.
+showPassword: 비밀번호 표시
+hidePassword: 비밀번호 숨기기
