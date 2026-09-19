@@ -74,11 +74,11 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   useEffect(() => {
     if (lastSelectionIntent.current === selectionIntent) return;
     lastSelectionIntent.current = selectionIntent;
-    setConfirming(!disabled && (mode === "MOVE" || mode === "ATTACK") && !!selected);
+    setConfirming(!disabled && mode === "MOVE" && !!selected);
   }, [selectionIntent]);
-  const chooseTarget = (position: Position) => {
-    select(position);
-    setConfirming(!disabled && (mode === "MOVE" || mode === "ATTACK"));
+  const selectAttackTarget = (selectedTargetPosition: Position) => {
+    select(selectedTargetPosition);
+    setConfirming(false);
   };
   const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor;
   useEffect(() => {
@@ -96,7 +96,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     const automaticTarget = next === "ATTACK" ? singleAttackTarget(battle) : null;
     select(automaticTarget);
     setMode(next);
-    setConfirming(next === "END_TURN" || automaticTarget !== null);
+    setConfirming(next === "END_TURN");
   };
   if (battle.status === "PREPARING") return <section class="card">
     <h3>{t('battle.preparing')}</h3><p>{t('battle.preparingHelp')}</p>
@@ -163,7 +163,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
         {attack && target && <div class="battle-target-actions">
           <button class="secondary compact" onClick={() => { setConfirming(false); select(null); }}>{t('battle.clearSelection')}</button>
           <button class={`compact${actionConfirmationVisible && mode === "ATTACK" ? "" : " secondary"}`} aria-haspopup="dialog" disabled={disabled || !own || (!apBattle && battle.acted)}
-            onClick={() => chooseTarget(target.position)}>{t('battle.attack')}</button>
+            onClick={() => setConfirming(true)}>{t('battle.attack')}</button>
         </div>}
       </div>
       {battle.tactics.attacks.length === 0 && <p>{t('battle.noAttackTargets')}</p>}
@@ -172,7 +172,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
           const unit = battle.units.find(u => u.id === candidate.targetId)!;
           return <button key={unit.id} class="secondary compact" aria-pressed={target?.id === unit.id}
             disabled={disabled || !own || (!apBattle && battle.acted)}
-            onClick={() => chooseTarget(unit.position)}>
+            onClick={() => selectAttackTarget(unit.position)}>
               <span class="battle-target-name"><strong>{unit.name}</strong>{target?.id === unit.id && <small>{t('battle.selected')}</small>}</span>
               <span class="battle-target-info">{healthLabel(unit)} · {t('battle.expectedDamage',{damage:candidate.damage})}{candidate.apCost !== undefined && current?.ap !== undefined && <> · {t('battle.apPreview',{cost:candidate.apCost,remaining:current.ap-candidate.apCost})}</>}</span>
             </button>;
