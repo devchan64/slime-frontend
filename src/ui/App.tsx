@@ -271,6 +271,7 @@ export function App() {
         const result = await client.command(path, body);
         if (path === "/v1/characters/me") { setCharacterPage("select"); setName(""); }
         if (path === "/v1/world/enter") { setWorldGeneration(result.state.generation); navigateCharacterPage("#/world"); }
+        if (path === "/v1/world/resume") navigateCharacterPage("#/menu");
         return result;
       }
       finally { if (transfer) setTransferPending(false); }
