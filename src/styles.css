@@ -1301,3 +1301,6 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .battle-player-health strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .battle-player-health span { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .battle-player-health progress { grid-column: 1 / -1; width: 100%; height: 6px; accent-color: #94dec0; }
+
+.field-resource-values { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 4px 12px; }
+.field-resource-values strong { white-space: nowrap; font-variant-numeric: tabular-nums; }

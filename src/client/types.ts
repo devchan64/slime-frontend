@@ -73,6 +73,8 @@ export type State = {
     bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null}>};
     fp?: number;
     fpMax?: number;
+    hp?: number;
+    maxHp?: number;
     fpNextChargeAt?: number | null;
     cp: number;
     /** SP 미지원 API에서는 생략한다. */
