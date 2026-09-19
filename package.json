@@ -16,5 +16,6 @@
     "@types/node": "^24.5.2",
     "typescript": "^5.9.2",
     "vite": "5.4.19"
-  }
+  },
+  "license": "MIT"
 }
