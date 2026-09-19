@@ -1,5 +1,10 @@
 export type Position = { column: number; row: number };
-export type Waypoint = Position & { id: string; target: string; name?: string };
+export type Waypoint = Position & {
+  id: string; target: string; name?: string;
+  targetName?: string;
+  direction?: "west" | "east" | "north" | "south";
+  targetWaypointId?: string;
+};
 export type TerrainMap = {
   columns: number;
   rows: number;
@@ -43,12 +48,22 @@ export function buildMeadowRoad(map: TerrainMap): Set<string> {
     if (!valid(end)) throw new Error(`도로 목적지가 통행 불가입니다: ${cellKey(end)}`);
     const queue = [start];
     const parents = new Map<string, Position | null>([[cellKey(start), null]]);
-    for (let i = 0; i < queue.length && !parents.has(cellKey(end)); i++) {
-      const p = queue[i];
+    const costs = new Map<string, number>([[cellKey(start), 0]]);
+    const distance = (p: Position) => Math.abs(p.column - end.column) + Math.abs(p.row - end.row);
+    const deviation = (p: Position) => Math.abs((p.column - start.column) * (end.row - start.row) -
+      (p.row - start.row) * (end.column - start.column));
+    while (queue.length) {
+      // 같은 길이의 경로 중 직선에 가까운 셀을 우선해 큰 직각 꺾임을 줄인다.
+      queue.sort((a, b) => (costs.get(cellKey(a))! + distance(a)) -
+        (costs.get(cellKey(b))! + distance(b)) || deviation(a) - deviation(b));
+      const p = queue.shift()!;
+      if (cellKey(p) === cellKey(end)) break;
       for (const [dc, dr] of DIRECTIONS) {
         const next = { column: p.column + dc, row: p.row + dr };
-        if (valid(next) && !parents.has(cellKey(next))) {
+        const cost = costs.get(cellKey(p))! + 1;
+        if (valid(next) && (!costs.has(cellKey(next)) || cost < costs.get(cellKey(next))!)) {
           parents.set(cellKey(next), p);
+          costs.set(cellKey(next), cost);
           queue.push(next);
         }
       }
