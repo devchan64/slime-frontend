@@ -1,0 +1,146 @@
+{
+  "assetId": "sprite.test",
+  "version": "1.0.0",
+  "assetType": "SPRITE_SHEET",
+  "files": [
+    "bd594547a91076bf82b3a054d55b2dbfafa8b89d07c7e2f85485ae8460f9a0d7.png"
+  ],
+  "hashes": {
+    "bd594547a91076bf82b3a054d55b2dbfafa8b89d07c7e2f85485ae8460f9a0d7.png": "bd594547a91076bf82b3a054d55b2dbfafa8b89d07c7e2f85485ae8460f9a0d7"
+  },
+  "licenseId": "CC-BY-4.0",
+  "attribution": "test",
+  "compatibleSchemaVersion": 2,
+  "animation": {
+    "animationId": "unit.test",
+    "version": "1",
+    "sheet": {
+      "width": 4,
+      "height": 2
+    },
+    "frames": [
+      {
+        "frameId": "frame.0",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 2
+        },
+        "anchor": {
+          "x": 0.5,
+          "y": 2
+        }
+      },
+      {
+        "frameId": "frame.1",
+        "rect": {
+          "x": 1,
+          "y": 0,
+          "width": 1,
+          "height": 2
+        },
+        "anchor": {
+          "x": 0.5,
+          "y": 2
+        }
+      },
+      {
+        "frameId": "frame.2",
+        "rect": {
+          "x": 2,
+          "y": 0,
+          "width": 1,
+          "height": 2
+        },
+        "anchor": {
+          "x": 0.5,
+          "y": 2
+        }
+      },
+      {
+        "frameId": "frame.3",
+        "rect": {
+          "x": 3,
+          "y": 0,
+          "width": 1,
+          "height": 2
+        },
+        "anchor": {
+          "x": 0.5,
+          "y": 2
+        }
+      }
+    ],
+    "clips": [
+      {
+        "clipId": "idle.down_left",
+        "action": "idle",
+        "direction": "down_left",
+        "frames": [
+          {
+            "frameId": "frame.0",
+            "durationMs": 100
+          },
+          {
+            "frameId": "frame.1",
+            "durationMs": 250
+          }
+        ],
+        "loop": true,
+        "nextClipId": null
+      },
+      {
+        "clipId": "idle.down_right",
+        "action": "idle",
+        "direction": "down_right",
+        "frames": [
+          {
+            "frameId": "frame.1",
+            "durationMs": 100
+          },
+          {
+            "frameId": "frame.2",
+            "durationMs": 250
+          }
+        ],
+        "loop": true,
+        "nextClipId": null
+      },
+      {
+        "clipId": "idle.up_left",
+        "action": "idle",
+        "direction": "up_left",
+        "frames": [
+          {
+            "frameId": "frame.2",
+            "durationMs": 100
+          },
+          {
+            "frameId": "frame.3",
+            "durationMs": 250
+          }
+        ],
+        "loop": true,
+        "nextClipId": null
+      },
+      {
+        "clipId": "idle.up_right",
+        "action": "idle",
+        "direction": "up_right",
+        "frames": [
+          {
+            "frameId": "frame.3",
+            "durationMs": 100
+          },
+          {
+            "frameId": "frame.0",
+            "durationMs": 250
+          }
+        ],
+        "loop": true,
+        "nextClipId": null
+      }
+    ]
+  }
+}
