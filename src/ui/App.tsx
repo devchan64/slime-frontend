@@ -506,7 +506,9 @@ export function App() {
           <section class="card">
             <div class="eyebrow">{characterPage === "select" ? "CHARACTER SELECT" : characterPage === "create" ? "NEW EXPLORER" : "CHARACTER SETTINGS"}</div>
             <h1>{characterPage === "select" ? t('app.characterSelect') : characterPage === "create" ? t('app.characterCreate') : t('common.settings')}</h1>
-            {state.me.name && <CharacterDeparture me={state.me} disabled={disabled} onEnter={() => command("/v1/world/enter")} />}
+            {state.me.name && <CharacterDeparture me={state.me} disabled={disabled}
+              onSettings={() => navigateCharacterPage("#/characters/settings")}
+              onEnter={() => command("/v1/world/enter")} />}
             {characterPage === "select" ? (
               state.me.name ? <>
                 <article class="character-select-card" aria-label={t('app.myCharacter')}>

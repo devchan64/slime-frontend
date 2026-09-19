@@ -7,9 +7,10 @@ type Props = {
   me: State["me"];
   disabled: boolean;
   onEnter: () => unknown;
+  onSettings: () => unknown;
 };
 
-export function CharacterDeparture({ me, disabled, onEnter }: Props) {
+export function CharacterDeparture({ me, disabled, onEnter, onSettings }: Props) {
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -37,7 +38,7 @@ export function CharacterDeparture({ me, disabled, onEnter }: Props) {
       <h2 id="departure-title">{t('character.title')}</h2>
       <p id="departure-description">{points ? t('character.confirm', { points }) : t('character.allocated')}</p>
       <div class="departure-dialog-actions">
-        <button class="secondary" autoFocus onClick={closeConfirmation}>{t('character.back')}</button>
+        <button class="secondary" autoFocus onClick={() => { closeConfirmation(); onSettings(); }}>{t('character.back')}</button>
         <button disabled={blocked} onClick={() => { closeConfirmation(); onEnter(); }}>{t('character.proceed')}</button>
       </div>
     </dialog>
