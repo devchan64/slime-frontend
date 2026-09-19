@@ -11,6 +11,7 @@ import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt, TILE_W, TILE_H } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
+import { drawSafeTower } from "../terrain/safeTower";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
 import { drawActor, preloadActors, HUMAN_HEIGHT } from "../terrain/actors";
@@ -435,6 +436,7 @@ export class MainScene extends Phaser.Scene {
         const p = this.project(gate);
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
       }
+      drawSafeTower(this, this.project(s.map.startPoint)).setDepth(this.depth(s.map.startPoint) + TERRAIN_DEPTH.overlay);
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
           m.position,
