@@ -68,14 +68,21 @@ export class Client {
     await this.connect();
   }
   private scheduleRefresh() {
+    const sessionRevision=this.sessionRevision;
+    if (this.refreshTimer !== null) clearTimeout(this.refreshTimer);
     this.refreshTimer = setTimeout(
       async () => {
+        if (this.stopped || sessionRevision!==this.sessionRevision) return;
+        this.refreshTimer=null;
         try {
-          this.tokens = await this.request("/v1/auth/refresh", {
+          const tokens = await this.request("/v1/auth/refresh", {
             refresh_token: this.tokens!.refresh_token,
           });
+          if (this.stopped || sessionRevision!==this.sessionRevision) return;
+          this.tokens=tokens;
           this.scheduleRefresh();
         } catch (e) {
+          if (this.stopped || sessionRevision!==this.sessionRevision) return;
           this.disconnect();
           this.onStatus(false, e as Error);
         }

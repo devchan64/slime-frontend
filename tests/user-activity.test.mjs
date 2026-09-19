@@ -145,3 +145,38 @@ test('이전 세션의 늦은 HTTP 유휴 오류는 새 로그인 연결을 끊�
   client.disconnect();
  } finally {globalThis.fetch=previous;}
 });
+
+test('이전 세션에서 진행 중인 토큰 갱신의 성공·실패는 새 세션을 변경하지 않는다',async()=>{
+ const oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout;
+ const timers=new Map();let id=0;
+ try {
+  globalThis.setTimeout=(fn,delay)=>{timers.set(++id,{fn,delay});return id;};globalThis.clearTimeout=key=>timers.delete(key);
+  for(const fail of [false,true]){
+   const client=new Client();client.stopped=false;client.tokens={access_token:'old',refresh_token:'old-refresh'};
+   let resolve,reject;client.request=()=>new Promise((yes,no)=>{resolve=yes;reject=no;});
+   client.scheduleRefresh();const callback=[...timers.values()][0].fn;timers.clear();const pending=callback();
+   client.disconnect();client.stopped=false;const current={access_token:'new',refresh_token:'new-refresh'};client.tokens=current;
+   client.scheduleRefresh();const scheduled=[...timers.keys()];
+   if(fail)reject(new ApiError('SESSION_EXPIRED','이전 세션 만료',401));else resolve({access_token:'stale',refresh_token:'stale-refresh'});
+   await pending;
+   assert.equal(client.tokens,current);assert.equal(client.stopped,false);assert.deepEqual([...timers.keys()],scheduled);
+   client.disconnect();assert.equal(timers.size,0);
+  }
+ } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;}
+});
+
+test('정상 토큰 갱신은 한 번 재예약하고 만료와 종료된 타이머는 정리한다',async()=>{
+ const oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout;
+ const timers=new Map();let id=0,calls=0;
+ try {
+  globalThis.setTimeout=(fn,delay)=>{timers.set(++id,{fn,delay});return id;};globalThis.clearTimeout=key=>timers.delete(key);
+  const client=new Client();client.stopped=false;client.tokens={access_token:'old',refresh_token:'refresh'};
+  client.request=async()=>{calls++;return {access_token:'updated',refresh_token:'next'};};
+  client.scheduleRefresh();let callback=[...timers.values()][0].fn;assert.equal([...timers.values()][0].delay,720000);timers.clear();
+  await callback();assert.equal(calls,1);assert.equal(client.tokens.access_token,'updated');assert.equal(timers.size,1);
+  callback=[...timers.values()][0].fn;client.disconnect();await callback();assert.equal(calls,1);assert.equal(timers.size,0);
+  client.stopped=false;client.request=async()=>{throw new ApiError('SESSION_EXPIRED','세션 만료',401);};
+  client.scheduleRefresh();callback=[...timers.values()][0].fn;timers.clear();await callback();
+  assert.equal(client.stopped,true);assert.equal(timers.size,0);
+ } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;}
+});
