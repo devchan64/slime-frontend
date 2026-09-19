@@ -82,4 +82,8 @@ legacyslime: Slime
 legacybeast: Beast
 legacygiant: Giant
 monster: Monster
+approachFieldRequired: You can start an encounter only while exploring.
+approachFpDebt: Your FP is below zero. Wait for it to recharge before acting in the field.
+approachTargetLost: The selected monster is no longer available for an encounter.
+approachTooLong: The approach took too many steps and was stopped. Select the monster again.
 aggroInterruption: A monster initiated combat and interrupted your field action. Completed movement is preserved; remaining movement and encounter requests will not resume.
