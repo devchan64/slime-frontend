@@ -1,7 +1,7 @@
 [
   {
     "location": {
-      "id": "c76d9086-a3a4-4570-9154-604d374ddb42",
+      "id": "428edd1f-a176-4198-97e9-9264c77e3d3d",
       "kind": "BATTLE",
       "mapId": "meadow-crossroads",
       "chatRoomId": "preview",
@@ -1346,7 +1346,7 @@
       ]
     },
     "battle": {
-      "id": "c76d9086-a3a4-4570-9154-604d374ddb42",
+      "id": "428edd1f-a176-4198-97e9-9264c77e3d3d",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -1365,20 +1365,27 @@
           "guard": false,
           "hp": 40,
           "attack": 12,
-          "defense": 4,
+          "defense": 1,
           "speed": 8,
           "move": 3,
           "range": [
             1,
             1
-          ]
+          ],
+          "ap": 3,
+          "maxAp": 3,
+          "basicAttackAvailable": true
         },
         {
           "id": "enemy-0",
           "owner": null,
-          "name": "슬라임 1",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 1",
+          "nameTranslations": {
+            "ko": "슬라임 1",
+            "en": "Slime 1"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -1386,9 +1393,9 @@
             "column": 10,
             "row": 3
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -1397,14 +1404,19 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "c76d9086-a3a4-4570-9154-604d374ddb42:enemy-0"
+          "monsterInstanceId": "428edd1f-a176-4198-97e9-9264c77e3d3d:enemy-0",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-1",
           "owner": null,
-          "name": "슬라임 2",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 2",
+          "nameTranslations": {
+            "ko": "슬라임 2",
+            "en": "Slime 2"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -1412,9 +1424,9 @@
             "column": 10,
             "row": 4
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -1423,7 +1435,8 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "c76d9086-a3a4-4570-9154-604d374ddb42:enemy-1"
+          "monsterInstanceId": "428edd1f-a176-4198-97e9-9264c77e3d3d:enemy-1",
+          "healthVisibility": "HIDDEN"
         }
       ],
       "participants": [
@@ -1431,8 +1444,8 @@
       ],
       "returnPositions": {
         "preview": {
-          "column": 2,
-          "row": 2
+          "column": 6,
+          "row": 3
         }
       },
       "blocked": [
@@ -2327,7 +2340,6 @@
       "ready": [
         "preview"
       ],
-      "messages": [],
       "deadline": 145,
       "absoluteDeadline": 1300,
       "status": "ACTIVE",
@@ -2336,8 +2348,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.3.0",
-      "chatRoomId": "battle:c76d9086-a3a4-4570-9154-604d374ddb42",
+      "rulesVersion": "1.4.0",
+      "chatRoomId": "battle:428edd1f-a176-4198-97e9-9264c77e3d3d",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -2354,25 +2366,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -2386,21 +2383,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -2414,25 +2400,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -2446,25 +2417,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -2482,25 +2438,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 0
-              },
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2518,21 +2459,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 0,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2550,25 +2480,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2586,21 +2501,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2618,25 +2522,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 4,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2654,25 +2543,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2690,25 +2564,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 5
-              },
-              {
-                "column": 1,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -2730,21 +2589,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2766,21 +2614,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2802,25 +2639,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2842,25 +2664,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 4,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2882,21 +2689,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2918,25 +2714,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 4,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 5,
-                "row": 3
-              },
-              {
-                "column": 4,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2958,25 +2739,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 4,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -2998,25 +2764,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 3,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -3038,25 +2789,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              },
-              {
-                "column": 2,
-                "row": 6
-              },
-              {
-                "column": 1,
-                "row": 7
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           }
         ],
         "attacks": []
@@ -3090,7 +2826,7 @@
         "row": 2
       },
       "requiresStartSpawn": true,
-      "battleId": null,
+      "battleId": "428edd1f-a176-4198-97e9-9264c77e3d3d",
       "partyId": null,
       "movedAt": 0,
       "lastResult": null
@@ -3100,7 +2836,7 @@
   },
   {
     "location": {
-      "id": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15",
+      "id": "dc6e1877-2055-4689-a25d-9dd9b1a8049e",
       "kind": "BATTLE",
       "mapId": "meadow-dew-ponds",
       "chatRoomId": "preview",
@@ -4445,7 +4181,7 @@
       ]
     },
     "battle": {
-      "id": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15",
+      "id": "dc6e1877-2055-4689-a25d-9dd9b1a8049e",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -4464,20 +4200,27 @@
           "guard": false,
           "hp": 40,
           "attack": 12,
-          "defense": 4,
+          "defense": 1,
           "speed": 8,
           "move": 3,
           "range": [
             1,
             1
-          ]
+          ],
+          "ap": 3,
+          "maxAp": 3,
+          "basicAttackAvailable": true
         },
         {
           "id": "enemy-0",
           "owner": null,
-          "name": "슬라임 1",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 1",
+          "nameTranslations": {
+            "ko": "슬라임 1",
+            "en": "Slime 1"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -4485,9 +4228,9 @@
             "column": 10,
             "row": 3
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -4496,14 +4239,19 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15:enemy-0"
+          "monsterInstanceId": "dc6e1877-2055-4689-a25d-9dd9b1a8049e:enemy-0",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-1",
           "owner": null,
-          "name": "슬라임 2",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 2",
+          "nameTranslations": {
+            "ko": "슬라임 2",
+            "en": "Slime 2"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -4511,9 +4259,9 @@
             "column": 10,
             "row": 4
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -4522,7 +4270,8 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15:enemy-1"
+          "monsterInstanceId": "dc6e1877-2055-4689-a25d-9dd9b1a8049e:enemy-1",
+          "healthVisibility": "HIDDEN"
         }
       ],
       "participants": [
@@ -4530,8 +4279,8 @@
       ],
       "returnPositions": {
         "preview": {
-          "column": 2,
-          "row": 2
+          "column": 6,
+          "row": 3
         }
       },
       "blocked": [
@@ -5654,7 +5403,6 @@
       "ready": [
         "preview"
       ],
-      "messages": [],
       "deadline": 145,
       "absoluteDeadline": 1300,
       "status": "ACTIVE",
@@ -5663,8 +5411,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.3.0",
-      "chatRoomId": "battle:92bfa77f-c9bb-4cee-a021-9fcc4da7cc15",
+      "rulesVersion": "1.4.0",
+      "chatRoomId": "battle:dc6e1877-2055-4689-a25d-9dd9b1a8049e",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -5681,25 +5429,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -5713,21 +5446,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -5741,25 +5463,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -5773,25 +5480,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -5809,25 +5501,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 0
-              },
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -5845,21 +5522,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 0,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -5877,25 +5543,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -5913,21 +5564,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -5945,25 +5585,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 4,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -5981,25 +5606,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -6017,25 +5627,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 5
-              },
-              {
-                "column": 1,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -6057,21 +5652,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6093,21 +5677,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6129,25 +5702,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6169,25 +5727,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 4,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6209,21 +5752,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6245,25 +5777,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 4,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6285,25 +5802,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 3,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -6325,25 +5827,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              },
-              {
-                "column": 2,
-                "row": 6
-              },
-              {
-                "column": 1,
-                "row": 7
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           }
         ],
         "attacks": []
@@ -6377,7 +5864,7 @@
         "row": 2
       },
       "requiresStartSpawn": true,
-      "battleId": null,
+      "battleId": "dc6e1877-2055-4689-a25d-9dd9b1a8049e",
       "partyId": null,
       "movedAt": 0,
       "lastResult": null
@@ -6387,7 +5874,7 @@
   },
   {
     "location": {
-      "id": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53",
+      "id": "e5514d97-defb-4530-a40d-9fb72007dc35",
       "kind": "BATTLE",
       "mapId": "meadow-flower-knolls",
       "chatRoomId": "preview",
@@ -7732,7 +7219,7 @@
       ]
     },
     "battle": {
-      "id": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53",
+      "id": "e5514d97-defb-4530-a40d-9fb72007dc35",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -7751,20 +7238,27 @@
           "guard": false,
           "hp": 40,
           "attack": 12,
-          "defense": 4,
+          "defense": 1,
           "speed": 8,
           "move": 3,
           "range": [
             1,
             1
-          ]
+          ],
+          "ap": 3,
+          "maxAp": 3,
+          "basicAttackAvailable": true
         },
         {
           "id": "enemy-0",
           "owner": null,
-          "name": "슬라임 1",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 1",
+          "nameTranslations": {
+            "ko": "슬라임 1",
+            "en": "Slime 1"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -7772,9 +7266,9 @@
             "column": 10,
             "row": 3
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -7783,14 +7277,19 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53:enemy-0"
+          "monsterInstanceId": "e5514d97-defb-4530-a40d-9fb72007dc35:enemy-0",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-1",
           "owner": null,
-          "name": "슬라임 2",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 2",
+          "nameTranslations": {
+            "ko": "슬라임 2",
+            "en": "Slime 2"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -7798,9 +7297,9 @@
             "column": 10,
             "row": 4
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -7809,7 +7308,8 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53:enemy-1"
+          "monsterInstanceId": "e5514d97-defb-4530-a40d-9fb72007dc35:enemy-1",
+          "healthVisibility": "HIDDEN"
         }
       ],
       "participants": [
@@ -7817,8 +7317,8 @@
       ],
       "returnPositions": {
         "preview": {
-          "column": 2,
-          "row": 2
+          "column": 6,
+          "row": 3
         }
       },
       "blocked": [
@@ -8797,7 +8297,6 @@
       "ready": [
         "preview"
       ],
-      "messages": [],
       "deadline": 145,
       "absoluteDeadline": 1300,
       "status": "ACTIVE",
@@ -8806,8 +8305,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.3.0",
-      "chatRoomId": "battle:1dd3dc9d-251e-4fed-8de0-dc2056b33c53",
+      "rulesVersion": "1.4.0",
+      "chatRoomId": "battle:e5514d97-defb-4530-a40d-9fb72007dc35",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -8824,25 +8323,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -8856,21 +8340,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -8884,25 +8357,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -8920,25 +8378,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 0
-              },
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -8956,21 +8399,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 0,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -8988,21 +8420,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -9020,25 +8441,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 5
-              },
-              {
-                "column": 1,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -9060,21 +8466,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -9096,21 +8491,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -9132,25 +8516,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -9172,21 +8541,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -9208,25 +8566,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              },
-              {
-                "column": 2,
-                "row": 6
-              },
-              {
-                "column": 1,
-                "row": 7
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           }
         ],
         "attacks": []
@@ -9260,7 +8603,7 @@
         "row": 2
       },
       "requiresStartSpawn": true,
-      "battleId": null,
+      "battleId": "e5514d97-defb-4530-a40d-9fb72007dc35",
       "partyId": null,
       "movedAt": 0,
       "lastResult": null
@@ -9270,7 +8613,7 @@
   },
   {
     "location": {
-      "id": "a038e7e6-84bb-4794-9613-dc78d1b07be1",
+      "id": "e07c4dd5-ab27-4552-820c-e21b887251eb",
       "kind": "BATTLE",
       "mapId": "meadow-rock-pass",
       "chatRoomId": "preview",
@@ -10615,7 +9958,7 @@
       ]
     },
     "battle": {
-      "id": "a038e7e6-84bb-4794-9613-dc78d1b07be1",
+      "id": "e07c4dd5-ab27-4552-820c-e21b887251eb",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -10634,20 +9977,27 @@
           "guard": false,
           "hp": 40,
           "attack": 12,
-          "defense": 4,
+          "defense": 1,
           "speed": 8,
           "move": 3,
           "range": [
             1,
             1
-          ]
+          ],
+          "ap": 3,
+          "maxAp": 3,
+          "basicAttackAvailable": true
         },
         {
           "id": "enemy-0",
           "owner": null,
-          "name": "슬라임 1",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 1",
+          "nameTranslations": {
+            "ko": "슬라임 1",
+            "en": "Slime 1"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -10655,9 +10005,9 @@
             "column": 10,
             "row": 3
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -10666,14 +10016,19 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "a038e7e6-84bb-4794-9613-dc78d1b07be1:enemy-0"
+          "monsterInstanceId": "e07c4dd5-ab27-4552-820c-e21b887251eb:enemy-0",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-1",
           "owner": null,
-          "name": "슬라임 2",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 2",
+          "nameTranslations": {
+            "ko": "슬라임 2",
+            "en": "Slime 2"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -10681,9 +10036,9 @@
             "column": 10,
             "row": 4
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -10692,7 +10047,8 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "a038e7e6-84bb-4794-9613-dc78d1b07be1:enemy-1"
+          "monsterInstanceId": "e07c4dd5-ab27-4552-820c-e21b887251eb:enemy-1",
+          "healthVisibility": "HIDDEN"
         }
       ],
       "participants": [
@@ -10700,8 +10056,8 @@
       ],
       "returnPositions": {
         "preview": {
-          "column": 2,
-          "row": 2
+          "column": 6,
+          "row": 3
         }
       },
       "blocked": [
@@ -11644,7 +11000,6 @@
       "ready": [
         "preview"
       ],
-      "messages": [],
       "deadline": 145,
       "absoluteDeadline": 1300,
       "status": "ACTIVE",
@@ -11653,8 +11008,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.3.0",
-      "chatRoomId": "battle:a038e7e6-84bb-4794-9613-dc78d1b07be1",
+      "rulesVersion": "1.4.0",
+      "chatRoomId": "battle:e07c4dd5-ab27-4552-820c-e21b887251eb",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -11671,25 +11026,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -11703,21 +11043,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -11731,25 +11060,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -11763,25 +11077,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -11799,25 +11098,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 0
-              },
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -11835,21 +11119,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 0,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -11867,25 +11140,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -11903,21 +11161,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -11935,25 +11182,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 4,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -11971,25 +11203,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -12007,25 +11224,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 5
-              },
-              {
-                "column": 1,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -12047,21 +11249,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12083,21 +11274,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12119,25 +11299,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12159,25 +11324,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 4,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12199,21 +11349,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12235,25 +11374,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 4,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12275,25 +11399,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 3,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -12315,25 +11424,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 0,
-                "row": 6
-              },
-              {
-                "column": 2,
-                "row": 6
-              },
-              {
-                "column": 1,
-                "row": 7
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           }
         ],
         "attacks": []
@@ -12367,7 +11461,7 @@
         "row": 2
       },
       "requiresStartSpawn": true,
-      "battleId": null,
+      "battleId": "e07c4dd5-ab27-4552-820c-e21b887251eb",
       "partyId": null,
       "movedAt": 0,
       "lastResult": null
@@ -12377,7 +11471,7 @@
   },
   {
     "location": {
-      "id": "24410295-a4d6-41b5-b63d-aea46bcdbb82",
+      "id": "76f81d04-f476-4830-9419-16e2ef85d518",
       "kind": "BATTLE",
       "mapId": "meadow-thicket-bend",
       "chatRoomId": "preview",
@@ -13722,7 +12816,7 @@
       ]
     },
     "battle": {
-      "id": "24410295-a4d6-41b5-b63d-aea46bcdbb82",
+      "id": "76f81d04-f476-4830-9419-16e2ef85d518",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -13741,20 +12835,27 @@
           "guard": false,
           "hp": 40,
           "attack": 12,
-          "defense": 4,
+          "defense": 1,
           "speed": 8,
           "move": 3,
           "range": [
             1,
             1
-          ]
+          ],
+          "ap": 3,
+          "maxAp": 3,
+          "basicAttackAvailable": true
         },
         {
           "id": "enemy-0",
           "owner": null,
-          "name": "슬라임 1",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 1",
+          "nameTranslations": {
+            "ko": "슬라임 1",
+            "en": "Slime 1"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -13762,9 +12863,9 @@
             "column": 10,
             "row": 3
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -13773,14 +12874,19 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "24410295-a4d6-41b5-b63d-aea46bcdbb82:enemy-0"
+          "monsterInstanceId": "76f81d04-f476-4830-9419-16e2ef85d518:enemy-0",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-1",
           "owner": null,
-          "name": "슬라임 2",
           "appearance": "slime",
           "sizeClass": "small",
+          "name": "슬라임 2",
+          "nameTranslations": {
+            "ko": "슬라임 2",
+            "en": "Slime 2"
+          },
           "monsterTypeId": "slime",
           "heightRatio": 0.5,
           "side": "enemy",
@@ -13788,9 +12894,9 @@
             "column": 10,
             "row": 4
           },
-          "maxHp": 12,
+          "maxHp": 1,
           "guard": false,
-          "hp": 12,
+          "hp": 1,
           "defense": 1,
           "speed": 4,
           "move": 2,
@@ -13799,7 +12905,8 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "24410295-a4d6-41b5-b63d-aea46bcdbb82:enemy-1"
+          "monsterInstanceId": "76f81d04-f476-4830-9419-16e2ef85d518:enemy-1",
+          "healthVisibility": "HIDDEN"
         }
       ],
       "participants": [
@@ -13807,8 +12914,8 @@
       ],
       "returnPositions": {
         "preview": {
-          "column": 2,
-          "row": 2
+          "column": 6,
+          "row": 3
         }
       },
       "blocked": [
@@ -14783,7 +13890,6 @@
       "ready": [
         "preview"
       ],
-      "messages": [],
       "deadline": 145,
       "absoluteDeadline": 1300,
       "status": "ACTIVE",
@@ -14792,8 +13898,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.3.0",
-      "chatRoomId": "battle:24410295-a4d6-41b5-b63d-aea46bcdbb82",
+      "rulesVersion": "1.4.0",
+      "chatRoomId": "battle:76f81d04-f476-4830-9419-16e2ef85d518",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -14810,25 +13916,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -14842,21 +13933,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -14870,25 +13950,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -14902,25 +13967,10 @@
               }
             ],
             "cost": 1,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 3
-              },
-              {
-                "column": 0,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 1,
+            "apAfter": 2
           },
           {
             "position": {
@@ -14938,25 +13988,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 1,
-                "row": 0
-              },
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -14974,21 +14009,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 0,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -15006,25 +14030,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 1
-              },
-              {
-                "column": 1,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -15042,21 +14051,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 0,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -15074,25 +14072,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 2
-              },
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 4,
-                "row": 3
-              },
-              {
-                "column": 3,
-                "row": 4
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -15110,25 +14093,10 @@
               }
             ],
             "cost": 2,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 3
-              },
-              {
-                "column": 1,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 4
-              },
-              {
-                "column": 2,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 2,
+            "apAfter": 1
           },
           {
             "position": {
@@ -15150,21 +14118,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -15186,21 +14143,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 0,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 0,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -15222,25 +14168,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 0
-              },
-              {
-                "column": 1,
-                "row": 1
-              },
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -15262,25 +14193,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 1
-              },
-              {
-                "column": 2,
-                "row": 2
-              },
-              {
-                "column": 4,
-                "row": 2
-              },
-              {
-                "column": 3,
-                "row": 3
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -15302,25 +14218,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 3,
-                "row": 3
-              },
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 4,
-                "row": 4
-              },
-              {
-                "column": 3,
-                "row": 5
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           },
           {
             "position": {
@@ -15342,25 +14243,10 @@
               }
             ],
             "cost": 3,
-            "attackRange": [
-              {
-                "column": 2,
-                "row": 4
-              },
-              {
-                "column": 1,
-                "row": 5
-              },
-              {
-                "column": 3,
-                "row": 5
-              },
-              {
-                "column": 2,
-                "row": 6
-              }
-            ],
-            "attacks": []
+            "attackRange": [],
+            "attacks": [],
+            "apCost": 3,
+            "apAfter": 0
           }
         ],
         "attacks": []
@@ -15394,7 +14280,7 @@
         "row": 2
       },
       "requiresStartSpawn": true,
-      "battleId": null,
+      "battleId": "76f81d04-f476-4830-9419-16e2ef85d518",
       "partyId": null,
       "movedAt": 0,
       "lastResult": null
@@ -15404,7 +14290,7 @@
   },
   {
     "location": {
-      "id": "74b49a66-ad42-40df-ab0a-45c708632ab6",
+      "id": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
       "kind": "BATTLE",
       "mapId": "meadow-guardian-ring",
       "chatRoomId": "preview",
@@ -16749,7 +15635,7 @@
       ]
     },
     "battle": {
-      "id": "74b49a66-ad42-40df-ab0a-45c708632ab6",
+      "id": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
       "channel": "meadow",
       "monsterId": "meadow-strong",
       "version": 2,
@@ -16768,20 +15654,27 @@
           "guard": false,
           "hp": 40,
           "attack": 12,
-          "defense": 4,
+          "defense": 1,
           "speed": 8,
           "move": 3,
           "range": [
             1,
             1
-          ]
+          ],
+          "ap": 3,
+          "maxAp": 3,
+          "basicAttackAvailable": true
         },
         {
           "id": "enemy-0",
           "owner": null,
-          "name": "고목 거인 1",
           "appearance": "giant",
           "sizeClass": "large",
+          "name": "고목 거인 1",
+          "nameTranslations": {
+            "ko": "고목 거인 1",
+            "en": "Ancient Treant 1"
+          },
           "monsterTypeId": "giant",
           "heightRatio": 1.5,
           "side": "enemy",
@@ -16789,9 +15682,9 @@
             "column": 10,
             "row": 3
           },
-          "maxHp": 40,
+          "maxHp": 1,
           "guard": false,
-          "hp": 40,
+          "hp": 1,
           "defense": 4,
           "speed": 8,
           "move": 3,
@@ -16800,14 +15693,19 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-0"
+          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-0",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-1",
           "owner": null,
-          "name": "고목 거인 2",
           "appearance": "giant",
           "sizeClass": "large",
+          "name": "고목 거인 2",
+          "nameTranslations": {
+            "ko": "고목 거인 2",
+            "en": "Ancient Treant 2"
+          },
           "monsterTypeId": "giant",
           "heightRatio": 1.5,
           "side": "enemy",
@@ -16815,9 +15713,9 @@
             "column": 10,
             "row": 4
           },
-          "maxHp": 40,
+          "maxHp": 1,
           "guard": false,
-          "hp": 40,
+          "hp": 1,
           "defense": 4,
           "speed": 8,
           "move": 3,
@@ -16826,14 +15724,19 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-1"
+          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-1",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-2",
           "owner": null,
-          "name": "고목 거인 3",
           "appearance": "giant",
           "sizeClass": "large",
+          "name": "고목 거인 3",
+          "nameTranslations": {
+            "ko": "고목 거인 3",
+            "en": "Ancient Treant 3"
+          },
           "monsterTypeId": "giant",
           "heightRatio": 1.5,
           "side": "enemy",
@@ -16841,9 +15744,9 @@
             "column": 10,
             "row": 5
           },
-          "maxHp": 40,
+          "maxHp": 1,
           "guard": false,
-          "hp": 40,
+          "hp": 1,
           "defense": 4,
           "speed": 8,
           "move": 3,
@@ -16852,14 +15755,19 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-2"
+          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-2",
+          "healthVisibility": "HIDDEN"
         },
         {
           "id": "enemy-3",
           "owner": null,
-          "name": "고목 거인 4",
           "appearance": "giant",
           "sizeClass": "large",
+          "name": "고목 거인 4",
+          "nameTranslations": {
+            "ko": "고목 거인 4",
+            "en": "Ancient Treant 4"
+          },
           "monsterTypeId": "giant",
           "heightRatio": 1.5,
           "side": "enemy",
@@ -16867,9 +15775,9 @@
             "column": 10,
             "row": 6
           },
-          "maxHp": 40,
+          "maxHp": 1,
           "guard": false,
-          "hp": 40,
+          "hp": 1,
           "defense": 4,
           "speed": 8,
           "move": 3,
@@ -16878,7 +15786,8 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-3"
+          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-3",
+          "healthVisibility": "HIDDEN"
         }
       ],
       "participants": [
@@ -16886,8 +15795,8 @@
       ],
       "returnPositions": {
         "preview": {
-          "column": 2,
-          "row": 2
+          "column": 6,
+          "row": 3
         }
       },
       "blocked": [
@@ -17832,7 +16741,6 @@
       "ready": [
         "preview"
       ],
-      "messages": [],
       "deadline": 145,
       "absoluteDeadline": 1300,
       "status": "ACTIVE",
@@ -17841,8 +16749,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.3.0",
-      "chatRoomId": "battle:74b49a66-ad42-40df-ab0a-45c708632ab6",
+      "rulesVersion": "1.4.0",
+      "chatRoomId": "battle:77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": false,
@@ -17878,7 +16786,7 @@
         "row": 2
       },
       "requiresStartSpawn": true,
-      "battleId": null,
+      "battleId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
       "partyId": null,
       "movedAt": 0,
       "lastResult": null

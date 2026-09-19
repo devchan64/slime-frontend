@@ -84,3 +84,7 @@ logMove: "Move {path}"
 autoGuard: "Auto guard"
 logDamage: " → {name} ({damage} damage)"
 confirmAction: "Confirm {action}"
+
+apRules: Movement costs 1 AP per tile · Basic attack costs 3 AP · Recover 50% of max AP rounded each turn · Unused AP carries over
+apRecovery: '+{count} AP at the start of your turn'
+apPreview: 'Cost {cost} AP · {remaining} AP after action'

@@ -33,3 +33,11 @@ test('복수 후보나 사망 대상은 자동 선택하지 않는다', () => {
  b.tactics.attacks.pop(); b.units[0].hp=0;
  assert.equal(singleAttackTarget(b),null);
 });
+
+test('AP 전투는 사용 이력보다 서버 잔고 미리보기를 따르고 이동 후 공격을 우선한다',()=>{
+ const b={rulesVersion:'1.4.0',status:'ACTIVE',tactics:{canAct:true,moves:[{}],attacks:[{targetId:'e'}]},order:['a'],index:0,moved:true,acted:true,units:[{id:'e',hp:1,position:{column:2,row:2}}]};
+ assert.equal(defaultBattleMode(b,'a',30),'ATTACK');
+ assert.deepEqual(singleAttackTarget(b),{column:2,row:2});
+ assert.equal(defaultBattleMode({...b,tactics:{...b.tactics,attacks:[]}},'a',30),'MOVE');
+ assert.equal(defaultBattleMode({...b,tactics:{canAct:true,moves:[],attacks:[]}},'a',30),null);
+});

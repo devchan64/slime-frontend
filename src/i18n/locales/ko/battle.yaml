@@ -84,3 +84,7 @@ logMove: "이동 {path}"
 autoGuard: "자동 방어"
 logDamage: " → {name} ({damage} 피해)"
 confirmAction: "{action} 확인"
+
+apRules: 이동 1칸당 1 AP · 일반 공격 3 AP · 자기 턴마다 최대 AP의 50% 반올림 회복 · 잔여 AP 이월
+apRecovery: '자기 턴 시작 +{count} AP'
+apPreview: '소모 {cost} AP · 실행 후 {remaining} AP'

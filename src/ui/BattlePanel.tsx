@@ -53,6 +53,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
 }) {
   const { t, locale } = useTranslation();
   battle = localizedBattle(battle, locale);
+  const apBattle = battle.rulesVersion === "1.4.0";
   const healthLabel = (unit: Battle["units"][number]) => {
     const display = healthDisplay(unit, monsterLoreLevel);
     return t(display.labelKey, display.values);
@@ -77,7 +78,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     const next = defaultBattleMode(battle, actor, remaining);
     setMode(next); setSurrender(false);
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
-  }, [battle.id, battle.turnId, battle.moved, battle.acted, canActNow, battle.status]);
+  }, [battle.id, battle.turnId, battle.moved, battle.acted, apBattle ? battle.version : null, canActNow, battle.status]);
   const chooseMode = (next: Mode) => {
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
     setMode(next);
@@ -103,7 +104,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
         class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
-        disabled={disabled || !own || (value === "MOVE" && (battle.moved || battle.tactics.moves.length === 0)) || (value === "ATTACK" && (battle.acted || battle.tactics.attacks.length === 0))}
+        disabled={disabled || !own || (value === "MOVE" && ((!apBattle && battle.moved) || battle.tactics.moves.length === 0)) || (value === "ATTACK" && ((!apBattle && battle.acted) || battle.tactics.attacks.length === 0))}
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
         onClick={() => chooseMode(value)}>{t(LABELS[value])}</button>)}
     </div>
@@ -126,10 +127,10 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         {battle.tactics.attacks.map(candidate => {
           const unit = battle.units.find(u => u.id === candidate.targetId)!;
           return <button key={unit.id} class="secondary compact" aria-pressed={target?.id === unit.id}
-            disabled={disabled || !own || battle.acted}
+            disabled={disabled || !own || (!apBattle && battle.acted)}
             onClick={() => chooseTarget(unit.position)}>
               <span class="battle-target-name"><strong>{unit.name}</strong>{target?.id === unit.id && <small>{t('battle.selected')}</small>}</span>
-              <span class="battle-target-info">{healthLabel(unit)} · {t('battle.expectedDamage',{damage:candidate.damage})}</span>
+              <span class="battle-target-info">{healthLabel(unit)} · {t('battle.expectedDamage',{damage:candidate.damage})}{candidate.apCost !== undefined && current?.ap !== undefined && <> · {t('battle.apPreview',{cost:candidate.apCost,remaining:current.ap-candidate.apCost})}</>}</span>
             </button>;
         })}
       </div>
@@ -150,7 +151,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     </div>}
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
       <strong>{t('battle.arrivalHeading')}</strong>
-      {battle.acted ? <p>{t('battle.moveEndsTurn')}</p> : <>
+      {battle.acted && !apBattle ? <p>{t('battle.moveEndsTurn')}</p> : <>
         <p>{t('battle.arrivalRange',{range:current?.range.join('~') ?? ''})}</p>
         {move.attacks.length ? <ul>{move.attacks.map(a => <li>{name(a.targetId)} · {t('battle.expectedDamage',{damage:a.damage})}</li>)}</ul>
           : <p>{t('battle.noArrivalTargets')}</p>}
@@ -170,7 +171,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         </span>;
       })}
     </div>
-    <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>
+    {apBattle ? <p>{t('battle.apRules')}</p> : <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>}
     {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={t('battle.portrait',{name:current.name})} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={t('battle.healthLabel',{name:current.name})} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>{healthLabel(current)}</small>}</div></div>}
     </div>
     </section>
@@ -193,8 +194,8 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   </section>
   {confirming && valid && mode && <BattleConfirmation
     title={t('battle.confirmAction',{action:t(LABELS[mode])})}
-    summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})
-      : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}`
+    summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')}) + (move.apCost !== undefined ? ' · ' + t('battle.apPreview',{cost:move.apCost,remaining:move.apAfter!}) : '')
+      : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}` + (attack.apCost !== undefined && current?.ap !== undefined ? ' · ' + t('battle.apPreview',{cost:attack.apCost,remaining:current.ap-attack.apCost}) : '')
       : battle.acted ? t('battle.endNoGuard') : t('battle.endWithGuard')}
     disabled={disabled || !valid} close={() => setConfirming(false)}
     confirm={() => { setConfirming(false); execute(mode, mode === "ATTACK" ? target?.id : undefined); }} />}
