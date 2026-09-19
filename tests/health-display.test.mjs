@@ -40,3 +40,13 @@ test('양쪽 언어팩은 적의 실제 HP 치환 없이 공개 수준만 번역
   assert.equal(formatMessage(pack[ally.labelKey.split('.')[1]],ally.values),'HP 17 / 100');
  }
 });
+
+test('공개 전장 미리보기의 적은 내부 능력치를 포함하지 않는다',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const states=JSON.parse(await readFile('src/dev/battlefield-fixtures.json','utf8'));
+ for(const state of states)for(const unit of state.battle.units){
+  if(unit.side==='enemy')for(const key of ['attack','defense','speed','move','range','ap','maxAp','basicAttackAvailable'])
+   assert.equal(key in unit,false,`${unit.id}: ${key}`);
+  else assert.ok(Array.isArray(unit.range));
+ }
+});

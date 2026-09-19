@@ -1640,14 +1640,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "8b7fae3f-f486-5dbe-bbf1-6e93e06a7387:enemy-0",
           "healthVisibility": "HIDDEN"
         },
@@ -1671,14 +1663,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "8b7fae3f-f486-5dbe-bbf1-6e93e06a7387:enemy-1",
           "healthVisibility": "HIDDEN"
         }
@@ -4685,14 +4669,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "5a009f78-3ff2-53a6-858c-6bea7a96689a:enemy-0",
           "healthVisibility": "HIDDEN"
         },
@@ -4716,14 +4692,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "5a009f78-3ff2-53a6-858c-6bea7a96689a:enemy-1",
           "healthVisibility": "HIDDEN"
         }
@@ -7933,14 +7901,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "0eb00421-77b2-5087-b6cd-f39bea59e5ff:enemy-0",
           "healthVisibility": "HIDDEN"
         },
@@ -7964,14 +7924,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "0eb00421-77b2-5087-b6cd-f39bea59e5ff:enemy-1",
           "healthVisibility": "HIDDEN"
         }
@@ -10882,14 +10834,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "c6c35756-93a3-512f-99eb-2e1e13725086:enemy-0",
           "healthVisibility": "HIDDEN"
         },
@@ -10913,14 +10857,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "c6c35756-93a3-512f-99eb-2e1e13725086:enemy-1",
           "healthVisibility": "HIDDEN"
         }
@@ -13950,14 +13886,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "44e89c8d-d0ee-51ed-9019-c9bdc2846a76:enemy-0",
           "healthVisibility": "HIDDEN"
         },
@@ -13981,14 +13909,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 1,
-          "speed": 4,
-          "move": 2,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 3,
           "monsterInstanceId": "44e89c8d-d0ee-51ed-9019-c9bdc2846a76:enemy-1",
           "healthVisibility": "HIDDEN"
         }
@@ -16979,14 +16899,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 4,
-          "speed": 8,
-          "move": 3,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 12,
           "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-0",
           "healthVisibility": "HIDDEN"
         },
@@ -17010,14 +16922,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 4,
-          "speed": 8,
-          "move": 3,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 12,
           "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-1",
           "healthVisibility": "HIDDEN"
         },
@@ -17041,14 +16945,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 4,
-          "speed": 8,
-          "move": 3,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 12,
           "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-2",
           "healthVisibility": "HIDDEN"
         },
@@ -17072,14 +16968,6 @@
           "maxHp": 1,
           "guard": false,
           "hp": 1,
-          "defense": 4,
-          "speed": 8,
-          "move": 3,
-          "range": [
-            1,
-            1
-          ],
-          "attack": 12,
           "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-3",
           "healthVisibility": "HIDDEN"
         }

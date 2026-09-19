@@ -7,7 +7,6 @@ export type Unit = Appearance & {
   id: string;
   name: string;
   owner: string | null;
-  side: "ally" | "enemy";
   position: Position;
   /** 적은 서버가 제한한 표시 스케일이며 실제 HP가 아니다. */
   hp: number;
@@ -16,13 +15,9 @@ export type Unit = Appearance & {
   /** AP 전투에서 서버가 제공하는 실제 잔고. 이전 전투에서는 생략한다. */
   ap?: number;
   maxAp?: number;
-  attack: number;
-  defense: number;
-  speed: number;
-  move: number;
-  range: number[];
   guard: boolean;
-};
+} & ({ side: "ally"; attack: number; defense: number; speed: number; move: number; range: number[] }
+  | { side: "enemy"; attack?: number; defense?: number; speed?: number; move?: number; range?: number[] });
 export type Battlefield = Surface & {
   id: string; version: string; name?: string; description?: string; columns: number; rows: number;
   sourceMapId?: string; sourceMapVersion?: string; selection?: "random" | "fixed"; eventId?: string | null;

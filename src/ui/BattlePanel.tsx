@@ -186,7 +186,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
       <strong>{t('battle.arrivalHeading')}</strong>
       {battle.acted && !apBattle ? <p>{t('battle.moveEndsTurn')}</p> : <>
-        <p>{t('battle.arrivalRange',{range:current?.range.join('~') ?? ''})}</p>
+        <p>{t('battle.arrivalRange',{range:current?.range?.join('~') ?? ''})}</p>
         {move.attacks.length ? <ul>{move.attacks.map(a => <li>{name(a.targetId)} · {t('battle.expectedDamage',{damage:a.damage})}</li>)}</ul>
           : <p>{t('battle.noArrivalTargets')}</p>}
         <small>{t('battle.moveOnly')}</small>
