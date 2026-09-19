@@ -325,3 +325,47 @@ test('복귀 중 세션 교체·갱신 만료는 이전 연결을 재개하지 �
   client.disconnect();
  }
 });
+
+test('응답 없는 소켓은 close 통지 없이도 30초에 해제하고 마지막 순번으로 복구한다',async()=>{
+ const keys=['WebSocket','document','location','performance','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ let ws,id=0,now=0;const intervals=new Map(),timers=new Map(),statuses=[];
+ // 네트워크가 먹통이면 close() 이후에도 onclose가 오지 않을 수 있다.
+ class Socket {static OPEN=1;readyState=1;sent=[];constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.closed=true;}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,document:new EventTarget(),location:{href:'http://localhost/'},performance:{now:()=>now},setInterval:fn=>{intervals.set(++id,fn);return id;},clearInterval:key=>intervals.delete(key),setTimeout:(fn,delay)=>{timers.set(++id,{fn,delay});return id;},clearTimeout:key=>timers.delete(key)});
+  const client=new Client();client.stopped=false;client.state={protocolVersion:1,generation:3,epoch:4,cursor:8,location:{id:'map:meadow'}};
+  client.request=async()=>({ticket:'test',resumeSupported:true});client.onStatus=ready=>statuses.push(ready);
+  await client.connect();ws.onopen();ws.onmessage({data:JSON.stringify({type:'resumed',generation:3,epoch:4,cursor:8})});
+  const old=ws,check=[...intervals.values()][0];
+  now=10000;check();assert.deepEqual(old.sent.at(-1),{type:'heartbeat'});assert.equal(old.closed,undefined);
+  now=20000;old.onmessage({data:JSON.stringify({type:'heartbeat',epoch:4,cursor:8})});
+  now=49999;check();assert.equal(old.closed,undefined);
+  now=50000;check();assert.equal(old.closed,true);assert.equal(statuses.at(-1),false);assert.equal(intervals.size,0);assert.equal(timers.size,1);
+  const retry=[...timers.values()][0].fn;timers.clear();await retry();
+  const next=ws;assert.notEqual(next,old);next.onopen();assert.equal(next.sent[0].resume.cursor,8);
+  old.onclose();check();assert.equal(next.closed,undefined);assert.equal(timers.size,0);
+  next.onmessage({data:JSON.stringify({type:'resumed',generation:3,epoch:4,cursor:8})});assert.equal(statuses.at(-1),true);
+  client.disconnect();assert.equal(intervals.size,0);assert.equal(timers.size,0);
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
+
+test('소켓 연결·초기 승인 대기에도 기한을 적용하며 종료 후 늦은 점검은 무효다',async()=>{
+ const keys=['WebSocket','location','performance','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ let ws,now=0,id=0;const intervals=new Map(),timers=new Map();
+ class Socket {static OPEN=1;readyState=0;sent=[];constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.closed=true;}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,location:{href:'http://localhost/'},performance:{now:()=>now},setInterval:fn=>{intervals.set(++id,fn);return id;},clearInterval:key=>intervals.delete(key),setTimeout:fn=>{timers.set(++id,fn);return id;},clearTimeout:key=>timers.delete(key)});
+  for(const open of [false,true]){
+   now=0;const client=new Client();client.stopped=false;client.request=async()=>({ticket:'test'});
+   await client.connect();const check=[...intervals.values()][0];
+   if(open){ws.readyState=1;ws.onopen();}
+   now=20000;check();assert.equal(ws.sent.some(frame=>frame.type==='heartbeat'),false);
+   // 초기 승인 없는 heartbeat만으로 준비 대기를 무기한 연장하지 않는다.
+   if(open)ws.onmessage({data:JSON.stringify({type:'heartbeat',epoch:0,cursor:0})});
+   now=30000;check();assert.equal(ws.closed,true);assert.equal(timers.size,1);
+   client.disconnect();assert.equal(timers.size,0);check();assert.equal(timers.size,0);
+  }
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});

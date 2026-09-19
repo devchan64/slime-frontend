@@ -7,6 +7,7 @@ import type { State, Tokens } from "./types";
 const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) || "";
 const HEARTBEAT_MS = 10000;
+const SOCKET_RESPONSE_TIMEOUT_MS = 30000;
 const RECONNECT_MAX_MS = 5000;
 const STREAM_PROGRESS_WAIT_MS = 5000;
 const ACK_BATCH_MS = 250;
@@ -201,6 +202,18 @@ export class Client {
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       const ws = new WebSocket(url);
       this.socket = ws;
+      let lastResponseAt = performance.now();
+      let verified = false;
+      // close 이벤트가 오지 않는 연결·초기 승인 대기도 제한한다.
+      this.heartbeatTimer = setInterval(() => {
+        if (this.socket !== ws || this.stopped) return;
+        if (performance.now() - lastResponseAt >= SOCKET_RESPONSE_TIMEOUT_MS) {
+          this.reconnectSocket(ws, {key: 'network.reconnecting'});
+          return;
+        }
+        if (verified && ws.readyState === WebSocket.OPEN)
+          ws.send(JSON.stringify({type: 'heartbeat'}));
+      }, HEARTBEAT_MS);
       let resume: Pick<State, 'generation' | 'epoch' | 'cursor'> | undefined;
       ws.onopen = () => {
         if (this.socket !== ws || this.stopped) return;
@@ -232,13 +245,11 @@ export class Client {
               if (this.socket?.readyState === WebSocket.OPEN)
                 this.socket.send(JSON.stringify({type: "activity"}));
             });
-            if (!this.heartbeatTimer)
-              this.heartbeatTimer = setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN)
-                  ws.send(JSON.stringify({ type: "heartbeat" }));
-              }, HEARTBEAT_MS);
+            lastResponseAt = performance.now();
+            verified = true;
           } else if (msg.type === 'heartbeat') {
             this.observeHead(msg.epoch, msg.cursor, ws);
+            if (verified) lastResponseAt = performance.now();
           } else if (msg.type === "error") {
             const message = readApiMessage(msg, getLocale());
             if (message === undefined) throw new Error("API 오류 안내가 누락되었습니다.");
@@ -246,24 +257,28 @@ export class Client {
             if (msg.code === "SESSION_EXPIRED" || msg.code === "IDLE_DISCONNECTED") this.disconnect();
           }
         } catch {
-          this.onStatus(false, {key: "network.invalidMessage"});
-          ws.close();
+          this.reconnectSocket(ws, {key: "network.invalidMessage"});
         }
       };
       ws.onclose = () => {
-        if (this.socket !== ws) return;
-        this.socket=null;
-        this.clearHeartbeat();
-        this.onStatus(false, {key: "network.reconnecting"});
-        this.retry();
+        this.reconnectSocket(ws, {key: "network.reconnecting"});
       };
-      ws.onerror = () => ws.close();
+      ws.onerror = () => this.reconnectSocket(ws, {key: "network.reconnecting"});
     } catch (e) {
       if (this.stopped || attempt!==this.connectionAttempt) return;
       this.onStatus(false, e as Error);
       if (e instanceof ApiError && (e.status === 401 || e.code === "IDLE_DISCONNECTED")) this.disconnect();
       else this.retry();
     }
+  }
+  private reconnectSocket(socket: WebSocket, notice: Notice) {
+    if (this.socket !== socket || this.stopped) return;
+    this.socket = null;
+    this.clearHeartbeat();
+    this.onStatus(false, notice);
+    // 이전 연결의 close 응답을 기다리지 않고 현재 cursor로 복구한다.
+    socket.close();
+    this.retry();
   }
   private retry() {
     if (this.stopped) return;
@@ -360,7 +375,7 @@ export class Client {
       if (this.socket!==socket || this.stopped) return;
       const missing=this.isBehindHead();
       this.clearProgress();
-      if (missing && this.socket===socket && !this.stopped) socket.close();
+      if (missing) this.reconnectSocket(socket, {key: 'network.reconnecting'});
     },STREAM_PROGRESS_WAIT_MS);
   }
   private clearHeartbeat() {
