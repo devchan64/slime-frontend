@@ -60,6 +60,17 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
  scene.setState(state);scene.updateTerrain(state,true);
  const first=new Set(scene.terrainObjects);assert.ok(first.size>0&&first.size<6000);
  scene.updateTerrain(structuredClone(state),true);assert.deepEqual(new Set(scene.terrainObjects),first);
+ const source=scene.terrainPlan.source;
+ for(let turn=1;turn<=4;turn++){
+  const before=[...scene.terrainObjects];
+  scene.rotation=turn%4;scene.setState(state);scene.updateTerrain(state,true);
+  assert.equal(scene.terrainPlan.source,source,'고도 원본은 회전마다 재할당하지 않는다');
+  assert.ok(before.every(object=>object.destroyed),'이전 방향의 화면 타일은 모두 교체한다');
+  assert.ok(scene.terrainObjects.size>0);
+  const current=new Set(scene.terrainObjects);scene.updateTerrain(state,true);
+  assert.deepEqual(new Set(scene.terrainObjects),current,'같은 방향·지형은 표시 객체를 유지한다');
+ }
+
  scene.cameras.main.scrollY+=4000;scene.update();
  assert.ok([...first].every(o=>o.destroyed));assert.ok(scene.terrainObjects.size>0&&scene.terrainObjects.size<6000);
  const normal=scene.terrainObjects.size;

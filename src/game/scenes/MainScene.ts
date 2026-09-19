@@ -474,7 +474,7 @@ export class MainScene extends Phaser.Scene {
       this.project({column:(definition.columns-1)/2,row:(definition.rows-1)/2}),
       (definition.columns+definition.rows)*TILE_W/2,(definition.columns+definition.rows)*TILE_H/2,theme);
     this.backdropLayer.setAlpha(.5);
-    const signature=this.terrainPlan!.signature;
+    const signature=`${this.rotation}:${this.terrainPlan!.signature}`;
     if(signature===this.terrainSignature && this.terrainCache) { this.syncTerrainViewport(); return; }
     this.terrainCache?.clear();
     for(const object of this.terrainObjects)object.destroy();
