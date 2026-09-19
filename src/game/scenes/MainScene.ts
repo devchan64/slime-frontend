@@ -1,3 +1,4 @@
+import { healthDisplayRatio } from "../terrain/healthDisplay";
 import Phaser from "phaser";
 import type { State, Position } from "../../client/types";
 import { buildMeadowRoad, meadowTile, TILE_W, TILE_H } from "../terrain/meadow";
@@ -427,7 +428,7 @@ export class MainScene extends Phaser.Scene {
     if (health) {
       const y=p.y-height-HEALTH_BAR.offset;
       annotation.fillStyle(HEALTH_BAR.background);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width,HEALTH_BAR.height);
-      annotation.fillStyle(color);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width*health.hp/health.maxHp,HEALTH_BAR.height);
+      annotation.fillStyle(color);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width*healthDisplayRatio(health.hp,health.maxHp,health.side !== "enemy"),HEALTH_BAR.height);
     }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
@@ -441,7 +442,7 @@ export class MainScene extends Phaser.Scene {
         fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
-      if (active || selected) this.add.text(p.x, p.y + LABEL_OFFSET, health ? `${label} · ${health.hp}/${health.maxHp}` : label, TEXT).setOrigin(CENTER, 0).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
+      if (active || selected) this.add.text(p.x, p.y + LABEL_OFFSET, health?.side === "ally" ? `${label} · ${health.hp}/${health.maxHp}` : `${label} · 체력 추정`, TEXT).setOrigin(CENTER, 0).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {
       this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     }

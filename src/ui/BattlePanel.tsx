@@ -56,7 +56,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
       })}
     </div>
     <p>이동 {battle.moved ? "사용함" : "1회"} · 행동 {battle.acted ? "사용함" : "1회"}<br />이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료</p>
-    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={`${current.name} 모습`} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? "아군" : "적군"} · {current.name}</strong><progress value={current.hp} max={current.maxHp} aria-label={`${current.name} 체력`} /><small>HP {current.hp} / {current.maxHp}</small></div></div>}
+    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={`${current.name} 모습`} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? "아군" : "적군"} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={`${current.name} 체력`} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>체력 게이지는 추정치 · 정보 확인 스킬 필요</small>}</div></div>}
     </div>
     </details><div class="battle-command-area">
     <p class="battle-step" aria-live="polite">{mode === null ? "1 · 행동 선택" : (mode === "MOVE" || mode === "ATTACK") && !valid ? "2 · 맵에서 대상 선택" : "3 · 결과 확인 후 확정"}</p>
@@ -70,13 +70,13 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     {mode !== null && <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
     <div class="battle-command-content"><div class="command-preview" aria-live="polite">
       {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "파란 이동 가능 셀을 선택하세요."
-        : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage} · HP ${target.hp} → ${Math.max(0, target.hp - attack.damage)}` : "붉은 테두리의 사거리 내 적을 선택하세요."
+        : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage}` : "붉은 테두리의 사거리 내 적을 선택하세요."
         : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
     </div>
     {mode === "ATTACK" && <section class="attack-targets" aria-label="공격 대상 선택">
       <h4>선택한 몹 · {selectedTargets.length} / 1</h4>
       {selectedTargets.length ? <ul aria-label="선택된 몹 목록">{selectedTargets.map(({unit, damage}) => <li key={unit.id}>
-        <div><strong>{unit.name}</strong><small>HP {unit.hp} → {Math.max(0, unit.hp - damage)} · 예상 피해 {damage}</small></div>
+        <div><strong>{unit.name}</strong><small>예상 피해 {damage}</small></div>
         <button class="secondary compact" aria-label={`${unit.name} 선택 해제`} onClick={() => select(null)}>해제</button>
       </li>)}</ul> : <p>선택한 몹이 없습니다.</p>}
       <p class="field-subtitle">일반 공격은 신체활동 레벨 1에 포함된 스킬이며 한 마리를 선택합니다. 자동 선택해도 확정 전에는 공격하지 않습니다.</p>
@@ -85,7 +85,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
           const unit = battle.units.find(u => u.id === candidate.targetId)!;
           return <button key={unit.id} class="secondary compact" aria-pressed={target?.id === unit.id}
             disabled={disabled || !own || battle.acted}
-            onClick={() => select(target?.id === unit.id ? null : unit.position)}>{unit.name} · HP {unit.hp}/{unit.maxHp}</button>;
+            onClick={() => select(target?.id === unit.id ? null : unit.position)}>{unit.name}</button>;
         })}
       </div>
     </section>}
@@ -105,7 +105,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     <div class="units" aria-label="전투 유닛">
       {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => select(u.position)}>
         <span>{u.side === "ally" ? "아군" : "적"} · {u.name}</span>
-        <span>{u.hp}/{u.maxHp} HP{u.guard ? " · 방어" : ""}</span>
+        <span>{u.side === "ally" ? `${u.hp}/${u.maxHp} HP` : "상세 정보 미확인"}{u.guard ? " · 방어" : ""}</span>
       </button>)}
     </div>
     </details>
