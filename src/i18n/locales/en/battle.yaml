@@ -104,3 +104,8 @@ noLoot: "No loot acquired."
 
 apExhausted: All AP has been spent. Select End turn to continue to the next turn.
 idleTurnNotice: "No input for 5 seconds. End your turn when you have finished acting."
+
+skills: "Skills"
+skillSelection: "Select a skill"
+noSlottedSkills: "Assign battle skills in character settings."
+skillPreviewOnly: "Skill selection is available. Battle effects are not available yet."

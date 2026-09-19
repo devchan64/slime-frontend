@@ -1,4 +1,6 @@
 import { watchTurnIdle } from "./turnIdleNotice";
+import { localizedSkill } from "../client/skillText";
+import type { State } from "../client/types";
 import { actionPoints } from "./battleActionPoints";
 import { localizedBattle } from '../client/monsterText';
 import { useTranslation } from '../i18n';
@@ -48,8 +50,8 @@ function BattleConfirmation({ title, summary, disabled, close, confirm }: {
   </dialog>;
 }
 
-export function BattlePanel({ battle, actor, selected, disabled, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
-  selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean;
+export function BattlePanel({ me, battle, actor, selected, disabled, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
+  me: State["me"]; selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean;
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
   select: (p: Position | null) => void; execute: (type: string, targetId?: string) => void;
 }) {
@@ -64,6 +66,8 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
   useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [idleNotice, setIdleNotice] = useState(false);
   const [surrender, setSurrender] = useState(false);
+  const [skillsOpen, setSkillsOpen] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   useEffect(() => { setConfirming(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
   const lastSelectionIntent = useRef(selectionIntent);
@@ -79,7 +83,7 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
   const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor;
   useEffect(() => {
     const next = defaultBattleMode(battle, actor);
-    setMode(next); setSurrender(false);
+    setMode(next); setSurrender(false); setSkillsOpen(false);
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
   }, [battle.id, battle.turnId, battle.moved, battle.acted, apBattle ? battle.version : null, canActNow, battle.status]);
   useEffect(() => {
@@ -88,6 +92,7 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
     return watchTurnIdle(document, setIdleNotice);
   }, [battle.id, battle.turnId, battle.status, canActNow, disabled]);
   const chooseMode = (next: Mode) => {
+    setSkillsOpen(false);
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
     setMode(next);
     setConfirming(next === "END_TURN");
@@ -109,7 +114,6 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
     <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
-    {idleNotice && <div class="battle-idle-notice" role="status" aria-live="polite">{t("battle.idleTurnNotice")}</div>}
     <div class="battle-button-toolbar">
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
@@ -118,6 +122,8 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
         onClick={() => chooseMode(value)}>{t(LABELS[value])}</button>)}
     </div>
+    <div class="battle-skill-column"><button class={skillsOpen ? "" : "secondary"} disabled={disabled || !own}
+      aria-expanded={skillsOpen} aria-controls="battle-skill-selection" onClick={() => { setSkillsOpen(!skillsOpen); setConfirming(false); }}>{t("battle.skills")}</button></div>
     <div class="battle-submit-row">
       {surrender ? <>
         <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>{t('battle.confirmSurrender')}</button>
@@ -128,7 +134,19 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
     </div>
     </div>
     </div>
-    {mode === "ATTACK" && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
+    {skillsOpen && <section id="battle-skill-selection" class="battle-skill-selection" aria-label={t("battle.skillSelection")}>
+      <div class="skill-loadout-options">{(me.battleSkillLoadout ?? []).map((id, index) => {
+        const definition = me.skillDefinitions?.[id];
+        if (!definition) throw new Error(`등록된 스킬 정의가 없습니다: ${id}`);
+        const skill = localizedSkill(definition, locale);
+        return <button class="secondary" aria-pressed={selectedSkill === id} key={id} disabled={disabled || !own}
+          onClick={() => setSelectedSkill(id)}>{index + 1}. {skill.name} · Lv. {me.skills[id]}</button>;
+      })}</div>
+      {!(me.battleSkillLoadout ?? []).length && <p>{t("battle.noSlottedSkills")}</p>}
+      {selectedSkill && (me.battleSkillLoadout ?? []).includes(selectedSkill) && <p>{localizedSkill(me.skillDefinitions![selectedSkill], locale).description}</p>}
+      <p role="status">{t("battle.skillPreviewOnly")}</p>
+    </section>}
+    {!skillsOpen && mode === "ATTACK" && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
       <div class="battle-target-heading"><h4>{t('battle.targetCount',{count:battle.tactics.attacks.length})}</h4>
         {attack && target && <button class="secondary compact" onClick={() => { setConfirming(false); select(null); }}>{t('battle.clearSelection')}</button>}
       </div>
@@ -145,6 +163,7 @@ export function BattlePanel({ battle, actor, selected, disabled, select, execute
         })}
       </div>
     </section>}
+    {idleNotice && <div class="battle-idle-notice" role="status" aria-live="polite">{t("battle.idleTurnNotice")}</div>}
   </section>
   <section class="card battle-help-card" aria-label={t('battle.help')}>
 

@@ -59,6 +59,18 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
         <button class="secondary" aria-pressed={category === "skills"} onClick={() => setCategory("skills")}>{t("character.skills")}</button>
       </div>
       <p class="growth-help">{category === "skills" && t("character.skillList")}</p>
+      {category === "skills" && me.battleSkillSlotLimit !== undefined && <section class="skill-loadout" aria-label={t("character.battleSlots")}>
+        <h4>{t("character.battleSlots")} · {(me.battleSkillLoadout ?? []).length}/{me.battleSkillSlotLimit}</h4>
+        <p>{t("character.battleSlotsHelp")}</p>
+        <div class="skill-loadout-options">{entries.map(({id, name}) => {
+          const loadout = me.battleSkillLoadout ?? [];
+          const index = loadout.indexOf(id);
+          return <label key={id}><input type="checkbox" checked={index >= 0}
+            disabled={disabled || locked || (index < 0 && loadout.length >= me.battleSkillSlotLimit!)}
+            onChange={() => command("/v1/characters/me/skill-loadout", {skills: index >= 0 ? loadout.filter(key => key !== id) : [...loadout, id]})} />
+            <span>{index >= 0 ? `${index + 1}. ` : ""}{name} · Lv. {me.skills[id]}</span></label>;
+        })}</div>
+      </section>}
       <p class="growth-help">{t("character.nextCost", { category: t(`character.${category}`), count: growth.count, cost: growth.label, currency })}</p>
       <div class="attribute-list">{entries.map(({ id, name, icon, description }) => {
         const level = levels[id];

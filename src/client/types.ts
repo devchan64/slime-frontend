@@ -86,6 +86,8 @@ export type State = {
     cpSeasonal: number;
     skills: Record<string, number>;
     skillGrowthBaselines?: Record<string, number>;
+    battleSkillLoadout?: string[];
+    battleSkillSlotLimit?: number;
     skillDefinitions?: Record<string, SkillDefinition>;
     attributes: Record<"body" | "intellect" | "spirit", number>;
     requiresStartSpawn: boolean;

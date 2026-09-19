@@ -43,3 +43,6 @@ intellectName: "Intellect"
 intellectDescription: "The foundation for understanding and judgment"
 spiritName: "Spirit"
 spiritDescription: "The foundation for spiritual activity"
+
+battleSlots: "Battle skill slots"
+battleSlotsHelp: "Choose skills for the battle list. Selection order is saved. Level 0 has no effect."

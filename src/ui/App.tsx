@@ -587,7 +587,7 @@ export function App() {
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
 
 </section>}
-            {battle && <BattlePanel battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
+            {battle && <BattlePanel me={state.me} battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
