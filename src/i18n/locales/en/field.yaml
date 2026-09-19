@@ -8,3 +8,4 @@ flowers: Flowers
 road: Dirt path
 legend: Passable terrain legend
 guidance: Use steps to change elevation · Cliffs, rocks, bushes and lakes block movement
+debt: Negative FP · Field actions are locked until recovery

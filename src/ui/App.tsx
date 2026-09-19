@@ -10,6 +10,7 @@ import { FieldPanel, FieldSelection, type Walking } from "./FieldPanel";
 import { fieldRoute, sameCell as same } from "./fieldNavigation";
 import { TerrainLegend } from "./TerrainLegend";
 import { CharacterSettingsDialog } from "./CharacterSettingsDialog";
+import { CharacterPortrait } from "./CharacterPortrait";
 import { CharacterSettings } from "./CharacterSettings";
 import { CharacterDeparture } from "./CharacterDeparture";
 import { WorldDrawer } from "./WorldDrawer";
@@ -52,6 +53,7 @@ export function App() {
     try {
       await run(async () => {
         if (action === "login") {
+          setCharacterPage("select");
           setWorldGeneration(null);
           setSettingsOpen(false);
           await client.login(user, password);
@@ -68,6 +70,7 @@ export function App() {
       setPasswordVisible(false);
     }
   }
+  const [characterPage, setCharacterPage] = useState<"select" | "create" | "settings">("select");
   const [worldGeneration, setWorldGeneration] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
@@ -185,6 +188,7 @@ export function App() {
       if (transfer) setTransferPending(true);
       try {
         const result = await client.command(path, body);
+        if (path === "/v1/characters/me") { setCharacterPage("select"); setName(""); }
         if (path === "/v1/world/enter") setWorldGeneration(result.state.generation);
         return result;
       }
@@ -201,6 +205,7 @@ export function App() {
       for (let i = 0; i < steps.length; i++) {
         const current = client.state;
         if (stopWalking.current || current?.me.mode !== "FIELD" || current.location.id !== locationId || current.generation !== generation) break;
+        if (current.me.fp !== undefined && current.me.fp < 1) throw new Error("이동에 필요한 FP가 부족합니다. 1칸당 1 FP가 필요합니다.");
         await client.command("/v1/game/moves", { position: steps[i] });
         setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });
         if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, WALK_STEP_DELAY_MS));
@@ -404,33 +409,34 @@ export function App() {
       ) : !inWorld ? (
         <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
-            <div class="eyebrow">{state.me.name ? "CHARACTER SETTINGS" : "NEW EXPLORER"}</div>
-            <h1>{state.me.name ? t('common.settings') : t('common.explorer')}</h1>
-            {!state.me.name ? (
-              <>
-                <label>
-                  {t('common.characterName')}<input
-                    aria-label={t('common.characterName')}
-                    maxLength={20}
-                    value={name}
-                    onInput={(e) => setName(e.currentTarget.value)}
-                  />
-                </label>
-                <button
-                  disabled={disabled || !name.trim()}
-                  onClick={() =>
-                    command("/v1/characters/me", { character_name: name })
-                  }
-                >
-                  캐릭터 생성
-                </button>
-              </>
-            ) : (
-              <>
+            <div class="eyebrow">{characterPage === "select" ? "CHARACTER SELECT" : characterPage === "create" ? "NEW EXPLORER" : "CHARACTER SETTINGS"}</div>
+            <h1>{characterPage === "select" ? "캐릭터 선택" : characterPage === "create" ? "캐릭터 생성" : t('common.settings')}</h1>
+            {characterPage === "select" ? (
+              state.me.name ? <>
+                <article class="character-select-card" aria-label="내 캐릭터">
+                  <CharacterPortrait />
+                  <div><h2>{state.me.name}</h2><p>이 캐릭터로 모험을 이어가세요.</p>
+                    <button class="secondary" disabled={disabled} onClick={() => setCharacterPage("settings")}>캐릭터 설정</button>
+                  </div>
+                </article>
                 <CharacterDeparture me={state.me} disabled={disabled} onEnter={() => command("/v1/world/enter")} />
-                <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
-              </>
-            )}
+                <p class="growth-help">캐릭터 1 / 1 · 계정당 한 명의 캐릭터를 사용할 수 있습니다.</p>
+              </> : <div class="character-select-empty">
+                <p>아직 캐릭터가 없습니다. 첫 모험가를 만들어 주세요.</p>
+                <button disabled={disabled} onClick={() => setCharacterPage("create")}>캐릭터 생성</button>
+                <p class="growth-help">계정당 한 명의 캐릭터를 생성할 수 있습니다.</p>
+              </div>
+            ) : characterPage === "create" && !state.me.name ? (
+              <form onSubmit={event => { event.preventDefault(); if (!disabled && name.trim()) void command("/v1/characters/me", { character_name: name.trim() }); }}>
+                <label>{t('common.characterName')}<input aria-label={t('common.characterName')} maxLength={20} value={name}
+                  disabled={busy} onInput={event => setName(event.currentTarget.value)} autoFocus /></label>
+                <button type="submit" disabled={disabled || !name.trim()}>{busy ? "생성 중…" : "캐릭터 생성"}</button>
+                <button type="button" class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>캐릭터 선택으로</button>
+              </form>
+            ) : <>
+              <button class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>캐릭터 선택으로</button>
+              <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
+            </>}
             {state.me.lastResult && (
               <p class="result">
                 {RESULT_NAMES[state.me.lastResult.result]} · 재화 +
@@ -458,7 +464,7 @@ export function App() {
                 <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
               </nav>
             </div>
-            <div class="map-stage">
+            <div class={`map-stage${battle ? " card battle-map-card" : ""}`} role={battle ? "region" : undefined} aria-label={battle ? "전투 맵 카드" : undefined}>
               <nav class="map-camera-controls" aria-label="맵 화면 조정">              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
               <button class="secondary compact" aria-label="맵 확대" onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
               <button class="secondary compact" aria-label="맵 왼쪽으로 90도 회전" onClick={() => renderer.current?.scene.rotateMap(-1)}>↶</button>
@@ -497,13 +503,13 @@ export function App() {
             </div>
             </details>
             </>}
-            <nav class="world-bottom-menu" aria-label="게임 메뉴">
+            {!battle && <nav class="world-bottom-menu" aria-label="게임 메뉴">
               {settingsAvailable && <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>{t('common.settings')}</button>}
               {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>}
               {!battle && <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>}
               {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{battle ? t('common.battleChat') : t('common.channelChat')}</button>
-            </nav>
+            </nav>}
             {state.me.requiresStartSpawn && <p class="result">정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>}
           </section>
           {drawer && <WorldDrawer title={drawer === "nearby" ? "주변 탐색과 웨이포인트" : drawer === "party" ? "함께 탐색하기" : "대화"} onClose={() => setDrawer(null)}>

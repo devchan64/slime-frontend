@@ -9,6 +9,19 @@ function setup() {
  const controls={state:()=>state,stopped:()=>false,move:async p=>{events.push(['move',p]);state.me.position=p;},reserve:async id=>events.push(['reserve',id]),progress:()=>{},pause:async()=>{}};
  return {state,events,controls};
 }
+test('접근 중 FP가 소진되면 다음 칸과 조우를 요청하지 않는다',async()=>{
+ const {state,events,controls}=setup();state.me.fp=1;
+ const move=controls.move;controls.move=async p=>{await move(p);state.me.fp-=1;};
+ await assert.rejects(approachMonster('slime',controls),/FP가 부족/);
+ assert.deepEqual(events.map(e=>e[0]),['move']);
+});
+test('음수 FP는 조우를 막지만 0 FP에서 인접 조우는 가능하다',async()=>{
+ const {state,events,controls}=setup();state.me.position={column:3,row:1};state.me.fp=-1;
+ await assert.rejects(approachMonster('slime',controls),/FP가 음수/);
+ assert.deepEqual(events,[]);
+ state.me.fp=0;await approachMonster('slime',controls);
+ assert.deepEqual(events,[['reserve','slime']]);
+});
 test('원거리 몬스터 인접 위치에 도착한 후 한 번만 조우 요청',async()=>{
  const {state,events,controls}=setup();await approachMonster('slime',controls);
  assert.deepEqual(state.me.position,{column:3,row:1});

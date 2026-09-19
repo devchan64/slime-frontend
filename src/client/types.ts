@@ -1,4 +1,5 @@
 import type { Surface } from "../game/terrain/elevation";
+import type { SkillDefinition } from "./skillText";
 export type Position = { column: number; row: number };
 export type SizeClass = "small" | "medium" | "large" | "huge";
 export type Appearance = { monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
@@ -83,7 +84,7 @@ export type State = {
     cpSeasonal: number;
     skills: Record<string, number>;
     skillGrowthBaselines?: Record<string, number>;
-    skillDefinitions?: Record<string, { id: string; name: string; icon: string; description: string; initial: boolean }>;
+    skillDefinitions?: Record<string, SkillDefinition>;
     attributes: Record<"body" | "intellect" | "spirit", number>;
     requiresStartSpawn: boolean;
     battleId: string | null;

@@ -14,6 +14,10 @@ const monsterName = (m: State["monsters"][number]) => m.name ?? (m.appearance ? 
 export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason }: Props & {
   walking: Walking | null; walk: () => void; stop: () => void; encounter?: (monsterId: string) => void; disabledReason?: string;
 }) {
+  const debt = state.me.fp !== undefined && state.me.fp < 0;
+  const canStep = state.me.fp === undefined || state.me.fp >= 1;
+  disabled = disabled || debt;
+  if (debt) disabledReason = "FP가 음수여서 필드 행동을 할 수 없습니다. 충전을 기다려 주세요.";
   if (walking) return <section class="field-selection field-walking" aria-label="이동 진행">
     <div class="field-selection-heading"><div><span class="field-kicker">이동 중</span>
       <h3>{walking.stopping ? "이동을 멈추는 중" : "목적지로 이동하고 있어요"}</h3></div>
@@ -53,17 +57,18 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         return <div class="field-target" key={m.id}><div>
           <span class={`field-disposition ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : ""}`}>{m.disposition === "AGGRESSIVE" ? "! 선공 · 접근 주의" : "비선공"}</span>
           <strong>{monsterName(m)}</strong>
-          <small>{m.state !== "AVAILABLE" ? "다른 조우가 진행 중입니다." : distance > 1 ? route ? `인접 위치까지 ${route.length}칸 이동` : "접근 가능한 경로가 없습니다." : "인접 · 바로 조우할 수 있어요"}</small></div>
-          <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter))}
+          <small>{m.state !== "AVAILABLE" ? "다른 조우가 진행 중입니다." : distance > 1 ? route ? `인접 위치까지 ${route.length}칸 · ${route.length} FP` : "접근 가능한 경로가 없습니다." : "인접 · 바로 조우할 수 있어요"}</small></div>
+          <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? "접근 후 조우" : "조우 시작"}</button></div>;
       })}
       {!monsters.length && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
         {blocked ? "바위·수풀·물은 통과할 수 없습니다. 다른 타일을 선택하세요." : here ? gate ? "연결 지점에 도착했습니다. 다음 맵으로 이동할 수 있어요." : "현재 서 있는 위치입니다. 다른 타일을 선택하세요." : path ? gate ? `연결 지점까지 ${path.length}칸 · 도착 후 맵 이동을 선택하세요.` : `걸어서 ${path.length}칸 · 길과 계단을 따라 이동합니다.` : "현재 위치에서 갈 수 있는 경로가 없습니다. 다른 지점을 선택하세요."}
       </p>}
+      {!canStep && !debt && !here && <p class="field-unavailable" role="status">이동에는 1칸당 1 FP가 필요합니다. 충전을 기다려 주세요.</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
       <details class="tile-description"><summary>좌표·지형 상세</summary><small>좌표 {selected.column}, {selected.row} · 높이 {heightAt(selected, state.map)}</small></details>
     </div>
-    {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length} onClick={walk}>{gate ? "연결 지점으로 이동" : "여기로 이동"}{path ? ` · ${path.length}칸` : ""}</button>}
+    {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length || !canStep} onClick={walk}>{gate ? "연결 지점으로 이동" : "여기로 이동"}{path ? ` · ${path.length}칸 / ${path.length} FP` : ""}</button>}
       {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{gate.targetName ?? gate.target}으로 이동 ↗</button>}
     </div>}
   </section>;
@@ -81,7 +86,7 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
   return <section class="card field-panel">
     {reservation ? <div class="field-reservation" aria-label="조우 준비">
       <h3>조우 준비</h3><p role="status">준비 {reservation.ready.length}/{reservation.members.length} · 남은 시간 {Math.max(0, Math.ceil(reservation.deadline - now))}초</p>
-      <div class="actions"><button disabled={disabled || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? "동료 준비 대기" : "준비 완료"}</button>
+      <div class="actions"><button disabled={disabled || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? "동료 준비 대기" : "준비 완료"}</button>
       <button class="secondary" disabled={disabled} onClick={() => command("/v1/game/encounters/cancel", { reservationId: reservation.id })}>예약 취소</button></div>
     </div> : <><h3>주변 탐색</h3><p class="field-subtitle">가까운 몬스터부터 표시합니다. 선택하면 맵에서 확인할 수 있습니다.</p></>}
     {monsters.slice(0, NEARBY_LIMIT).map(renderMonster)}

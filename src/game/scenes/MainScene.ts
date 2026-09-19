@@ -1,6 +1,5 @@
 import { toView, fromView, rotatedSurface, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
-import { healthDisplay } from "../terrain/healthDisplay";
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, meadowTile, TILE_W, TILE_H } from "../terrain/meadow";
@@ -56,7 +55,6 @@ const MOVE_OVERLAY = {
   arrivalInset: 0.72, arrivalWidth: 2, targetWidth: 4, selectedWidth: 4,
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
-const HEALTH_BAR = { width: 36, height: 5, offset: 5, background: 0x10202a };
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
   private selected: Position | null = null;
@@ -473,12 +471,6 @@ export class MainScene extends Phaser.Scene {
       annotation.lineStyle(2, active ? COLORS.player : COLORS.selected, .9);
       annotation.strokeEllipse(p.x, p.y, TILE_W * .55, TILE_H * .55);
     }
-    const display = health ? healthDisplay(health, this.state?.me.skills?.monster_lore ?? 0) : null;
-    if (display?.ratio !== null && display?.ratio !== undefined) {
-      const y=p.y-height-HEALTH_BAR.offset;
-      annotation.fillStyle(HEALTH_BAR.background);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width,HEALTH_BAR.height);
-      annotation.fillStyle(color);annotation.fillRect(p.x-HEALTH_BAR.width/2,y,HEALTH_BAR.width*display.ratio,HEALTH_BAR.height);
-    }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
       const badgeY=p.y-height-TURN_BADGE_OFFSET;
@@ -491,7 +483,6 @@ export class MainScene extends Phaser.Scene {
         fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
-      if (active || selected) this.add.text(p.x, p.y + LABEL_OFFSET, `${label} · ${display?.label ?? ""}`, TEXT).setOrigin(CENTER, 0).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {
       this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     }
