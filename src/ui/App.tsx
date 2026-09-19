@@ -580,7 +580,7 @@ export function App() {
               <button
                 class="secondary compact"
                 aria-label={t('app.resetView')} title={t('app.resetView')}
-                onClick={() => renderer.current?.scene.focus()}
+                onClick={() => renderer.current?.scene.resetCameraView()}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="6" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4" /><circle cx="12" cy="12" r="1" /></svg>
               </button>

@@ -63,6 +63,7 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
+  private useDefaultTileScale = false;
   private fieldMotion = new FieldMotion();
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
@@ -257,6 +258,10 @@ export class MainScene extends Phaser.Scene {
     for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom));
     this.waypointZoom = zoom;
   }
+  resetCameraView() {
+    this.useDefaultTileScale = true;
+    this.focus();
+  }
   focus() {
     if (this.state) {
       const battle = this.state.battle;
@@ -283,6 +288,7 @@ export class MainScene extends Phaser.Scene {
         });
         this.cameras.main.setZoom(fitActorZoom(this.cameras.main.zoom,point,this.cameras.main,bounds));
       }
+      if (this.useDefaultTileScale) this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
       this.cameras.main.centerOn(point.x, point.y);
       this.syncActorViewport();
       this.animateFieldActors();
@@ -457,6 +463,7 @@ export class MainScene extends Phaser.Scene {
     const mapKey = s.battle?.id || s.map.id;
     if (this.previousMap !== mapKey) {
       this.previousMap = mapKey;
+      this.useDefaultTileScale = false;
       this.focus();
     }
   }
