@@ -1278,6 +1278,14 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .field-selection-compact .field-route-summary { margin: 4px 0; font-size: 12px; }
 .field-location-help { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 6px; }
 .field-help-card .field-location-help p { margin: 0; font-size: 12px; }
+.field-help-card .field-help-context { color: var(--text); }
+.field-help-card .field-help-context p { margin: 0; font-size: 12px; line-height: 1.5; }
+.field-help-card .field-location-help { margin: 0; }
+.field-help-controls { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; padding: 8px 0; margin: 8px 0 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; line-height: 1.5; }
+.field-help-card .terrain-legend { justify-content: flex-start; gap: 4px 12px; padding: 0; background: transparent; }
+.field-help-card .terrain-legend b { font-size: 14px; }
+.field-help-card .terrain-legend > span { gap: 4px; }
+.field-help-card .field-help-position { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
 .monster-name.is-aggressive { color: #ff8d77; }
 .monster-name.is-passive { color: #e6c789; }
 .battle-control-card .battle-button-toolbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: stretch; gap: var(--battle-button-gap); }

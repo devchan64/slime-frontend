@@ -75,3 +75,9 @@ bagUnavailable: "가방 정보를 불러오지 못했습니다. 다시 연결해
 bagWeight: "확인된 무게 {weight}g / 소지 기준 {capacity}g"
 bagUnknownWeight: "소지품 {count}개의 무게가 아직 정해지지 않았습니다."
 itemWeight: "개당 {weight}g"
+
+fieldHelpSelect: "맵이나 주변 숏컷에서 목적지를 선택하세요. 이동·조우는 위 조작 카드에서 실행합니다."
+fieldHelpEncounter: "조작 카드에서 접근·조우를 선택하세요. 이름 색은 선공 여부이며, 위험도는 정찰해야 알 수 있습니다."
+fieldHelpSelection: "선택 · 터치/클릭 또는 맵 초점 후 방향키"
+fieldHelpCamera: "시점 · 드래그 / 확대 · 휠·± / 회전 · ↶↷"
+fieldHelpReset: "조준점 · 내 위치와 기본 배율로 복귀"

@@ -14,9 +14,9 @@ import { approachMonster } from "./encounterNavigation";
 import { ChatPanel } from "./ChatPanel";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useMinimumLoading } from "./useMinimumLoading";
-import { FieldPanel, FieldSelection, FieldEventShortcuts, FieldLocationHelp, type Walking } from "./FieldPanel";
+import { FieldPanel, FieldSelection, FieldEventShortcuts, type Walking } from "./FieldPanel";
 import { fieldRoute, sameCell as same } from "./fieldNavigation";
-import { TerrainLegend } from "./TerrainLegend";
+import { FieldMapHelp } from "./FieldMapHelp";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { CharacterSettings } from "./CharacterSettings";
 import { CharacterDeparture } from "./CharacterDeparture";
@@ -604,21 +604,7 @@ export function App() {
               disabled={disabled || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
-            <section class="card field-help-card" aria-label={t('app.fieldHelp')}><FieldLocationHelp state={state} selected={selected} /><TerrainLegend /><p>{t('app.fieldControlsHelp')}</p>
-            <div class="map-caption">
-              <span>
-                {battle
-                  ? t('app.battleLegend')
-                  : t('app.position',{column:state.me.position.column,row:state.me.position.row,status:t(state.me.mode === 'RESERVED' ? 'app.reserved' : 'app.exploring')})}
-              </span>
-              <span>
-                {selected
-                  ? t(state.map.blocked.some(p => same(p,selected)) ? 'app.selectedBlocked' : 'app.selectedTile',{column:selected.column,row:selected.row})
-                  : t('app.selectCell')}{" "}
-                {t('app.keyboardHelp')}
-              </span>
-            </div>
-            </section>
+            <FieldMapHelp currentFieldState={state} selectedFieldPosition={selected} />
             </>}
             {state.me.requiresStartSpawn && <p class="result">{t('app.settlementHelp')}</p>}
           </section>
