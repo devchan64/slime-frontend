@@ -3,8 +3,7 @@ import { TILE_W, TILE_H, type TerrainKind } from "./meadow";
 
 const PATCH = { count: 3, inset: .64, seedColumn: 137, seedRow: 269, seedItem: 71 };
 const GRASS = { dark: 0x365d34, light: 0xa5bb64, width: 1.5, height: 7, spread: 4 };
-const DEW = { water: 0x366f78, rim: 0x95d9d4, width: 24, height: 9, alpha: .55,
-  shineWidth: 10, shineHeight: 2, offset: 2 };
+const DEW = { stem: 0x4f7650, shine: 0xd9fff0, radius: 1.2, height: 5, spread: 3 };
 const FLOWER = { stem: 0x365e3b, petals: [0xffefd1, 0xf0bdcf, 0xe9d682], center: 0x9b6b2d,
   radius: 3, centerRadius: 1.1, height: 5, spread: 5 };
 const FLOWER_HEADS = [[-1, 0], [0, -.6], [1, .3]] as const;
@@ -24,13 +23,13 @@ export function drawTerrainDetails(g: Phaser.GameObjects.Graphics, kind: Terrain
     const u = (fraction(seed) - .5) * PATCH.inset;
     const v = (fraction(seed + PATCH.seedItem) - .5) * PATCH.inset;
     const px = x + (u - v) * TILE_W / 2, py = y + (u + v) * TILE_H / 2;
-    if (kind === "dew" && i === 0) {
-      g.fillStyle(DEW.water, DEW.alpha);
-      g.fillEllipse(px, py, DEW.width, DEW.height);
-      g.lineStyle(1, DEW.rim, .65);
-      g.strokeEllipse(px, py, DEW.width, DEW.height);
-      g.fillStyle(DEW.rim, .9);
-      g.fillEllipse(px, py - DEW.offset, DEW.shineWidth, DEW.shineHeight);
+    if (kind === "dew") {
+      g.lineStyle(GRASS.width, DEW.stem, .95);
+      g.lineBetween(px, py, px - DEW.spread, py - DEW.height);
+      g.lineBetween(px, py, px + DEW.spread, py - DEW.height);
+      g.fillStyle(DEW.shine, .95);
+      g.fillCircle(px - DEW.spread, py - DEW.height, DEW.radius);
+      g.fillCircle(px + DEW.spread, py - DEW.height, DEW.radius);
     } else if (kind === "flowers") {
       for (const [dx, dy] of FLOWER_HEADS) {
         const fx = px + dx * FLOWER.spread, fy = py + dy * FLOWER.spread;

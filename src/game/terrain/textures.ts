@@ -1,12 +1,12 @@
 import Phaser from "phaser";
 import grass from "../../assets/terrain/grass.webp";
-import dew from "../../assets/terrain/dew.webp";
 import road from "../../assets/terrain/road.webp";
 import flowers from "../../assets/terrain/flowers.webp";
 import { TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 
 export const TERRAIN_ATLAS = "meadow-terrain";
-const SOURCES = { grass, dew, road, flowers };
+// 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
+const SOURCES = { grass, dew: grass, road, flowers };
 const FRAME_W = TEXTURE_SIZE;
 const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;
