@@ -1,3 +1,4 @@
+import { fieldMovementEstimate } from "./terrainMovementCost";
 import { localizedMonster } from '../client/monsterText';
 import { heightAt } from "../game/terrain/elevation";
 import { t, useTranslation } from '../i18n';
@@ -81,17 +82,18 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         const route = encounterRoute(state.me.position, m.position, state.map);
         return <div class="field-target" key={m.id}><div>
           <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
-          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
+          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? t('field.terrainFpPreview',fieldMovementEstimate(state.map,route)) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
           <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
       })}
       {!monsters.length && (blocked || here || !path) && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
         {blocked ? t('field.blockedTerrain') : here ? gate ? t('field.arrivalCompact') : t('field.currentPosition') : t('field.noApproach')}
       </p>}
+      {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{t('field.terrainFpPreview',fieldMovementEstimate(state.map,path))}</p> : null}
       {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
     </div>
-    {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? t('field.moveCost',{count:path.length}) : ""}</button>}
+    {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
       {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
     </div>}
   </section>;

@@ -1,3 +1,4 @@
+import { findExpectedFieldRoute } from "./terrainMovementCost";
 import { canStep } from "../game/terrain/elevation";
 import type { Position, State } from "../client/types";
 
@@ -11,6 +12,7 @@ export function fieldRoute(start: Position, end: Position, map: State["map"]): P
 }
 
 function routeToAny(start: Position, ends: Position[], map: State['map']): Position[] | null {
+  if(map.movementCosts)return findExpectedFieldRoute(start,ends,map);
   const valid = (p: Position) => Number.isInteger(p.column) && Number.isInteger(p.row) && p.column >= 0 && p.row >= 0 && p.column < map.columns && p.row < map.rows;
   const blocked = new Set(map.blocked.map(key));
   if (!valid(start)) return null;

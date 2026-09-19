@@ -12,6 +12,8 @@ export type TerrainMap = Surface & {
   startPoint: Position;
   blocked: Position[];
   connections: Waypoint[];
+  terrainRows?: string[];
+  terrainCodes?: Record<string,string>;
 };
 
 export const TILE_W = 64;
@@ -40,6 +42,13 @@ export const cellKey = (p: Position) => `${p.column},${p.row}`;
 
 // 서버의 통행 제한을 유지하며 시작점·출구·초원 안쪽을 연결한다.
 export function buildMeadowRoad(map: TerrainMap): Set<string> {
+  if(map.terrainRows){
+    const serverRoadCells=new Set<string>();
+    map.terrainRows.forEach((terrainRowString,terrainRowIndex)=>[...terrainRowString].forEach((terrainCodeValue,terrainColumnIndex)=>{
+      if(map.terrainCodes?.[terrainCodeValue]==='road')serverRoadCells.add(`${terrainColumnIndex},${terrainRowIndex}`);
+    }));
+    return serverRoadCells;
+  }
   const blocked = new Set(map.blocked.map(cellKey));
   const valid = (p: Position) => p.column >= 0 && p.row >= 0 &&
     p.column < map.columns && p.row < map.rows && !blocked.has(cellKey(p));
@@ -88,4 +97,12 @@ export function meadowTile(column: number, row: number, road: Set<string>): Terr
   if (road.has(`${column},${row}`)) return "road";
   if (patchNoise(column, row, FLOWER_PATCH_SCALE, 91) > 0.67) return "flowers";
   return patchNoise(column, row, DEW_PATCH_SCALE, 317) > 0.55 ? "dew" : "grass";
+}
+
+export function fieldTerrainAt(fieldMapDefinition:TerrainMap,terrainColumnIndex:number,terrainRowIndex:number,fieldRoadCells:Set<string>):TerrainKind {
+  if(!fieldMapDefinition.terrainRows)return meadowTile(terrainColumnIndex,terrainRowIndex,fieldRoadCells);
+  const terrainCodeValue=fieldMapDefinition.terrainRows[terrainRowIndex]?.[terrainColumnIndex];
+  const terrainKindValue=fieldMapDefinition.terrainCodes?.[terrainCodeValue];
+  if(!TERRAIN_KINDS.includes(terrainKindValue as TerrainKind))throw new Error('필드 표시 타일이 누락되었거나 지원하지 않는 종류입니다.');
+  return terrainKindValue as TerrainKind;
 }

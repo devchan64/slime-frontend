@@ -8,7 +8,7 @@ import { elevationTileAt, type Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
-import { buildMeadowRoad, meadowTile, TILE_W, TILE_H } from "../terrain/meadow";
+import { buildMeadowRoad, fieldTerrainAt, TILE_W, TILE_H } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawBlockedTerrain } from "../terrain/scenery";
@@ -500,7 +500,7 @@ export class MainScene extends Phaser.Scene {
         grid.lineStyle(1,COLORS.edge,.5);
         grid.strokePoints(this.points([p.x,p.y-TILE_H/2,p.x+TILE_W/2,p.y,p.x,p.y+TILE_H/2,p.x-TILE_W/2,p.y]),true);
       }
-      const terrain=field ? cells.get(`${column},${row}`) : meadowTile(column,row,road);
+      const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
       const kind=terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);

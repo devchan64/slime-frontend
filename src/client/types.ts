@@ -105,6 +105,9 @@ export type State = {
     rows: number;
     startPoint: Position;
     safeRadius: number;
+    terrainRows?: string[];
+    terrainCodes?: Record<string, string>;
+    movementCosts?: {version:number;rows:Array<{tileId:string;fp:{baseCost:number;extraChanceBasisPoints:number;extraCost:number}|null}>};
     blocked: Position[];
     connections: (Position & {
       id: string; target: string; name?: string;
