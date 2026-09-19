@@ -131,9 +131,9 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
         disabled={disabled || !own || (value === "MOVE" && ((!apBattle && battle.moved) || battle.tactics.moves.length === 0)) || (value === "ATTACK" && ((!apBattle && battle.acted) || battle.tactics.attacks.length === 0))}
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
         onClick={() => chooseMode(value)}>{t(LABELS[value])}</button>)}
-    </div>
     <div class="battle-skill-column"><button class={skillsOpen ? "" : "secondary"} disabled={disabled || !own}
       aria-expanded={skillsOpen} aria-controls="battle-skill-selection" onClick={() => { setSkillsOpen(!skillsOpen); setConfirming(false); }}>{t("battle.skills")}</button></div>
+    </div>
     <div class="battle-end-column"><button class={`${mode === "END_TURN" ? "" : "secondary"}${apExhausted ? " battle-end-suggested" : ""}`}
       aria-pressed={mode === "END_TURN"} disabled={disabled || !own} onClick={() => chooseMode("END_TURN")}>{t('battle.endTurn')}</button></div>
     <div class="battle-submit-row">

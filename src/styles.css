@@ -1281,7 +1281,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .monster-name.is-aggressive { color: #ff8d77; }
 .monster-name.is-passive { color: #e6c789; }
 .battle-control-card .battle-button-toolbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: stretch; gap: var(--battle-button-gap); }
-.battle-control-card .battle-mode-buttons { display: grid; grid-column: 1 / 3; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--battle-button-gap); }
+.battle-control-card .battle-mode-buttons { display: grid; grid-column: 1 / 4; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #0a2329; }
 .battle-control-card .battle-submit-row { display: flex; flex-direction: column; grid-column: 5; margin-left: 0; gap: var(--battle-button-gap); }
 .battle-control-card :is(.battle-mode-buttons, .battle-submit-row) > button { width: 100%; min-width: 0; max-width: 100%; min-height: var(--battle-button-height); margin: 0; padding: 6px 4px; border-radius: 6px; font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
 .battle-skill-column { grid-column: 3; display: flex; min-width: 0; }
@@ -1314,3 +1314,10 @@ body.battle-preview-shell .preview-hud { display: contents; }
 
 .field-resource-values { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 4px 12px; }
 .field-resource-values strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* 이동·공격·스킬은 연속된 행동 선택 그룹으로 표시한다. */
+.battle-control-card .battle-mode-buttons > button,
+.battle-control-card .battle-mode-buttons .battle-skill-column > button { border: 0; border-radius: 0; }
+.battle-control-card .battle-mode-buttons > button + button,
+.battle-control-card .battle-mode-buttons .battle-skill-column { border-left: 1px solid var(--border); }
+.battle-control-card .battle-mode-buttons button:focus-visible { outline-offset: -3px; }
