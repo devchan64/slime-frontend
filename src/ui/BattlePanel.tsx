@@ -109,6 +109,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
   const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : true);
+  const actionConfirmationVisible = !surrenderDialogOpen && confirming && valid && mode !== null;
   const slottedSkill = selectedSkill && (me.battleSkillLoadout ?? []).includes(selectedSkill) ? selectedSkill : null;
   const skillAction = availableSkillAction(battle, actor, slottedSkill, slottedSkill ? me.skills[slottedSkill] : 0);
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
@@ -127,7 +128,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     <div class="battle-button-toolbar">
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
       {(["MOVE", "ATTACK"] as Mode[]).map(value => <button
-        class={`${mode === value ? "" : "secondary"}${apExhausted && value === "END_TURN" ? " battle-end-suggested" : ""}`} aria-pressed={mode === value}
+        class={actionConfirmationVisible && mode === value ? "" : "secondary"} aria-pressed={actionConfirmationVisible && mode === value}
         disabled={disabled || !own || (value === "MOVE" && ((!apBattle && battle.moved) || battle.tactics.moves.length === 0)) || (value === "ATTACK" && ((!apBattle && battle.acted) || battle.tactics.attacks.length === 0))}
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
         onClick={() => chooseMode(value)}>{t(LABELS[value])}</button>)}
@@ -161,7 +162,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
       <div class="battle-target-heading"><h4>{t('battle.targetCount',{count:battle.tactics.attacks.length})}</h4>
         {attack && target && <div class="battle-target-actions">
           <button class="secondary compact" onClick={() => { setConfirming(false); select(null); }}>{t('battle.clearSelection')}</button>
-          <button class="compact" aria-haspopup="dialog" disabled={disabled || !own || (!apBattle && battle.acted)}
+          <button class={`compact${actionConfirmationVisible && mode === "ATTACK" ? "" : " secondary"}`} aria-haspopup="dialog" disabled={disabled || !own || (!apBattle && battle.acted)}
             onClick={() => chooseTarget(target.position)}>{t('battle.attack')}</button>
         </div>}
       </div>
@@ -242,7 +243,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     title={t('battle.confirmSurrender')} summary={t('battle.surrenderConfirmation')}
     disabled={disabled} close={() => setSurrenderDialogOpen(false)}
     confirm={() => { setSurrenderDialogOpen(false); execute("SURRENDER"); }} />}
-  {!surrenderDialogOpen && confirming && valid && mode && <BattleConfirmation
+  {actionConfirmationVisible && mode && <BattleConfirmation
     title={t('battle.confirmAction',{action:t(LABELS[mode])})}
     summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')}) + (move.expectedApCost !== undefined ? ' · ' + t('battle.terrainApPreview',{base:move.apCost!,expected:move.expectedApCost,max:move.maximumApCost!}) : move.apCost !== undefined ? ' · ' + t('battle.apPreview',{cost:move.apCost,remaining:move.apAfter!}) : '')
       : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}` + (attack.apCost !== undefined && current?.ap !== undefined ? ' · ' + t('battle.apPreview',{cost:attack.apCost,remaining:current.ap-attack.apCost}) : '')
