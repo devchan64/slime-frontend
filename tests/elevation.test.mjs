@@ -7,7 +7,7 @@ const moduleAt=async path=>{
  return import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 };
 const {project,pickSurface,canStep,cliffFaces}=await moduleAt('src/game/terrain/elevation.ts');
-const {fieldRoute}=await moduleAt('src/ui/fieldNavigation.ts');
+const {fieldRoute,encounterRoute,fieldDistance}=await moduleAt('src/ui/fieldNavigation.ts');
 const {buildMeadowRoad}=await moduleAt('src/game/terrain/meadow.ts');
 const fixtures=JSON.parse(await readFile('src/dev/battlefield-fixtures.json','utf8'));
 for(const state of fixtures)test(`${state.battle.field.name}: 지면 선택과 계단 경로`,()=>{
@@ -44,4 +44,19 @@ test('필드 세 길은 높이가 다른 지면에서도 모든 목적지에 이
 test('고도 없는 기존 평면 지면 선택과 이동을 유지한다',()=>{
  const d={columns:12,rows:10};const p={column:5,row:4};const s=project(p,d);
  assert.deepEqual(pickSurface(s.x,s.y,d),p);assert.ok(canStep(p,{column:6,row:4},d));
+});
+
+test('멀리 있는 몬스터의 칸을 통과하지 않고 가장 가까운 인접 칸으로 이동한다',()=>{
+ const map={columns:6,rows:5,blocked:[]}; const target={column:4,row:2};
+ const route=encounterRoute({column:0,row:2},target,map);
+ assert.equal(route.length,3);
+ assert.equal(fieldDistance(route.at(-1),target),1);
+ assert.ok(route.every(p=>p.column!==target.column||p.row!==target.row));
+ assert.deepEqual(encounterRoute({column:3,row:2},target,map),[]);
+});
+test('몬스터 접근 경로가 막혔거나 위치가 바뀌면 현재 위치로 다시 판단한다',()=>{
+ const map={columns:5,rows:5,blocked:[{column:1,row:2},{column:3,row:2},{column:2,row:1},{column:2,row:3}]};
+ assert.equal(encounterRoute({column:0,row:0},{column:2,row:2},map),null);
+ const moved=encounterRoute({column:0,row:0},{column:4,row:0},map);
+ assert.equal(fieldDistance(moved.at(-1),{column:4,row:0}),1);
 });

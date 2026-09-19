@@ -33,3 +33,13 @@ export function fieldRoute(start: Position, end: Position, map: State["map"]): P
   }
   return null;
 }
+
+// 몬스터가 있는 칸을 통과하지 않고 조우 가능한 인접 칸까지 접근한다.
+export function encounterRoute(start: Position, target: Position, map: State["map"]): Position[] | null {
+  if (fieldDistance(start, target) <= 1) return [];
+  const approachMap = {...map, blocked: [...map.blocked, target]};
+  const routes = DIRECTIONS.map(([dc,dr]) => fieldRoute(start, {column:target.column+dc,row:target.row+dr}, approachMap))
+    .filter((route): route is Position[] => route !== null);
+  routes.sort((a,b) => a.length-b.length);
+  return routes[0] ?? null;
+}

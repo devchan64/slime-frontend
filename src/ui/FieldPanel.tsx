@@ -1,6 +1,6 @@
 import { heightAt } from "../game/terrain/elevation";
 import type { Position, State } from "../client/types";
-import { fieldDistance, fieldRoute, sameCell } from "./fieldNavigation";
+import { encounterRoute, fieldDistance, fieldRoute, sameCell } from "./fieldNavigation";
 
 type Props = {
   state: State; selected: Position | null; disabled: boolean; now: number;
@@ -11,8 +11,8 @@ export type Walking = { completed: number; total: number; stopping: boolean };
 const NEARBY_LIMIT = 4;
 const monsterName = (m: State["monsters"][number]) => m.name ?? (m.appearance ? { slime: "슬라임", beast: "야수", giant: "거인" }[m.appearance] : "몬스터");
 
-export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop }: Props & {
-  walking: Walking | null; walk: () => void; stop: () => void;
+export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter }: Props & {
+  walking: Walking | null; walk: () => void; stop: () => void; encounter?: (monsterId: string) => void;
 }) {
   if (walking) return <section class="field-selection" aria-label="이동 진행">
     <div><strong>{walking.stopping ? "이동을 멈추는 중" : "선택한 위치로 이동 중"}</strong>
@@ -44,10 +44,11 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
     <div class="field-command-body">
     {monsters.map(m => {
       const distance = fieldDistance(state.me.position, m.position);
+      const route = encounterRoute(state.me.position, m.position, state.map);
       return <div class="field-target" key={m.id}><div><strong>{monsterName(m)}</strong>
-        <small>{m.disposition === "AGGRESSIVE" ? "선공 · 접근 시 주의" : "비선공"} · {m.state !== "AVAILABLE" ? "현재 조우 불가" : distance > 1 ? "1칸 이내로 접근하면 조우 가능" : "조우 가능"}</small></div>
-        <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || distance > 1}
-          onClick={() => command("/v1/game/encounters/reserve", { monsterId: m.id })}>조우 시작</button></div>;
+        <small>{m.disposition === "AGGRESSIVE" ? "선공 · 접근 시 주의" : "비선공"} · {m.state !== "AVAILABLE" ? "현재 조우 불가" : distance > 1 ? route ? `인접 위치까지 ${route.length}칸 이동` : "접근 경로 없음" : "조우 가능"}</small></div>
+        <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter))}
+          onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? "접근 후 조우" : "조우 시작"}</button></div>;
     })}
     <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length} onClick={walk}>여기로 이동{path ? ` · ${path.length}칸` : ""}</button>}
     {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{gate.targetName ?? gate.target}으로 이동 ↗</button>}

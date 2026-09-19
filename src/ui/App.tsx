@@ -1,3 +1,4 @@
+import { approachMonster } from "./encounterNavigation";
 import { ChatPanel } from "./ChatPanel";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useMinimumLoading } from "./useMinimumLoading";
@@ -12,6 +13,7 @@ import { Client } from "../client/api";
 import { registrationIssue } from "../client/credentials";
 import type { Position, State } from "../client/types";
 import type { createGame } from "../game/createGame";
+const WALK_STEP_DELAY_MS = 270;
 const loginIllustration = new URL("../assets/login/slime-welcome-v4.png", import.meta.url).href;
 const RESULT_NAMES: Record<string, string> = {
   WIN: "승리",
@@ -165,8 +167,24 @@ export function App() {
         if (stopWalking.current || current?.me.mode !== "FIELD" || current.location.id !== locationId || current.generation !== generation) break;
         await client.command("/v1/game/moves", { position: steps[i] });
         setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });
-        if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, 270));
+        if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, WALK_STEP_DELAY_MS));
       }
+    } finally { setWalking(null); }
+  }
+  async function approachEncounter(monsterId: string) {
+    stopWalking.current = false;
+    try {
+      await approachMonster(monsterId, {
+        state: () => client.state, stopped: () => stopWalking.current,
+        move: position => client.command("/v1/game/moves", {position}),
+        reserve: async id => {
+          setTransferPending(true);
+          try { await client.command("/v1/game/encounters/reserve", {monsterId:id}); }
+          finally { setTransferPending(false); }
+        },
+        progress: (completed,total) => setWalking({completed,total,stopping:false}),
+        pause: () => new Promise(resolve => setTimeout(resolve,WALK_STEP_DELAY_MS)),
+      });
     } finally { setWalking(null); }
   }
   const selectField = (position: Position | null) => {
@@ -443,7 +461,7 @@ export function App() {
             </div>
             </details></div>
             {!battle && <div class="field-command-dock">              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
-                select={selectField} command={command} walking={walking} walk={() => void run(walk)}
+                select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
 </div>}
             {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
