@@ -3,6 +3,7 @@ import { TILE_H, type Position } from "./meadow";
 
 const ROAD = { shoulder: 0x92866a, surface: 0xcbb88d, center: 0xdfcca0,
   width: TILE_H * 0.52, shoulderWidth: TILE_H * 0.72, centerWidth: TILE_H * 0.12 };
+const GRAVEL = { dark: 0x88734f, light: 0xf0ddae, width: 3, height: 1.8, spread: 6, offset: 4 };
 const EDGES = [[1, 0], [0, 1]] as const;
 const NEIGHBORS = [[1, 0], [0, 1], [-1, 0], [0, -1]] as const;
 const SMOOTH = { center: 0.5, neighbor: 0.25 };
@@ -40,4 +41,13 @@ export function drawRoad(g: Phaser.GameObjects.Graphics, road: Set<string>,
       }
     }
   }
+  for (const [key, p] of centers) {
+    const [column, row] = key.split(",").map(Number);
+    const offset = (column + row) % 2 ? GRAVEL.offset : -GRAVEL.offset;
+    g.fillStyle(GRAVEL.dark, .8);
+    g.fillEllipse(p.x + offset, p.y, GRAVEL.width, GRAVEL.height);
+    g.fillStyle(GRAVEL.light, .85);
+    g.fillEllipse(p.x - offset, p.y + GRAVEL.spread / 2, GRAVEL.width, GRAVEL.height);
+  }
+
 }

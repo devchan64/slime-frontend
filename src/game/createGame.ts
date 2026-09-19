@@ -1,22 +1,21 @@
 import Phaser from "phaser";
 import { MainScene } from "./scenes/MainScene";
 import type { Position } from "../client/types";
-const WIDTH = 1100,
-  HEIGHT = 650;
 export function createGame(
   parent: HTMLElement,
   onSelect: (p: Position) => void,
   onReady: (location: string) => void,
   onFailure: (message: string) => void,
 ) {
+  if (parent.clientWidth <= 0 || parent.clientHeight <= 0) throw new Error("맵 표시 영역의 크기가 올바르지 않습니다.");
   const scene = new MainScene(onSelect, onReady, onFailure);
   const game = new Phaser.Game({
     type: Phaser.WEBGL,
     parent,
     backgroundColor: "#0d1d28",
-    width: WIDTH,
-    height: HEIGHT,
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    width: parent.clientWidth,
+    height: parent.clientHeight,
+    scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
     scene: [scene],
     render: { antialias: true },
   });

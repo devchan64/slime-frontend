@@ -1,3 +1,4 @@
+import {canStep, type Surface} from "./elevation";
 export type Position = { column: number; row: number };
 export type Waypoint = Position & {
   id: string; target: string; name?: string;
@@ -5,7 +6,7 @@ export type Waypoint = Position & {
   direction?: "west" | "east" | "north" | "south";
   targetWaypointId?: string;
 };
-export type TerrainMap = {
+export type TerrainMap = Surface & {
   columns: number;
   rows: number;
   startPoint: Position;
@@ -61,7 +62,7 @@ export function buildMeadowRoad(map: TerrainMap): Set<string> {
       for (const [dc, dr] of DIRECTIONS) {
         const next = { column: p.column + dc, row: p.row + dr };
         const cost = costs.get(cellKey(p))! + 1;
-        if (valid(next) && (!costs.has(cellKey(next)) || cost < costs.get(cellKey(next))!)) {
+        if (valid(next) && canStep(p,next,map) && (!costs.has(cellKey(next)) || cost < costs.get(cellKey(next))!)) {
           parents.set(cellKey(next), p);
           costs.set(cellKey(next), cost);
           queue.push(next);

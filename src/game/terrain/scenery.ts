@@ -24,15 +24,16 @@ const points = (shape: number[][], x: number, y: number) => shape.map(([dx, dy])
 
 // 그림은 서버 blocked 좌표에만 배치한다. 시각 장식으로 통행 판정을 추론하지 않는다.
 export function drawBlockedTerrain(g: Phaser.GameObjects.Graphics, p: Position,
-  x: number, y: number, mapId: string) {
-  if (mapId === "mist-lake") {
+  x: number, y: number, mapId: string, obstacleKind?: "rock" | "thicket" | "water") {
+  if (obstacleKind === "water" || (!obstacleKind && mapId === "mist-lake")) {
     g.fillStyle(0x578e9b, 0.92);
     g.fillPoints(points(TILE_DIAMOND, x, y), true);
     g.lineStyle(STYLE.lineWidth, 0xb8e2da, 0.4);
     g.lineBetween(x - STYLE.shadowWidth / 4, y, x + STYLE.shadowWidth / 4, y);
     return;
   }
-  const thicket = mapId === "grove" || (mapId === "meadow" && p.row > THICKET_START_ROW);
+  const thicket = obstacleKind ? obstacleKind === "thicket" :
+    mapId === "grove" || (mapId === "meadow" && p.row > THICKET_START_ROW);
   g.fillStyle(STYLE.earth, STYLE.baseAlpha);
   g.fillPoints(points(TILE_DIAMOND, x, y), true);
   g.lineStyle(STYLE.lineWidth, STYLE.outline, STYLE.baseAlpha);

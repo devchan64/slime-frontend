@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useMinimumLoading } from "./useMinimumLoading";
+import { FieldPanel, FieldSelection, type Walking } from "./FieldPanel";
+import { fieldRoute, sameCell as same } from "./fieldNavigation";
+import { TerrainLegend } from "./TerrainLegend";
 import { CharacterSettingsDialog } from "./CharacterSettingsDialog";
 import { CharacterSettings } from "./CharacterSettings";
+import { WorldDrawer } from "./WorldDrawer";
 import { BattlePanel } from "./BattlePanel";
 import { Client } from "../client/api";
 import { registrationIssue } from "../client/credentials";
@@ -16,41 +20,6 @@ const RESULT_NAMES: Record<string, string> = {
   PREPARATION_FAILED: "전투 준비 시간 초과 · 필드 복귀",
 };
 const client = new Client();
-const same = (a: Position, b: Position) =>
-  a.column === b.column && a.row === b.row;
-const DISTANCE = (a: Position, b: Position) =>
-  Math.abs(a.column - b.column) + Math.abs(a.row - b.row);
-function route(start: Position, end: Position, s: State): Position[] {
-  const queue: { pos: Position; path: Position[] }[] = [
-      { pos: start, path: [] },
-    ],
-    seen = new Set([`${start.column},${start.row}`]);
-  for (let i = 0; i < queue.length; i++) {
-    const current = queue[i];
-    if (same(current.pos, end)) return current.path;
-    for (const [dc, dr] of [
-      [0, -1],
-      [-1, 0],
-      [1, 0],
-      [0, 1],
-    ]) {
-      const p = { column: current.pos.column + dc, row: current.pos.row + dr },
-        key = `${p.column},${p.row}`;
-      if (
-        !seen.has(key) &&
-        p.column >= 0 &&
-        p.row >= 0 &&
-        p.column < s.map.columns &&
-        p.row < s.map.rows &&
-        !s.map.blocked.some((b) => same(b, p))
-      ) {
-        seen.add(key);
-        queue.push({ pos: p, path: [...current.path, p] });
-      }
-    }
-  }
-  throw new Error("도달할 수 없는 셀입니다.");
-}
 export function App() {
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
@@ -63,10 +32,15 @@ export function App() {
     [chat, setChat] = useState("");
   const [worldGeneration, setWorldGeneration] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | null>(null);
+  useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
+  useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
   const [transferPending, setTransferPending] = useState(false);
   const [preparationError, setPreparationError] = useState("");
   const [renderError, setRenderError] = useState("");
+  const [walking, setWalking] = useState<Walking | null>(null);
+  const stopWalking = useRef(false);
   const readyRequest = useRef<string | null>(null);
   const [clock, setClock] = useState(Date.now()),
     [renderFailed, setRenderFailed] = useState(false);
@@ -93,7 +67,7 @@ export function App() {
   useEffect(() => {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
-  }, [state?.battle?.id, state?.battle?.turnId]);
+  }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
   const inWorld = !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
@@ -178,15 +152,25 @@ export function App() {
     });
   async function walk() {
     if (!state || !selected) return;
-    const steps = route(state.me.position, selected, state),
-      mapId = state.map.id;
-    for (const position of steps) {
-      if (client.state?.me.mode !== "FIELD" || client.state?.map.id !== mapId)
-        break;
-      await client.command("/v1/game/moves", { position });
-      await new Promise((resolve) => setTimeout(resolve, 270));
-    }
+    const steps = fieldRoute(state.me.position, selected, state.map);
+    if (!steps) throw new Error("현재 위치에서 갈 수 있는 경로가 없습니다.");
+    const locationId = state.location.id, generation = state.generation;
+    stopWalking.current = false;
+    setWalking({ completed: 0, total: steps.length, stopping: false });
+    try {
+      for (let i = 0; i < steps.length; i++) {
+        const current = client.state;
+        if (stopWalking.current || current?.me.mode !== "FIELD" || current.location.id !== locationId || current.generation !== generation) break;
+        await client.command("/v1/game/moves", { position: steps[i] });
+        setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });
+        if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, 270));
+      }
+    } finally { setWalking(null); }
   }
+  const selectField = (position: Position | null) => {
+    setSelected(position);
+    renderer.current?.scene.selectCell(position, true);
+  };
   const disabled = busy || !connected || renderFailed || loading;
   const battle = state?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
@@ -363,7 +347,7 @@ export function App() {
           </section>
         </main>
       ) : !inWorld ? (
-        <main class="lobby">
+        <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
             <div class="eyebrow">{state.me.name ? "CHARACTER SETTINGS" : "NEW EXPLORER"}</div>
             <h1>{state.me.name ? "캐릭터 설정" : "새로운 모험가"}</h1>
@@ -389,11 +373,8 @@ export function App() {
               </>
             ) : (
               <>
-                <p>
-                  {state.me.name} · 경험치 {state.me.xp} · 재화 {state.me.coins}
-                </p>
                 <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
-                <p>마지막 맵의 시작점에서 모험을 이어갑니다.</p>
+                <div class="character-departure"><p>준비되었다면, 모험을 이어가세요.<small>마지막 맵의 시작점으로 이동합니다.</small></p>
                 <button
                   disabled={disabled || !!state.me.battleId}
                   onClick={() => command("/v1/world/enter")}
@@ -401,7 +382,7 @@ export function App() {
                   {state.me.battleId
                     ? "진행 중 전투 정산 대기"
                     : "게임으로 가기 →"}
-                </button>
+                </button></div>
               </>
             )}
             {state.me.lastResult && (
@@ -413,8 +394,8 @@ export function App() {
           </section>
         </main>
       ) : (
-        <main class="world-layout">
-          <section class="world">
+        <main class="world-layout world-layout--immersive">
+          <section class={`world ${battle ? "is-battle" : "is-field"}`}>
             <div class="world-title">
               <div>
                 <div class="eyebrow">
@@ -422,13 +403,12 @@ export function App() {
                 </div>
                 <h2>
                   {battle
-                    ? `전술 전장 · 라운드 ${battle.round}`
+                    ? `${battle.field.name || "전술 전장"} · 라운드 ${battle.round}`
                     : state.map.name}
                 </h2>
               </div>
               <nav class="map-menu" aria-label="맵 메뉴">
-                <button class="secondary compact" aria-haspopup="dialog"
-                  disabled={loading} onClick={() => setSettingsOpen(true)}>캐릭터 설정</button>
+                <span class="world-resources">{state.me.name} · XP {state.me.xp} · ◈ {state.me.coins}</span>
               <button
                 class="secondary compact"
                 onClick={() => renderer.current?.scene.focus()}
@@ -437,12 +417,19 @@ export function App() {
               </button>
               </nav>
             </div>
-            <div class="canvas-wrap" ref={container} />
+            <div class="map-stage">
+              <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
+              {!battle && <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+                select={selectField} command={command} walking={walking} walk={() => void run(walk)}
+                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />}
+            </div>
+            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 마우스 휠로 확대·축소할 수 있습니다.</p></details>
+            {battle?.field.description && <p class="battlefield-description">{battle.field.selection === "random" ? "랜덤 전장" : "고정 전장"} · {battle.field.description}</p>}
             <div class="map-caption">
               <span>
                 {battle
                   ? "파랑: 이동 · 번호선: 경로 · 주황: 도착 후 공격 범위"
-                  : "바위·빽빽한 수풀은 이동 불가 · 화살표 표식은 웨이포인트 · 맵 밖은 배경"}
+                  : `내 위치 ${state.me.position.column}, ${state.me.position.row} · ${state.me.mode === "RESERVED" ? "조우 준비 중" : "탐색 중"}`}
               </span>
               <span>
                 {selected
@@ -451,114 +438,21 @@ export function App() {
                 · 방향키 선택 / 휠 확대
               </span>
             </div>
+            {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
+              disabled={disabled || state.me.requiresStartSpawn} remaining={remaining}
+              select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
+            <nav class="world-bottom-menu" aria-label="게임 메뉴">
+              <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>캐릭터 설정</button>
+              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? "조우 준비" : "주변 · 웨이포인트"}</button>}
+              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>파티{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{battle ? "전투 대화" : "채널 대화"}</button>
+            </nav>
+            {state.me.requiresStartSpawn && <p class="result">정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>}
           </section>
-          <aside class="sidebar">
-            <section class="card profile">
-              <div class="eyebrow">EXPLORER</div>
-              <h2>{state.me.name}</h2>
-              <p>
-                XP {state.me.xp} · ◈ {state.me.coins}
-                <br />
-                위치 {state.me.position.column}, {state.me.position.row}
-              </p>
-              <span class="badge">
-                {battle
-                  ? "전투 중"
-                  : state.me.mode === "RESERVED"
-                    ? "조우 준비"
-                    : "탐색 중"}
-              </span>
-              {state.me.requiresStartSpawn && (
-                <p>정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>
-              )}
-            </section>
-            {battle ? (
-              <BattlePanel battle={battle} actor={state.me.id} selected={selected}
-                disabled={disabled || state.me.requiresStartSpawn} remaining={remaining}
-                select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />
-            ) : (
-              <section class="card">
-                <h3>다음 행동</h3>
-                <button
-                  disabled={disabled || !selected || state.me.mode !== "FIELD" || state.map.blocked.some(p => same(p, selected))}
-                  onClick={() => run(walk)}
-                >
-                  선택 셀까지 이동
-                </button>
-                {state.map.connections
-                  .filter((g) => same(g, state.me.position))
-                  .map((g) => (
-                    <button
-                      class="secondary"
-                      disabled={disabled}
-                      onClick={() =>
-                        command("/v1/maps/transitions", { connectionId: g.id })
-                      }
-                    >
-                      {g.targetName ?? (g.target === "grove" ? "푸른 숲" : "이슬 초원")}으로 이동
-                      ↗
-                    </button>
-                  ))}
-                <h4>주변의 몬스터</h4>
-                {state.monsters.map((m) => (
-                  <div class="monster-row">
-                    <span>
-                      {m.disposition === "AGGRESSIVE" ? "● 선공" : "○ 비선공"}{" "}
-                      <small>
-                        {m.movement?.mode === "ROAM" ? `${m.movement.interval}초 주기 이동 · ` : "고정 · "}
-                        거리 {DISTANCE(state.me.position, m.position)}
-                      </small>
-                    </span>
-                    <button
-                      class="compact secondary"
-                      disabled={
-                        disabled ||
-                        m.state !== "AVAILABLE" ||
-                        DISTANCE(state.me.position, m.position) > 1 ||
-                        state.me.mode !== "FIELD"
-                      }
-                      onClick={() =>
-                        command("/v1/game/encounters/reserve", {
-                          monsterId: m.id,
-                        })
-                      }
-                    >
-                      조우
-                    </button>
-                  </div>
-                ))}
-                {state.reservation && (
-                  <div class="reservation">
-                    <p>
-                      준비 {state.reservation.ready.length}/
-                      {state.reservation.members.length}
-                    </p>
-                    <button
-                      disabled={disabled}
-                      onClick={() =>
-                        command("/v1/game/encounters/ready", {
-                          reservationId: state.reservation!.id,
-                        })
-                      }
-                    >
-                      준비 완료
-                    </button>
-                    <button
-                      class="secondary"
-                      disabled={disabled}
-                      onClick={() =>
-                        command("/v1/game/encounters/cancel", {
-                          reservationId: state.reservation!.id,
-                        })
-                      }
-                    >
-                      예약 취소
-                    </button>
-                  </div>
-                )}
-              </section>
-            )}
-            {!battle && (
+          {drawer && <WorldDrawer title={drawer === "nearby" ? "주변 탐색과 웨이포인트" : drawer === "party" ? "함께 탐색하기" : "대화"} onClose={() => setDrawer(null)}>
+            {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+              select={p => { selectField(p); setDrawer(null); }} command={command} />}
+            {drawer === "party" && !battle && (
               <section class="card">
                 <h3>
                   함께 탐색하기 <small>{state.members.length}/32</small>
@@ -641,7 +535,7 @@ export function App() {
                 ))}
               </section>
             )}
-            <section class="card chat">
+            {drawer === "chat" && <section class="card chat">
               <h3>{battle ? "전투" : "채널"} 대화</h3>
               <div class="chat-lines" aria-live="polite">
                 {state.messages.map((m) => (
@@ -668,14 +562,14 @@ export function App() {
                 />
                 <button disabled={disabled || !chat.trim()}>전송</button>
               </form>
-            </section>
+            </section>}
             {!battle && state.me.lastResult && (
               <p class="result">
                 최근 전투 {RESULT_NAMES[state.me.lastResult.result]} · XP +
                 {state.me.lastResult.xp}
               </p>
             )}
-          </aside>
+          </WorldDrawer>}
         </main>
       )}
       {state && inWorld && !loading && settingsOpen && <CharacterSettingsDialog

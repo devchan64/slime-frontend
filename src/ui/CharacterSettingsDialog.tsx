@@ -22,7 +22,6 @@ export function CharacterSettingsDialog({ me, disabled, command, onClose }: Prop
       <h2 id="character-settings-title">캐릭터 설정</h2>
       <button class="secondary compact" onClick={onClose} autoFocus>닫기</button>
     </header>
-    <p>{me.name}</p>
     <CharacterSettings me={me} disabled={disabled} command={command} expanded />
     {!["LOBBY", "FIELD"].includes(me.mode) && <p>전투·조우 준비 중에는 CP를 분배할 수 없습니다.</p>}
   </dialog>;

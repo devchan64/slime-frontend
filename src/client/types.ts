@@ -1,5 +1,7 @@
+import type { Surface } from "../game/terrain/elevation";
 export type Position = { column: number; row: number };
-export type Appearance = { appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
+export type SizeClass = "small" | "medium" | "large" | "huge";
+export type Appearance = { monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
 export type Unit = Appearance & {
   id: string;
   name: string;
@@ -15,12 +17,19 @@ export type Unit = Appearance & {
   range: number[];
   guard: boolean;
 };
+export type Battlefield = Surface & {
+  id: string; version: string; name?: string; description?: string; columns: number; rows: number;
+  sourceMapId?: string; sourceMapVersion?: string; selection?: "random" | "fixed"; eventId?: string | null;
+  environment?: { themeId: string; backdrop: string; terrainPalette: string[] };
+  cells?: (Position & { terrain: "grass" | "dew" | "flowers" | "road" | "rock" | "thicket" | "water" })[];
+  blocked?: Position[]; allySpawns?: Position[]; enemySpawns?: Position[];
+};
 export type Battle = {
   ready?: string[];
   participants: string[];
   preparationDeadline?: number;
   chatRoomId?: string;
-  field: { id: string; version: string; columns: number; rows: number };
+  field: Battlefield;
   tactics: {
     canAct: boolean;
     moves: { position: Position; path: Position[]; cost: number; attackRange: Position[]; attacks: { targetId: string; damage: number }[] }[];
@@ -60,13 +69,16 @@ export type State = {
     xp: number;
     coins: number;
     cp: number;
+    cpGeneral: number;
+    cpSeasonal: number;
+    skills: Record<"physical_activity" | "literacy" | "speaking", number>;
     attributes: Record<"body" | "intellect" | "spirit", number>;
     requiresStartSpawn: boolean;
     battleId: string | null;
     partyId: string | null;
     lastResult: { result: string; xp: number; coins: number } | null;
   };
-  map: {
+  map: Surface & {
     id: string;
     name: string;
     columns: number;
