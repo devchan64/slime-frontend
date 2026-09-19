@@ -54,7 +54,7 @@ function route(start: Position, end: Position, s: State): Position[] {
 export function App() {
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
-    [status, setStatus] = useState("계정을 만들고 모험을 시작하세요."),
+    [status, setStatus] = useState("계정을 만들고 슬라임의 일상에 함께하세요."),
     [busy, setBusy] = useState(false);
   const [user, setUser] = useState(""),
     [password, setPassword] = useState(""),
@@ -227,11 +227,11 @@ export function App() {
       </div>}
       <header>
         <a class="brand" href="/">
-          SLIME<span>TACTICAL WORLD</span>
+          SLIME<span>새로운 시간</span>
         </a>
         <div class="connection">
           <i class={connected ? "online" : ""} />
-          {state ? (connected ? "연결됨" : "연결 확인 중") : "모험의 시작"}
+          {state ? (connected ? "연결됨" : "연결 확인 중") : "일상의 시작"}
         </div>
         {state && !connected && (
           <button
@@ -275,20 +275,20 @@ export function App() {
             <img class="login-illustration" src={loginIllustration}
               alt="숲속 꽃밭의 감각기관 없는 반투명 청록색 슬라임" width="1536" height="1024" />
             <div class="intro-copy">
-              <div class="eyebrow">작은 슬라임, 새로운 모험</div>
-              <h1 id="welcome-title">한 걸음의 선택,<br /><em>함께 만드는 모험.</em></h1>
-              <p>초원을 탐색하고 동료를 만나세요.<br />조우가 시작되면 당신의 턴이 찾아옵니다.</p>
+              <div class="eyebrow">나만의 속도로, 새로운 시간</div>
+              <h1 id="welcome-title">천천히 머물고,<br /><em>함께 일상을 쌓아요.</em></h1>
+              <p>느긋하게 거닐고, 서로의 하루를 나누세요.<br />이곳에서는 당신의 속도로 지내면 돼요.</p>
             </div>
             <div class="intro-grid">
-              <span>◇ 사각 셀의 세계</span>
-              <span>◎ 함께하는 탐색</span>
-              <span>↗ 차례대로 펼치는 전투</span>
+              <span>◇ 느긋한 발걸음</span>
+              <span>◎ 함께하는 시간</span>
+              <span>◌ 나만의 일상</span>
             </div>
           </section>
           <section class="card auth">
-            <div class="eyebrow">모험의 시작</div>
-            <h2>반가워요, 모험가님.</h2>
-            <p class="auth-intro">슬라임의 세계로 한 걸음 더.</p>
+            <div class="eyebrow">일상의 시작</div>
+            <h2>어서 오세요.</h2>
+            <p class="auth-intro">오늘도 나만의 속도로 시작해요.</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
