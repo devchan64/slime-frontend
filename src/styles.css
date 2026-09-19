@@ -672,3 +672,11 @@ footer {
 
 .world-layout--immersive .canvas-wrap { height: clamp(300px, 56dvh, 650px); aspect-ratio: auto; }
 .world-layout--immersive .is-battle .canvas-wrap { height: clamp(260px, 42dvh, 540px); }
+
+/* 로그인 소개 문구의 가독성은 이미지가 아닌 별도 오버레이로 관리한다. */
+.login-shell .intro { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 70px; }
+.login-shell .login-illustration { top: 0; height: 100%; object-position: center center; }
+.login-shell .intro-copy { background: linear-gradient(180deg, transparent, #081f23c9); }
+@media (max-width: 760px) {
+  .login-shell .intro { min-height: 620px; }
+}

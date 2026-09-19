@@ -7,16 +7,18 @@ const PORTRAITS = {
   beast: new URL("../assets/monsters/beast-v1.png", import.meta.url).href,
   giant: new URL("../assets/monsters/giant-v1.png", import.meta.url).href,
 };
-type Mode = "MOVE" | "ATTACK" | "GUARD" | "END_TURN";
+type Mode = "MOVE" | "ATTACK" | "END_TURN";
 const LABELS: Record<string, string> = {
   MOVE: "이동", ATTACK: "공격", GUARD: "방어", END_TURN: "턴 종료", WAIT: "시간 초과 대기",
 };
 const same = (a: Position, b: Position | null) => !!b && a.column === b.column && a.row === b.row;
-export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute }: {
+export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute, onMode }: {
   battle: Battle; actor: string; selected: Position | null; disabled: boolean; remaining: number;
+  onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
   select: (p: Position | null) => void; execute: (type: string, targetId?: string) => void;
 }) {
   const [mode, setMode] = useState<Mode | null>(null);
+  useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [surrender, setSurrender] = useState(false);
   useEffect(() => { setMode(null); setSurrender(false); }, [battle.id, battle.turnId, battle.moved, battle.acted]);
   if (battle.status === "PREPARING") return <section class="card">
@@ -27,7 +29,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const move = battle.tactics.moves.find(m => same(m.position, selected));
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
-  const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : mode === "GUARD" ? !battle.acted : true);
+  const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : true);
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <section class="card battle-panel" aria-label="턴제 전투 명령">
     <div class="battle-status">
@@ -48,17 +50,16 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     <div class="battle-command-area">
     <p class="battle-step" aria-live="polite">{mode === null ? "1 · 행동 선택" : (mode === "MOVE" || mode === "ATTACK") && !valid ? "2 · 맵에서 대상 선택" : "3 · 결과 확인 후 확정"}</p>
     {mode === null ? <div class="actions">
-      {(["MOVE", "ATTACK", "GUARD", "END_TURN"] as Mode[]).map(value => <button
+      {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
         class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
-        disabled={disabled || !own || (value === "MOVE" && battle.moved) || ((value === "ATTACK" || value === "GUARD") && battle.acted)}
+        disabled={disabled || !own || (value === "MOVE" && battle.moved) || (value === "ATTACK" && battle.acted)}
         onClick={() => { select(null); setMode(value); }}>{LABELS[value]}</button>)}
     </div>
     : <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
     <div class="command-preview" aria-live="polite">
       {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "파란 이동 가능 셀을 선택하세요."
         : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage} · HP ${target.hp} → ${Math.max(0, target.hp - attack.damage)}` : "붉은 테두리의 사거리 내 적을 선택하세요."
-        : mode === "GUARD" ? "다음 자기 턴까지 받는 기본 공격 피해를 절반으로 줄입니다."
-        : "남은 이동과 행동을 포기합니다. 방어 효과는 없습니다."}
+        : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
     </div>
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
       <strong>도착 후 공격 안내</strong>
@@ -69,7 +70,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         <small>이동만 확정합니다. 공격은 도착 후 따로 선택하세요.</small>
       </>}
     </div>}
-    <button disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{LABELS[mode]} 확정</button></>}
+    <button disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : `${LABELS[mode]} 확정`}</button></>}
     </div>
     <div class="battle-secondary">
     <details><summary>참가 유닛 · {battle.units.length}</summary>
@@ -82,7 +83,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     </details>
     <details><summary>최근 전투 기록</summary><ol class="battle-log">
       {battle.log.slice(-6).map(event => <li>{name(event.unitId)} · {LABELS[event.action] || event.action}
-        {event.targetId ? ` → ${name(event.targetId)} (${event.damage} 피해)` : ""}</li>)}
+        {event.autoGuard ? " · 자동 방어" : ""}{event.targetId ? ` → ${name(event.targetId)} (${event.damage} 피해)` : ""}</li>)}
     </ol></details>
     <button class="danger" disabled={disabled} onClick={() => {
       if (surrender) { execute("SURRENDER"); setSurrender(false); } else setSurrender(true);

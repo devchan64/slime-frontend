@@ -1,3 +1,4 @@
+import { heightAt } from "../game/terrain/elevation";
 import type { Position, State } from "../client/types";
 import { fieldDistance, fieldRoute, sameCell } from "./fieldNavigation";
 
@@ -28,10 +29,10 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const safe = fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
   return <section class="field-selection" aria-label="선택한 위치">
-    <div class="field-selection-heading"><div><small>선택 위치 · {selected.column}, {selected.row}</small>
+    <div class="field-selection-heading"><div><small>선택 위치 · {selected.column}, {selected.row} · 높이 {heightAt(selected, state.map)}</small>
       <h3>{blocked ? "이동 불가 지형" : gate ? `${gate.targetName ?? gate.target} 연결 지점` : monsters.length ? "몬스터 발견" : safe ? "안전 구역" : "탐색 지점"}</h3></div>
       <button class="secondary compact" aria-label="선택 해제" onClick={() => select(null)}>닫기</button></div>
-    <p>{blocked ? "바위·수풀·물은 통과할 수 없습니다." : here ? "현재 서 있는 위치입니다." : path ? `걸어서 ${path.length}칸 · 장애물을 피해 이동합니다.` : "현재 위치에서 갈 수 있는 경로가 없습니다."}</p>
+    <p>{blocked ? "바위·수풀·물은 통과할 수 없습니다." : here ? "현재 서 있는 위치입니다." : path ? `걸어서 ${path.length}칸 · 장애물과 절벽을 피해 계단으로 이동합니다.` : "현재 위치에서 갈 수 있는 경로가 없습니다."}</p>
     {monsters.map(m => {
       const distance = fieldDistance(state.me.position, m.position);
       return <div class="field-target" key={m.id}><div><strong>{monsterName(m)}</strong>

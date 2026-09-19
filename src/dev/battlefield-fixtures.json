@@ -1,7 +1,7 @@
 [
   {
     "location": {
-      "id": "80eb3530-256e-41b7-8a96-bb6071bb59ef",
+      "id": "c76d9086-a3a4-4570-9154-604d374ddb42",
       "kind": "BATTLE",
       "mapId": "meadow-crossroads",
       "chatRoomId": "preview",
@@ -1248,7 +1248,7 @@
       ]
     },
     "battle": {
-      "id": "80eb3530-256e-41b7-8a96-bb6071bb59ef",
+      "id": "c76d9086-a3a4-4570-9154-604d374ddb42",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -1299,7 +1299,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "80eb3530-256e-41b7-8a96-bb6071bb59ef:enemy-0"
+          "monsterInstanceId": "c76d9086-a3a4-4570-9154-604d374ddb42:enemy-0"
         },
         {
           "id": "enemy-1",
@@ -1325,7 +1325,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "80eb3530-256e-41b7-8a96-bb6071bb59ef:enemy-1"
+          "monsterInstanceId": "c76d9086-a3a4-4570-9154-604d374ddb42:enemy-1"
         }
       ],
       "participants": [
@@ -2204,8 +2204,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.2.0",
-      "chatRoomId": "battle:80eb3530-256e-41b7-8a96-bb6071bb59ef",
+      "rulesVersion": "1.3.0",
+      "chatRoomId": "battle:c76d9086-a3a4-4570-9154-604d374ddb42",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -2968,7 +2968,7 @@
   },
   {
     "location": {
-      "id": "0ce60914-f799-490d-ae20-6d55a5d9a56b",
+      "id": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15",
       "kind": "BATTLE",
       "mapId": "meadow-dew-ponds",
       "chatRoomId": "preview",
@@ -4215,7 +4215,7 @@
       ]
     },
     "battle": {
-      "id": "0ce60914-f799-490d-ae20-6d55a5d9a56b",
+      "id": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -4266,7 +4266,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "0ce60914-f799-490d-ae20-6d55a5d9a56b:enemy-0"
+          "monsterInstanceId": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15:enemy-0"
         },
         {
           "id": "enemy-1",
@@ -4292,7 +4292,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "0ce60914-f799-490d-ae20-6d55a5d9a56b:enemy-1"
+          "monsterInstanceId": "92bfa77f-c9bb-4cee-a021-9fcc4da7cc15:enemy-1"
         }
       ],
       "participants": [
@@ -5367,8 +5367,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.2.0",
-      "chatRoomId": "battle:0ce60914-f799-490d-ae20-6d55a5d9a56b",
+      "rulesVersion": "1.3.0",
+      "chatRoomId": "battle:92bfa77f-c9bb-4cee-a021-9fcc4da7cc15",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -6091,7 +6091,7 @@
   },
   {
     "location": {
-      "id": "63a8ef21-1dc7-4a73-9446-5bf8b053e69a",
+      "id": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53",
       "kind": "BATTLE",
       "mapId": "meadow-flower-knolls",
       "chatRoomId": "preview",
@@ -7338,7 +7338,7 @@
       ]
     },
     "battle": {
-      "id": "63a8ef21-1dc7-4a73-9446-5bf8b053e69a",
+      "id": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -7389,7 +7389,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "63a8ef21-1dc7-4a73-9446-5bf8b053e69a:enemy-0"
+          "monsterInstanceId": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53:enemy-0"
         },
         {
           "id": "enemy-1",
@@ -7415,7 +7415,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "63a8ef21-1dc7-4a73-9446-5bf8b053e69a:enemy-1"
+          "monsterInstanceId": "1dd3dc9d-251e-4fed-8de0-dc2056b33c53:enemy-1"
         }
       ],
       "participants": [
@@ -8346,8 +8346,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.2.0",
-      "chatRoomId": "battle:63a8ef21-1dc7-4a73-9446-5bf8b053e69a",
+      "rulesVersion": "1.3.0",
+      "chatRoomId": "battle:1dd3dc9d-251e-4fed-8de0-dc2056b33c53",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -8810,7 +8810,7 @@
   },
   {
     "location": {
-      "id": "888e64fc-cfd6-4fbb-8ba0-6abc689980de",
+      "id": "a038e7e6-84bb-4794-9613-dc78d1b07be1",
       "kind": "BATTLE",
       "mapId": "meadow-rock-pass",
       "chatRoomId": "preview",
@@ -10057,7 +10057,7 @@
       ]
     },
     "battle": {
-      "id": "888e64fc-cfd6-4fbb-8ba0-6abc689980de",
+      "id": "a038e7e6-84bb-4794-9613-dc78d1b07be1",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -10108,7 +10108,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "888e64fc-cfd6-4fbb-8ba0-6abc689980de:enemy-0"
+          "monsterInstanceId": "a038e7e6-84bb-4794-9613-dc78d1b07be1:enemy-0"
         },
         {
           "id": "enemy-1",
@@ -10134,7 +10134,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "888e64fc-cfd6-4fbb-8ba0-6abc689980de:enemy-1"
+          "monsterInstanceId": "a038e7e6-84bb-4794-9613-dc78d1b07be1:enemy-1"
         }
       ],
       "participants": [
@@ -11061,8 +11061,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.2.0",
-      "chatRoomId": "battle:888e64fc-cfd6-4fbb-8ba0-6abc689980de",
+      "rulesVersion": "1.3.0",
+      "chatRoomId": "battle:a038e7e6-84bb-4794-9613-dc78d1b07be1",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -11785,7 +11785,7 @@
   },
   {
     "location": {
-      "id": "208d3a9b-a73b-4826-9a67-b39f03e594a2",
+      "id": "24410295-a4d6-41b5-b63d-aea46bcdbb82",
       "kind": "BATTLE",
       "mapId": "meadow-thicket-bend",
       "chatRoomId": "preview",
@@ -13032,7 +13032,7 @@
       ]
     },
     "battle": {
-      "id": "208d3a9b-a73b-4826-9a67-b39f03e594a2",
+      "id": "24410295-a4d6-41b5-b63d-aea46bcdbb82",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -13083,7 +13083,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "208d3a9b-a73b-4826-9a67-b39f03e594a2:enemy-0"
+          "monsterInstanceId": "24410295-a4d6-41b5-b63d-aea46bcdbb82:enemy-0"
         },
         {
           "id": "enemy-1",
@@ -13109,7 +13109,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "208d3a9b-a73b-4826-9a67-b39f03e594a2:enemy-1"
+          "monsterInstanceId": "24410295-a4d6-41b5-b63d-aea46bcdbb82:enemy-1"
         }
       ],
       "participants": [
@@ -14068,8 +14068,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.2.0",
-      "chatRoomId": "battle:208d3a9b-a73b-4826-9a67-b39f03e594a2",
+      "rulesVersion": "1.3.0",
+      "chatRoomId": "battle:24410295-a4d6-41b5-b63d-aea46bcdbb82",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -14680,7 +14680,7 @@
   },
   {
     "location": {
-      "id": "ba043d51-1244-49a7-acf6-f9293b1eda08",
+      "id": "74b49a66-ad42-40df-ab0a-45c708632ab6",
       "kind": "BATTLE",
       "mapId": "meadow-guardian-ring",
       "chatRoomId": "preview",
@@ -15927,7 +15927,7 @@
       ]
     },
     "battle": {
-      "id": "ba043d51-1244-49a7-acf6-f9293b1eda08",
+      "id": "74b49a66-ad42-40df-ab0a-45c708632ab6",
       "channel": "meadow",
       "monsterId": "meadow-strong",
       "version": 2,
@@ -15978,7 +15978,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "ba043d51-1244-49a7-acf6-f9293b1eda08:enemy-0"
+          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-0"
         },
         {
           "id": "enemy-1",
@@ -16004,7 +16004,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "ba043d51-1244-49a7-acf6-f9293b1eda08:enemy-1"
+          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-1"
         },
         {
           "id": "enemy-2",
@@ -16030,7 +16030,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "ba043d51-1244-49a7-acf6-f9293b1eda08:enemy-2"
+          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-2"
         },
         {
           "id": "enemy-3",
@@ -16056,7 +16056,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "ba043d51-1244-49a7-acf6-f9293b1eda08:enemy-3"
+          "monsterInstanceId": "74b49a66-ad42-40df-ab0a-45c708632ab6:enemy-3"
         }
       ],
       "participants": [
@@ -16985,8 +16985,8 @@
       "acted": false,
       "votes": [],
       "log": [],
-      "rulesVersion": "1.2.0",
-      "chatRoomId": "battle:ba043d51-1244-49a7-acf6-f9293b1eda08",
+      "rulesVersion": "1.3.0",
+      "chatRoomId": "battle:74b49a66-ad42-40df-ab0a-45c708632ab6",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": false,

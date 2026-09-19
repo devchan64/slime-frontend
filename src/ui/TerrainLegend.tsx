@@ -8,6 +8,6 @@ const TYPES = [
 export function TerrainLegend() {
   return <div class="terrain-legend" aria-label="통행 가능한 지형 범례">
     {TYPES.map(({ kind, icon, name }) => <span key={kind}><b class={`legend-${kind}`} aria-hidden="true">{icon}</b>{name}</span>)}
-    <small>바위·수풀·호수는 이동 불가</small>
+    <small>계단으로 높이 이동 · 절벽·바위·수풀·호수는 통행 불가</small>
   </div>;
 }

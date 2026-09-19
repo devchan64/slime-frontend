@@ -35,6 +35,9 @@ const CENTER = 0.5,
   LABEL_OFFSET = 25,
   BATTLE_ZOOM = 1.15,
   CAMERA_PADDING = 140,
+  DRAG_THRESHOLD = 6,
+  ZOOM_MIN = 0.4,
+  ZOOM_MAX = 1.4,
   TURN_BADGE_OFFSET = 16,
   TURN_BADGE_RADIUS = 11,
   PATH_WIDTH = 3,
@@ -46,6 +49,8 @@ const HEALTH_BAR = { width: 36, height: 5, offset: 5, background: 0x10202a };
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
   private selected: Position | null = null;
+  private panStart: {x:number;y:number;scrollX:number;scrollY:number} | null = null;
+  private battleMode: "MOVE" | "ATTACK" | null = null;
   private onSelect: (p: Position) => void;
   private previousMap = "";
   private preparedLocation = "";
@@ -83,6 +88,19 @@ export class MainScene extends Phaser.Scene {
     }
     this.cameras.main.setZoom(ZOOM);
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
+      this.panStart={x:p.x,y:p.y,scrollX:this.cameras.main.scrollX,scrollY:this.cameras.main.scrollY};
+      this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({preventScroll:true});
+    });
+    this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
+      if (!p.isDown || !this.panStart) return;
+      const dx=p.x-this.panStart.x,dy=p.y-this.panStart.y;
+      if (Math.hypot(dx,dy)<DRAG_THRESHOLD) return;
+      this.cameras.main.setScroll(this.panStart.scrollX-dx/this.cameras.main.zoom,
+        this.panStart.scrollY-dy/this.cameras.main.zoom);
+    });
+    this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
+      const start=this.panStart;this.panStart=null;
+      if (!start || Math.hypot(p.x-start.x,p.y-start.y)>=DRAG_THRESHOLD) return;
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({ preventScroll: true });
       const at = this.cameras.main.getWorldPoint(p.x, p.y);
       if (!this.state) return;
@@ -95,7 +113,7 @@ export class MainScene extends Phaser.Scene {
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
       this.cameras.main.setZoom(
-        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001, 0.4, 1.4),
+        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001, ZOOM_MIN, ZOOM_MAX),
       ),
     );
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
@@ -126,6 +144,13 @@ export class MainScene extends Phaser.Scene {
       }
     });
     this.draw();
+  }
+  adjustZoom(delta: number) {
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta,ZOOM_MIN,ZOOM_MAX));
+  }
+  setBattleMode(mode: "MOVE" | "ATTACK" | null) {
+    this.battleMode = mode;
+    if (this.sys.isActive()) this.draw();
   }
   selectCell(position: Position | null, focus = false) {
     this.selected = position;
@@ -174,16 +199,16 @@ export class MainScene extends Phaser.Scene {
       rows = s.battle?.field.rows ?? s.map.rows,
       blocked = s.battle?.blocked || s.map.blocked;
     this.reachable.clear();
-    for (const move of s.battle?.tactics.moves || [])
+    for (const move of this.battleMode === "MOVE" ? s.battle?.tactics.moves || [] : [])
       this.reachable.add(`${move.position.column},${move.position.row}`);
-    const selectedMove = s.battle?.tactics.moves.find(m => this.selected?.column === m.position.column && this.selected.row === m.position.row);
+    const selectedMove = this.battleMode === "MOVE" ? s.battle?.tactics.moves.find(m => this.selected?.column === m.position.column && this.selected.row === m.position.row) : undefined;
     const previewPath = new Set((selectedMove?.path || []).map(p => `${p.column},${p.row}`));
     const arrivalRange = new Set((selectedMove?.attackRange || []).map(p => `${p.column},${p.row}`));
     const arrivalTargets = new Set((selectedMove?.attacks || []).map(a => {
       const target = s.battle!.units.find(u => u.id === a.targetId)!;
       return `${target.position.column},${target.position.row}`;
     }));
-    const attackCells = new Set((s.battle?.tactics.attacks || []).map(a => {
+    const attackCells = new Set((this.battleMode === "ATTACK" ? s.battle?.tactics.attacks || [] : []).map(a => {
       const target = s.battle!.units.find(u => u.id === a.targetId)!;
       return `${target.position.column},${target.position.row}`;
     }));
@@ -236,6 +261,7 @@ export class MainScene extends Phaser.Scene {
           g.strokePoints(this.points(polygon), true);
         }
         if (this.selected?.column === column && this.selected.row === row) {
+          g.setDepth(TERRAIN_DEPTH.annotation);
           g.lineStyle(2, COLORS.selected);
           g.strokePoints(this.points(polygon), true);
         }
@@ -366,7 +392,7 @@ export class MainScene extends Phaser.Scene {
       result.push(new Phaser.Geom.Point(values[i], values[i + 1]));
     return result;
   }
-  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: {hp:number; maxHp:number}) {
+  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: {hp:number; maxHp:number; side?:string}) {
     const p = this.project(pos),
       g = this.add.graphics();
     const size = actorSize(appearance);
@@ -391,9 +417,12 @@ export class MainScene extends Phaser.Scene {
     }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
-      annotation.fillCircle(p.x, p.y - height - TURN_BADGE_OFFSET, TURN_BADGE_RADIUS);
+      const badgeY=p.y-height-TURN_BADGE_OFFSET;
+      if (health?.side === "enemy") annotation.fillRoundedRect(p.x-TURN_BADGE_RADIUS,badgeY-TURN_BADGE_RADIUS,TURN_BADGE_RADIUS*2,TURN_BADGE_RADIUS*2,3);
+      else annotation.fillCircle(p.x,badgeY,TURN_BADGE_RADIUS);
       annotation.lineStyle(2, active ? 0xffffff : color, completed ? 0.4 : 1);
-      annotation.strokeCircle(p.x, p.y - height - TURN_BADGE_OFFSET, TURN_BADGE_RADIUS);
+      if (health?.side === "enemy") annotation.strokeRoundedRect(p.x-TURN_BADGE_RADIUS,badgeY-TURN_BADGE_RADIUS,TURN_BADGE_RADIUS*2,TURN_BADGE_RADIUS*2,3);
+      else annotation.strokeCircle(p.x,badgeY,TURN_BADGE_RADIUS);
       this.add.text(p.x, p.y - height - TURN_BADGE_OFFSET, String(rank), {
         fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",

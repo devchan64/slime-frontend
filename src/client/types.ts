@@ -36,7 +36,7 @@ export type Battle = {
     attacks: { targetId: string; damage: number }[];
   };
   log: { unitId: string; action: string; turnId: number; at: number;
-         damage?: number; targetId?: string; targetHp?: number; path?: Position[] }[];
+         damage?: number; targetId?: string; targetHp?: number; path?: Position[]; autoGuard?: boolean }[];
   id: string;
   version: number;
   units: Unit[];

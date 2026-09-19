@@ -11,7 +11,7 @@ import { Client } from "../client/api";
 import { registrationIssue } from "../client/credentials";
 import type { Position, State } from "../client/types";
 import type { createGame } from "../game/createGame";
-const loginIllustration = new URL("../assets/login/slime-welcome-v2.png", import.meta.url).href;
+const loginIllustration = new URL("../assets/login/slime-welcome-v4.png", import.meta.url).href;
 const RESULT_NAMES: Record<string, string> = {
   WIN: "승리",
   LOSE: "패배",
@@ -19,6 +19,7 @@ const RESULT_NAMES: Record<string, string> = {
   SURRENDER: "기권",
   PREPARATION_FAILED: "전투 준비 시간 초과 · 필드 복귀",
 };
+const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const [state, setState] = useState<State | null>(null),
@@ -409,6 +410,8 @@ export function App() {
               </div>
               <nav class="map-menu" aria-label="맵 메뉴">
                 <span class="world-resources">{state.me.name} · XP {state.me.xp} · ◈ {state.me.coins}</span>
+              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
+              <button class="secondary compact" aria-label="맵 확대" onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
               <button
                 class="secondary compact"
                 onClick={() => renderer.current?.scene.focus()}
@@ -423,7 +426,7 @@ export function App() {
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />}
             </div>
-            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 마우스 휠로 확대·축소할 수 있습니다.</p></details>
+            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요.</p></details>
             {battle?.field.description && <p class="battlefield-description">{battle.field.selection === "random" ? "랜덤 전장" : "고정 전장"} · {battle.field.description}</p>}
             <div class="map-caption">
               <span>
@@ -439,7 +442,7 @@ export function App() {
               </span>
             </div>
             {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
-              disabled={disabled || state.me.requiresStartSpawn} remaining={remaining}
+              disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             <nav class="world-bottom-menu" aria-label="게임 메뉴">
               <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>캐릭터 설정</button>

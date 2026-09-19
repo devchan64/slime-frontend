@@ -21,6 +21,7 @@ export function canStep(start: Position, end: Position, map: Surface) {
     (same(e.start,start) && same(e.end,end)) || (same(e.start,end) && same(e.end,start)));
 }
 export function cliffFaces(p: Position, map: Surface) {
+  if (!map.elevations) return [];
   const center=project(p,map), h=heightAt(p,map);
   return [{ neighbor:{column:p.column+1,row:p.row}, edge:[[0,CELL_HEIGHT/2],[CELL_WIDTH/2,0]] },
     { neighbor:{column:p.column,row:p.row+1}, edge:[[-CELL_WIDTH/2,0],[0,CELL_HEIGHT/2]] }]
