@@ -65,11 +65,11 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor));
   useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [idleNotice, setIdleNotice] = useState(false);
-  const [surrender, setSurrender] = useState(false);
+  const [surrenderDialogOpen, setSurrenderDialogOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
-  useEffect(() => { setConfirming(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
+  useEffect(() => { setConfirming(false); setSurrenderDialogOpen(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
   const lastSelectionIntent = useRef(selectionIntent);
   useEffect(() => {
     if (lastSelectionIntent.current === selectionIntent) return;
@@ -83,7 +83,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor;
   useEffect(() => {
     const next = defaultBattleMode(battle, actor);
-    setMode(next); setSurrender(false); setSkillsOpen(false);
+    setMode(next); setSurrenderDialogOpen(false); setSkillsOpen(false);
     select(next === "ATTACK" ? singleAttackTarget(battle) : null);
   }, [battle.id, battle.turnId, battle.moved, battle.acted, apBattle ? battle.version : null, canActNow, battle.status]);
   useEffect(() => {
@@ -137,12 +137,8 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     <div class="battle-end-column"><button class={`${mode === "END_TURN" ? "" : "secondary"}${apExhausted ? " battle-end-suggested" : ""}`}
       aria-pressed={mode === "END_TURN"} disabled={disabled || !own} onClick={() => chooseMode("END_TURN")}>{t('battle.endTurn')}</button></div>
     <div class="battle-submit-row">
-      {surrender ? <>
-        <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>{t('battle.confirmSurrender')}</button>
-        <button class="secondary" onClick={() => setSurrender(false)}>{t('battle.cancel')}</button>
-      </> : <>
-        <button class="secondary battle-surrender" disabled={disabled} onClick={() => setSurrender(true)}>{t('battle.surrender')}</button>
-      </>}
+      <button class="secondary battle-surrender" disabled={disabled} aria-haspopup="dialog"
+        onClick={() => { setConfirming(false); setSurrenderDialogOpen(true); }}>{t('battle.surrender')}</button>
     </div>
     </div>
     </div>
@@ -236,7 +232,11 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>
     </div>
   </section>
-  {confirming && valid && mode && <BattleConfirmation
+  {surrenderDialogOpen && <BattleConfirmation
+    title={t('battle.confirmSurrender')} summary={t('battle.surrenderConfirmation')}
+    disabled={disabled} close={() => setSurrenderDialogOpen(false)}
+    confirm={() => { setSurrenderDialogOpen(false); execute("SURRENDER"); }} />}
+  {!surrenderDialogOpen && confirming && valid && mode && <BattleConfirmation
     title={t('battle.confirmAction',{action:t(LABELS[mode])})}
     summary={mode === "MOVE" && move ? t('battle.moveRoute',{count:move.cost,path:move.path.map(p => `(${p.column}, ${p.row})`).join(' → ')}) + (move.expectedApCost !== undefined ? ' · ' + t('battle.terrainApPreview',{base:move.apCost!,expected:move.expectedApCost,max:move.maximumApCost!}) : move.apCost !== undefined ? ' · ' + t('battle.apPreview',{cost:move.apCost,remaining:move.apAfter!}) : '')
       : mode === "ATTACK" && target && attack ? `${target.name} · ${t('battle.expectedDamage',{damage:attack.damage})}` + (attack.apCost !== undefined && current?.ap !== undefined ? ' · ' + t('battle.apPreview',{cost:attack.apCost,remaining:current.ap-attack.apCost}) : '')
