@@ -675,11 +675,12 @@ export function App() {
                   .filter((m) => m.id !== state.me.id)
                   .map((m) => (
                     <div class="monster-row">
-                      <span>{m.name}</span>
+                      <span>{m.name}{state.party?.leader === state.me.id && !state.party.members.includes(m.id) && m.partyCpEligible === false && <small class="muted"> · {t('app.partyCpOutOfRange')}</small>}</span>
                       <button
                         class="compact secondary"
                         disabled={
                           disabled || state.party?.leader !== state.me.id
+                          || (!state.party.members.includes(m.id) && m.partyCpEligible === false)
                         }
                         onClick={() =>
                           command("/v1/game/party/commands", {
@@ -696,7 +697,7 @@ export function App() {
                   ))}
                 {state.invitations.map((i) => (
                   <button
-                    disabled={disabled}
+                    disabled={disabled || i.partyCpEligible === false}
                     onClick={() =>
                       command("/v1/game/party/commands", {
                         action: "ACCEPT",
@@ -705,6 +706,7 @@ export function App() {
                     }
                   >
                     {t('app.acceptInvitation',{name:i.from})}
+                    {i.partyCpEligible === false && <small> · {t('app.partyCpOutOfRange')}</small>}
                   </button>
                 ))}
               </section>
