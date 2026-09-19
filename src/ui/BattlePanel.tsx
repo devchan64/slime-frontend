@@ -126,7 +126,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
     <div class="battle-button-toolbar">
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
-      {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
+      {(["MOVE", "ATTACK"] as Mode[]).map(value => <button
         class={`${mode === value ? "" : "secondary"}${apExhausted && value === "END_TURN" ? " battle-end-suggested" : ""}`} aria-pressed={mode === value}
         disabled={disabled || !own || (value === "MOVE" && ((!apBattle && battle.moved) || battle.tactics.moves.length === 0)) || (value === "ATTACK" && ((!apBattle && battle.acted) || battle.tactics.attacks.length === 0))}
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? t('battle.noTarget') : undefined}
@@ -134,6 +134,8 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>
     <div class="battle-skill-column"><button class={skillsOpen ? "" : "secondary"} disabled={disabled || !own}
       aria-expanded={skillsOpen} aria-controls="battle-skill-selection" onClick={() => { setSkillsOpen(!skillsOpen); setConfirming(false); }}>{t("battle.skills")}</button></div>
+    <div class="battle-end-column"><button class={`${mode === "END_TURN" ? "" : "secondary"}${apExhausted ? " battle-end-suggested" : ""}`}
+      aria-pressed={mode === "END_TURN"} disabled={disabled || !own} onClick={() => chooseMode("END_TURN")}>{t('battle.endTurn')}</button></div>
     <div class="battle-submit-row">
       {surrender ? <>
         <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>{t('battle.confirmSurrender')}</button>
