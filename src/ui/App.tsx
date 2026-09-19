@@ -1,689 +1,680 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { createGame } from "../game/createGame";
-
-type RegisterForm = {
-  userId: string;
-  password: string;
-  email: string;
-  phone: string;
+import { useMinimumLoading } from "./useMinimumLoading";
+import { CharacterSettingsDialog } from "./CharacterSettingsDialog";
+import { CharacterSettings } from "./CharacterSettings";
+import { BattlePanel } from "./BattlePanel";
+import { Client } from "../client/api";
+import { registrationIssue } from "../client/credentials";
+import type { Position, State } from "../client/types";
+import type { createGame } from "../game/createGame";
+const loginIllustration = new URL("../assets/login/slime-welcome-v2.png", import.meta.url).href;
+const RESULT_NAMES: Record<string, string> = {
+  WIN: "승리",
+  LOSE: "패배",
+  TIMEOUT: "시간 초과",
+  SURRENDER: "기권",
+  PREPARATION_FAILED: "전투 준비 시간 초과 · 필드 복귀",
 };
-
-type LoginForm = {
-  userId: string;
-  password: string;
-};
-
-type ResetPasswordForm = {
-  userId: string;
-  emailOrPhone: string;
-  newPassword: string;
-};
-
-type CharacterForm = {
-  characterName: string;
-};
-
-type ApiResponse = {
-  ok: boolean;
-  message: string;
-  user_id?: string;
-  email?: string;
-  phone?: string;
-};
-
-type TokenResponse = {
-  ok: boolean;
-  message: string;
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
-};
-
-type CharacterResponse = {
-  ok: boolean;
-  message: string;
-  user_id?: string;
-  character_name?: string;
-  saved_at?: string;
-};
-
-type ViewMode = "landing" | "start" | "webgl";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:18080";
-const DEFAULT_LOCAL_USER_ID = "test";
-const DEFAULT_LOCAL_PASSWORD = "Qwer!234";
-const DEFAULT_LOCAL_CHARACTER_NAME = "준우";
-
-function isLocalRuntime(): boolean {
-  if (typeof window === "undefined") {
-    return API_BASE_URL.includes("127.0.0.1") || API_BASE_URL.includes("localhost");
+const client = new Client();
+const same = (a: Position, b: Position) =>
+  a.column === b.column && a.row === b.row;
+const DISTANCE = (a: Position, b: Position) =>
+  Math.abs(a.column - b.column) + Math.abs(a.row - b.row);
+function route(start: Position, end: Position, s: State): Position[] {
+  const queue: { pos: Position; path: Position[] }[] = [
+      { pos: start, path: [] },
+    ],
+    seen = new Set([`${start.column},${start.row}`]);
+  for (let i = 0; i < queue.length; i++) {
+    const current = queue[i];
+    if (same(current.pos, end)) return current.path;
+    for (const [dc, dr] of [
+      [0, -1],
+      [-1, 0],
+      [1, 0],
+      [0, 1],
+    ]) {
+      const p = { column: current.pos.column + dc, row: current.pos.row + dr },
+        key = `${p.column},${p.row}`;
+      if (
+        !seen.has(key) &&
+        p.column >= 0 &&
+        p.row >= 0 &&
+        p.column < s.map.columns &&
+        p.row < s.map.rows &&
+        !s.map.blocked.some((b) => same(b, p))
+      ) {
+        seen.add(key);
+        queue.push({ pos: p, path: [...current.path, p] });
+      }
+    }
   }
-
-  return (
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === "localhost" ||
-    API_BASE_URL.includes("127.0.0.1") ||
-    API_BASE_URL.includes("localhost")
-  );
+  throw new Error("도달할 수 없는 셀입니다.");
 }
-
-function toDetailMessage(detail: unknown): string {
-  if (typeof detail === "string") return detail;
-  if (!Array.isArray(detail)) return "요청 실패";
-
-  const lines = detail
-    .map((item) => {
-      const loc = Array.isArray(item?.loc)
-        ? item.loc.filter((x: string) => x !== "body").join(".")
-        : "";
-      const msg = item?.msg || "검증 실패";
-      return loc ? `${loc}: ${msg}` : msg;
-    })
-    .filter(Boolean);
-
-  return lines.length > 0 ? lines.join(" | ") : "요청 실패";
-}
-
-function toCharacterForm(data?: CharacterResponse | null): CharacterForm {
-  return {
-    characterName:
-      data?.character_name || (isLocalRuntime() ? DEFAULT_LOCAL_CHARACTER_NAME : ""),
-  };
-}
-
-function WebGLPage({
-  onBack,
-  characterName,
-}: {
-  onBack: () => void;
-  characterName: string;
-}) {
-  const gameHostRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!gameHostRef.current) return;
-    const game = createGame(gameHostRef.current);
-    return () => game.destroy(true);
-  }, [characterName]);
-
-  return (
-    <section class="webgl-page">
-      <header class="webgl-header">
-        <div>
-          <h2>게임 플레이</h2>
-          <p>{characterName} 캐릭터의 모험을 준비 중입니다.</p>
-        </div>
-        <button class="secondary" onClick={onBack}>
-          시작 화면으로 돌아가기
-        </button>
-      </header>
-      <div class="webgl-stage">
-        <div ref={gameHostRef} class="game-host" />
-        <aside class="minimap">
-          <h3>MMO SRPG 준비 중</h3>
-          <p>채널 탐색과 분리된 조우 전투를 준비하고 있습니다.</p>
-          <p>현재는 플레이할 수 없습니다.</p>
-        </aside>
-      </div>
-    </section>
-  );
-}
-
 export function App() {
-  const localRuntime = isLocalRuntime();
-  const [viewMode, setViewMode] = useState<ViewMode>("landing");
-  const [isSignupOpen, setIsSignupOpen] = useState(false);
-  const [isResetOpen, setIsResetOpen] = useState(false);
-  const [registerForm, setRegisterForm] = useState<RegisterForm>({
-    userId: "",
-    password: "",
-    email: "",
-    phone: "",
-  });
-  const [loginForm, setLoginForm] = useState<LoginForm>({
-    userId: localRuntime ? DEFAULT_LOCAL_USER_ID : "",
-    password: localRuntime ? DEFAULT_LOCAL_PASSWORD : "",
-  });
-  const [resetForm, setResetForm] = useState<ResetPasswordForm>({
-    userId: "",
-    emailOrPhone: "",
-    newPassword: "",
-  });
-  const [characterForm, setCharacterForm] = useState<CharacterForm>(toCharacterForm());
-  const [savedCharacter, setSavedCharacter] = useState<CharacterResponse | null>(null);
-  const [statusMessage, setStatusMessage] = useState("로그인을 진행해 주세요.");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState<ApiResponse | null>(null);
-  const [tokens, setTokens] = useState<TokenResponse | null>(null);
-
-  const passwordGuide = "비밀번호는 대문자/소문자/숫자/특수문자를 각각 1개 이상 포함해야 합니다.";
-
-  async function register() {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: registerForm.userId,
-          password: registerForm.password,
-          email: registerForm.email,
-          phone: registerForm.phone,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setStatusMessage(`회원가입 실패: ${toDetailMessage(data?.detail)}`);
-        return;
-      }
-      setStatusMessage(`회원가입 성공: ${data.message}`);
-      setLoginForm((prev) => ({ ...prev, userId: registerForm.userId }));
-      setIsSignupOpen(false);
-    } catch (error) {
-      setStatusMessage(`회원가입 실패: ${(error as Error).message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function loadMe(accessToken: string) {
-    const response = await fetch(`${API_BASE_URL}/v1/auth/me`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setStatusMessage(`인증 조회 실패: ${data?.detail || "요청 실패"}`);
-      return;
-    }
-    setLoggedInUser(data);
-  }
-
-  async function loadCharacter(accessToken: string) {
-    const response = await fetch(`${API_BASE_URL}/v1/characters/me`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setStatusMessage(`캐릭터 조회 실패: ${data?.detail || "요청 실패"}`);
-      return;
-    }
-
-    if (data?.character_name) {
-      setSavedCharacter(data);
-      setCharacterForm(toCharacterForm(data));
-      setStatusMessage("저장된 캐릭터를 불러왔습니다. 바로 시작하거나 수정 후 다시 저장할 수 있습니다.");
-      return;
-    }
-
-    setSavedCharacter(null);
-    setCharacterForm(toCharacterForm(null));
-    setStatusMessage(
-      localRuntime
-        ? "로그인 성공: 로컬 기본 캐릭터 이름이 미리 입력되어 있습니다. 저장 후 바로 시작할 수 있습니다."
-        : "로그인 성공: 캐릭터를 생성하고 저장한 뒤 시작할 수 있습니다.",
-    );
-  }
-
-  async function login() {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: loginForm.userId,
-          password: loginForm.password,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setStatusMessage(`로그인 실패: ${toDetailMessage(data?.detail)}`);
-        setLoggedInUser(null);
-        setSavedCharacter(null);
-        return;
-      }
-
-      setTokens(data);
-      await loadMe(data.access_token);
-      await loadCharacter(data.access_token);
-      setViewMode("start");
-    } catch (error) {
-      setStatusMessage(`로그인 실패: ${(error as Error).message}`);
-      setLoggedInUser(null);
-      setSavedCharacter(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function resetPassword() {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/auth/password/reset`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: resetForm.userId,
-          email_or_phone: resetForm.emailOrPhone,
-          new_password: resetForm.newPassword,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setStatusMessage(`비밀번호 재설정 실패: ${data?.detail || "요청 실패"}`);
-        return;
-      }
-      setStatusMessage(`비밀번호 재설정 성공: ${data.message}`);
-      setLoginForm((prev) => ({ ...prev, userId: resetForm.userId, password: "" }));
-      setIsResetOpen(false);
-    } catch (error) {
-      setStatusMessage(`비밀번호 재설정 실패: ${(error as Error).message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function saveCharacter() {
-    if (!tokens?.access_token) {
-      setStatusMessage("캐릭터 저장 실패: 로그인 토큰이 없습니다.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/characters/me`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${tokens.access_token}`,
-        },
-        body: JSON.stringify({
-          character_name: characterForm.characterName,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setStatusMessage(`캐릭터 저장 실패: ${toDetailMessage(data?.detail)}`);
-        return;
-      }
-
-      setSavedCharacter(data);
-      setCharacterForm(toCharacterForm(data));
-      setStatusMessage(`캐릭터 저장 완료: ${data.character_name} 정보가 백엔드에 기록되었습니다.`);
-    } catch (error) {
-      setStatusMessage(`캐릭터 저장 실패: ${(error as Error).message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function enterWebGL() {
-    if (!tokens?.access_token) {
-      setStatusMessage("접속 실패: 로그인 토큰이 없습니다.");
-      return;
-    }
-    if (!savedCharacter?.character_name) {
-      setStatusMessage("접속 실패: 캐릭터를 먼저 저장해 주세요.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/access/enter`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${tokens.access_token}` },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setStatusMessage(`접속 실패: ${data?.detail || "요청 실패"}`);
-        return;
-      }
-      setStatusMessage(`접속 성공: ${data.message}`);
-      setViewMode("webgl");
-    } catch (error) {
-      setStatusMessage(`접속 실패: ${(error as Error).message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function exitWebGL() {
-    if (!tokens?.access_token) {
-      setViewMode("start");
-      return;
-    }
-    try {
-      await fetch(`${API_BASE_URL}/v1/access/exit`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${tokens.access_token}` },
-      });
-    } finally {
-      setStatusMessage("게임 화면에서 시작 화면으로 돌아왔습니다.");
-      setViewMode("start");
-    }
-  }
-
-  async function logout() {
-    if (tokens?.access_token) {
-      try {
-        await fetch(`${API_BASE_URL}/v1/auth/logout`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${tokens.access_token}` },
+  const [state, setState] = useState<State | null>(null),
+    [connected, setConnected] = useState(false),
+    [status, setStatus] = useState("계정을 만들고 모험을 시작하세요."),
+    [busy, setBusy] = useState(false);
+  const [user, setUser] = useState(""),
+    [password, setPassword] = useState(""),
+    [name, setName] = useState(""),
+    [selected, setSelected] = useState<Position | null>(null),
+    [chat, setChat] = useState("");
+  const [worldGeneration, setWorldGeneration] = useState<number | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [renderedLocation, setRenderedLocation] = useState("");
+  const [transferPending, setTransferPending] = useState(false);
+  const [preparationError, setPreparationError] = useState("");
+  const [renderError, setRenderError] = useState("");
+  const readyRequest = useRef<string | null>(null);
+  const [clock, setClock] = useState(Date.now()),
+    [renderFailed, setRenderFailed] = useState(false);
+  const container = useRef<HTMLDivElement>(null),
+    renderer = useRef<ReturnType<typeof createGame> | null>(null);
+  const serverOffset = useRef(0);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  useEffect(() => {
+    client.onState = (s) => {
+      serverOffset.current = s.serverTime * 1000 - Date.now();
+      setState(s);
+    };
+    client.onStatus = (ready, msg) => {
+      setConnected(ready);
+      setStatus(msg);
+    };
+    const timer = setInterval(() => setClock(Date.now()), 1000);
+    return () => {
+      clearInterval(timer);
+      client.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    setSelected(null);
+    renderer.current?.scene.selectCell(null);
+  }, [state?.battle?.id, state?.battle?.turnId]);
+  const inWorld = !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY";
+  useEffect(() => {
+    if (!inWorld || !container.current) return;
+    setRenderFailed(false);
+    setRenderError("");
+    setRenderedLocation("");
+    let disposed = false;
+    let canvas: HTMLCanvasElement | null = null;
+    const lost = (e: Event) => {
+      e.preventDefault();
+      setRenderFailed(true);
+      client.disconnect();
+      setConnected(false);
+      setRenderError("WebGL 화면을 복구하려면 다시 접속하세요.");
+      setStatus("WebGL 화면을 복구하려면 다시 접속하세요.");
+    };
+    void import("../game/createGame")
+      .then(({ createGame }) => {
+        if (disposed || !container.current) return;
+        renderer.current = createGame(container.current, setSelected, setRenderedLocation, message => {
+          setRenderFailed(true);
+          setRenderError(message);
+          setStatus(message);
         });
-      } catch {
-        // 로그 전송 실패 시에도 로컬 로그아웃은 진행한다.
-      }
+        if (stateRef.current) renderer.current.scene.setState(stateRef.current);
+        canvas = renderer.current.game.canvas;
+        canvas.addEventListener("webglcontextlost", lost);
+      })
+      .catch(() => {
+        setRenderFailed(true);
+        client.disconnect();
+        setRenderError("이 브라우저에서 WebGL을 실행할 수 없습니다.");
+        setStatus("이 브라우저에서 WebGL을 실행할 수 없습니다.");
+        setConnected(false);
+      });
+    return () => {
+      disposed = true;
+      canvas?.removeEventListener("webglcontextlost", lost);
+      renderer.current?.game.destroy(true);
+      renderer.current = null;
+    };
+  }, [inWorld]);
+  useEffect(() => {
+    if (state) renderer.current?.scene.setState(state);
+  }, [state]);
+  const loadingRequested = transferPending || (inWorld &&
+    (renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING"));
+  const { loading, minimumElapsed } = useMinimumLoading(loadingRequested);
+  useEffect(() => {
+    const battle = state?.battle;
+    if (!battle || battle.status !== "PREPARING" || !minimumElapsed || !connected || renderFailed ||
+        renderedLocation !== state.location.id || !state.location.roomReady ||
+        state.me.requiresStartSpawn || battle.ready?.includes(state.me.id) || readyRequest.current) return;
+    const id = battle.id;
+    readyRequest.current = id;
+    setPreparationError("");
+    void client.command("/v1/game/battle/commands", { action: { type: "READY", battleId: id } })
+      .catch(e => { if (stateRef.current?.battle?.id === id) setPreparationError((e as Error).message); })
+      .finally(() => { if (readyRequest.current === id) readyRequest.current = null; });
+  }, [state, connected, renderedLocation, renderFailed, clock, minimumElapsed]);
+  async function run(task: () => Promise<unknown>) {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await task();
+    } catch (e) {
+      setStatus((e as Error).message);
+    } finally {
+      setBusy(false);
     }
-
-    setTokens(null);
-    setSavedCharacter(null);
-    setLoggedInUser(null);
-    setLoginForm({
-      userId: localRuntime ? DEFAULT_LOCAL_USER_ID : "",
-      password: localRuntime ? DEFAULT_LOCAL_PASSWORD : "",
+  }
+  const command = (path: string, body: Record<string, unknown> = {}) =>
+    run(async () => {
+      const transfer = ["/v1/world/enter", "/v1/maps/transitions", "/v1/game/encounters/reserve", "/v1/game/encounters/ready"].includes(path);
+      if (transfer) setTransferPending(true);
+      try {
+        const result = await client.command(path, body);
+        if (path === "/v1/world/enter") setWorldGeneration(result.state.generation);
+        return result;
+      }
+      finally { if (transfer) setTransferPending(false); }
     });
-    setCharacterForm(toCharacterForm(null));
-    setStatusMessage(
-      localRuntime
-        ? "로그아웃이 완료되었습니다. 로컬 기본 계정과 캐릭터 이름이 다시 입력되었습니다."
-        : "로그아웃이 완료되었습니다.",
-    );
-    setViewMode("landing");
+  async function walk() {
+    if (!state || !selected) return;
+    const steps = route(state.me.position, selected, state),
+      mapId = state.map.id;
+    for (const position of steps) {
+      if (client.state?.me.mode !== "FIELD" || client.state?.map.id !== mapId)
+        break;
+      await client.command("/v1/game/moves", { position });
+      await new Promise((resolve) => setTimeout(resolve, 270));
+    }
   }
-
-  if (viewMode === "webgl") {
-    return (
-      <WebGLPage
-        onBack={exitWebGL}
-        characterName={savedCharacter?.character_name || characterForm.characterName || "새 모험가"}
-      />
-    );
-  }
-
-  if (viewMode === "start") {
-    return (
-      <div class="landing-page">
-        <div class="start-layout">
-          <section class="hero">
-            <h1>캐릭터 생성</h1>
-            <p>로그인 이후 캐릭터를 만들고 저장하면 시작 버튼으로 게임 플레이 화면에 진입할 수 있습니다.</p>
-            {localRuntime && (
-              <p>로컬 실행에서는 기본 캐릭터 이름이 미리 입력되며, 기본 계정에 저장된 캐릭터를 바로 불러옵니다.</p>
-            )}
-            <div class="hero-steps">
-              <span>1. 캐릭터 작성</span>
-              <span>2. 백엔드 저장</span>
-              <span>3. 시작 버튼으로 입장</span>
-            </div>
-            <div class="hero-actions">
-              <button disabled={isLoading || !savedCharacter?.character_name} onClick={enterWebGL}>
-                시작
-              </button>
-              <button class="secondary" disabled={isLoading} onClick={logout}>
-                로그아웃
-              </button>
-            </div>
-          </section>
-
-          <section class="character-card">
-            <h2>캐릭터 정보</h2>
-            {localRuntime && <p>로컬 기본값으로 캐릭터 이름이 채워져 있습니다.</p>}
-            <label>
-              캐릭터 이름
-              <input
-                value={characterForm.characterName}
-                onInput={(event) =>
-                  setCharacterForm((prev) => ({
-                    ...prev,
-                    characterName: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="준우"
-              />
-            </label>
-            <div class="signup-actions">
-              <button disabled={isLoading} onClick={saveCharacter}>
-                캐릭터 저장
-              </button>
-              <button class="secondary" disabled={isLoading || !savedCharacter?.character_name} onClick={enterWebGL}>
-                저장 후 시작
-              </button>
-            </div>
-          </section>
-
-          <section class="status-panel">
-            <h2>상태</h2>
-            <p>{statusMessage}</p>
-            {loggedInUser && (
-              <ul>
-                <li>유저 ID: {loggedInUser.user_id}</li>
-                <li>이메일: {loggedInUser.email}</li>
-                <li>전화번호: {loggedInUser.phone}</li>
-              </ul>
-            )}
-            {savedCharacter?.character_name && (
-              <div class="character-summary">
-                <strong>{savedCharacter.character_name}</strong>
-                <span>
-                  {localRuntime
-                    ? "로컬 실행에서는 기본 계정에 연결된 캐릭터가 미리 준비되어 있습니다."
-                    : "이름만 입력받고 나머지 정보는 기본값으로 저장합니다."}
-                </span>
-              </div>
-            )}
-          </section>
-        </div>
-      </div>
-    );
-  }
-
+  const disabled = busy || !connected || renderFailed || loading;
+  const battle = state?.battle,
+    turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
+  const remaining = battle
+    ? Math.max(
+        0,
+        Math.min(
+          45,
+          Math.ceil(battle.deadline - (clock + serverOffset.current) / 1000),
+        ),
+      )
+    : 0;
+  const battleCommand = (type: string, targetId?: string) =>
+    command("/v1/game/battle/commands", {
+      action: {
+        type,
+        turnId: battle?.turnId,
+        ...(targetId ? { targetId } : {}),
+        ...(type === "MOVE" ? { position: selected } : {}),
+      },
+    });
   return (
-    <div class="landing-page">
-      <div class="landing-main">
-        <section class="hero">
-          <h1>SLIME</h1>
-          <p>로그인 후 캐릭터를 생성하고, 저장된 캐릭터로 게임 플레이 화면에 진입합니다.</p>
-          {localRuntime && (
-            <p>로컬 실행 기본값: ID test / PW Qwer!234 / 캐릭터 이름 준우</p>
-          )}
+    <div class="app-shell">
+      {loading && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
+        <section class="loading-card" aria-live="polite">
+          <div class="eyebrow">SLIME · LOADING</div>
+          <h2>{renderFailed ? "화면 준비에 실패했습니다" : state?.battle ? "전투 맵으로 이동 중" : "맵으로 이동 중"}</h2>
+          <p>맵과 참가자, 채팅룸을 준비하고 있습니다.</p>
+          <ol>
+            <li>{transferPending ? "서버 공간 생성·이동 확인 중" : "서버 공간 확인 완료"}</li>
+            <li>{state && renderedLocation === state.location.id ? "맵 자원·화면 준비 완료" : "맵 자원·화면 준비 중"}</li>
+            <li>{connected && state?.location.roomReady ? "전용 채팅룸·실시간 연결 준비 완료" : "채팅룸·실시간 연결 확인 중"}</li>
+            {state?.battle?.status === "PREPARING" && <li>참가자 준비 {state.battle.ready?.length || 0}/{state.battle.participants.length} · 준비 완료 후 첫 턴 시작</li>}
+          </ol>
+          {preparationError && <p role="alert">{preparationError}</p>}
+          {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>다시 접속</button></> : <p>최소 1.5초 대기와 모든 준비가 완료되면 자동으로 입장합니다.</p>}
         </section>
-
-        <section class="login-card">
-          <h2>로그인</h2>
-          <label>
-            유저 ID
-            <input
-              value={loginForm.userId}
-              onInput={(event) =>
-                setLoginForm((prev) => ({
-                  ...prev,
-                  userId: (event.currentTarget as HTMLInputElement).value,
-                }))
-              }
-              placeholder="user_01"
-            />
-          </label>
-          <label>
-            비밀번호
-            <input
-              type={showLoginPassword ? "text" : "password"}
-              value={loginForm.password}
-              onInput={(event) =>
-                setLoginForm((prev) => ({
-                  ...prev,
-                  password: (event.currentTarget as HTMLInputElement).value,
-                }))
-              }
-              placeholder="비밀번호 입력"
-            />
-          </label>
-          <label class="inline-check">
-            <input
-              type="checkbox"
-              checked={showLoginPassword}
-              onInput={(event) =>
-                setShowLoginPassword((event.currentTarget as HTMLInputElement).checked)
-              }
-            />
-            비밀번호 표시
-          </label>
-          <button disabled={isLoading} onClick={login}>
-            로그인
+      </div>}
+      <header>
+        <a class="brand" href="/">
+          SLIME<span>TACTICAL WORLD</span>
+        </a>
+        <div class="connection">
+          <i class={connected ? "online" : ""} />
+          {state ? (connected ? "연결됨" : "연결 확인 중") : "모험의 시작"}
+        </div>
+        {state && !connected && (
+          <button
+            class="subtle"
+            onClick={() => {
+              client.disconnect();
+              client.tokens = null;
+              client.state = null;
+              setState(null);
+              setStatus(
+                "다시 로그인해 주세요. 서버의 기존 전투는 계속 진행됩니다.",
+              );
+            }}
+          >
+            다시 로그인
           </button>
-          <button class="secondary" disabled={isLoading} onClick={() => setIsSignupOpen(true)}>
-            회원가입
+        )}
+        {state && (
+          <button
+            class="subtle"
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                await client.logout();
+                setState(null);
+                setWorldGeneration(null);
+                setSettingsOpen(false);
+                setConnected(false);
+                setStatus("로그아웃했습니다.");
+                setPassword("");
+              })
+            }
+          >
+            로그아웃
           </button>
-          <button class="secondary" disabled={isLoading} onClick={() => setIsResetOpen(true)}>
-            비밀번호 찾기
-          </button>
-        </section>
-      </div>
-
-      {isSignupOpen && (
-        <section class="signup-modal">
-          <div class="signup-panel">
-            <h2>회원가입</h2>
-            <label>
-              유저 ID
-              <input
-                value={registerForm.userId}
-                onInput={(event) =>
-                  setRegisterForm((prev) => ({
-                    ...prev,
-                    userId: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="user_01"
-              />
-            </label>
-            <label>
-              비밀번호
-              <input
-                type={showSignupPassword ? "text" : "password"}
-                value={registerForm.password}
-                onInput={(event) =>
-                  setRegisterForm((prev) => ({
-                    ...prev,
-                    password: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="비밀번호 입력"
-              />
-            </label>
-            <label class="inline-check">
-              <input
-                type="checkbox"
-                checked={showSignupPassword}
-                onInput={(event) =>
-                  setShowSignupPassword((event.currentTarget as HTMLInputElement).checked)
-                }
-              />
-              비밀번호 표시
-            </label>
-            <small>{passwordGuide}</small>
-            <label>
-              이메일
-              <input
-                value={registerForm.email}
-                onInput={(event) =>
-                  setRegisterForm((prev) => ({
-                    ...prev,
-                    email: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="user@example.com"
-              />
-            </label>
-            <label>
-              전화번호
-              <input
-                value={registerForm.phone}
-                onInput={(event) =>
-                  setRegisterForm((prev) => ({
-                    ...prev,
-                    phone: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="010-0000-0000"
-              />
-            </label>
-            <div class="signup-actions">
-              <button disabled={isLoading} onClick={register}>
-                회원가입 진행
-              </button>
-              <button class="secondary" disabled={isLoading} onClick={() => setIsSignupOpen(false)}>
-                닫기
-              </button>
+        )}
+      </header>
+      {!state ? (
+        <main class="welcome">
+          <section class="intro" aria-labelledby="welcome-title">
+            <img class="login-illustration" src={loginIllustration}
+              alt="숲속 꽃밭의 감각기관 없는 반투명 청록색 슬라임" width="1536" height="1024" />
+            <div class="intro-copy">
+              <div class="eyebrow">작은 슬라임, 새로운 모험</div>
+              <h1 id="welcome-title">한 걸음의 선택,<br /><em>함께 만드는 모험.</em></h1>
+              <p>초원을 탐색하고 동료를 만나세요.<br />조우가 시작되면 당신의 턴이 찾아옵니다.</p>
             </div>
-          </div>
-        </section>
-      )}
-
-      {isResetOpen && (
-        <section class="signup-modal">
-          <div class="signup-panel">
-            <h2>비밀번호 찾기</h2>
-            <label>
-              유저 ID
-              <input
-                value={resetForm.userId}
-                onInput={(event) =>
-                  setResetForm((prev) => ({
-                    ...prev,
-                    userId: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="user_01"
-              />
-            </label>
-            <label>
-              이메일 또는 전화번호
-              <input
-                value={resetForm.emailOrPhone}
-                onInput={(event) =>
-                  setResetForm((prev) => ({
-                    ...prev,
-                    emailOrPhone: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="user@example.com 또는 010-0000-0000"
-              />
-            </label>
-            <label>
-              새 비밀번호
-              <input
-                type="password"
-                value={resetForm.newPassword}
-                onInput={(event) =>
-                  setResetForm((prev) => ({
-                    ...prev,
-                    newPassword: (event.currentTarget as HTMLInputElement).value,
-                  }))
-                }
-                placeholder="새 비밀번호 입력"
-              />
-            </label>
-            <small>{passwordGuide}</small>
-            <div class="signup-actions">
-              <button disabled={isLoading} onClick={resetPassword}>
-                비밀번호 재설정
-              </button>
-              <button class="secondary" disabled={isLoading} onClick={() => setIsResetOpen(false)}>
-                닫기
-              </button>
+            <div class="intro-grid">
+              <span>◇ 사각 셀의 세계</span>
+              <span>◎ 함께하는 탐색</span>
+              <span>↗ 차례대로 펼치는 전투</span>
             </div>
-          </div>
-        </section>
+          </section>
+          <section class="card auth">
+            <div class="eyebrow">모험의 시작</div>
+            <h2>반가워요, 모험가님.</h2>
+            <p class="auth-intro">슬라임의 세계로 한 걸음 더.</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setWorldGeneration(null);
+                setSettingsOpen(false);
+                void run(() => client.login(user, password));
+              }}
+            >
+              <label>
+                아이디
+                <input
+                  aria-label="아이디"
+                  autoComplete="username"
+                  maxLength={40}
+                  value={user}
+                  onInput={(e) => setUser(e.currentTarget.value)}
+                  required
+                />
+              </label>
+              <label>
+                비밀번호
+                <input
+                  aria-label="비밀번호"
+                  type="password"
+                  autoComplete="current-password"
+                  maxLength={128}
+                  value={password}
+                  onInput={(e) => setPassword(e.currentTarget.value)}
+                  required
+                />
+              </label>
+              <button
+                disabled={busy || !user.trim() || !password}
+                type="submit"
+              >
+                접속하기 <span>→</span>
+              </button>
+              <button
+                type="button"
+                class="secondary"
+                disabled={busy || !user.trim() || !password}
+                onClick={() =>
+                  run(async () => {
+                    const issue = registrationIssue(user, password);
+                    if (issue) throw new Error(issue);
+                    await client.request("/v1/auth/register", {
+                      user_id: user,
+                      password,
+                    });
+                    setStatus("가입되었습니다. 접속하기를 눌러 주세요.");
+                  })
+                }
+              >
+                새 계정 만들기
+              </button>
+            </form>
+            <small>
+              가입 아이디: 영문 소문자·숫자만 허용합니다.
+              <br />
+              비밀번호: 영문 대문자·소문자·숫자·특수문자를 각각 하나 이상
+              포함하세요. 공백 없이 ASCII 문자만 사용할 수 있습니다.
+            </small>
+          </section>
+        </main>
+      ) : !inWorld ? (
+        <main class="lobby">
+          <section class="card">
+            <div class="eyebrow">{state.me.name ? "CHARACTER SETTINGS" : "NEW EXPLORER"}</div>
+            <h1>{state.me.name ? "캐릭터 설정" : "새로운 모험가"}</h1>
+            {!state.me.name ? (
+              <>
+                <label>
+                  캐릭터 이름
+                  <input
+                    aria-label="캐릭터 이름"
+                    maxLength={20}
+                    value={name}
+                    onInput={(e) => setName(e.currentTarget.value)}
+                  />
+                </label>
+                <button
+                  disabled={disabled || !name.trim()}
+                  onClick={() =>
+                    command("/v1/characters/me", { character_name: name })
+                  }
+                >
+                  캐릭터 생성
+                </button>
+              </>
+            ) : (
+              <>
+                <p>
+                  {state.me.name} · 경험치 {state.me.xp} · 재화 {state.me.coins}
+                </p>
+                <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
+                <p>마지막 맵의 시작점에서 모험을 이어갑니다.</p>
+                <button
+                  disabled={disabled || !!state.me.battleId}
+                  onClick={() => command("/v1/world/enter")}
+                >
+                  {state.me.battleId
+                    ? "진행 중 전투 정산 대기"
+                    : "게임으로 가기 →"}
+                </button>
+              </>
+            )}
+            {state.me.lastResult && (
+              <p class="result">
+                {RESULT_NAMES[state.me.lastResult.result]} · 경험치 +
+                {state.me.lastResult.xp}
+              </p>
+            )}
+          </section>
+        </main>
+      ) : (
+        <main class="world-layout">
+          <section class="world">
+            <div class="world-title">
+              <div>
+                <div class="eyebrow">
+                  {battle ? "ENCOUNTER / BATTLE" : "EXPLORE / CHANNEL"}
+                </div>
+                <h2>
+                  {battle
+                    ? `전술 전장 · 라운드 ${battle.round}`
+                    : state.map.name}
+                </h2>
+              </div>
+              <nav class="map-menu" aria-label="맵 메뉴">
+                <button class="secondary compact" aria-haspopup="dialog"
+                  disabled={loading} onClick={() => setSettingsOpen(true)}>캐릭터 설정</button>
+              <button
+                class="secondary compact"
+                onClick={() => renderer.current?.scene.focus()}
+              >
+                시점 복귀
+              </button>
+              </nav>
+            </div>
+            <div class="canvas-wrap" ref={container} />
+            <div class="map-caption">
+              <span>
+                {battle
+                  ? "파랑: 이동 · 번호선: 경로 · 주황: 도착 후 공격 범위"
+                  : "바위·빽빽한 수풀은 이동 불가 · 화살표 표식은 웨이포인트 · 맵 밖은 배경"}
+              </span>
+              <span>
+                {selected
+                  ? `선택 ${selected.column}, ${selected.row}${(battle?.blocked ?? state.map.blocked).some(p => same(p, selected)) ? " · 이동 불가" : ""}`
+                  : "셀을 선택하세요"}{" "}
+                · 방향키 선택 / 휠 확대
+              </span>
+            </div>
+          </section>
+          <aside class="sidebar">
+            <section class="card profile">
+              <div class="eyebrow">EXPLORER</div>
+              <h2>{state.me.name}</h2>
+              <p>
+                XP {state.me.xp} · ◈ {state.me.coins}
+                <br />
+                위치 {state.me.position.column}, {state.me.position.row}
+              </p>
+              <span class="badge">
+                {battle
+                  ? "전투 중"
+                  : state.me.mode === "RESERVED"
+                    ? "조우 준비"
+                    : "탐색 중"}
+              </span>
+              {state.me.requiresStartSpawn && (
+                <p>정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>
+              )}
+            </section>
+            {battle ? (
+              <BattlePanel battle={battle} actor={state.me.id} selected={selected}
+                disabled={disabled || state.me.requiresStartSpawn} remaining={remaining}
+                select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />
+            ) : (
+              <section class="card">
+                <h3>다음 행동</h3>
+                <button
+                  disabled={disabled || !selected || state.me.mode !== "FIELD" || state.map.blocked.some(p => same(p, selected))}
+                  onClick={() => run(walk)}
+                >
+                  선택 셀까지 이동
+                </button>
+                {state.map.connections
+                  .filter((g) => same(g, state.me.position))
+                  .map((g) => (
+                    <button
+                      class="secondary"
+                      disabled={disabled}
+                      onClick={() =>
+                        command("/v1/maps/transitions", { connectionId: g.id })
+                      }
+                    >
+                      {g.targetName ?? (g.target === "grove" ? "푸른 숲" : "이슬 초원")}으로 이동
+                      ↗
+                    </button>
+                  ))}
+                <h4>주변의 몬스터</h4>
+                {state.monsters.map((m) => (
+                  <div class="monster-row">
+                    <span>
+                      {m.disposition === "AGGRESSIVE" ? "● 선공" : "○ 비선공"}{" "}
+                      <small>
+                        {m.movement?.mode === "ROAM" ? `${m.movement.interval}초 주기 이동 · ` : "고정 · "}
+                        거리 {DISTANCE(state.me.position, m.position)}
+                      </small>
+                    </span>
+                    <button
+                      class="compact secondary"
+                      disabled={
+                        disabled ||
+                        m.state !== "AVAILABLE" ||
+                        DISTANCE(state.me.position, m.position) > 1 ||
+                        state.me.mode !== "FIELD"
+                      }
+                      onClick={() =>
+                        command("/v1/game/encounters/reserve", {
+                          monsterId: m.id,
+                        })
+                      }
+                    >
+                      조우
+                    </button>
+                  </div>
+                ))}
+                {state.reservation && (
+                  <div class="reservation">
+                    <p>
+                      준비 {state.reservation.ready.length}/
+                      {state.reservation.members.length}
+                    </p>
+                    <button
+                      disabled={disabled}
+                      onClick={() =>
+                        command("/v1/game/encounters/ready", {
+                          reservationId: state.reservation!.id,
+                        })
+                      }
+                    >
+                      준비 완료
+                    </button>
+                    <button
+                      class="secondary"
+                      disabled={disabled}
+                      onClick={() =>
+                        command("/v1/game/encounters/cancel", {
+                          reservationId: state.reservation!.id,
+                        })
+                      }
+                    >
+                      예약 취소
+                    </button>
+                  </div>
+                )}
+              </section>
+            )}
+            {!battle && (
+              <section class="card">
+                <h3>
+                  함께 탐색하기 <small>{state.members.length}/32</small>
+                </h3>
+                {state.party ? (
+                  <>
+                    <p>
+                      파티 {state.party.members.length}/4 · 파티장{" "}
+                      {state.party.leader}
+                    </p>
+                    <button
+                      class="secondary"
+                      disabled={disabled}
+                      onClick={() =>
+                        command("/v1/game/party/commands", { action: "LEAVE" })
+                      }
+                    >
+                      파티 탈퇴
+                    </button>
+                    {state.party.leader === state.me.id && (
+                      <button
+                        class="secondary"
+                        disabled={disabled}
+                        onClick={() =>
+                          command("/v1/game/party/commands", {
+                            action: "DISBAND",
+                          })
+                        }
+                      >
+                        파티 해산
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    class="secondary"
+                    disabled={disabled || state.me.mode !== "FIELD"}
+                    onClick={() =>
+                      command("/v1/game/party/commands", { action: "CREATE" })
+                    }
+                  >
+                    파티 만들기
+                  </button>
+                )}
+                {state.members
+                  .filter((m) => m.id !== state.me.id)
+                  .map((m) => (
+                    <div class="monster-row">
+                      <span>{m.name}</span>
+                      <button
+                        class="compact secondary"
+                        disabled={
+                          disabled || state.party?.leader !== state.me.id
+                        }
+                        onClick={() =>
+                          command("/v1/game/party/commands", {
+                            action: state.party?.members.includes(m.id)
+                              ? "KICK"
+                              : "INVITE",
+                            targetId: m.id,
+                          })
+                        }
+                      >
+                        {state.party?.members.includes(m.id) ? "추방" : "초대"}
+                      </button>
+                    </div>
+                  ))}
+                {state.invitations.map((i) => (
+                  <button
+                    disabled={disabled}
+                    onClick={() =>
+                      command("/v1/game/party/commands", {
+                        action: "ACCEPT",
+                        invitationId: i.id,
+                      })
+                    }
+                  >
+                    {i.from}님의 초대 수락
+                  </button>
+                ))}
+              </section>
+            )}
+            <section class="card chat">
+              <h3>{battle ? "전투" : "채널"} 대화</h3>
+              <div class="chat-lines" aria-live="polite">
+                {state.messages.map((m) => (
+                  <p key={m.id}>
+                    <b>{m.name}</b> {m.text}
+                  </p>
+                ))}
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void run(async () => {
+                    await client.command("/v1/game/messages", { text: chat });
+                    setChat("");
+                  });
+                }}
+              >
+                <input
+                  aria-label="채팅 메시지"
+                  maxLength={200}
+                  value={chat}
+                  onInput={(e) => setChat(e.currentTarget.value)}
+                  placeholder="함께하는 모험가에게"
+                />
+                <button disabled={disabled || !chat.trim()}>전송</button>
+              </form>
+            </section>
+            {!battle && state.me.lastResult && (
+              <p class="result">
+                최근 전투 {RESULT_NAMES[state.me.lastResult.result]} · XP +
+                {state.me.lastResult.xp}
+              </p>
+            )}
+          </aside>
+        </main>
       )}
-
-      <section class="status-panel">
-        <h2>상태</h2>
-        <p>{statusMessage}</p>
-        {tokens && <p>토큰 발급됨: access/refresh</p>}
-      </section>
+      {state && inWorld && !loading && settingsOpen && <CharacterSettingsDialog
+        me={state.me} disabled={disabled} command={command} onClose={() => setSettingsOpen(false)} />}
+      <footer role="status">
+        <span class={connected ? "status-light" : ""}>●</span>{" "}
+        {busy ? "명령 처리 중…" : status}
+      </footer>
     </div>
   );
 }

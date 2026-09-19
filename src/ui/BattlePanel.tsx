@@ -1,0 +1,75 @@
+import { useEffect, useState } from "preact/hooks";
+import type { Battle, Position } from "../client/types";
+
+type Mode = "MOVE" | "ATTACK" | "GUARD" | "END_TURN";
+const LABELS: Record<string, string> = {
+  MOVE: "이동", ATTACK: "공격", GUARD: "방어", END_TURN: "턴 종료", WAIT: "시간 초과 대기",
+};
+const same = (a: Position, b: Position | null) => !!b && a.column === b.column && a.row === b.row;
+export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute }: {
+  battle: Battle; actor: string; selected: Position | null; disabled: boolean; remaining: number;
+  select: (p: Position) => void; execute: (type: string, targetId?: string) => void;
+}) {
+  const [mode, setMode] = useState<Mode>("MOVE");
+  const [surrender, setSurrender] = useState(false);
+  useEffect(() => { setMode("MOVE"); setSurrender(false); }, [battle.id, battle.turnId]);
+  if (battle.status === "PREPARING") return <section class="card">
+    <h3>전투 맵 준비 중</h3><p>맵과 전용 채팅룸, 참가자 준비가 완료된 뒤 첫 턴을 시작합니다.</p>
+  </section>;
+  const current = battle.units.find(u => u.id === battle.order[battle.index]);
+  const own = battle.tactics.canAct && current?.id === actor && remaining > 0;
+  const move = battle.tactics.moves.find(m => same(m.position, selected));
+  const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
+  const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
+  const valid = own && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : mode === "GUARD" ? !battle.acted : true);
+  const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
+  return <section class="card battle-panel" aria-label="턴제 전투 명령">
+    <div class="eyebrow">TURN-BASED TACTICS · {battle.field.columns} × {battle.field.rows}</div>
+    <h3>라운드 {battle.round} · {current?.name} <span class="timer">{remaining}초</span></h3>
+    <p aria-live="polite">{own ? "당신의 차례 · 명령과 대상을 선택한 뒤 확정하세요." : "현재 유닛의 행동을 기다리세요."}</p>
+    <div class="turn-order" aria-label="이번 라운드 행동 순서">
+      {battle.order.map((id, index) => {
+        const u = battle.units.find(unit => unit.id === id)!;
+        return <span class={index === battle.index ? "badge current" : "badge"} style={{ opacity: u.hp <= 0 || index < battle.index ? 0.4 : 1 }}>
+          {index === battle.index ? "▶ " : ""}{u.name}{u.hp <= 0 ? " (쓰러짐)" : ""}
+        </span>;
+      })}
+    </div>
+    <p>이동 {battle.moved ? "사용함" : "1회"} · 행동 {battle.acted ? "사용함" : "1회"}<br />이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료</p>
+    <div class="actions">
+      {(["MOVE", "ATTACK", "GUARD", "END_TURN"] as Mode[]).map(value => <button
+        class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
+        disabled={disabled || !own || (value === "MOVE" && battle.moved) || ((value === "ATTACK" || value === "GUARD") && battle.acted)}
+        onClick={() => setMode(value)}>{LABELS[value]}</button>)}
+    </div>
+    <div class="command-preview" aria-live="polite">
+      {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "파란 이동 가능 셀을 선택하세요."
+        : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage} · HP ${target.hp} → ${Math.max(0, target.hp - attack.damage)}` : "붉은 테두리의 사거리 내 적을 선택하세요."
+        : mode === "GUARD" ? "다음 자기 턴까지 받는 기본 공격 피해를 절반으로 줄입니다."
+        : "남은 이동과 행동을 포기합니다. 방어 효과는 없습니다."}
+    </div>
+    {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
+      <strong>도착 후 공격 안내</strong>
+      {battle.acted ? <p>행동을 이미 사용했습니다. 이동하면 턴이 종료됩니다.</p> : <>
+        <p>주황색 영역: 도착 후 공격 범위 · 사거리 {current?.range.join("~")}셀</p>
+        {move.attacks.length ? <ul>{move.attacks.map(a => <li>{name(a.targetId)} · 예상 피해 {a.damage}</li>)}</ul>
+          : <p>도착 후 공격 가능한 적이 없습니다.</p>}
+        <small>이동만 확정합니다. 공격은 도착 후 따로 선택하세요.</small>
+      </>}
+    </div>}
+    <button disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{LABELS[mode]} 확정</button>
+    <div class="units" aria-label="전투 유닛">
+      {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => select(u.position)}>
+        <span>{u.side === "ally" ? "아군" : "적"} · {u.name}</span>
+        <span>{u.hp}/{u.maxHp} HP{u.guard ? " · 방어" : ""}</span>
+      </button>)}
+    </div>
+    <details open><summary>최근 전투 기록</summary><ol class="battle-log">
+      {battle.log.slice(-6).map(event => <li>{name(event.unitId)} · {LABELS[event.action] || event.action}
+        {event.targetId ? ` → ${name(event.targetId)} (${event.damage} 피해)` : ""}</li>)}
+    </ol></details>
+    <button class="danger" disabled={disabled} onClick={() => {
+      if (surrender) { execute("SURRENDER"); setSurrender(false); } else setSurrender(true);
+    }}>{surrender ? "기권 동의 확정" : "기권"}</button>
+  </section>;
+}

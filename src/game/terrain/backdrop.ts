@@ -3,8 +3,9 @@ import background from "../../assets/terrain/meadow-backdrop.webp";
 
 const BACKDROP_KEY = "meadow-backdrop";
 const BACKDROP_DEPTH = -3;
-const HORIZONTAL_MARGIN = 1.5;
-const VERTICAL_MARGIN = 2;
+// 맵 가장자리의 풍경만 남기고 원본 이미지의 종횡비를 유지한다.
+const HORIZONTAL_MARGIN = 1.15;
+const VERTICAL_MARGIN = 1.35;
 const CENTER = 0.5;
 const THEMES: Record<string, number> = {
   meadow: 0xffffff, grove: 0x8db69e, "mist-lake": 0xa6c8cb, "wind-hills": 0xe0cba1,
@@ -26,6 +27,12 @@ export function fitBackdrop(image: Phaser.GameObjects.Image, camera: Phaser.Came
   if (tint === undefined) throw new Error(`지원하지 않는 맵 배경입니다: ${mapId}`);
   const scale = Math.max(width * HORIZONTAL_MARGIN / image.width, height * VERTICAL_MARGIN / image.height);
   image.setPosition(center.x, center.y).setScale(scale).setTint(tint);
-  camera.setBounds(center.x - image.displayWidth * CENTER, center.y - image.displayHeight * CENTER,
-    image.displayWidth, image.displayHeight);
+  constrainBackdropCamera(image, camera);
+}
+
+export function constrainBackdropCamera(image: Phaser.GameObjects.Image, camera: Phaser.Cameras.Scene2D.Camera) {
+  // 축소 시 배경보다 뷰포트가 커지면 양쪽 여백을 균등하게 배치한다.
+  const width = Math.max(image.displayWidth, camera.width / camera.zoom);
+  const height = Math.max(image.displayHeight, camera.height / camera.zoom);
+  camera.setBounds(image.x - width * CENTER, image.y - height * CENTER, width, height);
 }
