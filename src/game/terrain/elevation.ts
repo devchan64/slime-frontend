@@ -73,7 +73,8 @@ const contains = (x:number,y:number,polygon:{x:number;y:number}[]) => {
   return inside;
 };
 // 앞쪽 지면/절벽부터 검사하므로 가려진 뒤쪽 타일을 선택하지 않는다.
-export function pickSurface(x:number,y:number,map:Surface):Position|null {
+const PICK_VERTICAL_PADDING = CELL_HEIGHT + BASE_THICKNESS + ELEVATION_STEP;
+export function pickSurface(x:number,y:number,map:Surface,heights:{min:number;max:number}):Position|null {
   if(!Number.isFinite(x)||!Number.isFinite(y))return null;
   // 지면·계단·절벽은 셀 중심에서 가로 반 셀 범위를 넘지 않는다.
   // column-row 후보를 먼저 좁혀 전체 면적 대신 대각선 수에 비례해 검사한다.
@@ -81,7 +82,11 @@ export function pickSurface(x:number,y:number,map:Surface):Position|null {
   const first=Math.max(1-map.rows,Math.floor(difference)-1);
   const last=Math.min(map.columns-1,Math.ceil(difference)+1);
   if(first>last)return null;
-  for(let diagonal=map.columns+map.rows-2;diagonal>=0;diagonal--)
+  // 준비된 고도 범위를 쓰면 멀리 있는 대각선도 검사하지 않는다.
+  // 수직 여유는 계단 측면·절벽 바닥까지 포함하며 앞→뒤 순서는 유지한다.
+  const firstDiagonal=Math.max(0,Math.ceil((y-MAP_ORIGIN.y-PICK_VERTICAL_PADDING+heights.min*ELEVATION_STEP)/(CELL_HEIGHT/2)));
+  const lastDiagonal=Math.min(map.columns+map.rows-2,Math.floor((y-MAP_ORIGIN.y+PICK_VERTICAL_PADDING+heights.max*ELEVATION_STEP)/(CELL_HEIGHT/2)));
+  for(let diagonal=lastDiagonal;diagonal>=firstDiagonal;diagonal--)
     for(let delta=first;delta<=last;delta++){
       const row=(diagonal-delta)/2,column=diagonal-row;
       if(!Number.isInteger(row)||row<0||row>=map.rows||column<0||column>=map.columns)continue;

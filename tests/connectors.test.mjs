@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({stdin:{contents:`export * from './src/game/terrain/rotation'; export * from './src/game/terrain/elevation';`,resolveDir:process.cwd()},bundle:true,write:false,format:'esm',platform:'node'});
-const {rotatedSurface,elevationTileFaces,pickSurface}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {outputFiles}=await build({stdin:{contents:`export * from './src/game/terrain/rotation'; export * from './src/game/terrain/elevation'; export {elevationRange} from './src/game/terrain/viewport';`,resolveDir:process.cwd()},bundle:true,write:false,format:'esm',platform:'node'});
+const {elevationRange,rotatedSurface,elevationTileFaces,pickSurface}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 test('계단 타일은 회전 후에도 한 칸의 높이 전환 지형으로 유지된다',()=>{
  const tile={id:'step',kind:'stairs',asset:'stone-step-tile',cell:{column:1,row:0},lower:{column:0,row:0}};
  const map={columns:2,rows:1,elevations:[[0,1]],elevationTiles:[tile],ramps:[{id:'step',kind:'stairs',asset:'stone-stairs',start:tile.lower,end:tile.cell}]};
@@ -14,7 +14,7 @@ test('계단 타일은 회전 후에도 한 칸의 높이 전환 지형으로 �
   assert.equal(view.elevationTiles[0].asset,'stone-step-tile');
   const visible=elevationTileFaces(view.elevationTiles[0],view).filter(f=>f.top).filter(f=>{
    const x=f.points.reduce((n,p)=>n+p.x,0)/4,y=f.points.reduce((n,p)=>n+p.y,0)/4;
-   const picked=pickSurface(x,y,view);
+   const picked=pickSurface(x,y,view,elevationRange(view));
    return picked?.column===view.elevationTiles[0].cell.column&&picked?.row===view.elevationTiles[0].cell.row;
   });
   assert.ok(visible.length>0,'네 방향 모두 디딤면에서 계단 타일을 선택할 수 있어야 한다');

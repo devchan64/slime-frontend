@@ -150,7 +150,7 @@ export class MainScene extends Phaser.Scene {
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({ preventScroll: true });
       const at = this.cameras.main.getWorldPoint(p.x, p.y);
       if (!this.state) return;
-      const picked = pickSurface(at.x, at.y, this.viewSurface!);
+      const picked = pickSurface(at.x, at.y, this.viewSurface!, this.terrainPlan!.heights);
       const cell = picked ? fromView(picked, this.surface(), this.rotation) : null;
       if (cell) {
         this.selected = cell;

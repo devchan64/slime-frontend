@@ -10,10 +10,11 @@ const {project,pickSurface,canStep,cliffFaces}=await moduleAt('src/game/terrain/
 const {fieldRoute,encounterRoute,fieldDistance}=await moduleAt('src/ui/fieldNavigation.ts');
 const {buildMeadowRoad}=await moduleAt('src/game/terrain/meadow.ts');
 const fixtures=JSON.parse(await readFile('src/dev/battlefield-fixtures.json','utf8'));
+const {elevationRange}=await moduleAt('src/game/terrain/viewport.ts');
 for(const state of fixtures)test(`${state.battle.field.name}: 지면 선택과 계단 경로`,()=>{
  const d=state.battle.field;
  for(const cell of d.cells){
-   const p=project(cell,d),picked=pickSurface(p.x,p.y,d);
+   const p=project(cell,d),picked=pickSurface(p.x,p.y,d,elevationRange(d));
    // 지면 중심이 앞쪽 절벽에 가려질 수는 있지만 다른 뒤쪽 지면을 선택하면 안 된다.
    if(picked)assert.ok(picked.column+picked.row>=cell.column+cell.row);
  }
@@ -29,10 +30,10 @@ test('절벽 옆 칸으로 바로 건너가지 않고 명시적인 계단으로 
  assert.equal(canStep(start,end,map),false);
  const route=fieldRoute(start,end,map);assert.equal(route.length,7);
  let previous=start;for(const cell of route){assert.ok(canStep(previous,cell,map));previous=cell;}
- const top=project(end,map);assert.deepEqual(pickSurface(top.x,top.y,map),end);
+ const top=project(end,map);assert.deepEqual(pickSurface(top.x,top.y,map,elevationRange(map)),end);
  const front={column:4,row:4};const face=cliffFaces(front,map)[0];
  const center=face.reduce((s,p)=>({x:s.x+p.x/4,y:s.y+p.y/4}),{x:0,y:0});
- assert.equal(pickSurface(center.x,center.y,map),null);
+ assert.equal(pickSurface(center.x,center.y,map,elevationRange(map)),null);
 });
 test('필드 세 길은 높이가 다른 지면에서도 모든 목적지에 이어진다',()=>{
  const map=fixtures[0].map,road=buildMeadowRoad(map);
@@ -43,7 +44,7 @@ test('필드 세 길은 높이가 다른 지면에서도 모든 목적지에 이
 });
 test('고도 없는 기존 평면 지면 선택과 이동을 유지한다',()=>{
  const d={columns:12,rows:10};const p={column:5,row:4};const s=project(p,d);
- assert.deepEqual(pickSurface(s.x,s.y,d),p);assert.ok(canStep(p,{column:6,row:4},d));
+ assert.deepEqual(pickSurface(s.x,s.y,d,elevationRange(d)),p);assert.ok(canStep(p,{column:6,row:4},d));
 });
 
 test('멀리 있는 몬스터의 칸을 통과하지 않고 가장 가까운 인접 칸으로 이동한다',()=>{
