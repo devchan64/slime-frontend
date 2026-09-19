@@ -363,6 +363,8 @@ export class Client {
     return result;
   }
   async logout(): Promise<boolean> {
+    // 이 로그아웃이 발생시킨 소켓 만료가 HTTP 전환 완료를 무효화하지 않게 한다.
+    this.disconnect();
     const revision=this.sessionRevision;
     try {
       const response=await this.request("/v1/auth/logout", {});

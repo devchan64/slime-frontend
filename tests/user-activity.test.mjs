@@ -248,3 +248,25 @@ test('동일 세션 재시도는 같은 요청 ID를 쓰고 충돌 조회 중 �
  await new Promise(resolve=>setImmediate(resolve));client.disconnect();finish({me:{id:'a'}});
  await assert.rejects(pending,error=>error.key==='network.sessionChanged');assert.equal(applied.length,1);
 });
+
+test('로그아웃으로 발생한 소켓 세션 만료가 HTTP 완료 처리를 취소하지 않는다',async()=>{
+ const oldSocket=globalThis.WebSocket,oldLocation=globalThis.location;
+ let socket,complete;
+ class Socket {constructor(){socket=this;}close(){this.closed=true;this.onclose?.();}}
+ try {
+  globalThis.WebSocket=Socket;globalThis.location={href:'http://localhost/'};
+  const client=new Client();client.stopped=false;client.tokens={access_token:'current'};client.state={generation:1};
+  client.request=async()=>({ticket:'test'});await client.connect();
+  client.request=()=>new Promise(resolve=>complete=resolve);
+  const pending=client.logout();
+  // 서버의 Game 세대 종료가 HTTP 로그아웃 응답보다 먼저 소켓으로 전달되는 순서다.
+  socket.onmessage({data:JSON.stringify({type:'error',code:'SESSION_EXPIRED',message:'종료된 세션',messages:{ko:'종료된 세션',en:'Session expired'}})});
+  complete({ok:true});
+  assert.equal(await pending,true);
+  assert.equal(socket.closed,true);assert.equal(client.stopped,true);
+  assert.equal(client.tokens,null);assert.equal(client.state,null);
+ } finally {
+  if(oldSocket===undefined)delete globalThis.WebSocket;else globalThis.WebSocket=oldSocket;
+  if(oldLocation===undefined)delete globalThis.location;else globalThis.location=oldLocation;
+ }
+});
