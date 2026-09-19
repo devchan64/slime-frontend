@@ -83,7 +83,7 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
  let indexed=0;
  const cells=Array.from({length:40000},(_,i)=>({column:i%200,row:Math.floor(i/200),terrain:'grass'}));
  cells.map=function(callback,...args){indexed++;return Array.prototype.map.call(this,callback,...args);};
- const battleState={...state,battle:{field:{columns:200,rows:200,cells},blocked:[]}};
+ const battleState={...state,battle:{field:{columns:200,rows:200,cells},blocked:[],log:[],units:[]}};
  scene.cameras.main.scrollY=0;scene.cameras.main.zoom=1;
  scene.setState(battleState);scene.updateTerrain(battleState,true);assert.equal(indexed,1);
  for(let repeat=0;repeat<20;repeat++)scene.updateTerrain(battleState,true);
