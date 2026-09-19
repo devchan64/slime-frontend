@@ -62,3 +62,25 @@ test('100만 셀 맵의 회전은 고도 셀을 미리 읽거나 회전 행렬�
   assert.equal(heightAt({column:999,row:500},view),2);assert.equal(reads,1);
  }
 });
+
+test('많은 승강 타일의 투영·선택은 회전별 색인으로 조회하고 목록 방식과 일치한다',()=>{
+ const map={columns:200,rows:100,elevations:Array.from({length:100},()=>Array.from({length:200},(_,c)=>c%2)),
+  elevationTiles:Array.from({length:10000},(_,i)=>({id:`stairs-${i}`,kind:'stairs',asset:'stone-step-tile',
+   cell:{column:(i%100)*2+1,row:Math.floor(i/100)},lower:{column:(i%100)*2,row:Math.floor(i/100)}}))};
+ for(let rotation=0;rotation<4;rotation++){
+  const view=rotatedSurface(map,rotation),reference={...view,elevationTileIndex:undefined};
+  const heights=elevationRange(view);
+  let reads=0;
+  view.elevationTiles=new Proxy(view.elevationTiles,{get(target,key){
+   if(/^\d+$/.test(String(key)))reads++;return Reflect.get(target,key);
+  }});
+  for(const source of [{column:0,row:0},{column:1,row:0},{column:100,row:50},{column:101,row:50},{column:199,row:99}]){
+   const cell=toView(source,map,rotation),point=project(cell,view);
+   assert.deepEqual(point,project(cell,reference));
+   assert.deepEqual(cliffFaces(cell,view),cliffFaces(cell,reference));
+   for(let y=-24;y<=24;y+=8)for(let x=-32;x<=32;x+=8)
+    assert.deepEqual(pickSurface(point.x+x,point.y+y,view,heights),pickSurface(point.x+x,point.y+y,reference,heights));
+  }
+  assert.equal(reads,0,'준비 후 투영·선택에서 전체 계단 목록을 순회하지 않는다');
+ }
+});

@@ -5,7 +5,8 @@ export type TerrainLink = { start: Position; end: Position; id?: string;
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
 export type Surface = { columns: number; rows: number; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
-  ramps?: TerrainLink[]; elevationTiles?: ElevationTile[] };
+  ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
+  elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
 export const ELEVATION_STEP = 24;
 export const CELL_WIDTH = 64, CELL_HEIGHT = 32;
 export const MAP_ORIGIN = { x: 1040, y: 80 };
@@ -22,9 +23,13 @@ export const cellDepth = (p: Position) => TERRAIN_DEPTH.base + (p.column + p.row
 /** 안내 표시는 가장 앞쪽 셀의 지형·개체보다 위에 둔다. */
 export const mapAnnotationDepth = (map: Surface) => Math.max(TERRAIN_DEPTH.annotation,
   cellDepth({column:map.columns-1,row:map.rows-1}) + TERRAIN_DEPTH.stride);
+/** 준비된 표시 지형은 좌표 색인으로, 원본 API 지형은 목록으로 조회한다. */
+export const elevationTileAt = (p: Position, map: Surface): ElevationTile | undefined =>
+  map.elevationTileIndex ? map.elevationTileIndex.get(`${p.column},${p.row}`)
+    : map.elevationTiles?.find(tile => same(tile.cell,p));
 export const project = (p: Position, map: Surface) => ({
   x: MAP_ORIGIN.x + (p.column-p.row) * CELL_WIDTH/2,
-  y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - (heightAt(p,map) - (map.elevationTiles?.some(t=>same(t.cell,p)) ? 0.5 : 0))*ELEVATION_STEP,
+  y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - (heightAt(p,map) - (elevationTileAt(p,map) ? 0.5 : 0))*ELEVATION_STEP,
 });
 // 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
 export function surfaceElevationTiles(map: Surface): ElevationTile[] {
@@ -99,7 +104,7 @@ export function pickSurface(x:number,y:number,map:Surface,heights:{min:number;ma
       const row=(diagonal-delta)/2,column=diagonal-row;
       if(!Number.isInteger(row)||row<0||row>=map.rows||column<0||column>=map.columns)continue;
       const cell={column,row},p=project(cell,map);
-      const tile=map.elevationTiles?.find(t=>same(t.cell,cell));
+      const tile=elevationTileAt(cell,map);
       if(tile){
         for(const face of elevationTileFaces(tile,map).reverse())
           if(contains(x,y,face.points))return face.top?cell:null;

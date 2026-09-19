@@ -3,7 +3,7 @@ import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
 import {fitActorZoom} from '../terrain/actorFraming';
 import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
 import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
-import type { Surface } from "../terrain/elevation";
+import { elevationTileAt, type Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
@@ -498,7 +498,7 @@ export class MainScene extends Phaser.Scene {
       const terrain=field ? cells.get(`${column},${row}`) : meadowTile(column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
       const kind=terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
-      const elevationTile=this.viewSurface!.elevationTiles?.find(t=>t.cell.column===this.viewPosition(cell).column&&t.cell.row===this.viewPosition(cell).row);
+      const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
         return objects;

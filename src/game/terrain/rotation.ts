@@ -1,5 +1,5 @@
 import type { Position } from '../../client/types';
-import { surfaceElevationTiles, type Surface } from './elevation';
+import { surfaceElevationTiles, type Surface, type ElevationTile } from './elevation';
 
 export type MapRotation = 0 | 1 | 2 | 3;
 export const nextRotation = (rotation: MapRotation, direction: -1 | 1): MapRotation =>
@@ -24,7 +24,14 @@ export function rotatedSurface(map: Surface, rotation: MapRotation): Surface {
   // 회전마다 전체 고도 행렬을 복사하지 않고 필요한 셀을 원본 좌표로 조회한다.
   const heightSource = map.elevations || map.heightSource
     ? {surface: map, position: (p: Position) => fromView(p, map, rotation)} : undefined;
-  return { columns, rows, heightSource, elevationTiles: surfaceElevationTiles(map).map(tile=>({...tile,cell:toView(tile.cell,map,rotation),lower:toView(tile.lower,map,rotation)})), ramps: map.ramps?.map(ramp => ({ ...ramp,
+  const elevationTiles=surfaceElevationTiles(map).map(tile=>({...tile,cell:toView(tile.cell,map,rotation),lower:toView(tile.lower,map,rotation)}));
+  const elevationTileIndex=new Map<string,ElevationTile>();
+  for(const tile of elevationTiles){
+    const key=`${tile.cell.column},${tile.cell.row}`;
+    // 이전 목록 조회와 같이 같은 좌표의 첫 정의를 사용한다.
+    if(!elevationTileIndex.has(key))elevationTileIndex.set(key,tile);
+  }
+  return { columns, rows, heightSource, elevationTiles, elevationTileIndex, ramps: map.ramps?.map(ramp => ({ ...ramp,
     start: toView(ramp.start, map, rotation), end: toView(ramp.end, map, rotation),
   })) };
 }
