@@ -98,3 +98,6 @@ resultPreparationFailed: "전투 준비 실패"
 earnedCurrency: "획득 재화"
 returnCountdown: "{seconds}초 후 맵 복귀를 시작합니다."
 acknowledge: 확인
+
+materialValue: "개당 가치 {value}p"
+noLoot: "획득한 전리품이 없습니다."

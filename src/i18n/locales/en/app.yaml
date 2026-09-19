@@ -66,3 +66,11 @@ sessionRelogin: "Sign in again. Your existing battle continues on the server."
 loggedOut: "You have signed out."
 noRouteError: "No route is available from your current location."
 movementFpError: "Insufficient FP to move. Each tile costs 1 FP."
+
+bag: "Bag"
+emptyBag: "Your bag is empty."
+bagUnavailable: "Bag information is unavailable. Please reconnect."
+
+bagWeight: "Known weight {weight}g / carrying allowance {capacity}g"
+bagUnknownWeight: "Weight is not yet defined for {count} items."
+itemWeight: "{weight}g each"

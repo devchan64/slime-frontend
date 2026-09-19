@@ -98,3 +98,6 @@ resultPreparationFailed: "Battle preparation failed"
 earnedCurrency: "Currency earned"
 returnCountdown: "Returning to the map in {seconds}s."
 acknowledge: OK
+
+materialValue: "Value {value}p each"
+noLoot: "No loot acquired."

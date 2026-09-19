@@ -75,6 +75,7 @@ export type State = {
     lastPosition: Position;
     xp: number;
     coins: number;
+    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null}>};
     fp?: number;
     fpMax?: number;
     fpNextChargeAt?: number | null;
@@ -91,7 +92,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { battleId?: string; result: string; xp: number; coins: number } | null;
+    lastResult: { battleId?: string; result: string; xp: number; coins: number; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}> } | null;
   };
   map: Surface & {
     id: string;

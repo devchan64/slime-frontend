@@ -1,3 +1,4 @@
+import { BagPanel } from "./BagPanel";
 import { fieldActionContext, canContinueFieldAction } from './fieldActionContext';
 import { FieldInterruptionNotice } from './FieldInterruptionNotice';
 import { noticeText, LocalizedError, type Notice } from '../client/notice';
@@ -123,7 +124,7 @@ export function App() {
   const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
   const menuPage = settingsAvailable && characterRoute === "#/menu";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
-  const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | null>(null);
+  const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | "bag" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
@@ -490,6 +491,7 @@ export function App() {
           <section class="card">
             <div class="field-card-heading"><h1>{t('app.menu')}</h1><button class="secondary" onClick={() => navigateCharacterPage("#/world")}>{t('app.backToMap')}</button></div>
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? t('app.invitationCount',{count:state.invitations.length}) : ""}</button>
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
@@ -618,7 +620,8 @@ export function App() {
           </section>
         </main>
       )}
-          {state && drawer && (inWorld || menuPage) && <WorldDrawer title={drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
+          {state && drawer && (inWorld || menuPage) && <WorldDrawer title={drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
+            {drawer === "bag" && <BagPanel me={state.me} />}
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
               select={p => { selectField(p); setDrawer(null); }} command={command} />}
             {drawer === "party" && !battle && (

@@ -12,7 +12,7 @@ export function BattleReport({ result, onReturn }: {
   result: NonNullable<State["me"]["lastResult"]>;
   onReturn: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
   const returned = useRef(false);
   const onReturnRef = useRef(onReturn);
@@ -38,7 +38,11 @@ export function BattleReport({ result, onReturn }: {
     onCancel={event => { event.preventDefault(); finish(); }}>
     <h2 id="battle-report-title">{t('battle.reportTitle')}</h2>
     <p class="battle-report-result">{RESULT_LABELS[result.result] ? t(RESULT_LABELS[result.result]) : result.result}</p>
-    <dl><div><dt>{t('battle.earnedCurrency')}</dt><dd>+{result.coins}</dd></div></dl>
+    <dl>{result.coins > 0 && <div><dt>{t('battle.earnedCurrency')}</dt><dd>+{result.coins}p</dd></div>}
+      {(result.materials ?? []).map(material => <div key={material.materialId}><dt>{material.nameTranslations[locale]}</dt>
+        <dd>×{material.quantity}{material.valueP !== null && <small> · {t('battle.materialValue', {value: material.valueP})}</small>}</dd></div>)}
+    </dl>
+    {!result.coins && !(result.materials ?? []).length && <p>{t('battle.noLoot')}</p>}
     <p role="status">{t('battle.returnCountdown',{seconds})}</p>
     <button autoFocus onClick={finish}>{t('battle.acknowledge')}</button>
   </dialog>;

@@ -1257,3 +1257,11 @@ button, summary { touch-action: manipulation; }
 .sponsor-default { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 180px; padding: 24px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(145deg, #143e39, #10252e); text-align: center; }
 .sponsor-default span { color: var(--brand-primary); font-size: 14px; letter-spacing: .3em; }
 .sponsor-default strong { color: #e7fff1; font-size: clamp(20px, 4vw, 28px); line-height: 1.5; }
+
+.bag-items { list-style: none; padding: 0; display: grid; gap: 8px; }
+.bag-items li { padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+.bag-items li > div { display: flex; justify-content: space-between; gap: 12px; }
+.bag-items p { margin: 8px 0; font-size: 13px; }
+.bag-items small { color: var(--muted); }
+.bag-items strong { min-width: 0; overflow-wrap: anywhere; }
+.bag-items li > div > span { flex-shrink: 0; }

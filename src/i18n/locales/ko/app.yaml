@@ -66,3 +66,11 @@ sessionRelogin: "다시 로그인해 주세요. 서버의 기존 전투는 계�
 loggedOut: "로그아웃했습니다."
 noRouteError: "현재 위치에서 갈 수 있는 경로가 없습니다."
 movementFpError: "이동에 필요한 FP가 부족합니다. 1칸당 1 FP가 필요합니다."
+
+bag: "가방"
+emptyBag: "가방이 비어 있습니다."
+bagUnavailable: "가방 정보를 불러오지 못했습니다. 다시 연결해 주세요."
+
+bagWeight: "확인된 무게 {weight}g / 소지 기준 {capacity}g"
+bagUnknownWeight: "소지품 {count}개의 무게가 아직 정해지지 않았습니다."
+itemWeight: "개당 {weight}g"

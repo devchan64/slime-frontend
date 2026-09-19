@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n";
 import type { ComponentChildren } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 
@@ -5,6 +6,7 @@ import { useEffect, useRef } from "preact/hooks";
 export function WorldDrawer({ title, onClose, children }: {
   title: string; onClose: () => void; children: ComponentChildren;
 }) {
+  const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -18,7 +20,7 @@ export function WorldDrawer({ title, onClose, children }: {
   return <dialog ref={dialog} class="world-drawer" aria-labelledby="world-drawer-title"
     onCancel={event => { event.preventDefault(); onClose(); }}>
     <div class="drawer-heading"><h2 id="world-drawer-title">{title}</h2>
-      <button class="secondary compact" autoFocus onClick={onClose}>닫기</button></div>
+      <button class="secondary compact" autoFocus onClick={onClose}>{t("common.close")}</button></div>
     {children}
   </dialog>;
 }
