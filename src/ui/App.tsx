@@ -209,7 +209,7 @@ export function App() {
       },
     });
   return (
-    <div class="app-shell">
+    <div class={`app-shell ${!state ? "login-shell" : ""}`}>
       {loading && <div class="location-loading" role="dialog" aria-modal="true" aria-label="공간 이동 로딩">
         <section class="loading-card" aria-live="polite">
           <div class="eyebrow">SLIME · LOADING</div>
@@ -278,6 +278,7 @@ export function App() {
               <div class="eyebrow">나만의 속도로, 새로운 시간</div>
               <h1 id="welcome-title">천천히 머물고,<br /><em>함께 일상을 쌓아요.</em></h1>
               <p>느긋하게 거닐고, 서로의 하루를 나누세요.<br />이곳에서는 당신의 속도로 지내면 돼요.</p>
+              <a class="login-jump" href="#login-title" onClick={() => document.getElementById("login-title")?.focus()}>로그인으로 이동 <span aria-hidden="true">↓</span></a>
             </div>
             <div class="intro-grid">
               <span>◇ 느긋한 발걸음</span>
@@ -285,11 +286,12 @@ export function App() {
               <span>◌ 나만의 일상</span>
             </div>
           </section>
-          <section class="card auth">
+          <section class="card auth" aria-labelledby="login-title">
             <div class="eyebrow">일상의 시작</div>
-            <h2>어서 오세요.</h2>
+            <h2 id="login-title" tabIndex={-1}>어서 오세요.</h2>
             <p class="auth-intro">오늘도 나만의 속도로 시작해요.</p>
             <form
+              aria-busy={busy}
               onSubmit={(e) => {
                 e.preventDefault();
                 setWorldGeneration(null);
@@ -302,6 +304,8 @@ export function App() {
                 <input
                   aria-label="아이디"
                   autoComplete="username"
+                  autoCapitalize="none"
+                  spellcheck={false}
                   maxLength={40}
                   value={user}
                   onInput={(e) => setUser(e.currentTarget.value)}
@@ -326,6 +330,7 @@ export function App() {
               >
                 접속하기 <span>→</span>
               </button>
+              <p class="signup-hint">처음 오셨나요? 위에 입력한 아이디와 비밀번호로 가입할 수 있어요.</p>
               <button
                 type="button"
                 class="secondary"
@@ -345,12 +350,16 @@ export function App() {
                 새 계정 만들기
               </button>
             </form>
-            <small>
+            <div class="auth-status" role="status" aria-live="polite" aria-atomic="true">{busy ? "처리 중이에요. 잠시만 기다려 주세요." : status}</div>
+            <details class="signup-rules">
+              <summary>가입 조건 확인하기</summary>
+              <small>
               가입 아이디: 영문 소문자·숫자만 허용합니다.
               <br />
               비밀번호: 영문 대문자·소문자·숫자·특수문자를 각각 하나 이상
               포함하세요. 공백 없이 ASCII 문자만 사용할 수 있습니다.
-            </small>
+              </small>
+            </details>
           </section>
         </main>
       ) : !inWorld ? (

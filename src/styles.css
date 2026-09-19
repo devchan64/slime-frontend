@@ -499,3 +499,29 @@ footer {
 .character-dialog-header { padding: 0; border: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .character-dialog-header h2 { margin: 0; }
 .character-dialog-header button { width: auto; margin: 0; }
+
+/* 로그인 구성안: 브랜드 소개와 인증 작업의 위계를 분리한다. */
+.login-shell .auth { width: 100%; max-width: 460px; justify-self: center; }
+.login-shell .intro-copy > .eyebrow { display: inline-block; padding: 8px 12px; border: 1px solid #9becdc40; border-radius: 999px; background: #081f2380; letter-spacing: 1px; }
+.login-shell .intro-grid { gap: 8px; }
+.login-shell .intro-grid span { padding: 7px 10px; border: 1px solid #9becdc25; border-radius: 999px; background: #081f23b3; }
+.login-shell .auth input { min-height: 48px; font-size: 16px; }
+.login-shell .auth button { min-height: 48px; }
+.login-shell .signup-hint { margin: 20px 0 8px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 12px; line-height: 1.8; }
+.auth-status { margin-top: 18px; padding: 12px 14px; border-left: 2px solid var(--brand-primary); border-radius: 0 8px 8px 0; background: #081f23; color: #c2d6d9; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.signup-rules { margin-top: 18px; font-size: 12px; color: var(--muted); }
+.signup-rules summary { cursor: pointer; padding: 6px 0; }
+.signup-rules small { margin-top: 8px; }
+.login-shell > footer { display: none; }
+.login-jump { display: none; }
+@media (max-width: 760px) {
+  .login-shell .welcome { padding-bottom: 28px; }
+  .login-shell .intro-copy { padding: 20px; }
+  .login-shell .intro h1 { font-size: 26px; margin: 14px 0 10px; }
+  .login-shell .intro p { font-size: 11px; }
+  .login-shell .login-illustration { top: 70px; height: calc(100% - 70px); }
+  .login-shell .intro-grid { left: 20px; right: 16px; bottom: 16px; }
+  .login-shell .intro-grid span { padding: 5px 7px; font-size: 9px; }
+  .login-jump { display: inline-flex; gap: 14px; align-items: center; min-height: 44px; margin-top: 4px; color: var(--brand-light); font-size: 12px; text-underline-offset: 4px; }
+  #login-title { scroll-margin-top: 24px; }
+}
