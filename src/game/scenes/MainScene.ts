@@ -1,3 +1,4 @@
+import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
 import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
 import {fitActorZoom} from '../terrain/actorFraming';
@@ -63,6 +64,7 @@ const ACTOR_DEPTH = { labelOffset: 0.01 };
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
   private fieldMotion = new FieldMotion();
+  private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
@@ -71,6 +73,8 @@ export class MainScene extends Phaser.Scene {
   }
   private syncFieldMotion() {
     const s=this.state!;
+    this.battleMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,s.battle,
+      cell=>({...this.project(cell),depth:this.depth(cell)}),performance.now());
     const actors=s.battle ? [] : [
       ...s.monsters.filter(m=>m.state!=="COOLDOWN").map(m=>({id:`monster:${m.id}`,cell:m.position})),
       ...s.members.filter(m=>m.mode!=="IN_BATTLE").map(m=>({id:`member:${m.id}`,cell:m.position})),
@@ -81,7 +85,7 @@ export class MainScene extends Phaser.Scene {
   private animateFieldActors() {
     const now=performance.now();
     for(const item of this.movingObjects){
-      const offset=this.fieldMotion.offset(item.key,now);
+      const offset=item.key.startsWith("battle:") ? this.battleMotion.offset(item.key.slice(7),now) : this.fieldMotion.offset(item.key,now);
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
       item.object.setDepth(item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0));
     }
@@ -130,6 +134,7 @@ export class MainScene extends Phaser.Scene {
       this.actorCache=null;
       this.actorEntries=[];
       this.fieldMotion.clear();
+      this.battleMotion.clear();
       this.movingObjects=[];
       this.terrainCache?.clear();
       this.terrainCache=null;
@@ -417,7 +422,7 @@ export class MainScene extends Phaser.Scene {
             s.battle.order.indexOf(unit.id) + 1,
             s.battle.order.indexOf(unit.id) < s.battle.index,
             unit.side === "ally" ? undefined : unit,
-            unit,
+            unit, `battle:${unit.id}`,
           );
     } else {
       for (const gate of s.map.connections) {
