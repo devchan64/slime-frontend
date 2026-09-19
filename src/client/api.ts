@@ -9,6 +9,7 @@ const API_BASE =
 const HEARTBEAT_MS = 10000;
 const RECONNECT_MAX_MS = 5000;
 const STREAM_PROGRESS_WAIT_MS = 5000;
+const ACK_BATCH_MS = 250;
 type StreamMark = Pick<State, "generation" | "epoch" | "cursor">;
 export class Client {
   tokens: Tokens | null = null;
@@ -17,6 +18,8 @@ export class Client {
   private stopActivity: (() => void) | null = null;
   private stopped = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private ackTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingAck: Pick<State, "epoch" | "cursor"> | null = null;
   private progressTimer: ReturnType<typeof setTimeout> | null = null;
   private progressHead: StreamMark | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -121,7 +124,7 @@ export class Client {
   async connect() {
     if (this.stopped) return;
     try {
-      const { ticket, resumeSupported } = await this.request("/v1/realtime/tickets", {});
+      const { ticket, resumeSupported, ackSupported } = await this.request("/v1/realtime/tickets", {});
       if (this.stopped) return;
       const url = new URL(`${API_BASE}/v1/realtime`, location.href);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
@@ -151,6 +154,7 @@ export class Client {
                 throw new Error('실시간 상태 순번이 누락되었습니다.');
               this.accept(msg.state);
             }
+            if (ackSupported === true) this.queueAcknowledgement(msg.type === 'resumed' ? msg : msg.state, ws);
             this.attempts = 0;
             this.onStatus(true, {key: "network.connected"});
             if (!this.stopActivity) this.stopActivity = watchUserActivity(document, () => {
@@ -246,6 +250,18 @@ export class Client {
     socket?.close();
     this.onChat([]); this.onChatStatus(false);
   }
+  private queueAcknowledgement(mark: Pick<State, 'epoch' | 'cursor'>, socket: WebSocket) {
+    const pending=this.pendingAck;
+    if (!pending || mark.epoch>pending.epoch || mark.epoch===pending.epoch && mark.cursor>pending.cursor)
+      this.pendingAck={epoch:mark.epoch,cursor:mark.cursor};
+    if (this.ackTimer !== null) return;
+    this.ackTimer=setTimeout(()=>{
+      const applied=this.pendingAck;
+      this.ackTimer=null;this.pendingAck=null;
+      if (applied && this.socket===socket && socket.readyState===WebSocket.OPEN && !this.stopped)
+        socket.send(JSON.stringify({type:'ack',...applied}));
+    },ACK_BATCH_MS);
+  }
   private isBehindHead() {
     const head=this.progressHead,state=this.state;
     return !!head && !!state && head.generation===state.generation &&
@@ -272,6 +288,8 @@ export class Client {
     },STREAM_PROGRESS_WAIT_MS);
   }
   private clearHeartbeat() {
+    if (this.ackTimer !== null) clearTimeout(this.ackTimer);
+    this.ackTimer=null;this.pendingAck=null;
     this.clearProgress();
     if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;

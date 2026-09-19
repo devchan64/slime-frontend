@@ -88,3 +88,24 @@ test('마지막 이벤트 유실은 heartbeat head로 발견하고 정상 지연
   client.disconnect();assert.equal(timers.size,0);late();assert.equal(timers.size,0);
  } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
 });
+
+test('ACK는 적용한 서버 상태만 묶어 확인하고 HTTP의 더 큰 cursor나 종료 후 콜백은 보내지 않는다',async()=>{
+ const keys=['WebSocket','document','location','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));let id=0,ws;const timers=new Map();
+ class Socket {static OPEN=1;readyState=1;sent=[];constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.onclose?.();}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener(){},removeEventListener(){}},location:{href:'http://localhost/'},setInterval:()=>++id,clearInterval:()=>{},setTimeout:(fn,delay)=>{timers.set(++id,{fn,delay});return id;},clearTimeout:key=>timers.delete(key)});
+  const state=cursor=>({protocolVersion:1,generation:3,epoch:4,cursor,location:{id:'map:meadow'}});
+  const client=new Client();client.stopped=false;client.state=state(8);client.request=async()=>({ticket:'test',resumeSupported:true,ackSupported:true});
+  const frame=msg=>ws.onmessage({data:JSON.stringify(msg)});
+  await client.connect();ws.onopen();frame({type:'resumed',generation:3,epoch:4,cursor:8});
+  frame({type:'state',state:state(9)});frame({type:'state',state:state(10)});
+  assert.equal(timers.size,1);assert.equal([...timers.values()][0].delay,250);
+  client.accept(state(15)); // HTTP 응답의 순번은 소켓 전송 확인으로 부풀리지 않는다.
+  const ack=[...timers.values()][0].fn;timers.clear();ack();
+  assert.deepEqual(ws.sent.at(-1),{type:'ack',epoch:4,cursor:10});
+  frame({type:'state',state:state(11)});
+  const late=[...timers.values()][0].fn;const before=ws.sent.length;
+  client.disconnect();assert.equal(timers.size,0);late();assert.equal(ws.sent.length,before);
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
