@@ -1100,19 +1100,6 @@
       ],
       "ramps": [
         {
-          "id": "meadow-link-6",
-          "kind": "ladder",
-          "asset": "timber-ladder",
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
-        },
-        {
           "id": "meadow-link-1",
           "kind": "stairs",
           "asset": "stone-stairs",
@@ -1175,6 +1162,19 @@
           "end": {
             "column": 7,
             "row": 22
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-stairs",
+          "start": {
+            "column": 11,
+            "row": 24
+          },
+          "end": {
+            "column": 10,
+            "row": 24
           }
         }
       ],
@@ -1328,6 +1328,19 @@
           "lower": {
             "column": 7,
             "row": 21
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 10,
+            "row": 24
+          },
+          "lower": {
+            "column": 11,
+            "row": 24
           }
         }
       ]
@@ -2185,19 +2198,6 @@
         ],
         "ramps": [
           {
-            "id": "meadow-crossroads-link-2",
-            "kind": "ladder",
-            "asset": "timber-ladder",
-            "start": {
-              "column": 6,
-              "row": 2
-            },
-            "end": {
-              "column": 6,
-              "row": 3
-            }
-          },
-          {
             "id": "meadow-crossroads-link-1",
             "kind": "stairs",
             "asset": "stone-stairs",
@@ -2207,6 +2207,19 @@
             },
             "end": {
               "column": 3,
+              "row": 2
+            }
+          },
+          {
+            "id": "meadow-crossroads-link-2",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 6,
+              "row": 3
+            },
+            "end": {
+              "column": 6,
               "row": 2
             }
           }
@@ -2283,6 +2296,19 @@
             "lower": {
               "column": 2,
               "row": 2
+            }
+          },
+          {
+            "id": "meadow-crossroads-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 6,
+              "row": 2
+            },
+            "lower": {
+              "column": 6,
+              "row": 3
             }
           }
         ]
@@ -4173,19 +4199,6 @@
       ],
       "ramps": [
         {
-          "id": "meadow-link-6",
-          "kind": "ladder",
-          "asset": "timber-ladder",
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
-        },
-        {
           "id": "meadow-link-1",
           "kind": "stairs",
           "asset": "stone-stairs",
@@ -4248,6 +4261,19 @@
           "end": {
             "column": 7,
             "row": 22
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-stairs",
+          "start": {
+            "column": 11,
+            "row": 24
+          },
+          "end": {
+            "column": 10,
+            "row": 24
           }
         }
       ],
@@ -4401,6 +4427,19 @@
           "lower": {
             "column": 7,
             "row": 21
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 10,
+            "row": 24
+          },
+          "lower": {
+            "column": 11,
+            "row": 24
           }
         }
       ]
@@ -5346,19 +5385,6 @@
         ],
         "ramps": [
           {
-            "id": "meadow-dew-ponds-link-4",
-            "kind": "ladder",
-            "asset": "timber-ladder",
-            "start": {
-              "column": 7,
-              "row": 9
-            },
-            "end": {
-              "column": 8,
-              "row": 9
-            }
-          },
-          {
             "id": "meadow-dew-ponds-link-1",
             "kind": "stairs",
             "asset": "stone-stairs",
@@ -5395,6 +5421,19 @@
             "end": {
               "column": 3,
               "row": 0
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-4",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 7,
+              "row": 9
+            },
+            "end": {
+              "column": 8,
+              "row": 9
             }
           }
         ],
@@ -5584,6 +5623,19 @@
             "lower": {
               "column": 4,
               "row": 0
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-4",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 9
+            },
+            "lower": {
+              "column": 7,
+              "row": 9
             }
           }
         ]
@@ -7434,19 +7486,6 @@
       ],
       "ramps": [
         {
-          "id": "meadow-link-6",
-          "kind": "ladder",
-          "asset": "timber-ladder",
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
-        },
-        {
           "id": "meadow-link-1",
           "kind": "stairs",
           "asset": "stone-stairs",
@@ -7509,6 +7548,19 @@
           "end": {
             "column": 7,
             "row": 22
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-stairs",
+          "start": {
+            "column": 11,
+            "row": 24
+          },
+          "end": {
+            "column": 10,
+            "row": 24
           }
         }
       ],
@@ -7662,6 +7714,19 @@
           "lower": {
             "column": 7,
             "row": 21
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 10,
+            "row": 24
+          },
+          "lower": {
+            "column": 11,
+            "row": 24
           }
         }
       ]
@@ -8535,19 +8600,6 @@
         ],
         "ramps": [
           {
-            "id": "meadow-flower-knolls-link-4",
-            "kind": "ladder",
-            "asset": "timber-ladder",
-            "start": {
-              "column": 10,
-              "row": 7
-            },
-            "end": {
-              "column": 10,
-              "row": 8
-            }
-          },
-          {
             "id": "meadow-flower-knolls-link-1",
             "kind": "stairs",
             "asset": "stone-stairs",
@@ -8584,6 +8636,19 @@
             "end": {
               "column": 7,
               "row": 4
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-4",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 10,
+              "row": 8
+            },
+            "end": {
+              "column": 10,
+              "row": 7
             }
           }
         ],
@@ -8701,6 +8766,19 @@
             "lower": {
               "column": 6,
               "row": 4
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-4",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 10,
+              "row": 7
+            },
+            "lower": {
+              "column": 10,
+              "row": 8
             }
           }
         ]
@@ -10291,19 +10369,6 @@
       ],
       "ramps": [
         {
-          "id": "meadow-link-6",
-          "kind": "ladder",
-          "asset": "timber-ladder",
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
-        },
-        {
           "id": "meadow-link-1",
           "kind": "stairs",
           "asset": "stone-stairs",
@@ -10366,6 +10431,19 @@
           "end": {
             "column": 7,
             "row": 22
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-stairs",
+          "start": {
+            "column": 11,
+            "row": 24
+          },
+          "end": {
+            "column": 10,
+            "row": 24
           }
         }
       ],
@@ -10519,6 +10597,19 @@
           "lower": {
             "column": 7,
             "row": 21
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 10,
+            "row": 24
+          },
+          "lower": {
+            "column": 11,
+            "row": 24
           }
         }
       ]
@@ -11400,19 +11491,6 @@
         ],
         "ramps": [
           {
-            "id": "meadow-rock-pass-link-2",
-            "kind": "ladder",
-            "asset": "timber-ladder",
-            "start": {
-              "column": 7,
-              "row": 4
-            },
-            "end": {
-              "column": 8,
-              "row": 4
-            }
-          },
-          {
             "id": "meadow-rock-pass-link-1",
             "kind": "stairs",
             "asset": "stone-stairs",
@@ -11423,6 +11501,19 @@
             "end": {
               "column": 4,
               "row": 5
+            }
+          },
+          {
+            "id": "meadow-rock-pass-link-2",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 7,
+              "row": 4
+            },
+            "end": {
+              "column": 8,
+              "row": 4
             }
           }
         ],
@@ -11522,6 +11613,19 @@
             "lower": {
               "column": 5,
               "row": 5
+            }
+          },
+          {
+            "id": "meadow-rock-pass-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 4
+            },
+            "lower": {
+              "column": 7,
+              "row": 4
             }
           }
         ]
@@ -13372,19 +13476,6 @@
       ],
       "ramps": [
         {
-          "id": "meadow-link-6",
-          "kind": "ladder",
-          "asset": "timber-ladder",
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
-        },
-        {
           "id": "meadow-link-1",
           "kind": "stairs",
           "asset": "stone-stairs",
@@ -13447,6 +13538,19 @@
           "end": {
             "column": 7,
             "row": 22
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-stairs",
+          "start": {
+            "column": 11,
+            "row": 24
+          },
+          "end": {
+            "column": 10,
+            "row": 24
           }
         }
       ],
@@ -13600,6 +13704,19 @@
           "lower": {
             "column": 7,
             "row": 21
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 10,
+            "row": 24
+          },
+          "lower": {
+            "column": 11,
+            "row": 24
           }
         }
       ]
@@ -14497,19 +14614,6 @@
         ],
         "ramps": [
           {
-            "id": "meadow-thicket-bend-link-2",
-            "kind": "ladder",
-            "asset": "timber-ladder",
-            "start": {
-              "column": 9,
-              "row": 4
-            },
-            "end": {
-              "column": 9,
-              "row": 5
-            }
-          },
-          {
             "id": "meadow-thicket-bend-link-1",
             "kind": "stairs",
             "asset": "stone-stairs",
@@ -14520,6 +14624,19 @@
             "end": {
               "column": 2,
               "row": 4
+            }
+          },
+          {
+            "id": "meadow-thicket-bend-link-2",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 9,
+              "row": 4
+            },
+            "end": {
+              "column": 9,
+              "row": 5
             }
           }
         ],
@@ -14635,6 +14752,19 @@
             "lower": {
               "column": 2,
               "row": 5
+            }
+          },
+          {
+            "id": "meadow-thicket-bend-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 9,
+              "row": 5
+            },
+            "lower": {
+              "column": 9,
+              "row": 4
             }
           }
         ]
@@ -16373,19 +16503,6 @@
       ],
       "ramps": [
         {
-          "id": "meadow-link-6",
-          "kind": "ladder",
-          "asset": "timber-ladder",
-          "start": {
-            "column": 10,
-            "row": 24
-          },
-          "end": {
-            "column": 11,
-            "row": 24
-          }
-        },
-        {
           "id": "meadow-link-1",
           "kind": "stairs",
           "asset": "stone-stairs",
@@ -16448,6 +16565,19 @@
           "end": {
             "column": 7,
             "row": 22
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-stairs",
+          "start": {
+            "column": 11,
+            "row": 24
+          },
+          "end": {
+            "column": 10,
+            "row": 24
           }
         }
       ],
@@ -16601,6 +16731,19 @@
           "lower": {
             "column": 7,
             "row": 21
+          }
+        },
+        {
+          "id": "meadow-link-6",
+          "kind": "stairs",
+          "asset": "stone-step-tile",
+          "cell": {
+            "column": 10,
+            "row": 24
+          },
+          "lower": {
+            "column": 11,
+            "row": 24
           }
         }
       ]
@@ -17534,19 +17677,6 @@
         ],
         "ramps": [
           {
-            "id": "meadow-guardian-ring-link-2",
-            "kind": "ladder",
-            "asset": "timber-ladder",
-            "start": {
-              "column": 8,
-              "row": 5
-            },
-            "end": {
-              "column": 9,
-              "row": 5
-            }
-          },
-          {
             "id": "meadow-guardian-ring-link-1",
             "kind": "stairs",
             "asset": "stone-stairs",
@@ -17557,6 +17687,19 @@
             "end": {
               "column": 4,
               "row": 4
+            }
+          },
+          {
+            "id": "meadow-guardian-ring-link-2",
+            "kind": "stairs",
+            "asset": "stone-stairs",
+            "start": {
+              "column": 9,
+              "row": 5
+            },
+            "end": {
+              "column": 8,
+              "row": 5
             }
           }
         ],
@@ -17656,6 +17799,19 @@
             "lower": {
               "column": 3,
               "row": 4
+            }
+          },
+          {
+            "id": "meadow-guardian-ring-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 5
+            },
+            "lower": {
+              "column": 9,
+              "row": 5
             }
           }
         ]

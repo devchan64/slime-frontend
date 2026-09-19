@@ -12,7 +12,6 @@ import { drawActor, preloadActors } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
-import { preloadConnectors, drawConnector } from "../terrain/connectors";
 import { drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const COLORS = {
@@ -35,14 +34,16 @@ const TEXT = {
   padding: { x: 5, y: 3 },
 };
 const CENTER = 0.5,
-  ZOOM = 0.85,
+  ZOOM = 1.7,
   LABEL_OFFSET = 25,
   BATTLE_ZOOM = 1.15,
+  BATTLE_DISPLAY_SCALE = 1.2,
   PORTRAIT_BATTLE_FILL = 1.5,
   CAMERA_PADDING = 40,
   DRAG_THRESHOLD = 6,
   ZOOM_MIN = 0.4,
   ZOOM_MAX = 1.4,
+  FIELD_ZOOM_MAX = 2.8,
   TURN_BADGE_OFFSET = 16,
   TURN_BADGE_RADIUS = 11,
   PATH_WIDTH = 3,
@@ -82,7 +83,6 @@ export class MainScene extends Phaser.Scene {
       this.onFailure("맵 자원을 불러오지 못했습니다. 다시 접속해 주세요.");
     });
     preloadTerrain(this);
-    preloadConnectors(this);
     preloadActors(this);
     preloadBackdrop(this);
   }
@@ -129,7 +129,7 @@ export class MainScene extends Phaser.Scene {
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
       this.cameras.main.setZoom(
-        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001, ZOOM_MIN, ZOOM_MAX),
+        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001, ZOOM_MIN, this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX),
       ),
     );
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
@@ -163,7 +163,7 @@ export class MainScene extends Phaser.Scene {
     this.draw();
   }
   adjustZoom(delta: number) {
-    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta,ZOOM_MIN,ZOOM_MAX));
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta,ZOOM_MIN,this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX));
   }
   rotateMap(direction: -1 | 1) {
     if (!this.state || !this.sys.isActive()) return;
@@ -217,6 +217,7 @@ export class MainScene extends Phaser.Scene {
           this.cameras.main.height / this.backdropLayer.displayHeight);
         this.cameras.main.setZoom(Math.min(BATTLE_ZOOM, Math.max(this.cameras.main.zoom, cover)));
       }
+      if (battle) this.cameras.main.setZoom(Math.min(ZOOM_MAX, this.cameras.main.zoom * BATTLE_DISPLAY_SCALE));
       const point = this.project(
         this.state.battle ? { column: (this.state.battle.field.columns - 1) / 2, row: (this.state.battle.field.rows - 1) / 2 } : this.state.me.position,
       );
@@ -426,11 +427,6 @@ export class MainScene extends Phaser.Scene {
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);
       }
-    }
-    for(const ramp of definition.ramps ?? []){
-      if(definition.elevationTiles?.some(t=>t.id===ramp.id))continue;
-      remember(drawConnector(this, { ...ramp, start:this.viewPosition(ramp.start),end:this.viewPosition(ramp.end) },
-        this.viewSurface!, Math.max(this.depth(ramp.start),this.depth(ramp.end))+TERRAIN_DEPTH.overlay-1));
     }
     this.terrainSignature=signature;
   }

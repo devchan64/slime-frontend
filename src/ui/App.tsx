@@ -1,3 +1,4 @@
+import { AchievementsPage } from "./AchievementsPage";
 import { approachMonster } from "./encounterNavigation";
 import { ChatPanel } from "./ChatPanel";
 import { useEffect, useRef, useState } from "preact/hooks";
@@ -73,7 +74,7 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
-  const inWorld = !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY";
+  const inWorld = !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -369,6 +370,8 @@ export function App() {
             </details>
           </section>
         </main>
+      ) : state.me.mode === "AWAY" ? (
+        <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
       ) : !inWorld ? (
         <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
@@ -439,8 +442,16 @@ export function App() {
               </button>
 </nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
+</div>
+            {!battle && <div class="field-command-dock">              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+                select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
+                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
+</div>}
+            {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
+              disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
+              select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
+            {!battle && <>
             <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
-            {battle?.field.description && <p class="battlefield-description">{battle.field.selection === "random" ? "랜덤 전장" : "고정 전장"} · {battle.field.description}</p>}
             <div class="map-caption">
               <span>
                 {battle
@@ -449,22 +460,17 @@ export function App() {
               </span>
               <span>
                 {selected
-                  ? `선택 ${selected.column}, ${selected.row}${(battle?.blocked ?? state.map.blocked).some(p => same(p, selected)) ? " · 이동 불가" : ""}`
+                  ? `선택 ${selected.column}, ${selected.row}${state.map.blocked.some(p => same(p, selected)) ? " · 이동 불가" : ""}`
                   : "셀을 선택하세요"}{" "}
                 · 방향키 선택 / 휠 확대
               </span>
             </div>
-            </details></div>
-            {!battle && <div class="field-command-dock">              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
-                select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
-                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
-</div>}
-            {battle && <BattlePanel battle={battle} actor={state.me.id} selected={selected}
-              disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
-              select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
+            </details>
+            </>}
             <nav class="world-bottom-menu" aria-label="게임 메뉴">
               <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>캐릭터 설정</button>
               {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? "조우 준비" : "주변 · 웨이포인트"}</button>}
+              {!battle && <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>업적 보기</button>}
               {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>파티{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{battle ? "전투 대화" : "채널 대화"}</button>
             </nav>
@@ -557,6 +563,7 @@ export function App() {
               </section>
             )}
             {drawer === "chat" && <ChatPanel title={battle ? "전투 대화" : "채널 대화"}
+              awayNames={battle ? [] : state.members.filter(member => member.mode === "AWAY").map(member => member.name)}
               messages={state.messages} value={chat} disabled={disabled} onChange={setChat}
               onSubmit={() => void run(async () => {
                 await client.command("/v1/game/messages", { text: chat });

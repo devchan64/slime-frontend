@@ -18,6 +18,15 @@ export const project = (p: Position, map: Surface) => ({
   x: MAP_ORIGIN.x + (p.column-p.row) * CELL_WIDTH/2,
   y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - (heightAt(p,map) - (map.elevationTiles?.some(t=>same(t.cell,p)) ? 0.5 : 0))*ELEVATION_STEP,
 });
+// 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
+export function surfaceElevationTiles(map: Surface): ElevationTile[] {
+  const tiles=map.elevationTiles ?? [];
+  const defined=new Set(tiles.map(tile=>tile.id));
+  return [...tiles, ...(map.ramps ?? []).filter(link=>!link.id || !defined.has(link.id)).map((link,index)=>{
+    const [lower,cell]=heightAt(link.start,map)<heightAt(link.end,map)?[link.start,link.end]:[link.end,link.start];
+    return {id:link.id ?? `legacy-link-${index}`,kind:'stairs' as const,asset:'stone-step-tile' as const,cell,lower};
+  })];
+}
 const STEP_COUNT = 6;
 export type TileFace = { points:{x:number;y:number}[]; top:boolean };
 export function elevationTileFaces(tile: ElevationTile, map: Surface): TileFace[] {

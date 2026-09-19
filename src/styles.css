@@ -962,3 +962,24 @@ button, summary { touch-action: manipulation; }
   .battle-status-details > summary, .battle-records > summary { padding: 8px; font-size: 11px; }
 }
 .battle-command-area .actions button { flex: 0 1 120px; }
+
+/* 보조 정보는 맵 위에서 내려 하단 메뉴에 모은다. */
+.world-shell .world.is-battle .battle-panel { display: flex; flex-direction: column; }
+.world-shell .battle-panel .battle-command-area { flex: 1; min-height: 0; height: auto; }
+.battle-auxiliary { display: flex; gap: 4px; flex-shrink: 0; justify-content: space-between; border-top: 1px solid var(--border); padding: 4px; }
+.battle-auxiliary > details:not([open]) { position: static; max-width: none; border: 0; background: transparent; }
+.battle-auxiliary > details > summary { padding: 8px 5px; font-size: 11px; white-space: nowrap; cursor: pointer; }
+.battle-auxiliary > details[open], .world > .map-help[open] { position: fixed; z-index: 20; top: auto; bottom: 48px; left: 8px; right: 8px; width: auto; max-width: none; max-height: min(60dvh, 420px); overflow: auto; background: #102a2af5; border: 1px solid var(--border); border-radius: 8px; }
+.battle-help-content { padding: 12px; }
+.world > .map-help { flex-shrink: 0; margin: 0; padding: 4px 12px; font-size: 11px; }
+.world > .map-help > summary { cursor: pointer; padding: 6px 0; }
+@media (max-width:1024px) and (orientation:landscape) and (max-height:600px) {
+ .world.is-field > .map-help { grid-column: 1; grid-row: 3; }
+ .battle-auxiliary { flex-wrap: wrap; justify-content: flex-start; }
+}
+
+.achievements-page { width: min(900px,100%); margin: 20px auto; padding: 0 12px 64px; }
+.achievement-heading { position: sticky; top: 0; background: #102a2a; z-index: 5; padding: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.achievement-heading h1 { margin: 0; font-size: 24px; }.achievement-heading p { font-size: 12px; }
+.achievement-heading button { min-height: 44px; }
+.achievement-item { padding: 12px 0; border-top: 1px solid var(--border); }.achievement-item h3 small { font-size: 12px; color: #91d5b8; }

@@ -1,5 +1,5 @@
 import type { Position } from '../../client/types';
-import { type Surface } from './elevation';
+import { surfaceElevationTiles, type Surface } from './elevation';
 
 export type MapRotation = 0 | 1 | 2 | 3;
 export const nextRotation = (rotation: MapRotation, direction: -1 | 1): MapRotation =>
@@ -26,7 +26,7 @@ export function rotatedSurface(map: Surface, rotation: MapRotation): Surface {
       const source = fromView({ column, row }, map, rotation);
       return map.elevations![source.row][source.column];
     })) : undefined;
-  return { columns, rows, elevations, elevationTiles: map.elevationTiles?.map(tile=>({...tile,cell:toView(tile.cell,map,rotation),lower:toView(tile.lower,map,rotation)})), ramps: map.ramps?.map(ramp => ({ ...ramp,
+  return { columns, rows, elevations, elevationTiles: surfaceElevationTiles(map).map(tile=>({...tile,cell:toView(tile.cell,map,rotation),lower:toView(tile.lower,map,rotation)})), ramps: map.ramps?.map(ramp => ({ ...ramp,
     start: toView(ramp.start, map, rotation), end: toView(ramp.end, map, rotation),
   })) };
 }

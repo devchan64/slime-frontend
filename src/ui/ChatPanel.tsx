@@ -1,10 +1,12 @@
 // 실제 화면과 반응형 미리보기에서 같은 대화 입력 레이아웃을 사용한다.
-export function ChatPanel({title, messages, value, disabled, onChange, onSubmit}: {
+export function ChatPanel({title, messages, value, disabled, onChange, onSubmit, awayNames = []}: {
+  awayNames?: string[];
   title: string; messages: {id: string; name: string; text: string}[];
   value: string; disabled: boolean; onChange: (value: string) => void; onSubmit: () => void;
 }) {
   return <section class="card chat">
     <h3>{title}</h3>
+    {awayNames.length > 0 && <p class="field-subtitle" aria-live="polite">자리비움 · {awayNames.join(", ")}</p>}
     <div class="chat-lines" aria-live="polite">
       {messages.map(message => <p key={message.id}><b>{message.name}</b> {message.text}</p>)}
     </div>

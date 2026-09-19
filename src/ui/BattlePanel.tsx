@@ -1,3 +1,4 @@
+import { TerrainLegend } from "./TerrainLegend";
 import { useEffect, useState } from "preact/hooks";
 import { defaultBattleMode, singleAttackTarget, type BattleMode } from "./battleSelection";
 import { CharacterPortrait } from "./CharacterPortrait";
@@ -43,22 +44,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const selectedTargets = mode === "ATTACK" && target && attack ? [{unit: target, damage: attack.damage}] : [];
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <section class="card battle-panel" aria-label="턴제 전투 명령">
-    <details class="battle-status-details"><summary>턴·캐릭터 정보</summary><div class="battle-status">
-    <div class="eyebrow">TURN-BASED TACTICS · {battle.field.columns} × {battle.field.rows}</div>
-    <h3>라운드 {battle.round} · {current?.name} <span class="timer">{remaining}초</span></h3>
-    <p aria-live="polite">{own ? "당신의 차례 · 명령과 대상을 선택한 뒤 확정하세요." : "현재 유닛의 행동을 기다리세요."}</p>
-    <div class="turn-order" aria-label="이번 라운드 행동 순서">
-      {battle.order.map((id, index) => {
-        const u = battle.units.find(unit => unit.id === id)!;
-        return <span class={index === battle.index ? "badge current" : "badge"} style={{ opacity: u.hp <= 0 || index < battle.index ? 0.4 : 1 }}>
-          {index === battle.index ? "▶ " : ""}{u.name}{u.hp <= 0 ? " (쓰러짐)" : ""}
-        </span>;
-      })}
-    </div>
-    <p>이동 {battle.moved ? "사용함" : "1회"} · 행동 {battle.acted ? "사용함" : "1회"}<br />이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료</p>
-    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={`${current.name} 모습`} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? "아군" : "적군"} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={`${current.name} 체력`} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>체력 게이지는 추정치 · 정보 확인 스킬 필요</small>}</div></div>}
-    </div>
-    </details><div class="battle-command-area">
+<div class="battle-command-area">
     <p class="battle-step" aria-live="polite">{mode === null ? "1 · 행동 선택" : (mode === "MOVE" || mode === "ATTACK") && !valid ? "2 · 맵에서 대상 선택" : "3 · 결과 확인 후 확정"}</p>
     <div class="actions">
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
@@ -101,6 +87,24 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     </div>}
     </div></>}
     </div>
+    <nav class="battle-auxiliary" aria-label="전투 보조 메뉴">
+    <details class="battle-status-details"><summary>턴·캐릭터 정보</summary><div class="battle-status">
+    <div class="eyebrow">TURN-BASED TACTICS · {battle.field.columns} × {battle.field.rows}</div>
+    <h3>라운드 {battle.round} · {current?.name} <span class="timer">{remaining}초</span></h3>
+    <p aria-live="polite">{own ? "당신의 차례 · 명령과 대상을 선택한 뒤 확정하세요." : "현재 유닛의 행동을 기다리세요."}</p>
+    <div class="turn-order" aria-label="이번 라운드 행동 순서">
+      {battle.order.map((id, index) => {
+        const u = battle.units.find(unit => unit.id === id)!;
+        return <span class={index === battle.index ? "badge current" : "badge"} style={{ opacity: u.hp <= 0 || index < battle.index ? 0.4 : 1 }}>
+          {index === battle.index ? "▶ " : ""}{u.name}{u.hp <= 0 ? " (쓰러짐)" : ""}
+        </span>;
+      })}
+    </div>
+    <p>이동 {battle.moved ? "사용함" : "1회"} · 행동 {battle.acted ? "사용함" : "1회"}<br />이동과 행동은 순서 자유 · 모두 사용하면 자동 턴 종료</p>
+    {current && <div class="battle-unit-summary"><div class="battle-portrait">{current.side === "ally" ? <CharacterPortrait /> : <img src={PORTRAITS[current.appearance ?? "slime"]} alt={`${current.name} 모습`} />}</div><div class="current-unit-health"><strong>{current.side === "ally" ? "아군" : "적군"} · {current.name}</strong>{current.side === "ally" ? <><progress value={current.hp} max={current.maxHp} aria-label={`${current.name} 체력`} /><small>HP {current.hp} / {current.maxHp}</small></> : <small>체력 게이지는 추정치 · 정보 확인 스킬 필요</small>}</div></div>}
+    </div>
+    </details>
+    <details class="battle-terrain-help"><summary>지형·조작 안내</summary><div class="battle-help-content"><TerrainLegend /><p>타일을 선택해 이동·공격 대상을 지정하세요. 드래그로 시점을 이동하고 확대·축소 및 회전 버튼으로 지형을 확인하세요.</p><p>파랑: 이동 · 번호선: 경로 · 주황: 도착 후 공격 범위</p></div></details>
     <details class="battle-records"><summary>전투 기록·기권</summary><div class="battle-secondary">
     <details><summary>참가 유닛 · {battle.units.length}</summary>
     <div class="units" aria-label="전투 유닛">
@@ -119,5 +123,6 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     }}>{surrender ? "기권 동의 확정" : "기권"}</button>
     {surrender && <button class="secondary compact" onClick={() => setSurrender(false)}>기권 취소</button>}
     </div></details>
+    </nav>
   </section>;
 }
