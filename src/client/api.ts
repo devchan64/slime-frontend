@@ -120,6 +120,10 @@ export class Client {
   }
   async command(path: string, body: Record<string, unknown> = {}) {
     if (!this.state) throw new LocalizedError("network.stateRequired");
+    const revision=this.sessionRevision;
+    const assertCurrent=()=>{
+      if (revision!==this.sessionRevision) throw new LocalizedError('network.sessionChanged');
+    };
     const payload = {
       ...body,
       requestId: crypto.randomUUID(),
@@ -132,13 +136,18 @@ export class Client {
     try {
       result = await this.request(path, payload);
     } catch (e) {
+      assertCurrent();
       if (e instanceof ApiError) {
-        if (e.code === "VERSION_CONFLICT")
-          this.accept(await this.request("/v1/game/state"));
+        if (e.code === "VERSION_CONFLICT") {
+          const state=await this.request("/v1/game/state");
+          assertCurrent();
+          this.accept(state);
+        }
         throw e;
       }
       result = await this.request(path, payload);
     }
+    assertCurrent();
     this.accept(result.state);
     return result;
   }

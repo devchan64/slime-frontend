@@ -222,3 +222,29 @@ test('세션이 바뀌면 대기 중 인증 전환의 추가 조회를 중단한
   assert.equal(await pending,false);assert.equal(calls,1);assert.equal(client.state.generation,2);client.disconnect();
  } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;}
 });
+
+test('세션 변경 뒤 이전 게임 명령을 재전송하거나 늦은 결과를 적용하지 않는다',async()=>{
+ for(const result of ['success','network','conflict']){
+  const client=new Client();client.state={me:{id:'old',version:2}};
+  const calls=[];let resolve,reject;
+  client.request=(path,body)=>{calls.push({path,body});return new Promise((yes,no)=>{resolve=yes;reject=no;});};
+  let applied=0;client.accept=()=>applied++;
+  const pending=client.command('/v1/game/moves',{position:{column:1,row:1}});
+  client.disconnect();client.state={me:{id:'new',version:2}};
+  if(result==='success')resolve({state:{me:{id:'old'}}});
+  else reject(result==='network'?new Error('연결 유실'):new ApiError('VERSION_CONFLICT','갱신 필요',409));
+  await assert.rejects(pending,error=>error.key==='network.sessionChanged');
+  assert.equal(calls.length,1);assert.equal(applied,0);assert.equal(client.state.me.id,'new');
+ }
+});
+
+test('동일 세션 재시도는 같은 요청 ID를 쓰고 충돌 조회 중 세션 변경도 거절한다',async()=>{
+ const client=new Client();client.state={me:{id:'a',version:2}};let calls=[],applied=[];
+ client.accept=s=>applied.push(s);client.request=async(path,body)=>{calls.push(body);if(calls.length===1)throw new Error('연결 유실');return {state:{me:{id:'a'}}};};
+ await client.command('/v1/game/moves',{position:{column:1,row:1}});
+ assert.equal(calls.length,2);assert.equal(calls[0],calls[1]);assert.equal(applied.length,1);
+ let finish;client.request=async path=>{if(path==='/v1/game/state')return new Promise(resolve=>finish=resolve);throw new ApiError('VERSION_CONFLICT','갱신 필요',409);};
+ const pending=client.command('/v1/game/moves',{position:{column:2,row:1}});
+ await new Promise(resolve=>setImmediate(resolve));client.disconnect();finish({me:{id:'a'}});
+ await assert.rejects(pending,error=>error.key==='network.sessionChanged');assert.equal(applied.length,1);
+});
