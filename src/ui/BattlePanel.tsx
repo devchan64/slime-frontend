@@ -48,25 +48,26 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <>
   <section class="card battle-panel battle-control-card" aria-label="전투 컨트롤 카드">
-    <h3>전투 컨트롤</h3>
+    <div class="battle-control-heading"><h3>전투 컨트롤</h3><span class="battle-step" aria-live="polite">{!own ? "행동 대기" : mode === null ? "1 · 행동 선택" : !valid ? "2 · 대상 선택" : "3 · 확정"}</span></div>
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
-    <p class="battle-step" aria-live="polite">{mode === null ? "1 · 행동 선택" : (mode === "MOVE" || mode === "ATTACK") && !valid ? "2 · 맵에서 대상 선택" : "3 · 결과 확인 후 확정"}</p>
-    <div class="actions">
+    <div class="battle-button-toolbar">
+    <div class="battle-mode-buttons" role="group" aria-label="전투 행동 선택">
       {(["MOVE", "ATTACK", "END_TURN"] as Mode[]).map(value => <button
         class={mode === value ? "" : "secondary"} aria-pressed={mode === value}
         disabled={disabled || !own || (value === "MOVE" && (battle.moved || battle.tactics.moves.length === 0)) || (value === "ATTACK" && (battle.acted || battle.tactics.attacks.length === 0))}
         title={value === "ATTACK" && !battle.acted && battle.tactics.attacks.length === 0 ? "현재 위치에서 공격 가능한 대상이 없습니다." : undefined}
         onClick={() => chooseMode(value)}>{LABELS[value]}</button>)}
     </div>
-    {mode !== null && <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
-    <button class="battle-confirm" disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : `${LABELS[mode]} 확정`}</button>
-    </>}
-    <div class="battle-exit-actions">
-    <button class="danger" disabled={disabled} onClick={() => {
-      if (surrender) { execute("SURRENDER"); setSurrender(false); } else setSurrender(true);
-    }}>{surrender ? "기권 동의 확정" : "기권"}</button>
-    {surrender && <button class="secondary compact" onClick={() => setSurrender(false)}>기권 취소</button>}
+    <div class="battle-submit-row">
+      {surrender ? <>
+        <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>기권 동의 확정</button>
+        <button class="secondary" onClick={() => setSurrender(false)}>취소</button>
+      </> : <>
+        <button class="battle-confirm" aria-label={mode === null ? "행동 선택 필요" : mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료 확정" : `${LABELS[mode]} 확정`} title={mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : undefined} disabled={disabled || !valid} onClick={() => { if (mode) execute(mode, mode === "ATTACK" ? target?.id : undefined); }}>확정</button>
+        <button class="secondary battle-surrender" disabled={disabled} onClick={() => setSurrender(true)}>기권</button>
+      </>}
+    </div>
     </div>
     </div>
   </section>

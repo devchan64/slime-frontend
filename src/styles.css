@@ -508,11 +508,11 @@ footer {
 .character-lobby { max-width: 1060px; margin: 32px auto; }
 .character-lobby > .card { padding: clamp(20px, 3vw, 36px); }
 .character-lobby h1 { margin: 8px 0 24px; font-size: 26px; }
-.character-sheet { display: grid; grid-template-columns: minmax(220px, .85fr) minmax(0, 1.3fr); gap: 32px; }
-.character-identity { text-align: center; padding: 28px 24px 20px; border: 1px solid #36534e; border-radius: 16px; background: radial-gradient(ellipse at 50% 45%, #3a67504d, transparent 65%), linear-gradient(155deg, #193b38, #10282d); overflow: hidden; }
+.character-sheet { display: grid; grid-template-columns: minmax(160px, 200px) minmax(0, 1fr); gap: 20px; }
+.character-identity { align-self: start; text-align: center; padding: 12px; border: 1px solid #36534e; border-radius: 16px; background: radial-gradient(ellipse at 50% 45%, #3a67504d, transparent 65%), linear-gradient(155deg, #193b38, #10282d); overflow: hidden; }
 .character-kicker { color: #94b9ac; font-size: 11px; letter-spacing: 2px; }
-.character-identity h2 { font-size: 26px; margin: 10px 0 0; overflow-wrap: anywhere; }
-.portrait-stage { position: relative; margin: 0 auto; max-width: 255px; }
+.character-identity h2 { font-size: 20px; margin: 6px 0 0; overflow-wrap: anywhere; }
+.portrait-stage { position: relative; margin: 0 auto; max-width: 120px; }
 .portrait-stage::before { content: ""; position: absolute; inset: 14% 8%; border: 1px solid #97cfac20; border-radius: 50%; }
 .character-portrait { position: relative; display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 12px #0003); }
 .costume-label { color: #9eb9b3; font-size: 12px; }
@@ -554,8 +554,8 @@ footer {
 @media (max-width: 640px) {
   .character-lobby { margin: 20px auto; padding: 0 12px; }
   .character-sheet { grid-template-columns: 1fr; gap: 20px; }
-  .character-identity { padding: 20px; }
-  .portrait-stage { max-width: 180px; }
+  .character-identity { padding: 12px; }
+  .portrait-stage { max-width: 100px; }
   .character-resources { margin-top: 16px; padding-top: 16px; }
   .character-dialog { padding: 18px; }
   .character-departure { flex-direction: column; align-items: stretch; }
@@ -738,7 +738,7 @@ button, summary { touch-action: manipulation; }
   .world-layout--immersive .canvas-wrap { height: 48dvh; min-height: 240px; }
   .world-layout--immersive .is-battle .canvas-wrap { height: 38dvh; min-height: 220px; }
   .field-selection { position: relative; left: auto; bottom: auto; width: auto; max-height: none; margin: 0 10px 10px; }
-  .portrait-stage { max-width: 160px; }
+  .portrait-stage { max-width: 100px; }
 }
 @media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
   .world-layout--immersive .is-battle { display: grid; grid-template-columns: minmax(0,1fr) var(--landscape-command-width); align-items: start; }
@@ -1055,14 +1055,18 @@ button, summary { touch-action: manipulation; }
 .battle-action-points b { font-size: 21px; font-variant-numeric: tabular-nums; }
 .battle-action-points .ap-empty { color: #f3cc88; }
 
-.login-shell .auth .password-toggle { width: auto; min-height: 44px; margin: 0 0 8px auto; padding: 6px 12px; font-size: 12px; }
+.login-shell .auth .password-field { position: relative; margin-top: 6px; }
+.login-shell .auth .password-field input { margin: 0; padding-right: 52px; }
+.login-shell .auth .password-toggle { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; margin: 0; padding: 10px; border: 0; background: transparent; }
+.login-shell .auth .password-toggle svg { width: 22px; height: 22px; }
+.login-shell .auth .password-toggle:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: -3px; }
 
-.character-select-card { display: flex; align-items: center; gap: 24px; padding: 24px; border: 1px solid #37685a; border-radius: 16px; background: #132a23; }
+.character-select-card { display: flex; align-items: center; gap: 16px; padding: 12px; border: 1px solid #37685a; border-radius: 16px; background: #132a23; }
 .character-select-card > div { min-width: 0; }
 .character-select-card h2 { overflow-wrap: anywhere; }
 .character-select-empty { padding: 24px 0; }
-@media (max-width: 600px) { .character-select-card { flex-direction: column; align-items: stretch; } }
-.character-select-card > .character-portrait { width: 180px; height: 220px; object-fit: contain; flex-shrink: 0; align-self: center; }
+@media (max-width: 600px) { .character-select-card { gap: 12px; } }
+.character-select-card > .character-portrait { width: 96px; height: 120px; object-fit: contain; flex-shrink: 0; align-self: center; }
 .battle-unit-details { flex-shrink: 0; padding: 8px 12px; border-left: 3px solid var(--brand-primary); background: #10272b; font-size: 12px; overflow-wrap: anywhere; }
 .battle-unit-details p { margin: 4px 0 0; }
 
@@ -1081,6 +1085,9 @@ button, summary { touch-action: manipulation; }
   --battle-card-padding: 12px;
   --battle-card-map-height: clamp(240px, 44dvh, 440px);
   --battle-card-controls-width: 320px;
+  --battle-button-height: 32px;
+  --battle-button-gap: 6px;
+  --battle-button-padding: 6px 12px;
 }
 .world-shell .world-layout--immersive .world.is-battle {
   display: flex; flex-direction: column; gap: var(--battle-card-gap);
@@ -1139,4 +1146,29 @@ button, summary { touch-action: manipulation; }
 .battle-help-card .battle-secondary { display: block; }
 .battle-help-card .battle-status-details .battle-status { padding: 0; }
 .battle-help-card .battle-records { border-top: 1px solid var(--border); }
-.battle-exit-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+/* 행동 선택·확정·기권은 한 행에 모으고 폭이 부족할 때만 줄바꿈한다. */
+.battle-control-card .battle-control-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.battle-control-card .battle-control-heading h3 { margin: 0; font-size: 14px; }
+.battle-control-card .battle-control-heading .battle-step { display: block; margin: 0; padding: 0; font-size: 12px; }
+.world-shell .world.is-battle .battle-control-card .battle-command-area { gap: 8px; }
+.battle-control-card .battle-action-points { margin: 0; padding: 4px 8px; min-height: 36px; }
+.battle-control-card .battle-action-points > div { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.battle-control-card .battle-action-points b { font-size: 18px; }
+.battle-control-card .battle-button-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--battle-button-gap); }
+.battle-control-card .battle-mode-buttons { display: flex; flex-wrap: wrap; gap: var(--battle-button-gap); }
+.battle-control-card .battle-submit-row { display: flex; flex-wrap: wrap; gap: var(--battle-button-gap); }
+.battle-control-card :is(.battle-mode-buttons, .battle-submit-row) > button { flex: 0 0 auto; width: auto; min-width: var(--battle-button-height); max-width: 100%; min-height: var(--battle-button-height); margin: 0; padding: 6px 8px; border-radius: 6px; font-size: 13px; line-height: 1.3; }
+.battle-control-card .battle-surrender { color: #efaaa5; }
+.battle-control-card button:focus-visible { outline: 2px solid #b9f5de; outline-offset: 2px; }
+
+/* 마우스 환경은 작은 조작 버튼, 터치 환경은 터치 높이를 사용한다. */
+.is-battle .map-camera-controls { grid-template-columns: repeat(2, var(--battle-button-height)); gap: var(--battle-button-gap); }
+.is-battle .map-camera-controls button { width: var(--battle-button-height); height: var(--battle-button-height); min-width: var(--battle-button-height); min-height: var(--battle-button-height); border-radius: 6px; }
+.battle-help-card button { min-height: var(--battle-button-height); padding: 6px 10px; font-size: 13px; border-radius: 6px; }
+@media (any-pointer: coarse) {
+  :root { --battle-button-height: var(--touch-size); }
+}
+
+.character-identity .character-resources { margin-top: 10px; padding-top: 10px; }
+.character-select-card h2 { margin: 0 0 6px; font-size: 20px; }
+.character-select-card p { margin: 6px 0; }

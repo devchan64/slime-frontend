@@ -1,4 +1,6 @@
 import { heightAt } from "../game/terrain/elevation";
+import { useTranslation } from '../i18n';
+import { localizedFieldMap } from '../client/mapText';
 import type { Position, State } from "../client/types";
 import { encounterRoute, fieldDistance, fieldRoute, sameCell } from "./fieldNavigation";
 
@@ -14,6 +16,8 @@ const monsterName = (m: State["monsters"][number]) => m.name ?? (m.appearance ? 
 export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason }: Props & {
   walking: Walking | null; walk: () => void; stop: () => void; encounter?: (monsterId: string) => void; disabledReason?: string;
 }) {
+  const { locale } = useTranslation();
+  state = {...state, map: localizedFieldMap(state.map, locale)};
   const debt = state.me.fp !== undefined && state.me.fp < 0;
   const canStep = state.me.fp === undefined || state.me.fp >= 1;
   disabled = disabled || debt;
@@ -75,6 +79,8 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
 }
 
 export function FieldPanel({ state, selected, disabled, now, select, command }: Props) {
+  const { locale } = useTranslation();
+  state = {...state, map: localizedFieldMap(state.map, locale)};
   const monsters = state.monsters.filter(m => m.state !== "COOLDOWN").sort((a, b) => fieldDistance(state.me.position, a.position) - fieldDistance(state.me.position, b.position) || a.id.localeCompare(b.id));
   const renderMonster = (m: State["monsters"][number]) => <button key={m.id}
     class={`field-monster secondary ${selected && sameCell(selected, m.position) ? "is-selected" : ""}`}

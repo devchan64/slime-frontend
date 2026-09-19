@@ -1,5 +1,6 @@
 import { LanguageSelect } from './LanguageSelect';
-import { useTranslation } from '../i18n';
+import { useTranslation, getLocale } from '../i18n';
+import { localizedFieldMap, localizedMapName } from '../client/mapText';
 import { FieldPoints } from "./FieldPoints";
 import { AchievementsPage } from "./AchievementsPage";
 import { approachMonster } from "./encounterNavigation";
@@ -9,7 +10,6 @@ import { useMinimumLoading } from "./useMinimumLoading";
 import { FieldPanel, FieldSelection, type Walking } from "./FieldPanel";
 import { fieldRoute, sameCell as same } from "./fieldNavigation";
 import { TerrainLegend } from "./TerrainLegend";
-import { CharacterSettingsDialog } from "./CharacterSettingsDialog";
 import { CharacterPortrait } from "./CharacterPortrait";
 import { CharacterSettings } from "./CharacterSettings";
 import { CharacterDeparture } from "./CharacterDeparture";
@@ -31,7 +31,7 @@ const RESULT_NAMES: Record<string, string> = {
 const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
     [status, setStatus] = useState(""),
@@ -41,6 +41,29 @@ export function App() {
     [name, setName] = useState(""),
     [selected, setSelected] = useState<Position | null>(null),
     [chat, setChat] = useState("");
+  const [authPage, setAuthPage] = useState<"login" | "register">(() => location.hash === "#/register" ? "register" : "login");
+  const registering = authPage === "register";
+  function navigateAuth(page: "login" | "register") {
+    history.pushState(null, "", page === "register" ? "#/register" : "#/login");
+    setAuthPage(page);
+    setPassword("");
+    setPasswordVisible(false);
+  }
+  useEffect(() => {
+    const syncAuthPage = () => {
+      setAuthPage(location.hash === "#/register" ? "register" : "login");
+      setPassword("");
+      setPasswordVisible(false);
+      setStatus("");
+    };
+    window.addEventListener("popstate", syncAuthPage);
+    window.addEventListener("hashchange", syncAuthPage);
+    return () => {
+      window.removeEventListener("popstate", syncAuthPage);
+      window.removeEventListener("hashchange", syncAuthPage);
+    };
+  }, []);
+  useEffect(() => { document.getElementById("login-title")?.focus(); }, [authPage]);
   const [authAction, setAuthAction] = useState<"login" | "register" | null>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const passwordInput = useRef<HTMLInputElement>(null);
@@ -55,12 +78,13 @@ export function App() {
         if (action === "login") {
           setCharacterPage("select");
           setWorldGeneration(null);
-          setSettingsOpen(false);
+          navigateCharacterPage("#/characters");
           await client.login(user, password);
         } else {
           const issue = registrationIssue(user, password);
           if (issue) throw new Error(issue);
           await client.request("/v1/auth/register", { user_id: user, password });
+          navigateAuth("login");
           setStatus(t("auth.registered"));
         }
       });
@@ -72,9 +96,22 @@ export function App() {
   }
   const [characterPage, setCharacterPage] = useState<"select" | "create" | "settings">("select");
   const [worldGeneration, setWorldGeneration] = useState<number | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [characterRoute, setCharacterRoute] = useState(location.hash);
+  function navigateCharacterPage(route: string) {
+    history.pushState(null, "", route);
+    setCharacterRoute(route);
+  }
+  useEffect(() => {
+    const sync = () => setCharacterRoute(location.hash);
+    window.addEventListener("popstate", sync);
+    window.addEventListener("hashchange", sync);
+    return () => {
+      window.removeEventListener("popstate", sync);
+      window.removeEventListener("hashchange", sync);
+    };
+  }, []);
   const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
-  useEffect(() => { if (!settingsAvailable) setSettingsOpen(false); }, [settingsAvailable]);
+  const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
   const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
@@ -111,7 +148,7 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
-  const inWorld = !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const inWorld = !settingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -135,7 +172,8 @@ export function App() {
           setRenderError(message);
           setStatus(message);
         });
-        if (stateRef.current) renderer.current.scene.setState(stateRef.current);
+        if (stateRef.current) renderer.current.scene.setState({...stateRef.current,
+          map: localizedFieldMap(stateRef.current.map, getLocale())});
         canvas = renderer.current.game.canvas;
         canvas.addEventListener("webglcontextlost", lost);
       })
@@ -154,8 +192,8 @@ export function App() {
     };
   }, [inWorld]);
   useEffect(() => {
-    if (state) renderer.current?.scene.setState(state);
-  }, [state]);
+    if (state) renderer.current?.scene.setState({...state, map: localizedFieldMap(state.map, locale)});
+  }, [state, locale]);
   const loadingRequested = transferPending || (inWorld &&
     (renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING"));
   const { loading, minimumElapsed } = useMinimumLoading(loadingRequested);
@@ -303,7 +341,7 @@ export function App() {
                 await client.logout();
                 setState(null);
                 setWorldGeneration(null);
-                setSettingsOpen(false);
+                navigateCharacterPage("#/characters");
                 setConnected(false);
                 setStatus("로그아웃했습니다.");
                 setPassword("");
@@ -322,7 +360,7 @@ export function App() {
               <div class="eyebrow">{t('auth.eyebrow')}</div>
               <h1 id="welcome-title">{t('auth.headline')}<br /><em>{t('auth.emphasis')}</em></h1>
               <p>{t('auth.intro')}<br />{t('auth.pace')}</p>
-              <a class="login-jump" href="#login-title" onClick={() => document.getElementById("login-title")?.focus()}>{t('auth.jump')}<span aria-hidden="true">↓</span></a>
+              <a class="login-jump" href={registering ? "#/register" : "#/login"} onClick={event => { event.preventDefault(); document.getElementById("login-title")?.focus(); }}>{t(registering ? 'auth.register' : 'auth.jump')}<span aria-hidden="true">↓</span></a>
             </div>
             <div class="intro-grid">
               <span>{t('auth.steps')}</span>
@@ -332,13 +370,13 @@ export function App() {
           </section>
           <section class="card auth" aria-labelledby="login-title">
             <div class="eyebrow">{t('common.start')}</div>
-            <h2 id="login-title" tabIndex={-1}>{t('auth.welcome')}</h2>
-            <p class="auth-intro">{t('auth.subtitle')}</p>
+            <h2 id="login-title" tabIndex={-1}>{t(registering ? 'auth.register' : 'auth.welcome')}</h2>
+            <p class="auth-intro">{t(registering ? 'auth.registerSubtitle' : 'auth.subtitle')}</p>
             <form
               aria-busy={busy}
               onSubmit={(e) => {
                 e.preventDefault();
-                void authenticate("login");
+                void authenticate(authPage);
               }}
             >
               <label>
@@ -355,21 +393,22 @@ export function App() {
                   required
                 />
               </label>
-              <label>
-                {t('auth.password')}<input
+              <label for="auth-password">{t('auth.password')}</label>
+              <div class="password-field">
+                <input id="auth-password"
                   ref={passwordInput}
                   aria-label={t('auth.password')}
                   aria-describedby="auth-feedback"
                   type={passwordVisible ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete={registering ? "new-password" : "current-password"}
                   enterKeyHint="go"
                   maxLength={128}
                   value={password}
                   onInput={(e) => setPassword(e.currentTarget.value)}
                   required
                 />
-              </label>
               <button type="button" class="password-toggle secondary" aria-pressed={passwordVisible}
+                aria-label={t("auth.showPassword")} title={passwordVisible ? t("auth.hidePassword") : t("auth.showPassword")} aria-controls="auth-password"
                 onMouseDown={event => event.preventDefault()}
                 onClick={() => {
                   const input = passwordInput.current;
@@ -379,47 +418,65 @@ export function App() {
                     input?.focus();
                     if (start != null && end != null) input?.setSelectionRange(start, end);
                   });
-                }}>{passwordVisible ? t("auth.hidePassword") : t("auth.showPassword")}</button>
+                }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                  <circle cx="12" cy="12" r="3" />
+                  {passwordVisible && <path d="m3 3 18 18" />}
+                </svg>
+              </button>
+              </div>
               <button
                 disabled={busy || !user.trim() || !password}
                 type="submit"
               >
-                {authAction === 'login' ? t('auth.signingIn') : t('auth.login')}<span>→</span>
+                {t(registering ? (authAction ? 'auth.registering' : 'auth.register') : (authAction ? 'auth.signingIn' : 'auth.login'))}<span>→</span>
               </button>
               <div id="auth-feedback" class="auth-status" role="status" aria-live="polite" aria-atomic="true">{authAction ? t(authAction === "login" ? "auth.signingIn" : "auth.registering") : status || t("auth.inputHint")}</div>
-              <p class="signup-hint">{t('auth.signupHint')}</p>
-              <button
-                type="button"
-                class="secondary"
-                disabled={busy || !user.trim() || !password}
-                onClick={() => void authenticate("register")}
-              >
-                {authAction === 'register' ? t('auth.registering') : t('auth.register')}</button>
-            <details class="signup-rules">
-              <summary>{t('auth.rules')}</summary>
-              <small>
-              {t('auth.usernameRule')}<br />
-              {t('auth.passwordRule')}</small>
-            </details>
+              {!registering && <p class="signup-hint">{t('auth.signupHint')}</p>}
+              <button type="button" class="secondary" disabled={busy}
+                onClick={() => { setStatus(""); navigateAuth(registering ? "login" : "register"); }}>
+                {t(registering ? 'auth.backToLogin' : 'auth.register')}
+              </button>
+              {registering && <details class="signup-rules" open>
+                <summary>{t('auth.rules')}</summary>
+                <small>{t('auth.usernameRule')}<br />{t('auth.passwordRule')}</small>
+              </details>}
             </form>
           </section>
         </main>
       ) : state.me.mode === "AWAY" ? (
         <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
+      ) : settingsPage ? (
+        <main class="lobby character-lobby">
+          <section class="card">
+            <h1>{t('common.settings')}</h1>
+            {worldGeneration === state.generation && state.me.mode !== "LOBBY"
+              ? <button class="secondary" onClick={() => navigateCharacterPage("#/world")}>게임으로 돌아가기</button>
+              : <>
+                <CharacterDeparture me={state.me} disabled={disabled} onEnter={async () => {
+                  await command("/v1/world/enter");
+                  if (stateRef.current?.me.mode === "FIELD") navigateCharacterPage("#/world");
+                }} />
+                <button class="secondary" disabled={busy} onClick={() => { setCharacterPage("select"); navigateCharacterPage("#/characters"); }}>캐릭터 선택으로</button>
+              </>}
+            <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
+          </section>
+        </main>
       ) : !inWorld ? (
         <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
             <div class="eyebrow">{characterPage === "select" ? "CHARACTER SELECT" : characterPage === "create" ? "NEW EXPLORER" : "CHARACTER SETTINGS"}</div>
             <h1>{characterPage === "select" ? "캐릭터 선택" : characterPage === "create" ? "캐릭터 생성" : t('common.settings')}</h1>
+            {state.me.name && <CharacterDeparture me={state.me} disabled={disabled} onEnter={() => command("/v1/world/enter")} />}
             {characterPage === "select" ? (
               state.me.name ? <>
                 <article class="character-select-card" aria-label="내 캐릭터">
                   <CharacterPortrait />
                   <div><h2>{state.me.name}</h2><p>이 캐릭터로 모험을 이어가세요.</p>
-                    <button class="secondary" disabled={disabled} onClick={() => setCharacterPage("settings")}>캐릭터 설정</button>
+                    <button class="secondary" disabled={disabled} onClick={() => navigateCharacterPage("#/characters/settings")}>캐릭터 설정</button>
                   </div>
                 </article>
-                <CharacterDeparture me={state.me} disabled={disabled} onEnter={() => command("/v1/world/enter")} />
                 <p class="growth-help">캐릭터 1 / 1 · 계정당 한 명의 캐릭터를 사용할 수 있습니다.</p>
               </> : <div class="character-select-empty">
                 <p>아직 캐릭터가 없습니다. 첫 모험가를 만들어 주세요.</p>
@@ -456,7 +513,7 @@ export function App() {
                 <h2>
                   {battle
                     ? `${battle.field.name || "전술 전장"} · 라운드 ${battle.round}`
-                    : state.map.name}
+                    : localizedMapName(state.map.name, state.map.nameTranslations, locale)}
                 </h2>
               </div>
               {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
@@ -504,7 +561,7 @@ export function App() {
             </details>
             </>}
             {!battle && <nav class="world-bottom-menu" aria-label="게임 메뉴">
-              {settingsAvailable && <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>{t('common.settings')}</button>}
+              {settingsAvailable && <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>}
               {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>}
               {!battle && <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>}
               {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
@@ -615,8 +672,6 @@ export function App() {
           </WorldDrawer>}
         </main>
       )}
-      {state && inWorld && settingsAvailable && !loading && settingsOpen && <CharacterSettingsDialog
-        me={state.me} disabled={disabled} command={command} onClose={() => setSettingsOpen(false)} />}
       <footer role="status">
         <span class={connected ? "status-light" : ""}>●</span>{" "}
         {busy ? "명령 처리 중…" : status}

@@ -13,7 +13,7 @@ subtitle: 오늘도 나만의 속도로 시작해요.
 username: 아이디
 password: 비밀번호
 login: 접속하기
-signupHint: 처음 오셨나요? 위에 입력한 아이디와 비밀번호로 가입할 수 있어요.
+signupHint: 처음 오셨나요? 새 계정을 만들어 주세요.
 register: 새 계정 만들기
 busy: 처리 중이에요. 잠시만 기다려 주세요.
 rules: 가입 조건 확인하기
@@ -26,3 +26,6 @@ registering: 계정 만드는 중…
 registered: 가입되었습니다. 접속하기를 눌러 주세요.
 showPassword: 비밀번호 표시
 hidePassword: 비밀번호 숨기기
+
+registerSubtitle: 사용할 아이디와 비밀번호를 입력해 주세요.
+backToLogin: 로그인으로 돌아가기

@@ -94,6 +94,7 @@ export type State = {
   map: Surface & {
     id: string;
     name: string;
+    nameTranslations?: Record<'ko' | 'en', string>;
     columns: number;
     rows: number;
     startPoint: Position;
@@ -102,6 +103,7 @@ export type State = {
     connections: (Position & {
       id: string; target: string; name?: string;
       targetName?: string;
+      targetNameTranslations?: Record<'ko' | 'en', string>;
       direction?: "west" | "east" | "north" | "south";
       targetWaypointId?: string;
     })[];
