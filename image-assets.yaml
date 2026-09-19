@@ -1,0 +1,84 @@
+managementId: registry.images.frontend
+data:
+  version: 1
+  images:
+  - managementId: image.frontend.public.assets.brand.slime-favicon-v2-32.png
+    path: public/assets/brand/slime-favicon-v2-32.png
+  - managementId: image.frontend.public.assets.brand.slime-favicon-v2.ico
+    path: public/assets/brand/slime-favicon-v2.ico
+  - managementId: image.frontend.public.assets.brand.slime-favicon-v2.svg
+    path: public/assets/brand/slime-favicon-v2.svg
+  - managementId: image.frontend.public.assets.brand.slime-touch-icon-v2.png
+    path: public/assets/brand/slime-touch-icon-v2.png
+  - managementId: image.frontend.public.favicon.ico
+    path: public/favicon.ico
+  - managementId: image.frontend.src.assets.characters.default-v1.png
+    path: src/assets/characters/default-v1.png
+  - managementId: image.frontend.src.assets.login.slime-welcome-v2.png
+    path: src/assets/login/slime-welcome-v2.png
+  - managementId: image.frontend.src.assets.login.slime-welcome-v3.png
+    path: src/assets/login/slime-welcome-v3.png
+  - managementId: image.frontend.src.assets.login.slime-welcome-v4.png
+    path: src/assets/login/slime-welcome-v4.png
+  - managementId: image.frontend.src.assets.monsters.beast-v1.png
+    path: src/assets/monsters/beast-v1.png
+  - managementId: image.frontend.src.assets.monsters.beast-v2.png
+    path: src/assets/monsters/beast-v2.png
+  - managementId: image.frontend.src.assets.monsters.giant-v1.png
+    path: src/assets/monsters/giant-v1.png
+  - managementId: image.frontend.src.assets.monsters.giant-v2.png
+    path: src/assets/monsters/giant-v2.png
+  - managementId: image.frontend.src.assets.monsters.slime-v1.png
+    path: src/assets/monsters/slime-v1.png
+  - managementId: image.frontend.src.assets.monsters.slime-v2.png
+    path: src/assets/monsters/slime-v2.png
+  - managementId: image.frontend.src.assets.terrain.dew-v2.png
+    path: src/assets/terrain/dew-v2.png
+  - managementId: image.frontend.src.assets.terrain.dew-v3.png
+    path: src/assets/terrain/dew-v3.png
+  - managementId: image.frontend.src.assets.terrain.dew-v3.webp
+    path: src/assets/terrain/dew-v3.webp
+  - managementId: image.frontend.src.assets.terrain.dew.webp
+    path: src/assets/terrain/dew.webp
+  - managementId: image.frontend.src.assets.terrain.flowers-v2.png
+    path: src/assets/terrain/flowers-v2.png
+  - managementId: image.frontend.src.assets.terrain.flowers-v2.webp
+    path: src/assets/terrain/flowers-v2.webp
+  - managementId: image.frontend.src.assets.terrain.flowers-v3.png
+    path: src/assets/terrain/flowers-v3.png
+  - managementId: image.frontend.src.assets.terrain.flowers-v3.webp
+    path: src/assets/terrain/flowers-v3.webp
+  - managementId: image.frontend.src.assets.terrain.flowers.webp
+    path: src/assets/terrain/flowers.webp
+  - managementId: image.frontend.src.assets.terrain.grass-v2.png
+    path: src/assets/terrain/grass-v2.png
+  - managementId: image.frontend.src.assets.terrain.grass-v2.webp
+    path: src/assets/terrain/grass-v2.webp
+  - managementId: image.frontend.src.assets.terrain.grass-v3.png
+    path: src/assets/terrain/grass-v3.png
+  - managementId: image.frontend.src.assets.terrain.grass-v3.webp
+    path: src/assets/terrain/grass-v3.webp
+  - managementId: image.frontend.src.assets.terrain.grass.webp
+    path: src/assets/terrain/grass.webp
+  - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.png
+    path: src/assets/terrain/meadow-backdrop-v2.png
+  - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
+    path: src/assets/terrain/meadow-backdrop-v2.webp
+  - managementId: image.frontend.src.assets.terrain.meadow-backdrop.webp
+    path: src/assets/terrain/meadow-backdrop.webp
+  - managementId: image.frontend.src.assets.terrain.road-v2.png
+    path: src/assets/terrain/road-v2.png
+  - managementId: image.frontend.src.assets.terrain.road-v2.webp
+    path: src/assets/terrain/road-v2.webp
+  - managementId: image.frontend.src.assets.terrain.road-v3.png
+    path: src/assets/terrain/road-v3.png
+  - managementId: image.frontend.src.assets.terrain.road-v3.webp
+    path: src/assets/terrain/road-v3.webp
+  - managementId: image.frontend.src.assets.terrain.road.webp
+    path: src/assets/terrain/road.webp
+  - managementId: image.frontend.src.assets.terrain.water-v2.webp
+    path: src/assets/terrain/water-v2.webp
+  - managementId: image.frontend.src.assets.terrain.water-v3.png
+    path: src/assets/terrain/water-v3.png
+  - managementId: image.frontend.src.assets.terrain.water-v3.webp
+    path: src/assets/terrain/water-v3.webp
