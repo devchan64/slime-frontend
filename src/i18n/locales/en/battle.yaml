@@ -114,7 +114,7 @@ selectSkillHelp: "Select a skill to view its description and available actions."
 terrainApPreview: "Base {base} AP · expected {expected} AP · maximum {max} AP. Terrain costs may reduce AP to zero or below and stop movement before arrival."
 terrainMovementStopped: "Route stopped due to insufficient AP"
 
-surrenderConfirmation: "Agree to flee? Confirm to submit your flee vote."
+surrenderConfirmation: "Agree to flee? Each item acquired in this battle has a 50% chance of being lost when fleeing."
 
 moveSummary: "Move {count} tiles · View the full path on the map and in the confirmation dialog."
 attackHelpDetail: "Choose an attack target in the controls. Review expected damage before confirming; enemy health information depends on Monster Lore."
@@ -123,3 +123,5 @@ plainEndTurn: "End turn · 0 AP"
 guardEndTurn: "Guard and end · 1 AP"
 turnEndChoice: "Guard and end costs 1 AP. Ending without guarding costs no AP."
 guardEndUnavailable: "Guarding requires 1 AP. You can end without guarding at no AP cost."
+
+lostLoot: "Lost while fleeing"

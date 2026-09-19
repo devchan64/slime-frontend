@@ -43,6 +43,12 @@ export function BattleReport({ result, onReturn }: {
         <dd>×{material.quantity}{material.valueP !== null && <small> · {t('battle.materialValue', {value: material.valueP})}</small>}</dd></div>)}
     </dl>
     {!result.coins && !(result.materials ?? []).length && <p>{t('battle.noLoot')}</p>}
+    {!!result.lostMaterials?.length && <section class="battle-lost-loot">
+      <h3>{t('battle.lostLoot')}</h3>
+      <ul>{result.lostMaterials.map(lostMaterialEntry => <li key={lostMaterialEntry.materialId}>
+        {lostMaterialEntry.nameTranslations[locale]} ×{lostMaterialEntry.quantity}
+      </li>)}</ul>
+    </section>}
     <p role="status">{t('battle.returnCountdown',{seconds})}</p>
     <button autoFocus onClick={finish}>{t('battle.acknowledge')}</button>
   </dialog>;
