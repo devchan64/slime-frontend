@@ -7,3 +7,4 @@ transitioning: 세션 전환 확인 중 · 잠시 기다려 주세요.
 transitionDelayed: 세션 전환이 지연되고 있습니다. 다시 로그인해 상태를 확인하세요.
 chatVerificationExpired: 광고 검증 또는 채팅 접속이 만료되었습니다. 다시 확인하세요.
 sessionChanged: 세션이 변경되어 이전 요청의 처리를 중단했습니다.
+requestTimeout: 응답 대기 시간이 초과되었습니다. 서버 처리 여부는 아직 확인되지 않았습니다. 연결을 복구해 최신 상태를 확인하세요.

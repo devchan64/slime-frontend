@@ -7,3 +7,4 @@ transitioning: Checking the session transition · Please wait.
 transitionDelayed: The session transition is taking longer than expected. Sign in again to check its status.
 chatVerificationExpired: Advertisement verification or the chat connection has expired. Please try again.
 sessionChanged: The session changed, so the previous request was stopped.
+requestTimeout: The response timed out. The server outcome is not yet known. Reconnect to check the latest state.

@@ -11,6 +11,7 @@ const SOCKET_RESPONSE_TIMEOUT_MS = 30000;
 const RECONNECT_MAX_MS = 5000;
 const STREAM_PROGRESS_WAIT_MS = 5000;
 const ACK_BATCH_MS = 250;
+const REQUEST_TIMEOUT_MS = 30000;
 type StreamMark = Pick<State, "generation" | "epoch" | "cursor">;
 export class Client {
   tokens: Tokens | null = null;
@@ -38,24 +39,31 @@ export class Client {
   onStatus: (ready: boolean, message: Notice) => void = () => {};
   async request(path: string, body?: unknown): Promise<any> {
     const sessionRevision=this.sessionRevision;
-    const response = await fetch(`${API_BASE}${path}`, {
-      method: body === undefined ? "GET" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(this.tokens
-          ? { Authorization: `Bearer ${this.tokens.access_token}` }
-          : {}),
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      cache: "no-store",
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
+      const response = await fetch(`${API_BASE}${path}`, {
+        method: body === undefined ? "GET" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(this.tokens
+            ? { Authorization: `Bearer ${this.tokens.access_token}` }
+            : {}),
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        cache: "no-store",
+        signal: controller.signal,
+      });
       return await readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
     } catch (error) {
+      // 전송 취소는 서버의 명령 취소·실패 확정을 뜻하지 않는다.
+      if (controller.signal.aborted) throw new LocalizedError('network.requestTimeout');
       if (sessionRevision===this.sessionRevision && error instanceof ApiError && error.code === "IDLE_DISCONNECTED") {
         this.disconnect(); this.onStatus(false, error);
       }
       throw error;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

@@ -369,3 +369,49 @@ test('소켓 연결·초기 승인 대기에도 기한을 적용하며 종료 �
   }
  } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
 });
+
+test('HTTP 헤더·본문 무응답을 중단하고 결과 미확정 안내와 타이머 정리를 보장한다',async()=>{
+ const keys=['fetch','setTimeout','clearTimeout'];const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ const timers=new Map();let id=0,signal;
+ try {
+  globalThis.setTimeout=(fn,delay)=>{timers.set(++id,{fn,delay});return id;};globalThis.clearTimeout=key=>timers.delete(key);
+  for(const phase of ['headers','body']){
+   const blocked=current=>new Promise((resolve,reject)=>current.addEventListener('abort',()=>reject(new DOMException('aborted','AbortError')),{once:true}));
+   globalThis.fetch=async(_,options)=>{signal=options.signal;return phase==='headers'?blocked(signal):{text:()=>blocked(signal)};};
+   const client=new Client();const pending=client.request('/v1/test');
+   const rejected=assert.rejects(pending,error=>error.key==='network.requestTimeout');
+   await new Promise(resolve=>setImmediate(resolve));
+   assert.equal(timers.size,1);assert.equal([...timers.values()][0].delay,30000);
+   [...timers.values()][0].fn();await rejected;
+   assert.equal(signal.aborted,true);assert.equal(timers.size,0);
+  }
+  globalThis.fetch=async()=>new Response(JSON.stringify({ok:true}),{headers:{'Content-Type':'application/json'}});
+  assert.deepEqual(await new Client().request('/v1/test'),{ok:true});assert.equal(timers.size,0);
+  globalThis.fetch=async()=>{throw new TypeError('network unavailable');};
+  await assert.rejects(new Client().request('/v1/test'),TypeError);assert.equal(timers.size,0);
+ } finally {for(const [key,value] of Object.entries(originals))globalThis[key]=value;}
+});
+
+test('HTTP 시간 초과 후 명령은 동일 본문으로 한 번만 재확인하며 성공 상태만 적용한다',async()=>{
+ const keys=['fetch','setTimeout','clearTimeout'];const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ const timers=new Map(),bodies=[];let id=0;
+ try {
+  globalThis.setTimeout=(fn,delay)=>{timers.set(++id,{fn,delay});return id;};globalThis.clearTimeout=key=>timers.delete(key);
+  for(const retrySucceeds of [true,false]){
+   bodies.length=0;let applied=0;
+   const client=new Client();client.state={me:{version:7}};client.accept=()=>applied++;
+   globalThis.fetch=async(_,options)=>{
+    bodies.push(options.body);
+    if(retrySucceeds&&bodies.length===2)return new Response(JSON.stringify({state:{me:{version:8}}}),{headers:{'Content-Type':'application/json'}});
+    return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new DOMException('aborted','AbortError')),{once:true}));
+   };
+   const pending=client.command('/v1/game/moves',{position:{column:3,row:4}});
+   const outcome=retrySucceeds?pending:assert.rejects(pending,error=>error.key==='network.requestTimeout');
+   [...timers.values()][0].fn();await new Promise(resolve=>setImmediate(resolve));
+   if(!retrySucceeds)[...timers.values()][0].fn();
+   await outcome;
+   assert.equal(bodies.length,2);assert.equal(bodies[0],bodies[1]);assert.equal(JSON.parse(bodies[0]).expectedVersion,7);
+   assert.equal(applied,retrySucceeds?1:0);assert.equal(timers.size,0);
+  }
+ } finally {for(const [key,value] of Object.entries(originals))globalThis[key]=value;}
+});
