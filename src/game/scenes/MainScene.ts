@@ -1,5 +1,6 @@
 import {FieldMotion} from '../terrain/fieldMotion';
 import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
+import {fitActorZoom} from '../terrain/actorFraming';
 import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
 import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
@@ -11,7 +12,7 @@ import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/te
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
-import { drawActor, preloadActors } from "../terrain/actors";
+import { drawActor, preloadActors, HUMAN_HEIGHT } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
@@ -268,6 +269,15 @@ export class MainScene extends Phaser.Scene {
       const point = this.project(
         this.state.battle ? { column: (this.state.battle.field.columns - 1) / 2, row: (this.state.battle.field.rows - 1) / 2 } : this.state.me.position,
       );
+      if(battle) {
+        const bounds=battle.units.filter(unit=>unit.hp>0).map(unit=>{
+          const p=this.project(unit.position),size=actorSize(unit.side==='ally'?undefined:unit);
+          return {left:p.x-TILE_W*size.tiles/2,right:p.x+TILE_W*size.tiles/2,
+            top:p.y-HUMAN_HEIGHT*size.scale-TURN_BADGE_OFFSET-TURN_BADGE_RADIUS,
+            bottom:p.y+TILE_H*size.tiles/2};
+        });
+        this.cameras.main.setZoom(fitActorZoom(this.cameras.main.zoom,point,this.cameras.main,bounds));
+      }
       this.cameras.main.centerOn(point.x, point.y);
       this.syncActorViewport();
       this.animateFieldActors();
