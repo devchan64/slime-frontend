@@ -33,8 +33,10 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
   return <nav class="field-event-shortcuts" aria-label={t('field.nearbyEvents')}>
     {events.map(event => <button key={event.id} class="secondary" disabled={disabled}
       aria-pressed={!!selected && sameCell(event.position, selected)}
+      title={`${event.kind ? `${event.kind} · ` : ""}${event.name} · ${t('field.gridDistance',{count:event.distance})}`}
+      aria-label={`${event.kind ? `${event.kind} · ` : ""}${event.name} · ${t('field.gridDistance',{count:event.distance})}`}
       onClick={() => select(event.position)}>
-      {event.kind && <small>{event.kind}</small>}<strong class={event.nameClass}>{event.name}</strong><small>{t('field.gridDistance',{count:event.distance})}</small>
+      {event.kind && <span aria-hidden="true">↗</span>}<strong class={event.nameClass}>{event.name}</strong><small>{t('field.shortcutDistance',{count:event.distance})}</small>
     </button>)}
     {!events.length && <p>{t('field.noEvents')}</p>}
   </nav>;
@@ -58,8 +60,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   </section>;
   if (!selected) {
     return <section class="field-selection field-idle" aria-label={t('field.tileCommands')}>
-      <div class="field-selection-heading"><div><span class="field-kicker">{t('field.explore')}</span><h3>{t('field.whereTo')}</h3></div>
-        <span class="field-selection-hint">{t('field.selectHint')}</span></div>
+      <div class="field-selection-heading"><span class="field-selection-hint">{t('field.selectHint')}</span></div>
     </section>;
   }
   const blocked = state.map.blocked.some(p => sameCell(p, selected));
@@ -70,7 +71,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const safe = fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
-  return <section class="field-selection" aria-label={t('field.selectedLocation')}>
+  return <section class={`field-selection ${!monsters.length ? "field-selection-compact" : ""}`} aria-label={t('field.selectedLocation')}>
     <div class="field-selection-heading"><div>
       <h3>{monsters.length ? t('field.monsterEncounter') : blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</h3></div>
       <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button></div>
@@ -80,16 +81,15 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         const route = encounterRoute(state.me.position, m.position, state.map);
         return <div class="field-target" key={m.id}><div>
           <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
-          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacent')}</small></div>
+          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
           <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
       })}
-      {!monsters.length && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
-        {blocked ? t('field.blockedHelp') : here ? gate ? t('field.destinationArrival') : t('field.currentHelp') : path ? gate ? t('field.destinationRoute',{count:path.length}) : t('field.walkRoute',{count:path.length}) : t('field.noRoute')}
+      {!monsters.length && (blocked || here || !path) && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
+        {blocked ? t('field.blockedTerrain') : here ? gate ? t('field.arrivalCompact') : t('field.currentPosition') : t('field.noApproach')}
       </p>}
       {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
-      <details class="tile-description"><summary>{t('field.tileDetails')}</summary><small>{t('field.coordinates',{column:selected.column,row:selected.row,height:heightAt(selected,state.map)})}</small></details>
     </div>
     {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? t('field.moveCost',{count:path.length}) : ""}</button>}
       {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
@@ -122,4 +122,21 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
       {!state.map.connections.length && <p>{t('field.noConnections')}</p>}
     </details>
   </section>;
+}
+
+export function FieldLocationHelp({ state: currentFieldState, selected: selectedFieldPosition }: Pick<Props, "state" | "selected">) {
+  const { t: translateFieldMessage, locale: currentDisplayLocale } = useTranslation();
+  if (!selectedFieldPosition) return null;
+  const currentLocalizedMap = localizedFieldMap(currentFieldState.map, currentDisplayLocale);
+  const selectedWalkingRoute = fieldRoute(currentFieldState.me.position, selectedFieldPosition, currentLocalizedMap);
+  const selectedMapConnection = currentLocalizedMap.connections.find(currentMapConnection => sameCell(currentMapConnection, selectedFieldPosition));
+  const selectedPositionBlocked = currentLocalizedMap.blocked.some(currentBlockedPosition => sameCell(currentBlockedPosition, selectedFieldPosition));
+  const selectedPositionCurrent = sameCell(currentFieldState.me.position, selectedFieldPosition);
+  return <div class="field-location-help">
+    <p>{translateFieldMessage('field.compactCoordinates', {column: selectedFieldPosition.column, row: selectedFieldPosition.row, height: heightAt(selectedFieldPosition, currentLocalizedMap)})}</p>
+    <p>{selectedPositionBlocked ? translateFieldMessage('field.blockedHelp') : selectedPositionCurrent
+      ? translateFieldMessage(selectedMapConnection ? 'field.destinationArrival' : 'field.currentHelp')
+      : selectedWalkingRoute ? translateFieldMessage(selectedMapConnection ? 'field.destinationRoute' : 'field.walkRoute', {count: selectedWalkingRoute.length})
+      : translateFieldMessage('field.noRoute')}</p>
+  </div>;
 }

@@ -59,9 +59,9 @@ blockedHelp: "Rocks, bushes and water block movement. Select another tile."
 currentHelp: "You are standing here. Select another tile."
 noRoute: "No route from your location. Select another destination."
 insufficientFp: "Movement costs 1 FP per tile. Wait for recovery."
-tileDetails: "Coordinates and terrain"
+tileDetails: "Coordinates"
 moveToGate: "Move to waypoint"
-moveHere: "Move here"
+moveHere: "Move"
 available: "Available"
 unavailable: "Unavailable"
 preparation: "Encounter preparation"
@@ -90,3 +90,8 @@ aggroInterruption: A monster initiated combat and interrupted your field action.
 
 resources: Health and field points
 healthUnknown: Unknown
+
+shortcutDistance: "{count} tiles"
+arrivalCompact: "Arrived · travel available"
+adjacentCompact: "Adjacent"
+compactCoordinates: "{column},{row} · Height {height}"

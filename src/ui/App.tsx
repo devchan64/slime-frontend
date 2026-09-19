@@ -14,7 +14,7 @@ import { approachMonster } from "./encounterNavigation";
 import { ChatPanel } from "./ChatPanel";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useMinimumLoading } from "./useMinimumLoading";
-import { FieldPanel, FieldSelection, FieldEventShortcuts, type Walking } from "./FieldPanel";
+import { FieldPanel, FieldSelection, FieldEventShortcuts, FieldLocationHelp, type Walking } from "./FieldPanel";
 import { fieldRoute, sameCell as same } from "./fieldNavigation";
 import { TerrainLegend } from "./TerrainLegend";
 import { CharacterPortrait } from "./CharacterPortrait";
@@ -603,7 +603,7 @@ export function App() {
               disabled={disabled || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
-            <section class="card field-help-card" aria-label={t('app.fieldHelp')}><TerrainLegend /><p>{t('app.fieldControlsHelp')}</p>
+            <section class="card field-help-card" aria-label={t('app.fieldHelp')}><FieldLocationHelp state={state} selected={selected} /><TerrainLegend /><p>{t('app.fieldControlsHelp')}</p>
             <div class="map-caption">
               <span>
                 {battle
