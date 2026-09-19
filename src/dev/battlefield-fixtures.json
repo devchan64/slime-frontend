@@ -1,11 +1,215 @@
 [
   {
-    "location": {
-      "id": "428edd1f-a176-4198-97e9-9264c77e3d3d",
-      "kind": "BATTLE",
-      "mapId": "meadow-crossroads",
-      "chatRoomId": "preview",
-      "roomReady": true
+    "protocolVersion": 1,
+    "serverTime": 100,
+    "generation": 1,
+    "epoch": 1,
+    "cursor": 0,
+    "me": {
+      "id": "preview",
+      "name": "전술 검증",
+      "sp": 0,
+      "spLedger": [],
+      "skillPointMigration": {
+        "version": 1,
+        "source": "new_character",
+        "refundedCP": {
+          "general": 0,
+          "seasonal": 0
+        },
+        "initialSP": 0
+      },
+      "cp": 10,
+      "cpGeneral": 10,
+      "cpSeasonal": 0,
+      "attributes": {
+        "body": 1,
+        "intellect": 1,
+        "spirit": 1
+      },
+      "skills": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "skillGrowthBaselines": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "achievements": {},
+      "cpLedger": [],
+      "achievementSeasonId": "initial",
+      "seasonalAchievements": {},
+      "seasonTransitions": [],
+      "victoryRewardMigration": 1,
+      "xp": 0,
+      "coins": 0,
+      "version": 0,
+      "mode": "IN_BATTLE",
+      "position": {
+        "column": 6,
+        "row": 3
+      },
+      "lastMapId": "meadow",
+      "lastPosition": {
+        "column": 2,
+        "row": 2
+      },
+      "requiresStartSpawn": false,
+      "battleId": "8b7fae3f-f486-5dbe-bbf1-6e93e06a7387",
+      "partyId": null,
+      "movedAt": 0,
+      "lastResult": null,
+      "fp": 0,
+      "fpMax": 1000,
+      "fpNextChargeAt": 160,
+      "bag": {
+        "items": [],
+        "knownWeightG": 0,
+        "unknownWeightQuantity": 0,
+        "capacityG": 20000
+      },
+      "skillDefinitions": {
+        "physical_activity": {
+          "id": "physical_activity",
+          "name": "신체활동",
+          "icon": "◇",
+          "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "신체활동",
+              "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함"
+            },
+            "en": {
+              "name": "Physical Activity",
+              "description": "Walking, running, jumping, punching and kicking. Includes the basic attack skill from level 1."
+            }
+          }
+        },
+        "literacy": {
+          "id": "literacy",
+          "name": "문해",
+          "icon": "▱",
+          "description": "읽고 쓰는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "문해",
+              "description": "읽고 쓰는 능숙함"
+            },
+            "en": {
+              "name": "Literacy",
+              "description": "Proficiency in reading and writing."
+            }
+          }
+        },
+        "speaking": {
+          "id": "speaking",
+          "name": "말하기",
+          "icon": "✧",
+          "description": "말로 표현하고 전달하는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "말하기",
+              "description": "말로 표현하고 전달하는 능숙함"
+            },
+            "en": {
+              "name": "Speaking",
+              "description": "Proficiency in expressing and communicating through speech."
+            }
+          }
+        },
+        "monster_lore": {
+          "id": "monster_lore",
+          "name": "몬스터학",
+          "icon": "◈",
+          "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "몬스터학",
+              "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다."
+            },
+            "en": {
+              "name": "Monster Lore",
+              "description": "Observe monster injuries in battle. From level 1, living monsters have two visible health bands."
+            }
+          }
+        },
+        "mathematics": {
+          "id": "mathematics",
+          "name": "수학",
+          "icon": "∑",
+          "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "수학",
+              "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Mathematics",
+              "description": "Mathematics skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "science": {
+          "id": "science",
+          "name": "과학",
+          "icon": "⚗",
+          "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "과학",
+              "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Science",
+              "description": "Science skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "commerce": {
+          "id": "commerce",
+          "name": "상업",
+          "icon": "◇",
+          "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "상업",
+              "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Commerce",
+              "description": "Commerce skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "one_handed_swordsmanship": {
+          "id": "one_handed_swordsmanship",
+          "name": "한손검술",
+          "icon": "⚔",
+          "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "한손검술",
+              "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다."
+            },
+            "en": {
+              "name": "One-handed Swordsmanship",
+              "description": "Earned through a specific event. Supports combat while a one-handed sword is equipped. Level 0 has no support effect."
+            }
+          }
+        }
+      },
+      "battleSkillLoadout": [],
+      "battleSkillSlotLimit": 10
     },
     "map": {
       "elevations": [
@@ -1178,92 +1382,6 @@
           }
         }
       ],
-      "id": "meadow",
-      "name": "이슬 초원",
-      "version": "1.5.0",
-      "columns": 32,
-      "rows": 32,
-      "startPoint": {
-        "column": 2,
-        "row": 2
-      },
-      "safeRadius": 3,
-      "environment": {
-        "themeId": "meadow",
-        "backdrop": "meadow-backdrop",
-        "terrainPalette": [
-          "grass",
-          "dew",
-          "flowers",
-          "road"
-        ]
-      },
-      "blocked": [
-        {
-          "column": 12,
-          "row": 6
-        },
-        {
-          "column": 12,
-          "row": 7
-        },
-        {
-          "column": 12,
-          "row": 8
-        },
-        {
-          "column": 12,
-          "row": 9
-        },
-        {
-          "column": 12,
-          "row": 11
-        },
-        {
-          "column": 12,
-          "row": 12
-        },
-        {
-          "column": 12,
-          "row": 13
-        },
-        {
-          "column": 12,
-          "row": 14
-        }
-      ],
-      "connections": [
-        {
-          "id": "gate",
-          "name": "서쪽 웨이포인트",
-          "column": 0,
-          "row": 2,
-          "target": "grove",
-          "direction": "west",
-          "targetWaypointId": "gate-east",
-          "targetName": "푸른 숲"
-        },
-        {
-          "id": "gate-east",
-          "name": "동쪽 웨이포인트",
-          "column": 31,
-          "row": 16,
-          "target": "mist-lake",
-          "direction": "east",
-          "targetWaypointId": "gate",
-          "targetName": "안개 호수"
-        },
-        {
-          "id": "gate-south",
-          "name": "남쪽 웨이포인트",
-          "column": 16,
-          "row": 31,
-          "target": "wind-hills",
-          "direction": "south",
-          "targetWaypointId": "gate-north",
-          "targetName": "바람 구릉"
-        }
-      ],
       "elevationTiles": [
         {
           "id": "meadow-link-1",
@@ -1343,10 +1461,136 @@
             "row": 24
           }
         }
+      ],
+      "id": "meadow",
+      "name": "이슬 초원",
+      "nameTranslations": {
+        "ko": "이슬 초원",
+        "en": "Dew Meadow"
+      },
+      "version": "1.5.0",
+      "columns": 32,
+      "rows": 32,
+      "startPoint": {
+        "column": 2,
+        "row": 2
+      },
+      "safeRadius": 3,
+      "environment": {
+        "themeId": "meadow",
+        "backdrop": "meadow-backdrop",
+        "terrainPalette": [
+          "grass",
+          "dew",
+          "flowers",
+          "road"
+        ]
+      },
+      "blocked": [
+        {
+          "column": 12,
+          "row": 6
+        },
+        {
+          "column": 12,
+          "row": 7
+        },
+        {
+          "column": 12,
+          "row": 8
+        },
+        {
+          "column": 12,
+          "row": 9
+        },
+        {
+          "column": 12,
+          "row": 11
+        },
+        {
+          "column": 12,
+          "row": 12
+        },
+        {
+          "column": 12,
+          "row": 13
+        },
+        {
+          "column": 12,
+          "row": 14
+        }
+      ],
+      "connections": [
+        {
+          "id": "gate",
+          "name": "서쪽 웨이포인트",
+          "column": 0,
+          "row": 2,
+          "target": "grove",
+          "direction": "west",
+          "targetWaypointId": "gate-east",
+          "targetName": "푸른 숲",
+          "targetNameTranslations": {
+            "ko": "푸른 숲",
+            "en": "Verdant Forest"
+          }
+        },
+        {
+          "id": "gate-east",
+          "name": "동쪽 웨이포인트",
+          "column": 31,
+          "row": 16,
+          "target": "mist-lake",
+          "direction": "east",
+          "targetWaypointId": "gate",
+          "targetName": "안개 호수",
+          "targetNameTranslations": {
+            "ko": "안개 호수",
+            "en": "Misty Lake"
+          }
+        },
+        {
+          "id": "gate-south",
+          "name": "남쪽 웨이포인트",
+          "column": 16,
+          "row": 31,
+          "target": "wind-hills",
+          "direction": "south",
+          "targetWaypointId": "gate-north",
+          "targetName": "바람 구릉",
+          "targetNameTranslations": {
+            "ko": "바람 구릉",
+            "en": "Windy Hills"
+          }
+        }
       ]
     },
+    "channelStatus": "OPEN",
+    "location": {
+      "id": "battle:8b7fae3f-f486-5dbe-bbf1-6e93e06a7387",
+      "kind": "BATTLE",
+      "mapId": "meadow-crossroads",
+      "chatRoomId": "battle:8b7fae3f-f486-5dbe-bbf1-6e93e06a7387",
+      "roomReady": true
+    },
+    "members": [
+      {
+        "id": "preview",
+        "name": "전술 검증",
+        "position": {
+          "column": 6,
+          "row": 3
+        },
+        "mode": "IN_BATTLE",
+        "away": false
+      }
+    ],
+    "monsters": [],
+    "party": null,
+    "invitations": [],
+    "reservation": null,
     "battle": {
-      "id": "428edd1f-a176-4198-97e9-9264c77e3d3d",
+      "id": "8b7fae3f-f486-5dbe-bbf1-6e93e06a7387",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -1404,7 +1648,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "428edd1f-a176-4198-97e9-9264c77e3d3d:enemy-0",
+          "monsterInstanceId": "8b7fae3f-f486-5dbe-bbf1-6e93e06a7387:enemy-0",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -1435,7 +1679,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "428edd1f-a176-4198-97e9-9264c77e3d3d:enemy-1",
+          "monsterInstanceId": "8b7fae3f-f486-5dbe-bbf1-6e93e06a7387:enemy-1",
           "healthVisibility": "HIDDEN"
         }
       ],
@@ -2237,6 +2481,34 @@
             }
           }
         ],
+        "elevationTiles": [
+          {
+            "id": "meadow-crossroads-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 3,
+              "row": 2
+            },
+            "lower": {
+              "column": 2,
+              "row": 2
+            }
+          },
+          {
+            "id": "meadow-crossroads-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 6,
+              "row": 2
+            },
+            "lower": {
+              "column": 6,
+              "row": 3
+            }
+          }
+        ],
         "blocked": [
           {
             "column": 3,
@@ -2284,7 +2556,7 @@
           }
         ],
         "sourceMapId": "meadow",
-        "sourceMapVersion": "1.4.0",
+        "sourceMapVersion": "1.5.0",
         "environment": {
           "themeId": "meadow",
           "backdrop": "meadow-backdrop",
@@ -2296,35 +2568,7 @@
           ]
         },
         "selection": "random",
-        "eventId": null,
-        "elevationTiles": [
-          {
-            "id": "meadow-crossroads-link-1",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 3,
-              "row": 2
-            },
-            "lower": {
-              "column": 2,
-              "row": 2
-            }
-          },
-          {
-            "id": "meadow-crossroads-link-2",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 6,
-              "row": 2
-            },
-            "lower": {
-              "column": 6,
-              "row": 3
-            }
-          }
-        ]
+        "eventId": null
       },
       "round": 1,
       "turnId": 1,
@@ -2340,8 +2584,8 @@
       "ready": [
         "preview"
       ],
-      "deadline": 145,
-      "absoluteDeadline": 1300,
+      "deadline": null,
+      "absoluteDeadline": null,
       "status": "ACTIVE",
       "result": null,
       "moved": false,
@@ -2349,7 +2593,7 @@
       "votes": [],
       "log": [],
       "rulesVersion": "1.4.0",
-      "chatRoomId": "battle:428edd1f-a176-4198-97e9-9264c77e3d3d",
+      "chatRoomId": "battle:8b7fae3f-f486-5dbe-bbf1-6e93e06a7387",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -2798,10 +3042,31 @@
         "attacks": []
       }
     },
+    "messages": []
+  },
+  {
+    "protocolVersion": 1,
+    "serverTime": 100,
+    "generation": 1,
+    "epoch": 1,
+    "cursor": 0,
     "me": {
       "id": "preview",
       "name": "전술 검증",
+      "sp": 0,
+      "spLedger": [],
+      "skillPointMigration": {
+        "version": 1,
+        "source": "new_character",
+        "refundedCP": {
+          "general": 0,
+          "seasonal": 0
+        },
+        "initialSP": 0
+      },
       "cp": 10,
+      "cpGeneral": 10,
+      "cpSeasonal": 0,
       "attributes": {
         "body": 1,
         "intellect": 1,
@@ -2812,10 +3077,21 @@
         "literacy": 1,
         "speaking": 1
       },
+      "skillGrowthBaselines": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "achievements": {},
+      "cpLedger": [],
+      "achievementSeasonId": "initial",
+      "seasonalAchievements": {},
+      "seasonTransitions": [],
+      "victoryRewardMigration": 1,
       "xp": 0,
       "coins": 0,
       "version": 0,
-      "mode": "LOBBY",
+      "mode": "IN_BATTLE",
       "position": {
         "column": 6,
         "row": 3
@@ -2825,22 +3101,160 @@
         "column": 2,
         "row": 2
       },
-      "requiresStartSpawn": true,
-      "battleId": "428edd1f-a176-4198-97e9-9264c77e3d3d",
+      "requiresStartSpawn": false,
+      "battleId": "5a009f78-3ff2-53a6-858c-6bea7a96689a",
       "partyId": null,
       "movedAt": 0,
-      "lastResult": null
-    },
-    "members": [],
-    "monsters": []
-  },
-  {
-    "location": {
-      "id": "dc6e1877-2055-4689-a25d-9dd9b1a8049e",
-      "kind": "BATTLE",
-      "mapId": "meadow-dew-ponds",
-      "chatRoomId": "preview",
-      "roomReady": true
+      "lastResult": null,
+      "fp": 0,
+      "fpMax": 1000,
+      "fpNextChargeAt": 160,
+      "bag": {
+        "items": [],
+        "knownWeightG": 0,
+        "unknownWeightQuantity": 0,
+        "capacityG": 20000
+      },
+      "skillDefinitions": {
+        "physical_activity": {
+          "id": "physical_activity",
+          "name": "신체활동",
+          "icon": "◇",
+          "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "신체활동",
+              "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함"
+            },
+            "en": {
+              "name": "Physical Activity",
+              "description": "Walking, running, jumping, punching and kicking. Includes the basic attack skill from level 1."
+            }
+          }
+        },
+        "literacy": {
+          "id": "literacy",
+          "name": "문해",
+          "icon": "▱",
+          "description": "읽고 쓰는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "문해",
+              "description": "읽고 쓰는 능숙함"
+            },
+            "en": {
+              "name": "Literacy",
+              "description": "Proficiency in reading and writing."
+            }
+          }
+        },
+        "speaking": {
+          "id": "speaking",
+          "name": "말하기",
+          "icon": "✧",
+          "description": "말로 표현하고 전달하는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "말하기",
+              "description": "말로 표현하고 전달하는 능숙함"
+            },
+            "en": {
+              "name": "Speaking",
+              "description": "Proficiency in expressing and communicating through speech."
+            }
+          }
+        },
+        "monster_lore": {
+          "id": "monster_lore",
+          "name": "몬스터학",
+          "icon": "◈",
+          "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "몬스터학",
+              "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다."
+            },
+            "en": {
+              "name": "Monster Lore",
+              "description": "Observe monster injuries in battle. From level 1, living monsters have two visible health bands."
+            }
+          }
+        },
+        "mathematics": {
+          "id": "mathematics",
+          "name": "수학",
+          "icon": "∑",
+          "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "수학",
+              "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Mathematics",
+              "description": "Mathematics skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "science": {
+          "id": "science",
+          "name": "과학",
+          "icon": "⚗",
+          "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "과학",
+              "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Science",
+              "description": "Science skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "commerce": {
+          "id": "commerce",
+          "name": "상업",
+          "icon": "◇",
+          "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "상업",
+              "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Commerce",
+              "description": "Commerce skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "one_handed_swordsmanship": {
+          "id": "one_handed_swordsmanship",
+          "name": "한손검술",
+          "icon": "⚔",
+          "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "한손검술",
+              "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다."
+            },
+            "en": {
+              "name": "One-handed Swordsmanship",
+              "description": "Earned through a specific event. Supports combat while a one-handed sword is equipped. Level 0 has no support effect."
+            }
+          }
+        }
+      },
+      "battleSkillLoadout": [],
+      "battleSkillSlotLimit": 10
     },
     "map": {
       "elevations": [
@@ -4013,92 +4427,6 @@
           }
         }
       ],
-      "id": "meadow",
-      "name": "이슬 초원",
-      "version": "1.5.0",
-      "columns": 32,
-      "rows": 32,
-      "startPoint": {
-        "column": 2,
-        "row": 2
-      },
-      "safeRadius": 3,
-      "environment": {
-        "themeId": "meadow",
-        "backdrop": "meadow-backdrop",
-        "terrainPalette": [
-          "grass",
-          "dew",
-          "flowers",
-          "road"
-        ]
-      },
-      "blocked": [
-        {
-          "column": 12,
-          "row": 6
-        },
-        {
-          "column": 12,
-          "row": 7
-        },
-        {
-          "column": 12,
-          "row": 8
-        },
-        {
-          "column": 12,
-          "row": 9
-        },
-        {
-          "column": 12,
-          "row": 11
-        },
-        {
-          "column": 12,
-          "row": 12
-        },
-        {
-          "column": 12,
-          "row": 13
-        },
-        {
-          "column": 12,
-          "row": 14
-        }
-      ],
-      "connections": [
-        {
-          "id": "gate",
-          "name": "서쪽 웨이포인트",
-          "column": 0,
-          "row": 2,
-          "target": "grove",
-          "direction": "west",
-          "targetWaypointId": "gate-east",
-          "targetName": "푸른 숲"
-        },
-        {
-          "id": "gate-east",
-          "name": "동쪽 웨이포인트",
-          "column": 31,
-          "row": 16,
-          "target": "mist-lake",
-          "direction": "east",
-          "targetWaypointId": "gate",
-          "targetName": "안개 호수"
-        },
-        {
-          "id": "gate-south",
-          "name": "남쪽 웨이포인트",
-          "column": 16,
-          "row": 31,
-          "target": "wind-hills",
-          "direction": "south",
-          "targetWaypointId": "gate-north",
-          "targetName": "바람 구릉"
-        }
-      ],
       "elevationTiles": [
         {
           "id": "meadow-link-1",
@@ -4178,10 +4506,136 @@
             "row": 24
           }
         }
+      ],
+      "id": "meadow",
+      "name": "이슬 초원",
+      "nameTranslations": {
+        "ko": "이슬 초원",
+        "en": "Dew Meadow"
+      },
+      "version": "1.5.0",
+      "columns": 32,
+      "rows": 32,
+      "startPoint": {
+        "column": 2,
+        "row": 2
+      },
+      "safeRadius": 3,
+      "environment": {
+        "themeId": "meadow",
+        "backdrop": "meadow-backdrop",
+        "terrainPalette": [
+          "grass",
+          "dew",
+          "flowers",
+          "road"
+        ]
+      },
+      "blocked": [
+        {
+          "column": 12,
+          "row": 6
+        },
+        {
+          "column": 12,
+          "row": 7
+        },
+        {
+          "column": 12,
+          "row": 8
+        },
+        {
+          "column": 12,
+          "row": 9
+        },
+        {
+          "column": 12,
+          "row": 11
+        },
+        {
+          "column": 12,
+          "row": 12
+        },
+        {
+          "column": 12,
+          "row": 13
+        },
+        {
+          "column": 12,
+          "row": 14
+        }
+      ],
+      "connections": [
+        {
+          "id": "gate",
+          "name": "서쪽 웨이포인트",
+          "column": 0,
+          "row": 2,
+          "target": "grove",
+          "direction": "west",
+          "targetWaypointId": "gate-east",
+          "targetName": "푸른 숲",
+          "targetNameTranslations": {
+            "ko": "푸른 숲",
+            "en": "Verdant Forest"
+          }
+        },
+        {
+          "id": "gate-east",
+          "name": "동쪽 웨이포인트",
+          "column": 31,
+          "row": 16,
+          "target": "mist-lake",
+          "direction": "east",
+          "targetWaypointId": "gate",
+          "targetName": "안개 호수",
+          "targetNameTranslations": {
+            "ko": "안개 호수",
+            "en": "Misty Lake"
+          }
+        },
+        {
+          "id": "gate-south",
+          "name": "남쪽 웨이포인트",
+          "column": 16,
+          "row": 31,
+          "target": "wind-hills",
+          "direction": "south",
+          "targetWaypointId": "gate-north",
+          "targetName": "바람 구릉",
+          "targetNameTranslations": {
+            "ko": "바람 구릉",
+            "en": "Windy Hills"
+          }
+        }
       ]
     },
+    "channelStatus": "OPEN",
+    "location": {
+      "id": "battle:5a009f78-3ff2-53a6-858c-6bea7a96689a",
+      "kind": "BATTLE",
+      "mapId": "meadow-dew-ponds",
+      "chatRoomId": "battle:5a009f78-3ff2-53a6-858c-6bea7a96689a",
+      "roomReady": true
+    },
+    "members": [
+      {
+        "id": "preview",
+        "name": "전술 검증",
+        "position": {
+          "column": 6,
+          "row": 3
+        },
+        "mode": "IN_BATTLE",
+        "away": false
+      }
+    ],
+    "monsters": [],
+    "party": null,
+    "invitations": [],
+    "reservation": null,
     "battle": {
-      "id": "dc6e1877-2055-4689-a25d-9dd9b1a8049e",
+      "id": "5a009f78-3ff2-53a6-858c-6bea7a96689a",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -4239,7 +4693,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "dc6e1877-2055-4689-a25d-9dd9b1a8049e:enemy-0",
+          "monsterInstanceId": "5a009f78-3ff2-53a6-858c-6bea7a96689a:enemy-0",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -4270,7 +4724,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "dc6e1877-2055-4689-a25d-9dd9b1a8049e:enemy-1",
+          "monsterInstanceId": "5a009f78-3ff2-53a6-858c-6bea7a96689a:enemy-1",
           "healthVisibility": "HIDDEN"
         }
       ],
@@ -5186,6 +5640,60 @@
             }
           }
         ],
+        "elevationTiles": [
+          {
+            "id": "meadow-dew-ponds-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 3,
+              "row": 4
+            },
+            "lower": {
+              "column": 4,
+              "row": 4
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 5
+            },
+            "lower": {
+              "column": 7,
+              "row": 5
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-3",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 3,
+              "row": 0
+            },
+            "lower": {
+              "column": 4,
+              "row": 0
+            }
+          },
+          {
+            "id": "meadow-dew-ponds-link-4",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 9
+            },
+            "lower": {
+              "column": 7,
+              "row": 9
+            }
+          }
+        ],
         "blocked": [
           {
             "column": 4,
@@ -5321,7 +5829,7 @@
           }
         ],
         "sourceMapId": "meadow",
-        "sourceMapVersion": "1.4.0",
+        "sourceMapVersion": "1.5.0",
         "environment": {
           "themeId": "meadow",
           "backdrop": "meadow-backdrop",
@@ -5333,61 +5841,7 @@
           ]
         },
         "selection": "random",
-        "eventId": null,
-        "elevationTiles": [
-          {
-            "id": "meadow-dew-ponds-link-1",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 3,
-              "row": 4
-            },
-            "lower": {
-              "column": 4,
-              "row": 4
-            }
-          },
-          {
-            "id": "meadow-dew-ponds-link-2",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 8,
-              "row": 5
-            },
-            "lower": {
-              "column": 7,
-              "row": 5
-            }
-          },
-          {
-            "id": "meadow-dew-ponds-link-3",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 3,
-              "row": 0
-            },
-            "lower": {
-              "column": 4,
-              "row": 0
-            }
-          },
-          {
-            "id": "meadow-dew-ponds-link-4",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 8,
-              "row": 9
-            },
-            "lower": {
-              "column": 7,
-              "row": 9
-            }
-          }
-        ]
+        "eventId": null
       },
       "round": 1,
       "turnId": 1,
@@ -5403,8 +5857,8 @@
       "ready": [
         "preview"
       ],
-      "deadline": 145,
-      "absoluteDeadline": 1300,
+      "deadline": null,
+      "absoluteDeadline": null,
       "status": "ACTIVE",
       "result": null,
       "moved": false,
@@ -5412,7 +5866,7 @@
       "votes": [],
       "log": [],
       "rulesVersion": "1.4.0",
-      "chatRoomId": "battle:dc6e1877-2055-4689-a25d-9dd9b1a8049e",
+      "chatRoomId": "battle:5a009f78-3ff2-53a6-858c-6bea7a96689a",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -5836,10 +6290,31 @@
         "attacks": []
       }
     },
+    "messages": []
+  },
+  {
+    "protocolVersion": 1,
+    "serverTime": 100,
+    "generation": 1,
+    "epoch": 1,
+    "cursor": 0,
     "me": {
       "id": "preview",
       "name": "전술 검증",
+      "sp": 0,
+      "spLedger": [],
+      "skillPointMigration": {
+        "version": 1,
+        "source": "new_character",
+        "refundedCP": {
+          "general": 0,
+          "seasonal": 0
+        },
+        "initialSP": 0
+      },
       "cp": 10,
+      "cpGeneral": 10,
+      "cpSeasonal": 0,
       "attributes": {
         "body": 1,
         "intellect": 1,
@@ -5850,10 +6325,21 @@
         "literacy": 1,
         "speaking": 1
       },
+      "skillGrowthBaselines": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "achievements": {},
+      "cpLedger": [],
+      "achievementSeasonId": "initial",
+      "seasonalAchievements": {},
+      "seasonTransitions": [],
+      "victoryRewardMigration": 1,
       "xp": 0,
       "coins": 0,
       "version": 0,
-      "mode": "LOBBY",
+      "mode": "IN_BATTLE",
       "position": {
         "column": 6,
         "row": 3
@@ -5863,22 +6349,160 @@
         "column": 2,
         "row": 2
       },
-      "requiresStartSpawn": true,
-      "battleId": "dc6e1877-2055-4689-a25d-9dd9b1a8049e",
+      "requiresStartSpawn": false,
+      "battleId": "0eb00421-77b2-5087-b6cd-f39bea59e5ff",
       "partyId": null,
       "movedAt": 0,
-      "lastResult": null
-    },
-    "members": [],
-    "monsters": []
-  },
-  {
-    "location": {
-      "id": "e5514d97-defb-4530-a40d-9fb72007dc35",
-      "kind": "BATTLE",
-      "mapId": "meadow-flower-knolls",
-      "chatRoomId": "preview",
-      "roomReady": true
+      "lastResult": null,
+      "fp": 0,
+      "fpMax": 1000,
+      "fpNextChargeAt": 160,
+      "bag": {
+        "items": [],
+        "knownWeightG": 0,
+        "unknownWeightQuantity": 0,
+        "capacityG": 20000
+      },
+      "skillDefinitions": {
+        "physical_activity": {
+          "id": "physical_activity",
+          "name": "신체활동",
+          "icon": "◇",
+          "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "신체활동",
+              "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함"
+            },
+            "en": {
+              "name": "Physical Activity",
+              "description": "Walking, running, jumping, punching and kicking. Includes the basic attack skill from level 1."
+            }
+          }
+        },
+        "literacy": {
+          "id": "literacy",
+          "name": "문해",
+          "icon": "▱",
+          "description": "읽고 쓰는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "문해",
+              "description": "읽고 쓰는 능숙함"
+            },
+            "en": {
+              "name": "Literacy",
+              "description": "Proficiency in reading and writing."
+            }
+          }
+        },
+        "speaking": {
+          "id": "speaking",
+          "name": "말하기",
+          "icon": "✧",
+          "description": "말로 표현하고 전달하는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "말하기",
+              "description": "말로 표현하고 전달하는 능숙함"
+            },
+            "en": {
+              "name": "Speaking",
+              "description": "Proficiency in expressing and communicating through speech."
+            }
+          }
+        },
+        "monster_lore": {
+          "id": "monster_lore",
+          "name": "몬스터학",
+          "icon": "◈",
+          "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "몬스터학",
+              "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다."
+            },
+            "en": {
+              "name": "Monster Lore",
+              "description": "Observe monster injuries in battle. From level 1, living monsters have two visible health bands."
+            }
+          }
+        },
+        "mathematics": {
+          "id": "mathematics",
+          "name": "수학",
+          "icon": "∑",
+          "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "수학",
+              "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Mathematics",
+              "description": "Mathematics skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "science": {
+          "id": "science",
+          "name": "과학",
+          "icon": "⚗",
+          "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "과학",
+              "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Science",
+              "description": "Science skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "commerce": {
+          "id": "commerce",
+          "name": "상업",
+          "icon": "◇",
+          "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "상업",
+              "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Commerce",
+              "description": "Commerce skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "one_handed_swordsmanship": {
+          "id": "one_handed_swordsmanship",
+          "name": "한손검술",
+          "icon": "⚔",
+          "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "한손검술",
+              "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다."
+            },
+            "en": {
+              "name": "One-handed Swordsmanship",
+              "description": "Earned through a specific event. Supports combat while a one-handed sword is equipped. Level 0 has no support effect."
+            }
+          }
+        }
+      },
+      "battleSkillLoadout": [],
+      "battleSkillSlotLimit": 10
     },
     "map": {
       "elevations": [
@@ -7051,92 +7675,6 @@
           }
         }
       ],
-      "id": "meadow",
-      "name": "이슬 초원",
-      "version": "1.5.0",
-      "columns": 32,
-      "rows": 32,
-      "startPoint": {
-        "column": 2,
-        "row": 2
-      },
-      "safeRadius": 3,
-      "environment": {
-        "themeId": "meadow",
-        "backdrop": "meadow-backdrop",
-        "terrainPalette": [
-          "grass",
-          "dew",
-          "flowers",
-          "road"
-        ]
-      },
-      "blocked": [
-        {
-          "column": 12,
-          "row": 6
-        },
-        {
-          "column": 12,
-          "row": 7
-        },
-        {
-          "column": 12,
-          "row": 8
-        },
-        {
-          "column": 12,
-          "row": 9
-        },
-        {
-          "column": 12,
-          "row": 11
-        },
-        {
-          "column": 12,
-          "row": 12
-        },
-        {
-          "column": 12,
-          "row": 13
-        },
-        {
-          "column": 12,
-          "row": 14
-        }
-      ],
-      "connections": [
-        {
-          "id": "gate",
-          "name": "서쪽 웨이포인트",
-          "column": 0,
-          "row": 2,
-          "target": "grove",
-          "direction": "west",
-          "targetWaypointId": "gate-east",
-          "targetName": "푸른 숲"
-        },
-        {
-          "id": "gate-east",
-          "name": "동쪽 웨이포인트",
-          "column": 31,
-          "row": 16,
-          "target": "mist-lake",
-          "direction": "east",
-          "targetWaypointId": "gate",
-          "targetName": "안개 호수"
-        },
-        {
-          "id": "gate-south",
-          "name": "남쪽 웨이포인트",
-          "column": 16,
-          "row": 31,
-          "target": "wind-hills",
-          "direction": "south",
-          "targetWaypointId": "gate-north",
-          "targetName": "바람 구릉"
-        }
-      ],
       "elevationTiles": [
         {
           "id": "meadow-link-1",
@@ -7216,10 +7754,136 @@
             "row": 24
           }
         }
+      ],
+      "id": "meadow",
+      "name": "이슬 초원",
+      "nameTranslations": {
+        "ko": "이슬 초원",
+        "en": "Dew Meadow"
+      },
+      "version": "1.5.0",
+      "columns": 32,
+      "rows": 32,
+      "startPoint": {
+        "column": 2,
+        "row": 2
+      },
+      "safeRadius": 3,
+      "environment": {
+        "themeId": "meadow",
+        "backdrop": "meadow-backdrop",
+        "terrainPalette": [
+          "grass",
+          "dew",
+          "flowers",
+          "road"
+        ]
+      },
+      "blocked": [
+        {
+          "column": 12,
+          "row": 6
+        },
+        {
+          "column": 12,
+          "row": 7
+        },
+        {
+          "column": 12,
+          "row": 8
+        },
+        {
+          "column": 12,
+          "row": 9
+        },
+        {
+          "column": 12,
+          "row": 11
+        },
+        {
+          "column": 12,
+          "row": 12
+        },
+        {
+          "column": 12,
+          "row": 13
+        },
+        {
+          "column": 12,
+          "row": 14
+        }
+      ],
+      "connections": [
+        {
+          "id": "gate",
+          "name": "서쪽 웨이포인트",
+          "column": 0,
+          "row": 2,
+          "target": "grove",
+          "direction": "west",
+          "targetWaypointId": "gate-east",
+          "targetName": "푸른 숲",
+          "targetNameTranslations": {
+            "ko": "푸른 숲",
+            "en": "Verdant Forest"
+          }
+        },
+        {
+          "id": "gate-east",
+          "name": "동쪽 웨이포인트",
+          "column": 31,
+          "row": 16,
+          "target": "mist-lake",
+          "direction": "east",
+          "targetWaypointId": "gate",
+          "targetName": "안개 호수",
+          "targetNameTranslations": {
+            "ko": "안개 호수",
+            "en": "Misty Lake"
+          }
+        },
+        {
+          "id": "gate-south",
+          "name": "남쪽 웨이포인트",
+          "column": 16,
+          "row": 31,
+          "target": "wind-hills",
+          "direction": "south",
+          "targetWaypointId": "gate-north",
+          "targetName": "바람 구릉",
+          "targetNameTranslations": {
+            "ko": "바람 구릉",
+            "en": "Windy Hills"
+          }
+        }
       ]
     },
+    "channelStatus": "OPEN",
+    "location": {
+      "id": "battle:0eb00421-77b2-5087-b6cd-f39bea59e5ff",
+      "kind": "BATTLE",
+      "mapId": "meadow-flower-knolls",
+      "chatRoomId": "battle:0eb00421-77b2-5087-b6cd-f39bea59e5ff",
+      "roomReady": true
+    },
+    "members": [
+      {
+        "id": "preview",
+        "name": "전술 검증",
+        "position": {
+          "column": 6,
+          "row": 3
+        },
+        "mode": "IN_BATTLE",
+        "away": false
+      }
+    ],
+    "monsters": [],
+    "party": null,
+    "invitations": [],
+    "reservation": null,
     "battle": {
-      "id": "e5514d97-defb-4530-a40d-9fb72007dc35",
+      "id": "0eb00421-77b2-5087-b6cd-f39bea59e5ff",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -7277,7 +7941,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "e5514d97-defb-4530-a40d-9fb72007dc35:enemy-0",
+          "monsterInstanceId": "0eb00421-77b2-5087-b6cd-f39bea59e5ff:enemy-0",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -7308,7 +7972,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "e5514d97-defb-4530-a40d-9fb72007dc35:enemy-1",
+          "monsterInstanceId": "0eb00421-77b2-5087-b6cd-f39bea59e5ff:enemy-1",
           "healthVisibility": "HIDDEN"
         }
       ],
@@ -8152,6 +8816,60 @@
             }
           }
         ],
+        "elevationTiles": [
+          {
+            "id": "meadow-flower-knolls-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 2,
+              "row": 2
+            },
+            "lower": {
+              "column": 2,
+              "row": 1
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 5,
+              "row": 6
+            },
+            "lower": {
+              "column": 6,
+              "row": 6
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-3",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 7,
+              "row": 4
+            },
+            "lower": {
+              "column": 6,
+              "row": 4
+            }
+          },
+          {
+            "id": "meadow-flower-knolls-link-4",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 10,
+              "row": 7
+            },
+            "lower": {
+              "column": 10,
+              "row": 8
+            }
+          }
+        ],
         "blocked": [
           {
             "column": 3,
@@ -8215,7 +8933,7 @@
           }
         ],
         "sourceMapId": "meadow",
-        "sourceMapVersion": "1.4.0",
+        "sourceMapVersion": "1.5.0",
         "environment": {
           "themeId": "meadow",
           "backdrop": "meadow-backdrop",
@@ -8227,61 +8945,7 @@
           ]
         },
         "selection": "random",
-        "eventId": null,
-        "elevationTiles": [
-          {
-            "id": "meadow-flower-knolls-link-1",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 2,
-              "row": 2
-            },
-            "lower": {
-              "column": 2,
-              "row": 1
-            }
-          },
-          {
-            "id": "meadow-flower-knolls-link-2",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 5,
-              "row": 6
-            },
-            "lower": {
-              "column": 6,
-              "row": 6
-            }
-          },
-          {
-            "id": "meadow-flower-knolls-link-3",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 7,
-              "row": 4
-            },
-            "lower": {
-              "column": 6,
-              "row": 4
-            }
-          },
-          {
-            "id": "meadow-flower-knolls-link-4",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 10,
-              "row": 7
-            },
-            "lower": {
-              "column": 10,
-              "row": 8
-            }
-          }
-        ]
+        "eventId": null
       },
       "round": 1,
       "turnId": 1,
@@ -8297,8 +8961,8 @@
       "ready": [
         "preview"
       ],
-      "deadline": 145,
-      "absoluteDeadline": 1300,
+      "deadline": null,
+      "absoluteDeadline": null,
       "status": "ACTIVE",
       "result": null,
       "moved": false,
@@ -8306,7 +8970,7 @@
       "votes": [],
       "log": [],
       "rulesVersion": "1.4.0",
-      "chatRoomId": "battle:e5514d97-defb-4530-a40d-9fb72007dc35",
+      "chatRoomId": "battle:0eb00421-77b2-5087-b6cd-f39bea59e5ff",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -8575,10 +9239,31 @@
         "attacks": []
       }
     },
+    "messages": []
+  },
+  {
+    "protocolVersion": 1,
+    "serverTime": 100,
+    "generation": 1,
+    "epoch": 1,
+    "cursor": 0,
     "me": {
       "id": "preview",
       "name": "전술 검증",
+      "sp": 0,
+      "spLedger": [],
+      "skillPointMigration": {
+        "version": 1,
+        "source": "new_character",
+        "refundedCP": {
+          "general": 0,
+          "seasonal": 0
+        },
+        "initialSP": 0
+      },
       "cp": 10,
+      "cpGeneral": 10,
+      "cpSeasonal": 0,
       "attributes": {
         "body": 1,
         "intellect": 1,
@@ -8589,10 +9274,21 @@
         "literacy": 1,
         "speaking": 1
       },
+      "skillGrowthBaselines": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "achievements": {},
+      "cpLedger": [],
+      "achievementSeasonId": "initial",
+      "seasonalAchievements": {},
+      "seasonTransitions": [],
+      "victoryRewardMigration": 1,
       "xp": 0,
       "coins": 0,
       "version": 0,
-      "mode": "LOBBY",
+      "mode": "IN_BATTLE",
       "position": {
         "column": 6,
         "row": 3
@@ -8602,22 +9298,160 @@
         "column": 2,
         "row": 2
       },
-      "requiresStartSpawn": true,
-      "battleId": "e5514d97-defb-4530-a40d-9fb72007dc35",
+      "requiresStartSpawn": false,
+      "battleId": "c6c35756-93a3-512f-99eb-2e1e13725086",
       "partyId": null,
       "movedAt": 0,
-      "lastResult": null
-    },
-    "members": [],
-    "monsters": []
-  },
-  {
-    "location": {
-      "id": "e07c4dd5-ab27-4552-820c-e21b887251eb",
-      "kind": "BATTLE",
-      "mapId": "meadow-rock-pass",
-      "chatRoomId": "preview",
-      "roomReady": true
+      "lastResult": null,
+      "fp": 0,
+      "fpMax": 1000,
+      "fpNextChargeAt": 160,
+      "bag": {
+        "items": [],
+        "knownWeightG": 0,
+        "unknownWeightQuantity": 0,
+        "capacityG": 20000
+      },
+      "skillDefinitions": {
+        "physical_activity": {
+          "id": "physical_activity",
+          "name": "신체활동",
+          "icon": "◇",
+          "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "신체활동",
+              "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함"
+            },
+            "en": {
+              "name": "Physical Activity",
+              "description": "Walking, running, jumping, punching and kicking. Includes the basic attack skill from level 1."
+            }
+          }
+        },
+        "literacy": {
+          "id": "literacy",
+          "name": "문해",
+          "icon": "▱",
+          "description": "읽고 쓰는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "문해",
+              "description": "읽고 쓰는 능숙함"
+            },
+            "en": {
+              "name": "Literacy",
+              "description": "Proficiency in reading and writing."
+            }
+          }
+        },
+        "speaking": {
+          "id": "speaking",
+          "name": "말하기",
+          "icon": "✧",
+          "description": "말로 표현하고 전달하는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "말하기",
+              "description": "말로 표현하고 전달하는 능숙함"
+            },
+            "en": {
+              "name": "Speaking",
+              "description": "Proficiency in expressing and communicating through speech."
+            }
+          }
+        },
+        "monster_lore": {
+          "id": "monster_lore",
+          "name": "몬스터학",
+          "icon": "◈",
+          "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "몬스터학",
+              "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다."
+            },
+            "en": {
+              "name": "Monster Lore",
+              "description": "Observe monster injuries in battle. From level 1, living monsters have two visible health bands."
+            }
+          }
+        },
+        "mathematics": {
+          "id": "mathematics",
+          "name": "수학",
+          "icon": "∑",
+          "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "수학",
+              "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Mathematics",
+              "description": "Mathematics skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "science": {
+          "id": "science",
+          "name": "과학",
+          "icon": "⚗",
+          "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "과학",
+              "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Science",
+              "description": "Science skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "commerce": {
+          "id": "commerce",
+          "name": "상업",
+          "icon": "◇",
+          "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "상업",
+              "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Commerce",
+              "description": "Commerce skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "one_handed_swordsmanship": {
+          "id": "one_handed_swordsmanship",
+          "name": "한손검술",
+          "icon": "⚔",
+          "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "한손검술",
+              "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다."
+            },
+            "en": {
+              "name": "One-handed Swordsmanship",
+              "description": "Earned through a specific event. Supports combat while a one-handed sword is equipped. Level 0 has no support effect."
+            }
+          }
+        }
+      },
+      "battleSkillLoadout": [],
+      "battleSkillSlotLimit": 10
     },
     "map": {
       "elevations": [
@@ -9790,92 +10624,6 @@
           }
         }
       ],
-      "id": "meadow",
-      "name": "이슬 초원",
-      "version": "1.5.0",
-      "columns": 32,
-      "rows": 32,
-      "startPoint": {
-        "column": 2,
-        "row": 2
-      },
-      "safeRadius": 3,
-      "environment": {
-        "themeId": "meadow",
-        "backdrop": "meadow-backdrop",
-        "terrainPalette": [
-          "grass",
-          "dew",
-          "flowers",
-          "road"
-        ]
-      },
-      "blocked": [
-        {
-          "column": 12,
-          "row": 6
-        },
-        {
-          "column": 12,
-          "row": 7
-        },
-        {
-          "column": 12,
-          "row": 8
-        },
-        {
-          "column": 12,
-          "row": 9
-        },
-        {
-          "column": 12,
-          "row": 11
-        },
-        {
-          "column": 12,
-          "row": 12
-        },
-        {
-          "column": 12,
-          "row": 13
-        },
-        {
-          "column": 12,
-          "row": 14
-        }
-      ],
-      "connections": [
-        {
-          "id": "gate",
-          "name": "서쪽 웨이포인트",
-          "column": 0,
-          "row": 2,
-          "target": "grove",
-          "direction": "west",
-          "targetWaypointId": "gate-east",
-          "targetName": "푸른 숲"
-        },
-        {
-          "id": "gate-east",
-          "name": "동쪽 웨이포인트",
-          "column": 31,
-          "row": 16,
-          "target": "mist-lake",
-          "direction": "east",
-          "targetWaypointId": "gate",
-          "targetName": "안개 호수"
-        },
-        {
-          "id": "gate-south",
-          "name": "남쪽 웨이포인트",
-          "column": 16,
-          "row": 31,
-          "target": "wind-hills",
-          "direction": "south",
-          "targetWaypointId": "gate-north",
-          "targetName": "바람 구릉"
-        }
-      ],
       "elevationTiles": [
         {
           "id": "meadow-link-1",
@@ -9955,10 +10703,136 @@
             "row": 24
           }
         }
+      ],
+      "id": "meadow",
+      "name": "이슬 초원",
+      "nameTranslations": {
+        "ko": "이슬 초원",
+        "en": "Dew Meadow"
+      },
+      "version": "1.5.0",
+      "columns": 32,
+      "rows": 32,
+      "startPoint": {
+        "column": 2,
+        "row": 2
+      },
+      "safeRadius": 3,
+      "environment": {
+        "themeId": "meadow",
+        "backdrop": "meadow-backdrop",
+        "terrainPalette": [
+          "grass",
+          "dew",
+          "flowers",
+          "road"
+        ]
+      },
+      "blocked": [
+        {
+          "column": 12,
+          "row": 6
+        },
+        {
+          "column": 12,
+          "row": 7
+        },
+        {
+          "column": 12,
+          "row": 8
+        },
+        {
+          "column": 12,
+          "row": 9
+        },
+        {
+          "column": 12,
+          "row": 11
+        },
+        {
+          "column": 12,
+          "row": 12
+        },
+        {
+          "column": 12,
+          "row": 13
+        },
+        {
+          "column": 12,
+          "row": 14
+        }
+      ],
+      "connections": [
+        {
+          "id": "gate",
+          "name": "서쪽 웨이포인트",
+          "column": 0,
+          "row": 2,
+          "target": "grove",
+          "direction": "west",
+          "targetWaypointId": "gate-east",
+          "targetName": "푸른 숲",
+          "targetNameTranslations": {
+            "ko": "푸른 숲",
+            "en": "Verdant Forest"
+          }
+        },
+        {
+          "id": "gate-east",
+          "name": "동쪽 웨이포인트",
+          "column": 31,
+          "row": 16,
+          "target": "mist-lake",
+          "direction": "east",
+          "targetWaypointId": "gate",
+          "targetName": "안개 호수",
+          "targetNameTranslations": {
+            "ko": "안개 호수",
+            "en": "Misty Lake"
+          }
+        },
+        {
+          "id": "gate-south",
+          "name": "남쪽 웨이포인트",
+          "column": 16,
+          "row": 31,
+          "target": "wind-hills",
+          "direction": "south",
+          "targetWaypointId": "gate-north",
+          "targetName": "바람 구릉",
+          "targetNameTranslations": {
+            "ko": "바람 구릉",
+            "en": "Windy Hills"
+          }
+        }
       ]
     },
+    "channelStatus": "OPEN",
+    "location": {
+      "id": "battle:c6c35756-93a3-512f-99eb-2e1e13725086",
+      "kind": "BATTLE",
+      "mapId": "meadow-rock-pass",
+      "chatRoomId": "battle:c6c35756-93a3-512f-99eb-2e1e13725086",
+      "roomReady": true
+    },
+    "members": [
+      {
+        "id": "preview",
+        "name": "전술 검증",
+        "position": {
+          "column": 6,
+          "row": 3
+        },
+        "mode": "IN_BATTLE",
+        "away": false
+      }
+    ],
+    "monsters": [],
+    "party": null,
+    "invitations": [],
+    "reservation": null,
     "battle": {
-      "id": "e07c4dd5-ab27-4552-820c-e21b887251eb",
+      "id": "c6c35756-93a3-512f-99eb-2e1e13725086",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -10016,7 +10890,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "e07c4dd5-ab27-4552-820c-e21b887251eb:enemy-0",
+          "monsterInstanceId": "c6c35756-93a3-512f-99eb-2e1e13725086:enemy-0",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -10047,7 +10921,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "e07c4dd5-ab27-4552-820c-e21b887251eb:enemy-1",
+          "monsterInstanceId": "c6c35756-93a3-512f-99eb-2e1e13725086:enemy-1",
           "healthVisibility": "HIDDEN"
         }
       ],
@@ -10873,6 +11747,34 @@
             }
           }
         ],
+        "elevationTiles": [
+          {
+            "id": "meadow-rock-pass-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 4,
+              "row": 5
+            },
+            "lower": {
+              "column": 5,
+              "row": 5
+            }
+          },
+          {
+            "id": "meadow-rock-pass-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 4
+            },
+            "lower": {
+              "column": 7,
+              "row": 4
+            }
+          }
+        ],
         "blocked": [
           {
             "column": 4,
@@ -10944,7 +11846,7 @@
           }
         ],
         "sourceMapId": "meadow",
-        "sourceMapVersion": "1.4.0",
+        "sourceMapVersion": "1.5.0",
         "environment": {
           "themeId": "meadow",
           "backdrop": "meadow-backdrop",
@@ -10956,35 +11858,7 @@
           ]
         },
         "selection": "random",
-        "eventId": null,
-        "elevationTiles": [
-          {
-            "id": "meadow-rock-pass-link-1",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 4,
-              "row": 5
-            },
-            "lower": {
-              "column": 5,
-              "row": 5
-            }
-          },
-          {
-            "id": "meadow-rock-pass-link-2",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 8,
-              "row": 4
-            },
-            "lower": {
-              "column": 7,
-              "row": 4
-            }
-          }
-        ]
+        "eventId": null
       },
       "round": 1,
       "turnId": 1,
@@ -11000,8 +11874,8 @@
       "ready": [
         "preview"
       ],
-      "deadline": 145,
-      "absoluteDeadline": 1300,
+      "deadline": null,
+      "absoluteDeadline": null,
       "status": "ACTIVE",
       "result": null,
       "moved": false,
@@ -11009,7 +11883,7 @@
       "votes": [],
       "log": [],
       "rulesVersion": "1.4.0",
-      "chatRoomId": "battle:e07c4dd5-ab27-4552-820c-e21b887251eb",
+      "chatRoomId": "battle:c6c35756-93a3-512f-99eb-2e1e13725086",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -11433,10 +12307,31 @@
         "attacks": []
       }
     },
+    "messages": []
+  },
+  {
+    "protocolVersion": 1,
+    "serverTime": 100,
+    "generation": 1,
+    "epoch": 1,
+    "cursor": 0,
     "me": {
       "id": "preview",
       "name": "전술 검증",
+      "sp": 0,
+      "spLedger": [],
+      "skillPointMigration": {
+        "version": 1,
+        "source": "new_character",
+        "refundedCP": {
+          "general": 0,
+          "seasonal": 0
+        },
+        "initialSP": 0
+      },
       "cp": 10,
+      "cpGeneral": 10,
+      "cpSeasonal": 0,
       "attributes": {
         "body": 1,
         "intellect": 1,
@@ -11447,10 +12342,21 @@
         "literacy": 1,
         "speaking": 1
       },
+      "skillGrowthBaselines": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "achievements": {},
+      "cpLedger": [],
+      "achievementSeasonId": "initial",
+      "seasonalAchievements": {},
+      "seasonTransitions": [],
+      "victoryRewardMigration": 1,
       "xp": 0,
       "coins": 0,
       "version": 0,
-      "mode": "LOBBY",
+      "mode": "IN_BATTLE",
       "position": {
         "column": 6,
         "row": 3
@@ -11460,22 +12366,160 @@
         "column": 2,
         "row": 2
       },
-      "requiresStartSpawn": true,
-      "battleId": "e07c4dd5-ab27-4552-820c-e21b887251eb",
+      "requiresStartSpawn": false,
+      "battleId": "44e89c8d-d0ee-51ed-9019-c9bdc2846a76",
       "partyId": null,
       "movedAt": 0,
-      "lastResult": null
-    },
-    "members": [],
-    "monsters": []
-  },
-  {
-    "location": {
-      "id": "76f81d04-f476-4830-9419-16e2ef85d518",
-      "kind": "BATTLE",
-      "mapId": "meadow-thicket-bend",
-      "chatRoomId": "preview",
-      "roomReady": true
+      "lastResult": null,
+      "fp": 0,
+      "fpMax": 1000,
+      "fpNextChargeAt": 160,
+      "bag": {
+        "items": [],
+        "knownWeightG": 0,
+        "unknownWeightQuantity": 0,
+        "capacityG": 20000
+      },
+      "skillDefinitions": {
+        "physical_activity": {
+          "id": "physical_activity",
+          "name": "신체활동",
+          "icon": "◇",
+          "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "신체활동",
+              "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함"
+            },
+            "en": {
+              "name": "Physical Activity",
+              "description": "Walking, running, jumping, punching and kicking. Includes the basic attack skill from level 1."
+            }
+          }
+        },
+        "literacy": {
+          "id": "literacy",
+          "name": "문해",
+          "icon": "▱",
+          "description": "읽고 쓰는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "문해",
+              "description": "읽고 쓰는 능숙함"
+            },
+            "en": {
+              "name": "Literacy",
+              "description": "Proficiency in reading and writing."
+            }
+          }
+        },
+        "speaking": {
+          "id": "speaking",
+          "name": "말하기",
+          "icon": "✧",
+          "description": "말로 표현하고 전달하는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "말하기",
+              "description": "말로 표현하고 전달하는 능숙함"
+            },
+            "en": {
+              "name": "Speaking",
+              "description": "Proficiency in expressing and communicating through speech."
+            }
+          }
+        },
+        "monster_lore": {
+          "id": "monster_lore",
+          "name": "몬스터학",
+          "icon": "◈",
+          "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "몬스터학",
+              "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다."
+            },
+            "en": {
+              "name": "Monster Lore",
+              "description": "Observe monster injuries in battle. From level 1, living monsters have two visible health bands."
+            }
+          }
+        },
+        "mathematics": {
+          "id": "mathematics",
+          "name": "수학",
+          "icon": "∑",
+          "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "수학",
+              "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Mathematics",
+              "description": "Mathematics skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "science": {
+          "id": "science",
+          "name": "과학",
+          "icon": "⚗",
+          "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "과학",
+              "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Science",
+              "description": "Science skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "commerce": {
+          "id": "commerce",
+          "name": "상업",
+          "icon": "◇",
+          "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "상업",
+              "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Commerce",
+              "description": "Commerce skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "one_handed_swordsmanship": {
+          "id": "one_handed_swordsmanship",
+          "name": "한손검술",
+          "icon": "⚔",
+          "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "한손검술",
+              "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다."
+            },
+            "en": {
+              "name": "One-handed Swordsmanship",
+              "description": "Earned through a specific event. Supports combat while a one-handed sword is equipped. Level 0 has no support effect."
+            }
+          }
+        }
+      },
+      "battleSkillLoadout": [],
+      "battleSkillSlotLimit": 10
     },
     "map": {
       "elevations": [
@@ -12648,92 +13692,6 @@
           }
         }
       ],
-      "id": "meadow",
-      "name": "이슬 초원",
-      "version": "1.5.0",
-      "columns": 32,
-      "rows": 32,
-      "startPoint": {
-        "column": 2,
-        "row": 2
-      },
-      "safeRadius": 3,
-      "environment": {
-        "themeId": "meadow",
-        "backdrop": "meadow-backdrop",
-        "terrainPalette": [
-          "grass",
-          "dew",
-          "flowers",
-          "road"
-        ]
-      },
-      "blocked": [
-        {
-          "column": 12,
-          "row": 6
-        },
-        {
-          "column": 12,
-          "row": 7
-        },
-        {
-          "column": 12,
-          "row": 8
-        },
-        {
-          "column": 12,
-          "row": 9
-        },
-        {
-          "column": 12,
-          "row": 11
-        },
-        {
-          "column": 12,
-          "row": 12
-        },
-        {
-          "column": 12,
-          "row": 13
-        },
-        {
-          "column": 12,
-          "row": 14
-        }
-      ],
-      "connections": [
-        {
-          "id": "gate",
-          "name": "서쪽 웨이포인트",
-          "column": 0,
-          "row": 2,
-          "target": "grove",
-          "direction": "west",
-          "targetWaypointId": "gate-east",
-          "targetName": "푸른 숲"
-        },
-        {
-          "id": "gate-east",
-          "name": "동쪽 웨이포인트",
-          "column": 31,
-          "row": 16,
-          "target": "mist-lake",
-          "direction": "east",
-          "targetWaypointId": "gate",
-          "targetName": "안개 호수"
-        },
-        {
-          "id": "gate-south",
-          "name": "남쪽 웨이포인트",
-          "column": 16,
-          "row": 31,
-          "target": "wind-hills",
-          "direction": "south",
-          "targetWaypointId": "gate-north",
-          "targetName": "바람 구릉"
-        }
-      ],
       "elevationTiles": [
         {
           "id": "meadow-link-1",
@@ -12813,10 +13771,136 @@
             "row": 24
           }
         }
+      ],
+      "id": "meadow",
+      "name": "이슬 초원",
+      "nameTranslations": {
+        "ko": "이슬 초원",
+        "en": "Dew Meadow"
+      },
+      "version": "1.5.0",
+      "columns": 32,
+      "rows": 32,
+      "startPoint": {
+        "column": 2,
+        "row": 2
+      },
+      "safeRadius": 3,
+      "environment": {
+        "themeId": "meadow",
+        "backdrop": "meadow-backdrop",
+        "terrainPalette": [
+          "grass",
+          "dew",
+          "flowers",
+          "road"
+        ]
+      },
+      "blocked": [
+        {
+          "column": 12,
+          "row": 6
+        },
+        {
+          "column": 12,
+          "row": 7
+        },
+        {
+          "column": 12,
+          "row": 8
+        },
+        {
+          "column": 12,
+          "row": 9
+        },
+        {
+          "column": 12,
+          "row": 11
+        },
+        {
+          "column": 12,
+          "row": 12
+        },
+        {
+          "column": 12,
+          "row": 13
+        },
+        {
+          "column": 12,
+          "row": 14
+        }
+      ],
+      "connections": [
+        {
+          "id": "gate",
+          "name": "서쪽 웨이포인트",
+          "column": 0,
+          "row": 2,
+          "target": "grove",
+          "direction": "west",
+          "targetWaypointId": "gate-east",
+          "targetName": "푸른 숲",
+          "targetNameTranslations": {
+            "ko": "푸른 숲",
+            "en": "Verdant Forest"
+          }
+        },
+        {
+          "id": "gate-east",
+          "name": "동쪽 웨이포인트",
+          "column": 31,
+          "row": 16,
+          "target": "mist-lake",
+          "direction": "east",
+          "targetWaypointId": "gate",
+          "targetName": "안개 호수",
+          "targetNameTranslations": {
+            "ko": "안개 호수",
+            "en": "Misty Lake"
+          }
+        },
+        {
+          "id": "gate-south",
+          "name": "남쪽 웨이포인트",
+          "column": 16,
+          "row": 31,
+          "target": "wind-hills",
+          "direction": "south",
+          "targetWaypointId": "gate-north",
+          "targetName": "바람 구릉",
+          "targetNameTranslations": {
+            "ko": "바람 구릉",
+            "en": "Windy Hills"
+          }
+        }
       ]
     },
+    "channelStatus": "OPEN",
+    "location": {
+      "id": "battle:44e89c8d-d0ee-51ed-9019-c9bdc2846a76",
+      "kind": "BATTLE",
+      "mapId": "meadow-thicket-bend",
+      "chatRoomId": "battle:44e89c8d-d0ee-51ed-9019-c9bdc2846a76",
+      "roomReady": true
+    },
+    "members": [
+      {
+        "id": "preview",
+        "name": "전술 검증",
+        "position": {
+          "column": 6,
+          "row": 3
+        },
+        "mode": "IN_BATTLE",
+        "away": false
+      }
+    ],
+    "monsters": [],
+    "party": null,
+    "invitations": [],
+    "reservation": null,
     "battle": {
-      "id": "76f81d04-f476-4830-9419-16e2ef85d518",
+      "id": "44e89c8d-d0ee-51ed-9019-c9bdc2846a76",
       "channel": "meadow",
       "monsterId": "meadow-passive",
       "version": 2,
@@ -12874,7 +13958,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "76f81d04-f476-4830-9419-16e2ef85d518:enemy-0",
+          "monsterInstanceId": "44e89c8d-d0ee-51ed-9019-c9bdc2846a76:enemy-0",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -12905,7 +13989,7 @@
             1
           ],
           "attack": 3,
-          "monsterInstanceId": "76f81d04-f476-4830-9419-16e2ef85d518:enemy-1",
+          "monsterInstanceId": "44e89c8d-d0ee-51ed-9019-c9bdc2846a76:enemy-1",
           "healthVisibility": "HIDDEN"
         }
       ],
@@ -13747,6 +14831,34 @@
             }
           }
         ],
+        "elevationTiles": [
+          {
+            "id": "meadow-thicket-bend-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 2,
+              "row": 4
+            },
+            "lower": {
+              "column": 2,
+              "row": 5
+            }
+          },
+          {
+            "id": "meadow-thicket-bend-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 9,
+              "row": 5
+            },
+            "lower": {
+              "column": 9,
+              "row": 4
+            }
+          }
+        ],
         "blocked": [
           {
             "column": 4,
@@ -13834,7 +14946,7 @@
           }
         ],
         "sourceMapId": "meadow",
-        "sourceMapVersion": "1.4.0",
+        "sourceMapVersion": "1.5.0",
         "environment": {
           "themeId": "meadow",
           "backdrop": "meadow-backdrop",
@@ -13846,35 +14958,7 @@
           ]
         },
         "selection": "random",
-        "eventId": null,
-        "elevationTiles": [
-          {
-            "id": "meadow-thicket-bend-link-1",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 2,
-              "row": 4
-            },
-            "lower": {
-              "column": 2,
-              "row": 5
-            }
-          },
-          {
-            "id": "meadow-thicket-bend-link-2",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 9,
-              "row": 5
-            },
-            "lower": {
-              "column": 9,
-              "row": 4
-            }
-          }
-        ]
+        "eventId": null
       },
       "round": 1,
       "turnId": 1,
@@ -13890,8 +14974,8 @@
       "ready": [
         "preview"
       ],
-      "deadline": 145,
-      "absoluteDeadline": 1300,
+      "deadline": null,
+      "absoluteDeadline": null,
       "status": "ACTIVE",
       "result": null,
       "moved": false,
@@ -13899,7 +14983,7 @@
       "votes": [],
       "log": [],
       "rulesVersion": "1.4.0",
-      "chatRoomId": "battle:76f81d04-f476-4830-9419-16e2ef85d518",
+      "chatRoomId": "battle:44e89c8d-d0ee-51ed-9019-c9bdc2846a76",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": true,
@@ -14252,10 +15336,31 @@
         "attacks": []
       }
     },
+    "messages": []
+  },
+  {
+    "protocolVersion": 1,
+    "serverTime": 100,
+    "generation": 1,
+    "epoch": 1,
+    "cursor": 0,
     "me": {
       "id": "preview",
       "name": "전술 검증",
+      "sp": 0,
+      "spLedger": [],
+      "skillPointMigration": {
+        "version": 1,
+        "source": "new_character",
+        "refundedCP": {
+          "general": 0,
+          "seasonal": 0
+        },
+        "initialSP": 0
+      },
       "cp": 10,
+      "cpGeneral": 10,
+      "cpSeasonal": 0,
       "attributes": {
         "body": 1,
         "intellect": 1,
@@ -14266,10 +15371,21 @@
         "literacy": 1,
         "speaking": 1
       },
+      "skillGrowthBaselines": {
+        "physical_activity": 1,
+        "literacy": 1,
+        "speaking": 1
+      },
+      "achievements": {},
+      "cpLedger": [],
+      "achievementSeasonId": "initial",
+      "seasonalAchievements": {},
+      "seasonTransitions": [],
+      "victoryRewardMigration": 1,
       "xp": 0,
       "coins": 0,
       "version": 0,
-      "mode": "LOBBY",
+      "mode": "IN_BATTLE",
       "position": {
         "column": 6,
         "row": 3
@@ -14279,22 +15395,160 @@
         "column": 2,
         "row": 2
       },
-      "requiresStartSpawn": true,
-      "battleId": "76f81d04-f476-4830-9419-16e2ef85d518",
+      "requiresStartSpawn": false,
+      "battleId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796",
       "partyId": null,
       "movedAt": 0,
-      "lastResult": null
-    },
-    "members": [],
-    "monsters": []
-  },
-  {
-    "location": {
-      "id": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
-      "kind": "BATTLE",
-      "mapId": "meadow-guardian-ring",
-      "chatRoomId": "preview",
-      "roomReady": true
+      "lastResult": null,
+      "fp": 0,
+      "fpMax": 1000,
+      "fpNextChargeAt": 160,
+      "bag": {
+        "items": [],
+        "knownWeightG": 0,
+        "unknownWeightQuantity": 0,
+        "capacityG": 20000
+      },
+      "skillDefinitions": {
+        "physical_activity": {
+          "id": "physical_activity",
+          "name": "신체활동",
+          "icon": "◇",
+          "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "신체활동",
+              "description": "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함"
+            },
+            "en": {
+              "name": "Physical Activity",
+              "description": "Walking, running, jumping, punching and kicking. Includes the basic attack skill from level 1."
+            }
+          }
+        },
+        "literacy": {
+          "id": "literacy",
+          "name": "문해",
+          "icon": "▱",
+          "description": "읽고 쓰는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "문해",
+              "description": "읽고 쓰는 능숙함"
+            },
+            "en": {
+              "name": "Literacy",
+              "description": "Proficiency in reading and writing."
+            }
+          }
+        },
+        "speaking": {
+          "id": "speaking",
+          "name": "말하기",
+          "icon": "✧",
+          "description": "말로 표현하고 전달하는 능숙함",
+          "initial": true,
+          "translations": {
+            "ko": {
+              "name": "말하기",
+              "description": "말로 표현하고 전달하는 능숙함"
+            },
+            "en": {
+              "name": "Speaking",
+              "description": "Proficiency in expressing and communicating through speech."
+            }
+          }
+        },
+        "monster_lore": {
+          "id": "monster_lore",
+          "name": "몬스터학",
+          "icon": "◈",
+          "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "몬스터학",
+              "description": "전투 중 몬스터의 체력 손상을 관찰합니다. 1레벨부터 생존 중 체력 상태를 2단계로 구분합니다."
+            },
+            "en": {
+              "name": "Monster Lore",
+              "description": "Observe monster injuries in battle. From level 1, living monsters have two visible health bands."
+            }
+          }
+        },
+        "mathematics": {
+          "id": "mathematics",
+          "name": "수학",
+          "icon": "∑",
+          "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "수학",
+              "description": "수학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Mathematics",
+              "description": "Mathematics skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "science": {
+          "id": "science",
+          "name": "과학",
+          "icon": "⚗",
+          "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "과학",
+              "description": "과학 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Science",
+              "description": "Science skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "commerce": {
+          "id": "commerce",
+          "name": "상업",
+          "icon": "◇",
+          "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "상업",
+              "description": "상업 스킬. 구체적인 습득 조건과 효과는 후속 설계 대상입니다."
+            },
+            "en": {
+              "name": "Commerce",
+              "description": "Commerce skill. Acquisition requirements and effects are not yet defined."
+            }
+          }
+        },
+        "one_handed_swordsmanship": {
+          "id": "one_handed_swordsmanship",
+          "name": "한손검술",
+          "icon": "⚔",
+          "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다.",
+          "initial": false,
+          "translations": {
+            "ko": {
+              "name": "한손검술",
+              "description": "특정 이벤트 달성으로 획득하며 한손검 장착 시 전투능력을 보조합니다. 0레벨에는 보조 효과가 없습니다."
+            },
+            "en": {
+              "name": "One-handed Swordsmanship",
+              "description": "Earned through a specific event. Supports combat while a one-handed sword is equipped. Level 0 has no support effect."
+            }
+          }
+        }
+      },
+      "battleSkillLoadout": [],
+      "battleSkillSlotLimit": 10
     },
     "map": {
       "elevations": [
@@ -15467,92 +16721,6 @@
           }
         }
       ],
-      "id": "meadow",
-      "name": "이슬 초원",
-      "version": "1.5.0",
-      "columns": 32,
-      "rows": 32,
-      "startPoint": {
-        "column": 2,
-        "row": 2
-      },
-      "safeRadius": 3,
-      "environment": {
-        "themeId": "meadow",
-        "backdrop": "meadow-backdrop",
-        "terrainPalette": [
-          "grass",
-          "dew",
-          "flowers",
-          "road"
-        ]
-      },
-      "blocked": [
-        {
-          "column": 12,
-          "row": 6
-        },
-        {
-          "column": 12,
-          "row": 7
-        },
-        {
-          "column": 12,
-          "row": 8
-        },
-        {
-          "column": 12,
-          "row": 9
-        },
-        {
-          "column": 12,
-          "row": 11
-        },
-        {
-          "column": 12,
-          "row": 12
-        },
-        {
-          "column": 12,
-          "row": 13
-        },
-        {
-          "column": 12,
-          "row": 14
-        }
-      ],
-      "connections": [
-        {
-          "id": "gate",
-          "name": "서쪽 웨이포인트",
-          "column": 0,
-          "row": 2,
-          "target": "grove",
-          "direction": "west",
-          "targetWaypointId": "gate-east",
-          "targetName": "푸른 숲"
-        },
-        {
-          "id": "gate-east",
-          "name": "동쪽 웨이포인트",
-          "column": 31,
-          "row": 16,
-          "target": "mist-lake",
-          "direction": "east",
-          "targetWaypointId": "gate",
-          "targetName": "안개 호수"
-        },
-        {
-          "id": "gate-south",
-          "name": "남쪽 웨이포인트",
-          "column": 16,
-          "row": 31,
-          "target": "wind-hills",
-          "direction": "south",
-          "targetWaypointId": "gate-north",
-          "targetName": "바람 구릉"
-        }
-      ],
       "elevationTiles": [
         {
           "id": "meadow-link-1",
@@ -15632,10 +16800,136 @@
             "row": 24
           }
         }
+      ],
+      "id": "meadow",
+      "name": "이슬 초원",
+      "nameTranslations": {
+        "ko": "이슬 초원",
+        "en": "Dew Meadow"
+      },
+      "version": "1.5.0",
+      "columns": 32,
+      "rows": 32,
+      "startPoint": {
+        "column": 2,
+        "row": 2
+      },
+      "safeRadius": 3,
+      "environment": {
+        "themeId": "meadow",
+        "backdrop": "meadow-backdrop",
+        "terrainPalette": [
+          "grass",
+          "dew",
+          "flowers",
+          "road"
+        ]
+      },
+      "blocked": [
+        {
+          "column": 12,
+          "row": 6
+        },
+        {
+          "column": 12,
+          "row": 7
+        },
+        {
+          "column": 12,
+          "row": 8
+        },
+        {
+          "column": 12,
+          "row": 9
+        },
+        {
+          "column": 12,
+          "row": 11
+        },
+        {
+          "column": 12,
+          "row": 12
+        },
+        {
+          "column": 12,
+          "row": 13
+        },
+        {
+          "column": 12,
+          "row": 14
+        }
+      ],
+      "connections": [
+        {
+          "id": "gate",
+          "name": "서쪽 웨이포인트",
+          "column": 0,
+          "row": 2,
+          "target": "grove",
+          "direction": "west",
+          "targetWaypointId": "gate-east",
+          "targetName": "푸른 숲",
+          "targetNameTranslations": {
+            "ko": "푸른 숲",
+            "en": "Verdant Forest"
+          }
+        },
+        {
+          "id": "gate-east",
+          "name": "동쪽 웨이포인트",
+          "column": 31,
+          "row": 16,
+          "target": "mist-lake",
+          "direction": "east",
+          "targetWaypointId": "gate",
+          "targetName": "안개 호수",
+          "targetNameTranslations": {
+            "ko": "안개 호수",
+            "en": "Misty Lake"
+          }
+        },
+        {
+          "id": "gate-south",
+          "name": "남쪽 웨이포인트",
+          "column": 16,
+          "row": 31,
+          "target": "wind-hills",
+          "direction": "south",
+          "targetWaypointId": "gate-north",
+          "targetName": "바람 구릉",
+          "targetNameTranslations": {
+            "ko": "바람 구릉",
+            "en": "Windy Hills"
+          }
+        }
       ]
     },
+    "channelStatus": "OPEN",
+    "location": {
+      "id": "battle:42bf39dc-ad3d-5fd9-82e0-4000fbecd796",
+      "kind": "BATTLE",
+      "mapId": "meadow-guardian-ring",
+      "chatRoomId": "battle:42bf39dc-ad3d-5fd9-82e0-4000fbecd796",
+      "roomReady": true
+    },
+    "members": [
+      {
+        "id": "preview",
+        "name": "전술 검증",
+        "position": {
+          "column": 6,
+          "row": 3
+        },
+        "mode": "IN_BATTLE",
+        "away": false
+      }
+    ],
+    "monsters": [],
+    "party": null,
+    "invitations": [],
+    "reservation": null,
     "battle": {
-      "id": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
+      "id": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796",
       "channel": "meadow",
       "monsterId": "meadow-strong",
       "version": 2,
@@ -15693,7 +16987,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-0",
+          "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-0",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -15724,7 +17018,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-1",
+          "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-1",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -15755,7 +17049,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-2",
+          "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-2",
           "healthVisibility": "HIDDEN"
         },
         {
@@ -15786,7 +17080,7 @@
             1
           ],
           "attack": 12,
-          "monsterInstanceId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3:enemy-3",
+          "monsterInstanceId": "42bf39dc-ad3d-5fd9-82e0-4000fbecd796:enemy-3",
           "healthVisibility": "HIDDEN"
         }
       ],
@@ -16612,6 +17906,34 @@
             }
           }
         ],
+        "elevationTiles": [
+          {
+            "id": "meadow-guardian-ring-link-1",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 4,
+              "row": 4
+            },
+            "lower": {
+              "column": 3,
+              "row": 4
+            }
+          },
+          {
+            "id": "meadow-guardian-ring-link-2",
+            "kind": "stairs",
+            "asset": "stone-step-tile",
+            "cell": {
+              "column": 8,
+              "row": 5
+            },
+            "lower": {
+              "column": 9,
+              "row": 5
+            }
+          }
+        ],
         "blocked": [
           {
             "column": 4,
@@ -16683,7 +18005,7 @@
           }
         ],
         "sourceMapId": "meadow",
-        "sourceMapVersion": "1.4.0",
+        "sourceMapVersion": "1.5.0",
         "environment": {
           "themeId": "meadow",
           "backdrop": "meadow-backdrop",
@@ -16695,35 +18017,7 @@
           ]
         },
         "selection": "fixed",
-        "eventId": "meadow-guardian",
-        "elevationTiles": [
-          {
-            "id": "meadow-guardian-ring-link-1",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 4,
-              "row": 4
-            },
-            "lower": {
-              "column": 3,
-              "row": 4
-            }
-          },
-          {
-            "id": "meadow-guardian-ring-link-2",
-            "kind": "stairs",
-            "asset": "stone-step-tile",
-            "cell": {
-              "column": 8,
-              "row": 5
-            },
-            "lower": {
-              "column": 9,
-              "row": 5
-            }
-          }
-        ]
+        "eventId": "meadow-guardian"
       },
       "round": 1,
       "turnId": 1,
@@ -16750,7 +18044,7 @@
       "votes": [],
       "log": [],
       "rulesVersion": "1.4.0",
-      "chatRoomId": "battle:77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
+      "chatRoomId": "battle:42bf39dc-ad3d-5fd9-82e0-4000fbecd796",
       "nextAiAt": 100.8,
       "tactics": {
         "canAct": false,
@@ -16758,40 +18052,6 @@
         "attacks": []
       }
     },
-    "me": {
-      "id": "preview",
-      "name": "전술 검증",
-      "cp": 10,
-      "attributes": {
-        "body": 1,
-        "intellect": 1,
-        "spirit": 1
-      },
-      "skills": {
-        "physical_activity": 1,
-        "literacy": 1,
-        "speaking": 1
-      },
-      "xp": 0,
-      "coins": 0,
-      "version": 0,
-      "mode": "LOBBY",
-      "position": {
-        "column": 6,
-        "row": 3
-      },
-      "lastMapId": "meadow",
-      "lastPosition": {
-        "column": 2,
-        "row": 2
-      },
-      "requiresStartSpawn": true,
-      "battleId": "77dbd21d-c3d0-4a9c-8514-d219fee84ea3",
-      "partyId": null,
-      "movedAt": 0,
-      "lastResult": null
-    },
-    "members": [],
-    "monsters": []
+    "messages": []
   }
 ]
