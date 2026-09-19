@@ -23,6 +23,7 @@ import { CharacterDeparture } from "./CharacterDeparture";
 import { WorldDrawer } from "./WorldDrawer";
 import { BattlePanel } from "./BattlePanel";
 import { Client } from "../client/api";
+import { watchBrowserResume } from "../client/browserResume";
 import { registrationIssue } from "../client/credentials";
 import type { Position, State } from "../client/types";
 import type { createGame } from "../game/createGame";
@@ -168,7 +169,12 @@ export function App() {
     client.onChat = setChatMessages;
     client.onChatStatus = ready => { if (!ready) setSponsorApproved(null); };
     const timer = setInterval(() => setClock(Date.now()), 1000);
+    const stopResume = watchBrowserResume(document, window, () => {
+      stopWalking.current = true;
+      void client.resumeSession();
+    });
     return () => {
+      stopResume();
       clearInterval(timer);
       client.disconnect();
     };

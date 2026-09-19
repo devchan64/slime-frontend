@@ -270,3 +270,58 @@ test('로그아웃으로 발생한 소켓 세션 만료가 HTTP 완료 처리를
   if(oldLocation===undefined)delete globalThis.location;else globalThis.location=oldLocation;
  }
 });
+
+const resumeBundle=await build({entryPoints:['src/client/browserResume.ts'],bundle:true,write:false,format:'esm',platform:'node'});
+const {watchBrowserResume}=await import(`data:text/javascript;base64,${Buffer.from(resumeBundle.outputFiles[0].text).toString('base64')}`);
+test('탭 복귀·온라인·페이지 캐시 복원만 재검증하고 이벤트 감시를 정리한다',()=>{
+ const page=new EventTarget(),browser=new EventTarget();page.visibilityState='visible';let calls=0;
+ const stop=watchBrowserResume(page,browser,()=>calls++);
+ page.dispatchEvent(new Event('visibilitychange'));browser.dispatchEvent(new Event('pageshow'));assert.equal(calls,0);
+ page.visibilityState='hidden';page.dispatchEvent(new Event('visibilitychange'));browser.dispatchEvent(new Event('online'));assert.equal(calls,0);
+ page.visibilityState='visible';page.dispatchEvent(new Event('visibilitychange'));page.dispatchEvent(new Event('visibilitychange'));assert.equal(calls,1);
+ browser.dispatchEvent(new Event('online'));assert.equal(calls,2);
+ const restored=new Event('pageshow');restored.persisted=true;browser.dispatchEvent(restored);assert.equal(calls,3);
+ stop();browser.dispatchEvent(restored);browser.dispatchEvent(new Event('online'));assert.equal(calls,3);
+});
+
+test('복귀 검증은 진행 중 토큰 갱신을 공유하고 서버 복구 승인까지 입력을 잠근다',async()=>{
+ const keys=['WebSocket','document','location','setInterval','clearInterval','setTimeout','clearTimeout'];
+ const originals=Object.fromEntries(keys.map(k=>[k,globalThis[k]]));
+ let ws,finish,id=0;const timers=new Map(),statuses=[],requests=[];
+ class Socket {static OPEN=1;readyState=1;sent=[];constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.closed=true;this.onclose?.();}}
+ try {
+  Object.assign(globalThis,{WebSocket:Socket,document:new EventTarget(),location:{href:'http://localhost/'},setInterval:()=>++id,clearInterval:()=>{},setTimeout:(fn,delay)=>{timers.set(++id,{fn,delay});return id;},clearTimeout:key=>timers.delete(key)});
+  const client=new Client();client.stopped=false;client.tokens={access_token:'old',refresh_token:'refresh'};
+  client.state={protocolVersion:1,generation:2,epoch:3,cursor:4,location:{id:'map:meadow'}};
+  client.onStatus=(ready)=>statuses.push(ready);
+  client.request=async path=>{requests.push(path);if(path==='/v1/auth/refresh')return new Promise(resolve=>finish=resolve);return {ticket:'test',resumeSupported:true};};
+  await client.connect();ws.onopen();ws.onmessage({data:JSON.stringify({type:'snapshot',state:client.state})});
+  const old=ws;client.scheduleRefresh();const timer=[...timers.values()].find(t=>t.delay===720000);const refresh=timer.fn();
+  const resume=client.resumeSession();assert.equal(client.resumeSession(),resume);
+  assert.equal(old.closed,true);assert.equal(statuses.at(-1),false);
+  old.onmessage({data:JSON.stringify({type:'state',state:{...client.state,cursor:99}})});assert.equal(client.state.cursor,4);
+  finish({access_token:'new',refresh_token:'next'});await refresh;await resume;
+  assert.equal(requests.filter(path=>path==='/v1/auth/refresh').length,1);
+  assert.equal(statuses.at(-1),false);ws.onopen();
+  assert.deepEqual(ws.sent,[{ticket:'test',protocolVersion:1,resume:{generation:2,epoch:3,cursor:4}}]);
+  ws.onmessage({data:JSON.stringify({type:'resumed',generation:2,epoch:3,cursor:4})});assert.equal(statuses.at(-1),true);
+  assert.equal(ws.sent.some(frame=>frame.type==='activity'),false);
+  client.disconnect();const count=requests.length;await client.resumeSession();assert.equal(requests.length,count);
+ } finally {for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
+
+test('복귀 중 세션 교체·갱신 만료는 이전 연결을 재개하지 않는다',async()=>{
+ for(const fail of [false,true]){
+  const client=new Client();client.stopped=false;client.tokens={access_token:'old',refresh_token:'refresh'};
+  let finish,connects=0;const statuses=[];
+  client.connect=async()=>{connects++;};client.onStatus=(ready,message)=>statuses.push([ready,message]);
+  client.request=()=>new Promise((resolve,reject)=>finish=fail?reject:resolve);
+  const pending=client.resumeSession();
+  if(!fail){client.disconnect();client.stopped=false;client.tokens={access_token:'new',refresh_token:'new-refresh'};}
+  finish(fail?new ApiError('SESSION_EXPIRED','세션 만료',401):{access_token:'late',refresh_token:'late-refresh'});
+  await pending;assert.equal(connects,0);
+  if(fail){assert.equal(client.stopped,true);assert.equal(statuses.at(-1)[1].code,'SESSION_EXPIRED');}
+  else {assert.equal(client.tokens.access_token,'new');assert.equal(client.stopped,false);}
+  client.disconnect();
+ }
+});

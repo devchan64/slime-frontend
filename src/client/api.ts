@@ -26,6 +26,8 @@ export class Client {
   private progressHead: StreamMark | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
+  private refreshRequest: Promise<boolean> | null = null;
+  private resumeRequest: Promise<void> | null = null;
   private attempts = 0;
   private chatSocket: WebSocket | null = null;
   private chatHeartbeat: ReturnType<typeof setInterval> | null = null;
@@ -85,21 +87,55 @@ export class Client {
       async () => {
         if (this.stopped || sessionRevision!==this.sessionRevision) return;
         this.refreshTimer=null;
-        try {
-          const tokens = await this.request("/v1/auth/refresh", {
-            refresh_token: this.tokens!.refresh_token,
-          });
-          if (this.stopped || sessionRevision!==this.sessionRevision) return;
-          this.tokens=tokens;
-          this.scheduleRefresh();
-        } catch (e) {
-          if (this.stopped || sessionRevision!==this.sessionRevision) return;
-          this.disconnect();
-          this.onStatus(false, e as Error);
-        }
+        await this.refreshTokens();
       },
       12 * 60 * 1000,
     );
+  }
+  private refreshTokens(): Promise<boolean> {
+    if (this.refreshRequest) return this.refreshRequest;
+    const sessionRevision=this.sessionRevision;
+    const request=(async () => {
+      if (this.stopped || !this.tokens) return false;
+      try {
+        const tokens = await this.request("/v1/auth/refresh", {
+          refresh_token: this.tokens.refresh_token,
+        });
+        if (this.stopped || sessionRevision!==this.sessionRevision) return false;
+        this.tokens=tokens;
+        this.scheduleRefresh();
+        return true;
+      } catch (e) {
+        if (this.stopped || sessionRevision!==this.sessionRevision) return false;
+        this.disconnect();
+        this.onStatus(false, e as Error);
+        return false;
+      }
+    })();
+    this.refreshRequest=request;
+    void request.finally(() => { if (this.refreshRequest===request) this.refreshRequest=null; });
+    return request;
+  }
+  resumeSession(): Promise<void> {
+    if (this.stopped || !this.tokens) return Promise.resolve();
+    if (this.resumeRequest) return this.resumeRequest;
+    const revision=this.sessionRevision;
+    // 절전 중 살아 있는 것처럼 보이는 소켓도 폐기하고 서버 승인 뒤 조작을 연다.
+    this.connectionAttempt++;
+    const previous=this.socket;this.socket=null;
+    this.clearHeartbeat();previous?.close();
+    if (this.reconnectTimer!==null) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer=null;
+    this.stopActivity?.();this.stopActivity=null;
+    this.disconnectChat();
+    this.onStatus(false,{key:'network.reconnecting'});
+    const request=(async () => {
+      if (!await this.refreshTokens() || this.stopped || revision!==this.sessionRevision) return;
+      await this.connect();
+    })();
+    this.resumeRequest=request;
+    void request.finally(() => { if (this.resumeRequest===request) this.resumeRequest=null; });
+    return request;
   }
   accept(state: State) {
     if (state.protocolVersion !== 1)
@@ -336,6 +372,7 @@ export class Client {
   }
   disconnect() {
     this.connectionAttempt++;this.sessionRevision++;
+    this.refreshRequest=null;this.resumeRequest=null;
     this.stopActivity?.(); this.stopActivity = null;
     this.disconnectChat();
     this.stopped = true;
