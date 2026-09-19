@@ -1,7 +1,7 @@
 points: Field activity points
 connecting: Connecting
-maximum: Max 1,000 · +5/min
-next: Next +5 · {seconds}s
+maximum: Max 1,000 · +1/min
+next: Next +1 · {seconds}s
 grass: Grass
 dew: Dewy ground
 flowers: Flowers

@@ -1,7 +1,7 @@
 points: 필드 활동포인트
 connecting: 연결 중
-maximum: 최대 1,000 · 분당 +5
-next: 다음 +5 · {seconds}초
+maximum: 최대 1,000 · 분당 +1
+next: 다음 +1 · {seconds}초
 grass: 풀밭
 dew: 이슬 지면
 flowers: 꽃밭
