@@ -22,10 +22,10 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
   const events = [
     ...state.monsters.filter(monster => monster.state === "AVAILABLE").map(monster => ({
       id: `monster:${monster.id}`, position: monster.position, name: monsterName(localizedMonster(monster, locale)),
-      kind: monster.disposition === "AGGRESSIVE" ? t('field.aggressiveMonster') : t('field.passiveMonster'),
+      kind: "", nameClass: monster.disposition === "AGGRESSIVE" ? "monster-name is-aggressive" : "monster-name is-passive",
     })),
     ...map.connections.map(gate => ({
-      id: `connection:${gate.id}`, position: gate, name: gate.targetName ?? gate.target, kind: t('field.mapConnection'),
+      id: `connection:${gate.id}`, position: gate, name: gate.targetName ?? gate.target, kind: t('field.mapConnection'), nameClass: "",
     })),
   ].map(event => ({ ...event, distance: fieldDistance(state.me.position, event.position) }))
     .sort((a, b) => a.distance - b.distance || a.id.localeCompare(b.id))
@@ -34,7 +34,7 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
     {events.map(event => <button key={event.id} class="secondary" disabled={disabled}
       aria-pressed={!!selected && sameCell(event.position, selected)}
       onClick={() => select(event.position)}>
-      <small>{event.kind}</small><strong>{event.name}</strong><small>{t('field.gridDistance',{count:event.distance})}</small>
+      {event.kind && <small>{event.kind}</small>}<strong class={event.nameClass}>{event.name}</strong><small>{t('field.gridDistance',{count:event.distance})}</small>
     </button>)}
     {!events.length && <p>{t('field.noEvents')}</p>}
   </nav>;
@@ -71,7 +71,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const field = state.me.mode === "FIELD";
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
   return <section class="field-selection" aria-label={t('field.selectedLocation')}>
-    <div class="field-selection-heading"><div><span class="field-kicker">{monsters.length ? t('field.targetHeading') : t('field.locationHeading')}</span>
+    <div class="field-selection-heading"><div>
       <h3>{monsters.length ? t('field.monsterEncounter') : blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</h3></div>
       <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button></div>
     <div class="field-command-body">
@@ -79,8 +79,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         const distance = fieldDistance(state.me.position, m.position);
         const route = encounterRoute(state.me.position, m.position, state.map);
         return <div class="field-target" key={m.id}><div>
-          <span class={`field-disposition ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : ""}`}>{m.disposition === "AGGRESSIVE" ? t('field.aggressiveWarning') : t('field.passive')}</span>
-          <strong>{monsterName(localizedMonster(m, locale))}</strong>
+          <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
           <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacent')}</small></div>
           <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
@@ -105,7 +104,7 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
   const renderMonster = (m: State["monsters"][number]) => <button key={m.id}
     class={`field-monster secondary ${selected && sameCell(selected, m.position) ? "is-selected" : ""}`}
     aria-pressed={!!selected && sameCell(selected, m.position)} onClick={() => select(m.position)}>
-    <span><strong>{monsterName(localizedMonster(m, locale))}</strong><small>{m.disposition === "AGGRESSIVE" ? t('field.aggressive') : t('field.passive')} · {m.state === "AVAILABLE" ? t('field.available') : t('field.unavailable')}</small></span>
+    <span><strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong><small>{m.state === "AVAILABLE" ? t('field.available') : t('field.unavailable')}</small></span>
     <span>{t('field.gridDistance',{count:fieldDistance(state.me.position, m.position)})} <span aria-hidden="true">›</span></span>
   </button>;
   const reservation = state.reservation;

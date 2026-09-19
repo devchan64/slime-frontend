@@ -1178,13 +1178,13 @@ button, summary { touch-action: manipulation; }
 .character-lobby .character-settings-navigation button { width: auto; margin: 0; }
 
 /* 필드의 세 카드는 화면 스크롤을 공유한다. */
-:root { --field-card-gap: 12px; --field-card-padding: 12px; --field-card-map-height: clamp(240px, 48dvh, 520px); }
+:root { --field-card-gap: 8px; --field-card-padding: 10px; --field-card-map-height: clamp(200px, 40dvh, 440px); }
 .world-shell .world-layout--immersive .world.is-field { display: flex; flex-direction: column; gap: var(--field-card-gap); overflow-y: auto; overflow-x: hidden; padding: 0 var(--field-card-padding) var(--field-card-padding); }
 .world-shell .world.is-field > .world-title { flex: 0 0 auto; }
 .world-shell .world.is-field > .field-map-card { position: relative; top: auto; flex: 0 0 var(--field-card-map-height); height: var(--field-card-map-height); min-height: var(--field-card-map-height); max-height: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; }
 .world-shell .world.is-field > .field-map-card .canvas-wrap { height: 100%; min-height: 0; }
 .world-shell .world.is-field > :is(.field-control-card, .field-help-card) { position: static; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; max-height: none; margin: 0; padding: var(--field-card-padding); border: 1px solid var(--border); border-radius: 12px; overflow: visible; }
-.world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 8px 0 0; border: 0; background: transparent; overflow: visible; }
+.world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
 .world-shell .world.is-field .field-control-card :is(.field-selection-details, .field-quick-targets) { height: auto; max-height: none; overflow: visible; }
 .field-card-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 .field-card-heading h1, .field-card-heading h3, .field-help-card h3 { margin: 0; }
@@ -1284,3 +1284,14 @@ button, summary { touch-action: manipulation; }
 .skill-loadout-options input { width: auto; margin: 0; }
 .skill-loadout-options button { margin: 0; min-width: 0; min-height: 44px; }
 .skill-loadout-options button[aria-pressed="true"] { border-color: var(--brand-primary); background: #24463e; }
+
+.field-control-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 6px; }
+.field-control-actions button { min-width: 0; min-height: 44px; margin: 0; padding: 6px 8px; font-size: 13px; }
+.field-control-card > .field-card-heading { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.field-control-card .field-selection-heading h3 { font-size: 14px; margin: 0; }
+.field-control-card .field-target { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 4px 0; padding: 6px 8px; }
+.field-control-card .field-target button { width: auto; min-width: 0; min-height: 44px; max-width: 140px; margin: 0; padding: 6px 10px; font-size: 13px; }
+.field-event-shortcuts { gap: 6px; margin-top: 8px; }
+.field-event-shortcuts button { gap: 2px; min-height: 44px; margin: 0; padding: 6px 8px; }
+.monster-name.is-aggressive { color: #ff8d77; }
+.monster-name.is-passive { color: #e6c789; }

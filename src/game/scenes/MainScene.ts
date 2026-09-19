@@ -369,7 +369,7 @@ export class MainScene extends Phaser.Scene {
         this.unit(
           m.position,
           m.disposition === "AGGRESSIVE" ? COLORS.enemy : COLORS.passive,
-          `${m.name || "슬라임"} · ${m.disposition === "AGGRESSIVE" ? "선공" : "비선공"} · ${m.state === "AVAILABLE" ? "대기" : m.state === "COOLDOWN" ? "휴식" : "조우 중"}`,
+          m.name || "슬라임",
           false, undefined, false, m,
         );
       for (const member of s.members)
@@ -489,7 +489,7 @@ export class MainScene extends Phaser.Scene {
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {
-      this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
+      this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, appearance ? { ...TEXT, color: `#${color.toString(16).padStart(6, "0")}` } : TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
     }
   }
 }
