@@ -68,6 +68,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         onClick={() => chooseMode(value)}>{LABELS[value]}</button>)}
     </div>
     {mode !== null && <><button class="secondary compact" onClick={() => { setMode(null); select(null); }}>← 행동 다시 선택</button>
+    <button class="battle-confirm" disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : `${LABELS[mode]} 확정`}</button>
     <div class="battle-command-content"><div class="command-preview" aria-live="polite">
       {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "파란 이동 가능 셀을 선택하세요."
         : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage}` : "붉은 테두리의 사거리 내 적을 선택하세요."
@@ -98,7 +99,7 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         <small>이동만 확정합니다. 공격은 도착 후 따로 선택하세요.</small>
       </>}
     </div>}
-    </div><button class="battle-confirm" disabled={disabled || !valid} onClick={() => execute(mode, mode === "ATTACK" ? target?.id : undefined)}>{mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : `${LABELS[mode]} 확정`}</button></>}
+    </div></>}
     </div>
     <details class="battle-records"><summary>전투 기록·기권</summary><div class="battle-secondary">
     <details><summary>참가 유닛 · {battle.units.length}</summary>

@@ -33,7 +33,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const blocked = state.map.blocked.some(p => sameCell(p, selected));
   const path = fieldRoute(state.me.position, selected, state.map);
   const here = sameCell(state.me.position, selected);
-  const monsters = state.monsters.filter(m => sameCell(m.position, selected));
+  const monsters = state.monsters.filter(m => m.state !== "COOLDOWN" && sameCell(m.position, selected));
   const gate = state.map.connections.find(g => sameCell(g, selected));
   const safe = fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
@@ -59,7 +59,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
 }
 
 export function FieldPanel({ state, selected, disabled, now, select, command }: Props) {
-  const monsters = [...state.monsters].sort((a, b) => fieldDistance(state.me.position, a.position) - fieldDistance(state.me.position, b.position) || a.id.localeCompare(b.id));
+  const monsters = state.monsters.filter(m => m.state !== "COOLDOWN").sort((a, b) => fieldDistance(state.me.position, a.position) - fieldDistance(state.me.position, b.position) || a.id.localeCompare(b.id));
   const renderMonster = (m: State["monsters"][number]) => <button key={m.id}
     class={`field-monster secondary ${selected && sameCell(selected, m.position) ? "is-selected" : ""}`}
     aria-pressed={!!selected && sameCell(selected, m.position)} onClick={() => select(m.position)}>

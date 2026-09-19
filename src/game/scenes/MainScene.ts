@@ -348,7 +348,7 @@ export class MainScene extends Phaser.Scene {
         const p = this.project(gate);
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(TERRAIN_DEPTH.annotation));
       }
-      for (const m of s.monsters)
+      for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.unit(
           m.position,
           m.disposition === "AGGRESSIVE" ? COLORS.enemy : COLORS.passive,
