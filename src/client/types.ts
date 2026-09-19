@@ -68,6 +68,9 @@ export type State = {
     lastPosition: Position;
     xp: number;
     coins: number;
+    fp?: number;
+    fpMax?: number;
+    fpNextChargeAt?: number | null;
     cp: number;
     /** SP 미지원 API에서는 생략한다. */
     sp?: number;

@@ -1,0 +1,10 @@
+ready: 모험을 시작할 준비가 되었나요?
+remaining: 미배분 {points}
+location: 마지막 맵의 시작점으로 이동합니다.
+pending: 진행 중 전투 정산 대기
+enter: 게임으로 가기 →
+title: 아직 배분하지 않은 포인트가 있어요
+confirm: "{points}가 남아 있습니다. 게임으로 이동할까요?"
+allocated: 포인트 배분이 완료되었습니다. 게임으로 이동할까요?
+back: 설정으로 돌아가기
+proceed: 게임으로 이동

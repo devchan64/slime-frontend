@@ -1,0 +1,10 @@
+points: 필드 활동포인트
+connecting: 연결 중
+maximum: 최대 1,000 · 분당 +5
+next: 다음 +5 · {seconds}초
+grass: 풀밭
+dew: 이슬 지면
+flowers: 꽃밭
+road: 흙길
+legend: 통행 가능한 지형 범례
+guidance: 계단으로 높이 이동 · 절벽·바위·수풀·호수는 통행 불가

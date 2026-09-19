@@ -8,7 +8,7 @@ const ATTRIBUTES = [
   { id: "spirit", name: "영성", icon: "✧", description: "영적 활동의 기반 역량" },
 ] as const;
 
-const BASIC_SKILLS = [
+const SKILL_DEFINITIONS = [
   { id: "physical_activity", name: "신체활동", icon: "◇", description: "걷기·달리기·뛰기·주먹질·발차기 · 레벨 1부터 일반 공격 스킬 포함" },
   { id: "literacy", name: "문해", icon: "▱", description: "읽고 쓰는 능숙함" },
   { id: "speaking", name: "말하기", icon: "✧", description: "말로 표현하고 전달하는 능숙함" },
@@ -23,7 +23,7 @@ type Props = {
 
 export function CharacterSettings({ me, disabled, command, expanded = false }: Props) {
   const [category, setCategory] = useState<"attributes" | "skills">("attributes");
-  const entries = category === "attributes" ? ATTRIBUTES : BASIC_SKILLS;
+  const entries = category === "attributes" ? ATTRIBUTES : SKILL_DEFINITIONS.filter(skill => Object.hasOwn(me.skills, skill.id));
   const levels: Record<string, number> = category === "attributes" ? me.attributes : me.skills;
   const locked = !["LOBBY", "FIELD"].includes(me.mode) || !!me.battleId;
   const content = <div class="character-sheet">
@@ -41,11 +41,12 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
         <div class="cp-balance" role="status" aria-live="polite"><span>사용 가능한 CP</span><strong>{me.cp}<small> CP</small></strong></div>
       </div>
       <dl class="character-resources cp-breakdown" aria-label="캐릭터 포인트 구분"><div><dt>일반포인트</dt><dd>{me.cpGeneral} <small>CP</small></dd></div><div><dt>시즌포인트</dt><dd>{me.cpSeasonal} <small>CP</small></dd></div></dl>
-      <p class="growth-intro">어떤 모험가로 성장할까요?<br />능력치와 기본 스킬 성장에는 시즌포인트를 먼저 사용하고, 부족한 만큼 일반포인트를 사용합니다.</p>
+      <p class="growth-intro">어떤 모험가로 성장할까요?<br />능력치와 스킬 성장에는 시즌포인트를 먼저 사용하고, 부족한 만큼 일반포인트를 사용합니다.</p>
       <div class="growth-categories" role="group" aria-label="성장 항목 선택">
         <button class="secondary" aria-pressed={category === "attributes"} onClick={() => setCategory("attributes")}>능력치</button>
-        <button class="secondary" aria-pressed={category === "skills"} onClick={() => setCategory("skills")}>기본 스킬</button>
+        <button class="secondary" aria-pressed={category === "skills"} onClick={() => setCategory("skills")}>스킬</button>
       </div>
+      <p class="growth-help">{category === "skills" && "신체활동·문해·말하기는 캐릭터 생성 시 제공됩니다. 이후 습득한 스킬도 이 목록에서 관리합니다."}</p>
       <div class="attribute-list">{entries.map(({ id, name, icon, description }) => {
         const level = levels[id];
         const cost = 2 ** (level - 1);

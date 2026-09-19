@@ -1,5 +1,0 @@
-<html lang="ko"><meta name="viewport" content="width=device-width,initial-scale=1"><div id="app"></div><script type="module">
-import {h,render} from 'preact';import {AchievementsPage} from '/src/ui/AchievementsPage.tsx';import '/src/styles.css';
-const client={request:async path=>path==='/v1/achievements'?{achievements:{first:{name:'첫 승리',scope:'GENERAL',cp:1,checklist:{win:{description:'전투에서 1회 승리',target:1}}}}}:{seasonId:'initial',achievements:{first:{completedAt:100,checklist:{win:{count:1}}}}}};
-render(h(AchievementsPage,{client,disabled:false,onReturn:()=>document.querySelector('#result').textContent='맵 복귀 요청'}),document.querySelector('#app'));
-</script><p id="result"></p></html>

@@ -890,7 +890,7 @@ button, summary { touch-action: manipulation; }
   body.battle-preview-shell .world .battle-panel { padding: 0; }
   body.battle-preview-shell .world .map-stage { grid-column: 1; grid-row: 2; }
 }
-:root { --field-dock-height: 190px; }
+:root { --field-dock-height: 208px; }
 .field-command-dock { position: relative; }
 .field-command-dock .field-selection { position: static; width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
 .field-quick-targets { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; }
@@ -983,3 +983,53 @@ button, summary { touch-action: manipulation; }
 .achievement-heading h1 { margin: 0; font-size: 24px; }.achievement-heading p { font-size: 12px; }
 .achievement-heading button { min-height: 44px; }
 .achievement-item { padding: 12px 0; border-top: 1px solid var(--border); }.achievement-item h3 small { font-size: 12px; color: #91d5b8; }
+
+.field-points { display: flex; flex-direction: column; gap: 3px; margin-left: auto; padding: 4px 8px; background: #163e38; border: 1px solid #427c65; border-radius: 8px; white-space: nowrap; }
+.field-points strong { font-size: 13px; color: #b9ecd2; }.field-points small { font-size: 10px; color: #a2bcb2; }
+
+.language-select { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; flex-shrink: 0; }
+.language-select select { width: auto; min-height: 36px; padding: 4px 8px; font: inherit; }
+@media (max-width: 520px) { .language-select > span { display: none; } }
+
+/* 필드 행동: 대상·위험·실행의 위계를 유지하고 상세만 스크롤한다. */
+:root { --field-warning: #f3cc88; --field-card-width: 142px; }
+.field-command-dock .field-selection { display: flex; flex-direction: column; height: var(--field-dock-height); padding: 12px 16px; background: linear-gradient(110deg, #153832, #102a2a); border: 0; border-top: 1px solid #54786d; }
+.field-selection-heading { flex: 0 0 auto; min-height: 44px; }
+.field-selection-heading > div, .field-target > div { min-width: 0; }
+.field-selection-heading h3 { margin: 2px 0 0; line-height: 1.35; overflow-wrap: anywhere; }
+.field-kicker { color: #93d6bd; font-size: 11px; letter-spacing: .06em; }
+.field-selection-hint { color: #b6cbd1; font-size: 12px; text-align: right; }
+.field-command-body { flex: 1; overscroll-behavior: contain; }
+.field-quick-targets { flex: 1; min-height: 0; gap: 8px; margin-top: 8px; padding-bottom: 4px; }
+.field-quick-targets button { flex: 1 0 var(--field-card-width); min-width: 0; max-width: 300px; margin: 0; padding: 10px 12px; border-color: #46685b; background: #193e35; }
+.field-quick-targets strong, .field-target strong { display: block; margin: 3px 0; font-size: 14px; overflow-wrap: anywhere; }
+.field-disposition { display: block; color: #aed6c5; font-size: 12px; font-weight: 500; }
+.field-disposition.is-aggressive, .field-route-summary.is-warning { color: var(--field-warning); }
+.field-command-dock .field-selection small { font-size: 12px; line-height: 1.5; }
+.field-target { margin: 6px 0; padding: 8px 10px; background: #1a3e34; border-color: #46685b; }
+.field-selection p { margin: 6px 0; line-height: 1.5; }
+.field-selection .field-unavailable { color: var(--field-warning); }
+.field-tile-actions { flex: 0 0 auto; }
+.field-tile-actions button { min-height: 44px; margin: 6px 0 0; }
+.field-selection-heading button, .field-details summary, .tile-description summary { min-height: 44px; }
+.tile-description summary { display: flex; align-items: center; cursor: pointer; color: #b6cbd1; }
+.tile-description summary::before { content: '▸'; margin-right: 6px; }
+.tile-description[open] summary::before { content: '▾'; }
+.field-walking progress { height: 8px; margin: 10px 0; }
+.is-field button:focus-visible, .is-field summary:focus-visible { outline: 2px solid #b9f5de; outline-offset: 2px; }
+.is-field .map-camera-controls button:last-child:nth-child(odd) { grid-column: 1 / -1; width: auto; }
+@media (max-width: 1024px) {
+  .field-command-dock .field-selection { height: 100%; padding: 8px 10px; }
+  .field-command-dock { max-height: 40dvh; }
+}
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 600px) {
+  .world-shell .world.is-field { grid-template-rows: auto minmax(0,1fr) auto auto; }
+  .world-shell .is-field > .map-help { grid-column: 1 / -1; grid-row: 3; }
+  .world-shell .is-field > .world-bottom-menu { grid-row: 4; }
+  .world-shell .field-command-dock { max-height: none; }
+  .field-selection-hint { display: none; }
+  .field-quick-targets { flex-direction: column; overflow: auto; }
+  .field-quick-targets button { flex: 0 0 auto; max-width: none; }
+  .field-target { flex-wrap: wrap; }
+  .field-target button { width: 100%; }
+}

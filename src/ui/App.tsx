@@ -1,3 +1,6 @@
+import { LanguageSelect } from './LanguageSelect';
+import { useTranslation } from '../i18n';
+import { FieldPoints } from "./FieldPoints";
 import { AchievementsPage } from "./AchievementsPage";
 import { approachMonster } from "./encounterNavigation";
 import { ChatPanel } from "./ChatPanel";
@@ -27,6 +30,7 @@ const RESULT_NAMES: Record<string, string> = {
 const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
+  const { t } = useTranslation();
   const [state, setState] = useState<State | null>(null),
     [connected, setConnected] = useState(false),
     [status, setStatus] = useState("계정을 만들고 슬라임의 일상에 함께하세요."),
@@ -38,6 +42,8 @@ export function App() {
     [chat, setChat] = useState("");
   const [worldGeneration, setWorldGeneration] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
+  useEffect(() => { if (!settingsAvailable) setSettingsOpen(false); }, [settingsAvailable]);
   const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
@@ -232,12 +238,13 @@ export function App() {
         </section>
       </div>}
       <header>
+        <LanguageSelect />
         <a class="brand" href="/">
-          SLIME<span>새로운 시간</span>
+          SLIME<span>{t('common.brand')}</span>
         </a>
         <div class="connection">
           <i class={connected ? "online" : ""} />
-          {state ? (connected ? "연결됨" : "연결 확인 중") : "일상의 시작"}
+          {state ? (connected ? t('common.connected') : t('common.connecting')) : t('common.start')}
         </div>
         {state && !connected && (
           <button
@@ -252,8 +259,7 @@ export function App() {
               );
             }}
           >
-            다시 로그인
-          </button>
+            {t('common.relogin')}</button>
         )}
         {state && (
           <button
@@ -271,31 +277,30 @@ export function App() {
               })
             }
           >
-            로그아웃
-          </button>
+            {t('common.logout')}</button>
         )}
       </header>
       {!state ? (
         <main class="welcome">
           <section class="intro" aria-labelledby="welcome-title">
             <img class="login-illustration" src={loginIllustration}
-              alt="숲속 꽃밭의 감각기관 없는 반투명 청록색 슬라임" width="1536" height="1024" />
+              alt={t('auth.illustration')} width="1536" height="1024" />
             <div class="intro-copy">
-              <div class="eyebrow">나만의 속도로, 새로운 시간</div>
-              <h1 id="welcome-title">천천히 머물고,<br /><em>함께 일상을 쌓아요.</em></h1>
-              <p>느긋하게 거닐고, 서로의 하루를 나누세요.<br />이곳에서는 당신의 속도로 지내면 돼요.</p>
-              <a class="login-jump" href="#login-title" onClick={() => document.getElementById("login-title")?.focus()}>로그인으로 이동 <span aria-hidden="true">↓</span></a>
+              <div class="eyebrow">{t('auth.eyebrow')}</div>
+              <h1 id="welcome-title">{t('auth.headline')}<br /><em>{t('auth.emphasis')}</em></h1>
+              <p>{t('auth.intro')}<br />{t('auth.pace')}</p>
+              <a class="login-jump" href="#login-title" onClick={() => document.getElementById("login-title")?.focus()}>{t('auth.jump')}<span aria-hidden="true">↓</span></a>
             </div>
             <div class="intro-grid">
-              <span>◇ 느긋한 발걸음</span>
-              <span>◎ 함께하는 시간</span>
-              <span>◌ 나만의 일상</span>
+              <span>{t('auth.steps')}</span>
+              <span>{t('auth.together')}</span>
+              <span>{t('auth.daily')}</span>
             </div>
           </section>
           <section class="card auth" aria-labelledby="login-title">
-            <div class="eyebrow">일상의 시작</div>
-            <h2 id="login-title" tabIndex={-1}>어서 오세요.</h2>
-            <p class="auth-intro">오늘도 나만의 속도로 시작해요.</p>
+            <div class="eyebrow">{t('common.start')}</div>
+            <h2 id="login-title" tabIndex={-1}>{t('auth.welcome')}</h2>
+            <p class="auth-intro">{t('auth.subtitle')}</p>
             <form
               aria-busy={busy}
               onSubmit={(e) => {
@@ -306,9 +311,8 @@ export function App() {
               }}
             >
               <label>
-                아이디
-                <input
-                  aria-label="아이디"
+                {t('auth.username')}<input
+                  aria-label={t('auth.username')}
                   autoComplete="username"
                   enterKeyHint="next"
                   autoCapitalize="none"
@@ -320,9 +324,8 @@ export function App() {
                 />
               </label>
               <label>
-                비밀번호
-                <input
-                  aria-label="비밀번호"
+                {t('auth.password')}<input
+                  aria-label={t('auth.password')}
                   type="password"
                   autoComplete="current-password"
                   enterKeyHint="go"
@@ -336,9 +339,9 @@ export function App() {
                 disabled={busy || !user.trim() || !password}
                 type="submit"
               >
-                접속하기 <span>→</span>
+                {t('auth.login')}<span>→</span>
               </button>
-              <p class="signup-hint">처음 오셨나요? 위에 입력한 아이디와 비밀번호로 가입할 수 있어요.</p>
+              <p class="signup-hint">{t('auth.signupHint')}</p>
               <button
                 type="button"
                 class="secondary"
@@ -355,18 +358,14 @@ export function App() {
                   })
                 }
               >
-                새 계정 만들기
-              </button>
+                {t('auth.register')}</button>
             </form>
-            <div class="auth-status" role="status" aria-live="polite" aria-atomic="true">{busy ? "처리 중이에요. 잠시만 기다려 주세요." : status}</div>
+            <div class="auth-status" role="status" aria-live="polite" aria-atomic="true">{busy ? t('auth.busy') : status}</div>
             <details class="signup-rules">
-              <summary>가입 조건 확인하기</summary>
+              <summary>{t('auth.rules')}</summary>
               <small>
-              가입 아이디: 영문 소문자·숫자만 허용합니다.
-              <br />
-              비밀번호: 영문 대문자·소문자·숫자·특수문자를 각각 하나 이상
-              포함하세요. 공백 없이 ASCII 문자만 사용할 수 있습니다.
-              </small>
+              {t('auth.usernameRule')}<br />
+              {t('auth.passwordRule')}</small>
             </details>
           </section>
         </main>
@@ -376,13 +375,12 @@ export function App() {
         <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
             <div class="eyebrow">{state.me.name ? "CHARACTER SETTINGS" : "NEW EXPLORER"}</div>
-            <h1>{state.me.name ? "캐릭터 설정" : "새로운 모험가"}</h1>
+            <h1>{state.me.name ? t('common.settings') : t('common.explorer')}</h1>
             {!state.me.name ? (
               <>
                 <label>
-                  캐릭터 이름
-                  <input
-                    aria-label="캐릭터 이름"
+                  {t('common.characterName')}<input
+                    aria-label={t('common.characterName')}
                     maxLength={20}
                     value={name}
                     onInput={(e) => setName(e.currentTarget.value)}
@@ -425,6 +423,7 @@ export function App() {
                     : state.map.name}
                 </h2>
               </div>
+              {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
               <nav class="map-menu" aria-label="맵 메뉴">
                 <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
               </nav>
@@ -444,6 +443,7 @@ export function App() {
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
 </div>
             {!battle && <div class="field-command-dock">              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+                disabledReason={renderFailed ? "화면을 복구하려면 다시 접속하세요." : !connected ? "서버에 연결 중입니다. 연결 후 행동할 수 있어요." : loading ? "맵을 준비하고 있습니다." : "요청을 처리하고 있습니다."}
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
 </div>}
@@ -468,11 +468,11 @@ export function App() {
             </details>
             </>}
             <nav class="world-bottom-menu" aria-label="게임 메뉴">
-              <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>캐릭터 설정</button>
-              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? "조우 준비" : "주변 · 웨이포인트"}</button>}
-              {!battle && <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>업적 보기</button>}
-              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>파티{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
-              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{battle ? "전투 대화" : "채널 대화"}</button>
+              {settingsAvailable && <button class="secondary" aria-haspopup="dialog" disabled={loading} onClick={() => setSettingsOpen(true)}>{t('common.settings')}</button>}
+              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>}
+              {!battle && <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>}
+              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{battle ? t('common.battleChat') : t('common.channelChat')}</button>
             </nav>
             {state.me.requiresStartSpawn && <p class="result">정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>}
           </section>
@@ -487,7 +487,7 @@ export function App() {
                 {state.party ? (
                   <>
                     <p>
-                      파티 {state.party.members.length}/4 · 파티장{" "}
+                      {t('common.party')}{state.party.members.length}/4 · 파티장{" "}
                       {state.party.leader}
                     </p>
                     <button
@@ -562,7 +562,7 @@ export function App() {
                 ))}
               </section>
             )}
-            {drawer === "chat" && <ChatPanel title={battle ? "전투 대화" : "채널 대화"}
+            {drawer === "chat" && <ChatPanel title={battle ? t('common.battleChat') : t('common.channelChat')}
               awayNames={battle ? [] : state.members.filter(member => member.mode === "AWAY").map(member => member.name)}
               messages={state.messages} value={chat} disabled={disabled} onChange={setChat}
               onSubmit={() => void run(async () => {
@@ -579,7 +579,7 @@ export function App() {
           </WorldDrawer>}
         </main>
       )}
-      {state && inWorld && !loading && settingsOpen && <CharacterSettingsDialog
+      {state && inWorld && settingsAvailable && !loading && settingsOpen && <CharacterSettingsDialog
         me={state.me} disabled={disabled} command={command} onClose={() => setSettingsOpen(false)} />}
       <footer role="status">
         <span class={connected ? "status-light" : ""}>●</span>{" "}

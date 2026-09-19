@@ -1,3 +1,4 @@
+import { useTranslation } from '../i18n';
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { State } from "../client/types";
 import { unallocatedPoints } from "./departurePoints";
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function CharacterDeparture({ me, disabled, onEnter }: Props) {
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const enterButton = useRef<HTMLButtonElement>(null);
@@ -24,19 +26,19 @@ export function CharacterDeparture({ me, disabled, onEnter }: Props) {
   }
   return <>
     <div class="character-departure">
-      <p>모험을 시작할 준비가 되었나요?<small>{points ? `미배분 ${points}` : "마지막 맵의 시작점으로 이동합니다."}</small></p>
+      <p>{t('character.ready')}<small>{points ? t('character.remaining', { points }) : t('character.location')}</small></p>
       <button ref={enterButton} disabled={blocked} onClick={() => {
         if (points) setConfirming(true);
         else onEnter();
-      }}>{me.battleId ? "진행 중 전투 정산 대기" : "게임으로 가기 →"}</button>
+      }}>{me.battleId ? t('character.pending') : t('character.enter')}</button>
     </div>
     <dialog ref={dialog} class="departure-dialog" aria-labelledby="departure-title" aria-describedby="departure-description"
       onCancel={event => { event.preventDefault(); closeConfirmation(); }}>
-      <h2 id="departure-title">아직 배분하지 않은 포인트가 있어요</h2>
-      <p id="departure-description">{points ? `${points}가 남아 있습니다. ` : "포인트 배분이 완료되었습니다. "}게임으로 이동할까요?</p>
+      <h2 id="departure-title">{t('character.title')}</h2>
+      <p id="departure-description">{points ? t('character.confirm', { points }) : t('character.allocated')}</p>
       <div class="departure-dialog-actions">
-        <button class="secondary" autoFocus onClick={closeConfirmation}>설정으로 돌아가기</button>
-        <button disabled={blocked} onClick={() => { closeConfirmation(); onEnter(); }}>게임으로 이동</button>
+        <button class="secondary" autoFocus onClick={closeConfirmation}>{t('character.back')}</button>
+        <button disabled={blocked} onClick={() => { closeConfirmation(); onEnter(); }}>{t('character.proceed')}</button>
       </div>
     </dialog>
   </>;

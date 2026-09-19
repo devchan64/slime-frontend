@@ -1,0 +1,10 @@
+ready: Ready for your adventure?
+remaining: "Unspent: {points}"
+location: Enter at the starting point of your last map.
+pending: Waiting for battle results
+enter: Enter game →
+title: You have unspent points
+confirm: You have {points} remaining. Enter the game?
+allocated: All points allocated. Enter the game?
+back: Back to settings
+proceed: Enter game
