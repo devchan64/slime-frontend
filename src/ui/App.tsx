@@ -7,7 +7,7 @@ import { approachMonster } from "./encounterNavigation";
 import { ChatPanel } from "./ChatPanel";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useMinimumLoading } from "./useMinimumLoading";
-import { FieldPanel, FieldSelection, type Walking } from "./FieldPanel";
+import { FieldPanel, FieldSelection, FieldEventShortcuts, type Walking } from "./FieldPanel";
 import { fieldRoute, sameCell as same } from "./fieldNavigation";
 import { TerrainLegend } from "./TerrainLegend";
 import { CharacterPortrait } from "./CharacterPortrait";
@@ -111,6 +111,7 @@ export function App() {
     };
   }, []);
   const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
+  const menuPage = settingsAvailable && characterRoute === "#/menu";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
   const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
@@ -148,7 +149,7 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
-  const inWorld = !settingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const inWorld = !menuPage && !settingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -447,14 +448,27 @@ export function App() {
         </main>
       ) : state.me.mode === "AWAY" ? (
         <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
+      ) : menuPage ? (
+        <main class="lobby field-menu-page">
+          <section class="card">
+            <div class="field-card-heading"><h1>메뉴</h1><button class="secondary" onClick={() => navigateCharacterPage("#/world")}>맵으로 돌아가기</button></div>
+            <nav class="field-menu-actions" aria-label="게임 메뉴">
+              <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>
+              <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
+            </nav>
+          </section>
+        </main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">
           <section class="card">
             <h1>{t('common.settings')}</h1>
+            <nav class="character-settings-navigation" aria-label="캐릭터 설정 페이지 이동">
             <button class="secondary" disabled={busy} onClick={() => {
               setCharacterPage("select");
-              navigateCharacterPage(worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "#/world" : "#/characters");
-            }}>돌아가기</button>
+              navigateCharacterPage(worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "#/menu" : "#/characters");
+            }}>{worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "돌아가기" : "캐릭터 선택으로"}</button>
+            </nav>
             <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
           </section>
         </main>
@@ -511,12 +525,12 @@ export function App() {
                     : localizedMapName(state.map.name, state.map.nameTranslations, locale)}
                 </h2>
               </div>
-              {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
               <nav class="map-menu" aria-label="맵 메뉴">
                 <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
               </nav>
+              {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
             </div>
-            <div class={`map-stage${battle ? " card battle-map-card" : ""}`} role={battle ? "region" : undefined} aria-label={battle ? "전투 맵 카드" : undefined}>
+            <div class={`map-stage card ${battle ? "battle-map-card" : "field-map-card"}`} role="region" aria-label={battle ? "전투 맵 카드" : "필드 맵 카드"}>
               <nav class="map-camera-controls" aria-label="맵 화면 조정">              <button class="secondary compact" aria-label="맵 축소" onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
               <button class="secondary compact" aria-label="맵 확대" onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
               <button class="secondary compact" aria-label="맵 왼쪽으로 90도 회전" onClick={() => renderer.current?.scene.rotateMap(-1)}>↶</button>
@@ -530,16 +544,23 @@ export function App() {
 </nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label="맵 탐색 · 방향키로 위치 선택" />
 </div>
-            {!battle && <div class="field-command-dock">              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+            {!battle && <section class="card field-command-dock field-control-card" aria-label="필드 조작 카드">
+              <div class="field-card-heading"><h3>조작</h3><div class="field-control-actions">
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
+                <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
+                <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>메뉴</button>
+              </div></div>
+              <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
+              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
                 disabledReason={renderFailed ? "화면을 복구하려면 다시 접속하세요." : !connected ? "서버에 연결 중입니다. 연결 후 행동할 수 있어요." : loading ? "맵을 준비하고 있습니다." : "요청을 처리하고 있습니다."}
                 select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
-</div>}
+</section>}
             {battle && <BattlePanel battle={battle} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} remaining={remaining} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
-            <details class="map-help"><summary>지형과 조작 안내</summary><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
+            <section class="card field-help-card" aria-label="필드 도움말 카드"><h3>도움말</h3><TerrainLegend /><p>맵을 클릭하거나 맵에 초점을 맞춘 뒤 방향키로 선택하세요. 맵을 끌어 시점을 이동하고 휠이나 확대·축소 버튼을 사용하세요. ↶·↷ 버튼으로 90도씩 회전하여 높은 지형 뒤를 확인하세요.</p>
             <div class="map-caption">
               <span>
                 {battle
@@ -553,18 +574,13 @@ export function App() {
                 · 방향키 선택 / 휠 확대
               </span>
             </div>
-            </details>
+            </section>
             </>}
-            {!battle && <nav class="world-bottom-menu" aria-label="게임 메뉴">
-              {settingsAvailable && <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>}
-              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>}
-              {!battle && <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>}
-              {!battle && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? ` · 초대 ${state.invitations.length}` : ""}</button>}
-              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{battle ? t('common.battleChat') : t('common.channelChat')}</button>
-            </nav>}
             {state.me.requiresStartSpawn && <p class="result">정산을 기다린 뒤 시작점에서 입장할 수 있습니다.</p>}
           </section>
-          {drawer && <WorldDrawer title={drawer === "nearby" ? "주변 탐색과 웨이포인트" : drawer === "party" ? "함께 탐색하기" : "대화"} onClose={() => setDrawer(null)}>
+        </main>
+      )}
+          {state && drawer && (inWorld || menuPage) && <WorldDrawer title={drawer === "nearby" ? "주변 탐색과 웨이포인트" : drawer === "party" ? "함께 탐색하기" : "대화"} onClose={() => setDrawer(null)}>
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
               select={p => { selectField(p); setDrawer(null); }} command={command} />}
             {drawer === "party" && !battle && (
@@ -651,7 +667,6 @@ export function App() {
               </section>
             )}
             {drawer === "chat" && <ChatPanel title={battle ? t('common.battleChat') : t('common.channelChat')}
-              awayNames={battle ? [] : state.members.filter(member => member.mode === "AWAY").map(member => member.name)}
               messages={state.messages} value={chat} disabled={disabled} onChange={setChat}
               onSubmit={() => void run(async () => {
                 await client.command("/v1/game/messages", { text: chat });
@@ -665,8 +680,6 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
-        </main>
-      )}
       <footer role="status">
         <span class={connected ? "status-light" : ""}>●</span>{" "}
         {busy ? "명령 처리 중…" : status}

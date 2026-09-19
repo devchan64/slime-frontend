@@ -1,5 +1,6 @@
 import { toView, fromView, rotatedSurface, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import type { Surface } from "../terrain/elevation";
+import { terrainRenderSignature, overlayCells } from '../terrain/renderPlan';
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, meadowTile, TILE_W, TILE_H } from "../terrain/meadow";
@@ -236,9 +237,7 @@ export class MainScene extends Phaser.Scene {
     const meadow = !s.battle;
     const textured = meadow || !!s.battle?.field.cells;
     this.updateTerrain(s, textured);
-    const size = s.battle?.field.columns ?? s.map.columns,
-      rows = s.battle?.field.rows ?? s.map.rows,
-      blocked = s.battle?.blocked || s.map.blocked;
+    const blocked = s.battle?.blocked || s.map.blocked;
     this.reachable.clear();
     for (const move of this.battleMode === "MOVE" ? s.battle?.tactics.moves || [] : [])
       this.reachable.add(`${move.position.column},${move.position.row}`);
@@ -253,11 +252,12 @@ export class MainScene extends Phaser.Scene {
       const target = s.battle!.units.find(u => u.id === a.targetId)!;
       return `${target.position.column},${target.position.row}`;
     }));
-    for (let row = 0; row < rows; row++)
-      for (let column = 0; column < size; column++) {
+    const blockedKeys = new Set(blocked.map(p=>`${p.column},${p.row}`));
+    for (const {column,row} of overlayCells(s,textured,this.selected,
+      [this.reachable,previewPath,arrivalRange,attackCells])) {
         const point = this.project({ column, row });
         const g = this.add.graphics().setDepth(this.depth({column,row}) + TERRAIN_DEPTH.overlay);
-        const wall = blocked.some((p) => p.column === column && p.row === row);
+        const wall = blockedKeys.has(`${column},${row}`);
         const isSafe =
           !s.battle &&
           Math.abs(column - s.map.startPoint.column) +
@@ -285,7 +285,7 @@ export class MainScene extends Phaser.Scene {
           g.fillStyle(color, textured ? (meadow ? 0.16 : 0) : 1);
           g.fillPoints(this.points(polygon), true);
         }
-        if (!meadow) {
+        if (!meadow && !textured) {
           g.lineStyle(1, COLORS.edge, 0.5);
           g.strokePoints(this.points(polygon), true);
         }
@@ -412,7 +412,7 @@ export class MainScene extends Phaser.Scene {
       this.project({column:(definition.columns-1)/2,row:(definition.rows-1)/2}),
       (definition.columns+definition.rows)*TILE_W/2,(definition.columns+definition.rows)*TILE_H/2,theme);
     this.backdropLayer.setAlpha(.5);
-    const signature=JSON.stringify([definition,this.rotation]);
+    const signature=terrainRenderSignature(s,this.rotation);
     if(signature===this.terrainSignature && this.terrainObjects.size) return;
     for(const object of this.terrainObjects)object.destroy();
     this.terrainObjects.clear();
@@ -423,6 +423,11 @@ export class MainScene extends Phaser.Scene {
       : theme === "mist-lake" ? blockedCells : new Set<string>();
     for(let row=0;row<definition.rows;row++)for(let column=0;column<definition.columns;column++){
       const cell={column,row},p=this.project(cell),depth=this.depth(cell);
+      if(field){
+        const grid=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.overlay));
+        grid.lineStyle(1,COLORS.edge,.5);
+        grid.strokePoints(this.points([p.x,p.y-TILE_H/2,p.x+TILE_W/2,p.y,p.x,p.y+TILE_H/2,p.x-TILE_W/2,p.y]),true);
+      }
       const terrain=field ? cells.get(`${column},${row}`) : meadowTile(column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
       const kind=terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;

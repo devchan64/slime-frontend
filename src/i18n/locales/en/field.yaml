@@ -9,3 +9,11 @@ road: Dirt path
 legend: Passable terrain legend
 guidance: Use steps to change elevation · Cliffs, rocks, bushes and lakes block movement
 debt: Negative FP · Field actions are locked until recovery
+destinationHeading: 'Waypoint to {name}'
+travelTo: 'Travel to {name}'
+destinationArrival: You have reached the waypoint. You can travel to the next map.
+connectedMaps: 'Connected maps · {count}'
+currentPosition: Current location
+gridDistance: 'Grid distance: {count} tiles'
+noConnections: No connected maps.
+destinationRoute: '{count} tiles to the waypoint · Choose travel after arrival.'

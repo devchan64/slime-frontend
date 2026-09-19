@@ -9,3 +9,11 @@ road: 흙길
 legend: 통행 가능한 지형 범례
 guidance: 계단으로 높이 이동 · 절벽·바위·수풀·호수는 통행 불가
 debt: FP가 음수입니다 · 필드 행동은 충전 후 가능합니다
+destinationHeading: '{name} 연결 지점'
+travelTo: '{name} 이동'
+destinationArrival: 연결 지점에 도착했습니다. 다음 맵으로 이동할 수 있어요.
+connectedMaps: '다른 맵으로 가는 길 · {count}'
+currentPosition: 현재 위치
+gridDistance: '격자 거리 {count}칸'
+noConnections: 연결된 맵이 없습니다.
+destinationRoute: '연결 지점까지 {count}칸 · 도착 후 맵 이동을 선택하세요.'

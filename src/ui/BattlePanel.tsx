@@ -2,7 +2,7 @@ import { BattleUnitDetails } from "./BattleUnitDetails";
 import { BattleActionPoints } from "./BattleActionPoints";
 import { healthDisplay } from "../game/terrain/healthDisplay";
 import { TerrainLegend } from "./TerrainLegend";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { defaultBattleMode, singleAttackTarget, type BattleMode } from "./battleSelection";
 import { CharacterPortrait } from "./CharacterPortrait";
 import type { Battle, Position } from "../client/types";
@@ -17,6 +17,32 @@ const LABELS: Record<string, string> = {
   MOVE: "이동", ATTACK: "공격", GUARD: "방어", END_TURN: "턴 종료", WAIT: "시간 초과 대기", SURRENDER: "기권 동의",
 };
 const same = (a: Position, b: Position | null) => !!b && a.column === b.column && a.row === b.row;
+function BattleConfirmation({ title, summary, disabled, close, confirm }: {
+  title: string; summary: string; disabled: boolean; close: () => void; confirm: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const submitted = useRef(false);
+  useEffect(() => {
+    const previous = document.activeElement;
+    const element = dialog.current!;
+    element.showModal();
+    return () => { element.close(); if (previous instanceof HTMLElement && previous.isConnected) previous.focus(); };
+  }, []);
+  return <dialog ref={dialog} class="battle-confirm-dialog" aria-labelledby="battle-confirm-title" aria-describedby="battle-confirm-description"
+    onCancel={event => { event.preventDefault(); close(); }}>
+    <h2 id="battle-confirm-title">{title}</h2>
+    <p id="battle-confirm-description">{summary}</p>
+    <div class="battle-confirm-actions">
+      <button class="secondary" autoFocus onClick={close}>취소</button>
+      <button disabled={disabled} onClick={() => {
+        if (disabled || submitted.current) return;
+        submitted.current = true;
+        confirm();
+      }}>확정</button>
+    </div>
+  </dialog>;
+}
+
 export function BattlePanel({ battle, actor, selected, disabled, remaining, select, execute, onMode, monsterLoreLevel = 0 }: {
   battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean; remaining: number;
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
@@ -25,6 +51,8 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
   const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor, remaining));
   useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [surrender, setSurrender] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  useEffect(() => { setConfirming(false); }, [battle.id, battle.turnId, battle.version, battle.status, mode, selected?.column, selected?.row]);
   const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor && remaining > 0;
   useEffect(() => {
     const next = defaultBattleMode(battle, actor, remaining);
@@ -64,26 +92,11 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         <button class="danger" disabled={disabled} onClick={() => { execute("SURRENDER"); setSurrender(false); }}>기권 동의 확정</button>
         <button class="secondary" onClick={() => setSurrender(false)}>취소</button>
       </> : <>
-        <button class="battle-confirm" aria-label={mode === null ? "행동 선택 필요" : mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료 확정" : `${LABELS[mode]} 확정`} title={mode === "END_TURN" && !battle.acted ? "방어하며 턴 종료" : undefined} disabled={disabled || !valid} onClick={() => { if (mode) execute(mode, mode === "ATTACK" ? target?.id : undefined); }}>확정</button>
+        <button class="battle-confirm" aria-haspopup="dialog" disabled={disabled || !valid} onClick={() => setConfirming(true)}>행동 확인</button>
         <button class="secondary battle-surrender" disabled={disabled} onClick={() => setSurrender(true)}>기권</button>
       </>}
     </div>
     </div>
-    </div>
-  </section>
-  <section class="card battle-help-card" aria-label="전투 도움말 카드">
-    <h3>전투 도움말</h3>
-    <BattleUnitDetails unit={battle.units.find(u => same(u.position, selected))} monsterLoreLevel={monsterLoreLevel} />
-    {mode !== null && <>
-    {mode === "MOVE" && <div class="battle-range-legend" aria-label="이동 범위 범례">
-      <span><i class="range-key range-key-move" aria-hidden="true" />파란 칸 · 이동 가능</span>
-      <span><i class="range-key range-key-path" aria-hidden="true">1</i>번호선 · 선택 경로</span>
-      {move && <span><i class="range-key range-key-arrival" aria-hidden="true" />주황 안쪽선 · 도착 후 공격</span>}
-    </div>}
-    <div class="battle-command-content"><div class="command-preview" aria-live="polite">
-      {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "밝은 파란 테두리 안의 칸을 선택하세요."
-        : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage}` : "붉은 테두리의 사거리 내 적을 선택하세요."
-        : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
     </div>
     {mode === "ATTACK" && <section class="attack-targets" aria-label="공격 대상 선택">
       <h4>선택한 몹 · {selectedTargets.length} / 1</h4>
@@ -101,6 +114,21 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
         })}
       </div>
     </section>}
+  </section>
+  <section class="card battle-help-card" aria-label="전투 도움말 카드">
+    <h3>전투 도움말</h3>
+    <BattleUnitDetails unit={battle.units.find(u => same(u.position, selected))} monsterLoreLevel={monsterLoreLevel} />
+    {mode !== null && <>
+    {mode === "MOVE" && <div class="battle-range-legend" aria-label="이동 범위 범례">
+      <span><i class="range-key range-key-move" aria-hidden="true" />파란 칸 · 이동 가능</span>
+      <span><i class="range-key range-key-path" aria-hidden="true">1</i>번호선 · 선택 경로</span>
+      {move && <span><i class="range-key range-key-arrival" aria-hidden="true" />주황 안쪽선 · 도착 후 공격</span>}
+    </div>}
+    <div class="battle-command-content"><div class="command-preview" aria-live="polite">
+      {mode === "MOVE" ? move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column},${p.row})`).join(" → ")}` : "밝은 파란 테두리 안의 칸을 선택하세요."
+        : mode === "ATTACK" ? attack && target ? `${target.name} · 예상 피해 ${attack.damage}` : "붉은 테두리의 사거리 내 적을 선택하세요."
+        : battle.acted ? "행동을 이미 사용했습니다. 추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 자동 방어합니다. 다음 자기 턴까지 받는 기본 공격 피해가 절반으로 줄어듭니다."}
+    </div>
     {mode === "MOVE" && move && <div class="arrival-preview" aria-live="polite">
       <strong>도착 후 공격 안내</strong>
       {battle.acted ? <p>행동을 이미 사용했습니다. 이동하면 턴이 종료됩니다.</p> : <>
@@ -145,5 +173,12 @@ export function BattlePanel({ battle, actor, selected, disabled, remaining, sele
     </div>
     </div>
   </section>
+  {confirming && valid && mode && <BattleConfirmation
+    title={`${LABELS[mode]} 확인`}
+    summary={mode === "MOVE" && move ? `이동 ${move.cost}셀: ${move.path.map(p => `(${p.column}, ${p.row})`).join(" → ")}`
+      : mode === "ATTACK" && target && attack ? `${target.name} · 예상 피해 ${attack.damage}`
+      : battle.acted ? "추가 방어 없이 턴을 종료합니다." : "남은 이동을 포기하고 방어하며 턴을 종료합니다."}
+    disabled={disabled || !valid} close={() => setConfirming(false)}
+    confirm={() => { setConfirming(false); execute(mode, mode === "ATTACK" ? target?.id : undefined); }} />}
   </>;
 }

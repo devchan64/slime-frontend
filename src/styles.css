@@ -1021,7 +1021,8 @@ button, summary { touch-action: manipulation; }
 .tile-description[open] summary::before { content: '▾'; }
 .field-walking progress { height: 8px; margin: 10px 0; }
 .is-field button:focus-visible, .is-field summary:focus-visible { outline: 2px solid #b9f5de; outline-offset: 2px; }
-.is-field .map-camera-controls button:last-child:nth-child(odd) { grid-column: 1 / -1; width: auto; }
+:is(.is-field, .is-battle) .map-camera-controls { top: auto; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: center; flex-wrap: wrap; }
+:is(.is-field, .is-battle) .map-camera-controls button { flex: 0 0 auto; }
 @media (max-width: 1024px) {
   .field-command-dock .field-selection { height: 100%; padding: 8px 10px; }
   .field-command-dock { max-height: 40dvh; }
@@ -1162,7 +1163,7 @@ button, summary { touch-action: manipulation; }
 .battle-control-card button:focus-visible { outline: 2px solid #b9f5de; outline-offset: 2px; }
 
 /* 마우스 환경은 작은 조작 버튼, 터치 환경은 터치 높이를 사용한다. */
-.is-battle .map-camera-controls { grid-template-columns: repeat(2, var(--battle-button-height)); gap: var(--battle-button-gap); }
+.is-battle .map-camera-controls { gap: var(--battle-button-gap); }
 .is-battle .map-camera-controls button { width: var(--battle-button-height); height: var(--battle-button-height); min-width: var(--battle-button-height); min-height: var(--battle-button-height); border-radius: 6px; }
 .battle-help-card button { min-height: var(--battle-button-height); padding: 6px 10px; font-size: 13px; border-radius: 6px; }
 @media (any-pointer: coarse) {
@@ -1172,3 +1173,48 @@ button, summary { touch-action: manipulation; }
 .character-identity .character-resources { margin-top: 10px; padding-top: 10px; }
 .character-select-card h2 { margin: 0 0 6px; font-size: 20px; }
 .character-select-card p { margin: 6px 0; }
+
+.character-settings-navigation { display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.character-lobby .character-settings-navigation button { width: auto; margin: 0; }
+
+/* 필드의 세 카드는 화면 스크롤을 공유한다. */
+:root { --field-card-gap: 12px; --field-card-padding: 12px; --field-card-map-height: clamp(240px, 48dvh, 520px); }
+.world-shell .world-layout--immersive .world.is-field { display: flex; flex-direction: column; gap: var(--field-card-gap); overflow-y: auto; overflow-x: hidden; padding: 0 var(--field-card-padding) var(--field-card-padding); }
+.world-shell .world.is-field > .world-title { flex: 0 0 auto; }
+.world-shell .world.is-field > .field-map-card { position: relative; top: auto; flex: 0 0 var(--field-card-map-height); height: var(--field-card-map-height); min-height: var(--field-card-map-height); max-height: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; }
+.world-shell .world.is-field > .field-map-card .canvas-wrap { height: 100%; min-height: 0; }
+.world-shell .world.is-field > :is(.field-control-card, .field-help-card) { position: static; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; max-height: none; margin: 0; padding: var(--field-card-padding); border: 1px solid var(--border); border-radius: 12px; overflow: visible; }
+.world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 8px 0 0; border: 0; background: transparent; overflow: visible; }
+.world-shell .world.is-field .field-control-card :is(.field-selection-details, .field-quick-targets) { height: auto; max-height: none; overflow: visible; }
+.field-card-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.field-card-heading h1, .field-card-heading h3, .field-help-card h3 { margin: 0; }
+.field-control-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.field-help-card p { font-size: 12px; line-height: 1.6; }
+.field-help-card .map-caption { display: flex; flex-wrap: wrap; padding: 8px 0 0; }
+.field-menu-page { width: min(720px, 100%); margin: 24px auto; padding: 0 12px; }
+.field-menu-page .field-card-heading { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.field-menu-page .field-card-heading button { width: auto; margin: 0; }
+.field-menu-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 16px; }
+.field-menu-page .field-menu-actions button { margin: 0; min-height: 44px; }
+
+.world-shell .world.is-field > .world-title { flex-wrap: nowrap; }
+.world-shell .world.is-field > .world-title > div { min-width: 0; }
+.world-shell .world.is-field .world-title .map-menu { width: auto; margin-left: 0; }
+.world-shell .world.is-field .field-points { margin-left: auto; flex-shrink: 0; text-align: right; }
+
+.field-event-shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.field-event-shortcuts button { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; padding: 8px; text-align: left; overflow-wrap: anywhere; }
+.field-event-shortcuts strong { font-size: 13px; }
+.field-event-shortcuts small { font-size: 11px; color: var(--muted); }
+.field-event-shortcuts button[aria-pressed="true"] { border-color: var(--brand-primary); background: #24463e; }
+.field-event-shortcuts > p { grid-column: 1 / -1; }
+
+.battle-control-card .attack-targets { margin-top: 12px; height: auto; max-height: none; overflow: visible; }
+.battle-control-card .attack-targets h4 { margin: 0 0 8px; font-size: 13px; }
+.battle-control-card .attack-candidates { max-height: none; overflow: visible; flex-wrap: wrap; }
+.battle-confirm-dialog { width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: #102a2a; color: var(--text); }
+.battle-confirm-dialog::backdrop { background: #031414b3; }
+.battle-confirm-dialog h2 { margin: 0 0 12px; font-size: 18px; }
+.battle-confirm-dialog p { line-height: 1.6; overflow-wrap: anywhere; }
+.battle-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.battle-confirm-actions button { min-height: 44px; }
