@@ -34,3 +34,7 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 브라우저 검사는 임시 HTML·합성 Canvas 시트와 격리된 Chrome 프로필을 만들고 실제 Phaser/WebGL 프레임·기준점·개체 정리를 확인한다. SwiftShader를 사용하며 하드웨어 성능 검사가 아니다. 결과는 `.local/logs/cell-animation-browser.log`에 기록한다. 종료 시 생성한 임시 디렉터리를 제거한다.
 
 `tests/fixtures/cell-animation-v2.json`은 워크플로우 `68c687b`의 검증·검수·export 경로로 만든 합성 출력이다. 게임 에셋이나 실제 저작물의 공개 승인을 의미하지 않는다. 브라우저의 색상 시트는 어댑터 검사에만 사용하며 원본 PNG의 해시 검증을 통과했다고 간주하지 않는다. 해시 경계는 별도 단위 검사에서 확인한다.
+
+## 전투 논리 방향
+
+새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation)`으로 현재 화면 방향을 얻고 해당 클립을 선택한다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.

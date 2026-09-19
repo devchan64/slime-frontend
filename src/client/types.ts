@@ -1,3 +1,4 @@
+import type { WorldFacing } from "../game/animation/facing";
 import type { Surface } from "../game/terrain/elevation";
 import type { SkillDefinition } from "./skillText";
 export type Position = { column: number; row: number };
@@ -8,6 +9,7 @@ export type Unit = Appearance & {
   name: string;
   owner: string | null;
   position: Position;
+  facing?: WorldFacing;
   /** 적은 서버가 제한한 표시 스케일이며 실제 HP가 아니다. */
   hp: number;
   maxHp: number;
@@ -26,6 +28,7 @@ export type Battlefield = Surface & {
   blocked?: Position[]; allySpawns?: Position[]; enemySpawns?: Position[];
 };
 export type Battle = {
+  visualVersion?: 1;
   rulesVersion?: string;
   ready?: string[];
   participants: string[];
@@ -38,7 +41,7 @@ export type Battle = {
     attacks: { targetId: string; damage: number; apCost?: number }[];
   };
   log: { unitId: string; action: string; turnId: number; at: number;
-         damage?: number; targetId?: string; targetHp?: number; path?: Position[]; autoGuard?: boolean }[];
+         damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean }[];
   id: string;
   version: number;
   units: Unit[];
