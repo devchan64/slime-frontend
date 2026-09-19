@@ -6,6 +6,7 @@ export type TileWindow = {firstColumn:number;lastColumn:number;firstRow:number;l
 const OVERSCAN = CELL_WIDTH * 2;
 
 export function elevationRange(surface: Surface): {min:number;max:number} {
+  if (surface.heightSource) return elevationRange(surface.heightSource.surface);
   let min=0,max=0;
   for(const row of surface.elevations ?? [])for(const height of row){min=Math.min(min,height);max=Math.max(max,height);}
   return {min,max};

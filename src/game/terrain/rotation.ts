@@ -21,12 +21,10 @@ export function fromView(p: Position, map: Surface, rotation: MapRotation): Posi
 export function rotatedSurface(map: Surface, rotation: MapRotation): Surface {
   const columns = rotation % 2 ? map.rows : map.columns;
   const rows = rotation % 2 ? map.columns : map.rows;
-  const elevations = map.elevations ? Array.from({ length: rows }, (_, row) =>
-    Array.from({ length: columns }, (_, column) => {
-      const source = fromView({ column, row }, map, rotation);
-      return map.elevations![source.row][source.column];
-    })) : undefined;
-  return { columns, rows, elevations, elevationTiles: surfaceElevationTiles(map).map(tile=>({...tile,cell:toView(tile.cell,map,rotation),lower:toView(tile.lower,map,rotation)})), ramps: map.ramps?.map(ramp => ({ ...ramp,
+  // 회전마다 전체 고도 행렬을 복사하지 않고 필요한 셀을 원본 좌표로 조회한다.
+  const heightSource = map.elevations || map.heightSource
+    ? {surface: map, position: (p: Position) => fromView(p, map, rotation)} : undefined;
+  return { columns, rows, heightSource, elevationTiles: surfaceElevationTiles(map).map(tile=>({...tile,cell:toView(tile.cell,map,rotation),lower:toView(tile.lower,map,rotation)})), ramps: map.ramps?.map(ramp => ({ ...ramp,
     start: toView(ramp.start, map, rotation), end: toView(ramp.end, map, rotation),
   })) };
 }

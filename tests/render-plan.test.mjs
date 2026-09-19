@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({entryPoints:['src/game/terrain/renderPlan.ts'],bundle:true,write:false,platform:'node',format:'esm'});
-const {terrainRenderSignature,overlayCells,prepareTerrain}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {outputFiles}=await build({stdin:{contents:"export * from './src/game/terrain/renderPlan'; export {heightAt} from './src/game/terrain/elevation';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm'});
+const {terrainRenderSignature,overlayCells,prepareTerrain,heightAt}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 const field=()=>({map:{id:'meadow',name:'초원',columns:1000,rows:1000,startPoint:{column:2,row:2},safeRadius:3,blocked:[],connections:[{column:999,row:500,targetName:'숲'}]},battle:null});
 test('큰 필드도 안전구간과 선택 셀만 동적 표시한다',()=>{
  const state=field();const cells=overlayCells(state,true,{column:999,row:999},[]);
@@ -34,14 +34,15 @@ test('새 상태 객체의 턴·잔고·번역만 바뀌면 회전 고도 행렬
  const first=prepareTerrain(state,1,null);
  const updated=structuredClone(state);updated.me={fp:25};updated.map.name='Translated';
  assert.equal(prepareTerrain(updated,1,first),first);
- assert.equal(prepareTerrain(updated,1,first).surface.elevations,first.surface.elevations);
+ assert.equal(prepareTerrain(updated,1,first).source,first.source);
  const rotated=prepareTerrain(updated,2,first);
+ assert.equal(rotated.source,first.source);assert.equal(rotated.heights,first.heights);
  assert.notEqual(rotated,first);assert.equal(rotated.surface.columns,8);assert.equal(rotated.surface.rows,5);
  assert.equal(first.surface.columns,5);assert.equal(first.surface.rows,8);
  updated.map.elevations[0][0]=2;
  const raised=prepareTerrain(updated,1,first);
- assert.notEqual(raised,first);assert.equal(raised.surface.elevations[0][4],2);
- assert.equal(first.surface.elevations[0][4],0);
+ assert.notEqual(raised,first);assert.equal(heightAt({column:4,row:0},raised.surface),2);
+ assert.equal(heightAt({column:4,row:0},first.surface),0);
 });
 test('지형 연결·전장 전환은 이전 계획을 무효화한다',()=>{
  const state=field();let previous=prepareTerrain(state,0,null);

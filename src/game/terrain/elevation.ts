@@ -4,6 +4,7 @@ export type TerrainLink = { start: Position; end: Position; id?: string;
   kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
 export type Surface = { columns: number; rows: number; elevations?: number[][];
+  heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[] };
 export const ELEVATION_STEP = 24;
 export const CELL_WIDTH = 64, CELL_HEIGHT = 32;
@@ -12,7 +13,11 @@ export const TERRAIN_DEPTH = { stride: 100, base: 100, surface: 1, overlay: 10, 
 export const BASE_THICKNESS = 12;
 const same = (a: Position, b: Position) => a.column === b.column && a.row === b.row;
 export const inBounds = (p: Position, map: Surface) => Number.isInteger(p.column) && Number.isInteger(p.row) && p.column >= 0 && p.row >= 0 && p.column < map.columns && p.row < map.rows;
-export const heightAt = (p: Position, map: Surface) => map.elevations && inBounds(p,map) ? map.elevations[p.row][p.column] : 0;
+export const heightAt = (p: Position, map: Surface): number => {
+  if (!inBounds(p,map)) return 0;
+  if (map.heightSource) return heightAt(map.heightSource.position(p), map.heightSource.surface);
+  return map.elevations ? map.elevations[p.row][p.column] : 0;
+};
 export const cellDepth = (p: Position) => TERRAIN_DEPTH.base + (p.column + p.row) * TERRAIN_DEPTH.stride;
 /** 안내 표시는 가장 앞쪽 셀의 지형·개체보다 위에 둔다. */
 export const mapAnnotationDepth = (map: Surface) => Math.max(TERRAIN_DEPTH.annotation,
@@ -56,7 +61,7 @@ export function canStep(start: Position, end: Position, map: Surface) {
     (same(e.start,start) && same(e.end,end)) || (same(e.start,end) && same(e.end,start)));
 }
 export function cliffFaces(p: Position, map: Surface) {
-  if (!map.elevations) return [];
+  if (!map.elevations && !map.heightSource) return [];
   const center=project(p,map), h=heightAt(p,map);
   return [{ neighbor:{column:p.column+1,row:p.row}, edge:[[0,CELL_HEIGHT/2],[CELL_WIDTH/2,0]] },
     { neighbor:{column:p.column,row:p.row+1}, edge:[[-CELL_WIDTH/2,0],[0,CELL_HEIGHT/2]] }]

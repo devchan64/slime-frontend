@@ -30,12 +30,21 @@ export function overlayCells(state: State, textured: boolean, selected: Position
   return [...cells.values()];
 }
 
-export type TerrainPlan = {signature: string; surface: Surface; heights: {min:number;max:number}};
+export type TerrainPlan = {signature: string; rotation: MapRotation; source: Surface;
+  surface: Surface; heights: {min:number;max:number}};
 
 /** 이전 계획 하나만 보존해 상태 갱신마다 고도 행렬을 재할당하지 않는다. */
 export function prepareTerrain(state: State, rotation: MapRotation, previous: TerrainPlan | null): TerrainPlan {
-  const signature = terrainRenderSignature(state, rotation);
-  if (previous?.signature === signature) return previous;
-  const surface=rotatedSurface(state.battle?.field ?? state.map, rotation);
-  return {signature, surface, heights:elevationRange(surface)};
+  const signature = terrainRenderSignature(state, 0);
+  const unchanged = previous?.signature === signature;
+  if (unchanged && previous.rotation === rotation) return previous;
+  const map = state.battle?.field ?? state.map;
+  const source = unchanged ? previous.source : {
+    columns: map.columns, rows: map.rows,
+    elevations: map.elevations?.map(row => row.slice()),
+    ramps: structuredClone(map.ramps), elevationTiles: structuredClone(map.elevationTiles),
+  };
+  const surface=rotatedSurface(source, rotation);
+  return {signature, rotation, source, surface,
+    heights:unchanged ? previous.heights : elevationRange(source)};
 }
