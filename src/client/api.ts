@@ -1,3 +1,4 @@
+import { watchUserActivity } from "./userActivity";
 import { LocalizedError, type Notice } from './notice';
 import { getLocale } from "../i18n";
 import { ApiError, readApiResponse, readApiMessage } from "./response";
@@ -11,6 +12,7 @@ export class Client {
   tokens: Tokens | null = null;
   state: State | null = null;
   private socket: WebSocket | null = null;
+  private stopActivity: (() => void) | null = null;
   private stopped = true;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -34,7 +36,14 @@ export class Client {
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
     });
-    return readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
+    try {
+      return await readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "IDLE_DISCONNECTED") {
+        this.disconnect(); this.onStatus(false, error);
+      }
+      throw error;
+    }
   }
 
   async login(user_id: string, password: string) {
@@ -122,6 +131,10 @@ export class Client {
             this.accept(msg.state);
             this.attempts = 0;
             this.onStatus(true, {key: "network.connected"});
+            if (!this.stopActivity) this.stopActivity = watchUserActivity(document, () => {
+              if (this.socket?.readyState === WebSocket.OPEN)
+                this.socket.send(JSON.stringify({type: "activity"}));
+            });
             if (!this.heartbeatTimer)
               this.heartbeatTimer = setInterval(() => {
                 if (ws.readyState === WebSocket.OPEN)
@@ -131,7 +144,7 @@ export class Client {
             const message = readApiMessage(msg, getLocale());
             if (message === undefined) throw new Error("API 오류 안내가 누락되었습니다.");
             this.onStatus(false, new ApiError(msg.code ?? "REQUEST_FAILED", message, 0, msg.messages));
-            if (msg.code === "SESSION_EXPIRED") this.disconnect();
+            if (msg.code === "SESSION_EXPIRED" || msg.code === "IDLE_DISCONNECTED") this.disconnect();
           }
         } catch {
           this.onStatus(false, {key: "network.invalidMessage"});
@@ -147,7 +160,7 @@ export class Client {
       ws.onerror = () => ws.close();
     } catch (e) {
       this.onStatus(false, e as Error);
-      if (e instanceof ApiError && e.status === 401) this.disconnect();
+      if (e instanceof ApiError && (e.status === 401 || e.code === "IDLE_DISCONNECTED")) this.disconnect();
       else this.retry();
     }
   }
@@ -178,6 +191,10 @@ export class Client {
         if (this.chatSocket !== socket) return;
         try {
           const frame = JSON.parse(event.data);
+          if (frame.type === 'error' && frame.code === 'IDLE_DISCONNECTED') {
+            const error = new ApiError(frame.code, readApiMessage(frame, getLocale()) ?? frame.code, 409, frame.messages);
+            this.disconnect(); this.onStatus(false, error); reject(error); return;
+          }
           if (frame.type !== 'chat' || frame.generation !== state.generation || frame.epoch !== state.epoch
               || frame.room !== state.location.chatRoomId || !Array.isArray(frame.messages)) throw new Error('채팅 입장 검증에 실패했습니다.');
           this.onChat(frame.messages);
@@ -210,6 +227,7 @@ export class Client {
     this.heartbeatTimer = null;
   }
   disconnect() {
+    this.stopActivity?.(); this.stopActivity = null;
     this.disconnectChat();
     this.stopped = true;
     this.clearHeartbeat();
