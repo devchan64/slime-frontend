@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const bundle=await build({stdin:{contents:"export * from './src/game/terrain/elevation'; export * from './src/game/terrain/rotation'; export {elevationRange} from './src/game/terrain/viewport';",resolveDir:process.cwd()},bundle:true,write:false,format:'esm',platform:'node'});
-const {elevationRange,pickSurface,project,cliffFaces,elevationTileFaces,rotatedSurface,CELL_WIDTH,CELL_HEIGHT,MAP_ORIGIN}=await import(`data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString('base64')}`);
+const {elevationRange,mapAnnotationDepth,cellDepth,TERRAIN_DEPTH,pickSurface,project,cliffFaces,elevationTileFaces,rotatedSurface,CELL_WIDTH,CELL_HEIGHT,MAP_ORIGIN}=await import(`data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString('base64')}`);
 // 변경 전 전체 탐색을 독립 참조로 보존해 지면·절벽·계단 겹침의 선택 우선순위를 비교한다.
 function contains(x,y,polygon){
  let inside=false;
@@ -69,4 +69,19 @@ test('높은 절벽·낮은 지형의 수직 범위에서도 전체 탐색 결�
  for(let x=MAP_ORIGIN.x-210;x<=MAP_ORIGIN.x+280;x+=13)
   for(let y=MAP_ORIGIN.y-350;y<=MAP_ORIGIN.y+360;y+=17)
    assert.deepEqual(pickSurface(x,y,map,heights),reference(x,y,map));
+});
+
+
+test('안내 표시 깊이는 직사각형·회전·대형 맵의 모든 지형과 개체보다 높다',()=>{
+ for(const map of [{columns:5,rows:5},{columns:32,rows:32},{columns:150,rows:7},{columns:10000,rows:10000}]){
+  const depth=mapAnnotationDepth(map);
+  for(let rotation=0;rotation<4;rotation++){
+   const view=rotatedSurface(map,rotation);
+   assert.equal(mapAnnotationDepth(view),depth);
+   for(const cell of [{column:0,row:0},{column:view.columns-1,row:0},{column:0,row:view.rows-1},{column:view.columns-1,row:view.rows-1}]){
+    assert.ok(cellDepth(cell)+TERRAIN_DEPTH.actor+1<depth);
+   }
+  }
+ }
+ assert.equal(mapAnnotationDepth({columns:32,rows:32}),TERRAIN_DEPTH.annotation);
 });

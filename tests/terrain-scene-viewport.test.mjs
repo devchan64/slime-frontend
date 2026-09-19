@@ -49,11 +49,12 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
   };}});scene.children.list.push(proxy);return proxy;
  };
  scene.add={graphics:()=>make(),image:(x,y)=>make(x,y),text:(x,y)=>make(x,y)};
- scene.project=()=>({x:164,y:82});scene.depth=()=>30;
+ scene.project=()=>({x:164,y:82});scene.depth=()=>30030;
+ scene.viewSurface={columns:1000,rows:1000};
  scene.selected={column:3,row:2};
  const now=performance.now();
- scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:2,row:2},point:{x:100,y:50,depth:20}}],now);
- scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:3,row:2},point:{x:164,y:82,depth:30}}],now);
+ scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:2,row:2},point:{x:100,y:50,depth:30020}}],now);
+ scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:3,row:2},point:{x:164,y:82,depth:30030}}],now);
  scene.unit({column:3,row:2},0xff0000,'슬라임',false,undefined,false,undefined,undefined,'monster:s');
  assert.equal(scene.movingObjects.length,4);
  scene.animateFieldActors();
@@ -63,5 +64,8 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
   assert.ok(Math.abs(item.object.x-item.x-offset)<.001);
   assert.ok(Math.abs(item.object.y-item.y-offset/2)<.001);
  }
+ assert.ok(first.object.depth<first.depth);
+ for(const item of scene.movingObjects.filter(item=>item.depth>=scene.annotationDepth()))assert.equal(item.object.depth,item.depth);
+ assert.ok(scene.annotationDepth()>30030);
  assert.deepEqual(scene.selected,{column:3,row:2});
 });

@@ -15,7 +15,7 @@ import type { Appearance } from "../../client/types";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { drawCliffs, drawElevationTile } from "../terrain/terraces";
-import {project, pickSurface, cellDepth, TERRAIN_DEPTH} from "../terrain/elevation";
+import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -76,7 +76,7 @@ export class MainScene extends Phaser.Scene {
     for(const item of this.movingObjects){
       const offset=this.fieldMotion.offset(item.key,now);
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
-      item.object.setDepth(item.depth+(item.depth<TERRAIN_DEPTH.annotation ? offset.depth : 0));
+      item.object.setDepth(item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0));
     }
   }
   private selected: Position | null = null;
@@ -349,13 +349,13 @@ export class MainScene extends Phaser.Scene {
           g.strokePoints(this.points(polygon), true);
         }
         if (this.selected?.column === column && this.selected.row === row) {
-          g.setDepth(TERRAIN_DEPTH.annotation);
+          g.setDepth(this.annotationDepth());
           g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 2, COLORS.selected);
           g.strokePoints(this.points(polygon), true);
         }
       }
     if (selectedMove && s.battle) {
-      const g = this.add.graphics().setDepth(TERRAIN_DEPTH.annotation);
+      const g = this.add.graphics().setDepth(this.annotationDepth());
       const actor = s.battle.units.find(u => u.id === s.me.id)!;
       const points = [actor.position, ...selectedMove.path].map(p => this.project(p));
       g.lineStyle(PATH_WIDTH, PATH_COLOR, 1);
@@ -368,7 +368,7 @@ export class MainScene extends Phaser.Scene {
         g.fillCircle(point.x, point.y, PATH_NODE_RADIUS);
         this.add.text(point.x, point.y, String(index + 1), {
           fontFamily: "sans-serif", fontSize: "10px", fontStyle: "bold", color: "#10202a",
-        }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation);
+        }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
     if (s.battle) {
@@ -397,7 +397,7 @@ export class MainScene extends Phaser.Scene {
     } else {
       for (const gate of s.map.connections) {
         const p = this.project(gate);
-        this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(TERRAIN_DEPTH.annotation));
+        this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
       }
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.unit(
@@ -433,6 +433,7 @@ export class MainScene extends Phaser.Scene {
   private viewPosition = (p: Position) => toView(p, this.surface(), this.rotation);
   private project = (p: Position) => project(this.viewPosition(p), this.viewSurface!);
   private depth = (p: Position) => cellDepth(this.viewPosition(p));
+  private annotationDepth = () => mapAnnotationDepth(this.viewSurface!);
 
   private updateTerrain(s: State, visible: boolean) {
     for (const object of this.terrainObjects) (object as Phaser.GameObjects.Image).setVisible(visible);
@@ -522,7 +523,7 @@ export class MainScene extends Phaser.Scene {
       g.lineStyle(2, 0xffffff);
       g.strokeEllipse(p.x, p.y + 4, 30, 14);
     }
-    const annotation = this.add.graphics().setDepth(TERRAIN_DEPTH.annotation);
+    const annotation = this.add.graphics().setDepth(this.annotationDepth());
     const selected = this.selected?.column === pos.column && this.selected.row === pos.row;
     if (active || selected) {
       annotation.lineStyle(2, active ? COLORS.player : COLORS.selected, .9);
@@ -539,9 +540,9 @@ export class MainScene extends Phaser.Scene {
       this.add.text(p.x, p.y - height - TURN_BADGE_OFFSET, String(rank), {
         fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
-      }).setOrigin(CENTER).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
+      }).setOrigin(CENTER).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {
-      this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, appearance ? { ...TEXT, color: `#${color.toString(16).padStart(6, "0")}` } : TEXT).setOrigin(CENTER, 1).setDepth(TERRAIN_DEPTH.annotation + ACTOR_DEPTH.labelOffset);
+      this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, appearance ? { ...TEXT, color: `#${color.toString(16).padStart(6, "0")}` } : TEXT).setOrigin(CENTER, 1).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
     }
     if(motionKey)for(const child of this.children.list.slice(firstChild)){
       const object=child as Phaser.GameObjects.Image;

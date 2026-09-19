@@ -14,6 +14,9 @@ const same = (a: Position, b: Position) => a.column === b.column && a.row === b.
 export const inBounds = (p: Position, map: Surface) => Number.isInteger(p.column) && Number.isInteger(p.row) && p.column >= 0 && p.row >= 0 && p.column < map.columns && p.row < map.rows;
 export const heightAt = (p: Position, map: Surface) => map.elevations && inBounds(p,map) ? map.elevations[p.row][p.column] : 0;
 export const cellDepth = (p: Position) => TERRAIN_DEPTH.base + (p.column + p.row) * TERRAIN_DEPTH.stride;
+/** 안내 표시는 가장 앞쪽 셀의 지형·개체보다 위에 둔다. */
+export const mapAnnotationDepth = (map: Surface) => Math.max(TERRAIN_DEPTH.annotation,
+  cellDepth({column:map.columns-1,row:map.rows-1}) + TERRAIN_DEPTH.stride);
 export const project = (p: Position, map: Surface) => ({
   x: MAP_ORIGIN.x + (p.column-p.row) * CELL_WIDTH/2,
   y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - (heightAt(p,map) - (map.elevationTiles?.some(t=>same(t.cell,p)) ? 0.5 : 0))*ELEVATION_STEP,
