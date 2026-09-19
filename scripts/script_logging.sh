@@ -5,13 +5,14 @@ SCRIPT_LOG_AREA="$(basename "$0" .sh)"
 SCRIPT_LOG_DIR="${SCRIPT_LOG_ROOT}/.local/logs"
 mkdir -p "$SCRIPT_LOG_DIR"
 SCRIPT_LOG_FILE="${SCRIPT_LOG_DIR}/${SCRIPT_LOG_AREA}-$(date '+%Y%m%d-%H%M%S')-$$.log"
-exec > >(tee -a "$SCRIPT_LOG_FILE") 2>&1
+exec > >(trap "" INT; exec tee -a "$SCRIPT_LOG_FILE") 2>&1
+# Ctrl+C는 전경 개발 서버가 처리한다. 로그 파이프는 정리 완료까지 유지한다.
+trap ":" INT
 printf '%s/%s/start 로그: %s\n' "$(date -Iseconds)" "$SCRIPT_LOG_AREA" "$SCRIPT_LOG_FILE"
 (
   while sleep 5; do
     printf '%s/%s/heartbeat 진행 중, 로그 줄 수: %s, 로그 바이트: %s\n' \
       "$(date -Iseconds)" "$SCRIPT_LOG_AREA" "$(wc -l < "$SCRIPT_LOG_FILE")" "$(wc -c < "$SCRIPT_LOG_FILE")"
-    tail -n 2 "$SCRIPT_LOG_FILE"
   done
 ) &
 SCRIPT_LOG_HEARTBEAT_PID=$!

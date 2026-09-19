@@ -1,0 +1,11 @@
+name: slime-frontend
+services:
+  web:
+    build: .
+    ports: ["127.0.0.1:8080:8080"]
+    networks: [backend]
+    restart: unless-stopped
+networks:
+  backend:
+    external: true
+    name: ${SLIME_NETWORK:-slime_default}

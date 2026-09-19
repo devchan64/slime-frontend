@@ -1,38 +1,38 @@
-# slime-frontend
+# SLIME 프론트엔드
 
-Preact + TypeScript + Phaser(WebGL) 기반 SLIME 클라이언트다.
+Preact·TypeScript·Phaser WebGL 클라이언트다. 코드 MIT, 프로젝트 에셋 CC BY 4.0이며 자세한 고지는 `LICENSE`와 `ASSET_LICENSE.md`를 확인한다.
 
-## 현재 상태
-- 로그인·캐릭터 저장 API 연동과 준비 중 화면을 제공한다.
-- 게임 플레이는 준비 중 상태다.
-- 게임 설계는 [비공개 백엔드 문서](https://github.com/devchan64/slime-backend/tree/main/docs/design)에서 관리한다. 접근 권한이 필요하다.
-- 이 공개 저장소에는 설계 문서나 복제본을 작성하지 않는다.
-
-## 독립 실행
-Node.js 22와 npm을 사용한다. 이 저장소 루트에서 실행한다.
+## 개발 실행
 
 ```bash
-npm ci
-npm run dev
-npm run build
+# 최초 1회 및 package-lock.json 변경 때만
+bash scripts/local_frontend_setup.sh
+# 매일 실행: 배포 빌드 없이 Vite HMR
+bash scripts/local_frontend_run.sh
 ```
 
-- 프론트엔드: `http://127.0.0.1:8080`
-- 기본 API: `http://127.0.0.1:18080`
-- API 주소 변경: `VITE_API_BASE_URL=http://127.0.0.1:18080 npm run dev`
-- Vite 변수는 브라우저에 공개되므로 비밀값을 넣지 않는다.
-- 실행 스크립트: `scripts/local_frontend_setup.sh`, `scripts/local_frontend_run.sh`, `scripts/local_frontend_down.sh`
+http://localhost:8080 으로 접속한다. 소스 저장 시 Vite가 즉시 반영하며 `npm run build`나 Docker 이미지 빌드는 필요 없다. `npm run dev`로 직접 실행해도 같다. Ctrl+C로 종료한다. 포트가 사용 중이면 다른 포트로 자동 변경하지 않고 오류를 낸다. Docker 웹이 실행 중이면 `docker compose -f docker-compose.local.yml stop web`으로 먼저 종료한다. 기본 `/v1` HTTP·WebSocket 프록시는 http://127.0.0.1:18080 의 별도 백엔드를 사용한다. 다른 API를 쓸 때는 비밀이 아닌 빌드 설정 `VITE_API_BASE_URL`을 지정하고 서버에 해당 웹 origin을 등록한다.
 
-## 저장소 경계와 배포
-- [백엔드](https://github.com/devchan64/slime-backend)와 `/v1` HTTP API로 연결한다. 백엔드 소스가 로컬에 없어도 빌드할 수 있다.
-- [워크플로우](https://github.com/devchan64/slime-workflow)의 검수된 자산만 전달받는다. 제작 모델은 클라이언트 의존성이 아니다.
-- `dist/`를 S3 + CloudFront로 배포한다. 해시 자산은 immutable, 진입 파일은 짧은 TTL 또는 무효화를 사용한다.
-- 배포 시 이전 자산과 버전을 보존해 롤백할 수 있게 한다. 저장소 분리 자체로 AWS 리소스를 추가하지 않는다.
+## Docker
 
-## 라이선스와 사용자 수정
+백엔드의 로컬 서비스가 실행 중일 때 다음 명령으로 정적 빌드를 제공한다. Vite와 같은 8080 포트를 쓰므로 둘을 동시에 실행하지 않는다.
 
-- 프론트엔드 코드는 [MIT](LICENSE)로 수정·재배포할 수 있다.
-- 프로젝트 에셋은 [CC BY 4.0](ASSET_LICENSE.md)을 적용한다. 현재 새 에셋 팩은 준비 중이다.
-- 저장소를 fork하고 UI·입력·시각 자산을 수정하여 `npm ci`, `npm run dev`, `npm run build`로 실행·빌드할 수 있다.
-- API 주소는 `VITE_API_BASE_URL`로 설정한다. 수정한 클라이언트에도 서버의 인증·권한·명령 검증이 적용된다.
-- 새 게임 프로토콜과 에셋 팩은 미구현이며, 공개 라이선스 적용이 게임 기능 완료를 의미하지 않는다.
+```bash
+docker compose -f docker-compose.local.yml up -d --build
+```
+
+기본 외부 Docker 네트워크는 `slime_default`, API 서비스 이름은 `api`다. 네트워크 이름은 `SLIME_NETWORK`로 지정한다. 다른 저장소의 소스나 파일 경로를 사용하지 않는다. `nginx.conf`의 업스트림을 배포 환경에 맞게 지정할 수 있다. 운영 TLS는 배포 진입점에서 구성한다.
+
+## 사용과 검증
+
+- 아이디는 영문 소문자·숫자만, 비밀번호는 영문 대문자·소문자·숫자·ASCII 특수문자를 각각 하나 이상 포함하여 가입한다. 공백·비ASCII 문자는 허용하지 않는다. 기존 계정 로그인은 유지한다.
+- 캐릭터 이름만 입력하고 입장한다. 고정 역할·성별 선택은 없다.
+- 맵에서 셀을 선택하고 이동 버튼을 누른다. 방향키로 셀 선택, 휠로 확대·축소, 시점 복귀로 캐릭터를 찾을 수 있다.
+- 연결점 위에서 다른 맵으로 이동한다. 조우 가능한 몹 옆에서는 조우 버튼을 사용한다.
+- 전투는 선택 셀 이동·대상 공격·방어·턴 종료 버튼으로 조작한다.
+- 파티 생성·초대·수락·준비·취소·탈퇴와 채널/전투 채팅을 지원한다.
+- 통신이 끊기면 입력을 잠그고 재연결한다. 토큰은 메모리에만 보관하므로 페이지를 새로 고치면 다시 로그인한다.
+
+`npm run build`로 TypeScript 검사와 배포 빌드를 수행한다. 게임 그림은 코드로 그리는 기본 도형이며 교체 가능한 클라이언트 표현이다. PNG·외부 에셋 팩이나 비공개 설계 문서를 실행 의존성으로 요구하지 않는다.
+
+공개 API의 실제 스키마는 백엔드 `/openapi.json`에서 확인한다. 서버의 결과가 판정 원본이며 UI·그림 변경은 API 권한과 무관하다.
