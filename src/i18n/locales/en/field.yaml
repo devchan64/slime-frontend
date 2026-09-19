@@ -82,3 +82,4 @@ legacyslime: Slime
 legacybeast: Beast
 legacygiant: Giant
 monster: Monster
+aggroInterruption: A monster initiated combat and interrupted your field action. Completed movement is preserved; remaining movement and encounter requests will not resume.

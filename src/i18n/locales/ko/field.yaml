@@ -82,3 +82,4 @@ legacyslime: 슬라임
 legacybeast: 야수
 legacygiant: 거인
 monster: 몬스터
+aggroInterruption: 몬스터의 선공으로 필드 행동이 중단되어 전투에 진입했습니다. 이미 이동한 위치는 유지되며 남은 이동·조우 요청은 다시 실행하지 않습니다.

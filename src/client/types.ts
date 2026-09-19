@@ -89,6 +89,7 @@ export type State = {
     attributes: Record<"body" | "intellect" | "spirit", number>;
     requiresStartSpawn: boolean;
     battleId: string | null;
+    lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
     lastResult: { battleId?: string; result: string; xp: number; coins: number } | null;
   };

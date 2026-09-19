@@ -1,3 +1,4 @@
+import { FieldInterruptionNotice } from './FieldInterruptionNotice';
 import { noticeText, LocalizedError, type Notice } from '../client/notice';
 import { localizedMonsters } from '../client/monsterText';
 import { BattleReport } from "./BattleReport";
@@ -145,6 +146,12 @@ export function App() {
     client.onState = (s) => {
       serverOffset.current = s.serverTime * 1000 - Date.now();
       const previous = stateRef.current;
+      if (s.me.lastFieldInterruption?.battleId
+          && s.me.lastFieldInterruption.battleId !== previous?.me.lastFieldInterruption?.battleId) {
+        stopWalking.current = true;
+        setWalking(null);
+      }
+
       const result = s.me.lastResult;
       if (previous?.me.id === s.me.id && s.me.mode === "FIELD" && !s.me.battleId && result?.battleId
           && result.battleId !== previous.me.lastResult?.battleId) {
@@ -319,6 +326,7 @@ export function App() {
       {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label={t('app.loadingRegion')}>
         <section class="loading-card" aria-live="polite">
           <h2>{renderFailed ? t('app.loadingFailed') : t('app.loading')}</h2>
+          <FieldInterruptionNotice interruption={state?.me.lastFieldInterruption} battleId={battle?.id} />
           {preparationError && <p role="alert">{preparationError}</p>}
           {sponsorPending && state && <SponsorGate key={sponsorKey} client={client}
             generation={state.generation} epoch={state.epoch} room={state.location.chatRoomId}
@@ -377,6 +385,7 @@ export function App() {
             {t('common.logout')}</button>
         )}
       </header>
+      {!loading && <FieldInterruptionNotice interruption={state?.me.lastFieldInterruption} battleId={battle?.id} />}
       {!state ? (
         <main class="welcome">
           <section class="intro" aria-labelledby="welcome-title">
