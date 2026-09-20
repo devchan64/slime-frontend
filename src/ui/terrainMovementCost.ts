@@ -4,6 +4,7 @@ import {canStep} from '../game/terrain/elevation';
 const MOVEMENT_NEIGHBOR_OFFSETS = [[0,-1],[-1,0],[1,0],[0,1]] as const;
 const PROBABILITY_UNIT_SCALE = 10000;
 const FIELD_ROUTE_CACHE_LIMIT = 8;
+const CITY_FREE_MOVEMENT_COST = {baseCost:0,extraChanceBasisPoints:0,extraCost:0};
 const cachedFieldRouteResults = new Map<string, Position[] | null>();
 type MovementQueueEntry = {cost:number;steps:number;column:number;row:number};
 const compareMovementEntries = (firstQueueEntry:MovementQueueEntry, secondQueueEntry:MovementQueueEntry) =>
@@ -11,6 +12,7 @@ const compareMovementEntries = (firstQueueEntry:MovementQueueEntry, secondQueueE
 const movementCellKey = (cellPositionValue:Position) => `${cellPositionValue.column},${cellPositionValue.row}`;
 
 export function fieldMovementEstimate(fieldMapDefinition:State['map'], selectedRouteCells:Position[]) {
+  if(fieldMapDefinition.safeTown) return {base:0,expected:0,max:0};
   if(!fieldMapDefinition.movementCosts) return {base:selectedRouteCells.length,expected:selectedRouteCells.length,max:selectedRouteCells.length};
   let basicCostTotal=0,expectedCostTotal=0,maximumCostTotal=0;
   for(const targetCellPosition of selectedRouteCells){
@@ -27,13 +29,13 @@ function fieldTerrainCost(fieldMapDefinition:State['map'], targetCellPosition:Po
   const targetTerrainName=targetTerrainCode && fieldMapDefinition.terrainCodes?.[targetTerrainCode];
   const targetCostDefinition=fieldMapDefinition.movementCosts?.rows.find(terrainCostDefinition=>terrainCostDefinition.tileId===targetTerrainName)?.fp;
   if(!targetCostDefinition) throw new Error('필드 지형의 FP 비용 정의가 없습니다.');
-  return targetCostDefinition;
+  return fieldMapDefinition.safeTown ? CITY_FREE_MOVEMENT_COST : targetCostDefinition;
 }
 
 export function findExpectedFieldRoute(startCellPosition:Position,targetCellPositions:Position[],fieldMapDefinition:State['map']):Position[]|null {
   const routeCacheSignature=JSON.stringify([startCellPosition,targetCellPositions,fieldMapDefinition.columns,fieldMapDefinition.rows,
     fieldMapDefinition.blocked,fieldMapDefinition.elevations,fieldMapDefinition.ramps,fieldMapDefinition.elevationTiles,
-    fieldMapDefinition.terrainRows,fieldMapDefinition.terrainCodes,fieldMapDefinition.movementCosts]);
+    fieldMapDefinition.terrainRows,fieldMapDefinition.terrainCodes,fieldMapDefinition.movementCosts,fieldMapDefinition.safeTown]);
   if(cachedFieldRouteResults.has(routeCacheSignature))return structuredClone(cachedFieldRouteResults.get(routeCacheSignature)!);
   const calculatedFieldRoute=computeExpectedFieldRoute(startCellPosition,targetCellPositions,fieldMapDefinition);
   if(cachedFieldRouteResults.size>=FIELD_ROUTE_CACHE_LIMIT)cachedFieldRouteResults.delete(cachedFieldRouteResults.keys().next().value!);

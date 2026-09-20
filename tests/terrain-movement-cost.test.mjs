@@ -47,3 +47,15 @@ test('결계탑 밑 도로는 그리되 이동 경로는 탑을 우회한다',()
  assert.ok(selectedRouteCells.every(currentCellPosition=>currentCellPosition.column!==4||currentCellPosition.row!==4));
  assert.deepEqual(fieldRoute(towerCenterPosition,{column:4,row:5},currentFieldDefinition),[{column:4,row:5}]);
 });
+
+test('도시는 FP 비용 없이 최단 경로를 사용하고 필드 경로 캐시와 분리한다',()=>{
+ const currentFieldMap=createWeightedTestMap();
+ const currentStartPosition=currentFieldMap.startPoint,currentEndPosition={column:5,row:1};
+ assert.equal(fieldRoute(currentStartPosition,currentEndPosition,currentFieldMap).length,7);
+ const currentCityMap={...currentFieldMap,safeTown:true};
+ const currentCityRoute=fieldRoute(currentStartPosition,currentEndPosition,currentCityMap);
+ assert.equal(currentCityRoute.length,5);
+ assert.deepEqual(fieldMovementEstimate(currentCityMap,currentCityRoute),{base:0,expected:0,max:0});
+ assert.equal(fieldRoute(currentStartPosition,currentEndPosition,currentFieldMap).length,7);
+ assert.equal(fieldRoute(currentStartPosition,{column:2,row:2},currentCityMap),null);
+});

@@ -1,4 +1,4 @@
-points: 필드 활동포인트
+points: 필드포인트
 connecting: 연결 중
 maximum: 최대 1,000 · 분당 +1
 next: 다음 +1 · {seconds}초
@@ -88,7 +88,7 @@ approachTargetLost: 선택한 몬스터와 더 이상 조우할 수 없습니다
 approachTooLong: 몬스터 접근 거리가 길어 이동을 멈췄습니다. 다시 선택해 주세요.
 aggroInterruption: 몬스터의 선공으로 필드 행동이 중단되어 전투에 진입했습니다. 이미 이동한 위치는 유지되며 남은 이동·조우 요청은 다시 실행하지 않습니다.
 
-resources: 체력과 필드 활동포인트
+resources: 체력과 필드포인트
 healthUnknown: 미확인
 
 shortcutDistance: "{count}칸"

@@ -57,7 +57,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   state = {...state, map: localizedFieldMap(state.map, locale)};
   const debt = state.me.fp !== undefined && state.me.fp < 0;
   const healthMovementLocked = state.me.healthRecoveryPending === true;
-  const canStep = !healthMovementLocked && (state.me.fp === undefined || state.me.fp >= 1);
+  const canStep = !healthMovementLocked && (state.map.safeTown || state.me.fp === undefined || state.me.fp >= 1);
   disabled = disabled || debt;
   if (debt) disabledReason = t('field.debtHelp');
   if (walking) return <section class="field-selection field-walking" aria-label={t('field.walkingProgress')}>
@@ -107,7 +107,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
             : !blocked && !here && !path ? <small class="is-warning">{t('field.noApproach')}</small> : null}
         </div>
         <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
-        {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={()=>walk()}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
+        {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={()=>walk()}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path && !state.map.safeTown ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
         {gate && here && <button disabled={disabled || !field || healthMovementLocked} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
       </div>}
       {!canStep && !healthMovementLocked && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
