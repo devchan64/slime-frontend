@@ -2,7 +2,7 @@
   costume: default-v1
   hair: default-v1
   face: default-v1
-  asset: default-character
+  asset: default-punch
 - kind: monster
   group: slime
   asset: slime
