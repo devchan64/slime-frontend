@@ -80,6 +80,7 @@ export type State = {
     fpMax?: number;
     fieldRest?: { active: boolean; startedAt: number | null; recoveryPerMinute: number; nextRecoveryAt: number | null };
     hp?: number;
+    healthRecoveryPending?: boolean;
     maxHp?: number;
     fpNextChargeAt?: number | null;
     cp: number;

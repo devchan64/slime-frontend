@@ -318,6 +318,7 @@ export function App() {
       for (let i = 0; i < steps.length; i++) {
         const current = client.state;
         if (stopWalking.current || !canContinueFieldAction(context, current)) break;
+        if (current.me.healthRecoveryPending) throw new LocalizedError("field.recoveryPending");
         if (current.me.fp !== undefined && current.me.fp < 1) throw new LocalizedError("app.movementFpError");
         await client.command("/v1/game/moves", { position: steps[i] });
         setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });

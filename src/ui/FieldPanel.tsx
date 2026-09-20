@@ -55,7 +55,8 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const { t, locale } = useTranslation();
   state = {...state, map: localizedFieldMap(state.map, locale)};
   const debt = state.me.fp !== undefined && state.me.fp < 0;
-  const canStep = state.me.fp === undefined || state.me.fp >= 1;
+  const healthMovementLocked = state.me.healthRecoveryPending === true;
+  const canStep = !healthMovementLocked && (state.me.fp === undefined || state.me.fp >= 1);
   disabled = disabled || debt;
   if (debt) disabledReason = t('field.debtHelp');
   if (walking) return <section class="field-selection field-walking" aria-label={t('field.walkingProgress')}>
@@ -95,9 +96,10 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         </div>
         <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
         {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
-        {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
+        {gate && here && <button disabled={disabled || !field || healthMovementLocked} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
       </div>}
-      {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
+      {!canStep && !healthMovementLocked && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
+      {healthMovementLocked && <p class="field-unavailable" role="status">{t("field.recoveryPending")}</p>}
       {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
     </div>

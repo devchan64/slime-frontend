@@ -90,3 +90,13 @@ test('HP 0이면 접근 이동과 인접 조우를 모두 중단하고 HP 1에�
  await approachMonster('slime', encounterActionControls);
  assert.deepEqual(recordedFieldEvents, [['reserve','slime']]);
 });
+
+test('전투불능 회복 대기는 접근 이동만 막고 HP 양수의 인접 조우는 유지한다',async()=>{
+ const {state,events,controls}=setup();
+ state.me.hp=1;state.me.healthRecoveryPending=true;
+ await assert.rejects(approachMonster('slime',controls),{name:'LocalizedError',key:'field.recoveryPending'});
+ assert.deepEqual(events,[]);
+ state.me.position={column:3,row:1};
+ await approachMonster('slime',controls);
+ assert.deepEqual(events,[['reserve','slime']]);
+});

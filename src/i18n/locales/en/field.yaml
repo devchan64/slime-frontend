@@ -107,3 +107,5 @@ restHint: Moving, acting, or being attacked ends rest and discards partial minut
 restCompactProgress: HP +{amount} · {seconds}s
 terrainFpCompact: "Est. {expected} FP · max {max}"
 terrainFpHelp: "Movement stops if terrain costs reduce FP to zero or below."
+
+recoveryPending: After incapacitation, recover at least 50% of maximum HP before moving. Rest or log out to recover.

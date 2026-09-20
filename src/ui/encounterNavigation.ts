@@ -24,6 +24,7 @@ export async function approachMonster(monsterId: string, controls: {
       await controls.reserve(monsterId);
       return;
     }
+    if (latest.me.healthRecoveryPending) throw new LocalizedError('field.recoveryPending');
     const route = encounterRoute(latest.me.position, monster.position, latest.map);
     if (!route?.length) throw new LocalizedError('field.noApproach');
     if (latest.me.fp !== undefined && latest.me.fp < 1) throw new LocalizedError('field.insufficientFp');

@@ -107,3 +107,5 @@ restHint: 이동·행동·선공 시 휴식이 끝나며 남은 초는 버립니
 restCompactProgress: HP +{amount} · {seconds}초
 terrainFpCompact: "예상 {expected} FP · 최대 {max}"
 terrainFpHelp: "이동 중 지형 추가 소모로 FP가 0 이하가 되면 멈춥니다."
+
+recoveryPending: 전투불능 후 최대 HP의 50% 이상을 회복해야 이동할 수 있습니다. 휴식하거나 로그아웃 후 회복하세요.
