@@ -1,0 +1,13 @@
+title: 보유 시민권
+unavailable: 서버에서 시민권 정보를 제공하지 않습니다.
+empty: 발급된 시민권이 없습니다.
+valid: 유효
+expired: 만료
+pending: 효력 시작 전
+initial: 기본 발급
+purchase: 유료 발급
+starts: 유효 시작
+expires: 만료
+checked: 마지막 서버 동기화 기준
+help: 의뢰와 시설 이용에는 해당 도시의 유효한 시민권이 필요합니다.
+validCount: '유효 {count}개'

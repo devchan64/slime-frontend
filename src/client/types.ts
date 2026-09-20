@@ -69,6 +69,7 @@ export type State = {
   epoch: number;
   cursor: number;
   me: {
+    citizenshipSummary?: import("./citizenshipSummary").CitizenshipSummary;
     id: string;
     name: string | null;
     version: number;

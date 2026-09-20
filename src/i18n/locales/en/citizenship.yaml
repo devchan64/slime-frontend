@@ -1,0 +1,13 @@
+title: Citizenship
+unavailable: Citizenship information is unavailable from this server.
+empty: No citizenship has been issued.
+valid: Valid
+expired: Expired
+pending: Not yet effective
+initial: Initial grant
+purchase: Purchased
+starts: Valid from
+expires: Expires
+checked: Based on the latest server update
+help: Quests and facilities require valid citizenship in that town.
+validCount: '{count} valid'

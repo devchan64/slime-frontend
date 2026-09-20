@@ -1,3 +1,4 @@
+import {CharacterCitizenships} from "./CharacterCitizenships";
 import { useTranslation } from "../i18n";
 import { localizedSkill } from "../client/skillText";
 import { growthCost } from "./growthCost";
@@ -50,6 +51,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
       <dl class="character-resources">
         <div><dt>{t("character.coins")}</dt><dd>{me.coins}</dd></div>
       </dl>
+      <CharacterCitizenships currentCitizenshipSummary={me.citizenshipSummary} />
     </section>
     <section class="character-growth" aria-label={t("character.growth")}>
       {category !== 'equipment' && <><div class="growth-heading"><div><span class="character-kicker">{t("character.direction")}</span><h3>{t("character.growth")}</h3></div>

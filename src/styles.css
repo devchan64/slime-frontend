@@ -1452,3 +1452,13 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .npc-quest-list small { display: block; margin-top: .25rem; }
 .npc-quest-list p { margin: .45rem 0; }
 .npc-quest-list button { max-width: 100%; white-space: normal; }
+
+.character-citizenships { margin-top: 1rem; text-align: left; overflow-wrap: anywhere; }
+.character-citizenships ul { list-style: none; padding: 0; display: grid; gap: .6rem; }
+.character-citizenships li { border: 1px solid #48605a; border-radius: .5rem; padding: .6rem; }
+.character-citizenships small { display: block; }
+.character-citizenships dl { font-size: .85rem; margin: .5rem 0; }
+.character-citizenships dd { margin: 0 0 .4rem; }
+.citizenship-status { display: inline-block; margin-left: .5rem; font-size: .8rem; }
+.citizenship-status.is-valid { color: #77dec0; }
+.citizenship-status.is-expired { color: #ffb59c; }
