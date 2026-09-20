@@ -28,3 +28,31 @@ test('한 스냅샷의 연속 이동은 앞 경로 뒤에 이어 붙인다',()=>
  assert.deepEqual(m.offset('hero',190),{x:0,y:-10,depth:-1});
  assert.deepEqual(m.offset('hero',370),{x:0,y:0,depth:0});
 });
+
+test('서버 구간 방향은 위치 보간과 같은 경계에서 전환하고 완료 후 해제한다',()=>{
+ const battleMotionTracker=new BattleMotion();
+ battleMotionTracker.sync('a',state(start),point,0);
+ const directedMoveRecord={...move,pathFacings:['column_positive','row_positive']};
+ battleMotionTracker.sync('a',state(end,[directedMoveRecord]),point,10);
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',189),'column_positive');
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',190),'row_positive');
+ battleMotionTracker.sync('a',state(end,[directedMoveRecord]),point,200);
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',369),'row_positive');
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',370),undefined);
+});
+test('연속 경로의 방향을 이어 붙이고 구버전 무방향 로그는 방향을 추측하지 않는다',()=>{
+ const battleMotionTracker=new BattleMotion();
+ battleMotionTracker.sync('a',state(start),point,0);
+ battleMotionTracker.sync('a',state(end,[{...move,path:[corner],pathFacings:['column_positive']},{...move,path:[end],pathFacings:['row_positive']}]),point,10);
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',10),'column_positive');
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',190),'row_positive');
+ battleMotionTracker.sync('b',state(start),point,0);
+ battleMotionTracker.sync('b',state(end,[move]),point,10);
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',10),undefined);
+});
+test('경로와 맞지 않는 방향 정보는 명시적으로 거절한다',()=>{
+ for(const invalidPathFacings of [[],['column_positive'],['invalid','row_positive']]){
+  const battleMotionTracker=new BattleMotion();battleMotionTracker.sync('a',state(start),point,0);
+  assert.throws(()=>battleMotionTracker.sync('a',state(end,[{...move,pathFacings:invalidPathFacings}]),point,10),/방향/);
+ }
+});

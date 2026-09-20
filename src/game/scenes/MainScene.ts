@@ -17,7 +17,7 @@ import { drawSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
-import { drawActor, preloadActors, HUMAN_HEIGHT } from "../terrain/actors";
+import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
@@ -93,6 +93,11 @@ export class MainScene extends Phaser.Scene {
     const now=performance.now();
     for(const item of this.movingObjects){
       const offset=item.key.startsWith("battle:") ? this.battleMotion.offset(item.key.slice(7),now) : this.fieldMotion.offset(item.key,now);
+      const characterRestingFacing = item.object.getData("characterRestingFacing");
+      if (characterRestingFacing && item.key.startsWith("battle:")) {
+        const currentMovementFacing = this.battleMotion.currentWorldFacing(item.key.slice(7), now);
+        updateCharacterFacing(item.object, currentMovementFacing ? screenFacing(currentMovementFacing, this.rotation) : characterRestingFacing);
+      }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
       item.object.setDepth(item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0));
     }

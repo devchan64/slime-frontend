@@ -22,6 +22,16 @@ const CHARACTER_DIRECTION_SPRITES = {
 } as const;
 const SPRITE_DEPTH_OFFSET = 0.01;
 
+export function updateCharacterFacing(characterRenderImage: Phaser.GameObjects.Image, characterScreenFacing: Direction) {
+  const selectedCharacterSprite = CHARACTER_DIRECTION_SPRITES[characterScreenFacing];
+  if (!selectedCharacterSprite) throw new Error("등록되지 않은 캐릭터 이미지 방향입니다.");
+  if (characterRenderImage.texture.key === selectedCharacterSprite.key) return;
+  if (!characterRenderImage.scene.textures.exists(selectedCharacterSprite.key)) throw new Error("캐릭터 방향 이미지가 로드되지 않았습니다.");
+  characterRenderImage.setTexture(selectedCharacterSprite.key)
+    .setOrigin(HALF, selectedCharacterSprite.bottom / characterRenderImage.height)
+    .setScale(HUMAN_HEIGHT / (selectedCharacterSprite.bottom - selectedCharacterSprite.top));
+}
+
 export function preloadActors(scene: Phaser.Scene) {
   for (const { key, url } of [...Object.values(ACTOR_SPRITES), ...Object.values(CHARACTER_DIRECTION_SPRITES)]) scene.load.image(key, url);
 }
@@ -57,5 +67,6 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   image.setOrigin(HALF, sprite.bottom / image.height)
     .setScale(height / (sprite.bottom - sprite.top))
     .setDepth(g.depth + SPRITE_DEPTH_OFFSET);
+  if (kind === "human") image.setData("characterRestingFacing", actorScreenDirection);
   return height;
 }

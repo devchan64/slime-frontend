@@ -1,7 +1,8 @@
+import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
 const STEP_MILLISECONDS = 180;
 type Point = {x:number;y:number;depth:number};
-type Track = {points:Point[];started:number};
+type Track = {points:Point[];started:number;segmentWorldFacings:(WorldFacing|undefined)[]};
 /** 새로 수신한 확정 이동 로그만 재생하며 초기 접속의 과거 기록은 재생하지 않는다. */
 export class BattleMotion {
   private space='';
@@ -16,17 +17,30 @@ export class BattleMotion {
     }
     for(const event of battle.log.slice(this.logCount)){
       if(event.action!=='MOVE' || !event.path?.length)continue;
+      if (event.pathFacings !== undefined) {
+        if (event.pathFacings.length !== event.path.length) throw new Error('이동 경로와 구간별 방향 개수가 다릅니다.');
+        for (const segmentWorldFacing of event.pathFacings) screenFacing(segmentWorldFacing, 0);
+      }
       const old=this.positions.get(event.unitId);
       if(!old)continue;
       const track=this.tracks.get(event.unitId);
       const points=track ? [this.sample(track,now),...track.points.slice(Math.min(track.points.length,Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS)+1))] : [project(old)];
+      const remainingSegmentIndex = track ? Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS) : 0;
+      const segmentWorldFacings = track ? track.segmentWorldFacings.slice(remainingSegmentIndex) : [];
+      segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
       points.push(...event.path.map(project));
-      this.tracks.set(event.unitId,{points,started:now});
+      this.tracks.set(event.unitId,{points,started:now,segmentWorldFacings});
       this.positions.set(event.unitId,event.path[event.path.length-1]);
     }
     this.logCount=battle.log.length;
     for(const unit of battle.units)this.positions.set(unit.id,{...unit.position});
     for(const id of this.tracks.keys())if(!battle.units.some(u=>u.id===id && u.hp>0))this.tracks.delete(id);
+  }
+  currentWorldFacing(battleUnitIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
+    const currentMotionTrack=this.tracks.get(battleUnitIdentifier);
+    if(!currentMotionTrack)return undefined;
+    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/STEP_MILLISECONDS);
+    return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
   offset(id:string,now:number):Point{
     const track=this.tracks.get(id);
