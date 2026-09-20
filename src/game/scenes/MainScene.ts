@@ -23,6 +23,7 @@ import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
+const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -617,15 +618,11 @@ export class MainScene extends Phaser.Scene {
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
     }
-    if (active) {
-      g.lineStyle(2, 0xffffff);
-      g.strokeEllipse(p.x, p.y + 4, 30, 14);
-    }
     const annotation = this.add.graphics().setDepth(this.annotationDepth());
     const selected = this.selected?.column === pos.column && this.selected.row === pos.row;
     if (active || selected) {
-      annotation.lineStyle(2, active ? COLORS.player : COLORS.selected, .9);
-      annotation.strokeEllipse(p.x, p.y, TILE_W * .55, TILE_H * .55);
+      g.lineStyle(ACTOR_GROUND_SELECTION.lineWidth, active ? COLORS.player : COLORS.selected, ACTOR_GROUND_SELECTION.alpha);
+      g.strokeEllipse(p.x, p.y, TILE_W * ACTOR_GROUND_SELECTION.widthRatio, TILE_H * ACTOR_GROUND_SELECTION.heightRatio);
     }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
