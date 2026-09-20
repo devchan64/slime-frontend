@@ -25,6 +25,17 @@ test('직접 회복 소모품만 양수 회복량과 소비 수량을 제공한�
     assert.throws(()=>parseBagInventory(currentBagResponse),/소모품/);
   }
 });
+test('표식 사용에는 종류와 양수 유지 시간이 필요하다',()=>{
+  const currentBagResponse=createBagResponse();
+  currentBagResponse.bag.items[0].kind='consumable';
+  currentBagResponse.bag.items[0].useAction={type:'PLACE_MARKER',markerKind:'ROUTE',validSeconds:120,consumedOnSuccess:1};
+  assert.equal(parseBagInventory(currentBagResponse).bag.items[0].useAction.validSeconds,120);
+  for(const currentMarkerChange of [{markerKind:'RISK'},{validSeconds:0},{validSeconds:true}]) {
+    const currentInvalidResponse=structuredClone(currentBagResponse);
+    Object.assign(currentInvalidResponse.bag.items[0].useAction,currentMarkerChange);
+    assert.throws(()=>parseBagInventory(currentInvalidResponse),/소모품/);
+  }
+});
 test('페이지에 없는 장비도 서버 전체 합계로 계산하고 미정 무게를 보존한다',()=>{
   const currentBagResponse = createBagResponse();
   assert.equal(parseBagInventory(currentBagResponse).bag.knownWeightG,1600);

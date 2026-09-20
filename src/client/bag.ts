@@ -25,8 +25,10 @@ export function parseBagInventory(currentResponseValue: unknown): BagInventoryPa
     }
     currentMaterialIdentifiers.add(currentMaterialEntry.id);
     if (currentMaterialEntry.useAction !== undefined && (currentMaterialEntry.kind !== 'consumable'
-        || !currentMaterialEntry.useAction || currentMaterialEntry.useAction.type !== 'RESTORE_HP'
-        || !Number.isSafeInteger(currentMaterialEntry.useAction.restorationHp) || currentMaterialEntry.useAction.restorationHp < 1
+        || !currentMaterialEntry.useAction || !['RESTORE_HP','PLACE_MARKER'].includes(currentMaterialEntry.useAction.type)
+        || (currentMaterialEntry.useAction.type === 'RESTORE_HP' && (!Number.isSafeInteger(currentMaterialEntry.useAction.restorationHp) || currentMaterialEntry.useAction.restorationHp < 1))
+        || (currentMaterialEntry.useAction.type === 'PLACE_MARKER' && (!['ROUTE','LIGHT'].includes(currentMaterialEntry.useAction.markerKind)
+          || !Number.isSafeInteger(currentMaterialEntry.useAction.validSeconds) || currentMaterialEntry.useAction.validSeconds < 1))
         || !Number.isSafeInteger(currentMaterialEntry.useAction.consumedOnSuccess) || currentMaterialEntry.useAction.consumedOnSuccess < 1)) {
       throw new Error('소모품 사용 응답이 올바르지 않습니다.');
     }

@@ -2,6 +2,8 @@ import type { WorldFacing } from "../game/animation/facing";
 import type { ActionCutinEvent } from '../ui/actionCutins';
 import type { Surface } from "../game/terrain/elevation";
 import type { SkillDefinition } from "./skillText";
+export type ConsumableUseAction = {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number} | {type: "PLACE_MARKER"; markerKind: "ROUTE" | "LIGHT"; validSeconds: number; consumedOnSuccess: number};
+export type PersonalFieldMarker = {id: string; mapId: string; kind: "ROUTE" | "LIGHT"; position: Position; createdAt: number; expiresAt: number};
 export type Position = { column: number; row: number };
 export type SizeClass = "small" | "medium" | "large" | "huge";
 export type Appearance = { nameTranslations?: Record<"ko" | "en", string>; monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
@@ -77,7 +79,8 @@ export type State = {
     xp: number;
     coins: number;
     skillUseLocks?: Record<string, {reason: "book_sold"; bookId: string; sourceId: string}>;
-    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null; useAction?: {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number}}>};
+    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null; useAction?: ConsumableUseAction}>};
+    personalMarkers?: PersonalFieldMarker[];
     firstAid?: {version: number; minimumUseLevel: number; literacyRequired: number; restorationHp: number; consumableId: string; consumedOnSuccess: number};
     fp?: number;
     fpMax?: number;
@@ -101,7 +104,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number}}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number}}> } | null;
+    lastResult: { rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}> } | null;
   };
   map: Surface & {
     id: string;

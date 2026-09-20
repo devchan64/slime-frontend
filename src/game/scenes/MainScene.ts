@@ -13,6 +13,7 @@ import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt, TILE_W, TILE_H } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
+import { drawPersonalMarker } from '../terrain/personalMarkers';
 import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
@@ -70,6 +71,8 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
 export class MainScene extends Phaser.Scene {
+  private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
+  private receivedStateTimestamp = 0;
   private state: State | null = null;
   private useDefaultTileScale = false;
   private fieldMotion = new FieldMotion();
@@ -279,12 +282,19 @@ export class MainScene extends Phaser.Scene {
   }
   setState(s: State) {
     this.state = s;
+    this.receivedStateTimestamp = performance.now();
     this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
     this.viewSurface = this.terrainPlan.surface;
     this.syncFieldMotion();
     if (this.sys.isActive()) this.draw();
   }
   update() {
+    const currentEstimatedServerTime = (this.state?.serverTime ?? 0) + (performance.now()-this.receivedStateTimestamp)/1000;
+    this.personalMarkerGraphics = this.personalMarkerGraphics.filter(currentMarkerGraphic => {
+      if (currentEstimatedServerTime < currentMarkerGraphic.expiresAt) return true;
+      currentMarkerGraphic.graphic.destroy();
+      return false;
+    });
     const safeBarrierOpacity = this.reducedMotionPreference.matches ? 1 : SAFE_BARRIER_PULSE.minimumOpacity
       + SAFE_BARRIER_PULSE.opacityRange * (1 + Math.sin(this.time.now * Math.PI * 2 / SAFE_BARRIER_PULSE.cycleMilliseconds)) / 2;
     for (const safeBarrierGraphic of this.safeBarrierGraphics) safeBarrierGraphic.setAlpha(safeBarrierOpacity);
@@ -343,6 +353,7 @@ export class MainScene extends Phaser.Scene {
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.waypointMarkers = [];
+    this.personalMarkerGraphics = [];
     this.safeBarrierGraphics = [];
     const meadow = !s.battle;
     const textured = meadow || !!s.battle?.field.cells;
@@ -475,6 +486,13 @@ export class MainScene extends Phaser.Scene {
             unit, `battle:${unit.id}`, unit.facing,
           );
     } else {
+      const currentEstimatedServerTime = s.serverTime + (performance.now()-this.receivedStateTimestamp)/1000;
+      for (const currentMarkerRecord of s.me.personalMarkers ?? []) {
+        if (currentMarkerRecord.mapId !== s.map.id || currentMarkerRecord.expiresAt <= currentEstimatedServerTime) continue;
+        const currentMarkerGraphic = drawPersonalMarker(this,currentMarkerRecord,this.project(currentMarkerRecord.position))
+          .setDepth(this.depth(currentMarkerRecord.position)+TERRAIN_DEPTH.overlay);
+        this.personalMarkerGraphics.push({graphic:currentMarkerGraphic,expiresAt:currentMarkerRecord.expiresAt});
+      }
       for (const gate of s.map.connections) {
         const p = this.project(gate);
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));

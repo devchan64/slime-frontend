@@ -136,3 +136,5 @@ node scripts/text-client.mjs --help
 응급처치 보유자는 선택 필드 `me.firstAid`로 서버 실행 조건을 받는다. 필드 버튼은 `POST /v1/game/skills/first-aid`에 일반 명령 ID·캐릭터 버전만 전달한다. 가방 `items.kind`에는 `consumable`이 추가되며 붕대 수량과 미정 무게를 합계에 포함한다. 소모품 이해가 가능한 프론트를 먼저 배포하고 서버 기능을 활성화한다. 최종 행동 가능 여부·붕대 차감·HP 회복·재시도는 서버가 검증한다.
 
 가방 소모품의 선택 필드 `useAction: {type: "RESTORE_HP", restorationHp, consumedOnSuccess}`는 직접 회복 사용 버튼을 제공한다. `/v1/game/consumables/use`에 일반 명령 ID·캐릭터 버전·`itemId`를 보내며 회복량은 보내지 않는다. 성공 상태의 캐릭터 버전 변경으로 가방을 새로 조회한다. 상태 오류와 재시도는 기존 명령 처리 계약을 따른다. `useAction` 없는 붕대·재료에 직접 사용 버튼을 만들지 않는다.
+
+개인 표식은 `useAction: {type: "PLACE_MARKER", markerKind: "ROUTE" | "LIGHT", validSeconds, consumedOnSuccess}`로 같은 소모품 사용 명령을 호출한다. 서버가 현재 타일에 설치하므로 목적 좌표를 보내지 않는다. 선택 필드 `me.personalMarkers`는 본인·현재 맵의 유효 표식이며 서버 시각 기준 만료 시 제거한다. 과거 응답의 표식도 현재 시각으로 필터링되며 해당 응답의 `serverTime`은 공개 검사 시각이다. 표시만으로 몬스터·자원 정보를 추정하지 않는다.

@@ -64,10 +64,12 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           {currentMaterialEntry.valueP !== null && <small>{translateBagText('battle.materialValue',{value:currentMaterialEntry.valueP})}</small>}
           {currentMaterialEntry.useAction && submitConsumableUse && <button class="secondary compact"
             disabled={actionsAreDisabled || currentRequestPending || me.mode !== 'FIELD' || !!me.battleId || (me.fp ?? 0) < 0
-              || me.hp === undefined || me.maxHp === undefined || me.hp >= me.maxHp
+              || (currentMaterialEntry.useAction.type === 'RESTORE_HP' && (me.hp === undefined || me.maxHp === undefined || me.hp >= me.maxHp))
               || currentMaterialEntry.quantity < currentMaterialEntry.useAction.consumedOnSuccess}
             onClick={() => submitConsumableUse(currentMaterialEntry.id)}>
-            {translateBagText('app.useHealingItem',{amount:currentMaterialEntry.useAction.restorationHp,count:currentMaterialEntry.useAction.consumedOnSuccess})}
+            {currentMaterialEntry.useAction.type === 'RESTORE_HP'
+              ? translateBagText('app.useHealingItem',{amount:currentMaterialEntry.useAction.restorationHp,count:currentMaterialEntry.useAction.consumedOnSuccess})
+              : translateBagText('app.useMarkerItem',{seconds:currentMaterialEntry.useAction.validSeconds,count:currentMaterialEntry.useAction.consumedOnSuccess})}
           </button>}
         </li>)}
       </ul></>}
