@@ -12,3 +12,12 @@
 - kind: monster
   group: giant
   asset: giant
+- kind: monster
+  group: field-rabbit
+  asset: field-rabbit
+- kind: monster
+  group: lantern-moth
+  asset: lantern-moth
+- kind: monster
+  group: reed-crawler
+  asset: reed-crawler

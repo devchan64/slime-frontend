@@ -1395,7 +1395,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
   overflow: hidden;
   animation: action-cutin-enter 140ms ease-out;
 }
-.action-cutin img {
+.action-cutin img, .action-cutin > svg {
   width: 70%;
   height: 70%;
   min-height: 0;

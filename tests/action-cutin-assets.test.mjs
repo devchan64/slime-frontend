@@ -13,7 +13,7 @@ const { outputFiles: actionCutinAssetOutputs } = await build({
     pluginBuildContext.onLoad({ filter: /.*/, namespace: 'action-cutin-yaml' }, async importSourceRecord => ({ contents: await readFile(importSourceRecord.path, 'utf8'), loader: 'text' }));
   } }],
 });
-const { resolveActionCutinAsset, parseActionCutinCatalog } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinAssetOutputs[0].text).toString('base64')}`);
+const { resolveActionCutinAsset, parseActionCutinCatalog, resolveActionCutinFrame } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinAssetOutputs[0].text).toString('base64')}`);
 const defaultCharacterGroups = { kind: 'character', groups: { costume: 'default-v1', hair: 'default-v1', face: 'default-v1' } };
 test('코스튬·헤어·얼굴의 등록된 전체 조합만 연결한다', () => {
   assert.match(resolveActionCutinAsset(defaultCharacterGroups), /characters\/default\/cutins\/default-punch-v1\.png$/);
@@ -31,4 +31,15 @@ test('잘못된 YAML·중복 그룹·알 수 없는 필드·없는 이미지 참
     '- kind: monster\n  group: slime\n  asset: missing\n',
     '- kind: monster\n  group: slime\n  asset: slime\n- kind: monster\n  group: slime\n  asset: slime\n',
   ]) assert.throws(() => parseActionCutinCatalog(invalidCatalogSource), /액션 컷인/);
+});
+
+test('이슬초원 신규 종은 등록 시트의 첫 프레임만 컷인으로 사용한다', () => {
+  for (const currentMonsterGroup of ['field-rabbit','lantern-moth','reed-crawler']) {
+    const currentMonsterAppearance = {kind:'monster',group:currentMonsterGroup};
+    assert.ok(resolveActionCutinAsset(currentMonsterAppearance).endsWith(`${currentMonsterGroup}-idle-v1.png`));
+    const currentCutinFrame = resolveActionCutinFrame(currentMonsterAppearance);
+    assert.deepEqual(currentCutinFrame.rect,{x:0,y:0,width:313,height:313});
+    assert.ok(currentCutinFrame.sheet.width > currentCutinFrame.rect.width);
+  }
+  assert.equal(resolveActionCutinFrame(defaultCharacterGroups),null);
 });

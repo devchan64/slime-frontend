@@ -15,7 +15,7 @@ const actionCutinBuildResult = await build({
         ? 'export const useState=value=>[value,()=>{}]; export const useRef=value=>({current:value}); export const useEffect=callback=>globalThis.actionCutinTestRuntime.effects.push(callback);'
         : importedModuleRecord.path === '../i18n'
           ? 'export const useTranslation=()=>({t:key=>key});'
-          : 'export const resolveActionCutinAsset=()=>"/test.png";',
+          : 'export const resolveActionCutinAsset=()=>"/test.png"; export const resolveActionCutinFrame=()=>null;',
       loader: 'js',
     }));
   } }],

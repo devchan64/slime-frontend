@@ -1,3 +1,6 @@
+import crawlerCutinMetadata from '../assets/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
+import mothCutinMetadata from '../assets/monsters/standing-v1/lantern-moth-idle-v1.animation.json';
+import rabbitCutinMetadata from '../assets/monsters/standing-v1/field-rabbit-idle-v1.animation.json';
 import type { ActionCutinEvent } from './actionCutins';
 import { parseDocument } from 'yaml';
 import actionCutinCatalogSource from '../assets/cutins.yaml?raw';
@@ -5,6 +8,9 @@ import actionCutinCatalogSource from '../assets/cutins.yaml?raw';
 // 기본 이미지는 코스튬·헤어·얼굴 세 그룹을 합성한 정식 기본 조합이다.
 // 새 조합은 전용 합성 산출물을 등록해야 하며 다른 외형으로 대체하지 않는다.
 const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
+  'field-rabbit': new URL('../assets/monsters/standing-v1/field-rabbit-idle-v1.png', import.meta.url).href,
+  'lantern-moth': new URL('../assets/monsters/standing-v1/lantern-moth-idle-v1.png', import.meta.url).href,
+  'reed-crawler': new URL('../assets/monsters/standing-v1/reed-crawler-idle-v1.png', import.meta.url).href,
   'default-punch': new URL('../assets/characters/default/cutins/default-punch-v1.png', import.meta.url).href,
   slime: new URL('../assets/monsters/slime-v2.png', import.meta.url).href,
   beast: new URL('../assets/monsters/beast-v2.png', import.meta.url).href,
@@ -40,4 +46,16 @@ export function resolveActionCutinAsset(actionCutinAppearanceRecord: ActionCutin
   const selectedAssetUrl = VALIDATED_ACTION_CUTIN_CATALOG.get(appearanceLookupKey);
   if (typeof selectedAssetUrl !== 'string') throw new Error('등록되지 않은 액션 컷인 에셋 그룹 조합입니다.');
   return selectedAssetUrl;
+}
+
+
+const REGISTERED_CUTIN_SHEETS: Record<string, typeof rabbitCutinMetadata> = {
+  'field-rabbit': rabbitCutinMetadata, 'lantern-moth': mothCutinMetadata, 'reed-crawler': crawlerCutinMetadata,
+};
+export function resolveActionCutinFrame(actionCutinAppearance: ActionCutinEvent['appearance']) {
+  if (actionCutinAppearance.kind !== 'monster' || !Object.hasOwn(REGISTERED_CUTIN_SHEETS, actionCutinAppearance.group)) return null;
+  const currentSheetMetadata = REGISTERED_CUTIN_SHEETS[actionCutinAppearance.group];
+  const selectedSheetFrame = currentSheetMetadata.frames.find(currentSheetFrame => currentSheetFrame.frameId === 'down_left.0');
+  if (!selectedSheetFrame) throw new Error('몬스터 컷인의 정면 프레임이 없습니다.');
+  return {rect: selectedSheetFrame.rect, sheet: currentSheetMetadata.sheet};
 }

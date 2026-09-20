@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useTranslation } from '../i18n';
 import { findActionCutinPresentation, type ActionCutinEvent } from './actionCutins';
-import { resolveActionCutinAsset } from './actionCutinAssets';
+import { resolveActionCutinAsset, resolveActionCutinFrame } from './actionCutinAssets';
 const ACTION_CUTIN_SECOND_MILLISECONDS = 1000;
 
 export function ActionCutinOverlay({ actionCutinEventRecord, actionCutinDurationSeconds, finishActionCutinDisplay }: {
@@ -18,9 +18,12 @@ export function ActionCutinOverlay({ actionCutinEventRecord, actionCutinDuration
       actionCutinDurationSeconds * ACTION_CUTIN_SECOND_MILLISECONDS);
     return () => window.clearTimeout(actionCutinDisplayTimer);
   }, [actionCutinDurationSeconds]);
+  const currentCutinFrame = resolveActionCutinFrame(actionCutinEventRecord.appearance);
+  const currentCutinUrl = resolveActionCutinAsset(actionCutinEventRecord.appearance);
   return <aside class="action-cutin" role="status" aria-label={translateActionCutinText('cutins.presentation')}>
-    <img src={resolveActionCutinAsset(actionCutinEventRecord.appearance)} alt=""
-      onError={() => setActionCutinImageFailed(true)} />
+    {currentCutinFrame ? <svg aria-hidden="true" viewBox={`${currentCutinFrame.rect.x} ${currentCutinFrame.rect.y} ${currentCutinFrame.rect.width} ${currentCutinFrame.rect.height}`}>
+      <image href={currentCutinUrl} width={currentCutinFrame.sheet.width} height={currentCutinFrame.sheet.height} onError={() => setActionCutinImageFailed(true)} />
+    </svg> : <img src={currentCutinUrl} alt="" onError={() => setActionCutinImageFailed(true)} />}
     <div><strong>{actionCutinEventRecord.actorName}</strong>
       <p>{translateActionCutinText(actionCutinActionPresentation.translationMessageKey)}</p>
       {actionCutinImageFailed && <p role="alert">{translateActionCutinText('cutins.imageFailed')}</p>}
