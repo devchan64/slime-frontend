@@ -32,6 +32,8 @@ export class Client {
   private resumeRequest: Promise<void> | null = null;
   private attempts = 0;
   private chatSocket: WebSocket | null = null;
+  private chatConnectionRequest: Promise<void> | null = null;
+  private chatConnectionRevision = 0;
   private chatHeartbeat: ReturnType<typeof setInterval> | null = null;
   onChat: (messages: State['messages']) => void = () => {};
   onChatStatus: (ready: boolean) => void = () => {};
@@ -297,12 +299,24 @@ export class Client {
         Math.random() * 300,
     );
   }
-  async connectChat() {
+  connectChat(): Promise<void> {
+    if (this.chatConnectionRequest) return this.chatConnectionRequest;
+    if (this.chatSocket?.readyState === WebSocket.OPEN && this.chatHeartbeat !== null) return Promise.resolve();
+    const pendingChatConnection = this.openChatConnection();
+    this.chatConnectionRequest = pendingChatConnection;
+    const clearPendingConnection = () => {
+      if (this.chatConnectionRequest === pendingChatConnection) this.chatConnectionRequest = null;
+    };
+    void pendingChatConnection.then(clearPendingConnection, clearPendingConnection);
+    return pendingChatConnection;
+  }
+  private async openChatConnection() {
     this.disconnectChat();
+    const currentChatRevision = this.chatConnectionRevision;
     const state = this.state;
     if (!state || this.stopped) throw new Error('세션이 없습니다.');
     const { ticket } = await this.request('/v1/chat/tickets', {});
-    if (this.stopped || this.state?.generation !== state.generation || this.state?.epoch !== state.epoch
+    if (this.stopped || currentChatRevision !== this.chatConnectionRevision || this.state?.generation !== state.generation || this.state?.epoch !== state.epoch
         || this.state?.location.id !== state.location.id) throw new Error('광고 확인 중 맵이 변경되었습니다.');
     const url = new URL(`${API_BASE}/v1/chat/realtime`, location.href);
     url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -341,6 +355,8 @@ export class Client {
     });
   }
   private disconnectChat() {
+    this.chatConnectionRevision += 1;
+    this.chatConnectionRequest = null;
     if (this.chatHeartbeat) clearInterval(this.chatHeartbeat);
     this.chatHeartbeat = null;
     const socket = this.chatSocket; this.chatSocket = null;

@@ -415,3 +415,42 @@ test('HTTP 시간 초과 후 명령은 동일 본문으로 한 번만 재확인�
   }
  } finally {for(const [key,value] of Object.entries(originals))globalThis[key]=value;}
 });
+
+test('겹친 채팅 연결 요청과 승인 후 재요청은 소켓 하나를 공유한다', async()=>{
+ const originalSocketClass=globalThis.WebSocket, originalLocationValue=globalThis.location;
+ const createdSocketEntries=[];let finishTicketRequest, issuedTicketCount=0;
+ class ChatSocketDouble {static OPEN=1;readyState=1;closed=false;constructor(){createdSocketEntries.push(this);}send(){}close(){this.closed=true;this.onclose?.();}}
+ const activeGameClient=new Client();
+ try {
+  globalThis.WebSocket=ChatSocketDouble;globalThis.location={href:'http://localhost/'};
+  activeGameClient.stopped=false;activeGameClient.state={generation:1,epoch:2,location:{id:'map:meadow',chatRoomId:'map:meadow'}};
+  activeGameClient.request=()=>{issuedTicketCount++;return new Promise(resolveTicketRequest=>finishTicketRequest=resolveTicketRequest);};
+  const firstConnectionRequest=activeGameClient.connectChat();
+  const secondConnectionRequest=activeGameClient.connectChat();
+  assert.equal(firstConnectionRequest,secondConnectionRequest);
+  assert.equal(issuedTicketCount,1);
+  finishTicketRequest({ticket:'test-ticket'});await Promise.resolve();
+  assert.equal(createdSocketEntries.length,1);
+  createdSocketEntries[0].onmessage({data:JSON.stringify({type:'chat',generation:1,epoch:2,room:'map:meadow',messages:[]})});
+  await firstConnectionRequest;
+  await activeGameClient.connectChat();
+  assert.equal(createdSocketEntries.length,1);assert.equal(issuedTicketCount,1);assert.equal(createdSocketEntries[0].closed,false);
+ } finally {activeGameClient.disconnect();globalThis.WebSocket=originalSocketClass;globalThis.location=originalLocationValue;}
+});
+
+test('연결 취소 이후 늦게 도착한 채팅 티켓으로 소켓을 만들지 않는다', async()=>{
+ const originalSocketClass=globalThis.WebSocket, originalLocationValue=globalThis.location;
+ let finishTicketRequest, createdSocketCount=0;
+ class ChatSocketDouble {static OPEN=1;constructor(){createdSocketCount++;}close(){}}
+ const activeGameClient=new Client();
+ try {
+  globalThis.WebSocket=ChatSocketDouble;globalThis.location={href:'http://localhost/'};
+  activeGameClient.stopped=false;activeGameClient.state={generation:1,epoch:2,location:{id:'map:meadow',chatRoomId:'map:meadow'}};
+  activeGameClient.request=()=>new Promise(resolveTicketRequest=>finishTicketRequest=resolveTicketRequest);
+  const pendingChatRequest=activeGameClient.connectChat();
+  activeGameClient.disconnectChat();
+  finishTicketRequest({ticket:'stale-ticket'});
+  await assert.rejects(pendingChatRequest,/맵이 변경/);
+  assert.equal(createdSocketCount,0);
+ } finally {activeGameClient.disconnect();globalThis.WebSocket=originalSocketClass;globalThis.location=originalLocationValue;}
+});
