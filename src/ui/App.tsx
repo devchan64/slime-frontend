@@ -561,6 +561,8 @@ export function App() {
         <main class="lobby field-menu-page"><article class="card" aria-labelledby="user-terms-title">
           <div class="field-card-heading"><h1 id="user-terms-title">{t('terms.title')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('terms.backToMenu')}</button></div>
+          <h2>{t('terms.operationHeading')}</h2>
+          <p>{t('terms.operationPolicy')}</p>
           <p>{t('terms.pendingNotice')}</p>
           <h2>{t('terms.reportHeading')}</h2>
           <p>{t('terms.reportPolicy')}</p>

@@ -9,3 +9,5 @@ retentionPolicy: "Records of user actions and their results are retained for no 
 supportLimits: "Even if you report within the deadline, investigation and assistance may be limited if records have already been deleted or there is insufficient information. Reporting does not extend record retention and does not guarantee restoration or compensation."
 dataLossHeading: "Game data loss due to disasters"
 dataLossPolicy: "Game data may be lost due to natural disasters or other circumstances that the service operator cannot reasonably prevent or respond to. In such circumstances, we cannot guarantee the prevention of data loss or the restoration of lost data."
+operationHeading: "Free service and character creation"
+operationPolicy: "To provide the game free of charge, we follow a low-cost operating policy and support the creation of only one character per person."
