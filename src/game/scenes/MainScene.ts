@@ -20,6 +20,7 @@ import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
 import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
+import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { drawCliffs, drawElevationTile } from "../terrain/terraces";
@@ -81,18 +82,21 @@ export class MainScene extends Phaser.Scene {
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
   private queueUnit(id:string,...args:Parameters<MainScene['unit']>) {
-    this.actorEntries.push({id,...this.project(args[0]),create:()=>this.unit(...args)});
+    this.actorEntries.push({id,...this.calculateActorPlacement(args[0], args[6]),create:()=>this.unit(...args)});
   }
   private syncFieldMotion() {
     const s=this.state!;
     this.battleMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,s.battle,
-      cell=>({...this.project(cell),depth:this.depth(cell)}),performance.now());
+      (battlePathPosition, battleUnitIdentifier) => {
+        const movingBattleUnit = s.battle?.units.find(battleUnitRecord => battleUnitRecord.id === battleUnitIdentifier);
+        return this.calculateActorPlacement(battlePathPosition, movingBattleUnit?.side === "enemy" ? movingBattleUnit : undefined);
+      },performance.now());
     const actors=s.battle ? [] : [
-      ...s.monsters.filter(m=>m.state!=="COOLDOWN").map(m=>({id:`monster:${m.id}`,cell:m.position})),
-      ...s.members.filter(m=>m.mode!=="IN_BATTLE").map(m=>({id:`member:${m.id}`,cell:m.position})),
+      ...s.monsters.filter(m=>m.state!=="COOLDOWN").map(m=>({id:`monster:${m.id}`,cell:m.position, appearance:m})),
+      ...s.members.filter(m=>m.mode!=="IN_BATTLE").map(m=>({id:`member:${m.id}`,cell:m.position, appearance:undefined})),
     ];
     this.fieldMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,
-      actors.map(a=>({...a,point:{...this.project(a.cell),depth:this.depth(a.cell)}})),performance.now());
+      actors.map(a=>({...a,point:this.calculateActorPlacement(a.cell,a.appearance)})),performance.now());
   }
   private animateFieldActors() {
     const now=performance.now();
@@ -330,7 +334,7 @@ export class MainScene extends Phaser.Scene {
       );
       if(battle) {
         const bounds=battle.units.filter(unit=>unit.hp>0).map(unit=>{
-          const p=this.project(unit.position),size=actorSize(unit.side==='ally'?undefined:unit);
+          const p=this.calculateActorPlacement(unit.position,unit.side==='ally'?undefined:unit),size=actorSize(unit.side==='ally'?undefined:unit);
           return {left:p.x-TILE_W*size.tiles/2,right:p.x+TILE_W*size.tiles/2,
             top:p.y-HUMAN_HEIGHT*size.scale-TURN_BADGE_OFFSET-TURN_BADGE_RADIUS,
             bottom:p.y+TILE_H*size.tiles/2};
@@ -535,6 +539,8 @@ export class MainScene extends Phaser.Scene {
   private viewPosition = (p: Position) => toView(p, this.surface(), this.rotation);
   private project = (p: Position) => project(this.viewPosition(p), this.viewSurface!);
   private depth = (p: Position) => cellDepth(this.viewPosition(p));
+  private calculateActorPlacement = (actorLogicalPosition: Position, actorAppearanceData?: Appearance) =>
+    calculateActorPlacement(actorLogicalPosition, actorSize(actorAppearanceData).tiles, this.surface(), this.project, this.depth);
   private annotationDepth = () => mapAnnotationDepth(this.viewSurface!);
 
   private updateTerrain(s: State, visible: boolean) {
@@ -631,10 +637,10 @@ export class MainScene extends Phaser.Scene {
   }
   private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string, actorWorldFacing?: WorldFacing, actorRestIsActive = false) {
     const firstChild=this.children.list.length;
-    const p = this.project(pos),
+    const p = this.calculateActorPlacement(pos, appearance),
       g = this.add.graphics();
     const size = actorSize(appearance);
-    const depth = this.depth(pos) + TERRAIN_DEPTH.actor;
+    const depth = p.depth + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
       size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, !appearance && !this.state?.battle && !actorRestIsActive ? FIELD_CHARACTER_VERTICAL_OFFSET : 0, actorRestIsActive);

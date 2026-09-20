@@ -10,7 +10,7 @@ export class BattleMotion {
   private positions=new Map<string,Position>();
   private tracks=new Map<string,Track>();
   clear(){this.space='';this.logCount=0;this.positions.clear();this.tracks.clear();}
-  sync(space:string,battle:Battle|null,project:(p:Position)=>Point,now:number){
+  sync(space:string,battle:Battle|null,project:(p:Position, battleUnitIdentifier?: string)=>Point,now:number){
     if(!battle){this.clear();return;}
     if(space!==this.space || battle.log.length<this.logCount){
       this.clear();this.space=space;this.logCount=battle.log.length;
@@ -24,11 +24,11 @@ export class BattleMotion {
       const old=this.positions.get(event.unitId);
       if(!old)continue;
       const track=this.tracks.get(event.unitId);
-      const points=track ? [this.sample(track,now),...track.points.slice(Math.min(track.points.length,Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS)+1))] : [project(old)];
+      const points=track ? [this.sample(track,now),...track.points.slice(Math.min(track.points.length,Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS)+1))] : [project(old, event.unitId)];
       const remainingSegmentIndex = track ? Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS) : 0;
       const segmentWorldFacings = track ? track.segmentWorldFacings.slice(remainingSegmentIndex) : [];
       segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
-      points.push(...event.path.map(project));
+      points.push(...event.path.map(battlePathPosition => project(battlePathPosition, event.unitId)));
       this.tracks.set(event.unitId,{points,started:now,segmentWorldFacings});
       this.positions.set(event.unitId,event.path[event.path.length-1]);
     }
