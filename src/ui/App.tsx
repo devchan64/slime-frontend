@@ -56,6 +56,7 @@ export function App() {
     if (!nextDurationSeconds) setPendingActionCutinEvents([]);
   };
   const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
+  const battleReportSceneSnapshot = useRef<State | null>(null);
   const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
   const [sponsorApproved, setSponsorApproved] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<State['messages']>([]);
@@ -185,6 +186,7 @@ export function App() {
       const result = s.me.lastResult;
       if (previous?.me.id === s.me.id && s.me.mode === "FIELD" && !s.me.battleId && result?.battleId
           && result.battleId !== previous.me.lastResult?.battleId) {
+        battleReportSceneSnapshot.current = previous;
         setBattleReport(result);
       }
       stateRef.current = s;
@@ -240,8 +242,9 @@ export function App() {
           setRenderError(message);
           setStatus(message);
         });
-        if (stateRef.current) renderer.current.scene.setState(localizedMonsters({...stateRef.current,
-          map: localizedFieldMap(stateRef.current.map, getLocale())}, getLocale()));
+        const initialSceneSnapshot = (battleReport ? battleReportSceneSnapshot.current : null) ?? stateRef.current;
+        if (initialSceneSnapshot) renderer.current.scene.setState(localizedMonsters({...initialSceneSnapshot,
+          map: localizedFieldMap(initialSceneSnapshot.map, getLocale())}, getLocale()));
         canvas = renderer.current.game.canvas;
         canvas.addEventListener("webglcontextlost", lost);
       })
@@ -260,8 +263,9 @@ export function App() {
     };
   }, [inWorld]);
   useEffect(() => {
-    if (state) renderer.current?.scene.setState(localizedMonsters({...state, map: localizedFieldMap(state.map, locale)}, locale));
-  }, [state, locale]);
+    const currentSceneSnapshot = (battleReport ? battleReportSceneSnapshot.current : null) ?? state;
+    if (currentSceneSnapshot) renderer.current?.scene.setState(localizedMonsters({...currentSceneSnapshot, map: localizedFieldMap(currentSceneSnapshot.map, locale)}, locale));
+  }, [state, locale, battleReport]);
   useEffect(() => {
     if (inWorld && selected && !state?.battle) {
       selectedFieldCommands.current?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
@@ -269,8 +273,8 @@ export function App() {
   }, [selected, inWorld, state?.battle?.id]);
   const sponsorKey = state ? `${state.generation}:${state.epoch}:${state.location.id}` : '';
   const sponsorPending = inWorld && sponsorApproved !== sponsorKey;
-  const loadingRequested = transferPending || (inWorld &&
-    (sponsorPending || renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING"));
+  const loadingRequested = !battleReport && (transferPending || (inWorld &&
+    (sponsorPending || renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING")));
   const { loading, minimumElapsed } = useMinimumLoading(loadingRequested);
   useEffect(() => {
     const battle = state?.battle;
@@ -348,7 +352,7 @@ export function App() {
     renderer.current?.scene.selectCell(position, true);
   };
   const disabled = !!battleReport || busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
-  const battle = state?.battle,
+  const battle = (battleReport ? battleReportSceneSnapshot.current : state)?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
   const battleCommand = (type: string, targetId?: string) =>
     command("/v1/game/battle/commands", {
@@ -771,6 +775,9 @@ export function App() {
             )}
           </WorldDrawer>}
       {battleReportIsReady && battleReport && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
+        battleReportSceneSnapshot.current = null;
+        setRenderedLocation("");
+        setSponsorApproved(null);
         setBattleReport(null);
         navigateCharacterPage("#/world");
       }} />}
