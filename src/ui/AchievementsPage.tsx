@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
+import { noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 import { localizedSkill, type SkillDefinition } from '../client/skillText';
 import { localizedAchievement, type AchievementDefinition as Definition } from '../client/achievementText';
@@ -10,14 +11,14 @@ type Data = {catalog:Record<string,Definition>;progress:Record<string,Progress>;
 export function AchievementsPage({client,disabled,onReturn}:{client:Client;disabled:boolean;onReturn:()=>unknown}){
   const {t,locale}=useTranslation();
   const [data,setData]=useState<Data|null>(null);
-  const [error,setError]=useState('');
+  const [currentAchievementNotice,setAchievementRequestNotice]=useState<Notice>('');
   const [attempt,setAttempt]=useState(0);
   const [scope,setScope]=useState<Scope>('GENERAL');
   useEffect(()=>{
-    let cancelled=false;setError('');setData(null);
+    let cancelled=false;setAchievementRequestNotice('');setData(null);
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
       .then(([catalog,progress])=>{if(!cancelled)setData({catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
-      .catch(e=>{if(!cancelled)setError((e as Error).message);});
+      .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
   const number=(value:number)=>value.toLocaleString(locale);
@@ -27,7 +28,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   const ledger=data?[...data.cpLedger.map(entry=>({...entry,currency:'CP'})),...data.spLedger.map(entry=>({...entry,currency:'SP'}))]
     .filter(entry=>entry.scope===scope).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)||a.currency.localeCompare(b.currency)):[];
   return <main class="achievements-page"><div class="achievement-heading"><div><h1>{t('achievements.title')}</h1><p>{t('achievements.away')}</p></div><button disabled={disabled} onClick={onReturn}>{t('achievements.return')}</button></div>
-    {error?<p role="alert">{error} <button class="secondary" onClick={()=>setAttempt(v=>v+1)}>{t('achievements.retry')}</button></p>:!data?<p role="status">{t('achievements.loading')}</p>:<>
+    {currentAchievementNotice?<p role="alert">{noticeText(currentAchievementNotice,locale,t)} <button class="secondary" onClick={()=>setAttempt(v=>v+1)}>{t('achievements.retry')}</button></p>:!data?<p role="status">{t('achievements.loading')}</p>:<>
       <section class="card achievement-overview" aria-label={t('achievements.balance')}>
         <div><strong>{t('achievements.balance')}</strong><p>{number(data.cp)} CP · {data.sp===undefined?t('achievements.unsupported'):number(data.sp)} SP</p></div>
         <p>{t('achievements.balanceHelp')}</p>
