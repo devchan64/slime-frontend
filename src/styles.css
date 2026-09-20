@@ -1278,7 +1278,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 /* 선택 영역과 조작 카드의 현재 배치. */
 .field-control-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; gap: 6px; }
 .field-control-actions button { min-width: 0; min-height: 44px; margin: 0; padding: 6px 8px; font-size: 13px; }
-.field-control-card > .field-card-heading { margin: 0 0 6px; padding: 0 0 6px; border-bottom: 1px solid var(--border); }
+.field-control-card > .field-card-heading { margin: 0 0 6px; padding: 0; border: 0; }
 .field-control-card .field-selection-heading h3 { font-size: 14px; margin: 0; }
 .field-control-card .field-target { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; margin: 4px 0; padding: 6px 8px; }
 .field-control-card .field-target button { width: auto; min-width: 0; min-height: 44px; max-width: 140px; margin: 0; padding: 6px 10px; font-size: 13px; }
