@@ -1,0 +1,14 @@
+title: Sell materials to the guild
+help: Sell your materials to the guild. No citizenship or FP is required.
+empty: You have no materials to sell.
+material: Material to sell
+choose: Select a material
+option: '{name} · Owned {count} · {price} P each'
+quantity: 'Quantity (up to {max})'
+quote: Review payment
+total: 'Sell {count} · Receive {price} P'
+confirm: Confirm sale
+retry: Check result and retry
+uncertain: The result is unconfirmed. Check this transaction first and retry only if it has not been recorded.
+pending: Checking transaction details.
+sold: Sale completed.
