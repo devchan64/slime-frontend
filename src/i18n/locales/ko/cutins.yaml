@@ -1,0 +1,7 @@
+settings: 게임설정
+show: 전투 액션 컷인 보기
+help: 일반 공격 시 외형에 맞는 액션 컷인을 잠깐 표시합니다. 설정은 이 브라우저에 저장됩니다.
+presentation: 전투 액션 컷인
+attack: 일반 공격
+skip: 건너뛰기
+imageFailed: 액션 컷인 이미지를 불러오지 못했습니다.

@@ -1,5 +1,5 @@
-import { BattleStillshot } from './BattleStillshot';
-import { StillshotEventTracker, appendStillshotQueue, readStillshotSetting, STILLSHOT_SETTING_KEY, type BattleStillshotEvent } from './battleStillshots';
+import { ActionCutinOverlay } from './ActionCutin';
+import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
 import { AccountRewardsPanel } from "./AccountRewardsPanel";
 import { BagPanel } from "./BagPanel";
@@ -43,16 +43,16 @@ const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const { t, locale } = useTranslation();
-  const [stillshotsAreEnabled, setStillshotsAreEnabled] = useState(() => readStillshotSetting(localStorage));
-  const stillshotEnabledReference = useRef(stillshotsAreEnabled);
-  stillshotEnabledReference.current = stillshotsAreEnabled;
-  const stillshotEventTracker = useRef(new StillshotEventTracker());
-  const [pendingStillshotEvents, setPendingStillshotEvents] = useState<BattleStillshotEvent[]>([]);
-  const updateStillshotSetting = (nextEnabledValue: boolean) => {
-    localStorage.setItem(STILLSHOT_SETTING_KEY, String(nextEnabledValue));
-    stillshotEnabledReference.current = nextEnabledValue;
-    setStillshotsAreEnabled(nextEnabledValue);
-    if (!nextEnabledValue) setPendingStillshotEvents([]);
+  const [cutinsAreEnabled, setActionCutinsAreEnabled] = useState(() => readActionCutinSetting(localStorage));
+  const actionCutinEnabledReference = useRef(cutinsAreEnabled);
+  actionCutinEnabledReference.current = cutinsAreEnabled;
+  const actionCutinEventTracker = useRef(new ActionCutinTracker());
+  const [pendingActionCutinEvents, setPendingActionCutinEvents] = useState<ActionCutinEvent[]>([]);
+  const updateActionCutinSetting = (nextEnabledValue: boolean) => {
+    localStorage.setItem(ACTION_CUTIN_SETTING_KEY, String(nextEnabledValue));
+    actionCutinEnabledReference.current = nextEnabledValue;
+    setActionCutinsAreEnabled(nextEnabledValue);
+    if (!nextEnabledValue) setPendingActionCutinEvents([]);
   };
   const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
   const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
@@ -165,10 +165,10 @@ export function App() {
     client.onState = (s) => {
       serverOffset.current = s.serverTime * 1000 - Date.now();
       const previous = stateRef.current;
-      const incomingStillshotEvents = stillshotEventTracker.current.collectNewStillshots(s);
-      if (previous?.me.id !== s.me.id || (s.battle && previous?.battle?.id !== s.battle.id)) setPendingStillshotEvents([]);
-      if (stillshotEnabledReference.current && incomingStillshotEvents.length) {
-        setPendingStillshotEvents(currentStillshotQueue => appendStillshotQueue(currentStillshotQueue, incomingStillshotEvents));
+      const incomingActionCutinEvents = actionCutinEventTracker.current.collectNewActionCutins(s);
+      if (previous?.me.id !== s.me.id || (s.battle && previous?.battle?.id !== s.battle.id)) setPendingActionCutinEvents([]);
+      if (actionCutinEnabledReference.current && incomingActionCutinEvents.length) {
+        setPendingActionCutinEvents(currentActionCutinQueue => appendActionCutinQueue(currentActionCutinQueue, incomingActionCutinEvents));
       }
       if (s.me.lastFieldInterruption?.battleId
           && s.me.lastFieldInterruption.battleId !== previous?.me.lastFieldInterruption?.battleId) {
@@ -191,8 +191,8 @@ export function App() {
     };
     client.onStatus = (ready, msg) => {
       if (!ready) {
-        stillshotEventTracker.current = new StillshotEventTracker();
-        setPendingStillshotEvents([]);
+        actionCutinEventTracker.current = new ActionCutinTracker();
+        setPendingActionCutinEvents([]);
       }
       setConnected(ready);
       setStatus(msg);
@@ -344,7 +344,7 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
-  const disabled = busy || !connected || renderFailed || loading || pendingStillshotEvents.length > 0;
+  const disabled = busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
   const battle = state?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
   const battleCommand = (type: string, targetId?: string) =>
@@ -526,7 +526,7 @@ export function App() {
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>
-              <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("stillshots.settings")}</button>
+              <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("cutins.settings")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? t('app.invitationCount',{count:state.invitations.length}) : ""}</button>
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
@@ -535,11 +535,11 @@ export function App() {
         </main>
       ) : gameSettingsPage ? (
         <main class="lobby field-menu-page"><section class="card">
-          <div class="field-card-heading"><h1>{t('stillshots.settings')}</h1>
+          <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
-          <label class="stillshot-setting"><input type="checkbox" checked={stillshotsAreEnabled}
-            onChange={settingChangeEvent => updateStillshotSetting(settingChangeEvent.currentTarget.checked)} />{t('stillshots.show')}</label>
-          <p>{t('stillshots.help')}</p>
+          <label class="action-cutin-setting"><input type="checkbox" checked={cutinsAreEnabled}
+            onChange={settingChangeEvent => updateActionCutinSetting(settingChangeEvent.currentTarget.checked)} />{t('cutins.show')}</label>
+          <p>{t('cutins.help')}</p>
         </section></main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">
@@ -752,14 +752,14 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
-      {pendingStillshotEvents[0] && <BattleStillshot key={pendingStillshotEvents[0].actionId}
-        stillshotEventRecord={pendingStillshotEvents[0]}
-        finishStillshotDisplay={() => {
-          const displayedActionIdentity = pendingStillshotEvents[0].actionId;
-          setPendingStillshotEvents(currentStillshotQueue => currentStillshotQueue[0]?.actionId === displayedActionIdentity
-            ? currentStillshotQueue.slice(1) : currentStillshotQueue);
+      {pendingActionCutinEvents[0] && <ActionCutinOverlay key={pendingActionCutinEvents[0].actionId}
+        actionCutinEventRecord={pendingActionCutinEvents[0]}
+        finishActionCutinDisplay={() => {
+          const displayedActionIdentity = pendingActionCutinEvents[0].actionId;
+          setPendingActionCutinEvents(currentActionCutinQueue => currentActionCutinQueue[0]?.actionId === displayedActionIdentity
+            ? currentActionCutinQueue.slice(1) : currentActionCutinQueue);
         }} />}
-      {battleReport && pendingStillshotEvents.length === 0 && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
+      {battleReport && pendingActionCutinEvents.length === 0 && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
         setBattleReport(null);
         navigateCharacterPage("#/world");
       }} />}

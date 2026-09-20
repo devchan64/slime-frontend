@@ -1,0 +1,7 @@
+settings: Game settings
+show: Show Action Cut-ins
+help: Briefly show character and effect overlays for basic attacks. This setting is saved in this browser.
+presentation: Action Cut-in
+attack: Basic attack
+skip: Skip
+imageFailed: Failed to load the Action Cut-in image.
