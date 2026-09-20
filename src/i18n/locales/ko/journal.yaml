@@ -1,0 +1,14 @@
+title: 메인 의뢰 기록
+help: 수령한 의뢰와 완료 기록입니다. 재료 수량은 마지막 조회 시점 기준입니다.
+refresh: 새로고침
+loading: 의뢰 기록을 불러오는 중입니다.
+empty: 아직 수령한 메인 의뢰가 없습니다.
+accepted: 진행 중
+completed: 완료
+receiver: '전달 NPC: {name}'
+material: '{name} · 현재 {owned} / 필요 {required}'
+reward: '완료 보상: {amount}p'
+paid: '지급된 보상: {amount}p'
+startedAt: '수령: {time}'
+finishedAt: '완료: {time}'
+materialsReady: 재료가 준비되었습니다. 전달 시 NPC 위치와 시민권 등 이용 조건을 다시 확인합니다.

@@ -1,3 +1,4 @@
+import {MainEventJournal} from './MainEventJournal';
 import { ActionCutinOverlay } from './ActionCutin';
 import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
@@ -143,7 +144,7 @@ export function App() {
   const menuPage = settingsAvailable && characterRoute === "#/menu";
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
-  const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | null>(null);
+  const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | "journal" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
@@ -535,6 +536,7 @@ export function App() {
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>
+              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("journal")}>{t("journal.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("loans")}>{t("loans.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("cutins.settings")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
@@ -675,9 +677,10 @@ export function App() {
           </section>
         </main>
       )}
-          {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
+          {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "journal" ? t("journal.title") : drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
             {drawer === "bag" && <BagPanel key={`${state.me.id}:${state.generation}`} me={state.me} gameSessionClient={client}
               actionsAreDisabled={disabled || !!walking} submitConsumableUse={currentItemIdentifier => command('/v1/game/consumables/use',{itemId:currentItemIdentifier})} />}
+            {drawer === "journal" && <MainEventJournal key={`${client.tokens?.user_id}:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "loans" && <BorrowedLoansPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "rewards" && <AccountRewardsPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}

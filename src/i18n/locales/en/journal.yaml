@@ -1,0 +1,14 @@
+title: Main quest journal
+help: Accepted and completed quests. Material counts reflect the last refresh.
+refresh: Refresh
+loading: Loading quest journal.
+empty: No main quests have been accepted yet.
+accepted: In progress
+completed: Completed
+receiver: 'Deliver to: {name}'
+material: '{name} · Owned {owned} / Required {required}'
+reward: 'Completion reward: {amount}p'
+paid: 'Reward received: {amount}p'
+startedAt: 'Accepted: {time}'
+finishedAt: 'Completed: {time}'
+materialsReady: Materials are ready. NPC location, citizenship and other requirements are checked again when delivering.
