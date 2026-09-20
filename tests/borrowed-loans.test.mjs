@@ -39,3 +39,15 @@ test('회복 대기는 HP 비율로 추정하지 않고 서버 상태를 보존�
   receivedLoanPage.entries[0].healthRecoveryPending=false;
   assert.equal(parseBorrowedLoanPage(receivedLoanPage).entries[0].healthRecoveryPending,false);
 });
+
+test('CP 판정은 등록된 상태만 허용하고 이전 API 누락과 구분한다',()=>{
+ for(const currentCpStatus of ['ELIGIBLE','OUT_OF_RANGE','MIGRATION_REQUIRED']){
+  const currentResponseFixture=createLoanResponse();currentResponseFixture.entries[0].partyCpStatus=currentCpStatus;
+  assert.equal(parseBorrowedLoanPage(currentResponseFixture).entries[0].partyCpStatus,currentCpStatus);
+ }
+ for(const currentInvalidStatus of [true,null,'AVAILABLE']){
+  const currentResponseFixture=createLoanResponse();currentResponseFixture.entries[0].partyCpStatus=currentInvalidStatus;
+  assert.throws(()=>parseBorrowedLoanPage(currentResponseFixture));
+ }
+ assert.equal(parseBorrowedLoanPage(createLoanResponse()).entries[0].partyCpStatus,undefined);
+});

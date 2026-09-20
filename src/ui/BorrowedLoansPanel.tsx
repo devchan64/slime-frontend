@@ -4,6 +4,8 @@ import { noticeText, type Notice } from '../client/notice';
 import { parseBorrowedLoanPage, calculateLoanRemainingSeconds, LOAN_CLOCK_INTERVAL_MS, type BorrowedLoanPage } from '../client/borrowedLoans';
 import { useTranslation } from '../i18n';
 
+const LOAN_CP_STATUS_LABELS={ELIGIBLE:'loans.cpEligible',OUT_OF_RANGE:'loans.cpOutOfRange',MIGRATION_REQUIRED:'loans.cpMigrationRequired'};
+
 export function BorrowedLoansPanel({gameSessionClient, actionsAreDisabled}: {gameSessionClient: Client; actionsAreDisabled: boolean}) {
   const {t: translateLoanText, locale: currentLocaleCode} = useTranslation();
   const [storedLoanPage, setStoredLoanPage] = useState<BorrowedLoanPage | null>(null);
@@ -37,6 +39,7 @@ export function BorrowedLoansPanel({gameSessionClient, actionsAreDisabled}: {gam
   }, []);
   return <section aria-label={translateLoanText('loans.title')}>
     <p>{translateLoanText('loans.help')}</p>
+    <p>{translateLoanText('loans.cpHelp')}</p>
     <button class="secondary" disabled={actionsAreDisabled || isLoanLoading} onClick={() => void loadLoanPage()}>{translateLoanText('loans.refresh')}</button>
     {currentLoanNotice && <p role={currentLoanNotice instanceof Error ? 'alert' : 'status'}>{noticeText(currentLoanNotice, currentLocaleCode, translateLoanText)}</p>}
     {isLoanLoading && <p role="status">{translateLoanText('loans.loading')}</p>}
@@ -45,6 +48,7 @@ export function BorrowedLoansPanel({gameSessionClient, actionsAreDisabled}: {gam
       const remainingLoanSeconds = calculateLoanRemainingSeconds(storedLoanEntry.expiresAt, storedLoanPage.serverTime, loanClockValue - loanClockAnchor.current);
       return <li key={storedLoanEntry.id}>
         <strong>{storedLoanEntry.name}</strong>
+        <p>{translateLoanText(storedLoanEntry.partyCpStatus?LOAN_CP_STATUS_LABELS[storedLoanEntry.partyCpStatus]:'loans.cpUnknown')}</p>
         <p>{translateLoanText('loans.health', {current: storedLoanEntry.hp, maximum: storedLoanEntry.maxHp})}</p>
         {storedLoanEntry.healthRecoveryPending && <p class="is-warning">{translateLoanText('loans.recoveryPending')}</p>}
         <p>{translateLoanText(storedLoanEntry.inBattle ? 'loans.inbattle' : remainingLoanSeconds > 0 ? 'loans.available' : 'loans.ended')}</p>

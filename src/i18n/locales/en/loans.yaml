@@ -13,3 +13,8 @@ expired: Loan ended · Refresh to remove it from this list.
 more: Show more
 ended: Loan ended
 recoveryPending: "Recovering from incapacitation · Movement locked until HP recovers to at least 50% of maximum"
+cpEligible: CP formation requirement met
+cpOutOfRange: Outside the CP range · Cannot join a new battle
+cpMigrationRequired: Loan-time CP migration required · Cannot join a new battle
+cpUnknown: CP formation information unavailable
+cpHelp: Compared with the leader's cumulative CP at the time of retrieval. CP, expiration, HP and battle participation are checked again when forming a party.

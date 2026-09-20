@@ -1,5 +1,6 @@
 export type BorrowedLoanEntry = {
   id: string; name: string; startedAt: number; expiresAt: number; expired: boolean; inBattle: boolean;
+  partyCpStatus?: 'ELIGIBLE' | 'OUT_OF_RANGE' | 'MIGRATION_REQUIRED';
   hp: number; maxHp: number; healthRecoveryPending?: boolean; attributes: Record<string, number>; skills: Record<string, number>;
 };
 export type BorrowedLoanPage = {serverTime: number; entries: BorrowedLoanEntry[]; nextCursor: string | null};
@@ -27,6 +28,7 @@ export function parseBorrowedLoanPage(rawResponseValue: unknown): BorrowedLoanPa
         || !Number.isFinite(receivedLoanEntry.startedAt) || !Number.isFinite(receivedLoanEntry.expiresAt)
         || receivedLoanEntry.expiresAt <= receivedLoanEntry.startedAt
         || ('healthRecoveryPending' in receivedLoanEntry && typeof receivedLoanEntry.healthRecoveryPending !== 'boolean')
+        || ('partyCpStatus' in receivedLoanEntry && !['ELIGIBLE','OUT_OF_RANGE','MIGRATION_REQUIRED'].includes(receivedLoanEntry.partyCpStatus as string))
         || typeof receivedLoanEntry.expired !== 'boolean' || typeof receivedLoanEntry.inBattle !== 'boolean'
         || !Number.isSafeInteger(receivedLoanEntry.hp) || !Number.isSafeInteger(receivedLoanEntry.maxHp)
         || receivedLoanEntry.hp < 0 || receivedLoanEntry.maxHp <= 0 || receivedLoanEntry.hp > receivedLoanEntry.maxHp
