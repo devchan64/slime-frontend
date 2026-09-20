@@ -18,16 +18,31 @@ import {build} from 'esbuild';
 const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bundle:true,write:false,platform:'node',format:'esm',
  loader:{'.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
-  build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
+  build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
 const {MainScene}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
+
+function createStandingTextureDouble() {
+ const registeredTextureFrames=new Set();
+ const standingTextureDouble={
+  getSourceImage:()=>({width:1254,height:1254}),
+  has:standingFrameIdentifier=>registeredTextureFrames.has(standingFrameIdentifier),
+  add(standingFrameIdentifier){registeredTextureFrames.add(standingFrameIdentifier);return {};},
+ };
+ return {exists:()=>true,get:()=>standingTextureDouble};
+}
+
 test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 이동 참조를 함께 해제한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
- scene.children={list:[]};scene.textures={exists:()=>true};
+ scene.children={list:[]};scene.textures=createStandingTextureDouble();
  const make=(x=0,y=0)=>{
-  const target={scene,x,y,depth:0,width:1024,height:1024,destroyed:false};
+  const target={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},destroyed:false};
   const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
+   if(key==='setData')o.data[args[0]]=args[1];
+   if(key==='getData')return o.data[args[0]];
+   if(key==='setTexture')o.frame={name:args[1]};
+   if(key==='setOrigin'){o.originX=args[0];o.originY=args[1];}
    if(key==='setPosition'){o.x=args[0];o.y=args[1];}
    if(key==='setDepth')o.depth=args[0];
    if(key==='destroy'){
@@ -37,7 +52,7 @@ test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 �
    return proxy;
   };}});scene.children.list.push(proxy);created.push(proxy);return proxy;
  };
- scene.add={graphics:()=>make(),image:(x,y)=>make(x,y),text:(x,y)=>make(x,y)};
+ scene.add={graphics:()=>make(),image:(x,y)=>{const actorImageDouble=make(x,y);actorImageDouble.type="Image";return actorImageDouble;},text:(x,y)=>make(x,y)};
  scene.project=p=>({x:p.column,y:p.row});scene.depth=()=>100;
  scene.viewSurface={columns:1000,rows:1000};
  scene.cameras={main:{scrollX:0,scrollY:0,width:200,height:200,zoom:1}};
@@ -62,6 +77,10 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
   const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
    if(key==='destroy'){assert.equal(o.destroyed,false);o.destroyed=true;}
    if(key==='setVisible')o.visible=args[0];
+   if(key==='setData')o.data[args[0]]=args[1];
+   if(key==='getData')return o.data[args[0]];
+   if(key==='setTexture')o.frame={name:args[1]};
+   if(key==='setOrigin'){o.originX=args[0];o.originY=args[1];}
    if(key==='setPosition'){o.x=args[0];o.y=args[1];}
    if(key==='setScale'){o.displayWidth=o.width*args[0];o.displayHeight=o.height*args[0];}
    return proxy;
@@ -109,16 +128,20 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
 
 test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 논리 선택 좌표를 유지한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{});
- scene.children={list:[]};scene.textures={exists:()=>true};
+ scene.children={list:[]};scene.textures=createStandingTextureDouble();
  const make=(x=0,y=0)=>{
-  const object={scene,x,y,depth:0,width:1024,height:1024};
+  const object={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{}};
   const proxy=new Proxy(object,{get(o,key){if(key in o)return o[key];return (...args)=>{
+   if(key==='setData')o.data[args[0]]=args[1];
+   if(key==='getData')return o.data[args[0]];
+   if(key==='setTexture')o.frame={name:args[1]};
+   if(key==='setOrigin'){o.originX=args[0];o.originY=args[1];}
    if(key==='setPosition'){o.x=args[0];o.y=args[1];}
    if(key==='setDepth')o.depth=args[0];
    return proxy;
   };}});scene.children.list.push(proxy);return proxy;
  };
- scene.add={graphics:()=>make(),image:(x,y)=>make(x,y),text:(x,y)=>make(x,y)};
+ scene.add={graphics:()=>make(),image:(x,y)=>{const actorImageDouble=make(x,y);actorImageDouble.type="Image";return actorImageDouble;},text:(x,y)=>make(x,y)};
  scene.project=()=>({x:164,y:82});scene.depth=()=>30030;
  scene.viewSurface={columns:1000,rows:1000};
  scene.selected={column:3,row:2};
