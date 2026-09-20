@@ -143,6 +143,7 @@ export function App() {
   }, []);
   const settingsAvailable = !battleReport && !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
   const menuPage = settingsAvailable && characterRoute === "#/menu";
+  const userTermsPage = settingsAvailable && characterRoute === "#/terms";
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
   const [drawer, setDrawer] = useState<"worldMap" | "nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | "journal" | null>(null);
@@ -228,7 +229,7 @@ export function App() {
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
   const battleReportIsReady = !!battleReport && pendingActionCutinEvents.length === 0;
-  const inWorld = !battleReportIsReady && !menuPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const inWorld = !battleReportIsReady && !menuPage && !userTermsPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -549,12 +550,25 @@ export function App() {
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("journal")}>{t("journal.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("loans")}>{t("loans.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("cutins.settings")}</button>
+              <button class="secondary" onClick={() => navigateCharacterPage("#/terms")}>{t("terms.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? t('app.invitationCount',{count:state.invitations.length}) : ""}</button>
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
             </nav>
           </section>
         </main>
+      ) : userTermsPage ? (
+        <main class="lobby field-menu-page"><article class="card" aria-labelledby="user-terms-title">
+          <div class="field-card-heading"><h1 id="user-terms-title">{t('terms.title')}</h1>
+            <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('terms.backToMenu')}</button></div>
+          <p>{t('terms.pendingNotice')}</p>
+          <h2>{t('terms.reportHeading')}</h2>
+          <p>{t('terms.reportPolicy')}</p>
+          <p>{t('terms.reportDetails')}</p>
+          <h2>{t('terms.retentionHeading')}</h2>
+          <p>{t('terms.retentionPolicy')}</p>
+          <p>{t('terms.supportLimits')}</p>
+        </article></main>
       ) : gameSettingsPage ? (
         <main class="lobby field-menu-page"><section class="card">
           <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
