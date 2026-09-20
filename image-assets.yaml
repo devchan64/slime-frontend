@@ -114,5 +114,5 @@ data:
     path: src/assets/monsters/standing-v1/crystal-lizard-idle-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
     path: src/assets/monsters/standing-v1/beast-idle-v2.png
-  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-standing-v1.idle-v1.png
-    path: src/assets/characters/character-default-white-shirt-standing-v1/idle-v1.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-standing-v2.idle-v2.png
+    path: src/assets/characters/character-default-white-shirt-standing-v2/idle-v2.png

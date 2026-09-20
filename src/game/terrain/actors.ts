@@ -9,6 +9,7 @@ export const MAX_MONSTER_RATIO = 2;
 const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
 const SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.54, height: 0.24, coreAlpha: 0.24, coreScale: 0.65 };
+const HUMAN_CONTACT_SHADOW = { width: 0.32, height: 0.12 };
 const MONSTER_RING = { alpha: 0.45, width: 1 };
 const SPRITE_DEPTH_OFFSET = 0.01;
 export const updateCharacterFacing = updateActorStandingFrame;
@@ -32,10 +33,12 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.lineStyle(FOOTPRINT.lineWidth, color, FOOTPRINT.lineAlpha);
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT : HUMAN_HEIGHT * ratio;
+  const contactShadowWidth = width * (kind === "human" ? HUMAN_CONTACT_SHADOW.width : SHADOW.width);
+  const contactShadowHeight = groundHeight * (kind === "human" ? HUMAN_CONTACT_SHADOW.height : SHADOW.height);
   g.fillStyle(SHADOW.color, SHADOW.alpha);
-  g.fillEllipse(x, y, width * SHADOW.width, groundHeight * SHADOW.height);
+  g.fillEllipse(x, y, contactShadowWidth, contactShadowHeight);
   g.fillStyle(SHADOW.color, SHADOW.coreAlpha);
-  g.fillEllipse(x, y, width * SHADOW.width * SHADOW.coreScale, groundHeight * SHADOW.height * SHADOW.coreScale);
+  g.fillEllipse(x, y, contactShadowWidth * SHADOW.coreScale, contactShadowHeight * SHADOW.coreScale);
   if (kind !== "human") {
     g.lineStyle(MONSTER_RING.width, color, MONSTER_RING.alpha);
     g.strokeEllipse(x, y, width * SHADOW.width, groundHeight * SHADOW.height);

@@ -6,7 +6,7 @@
 |---|---|---|
 | `character-default-white-shirt-v1.png` | 기본 외형 단일 이미지 | 캐릭터 설정 초상화 |
 | `character-default-white-shirt-four-directions-v1/` | 방향별 정지 이미지 4개 | 이전 정지 이미지 보존 |
-| `character-default-white-shirt-standing-v1/` | 4방향×4프레임 스탠딩 시트·반복 메타데이터 | 필드·전투의 4방향 스탠딩 반복 재생 |
+| `character-default-white-shirt-standing-v2/` | 4방향×4프레임 스탠딩 시트·반복 메타데이터 | 필드·전투의 4방향 스탠딩 반복 재생 |
 
 프로토타입 기본 이미지와 런타임 사용 금지였던 걷기 초안은 삭제했다. 방향별 정식 정지 이미지와 현재 스탠딩 시트는 유지한다.
 

@@ -2,7 +2,7 @@ import { calculateStandingPhase } from "./standingPhase";
 import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
-import standingMetadata0 from "../../assets/characters/character-default-white-shirt-standing-v1/idle-v1.animation.json";
+import standingMetadata0 from "../../assets/characters/character-default-white-shirt-standing-v2/idle-v2.animation.json";
 import standingMetadata1 from "../../assets/monsters/standing-v1/slime-idle-v1.animation.json";
 import standingMetadata2 from "../../assets/monsters/standing-v1/beast-idle-v2.animation.json";
 import standingMetadata3 from "../../assets/monsters/standing-v1/giant-idle-v1.animation.json";
@@ -15,7 +15,7 @@ import standingMetadata9 from "../../assets/monsters/standing-v1/ash-fox-idle-v1
 import standingMetadata10 from "../../assets/monsters/standing-v1/crystal-lizard-idle-v1.animation.json";
 
 export const ACTOR_STANDING_ASSETS = {
-  "human": { key: "standing-human", url: new URL("../../assets/characters/character-default-white-shirt-standing-v1/idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata0) },
+  "human": { key: "standing-human", url: new URL("../../assets/characters/character-default-white-shirt-standing-v2/idle-v2.png", import.meta.url).href, animation: new CellAnimation(standingMetadata0) },
   "slime": { key: "standing-slime", url: new URL("../../assets/monsters/standing-v1/slime-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata1) },
   "beast": { key: "standing-beast", url: new URL("../../assets/monsters/standing-v1/beast-idle-v2.png", import.meta.url).href, animation: new CellAnimation(standingMetadata2) },
   "giant": { key: "standing-giant", url: new URL("../../assets/monsters/standing-v1/giant-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata3) },
@@ -37,9 +37,12 @@ export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Im
   const actorStandingAnimation = actorStandingAsset.animation;
   const sampledStandingFrame = actorStandingAnimation.sample(actorStandingAnimation.clip("idle", actorScreenDirection), actorRenderImage.scene.time.now + actorRenderImage.getData("standingPhaseOffset")).frame;
   const selectedStandingFrame = `cell:${actorStandingAnimation.data.animationId}@${actorStandingAnimation.data.version}:${sampledStandingFrame.frameId}`;
-  if (actorRenderImage.frame.name === selectedStandingFrame) return;
-  actorRenderImage.setTexture(actorStandingAsset.key, selectedStandingFrame)
-    .setOrigin(sampledStandingFrame.anchor.x / sampledStandingFrame.rect.width, sampledStandingFrame.anchor.y / sampledStandingFrame.rect.height);
+  const selectedFrameOriginX = sampledStandingFrame.anchor.x / sampledStandingFrame.rect.width;
+  const selectedFrameOriginY = sampledStandingFrame.anchor.y / sampledStandingFrame.rect.height;
+  if (actorRenderImage.frame.name !== selectedStandingFrame)
+    actorRenderImage.setTexture(actorStandingAsset.key, selectedStandingFrame);
+  if (actorRenderImage.originX !== selectedFrameOriginX || actorRenderImage.originY !== selectedFrameOriginY)
+    actorRenderImage.setOrigin(selectedFrameOriginX, selectedFrameOriginY);
 }
 
 export function createActorStandingImage(actorRenderScene: Phaser.Scene, actorStandingKind: StandingActorKind,
