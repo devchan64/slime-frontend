@@ -8,7 +8,7 @@ const HORIZONTAL_MARGIN = 1.15;
 const VERTICAL_MARGIN = 1.35;
 const CENTER = 0.5;
 const THEMES: Record<string, number> = {
-  meadow: 0xffffff, grove: 0x8db69e, "mist-lake": 0xa6c8cb, "wind-hills": 0xe0cba1,
+  iseulon: 0xe8dcc1, meadow: 0xffffff, grove: 0x8db69e, "mist-lake": 0xa6c8cb, "wind-hills": 0xe0cba1,
 };
 
 export function preloadBackdrop(scene: Phaser.Scene) {

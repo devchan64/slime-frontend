@@ -313,9 +313,10 @@ export function App() {
       }
       finally { if (transfer) setTransferPending(false); }
     });
-  async function walk() {
-    if (!state || !selected) return;
-    const steps = fieldRoute(state.me.position, selected, state.map);
+  async function walk(requestedWalkingDestination: Position | null = selected) {
+    if (!state || !requestedWalkingDestination) return;
+    selectField(requestedWalkingDestination);
+    const steps = fieldRoute(state.me.position, requestedWalkingDestination, state.map);
     if (!steps) throw new LocalizedError("app.noRouteError");
     const context = fieldActionContext(state);
     stopWalking.current = false;
@@ -658,7 +659,7 @@ export function App() {
               <div ref={selectedFieldCommands} class="field-selected-commands">
               <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
                 disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
-                select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
+                select={selectField} command={command} walking={walking} walk={requestedWalkingDestination => void run(()=>walk(requestedWalkingDestination))} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
               </div>
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />

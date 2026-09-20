@@ -21,6 +21,8 @@ import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop }
 import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
+import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
+import { drawCityBuilding, drawCityPaving, type CityBuildingRegion } from "../terrain/cityRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { drawCliffs, drawElevationTile } from "../terrain/terraces";
@@ -80,6 +82,7 @@ export class MainScene extends Phaser.Scene {
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
+  private cityBuildingRegions: CityBuildingRegion[] = [];
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
   private queueUnit(id:string,...args:Parameters<MainScene['unit']>) {
     this.actorEntries.push({id,...this.calculateActorPlacement(args[0], args[6]),create:()=>this.unit(...args)});
@@ -208,6 +211,10 @@ export class MainScene extends Phaser.Scene {
         visibleActorRegions.push({position: renderedActorPosition, depth: renderedSceneChild.depth,
           left: renderedImageBounds.left, right: renderedImageBounds.right,
           top: renderedImageBounds.top, bottom: renderedImageBounds.bottom});
+      }
+      for(const currentBuildingRegion of this.cityBuildingRegions) {
+        if(currentBuildingRegion.polygons.some(currentFacePolygon=>Phaser.Geom.Polygon.Contains(currentFacePolygon,at.x,at.y)))
+          visibleActorRegions.push(currentBuildingRegion);
       }
       const cell = pickActorPosition(at, visibleActorRegions, this.selected)
         ?? (picked ? fromView(picked, this.surface(), this.rotation) : null);
@@ -356,6 +363,7 @@ export class MainScene extends Phaser.Scene {
     this.movingObjects=[];
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && child !== this.backdropLayer) child.destroy();
+    this.cityBuildingRegions = [];
     this.waypointMarkers = [];
     this.personalMarkerGraphics = [];
     this.safeBarrierGraphics = [];
@@ -410,7 +418,7 @@ export class MainScene extends Phaser.Scene {
           g.fillStyle(color, textured ? (meadow ? 0.16 : 0) : 1);
           g.fillPoints(this.points(polygon), true);
         }
-        if (isSafe) {
+        if (isSafe && !s.map.safeTown) {
           drawSafeBoundary(g, point, this.viewPosition({column, row}), this.viewPosition(s.map.startPoint), s.map.safeRadius);
           this.safeBarrierGraphics.push(g);
         }
@@ -501,7 +509,10 @@ export class MainScene extends Phaser.Scene {
         const p = this.project(gate);
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
       }
-      drawSafeTower(this, this.project(s.map.startPoint)).setDepth(this.depth(s.map.startPoint) + TERRAIN_DEPTH.overlay);
+      if(!s.map.safeTown)drawSafeTower(this, this.project(s.map.startPoint)).setDepth(this.depth(s.map.startPoint) + TERRAIN_DEPTH.overlay);
+      const selectedCityBuilding = findCityBuilding(s.map.buildings,this.selected);
+      for(const currentCityBuilding of s.map.buildings ?? [])
+        this.cityBuildingRegions.push(drawCityBuilding(this,currentCityBuilding,this.project,this.depth,this.annotationDepth(),currentCityBuilding.id===selectedCityBuilding?.id));
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
           m.position,
@@ -563,9 +574,11 @@ export class MainScene extends Phaser.Scene {
     const cells = new Map(field?.cells?.map(cell => [`${cell.column},${cell.row}`, cell.terrain]));
     const road=field ? new Set([...cells].filter(([,kind])=>kind==='road').map(([key])=>key)) : buildMeadowRoad(s.map);
     const blockedCells=new Set(blocked.map(p=>`${p.column},${p.row}`));
+    const cityBuildingCellKeys = new Set((field?[]:s.map.buildings ?? []).flatMap(cityBuildingCells).map(currentCityCell=>`${currentCityCell.column},${currentCityCell.row}`));
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
+      : s.map.safeTown ? new Set((s.map.terrainRows ?? []).flatMap((currentTerrainRow,currentRowIndex)=>[...currentTerrainRow].flatMap((currentTerrainCode,currentColumnIndex)=>s.map.terrainCodes?.[currentTerrainCode]==='water'?[`${currentColumnIndex},${currentRowIndex}`]:[])))
       : theme === "mist-lake" ? blockedCells : new Set<string>();
-    const towerCenterCellKey = field ? null : `${s.map.startPoint.column},${s.map.startPoint.row}`;
+    const towerCenterCellKey = field || s.map.safeTown ? null : `${s.map.startPoint.column},${s.map.startPoint.row}`;
     if (towerCenterCellKey) waterCells.delete(towerCenterCellKey);
     this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
       const objects:Phaser.GameObjects.GameObject[]=[];
@@ -581,7 +594,7 @@ export class MainScene extends Phaser.Scene {
       }
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
-      const kind=terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
+      const kind=terrain==='paving'?'grass':terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
@@ -594,7 +607,8 @@ export class MainScene extends Phaser.Scene {
         : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
-      if (!isWater && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
+      if(terrain==='paving')drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p);
+      if (!isWater && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);

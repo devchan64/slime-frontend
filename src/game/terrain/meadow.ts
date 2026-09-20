@@ -101,10 +101,11 @@ export function meadowTile(column: number, row: number, road: Set<string>): Terr
   return patchNoise(column, row, DEW_PATCH_SCALE, 317) > 0.55 ? "dew" : "grass";
 }
 
-export function fieldTerrainAt(fieldMapDefinition:TerrainMap,terrainColumnIndex:number,terrainRowIndex:number,fieldRoadCells:Set<string>):TerrainKind {
+export function fieldTerrainAt(fieldMapDefinition:TerrainMap,terrainColumnIndex:number,terrainRowIndex:number,fieldRoadCells:Set<string>):TerrainKind | "paving" | "water" {
   if(!fieldMapDefinition.terrainRows)return meadowTile(terrainColumnIndex,terrainRowIndex,fieldRoadCells);
   const terrainCodeValue=fieldMapDefinition.terrainRows[terrainRowIndex]?.[terrainColumnIndex];
   const terrainKindValue=fieldMapDefinition.terrainCodes?.[terrainCodeValue];
+  if(terrainKindValue === "paving" || terrainKindValue === "water")return terrainKindValue;
   if(!TERRAIN_KINDS.includes(terrainKindValue as TerrainKind))throw new Error('필드 표시 타일이 누락되었거나 지원하지 않는 종류입니다.');
   return terrainKindValue as TerrainKind;
 }

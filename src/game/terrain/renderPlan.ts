@@ -8,7 +8,7 @@ export function terrainRenderSignature(state: State, rotation: number): string {
   const field=state.battle?.field, map=field ?? state.map;
   return JSON.stringify([rotation, map.columns, map.rows, map.elevations, map.ramps, map.elevationTiles,
     field?.cells, state.map.terrainRows, state.map.terrainCodes, state.battle?.blocked ?? state.map.blocked, field?.environment?.themeId ?? state.map.id,
-    field ? null : [state.map.startPoint,state.map.safeRadius,
+    field ? null : [state.map.startPoint,state.map.safeRadius,state.map.safeTown,state.map.buildings,
       state.map.connections.map(({column,row})=>({column,row}))]]);
 }
 
@@ -20,7 +20,7 @@ export function overlayCells(state: State, textured: boolean, selected: Position
   const add=(p:Position)=>{if(inBounds(p,map))cells.set(`${p.column},${p.row}`,p);};
   if (!textured) {
     for(let row=0;row<map.rows;row++)for(let column=0;column<map.columns;column++)add({column,row});
-  } else if (!state.battle) {
+  } else if (!state.battle && !state.map.safeTown) {
     const {startPoint,safeRadius}=state.map;
     for(let dr=-safeRadius;dr<=safeRadius;dr++)for(let dc=-(safeRadius-Math.abs(dr));dc<=safeRadius-Math.abs(dr);dc++)
       add({column:startPoint.column+dc,row:startPoint.row+dr});

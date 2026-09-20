@@ -1,4 +1,5 @@
 import { fieldMovementEstimate } from "./terrainMovementCost";
+import { findCityBuilding } from "../game/terrain/cityBuildings";
 import { localizedMonster } from '../client/monsterText';
 import { heightAt } from "../game/terrain/elevation";
 import { t, useTranslation } from '../i18n';
@@ -50,7 +51,7 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
 }
 
 export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason }: Props & {
-  walking: Walking | null; walk: () => void; stop: () => void; encounter?: (monsterId: string) => void; disabledReason?: string;
+  walking: Walking | null; walk: (requestedWalkingDestination?: Position) => void; stop: () => void; encounter?: (monsterId: string) => void; disabledReason?: string;
 }) {
   const { t, locale } = useTranslation();
   state = {...state, map: localizedFieldMap(state.map, locale)};
@@ -67,12 +68,16 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
     <progress value={walking.completed} max={walking.total} aria-label={t('field.progressLabel')} />
   </section>;
   if (!selected) return null;
+  const selectedCityBuilding = findCityBuilding(state.map.buildings,selected);
+  const currentBuildingEntrance = selectedCityBuilding?.entrance;
+  const currentEntranceRoute = currentBuildingEntrance ? fieldRoute(state.me.position,currentBuildingEntrance,state.map) : null;
+  const atBuildingEntrance = currentBuildingEntrance ? sameCell(state.me.position,currentBuildingEntrance) : false;
   const blocked = state.map.blocked.some(p => sameCell(p, selected));
   const path = fieldRoute(state.me.position, selected, state.map);
   const here = sameCell(state.me.position, selected);
   const monsters = state.monsters.filter(m => m.state !== "COOLDOWN" && sameCell(m.position, selected));
   const gate = state.map.connections.find(g => sameCell(g, selected));
-  const safe = fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
+  const safe = state.map.safeTown || fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
   return <section class="field-selection" aria-label={t('field.selectedLocation')}>
@@ -87,7 +92,13 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
           <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
       })}
-      {!monsters.length && <div class="field-target">
+      {selectedCityBuilding && <div class="field-target"><div class="field-target-summary">
+        <strong>{t(`city.${selectedCityBuilding.facilityKind}`)}</strong>
+        <small>{atBuildingEntrance?t('city.arrived'):t('city.safeTown')}</small></div>
+        <button class="secondary compact" onClick={()=>select(null)}>{t('field.clear')}</button>
+        <button disabled={disabled || !field || !canStep || atBuildingEntrance || !currentEntranceRoute?.length}
+          onClick={()=>walk(selectedCityBuilding.entrance)}>{t('city.approach')}</button></div>}
+      {!monsters.length && !selectedCityBuilding && <div class="field-target">
         <div class="field-target-summary">
           <strong>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</strong>
           {path?.length && state.map.movementCosts ? <small>{formatCompactMovementEstimate(state.map, path)}</small>
@@ -95,7 +106,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
             : !blocked && !here && !path ? <small class="is-warning">{t('field.noApproach')}</small> : null}
         </div>
         <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
-        {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
+        {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={()=>walk()}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
         {gate && here && <button disabled={disabled || !field || healthMovementLocked} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
       </div>}
       {!canStep && !healthMovementLocked && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
@@ -122,10 +133,13 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
       <h3>{t('field.preparation')}</h3><p role="status">{t('field.readyProgress',{ready:reservation.ready.length,total:reservation.members.length,seconds:Math.max(0,Math.ceil(reservation.deadline-now))})}</p>
       <div class="actions"><button disabled={disabled || state.me.hp === 0 || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? t('field.waitingParty') : t('field.ready')}</button>
       <button class="secondary" disabled={disabled} onClick={() => command("/v1/game/encounters/cancel", { reservationId: reservation.id })}>{t('field.cancelReservation')}</button></div>
-    </div> : <><h3>{t('field.nearby')}</h3><p class="field-subtitle">{t('field.nearbyHelp')}</p></>}
+    </div> : !state.map.safeTown ? <><h3>{t('field.nearby')}</h3><p class="field-subtitle">{t('field.nearbyHelp')}</p></> : <p>{t('city.safeTown')}</p>}
+    {state.map.buildings?.length ? <><h3>{t('city.facilities')}</h3>{state.map.buildings.map(currentCityBuilding=><button
+      key={currentCityBuilding.id} class="field-monster secondary" onClick={()=>select(currentCityBuilding.origin)}>
+      <span>{t(`city.${currentCityBuilding.facilityKind}`)}</span></button>)}</>:null}
     {monsters.slice(0, NEARBY_LIMIT).map(renderMonster)}
     {monsters.length > NEARBY_LIMIT && <details class="field-details"><summary>{t('field.remainingMonsters',{count:monsters.length-NEARBY_LIMIT})}</summary>{monsters.slice(NEARBY_LIMIT).map(renderMonster)}</details>}
-    {!monsters.length && <p class="field-subtitle">{t('field.noMonsters')}</p>}
+    {!monsters.length && !state.map.safeTown && <p class="field-subtitle">{t('field.noMonsters')}</p>}
     <details class="field-details"><summary>{t('field.connectedMaps',{count:state.map.connections.length})}</summary>
       {state.map.connections.map(g => <button class="field-monster secondary" key={g.id} onClick={() => select(g)}><span>{g.targetName ?? g.target}</span><small>{sameCell(g, state.me.position) ? t('field.currentPosition') : t('field.gridDistance',{count:fieldDistance(g,state.me.position)})} ↗</small></button>)}
       {!state.map.connections.length && <p>{t('field.noConnections')}</p>}
@@ -137,13 +151,15 @@ export function FieldLocationHelp({ state: currentFieldState, selected: selected
   const { t: translateFieldMessage, locale: currentDisplayLocale } = useTranslation();
   if (!selectedFieldPosition) return null;
   const currentLocalizedMap = localizedFieldMap(currentFieldState.map, currentDisplayLocale);
-  const selectedWalkingRoute = fieldRoute(currentFieldState.me.position, selectedFieldPosition, currentLocalizedMap);
+  const selectedCityBuilding = findCityBuilding(currentLocalizedMap.buildings, selectedFieldPosition);
+  const selectedWalkingDestination = selectedCityBuilding?.entrance ?? selectedFieldPosition;
+  const selectedWalkingRoute = fieldRoute(currentFieldState.me.position, selectedWalkingDestination, currentLocalizedMap);
   const selectedMapConnection = currentLocalizedMap.connections.find(currentMapConnection => sameCell(currentMapConnection, selectedFieldPosition));
   const selectedPositionBlocked = currentLocalizedMap.blocked.some(currentBlockedPosition => sameCell(currentBlockedPosition, selectedFieldPosition));
   const selectedPositionCurrent = sameCell(currentFieldState.me.position, selectedFieldPosition);
   return <div class="field-location-help">
     <p>{translateFieldMessage('field.compactCoordinates', {column: selectedFieldPosition.column, row: selectedFieldPosition.row, height: heightAt(selectedFieldPosition, currentLocalizedMap)})}</p>
-    <p>{selectedPositionBlocked ? translateFieldMessage('field.blockedHelp') : selectedPositionCurrent
+    <p>{selectedCityBuilding ? translateFieldMessage(sameCell(currentFieldState.me.position, selectedCityBuilding.entrance) ? 'city.arrived' : 'city.approach') : selectedPositionBlocked ? translateFieldMessage('field.blockedHelp') : selectedPositionCurrent
       ? translateFieldMessage(selectedMapConnection ? 'field.destinationArrival' : 'field.currentHelp')
       : selectedWalkingRoute ? translateFieldMessage(selectedMapConnection ? 'field.destinationRoute' : 'field.walkRoute', {count: selectedWalkingRoute.length})
       : translateFieldMessage('field.noRoute')}</p>
