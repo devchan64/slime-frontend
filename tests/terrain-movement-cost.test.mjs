@@ -36,3 +36,14 @@ test('서버 타일을 표시와 도로 연결의 원본으로 사용한다',()=
  assert.equal(fieldTerrainAt(fieldMapDefinition,2,0,serverRoadCells),'dew');
  assert.throws(()=>fieldTerrainAt(fieldMapDefinition,3,0,serverRoadCells));
 });
+
+test('결계탑 밑 도로는 그리되 이동 경로는 탑을 우회한다',()=>{
+ const towerCenterPosition={column:4,row:4};
+ const currentFieldDefinition={columns:8,rows:8,startPoint:towerCenterPosition,connections:[],blocked:[towerCenterPosition]};
+ assert.ok(buildMeadowRoad(currentFieldDefinition).has('4,4'));
+ assert.equal(fieldRoute({column:4,row:5},towerCenterPosition,currentFieldDefinition),null);
+ const selectedRouteCells=fieldRoute({column:4,row:5},{column:4,row:3},currentFieldDefinition);
+ assert.ok(selectedRouteCells.length>2);
+ assert.ok(selectedRouteCells.every(currentCellPosition=>currentCellPosition.column!==4||currentCellPosition.row!==4));
+ assert.deepEqual(fieldRoute(towerCenterPosition,{column:4,row:5},currentFieldDefinition),[{column:4,row:5}]);
+});

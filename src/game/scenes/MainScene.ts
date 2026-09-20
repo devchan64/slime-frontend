@@ -540,6 +540,8 @@ export class MainScene extends Phaser.Scene {
     const blockedCells=new Set(blocked.map(p=>`${p.column},${p.row}`));
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
       : theme === "mist-lake" ? blockedCells : new Set<string>();
+    const towerCenterCellKey = field ? null : `${s.map.startPoint.column},${s.map.startPoint.row}`;
+    if (towerCenterCellKey) waterCells.delete(towerCenterCellKey);
     this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
       const objects:Phaser.GameObjects.GameObject[]=[];
       const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {
@@ -567,7 +569,7 @@ export class MainScene extends Phaser.Scene {
         : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
-      if (!isWater && blockedCells.has(`${column},${row}`)) {
+      if (!isWater && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);

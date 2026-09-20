@@ -50,6 +50,8 @@ export function buildMeadowRoad(map: TerrainMap): Set<string> {
     return serverRoadCells;
   }
   const blocked = new Set(map.blocked.map(cellKey));
+  // 도로 밑그림은 결계탑 아래까지 연결한다. 실제 통행은 서버 blocked를 따른다.
+  blocked.delete(cellKey(map.startPoint));
   const valid = (p: Position) => p.column >= 0 && p.row >= 0 &&
     p.column < map.columns && p.row < map.rows && !blocked.has(cellKey(p));
   if (!valid(map.startPoint)) throw new Error("초원 시작점이 통행 가능한 셀이 아닙니다.");
