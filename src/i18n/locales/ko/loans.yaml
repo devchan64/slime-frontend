@@ -1,0 +1,14 @@
+title: 대여 파티원
+help: 대여 시점의 복사본입니다. 대여는 7일간 유지되며 원본 캐릭터의 FP는 소모하지 않습니다.
+refresh: 새로고침
+loading: 대여 파티원을 불러오는 중…
+empty: 대여 중인 파티원이 없습니다.
+health: "HP {current} / {maximum}"
+inbattle: 전투 참가 중
+available: 대여 유지 중
+remaining: "남은 대여 기간 {hours}시간 {minutes}분"
+expires: "대여 종료: {time}"
+expiredbattle: 대여 만료 · 진행 중인 전투와 정산은 유지됩니다.
+expired: 대여 종료 · 새로고침하면 목록에서 제외됩니다.
+more: 더 보기
+ended: 대여 종료

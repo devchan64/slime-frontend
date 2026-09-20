@@ -1,0 +1,14 @@
+title: Borrowed party members
+help: These are copies made when borrowed. Loans last 7 days and do not consume the original character's FP.
+refresh: Refresh
+loading: Loading borrowed party members…
+empty: No borrowed party members.
+health: "HP {current} / {maximum}"
+inbattle: In battle
+available: Loan active
+remaining: "{hours}h {minutes}m remaining"
+expires: "Loan ends: {time}"
+expiredbattle: Loan expired · The ongoing battle and settlement will continue.
+expired: Loan ended · Refresh to remove it from this list.
+more: Show more
+ended: Loan ended
