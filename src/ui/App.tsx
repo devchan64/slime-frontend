@@ -137,7 +137,7 @@ export function App() {
       window.removeEventListener("hashchange", sync);
     };
   }, []);
-  const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
+  const settingsAvailable = !battleReport && !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
   const menuPage = settingsAvailable && characterRoute === "#/menu";
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
@@ -215,7 +215,8 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
-  const inWorld = !battleReport && !menuPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const battleReportIsReady = !!battleReport && pendingActionCutinEvents.length === 0;
+  const inWorld = !battleReportIsReady && !menuPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -346,7 +347,7 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
-  const disabled = busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
+  const disabled = !!battleReport || busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
   const battle = state?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
   const battleCommand = (type: string, targetId?: string) =>
@@ -517,7 +518,7 @@ export function App() {
             </form>
           </section>
         </main>
-      ) : battleReport ? (
+      ) : battleReportIsReady ? (
         <main aria-label={t('app.reportRegion')} />
       ) : state.me.mode === "AWAY" ? (
         <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
@@ -769,7 +770,7 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
-      {battleReport && pendingActionCutinEvents.length === 0 && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
+      {battleReportIsReady && battleReport && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
         setBattleReport(null);
         navigateCharacterPage("#/world");
       }} />}
