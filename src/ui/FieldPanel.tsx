@@ -74,10 +74,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const safe = fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
-  return <section class={`field-selection ${!monsters.length ? "field-selection-compact" : ""}`} aria-label={t('field.selectedLocation')}>
-    {!monsters.length && <div class="field-selection-heading"><div>
-      <h3>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</h3></div>
-      </div>}
+  return <section class="field-selection" aria-label={t('field.selectedLocation')}>
     <div class="field-command-body">
       {monsters.map(m => {
         const distance = fieldDistance(state.me.position, m.position);
@@ -89,19 +86,21 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
           <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
       })}
-      {!monsters.length && (blocked || here || !path) && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
-        {blocked ? t('field.blockedTerrain') : here ? gate ? t('field.arrivalCompact') : t('field.currentPosition') : t('field.noApproach')}
-      </p>}
-      {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{formatCompactMovementEstimate(state.map, path)}</p> : null}
+      {!monsters.length && <div class="field-target">
+        <div class="field-target-summary">
+          <strong>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</strong>
+          {path?.length && state.map.movementCosts ? <small>{formatCompactMovementEstimate(state.map, path)}</small>
+            : here && gate ? <small>{t('field.arrivalCompact')}</small>
+            : !blocked && !here && !path ? <small class="is-warning">{t('field.noApproach')}</small> : null}
+        </div>
+        <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
+        {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
+        {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
+      </div>}
       {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
     </div>
-    {!monsters.length && <div class="field-tile-actions">
-      <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
-      {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
-      {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
-    </div>}
   </section>;
 }
 
