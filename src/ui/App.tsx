@@ -568,6 +568,8 @@ export function App() {
           <h2>{t('terms.retentionHeading')}</h2>
           <p>{t('terms.retentionPolicy')}</p>
           <p>{t('terms.supportLimits')}</p>
+          <h2>{t('terms.dataLossHeading')}</h2>
+          <p>{t('terms.dataLossPolicy')}</p>
         </article></main>
       ) : gameSettingsPage ? (
         <main class="lobby field-menu-page"><section class="card">
