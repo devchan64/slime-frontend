@@ -1,3 +1,4 @@
+import {MapKindIcon} from './MapKindIcon';
 import { fieldMovementEstimate } from "./terrainMovementCost";
 import { findCityBuilding } from "../game/terrain/cityBuildings";
 import { localizedMonster } from '../client/monsterText';
@@ -30,10 +31,10 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
   const events = [
     ...state.monsters.filter(monster => monster.state === "AVAILABLE").map(monster => ({
       id: `monster:${monster.id}`, position: monster.position, name: monsterName(localizedMonster(monster, locale)),
-      kind: "", nameClass: monster.disposition === "AGGRESSIVE" ? "monster-name is-aggressive" : "monster-name is-passive",
+      targetSafeTown: undefined as boolean | undefined, kind: "", nameClass: monster.disposition === "AGGRESSIVE" ? "monster-name is-aggressive" : "monster-name is-passive",
     })),
     ...map.connections.map(gate => ({
-      id: `connection:${gate.id}`, position: gate, name: gate.targetName ?? gate.target, kind: t('field.mapConnection'), nameClass: "",
+      id: `connection:${gate.id}`, position: gate, name: gate.targetName ?? gate.target, targetSafeTown: gate.targetSafeTown, kind: t(gate.targetSafeTown === undefined ? 'app.mapUnknownKind' : gate.targetSafeTown ? 'app.mapTown' : 'app.mapField'), nameClass: "",
     })),
   ].map(event => ({ ...event, distance: fieldDistance(state.me.position, event.position) }))
     .sort((a, b) => a.distance - b.distance || a.id.localeCompare(b.id))
@@ -44,7 +45,7 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
       title={`${event.kind ? `${event.kind} · ` : ""}${event.name} · ${t('field.gridDistance',{count:event.distance})}`}
       aria-label={`${event.kind ? `${event.kind} · ` : ""}${event.name} · ${t('field.gridDistance',{count:event.distance})}`}
       onClick={() => select(event.position)}>
-      {event.kind && <span aria-hidden="true">↗</span>}<strong class={event.nameClass}>{event.name}</strong><small>{t('field.shortcutDistance',{count:event.distance})}</small>
+      {event.kind && <MapKindIcon targetMapSafeTown={event.targetSafeTown}/>}<strong class={event.nameClass}>{event.name}</strong><small>{t('field.shortcutDistance',{count:event.distance})}</small>
     </button>)}
     {!events.length && <p>{t('field.noEvents')}</p>}
   </nav>;
@@ -143,7 +144,7 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
     {monsters.length > NEARBY_LIMIT && <details class="field-details"><summary>{t('field.remainingMonsters',{count:monsters.length-NEARBY_LIMIT})}</summary>{monsters.slice(NEARBY_LIMIT).map(renderMonster)}</details>}
     {!monsters.length && !state.map.safeTown && <p class="field-subtitle">{t('field.noMonsters')}</p>}
     <details class="field-details"><summary>{t('field.connectedMaps',{count:state.map.connections.length})}</summary>
-      {state.map.connections.map(g => <button class="field-monster secondary" key={g.id} onClick={() => select(g)}><span>{g.targetName ?? g.target}</span><small>{sameCell(g, state.me.position) ? t('field.currentPosition') : t('field.gridDistance',{count:fieldDistance(g,state.me.position)})} ↗</small></button>)}
+      {state.map.connections.map(g => <button class="field-monster secondary" key={g.id} onClick={() => select(g)}><span><MapKindIcon targetMapSafeTown={g.targetSafeTown}/>{g.targetName ?? g.target}</span><small>{sameCell(g, state.me.position) ? t('field.currentPosition') : t('field.gridDistance',{count:fieldDistance(g,state.me.position)})} ↗</small></button>)}
       {!state.map.connections.length && <p>{t('field.noConnections')}</p>}
     </details>
   </section>;

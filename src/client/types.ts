@@ -124,6 +124,7 @@ export type State = {
     connections: (Position & {
       id: string; target: string; name?: string;
       targetName?: string;
+      targetSafeTown?: boolean;
       targetNameTranslations?: Record<'ko' | 'en', string>;
       direction?: "west" | "east" | "north" | "south";
       targetWaypointId?: string;

@@ -1,3 +1,4 @@
+import {WorldMapPanel} from './WorldMapPanel';
 import {MainEventJournal} from './MainEventJournal';
 import { ActionCutinOverlay } from './ActionCutin';
 import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
@@ -144,7 +145,7 @@ export function App() {
   const menuPage = settingsAvailable && characterRoute === "#/menu";
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
-  const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | "journal" | null>(null);
+  const [drawer, setDrawer] = useState<"worldMap" | "nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | "journal" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
@@ -652,12 +653,13 @@ export function App() {
               <div class="field-card-heading"><div class="field-control-actions">
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
+                <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("worldMap")}>{t('app.worldMap')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               <FieldRestControls currentPlayerState={state.me} currentServerTime={(clock + serverOffset.current) / 1000}
                 actionsAreDisabled={disabled || !!walking} submitRestCommand={commandPathValue => command(commandPathValue)} />
-              <FieldFirstAid currentGameState={state} actionsAreDisabled={disabled || !!walking}
-                submitFirstAidCommand={() => command('/v1/game/skills/first-aid')} />
               </div></div>
+              <div class="field-support-actions"><FieldFirstAid currentGameState={state} actionsAreDisabled={disabled || !!walking}
+                submitFirstAidCommand={() => command('/v1/game/skills/first-aid')} /></div>
               <div ref={selectedFieldCommands} class="field-selected-commands">
               <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
                 disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
@@ -677,7 +679,8 @@ export function App() {
           </section>
         </main>
       )}
-          {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "journal" ? t("journal.title") : drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
+          {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "worldMap" ? t("app.worldMap") : drawer === "journal" ? t("journal.title") : drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
+            {drawer === "worldMap" && <WorldMapPanel key={`${state.me.id}:${state.generation}`} gameSessionClient={client} currentMapIdentifier={state.map.id} />}
             {drawer === "bag" && <BagPanel key={`${state.me.id}:${state.generation}`} me={state.me} gameSessionClient={client}
               actionsAreDisabled={disabled || !!walking} submitConsumableUse={currentItemIdentifier => command('/v1/game/consumables/use',{itemId:currentItemIdentifier})} />}
             {drawer === "journal" && <MainEventJournal key={`${client.tokens?.user_id}:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
