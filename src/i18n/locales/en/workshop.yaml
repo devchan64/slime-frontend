@@ -1,0 +1,22 @@
+title: Workshop crafting and repairs
+citizenship: New contracts require valid local citizenship. Existing contracts can be collected here even after citizenship expires.
+craft: Craft
+repair: Repair
+pending: Checking workshop information.
+item: Item
+choose: Select an item
+noItems: No eligible items. Repairs require damaged equipment that is neither equipped nor reserved.
+quote: Review quote
+price: 'Cost {cost} P · Duration {seconds} seconds'
+durability: 'Durability {before}/{beforeMax} → {after}/{afterMax} (maximum durability decreases)'
+noCancel: Confirming deducts the cost and materials and cannot be cancelled. Work continues offline. Collect the result here when ready.
+confirm: Accept cost and create contract
+contracts: Contracts
+empty: No contracts.
+ready: Ready to collect
+inprogress: In progress · Refresh after the completion time
+claimed: Collected
+readyAt: 'Completion time: {time}'
+claim: Collect result
+next: Next contracts page
+uncertain: The response was not confirmed. Use the contract button below to retry the same request without a duplicate charge.

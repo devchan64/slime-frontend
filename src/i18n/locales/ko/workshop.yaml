@@ -1,0 +1,22 @@
+title: 공방 제작·수리
+citizenship: 새 계약에는 유효한 현지 시민권이 필요합니다. 기존 계약은 시민권이 만료되어도 이 공방에서 수령할 수 있습니다.
+craft: 제작
+repair: 수리
+pending: 공방 정보를 확인하고 있습니다.
+item: 대상 품목
+choose: 품목을 선택하세요
+noItems: 선택할 수 있는 품목이 없습니다. 수리는 장착·예약되지 않은 손상 장비만 가능합니다.
+quote: 견적 확인
+price: '비용 {cost} P · 소요 시간 {seconds}초'
+durability: '내구도 {before}/{beforeMax} → {after}/{afterMax} (최대 내구도 감소)'
+noCancel: 계약하면 비용·재료가 차감되며 취소할 수 없습니다. 오프라인에도 진행되고 완료 후 이 공방에서 직접 수령합니다.
+confirm: 비용 확인 후 계약
+contracts: 계약 목록
+empty: 계약 내역이 없습니다.
+ready: 수령 가능
+inprogress: 진행 중 · 완료 시각 이후 새로고침하세요
+claimed: 수령 완료
+readyAt: '완료 시각: {time}'
+claim: 결과물 수령
+next: 다음 계약 페이지
+uncertain: 응답을 확인하지 못했습니다. 아래 계약 버튼으로 같은 요청의 결과를 재확인하세요. 중복 결제하지 않습니다.

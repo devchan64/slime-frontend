@@ -8,6 +8,7 @@ import { parsePack } from '../src/i18n/catalog.mjs';
 
 const fieldMessageCatalog = parsePack(await readFile('src/i18n/locales/ko/field.yaml', 'utf8'), 'field.yaml');
 const { outputFiles: fieldBundleOutputs } = await build({
+  loader: {'.css':'empty'},
   entryPoints: ['src/ui/FieldPanel.tsx'], bundle: true, write: false, platform: 'node', format: 'esm',
   jsx: 'automatic', jsxImportSource: 'preact', external: [pathToFileURL(resolve('src/i18n/catalog.mjs')).href],
   plugins: [{

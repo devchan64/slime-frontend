@@ -1,4 +1,5 @@
 import {MapKindIcon} from './MapKindIcon';
+import {WorkshopPanel} from './WorkshopPanel';
 import {NpcDialogue} from './NpcDialogue';
 import type {Client} from '../client/api';
 import { fieldMovementEstimate } from "./terrainMovementCost";
@@ -106,6 +107,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {selectedCityBuilding && atBuildingEntrance && field && gameSessionClient && selectedCityBuilding.npcs?.map(currentFacilityNpc=><NpcDialogue
         key={`${state.generation}:${state.me.id}:${state.location.id}:${currentFacilityNpc.id}`} gameSessionClient={gameSessionClient}
         currentNpcIdentifier={currentFacilityNpc.id} currentNpcName={currentFacilityNpc.name} actionsAreDisabled={disabled} currentCharacterVersion={state.me.version} />)}
+      {selectedCityBuilding?.facilityKind==='workshop' && atBuildingEntrance && field && gameSessionClient && <WorkshopPanel
+        key={`${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
+        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {!monsters.length && !selectedCityBuilding && <div class="field-target">
         <div class="field-target-summary">
           <strong>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</strong>
