@@ -154,3 +154,58 @@ test('회복 대기는 HP가 낮은 것과 구분하여 필드와 전투 상태�
  recoveredStateRecord.battle={id:'battle',status:'ACTIVE',order:['hero'],index:0,units:[{id:'hero',name:'캐릭터',side:'ally',hp:1,maxHp:10,position:{column:0,row:0},healthRecoveryPending:true}],tactics:{moves:[],attacks:[]}};
  assert.match(formatState(recoveredStateRecord),/전투 이동 불가: 전투불능 회복 대기/);
 });
+
+function createJournalResponseFixture() {
+  const currentNpcFixture = {id:'npc',name:'담당자',cityId:'city',facilityId:'guild'};
+  return {serverTime:100,characterVersion:4,entries:[{
+    eventId:'delivery',title:'첫 배달',status:'ACCEPTED',acceptedAt:10,completedAt:null,
+    moneyP:4,materialsSufficient:true,giver:currentNpcFixture,receiver:currentNpcFixture,
+    items:[{itemId:'jelly',required:2,owned:3,nameTranslations:{ko:'젤리',en:'Jelly'}}],
+  }]};
+}
+
+test('의뢰 기록 명령은 인증 조회로 현재 재료와 목적지를 표시하고 게임 상태를 보존한다', async () => {
+  const {client:currentTextClient,calls:currentRequestCalls}=setup([createJournalResponseFixture()]);
+  currentTextClient.accept(state());
+  currentTextClient.tokens={access_token:'journal-access'};
+  const originalGameSnapshot=currentTextClient.state;
+  const renderedJournalOutput=await currentTextClient.execute('journal');
+  assert.match(renderedJournalOutput,/첫 배달 \[진행 중\]/);
+  assert.match(renderedJournalOutput,/전달: 담당자 \(city \/ guild\)/);
+  assert.match(renderedJournalOutput,/현재 3 \/ 필요 2/);
+  assert.match(renderedJournalOutput,/완료 보상: 4p/);
+  assert.match(renderedJournalOutput,/전달 권한은 별도/);
+  assert.equal(currentRequestCalls[0].url,'http://localhost:18080/v1/game/main-events');
+  assert.equal(currentRequestCalls[0].body,undefined);
+  assert.equal(currentRequestCalls[0].headers.Authorization,'Bearer journal-access');
+  assert.equal(currentTextClient.state,originalGameSnapshot);
+  await assert.rejects(currentTextClient.execute('journal accept'),/인수/);
+  assert.equal(currentRequestCalls.length,1);
+});
+
+test('의뢰 기록은 빈 목록과 완료를 구분하고 잘못된 수량·중복·완료 상태를 거절한다', async () => {
+  const {formatMainEventJournal}=await import('../scripts/text-client-core.mjs');
+  const currentJournalFixture=createJournalResponseFixture();
+  assert.match(formatMainEventJournal({...currentJournalFixture,entries:[]}),/수령한 메인 의뢰가 없습니다/);
+  const completedJournalFixture=structuredClone(currentJournalFixture);
+  Object.assign(completedJournalFixture.entries[0],{status:'COMPLETED',completedAt:20,materialsSufficient:false});
+  assert.match(formatMainEventJournal(completedJournalFixture),/지급 보상: 4p/);
+  assert.doesNotMatch(formatMainEventJournal(completedJournalFixture),/재료 충족/);
+  for (const corruptJournalFixture of [
+    {...currentJournalFixture,entries:[...currentJournalFixture.entries,...currentJournalFixture.entries]},
+    {...currentJournalFixture,entries:[{...currentJournalFixture.entries[0],materialsSufficient:false}]},
+    {...currentJournalFixture,entries:[{...currentJournalFixture.entries[0],status:'COMPLETED'}]},
+    {...currentJournalFixture,entries:[{...currentJournalFixture.entries[0],items:[{...currentJournalFixture.entries[0].items[0],owned:-1}]}]},
+  ]) assert.throws(()=>formatMainEventJournal(corruptJournalFixture),/응답/);
+  currentJournalFixture.entries[0].title='첫\u001b[2J 배달';
+  assert.doesNotMatch(formatMainEventJournal(currentJournalFixture),/\u001b/);
+});
+
+test('의뢰 조회 실패는 재시도하거나 캐릭터 상태를 덮어쓰지 않는다', async () => {
+  const {client:currentTextClient,calls:currentRequestCalls}=setup([{status:401,body:{code:'SESSION_EXPIRED',message:'만료'}}]);
+  currentTextClient.accept(state());
+  const originalGameSnapshot=currentTextClient.state;
+  await assert.rejects(currentTextClient.execute('journal'),currentApiError=>currentApiError.code==='SESSION_EXPIRED');
+  assert.equal(currentTextClient.state,originalGameSnapshot);
+  assert.equal(currentRequestCalls.length,1);
+});

@@ -138,3 +138,7 @@ node scripts/text-client.mjs --help
 가방 소모품의 선택 필드 `useAction: {type: "RESTORE_HP", restorationHp, consumedOnSuccess}`는 직접 회복 사용 버튼을 제공한다. `/v1/game/consumables/use`에 일반 명령 ID·캐릭터 버전·`itemId`를 보내며 회복량은 보내지 않는다. 성공 상태의 캐릭터 버전 변경으로 가방을 새로 조회한다. 상태 오류와 재시도는 기존 명령 처리 계약을 따른다. `useAction` 없는 붕대·재료에 직접 사용 버튼을 만들지 않는다.
 
 개인 표식은 `useAction: {type: "PLACE_MARKER", markerKind: "ROUTE" | "LIGHT", validSeconds, consumedOnSuccess}`로 같은 소모품 사용 명령을 호출한다. 서버가 현재 타일에 설치하므로 목적 좌표를 보내지 않는다. 선택 필드 `me.personalMarkers`는 본인·현재 맵의 유효 표식이며 서버 시각 기준 만료 시 제거한다. 과거 응답의 표식도 현재 시각으로 필터링되며 해당 응답의 `serverTime`은 공개 검사 시각이다. 표시만으로 몬스터·자원 정보를 추정하지 않는다.
+
+### 텍스트 클라이언트 의뢰 기록
+
+`journal`은 인증된 `GET /v1/game/main-events` 응답에서 수령·완료 상태, 전달 NPC의 도시/시설, 현재 재료 수량과 필요량, 보상 p를 표시한다. 별도 조회 결과로 출력하며 현재 게임 상태·버전을 덮어쓰지 않는다. 재료 충족은 전달 권한 승인을 의미하지 않는다. 이 명령은 의뢰를 수령하거나 완료하지 않는다. 터미널 직접 입력은 기존 활동 알림 경로를 사용한다.

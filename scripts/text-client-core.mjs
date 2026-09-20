@@ -108,6 +108,10 @@ export class TextClient {
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 휴식할 수 있습니다.');
       return this.command('/v1/game/rest/' + requestedRestAction);
     }
+    if (name === 'journal') {
+      arity(0);
+      return formatMainEventJournal(await this.request('/v1/game/main-events'));
+    }
     if (name === 'loans') {
       if (args.length > 1) throw new Error('loans 또는 loans 다음커서로 입력하세요.');
       return formatBorrowedLoanPage(await this.request('/v1/game/loans' + (args.length ? '?after=' + encodeURIComponent(args[0]) : '')));
@@ -190,4 +194,52 @@ export function formatBorrowedLoanPage(receivedLoanPage) {
   if (!renderedLoanLines.length) renderedLoanLines.push('대여 중인 파티원이 없습니다.');
   if (receivedLoanPage.nextCursor) renderedLoanLines.push('다음 페이지: loans ' + receivedLoanPage.nextCursor);
   return renderedLoanLines.join('\n');
+}
+
+
+export function formatMainEventJournal(receivedJournalPage) {
+  const invalidJournalMessage = '메인 의뢰 기록 응답 형식이 올바르지 않습니다.';
+  const isJournalInteger = currentJournalNumber => Number.isSafeInteger(currentJournalNumber) && currentJournalNumber >= 0;
+  const isJournalText = currentJournalText => typeof currentJournalText === 'string' && currentJournalText.trim().length > 0;
+  const renderJournalText = currentJournalText => currentJournalText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  if (!receivedJournalPage || !Number.isFinite(receivedJournalPage.serverTime) || receivedJournalPage.serverTime < 0
+      || !isJournalInteger(receivedJournalPage.characterVersion) || !Array.isArray(receivedJournalPage.entries)) {
+    throw new Error(invalidJournalMessage);
+  }
+  const seenJournalIdentifiers = new Set();
+  const renderedJournalLines = [];
+  for (const currentJournalEntry of receivedJournalPage.entries) {
+    if (!currentJournalEntry || !isJournalText(currentJournalEntry.eventId) || seenJournalIdentifiers.has(currentJournalEntry.eventId)
+        || !isJournalText(currentJournalEntry.title) || !['ACCEPTED', 'COMPLETED'].includes(currentJournalEntry.status)
+        || !isJournalInteger(currentJournalEntry.moneyP) || typeof currentJournalEntry.materialsSufficient !== 'boolean'
+        || !Number.isFinite(currentJournalEntry.acceptedAt) || currentJournalEntry.acceptedAt < 0
+        || (currentJournalEntry.status === 'ACCEPTED' ? currentJournalEntry.completedAt !== null
+          : !Number.isFinite(currentJournalEntry.completedAt) || currentJournalEntry.completedAt < currentJournalEntry.acceptedAt)
+        || !Array.isArray(currentJournalEntry.items) || !currentJournalEntry.items.length) throw new Error(invalidJournalMessage);
+    seenJournalIdentifiers.add(currentJournalEntry.eventId);
+    for (const currentNpcRole of ['giver', 'receiver']) {
+      if (!currentJournalEntry[currentNpcRole] || !['id', 'name', 'cityId', 'facilityId'].every(
+        currentNpcField => isJournalText(currentJournalEntry[currentNpcRole][currentNpcField]))) throw new Error(invalidJournalMessage);
+    }
+    const seenMaterialIdentifiers = new Set();
+    for (const currentMaterialEntry of currentJournalEntry.items) {
+      if (!currentMaterialEntry || !isJournalText(currentMaterialEntry.itemId) || seenMaterialIdentifiers.has(currentMaterialEntry.itemId)
+          || !isJournalInteger(currentMaterialEntry.required) || !currentMaterialEntry.required || !isJournalInteger(currentMaterialEntry.owned)
+          || !isJournalText(currentMaterialEntry.nameTranslations?.ko)) throw new Error(invalidJournalMessage);
+      seenMaterialIdentifiers.add(currentMaterialEntry.itemId);
+    }
+    const expectedMaterialSufficiency = currentJournalEntry.status === 'ACCEPTED'
+      && currentJournalEntry.items.every(currentMaterialEntry => currentMaterialEntry.owned >= currentMaterialEntry.required);
+    if (currentJournalEntry.materialsSufficient !== expectedMaterialSufficiency) throw new Error(invalidJournalMessage);
+    renderedJournalLines.push(renderJournalText(currentJournalEntry.title) + ' [' + (currentJournalEntry.status === 'COMPLETED' ? '완료' : '진행 중') + ']');
+    renderedJournalLines.push('수령: ' + renderJournalText(currentJournalEntry.giver.name) + ' → 전달: '
+      + renderJournalText(currentJournalEntry.receiver.name) + ' (' + renderJournalText(currentJournalEntry.receiver.cityId)
+      + ' / ' + renderJournalText(currentJournalEntry.receiver.facilityId) + ')');
+    for (const currentMaterialEntry of currentJournalEntry.items) renderedJournalLines.push('재료: '
+      + renderJournalText(currentMaterialEntry.nameTranslations.ko) + ' 현재 ' + currentMaterialEntry.owned + ' / 필요 ' + currentMaterialEntry.required);
+    renderedJournalLines.push((currentJournalEntry.status === 'COMPLETED' ? '지급 보상: ' : '완료 보상: ') + currentJournalEntry.moneyP + 'p');
+    if (currentJournalEntry.status === 'ACCEPTED') renderedJournalLines.push(currentJournalEntry.materialsSufficient
+      ? '재료 충족 · 전달 권한은 별도 확인이 필요합니다.' : '재료가 부족합니다.');
+  }
+  return renderedJournalLines.join('\n') || '수령한 메인 의뢰가 없습니다.';
 }

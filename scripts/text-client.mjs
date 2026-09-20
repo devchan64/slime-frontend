@@ -14,6 +14,7 @@ ready / cancel         조우·전투 준비 / 조우 예약 취소
 attack 유닛ID          일반 공격
 end / surrender        턴 종료 / 기권
 rest start / rest stop 휴식 시작 / 중단
+journal                메인 의뢰 기록 조회
 loans [다음커서]        대여 파티원 목록
 help / quit            도움말 / 로그아웃 후 종료`;
 
