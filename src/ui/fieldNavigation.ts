@@ -1,3 +1,4 @@
+import {findCityBuilding} from '../game/terrain/cityBuildings';
 import { findExpectedFieldRoute } from "./terrainMovementCost";
 import { canStep } from "../game/terrain/elevation";
 import type { Position, State } from "../client/types";
@@ -60,4 +61,16 @@ export function encounterRoute(start: Position, target: Position, map: State["ma
   if (fieldDistance(start, target) <= 1) return [];
   const approachMap = {...map, blocked: [...map.blocked, target]};
   return routeToAny(start, DIRECTIONS.map(([dc, dr]) => ({column: target.column + dc, row: target.row + dr})), approachMap);
+}
+
+/** 실행 버튼과 같은 목적지 규칙으로 필드 경로만 미리 계산한다. */
+export function selectedFieldRoute(currentGameState: State, selectedFieldPosition: Position | null): Position[] | null {
+  if (currentGameState.battle || currentGameState.me.mode !== 'FIELD' || !selectedFieldPosition) return null;
+  const selectedCityBuilding = findCityBuilding(currentGameState.map.buildings,selectedFieldPosition);
+  if (selectedCityBuilding) return fieldRoute(currentGameState.me.position,selectedCityBuilding.entrance,currentGameState.map);
+  const selectedFieldMonster = currentGameState.monsters.find(currentMonsterState => currentMonsterState.state !== 'COOLDOWN'
+    && sameCell(currentMonsterState.position,selectedFieldPosition));
+  if (selectedFieldMonster) return selectedFieldMonster.state === 'AVAILABLE'
+    ? encounterRoute(currentGameState.me.position,selectedFieldMonster.position,currentGameState.map) : null;
+  return fieldRoute(currentGameState.me.position,selectedFieldPosition,currentGameState.map);
 }

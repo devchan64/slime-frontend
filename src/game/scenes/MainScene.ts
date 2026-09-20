@@ -1,3 +1,4 @@
+import {selectedFieldRoute} from '../../ui/fieldNavigation';
 import { screenFacing, type WorldFacing } from "../animation/facing";
 import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
 import {BattleMotion} from '../terrain/battleMotion';
@@ -457,19 +458,23 @@ export class MainScene extends Phaser.Scene {
           g.strokePoints(this.points(polygon), true);
         }
       }
-    if (selectedMove && s.battle) {
+    const selectedFieldPath = selectedFieldRoute(s,this.selected);
+    const currentPreviewPath = selectedMove?.path ?? selectedFieldPath;
+    if (currentPreviewPath?.length) {
       const g = this.add.graphics().setDepth(this.annotationDepth());
-      const actor = s.battle.units.find(u => u.id === s.me.id)!;
-      const points = [actor.position, ...selectedMove.path].map(p => this.project(p));
+      const currentRouteOrigin = s.battle ? s.battle.units.find(currentBattleUnit => currentBattleUnit.id === s.me.id)!.position : s.me.position;
+      const points = [currentRouteOrigin, ...currentPreviewPath].map(p => this.project(p));
+      g.setData('fieldRoutePreview', s.battle ? null : currentPreviewPath);
       g.lineStyle(PATH_WIDTH, PATH_COLOR, 1);
       g.beginPath();
       g.moveTo(points[0].x, points[0].y);
       for (const point of points.slice(1)) g.lineTo(point.x, point.y);
       g.strokePath();
       for (const [index, point] of points.slice(1).entries()) {
+        if (!s.battle && index !== currentPreviewPath.length - 1) continue;
         g.fillStyle(PATH_COLOR);
         g.fillCircle(point.x, point.y, PATH_NODE_RADIUS);
-        this.add.text(point.x, point.y, String(index + 1), {
+        if (s.battle) this.add.text(point.x, point.y, String(index + 1), {
           fontFamily: "sans-serif", fontSize: "10px", fontStyle: "bold", color: "#10202a",
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
