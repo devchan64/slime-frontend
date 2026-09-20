@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import type { Direction } from "../animation/cellAnimation";
 import { TILE_W, TILE_H } from "./meadow";
 
 export const HUMAN_HEIGHT = 60;
@@ -9,20 +10,25 @@ const HALF = 0.5;
 const SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.54, height: 0.24, coreAlpha: 0.24, coreScale: 0.65 };
 const MONSTER_RING = { alpha: 0.45, width: 1 };
 const ACTOR_SPRITES = {
-  human: { key: "character-default-v1", url: new URL("../../assets/characters/default-v1.png", import.meta.url).href, top: 50, bottom: 1218 },
   slime: { key: "monster-slime-v2", url: new URL("../../assets/monsters/slime-v2.png", import.meta.url).href, top: 278, bottom: 1074 },
   beast: { key: "monster-beast-v2", url: new URL("../../assets/monsters/beast-v2.png", import.meta.url).href, top: 132, bottom: 1176 },
   giant: { key: "monster-giant-v2", url: new URL("../../assets/monsters/giant-v2.png", import.meta.url).href, top: 31, bottom: 1227 },
 } as const;
+const CHARACTER_DIRECTION_SPRITES = {
+  down_left: { key: "character-idle-down-left", url: new URL("../../assets/characters/character-default-white-shirt-four-directions-v1/down_left.png", import.meta.url).href, top: 21, bottom: 1230 },
+  down_right: { key: "character-idle-down-right", url: new URL("../../assets/characters/character-default-white-shirt-four-directions-v1/down_right.png", import.meta.url).href, top: 19, bottom: 1230 },
+  up_left: { key: "character-idle-up-left", url: new URL("../../assets/characters/character-default-white-shirt-four-directions-v1/up_left.png", import.meta.url).href, top: 21, bottom: 1230 },
+  up_right: { key: "character-idle-up-right", url: new URL("../../assets/characters/character-default-white-shirt-four-directions-v1/up_right.png", import.meta.url).href, top: 19, bottom: 1231 },
+} as const;
 const SPRITE_DEPTH_OFFSET = 0.01;
 
 export function preloadActors(scene: Phaser.Scene) {
-  for (const { key, url } of Object.values(ACTOR_SPRITES)) scene.load.image(key, url);
+  for (const { key, url } of [...Object.values(ACTOR_SPRITES), ...Object.values(CHARACTER_DIRECTION_SPRITES)]) scene.load.image(key, url);
 }
 
 // 발밑 좌표가 논리 셀이다. 사람은 머리 1 : 몸통 2 : 다리 2의 5등신이다.
 export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, color: number,
-  kind: "human" | "slime" | "beast" | "giant", ratio: number, tiles: number) {
+  kind: "human" | "slime" | "beast" | "giant", ratio: number, tiles: number, actorScreenDirection: Direction = "down_left") {
   if (!Number.isFinite(ratio) || ratio < SLIME_RATIO || ratio > MAX_MONSTER_RATIO)
     throw new Error(`지원하지 않는 몬스터 크기입니다: ${ratio}`);
   if (tiles !== 1 && tiles !== 2) throw new Error(`지원하지 않는 표시 영역입니다: ${tiles}`);
@@ -43,7 +49,8 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
     g.lineStyle(MONSTER_RING.width, color, MONSTER_RING.alpha);
     g.strokeEllipse(x, y, width * SHADOW.width, groundHeight * SHADOW.height);
   }
-  const sprite = ACTOR_SPRITES[kind];
+  const sprite = kind === "human" ? CHARACTER_DIRECTION_SPRITES[actorScreenDirection] : ACTOR_SPRITES[kind];
+  if (!sprite) throw new Error("등록되지 않은 캐릭터 이미지 방향입니다.");
   if (!g.scene.textures.exists(sprite.key)) throw new Error(`개체 이미지가 로드되지 않았습니다: ${sprite.key}`);
   const image = g.scene.add.image(x, y, sprite.key);
   // 원본의 투명 여백을 유지하면서 실제 몸체 높이와 발밑을 맞춘다.

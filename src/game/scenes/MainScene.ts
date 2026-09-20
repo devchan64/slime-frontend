@@ -1,3 +1,4 @@
+import { screenFacing, type WorldFacing } from "../animation/facing";
 import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
 import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
@@ -463,7 +464,7 @@ export class MainScene extends Phaser.Scene {
             s.battle.order.indexOf(unit.id) + 1,
             s.battle.order.indexOf(unit.id) < s.battle.index,
             unit.side === "ally" ? undefined : unit,
-            unit, `battle:${unit.id}`,
+            unit, `battle:${unit.id}`, unit.facing,
           );
     } else {
       for (const gate of s.map.connections) {
@@ -484,7 +485,7 @@ export class MainScene extends Phaser.Scene {
             member.position,
             member.id === s.me.id ? COLORS.player : COLORS.other,
             member.name,
-            member.id === s.me.id, undefined, false, undefined, undefined, `member:${member.id}`,
+            member.id === s.me.id, undefined, false, undefined, undefined, `member:${member.id}`, member.facing ?? (member.id === s.me.id ? s.me.fieldFacing : undefined),
           );
     }
     this.rebuildActorViewport();
@@ -599,7 +600,7 @@ export class MainScene extends Phaser.Scene {
     const left=camera.scrollX+(camera.width-width)/2,top=camera.scrollY+(camera.height-height)/2;
     this.actorCache.sync({left,top,right:left+width,bottom:top+height});
   }
-  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string) {
+  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string, actorWorldFacing?: WorldFacing) {
     const firstChild=this.children.list.length;
     const p = this.project(pos),
       g = this.add.graphics();
@@ -607,7 +608,7 @@ export class MainScene extends Phaser.Scene {
     const depth = this.depth(pos) + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
-      size.scale, size.tiles);
+      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation));
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
     }
