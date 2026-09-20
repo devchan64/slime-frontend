@@ -65,6 +65,7 @@ const MOVE_OVERLAY = {
   arrivalInset: 0.72, arrivalWidth: 2, targetWidth: 4, selectedWidth: 4,
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
+const ACTOR_PICK_ALPHA_MINIMUM = 1;
 export class MainScene extends Phaser.Scene {
   private state: State | null = null;
   private useDefaultTileScale = false;
@@ -179,6 +180,15 @@ export class MainScene extends Phaser.Scene {
         const renderedActorPosition = renderedSceneChild.getData('actorSelectionPosition') as Position | undefined;
         if (!renderedActorPosition) continue;
         const renderedImageBounds = renderedSceneChild.getBounds();
+        if (!renderedImageBounds.contains(at.x, at.y)) continue;
+        const actorLocalPoint = renderedSceneChild.getWorldTransformMatrix().applyInverse(at.x, at.y);
+        const actorPixelColumn = Math.floor(actorLocalPoint.x + renderedSceneChild.displayOriginX);
+        const actorPixelRow = Math.floor(actorLocalPoint.y + renderedSceneChild.displayOriginY);
+        const actorTextureAlpha = this.textures.getPixelAlpha(
+          renderedSceneChild.flipX ? renderedSceneChild.width - 1 - actorPixelColumn : actorPixelColumn,
+          renderedSceneChild.flipY ? renderedSceneChild.height - 1 - actorPixelRow : actorPixelRow,
+          renderedSceneChild.texture.key, renderedSceneChild.frame.name);
+        if (actorTextureAlpha === null || actorTextureAlpha < ACTOR_PICK_ALPHA_MINIMUM) continue;
         visibleActorRegions.push({position: renderedActorPosition, depth: renderedSceneChild.depth,
           left: renderedImageBounds.left, right: renderedImageBounds.right,
           top: renderedImageBounds.top, bottom: renderedImageBounds.bottom});
