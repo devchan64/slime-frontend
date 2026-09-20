@@ -4,6 +4,8 @@ import { growthCost } from "./growthCost";
 import { useState } from "preact/hooks";
 import type { State } from "../client/types";
 import { CharacterPortrait } from "./CharacterPortrait";
+import { EquipmentPanel } from './EquipmentPanel';
+import type { Client } from '../client/api';
 
 const ATTRIBUTES = [
   { id: "body", icon: "◇" },
@@ -19,14 +21,15 @@ const SKILL_DEFINITIONS = [
 
 type Props = {
   expanded?: boolean;
+  gameSessionClient?: Client;
   me: State["me"];
   disabled: boolean;
   command: (path: string, body?: Record<string, unknown>) => unknown;
 };
 
-export function CharacterSettings({ me, disabled, command, expanded = false }: Props) {
+export function CharacterSettings({ me, disabled, command, expanded = false, gameSessionClient }: Props) {
   const { t, locale } = useTranslation();
-  const [category, setCategory] = useState<"attributes" | "skills">("attributes");
+  const [category, setCategory] = useState<"attributes" | "skills" | "equipment">("attributes");
   const entries = category === "attributes" ? ATTRIBUTES.map(entry => ({ ...entry, name: t(`character.${entry.id}Name`), description: t(`character.${entry.id}Description`) })) : Object.keys(me.skills).map(id => {
     // 직전 v1 서버는 생성 시 지급 스킬의 메타데이터를 제공하지 않는다.
     const definition = me.skillDefinitions?.[id] ?? SKILL_DEFINITIONS.find(skill => skill.id === id);
@@ -49,15 +52,18 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
       </dl>
     </section>
     <section class="character-growth" aria-label={t("character.growth")}>
-      <div class="growth-heading"><div><span class="character-kicker">{t("character.direction")}</span><h3>{t("character.growth")}</h3></div>
+      {category !== 'equipment' && <><div class="growth-heading"><div><span class="character-kicker">{t("character.direction")}</span><h3>{t("character.growth")}</h3></div>
         <div class="cp-balance" role="status" aria-live="polite"><span>{t("character.available", { currency })}</span><strong>{balance ?? t("character.connectionRequired")}<small> {currency}</small></strong></div>
       </div>
       <dl class="character-resources cp-breakdown" aria-label={t("character.breakdown")}><div><dt>{t("character.generalPoints")}</dt><dd>{me.cpGeneral} <small>CP</small></dd></div><div><dt>{t("character.seasonPoints")}</dt><dd>{me.cpSeasonal} <small>CP</small></dd></div></dl>
-      <p class="growth-intro">{t("character.intro")}<br />{t("character.currencies")}</p>
+      <p class="growth-intro">{t("character.intro")}<br />{t("character.currencies")}</p></>}
       <div class="growth-categories" role="group" aria-label={t("character.category")}>
         <button class="secondary" aria-pressed={category === "attributes"} onClick={() => setCategory("attributes")}>{t("character.attributes")}</button>
         <button class="secondary" aria-pressed={category === "skills"} onClick={() => setCategory("skills")}>{t("character.skills")}</button>
+        {gameSessionClient && <button class="secondary" aria-pressed={category === 'equipment'} onClick={() => setCategory('equipment')}>{t('equipment.title')}</button>}
       </div>
+      {category === 'equipment' && gameSessionClient ? <EquipmentPanel gameSessionClient={gameSessionClient}
+        actionsAreDisabled={disabled || !!me.battleId || !['LOBBY','FIELD','AWAY'].includes(me.mode)} characterStateVersion={me.version} /> : <>
       <p class="growth-help">{category === "skills" && t("character.skillList")}</p>
       {category === "skills" && me.battleSkillSlotLimit !== undefined && <section class="skill-loadout" aria-label={t("character.battleSlots")}>
         <h4>{t("character.battleSlots")} · {(me.battleSkillLoadout ?? []).length}/{me.battleSkillSlotLimit}</h4>
@@ -89,6 +95,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false }: P
       })}</div>
       <p class="growth-help">{locked ? t("character.locked") : t("character.saved")}</p>
       <details class="growth-rules"><summary>{t("character.rulesTitle")}</summary><p>{t("character.rules")}</p></details>
+      </>}
     </section>
   </div>;
   return expanded ? <section class="character-settings">{content}</section> :

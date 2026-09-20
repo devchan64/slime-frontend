@@ -562,7 +562,7 @@ export function App() {
               navigateCharacterPage(worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "#/menu" : "#/characters");
             }}>{worldGeneration === state.generation && state.me.mode !== "LOBBY" ? t('app.back') : t('app.characterSelectLink')}</button>
             </nav>
-            <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
+            <CharacterSettings me={state.me} disabled={disabled} command={command} gameSessionClient={client} expanded />
           </section>
         </main>
       ) : !inWorld ? (
@@ -590,7 +590,7 @@ export function App() {
               </form>
             ) : <>
               <button class="secondary" disabled={busy} onClick={() => setCharacterPage("select")}>{t('app.characterSelectLink')}</button>
-              <CharacterSettings me={state.me} disabled={disabled} command={command} expanded />
+              <CharacterSettings me={state.me} disabled={disabled} command={command} gameSessionClient={client} expanded />
             </>}
             {state.me.lastResult && (
               <p class="result">

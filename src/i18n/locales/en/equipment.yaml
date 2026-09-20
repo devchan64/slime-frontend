@@ -1,0 +1,27 @@
+title: Equipment
+refresh: Refresh
+loading: Loading equipment.
+slots: Equipment slots
+mainHand: Main hand
+offHand: Off hand
+body: Body
+back: Back
+feet: Feet
+tool: Tool
+emptySlot: Empty
+weight: "Carried equipment weight: {weight} g"
+itemWeight: Weight
+durability: Durability
+attack: Attack bonus
+defense: Defense bonus
+equip: Equip
+unequip: Unequip
+equipped: Equipped
+reserved: Reserved
+broken: Broken
+noItems: No equipment for this slot on this page.
+more: Load more
+saved: Equipment saved.
+uncertain: The result could not be confirmed. Check again using the same request.
+retry: Check result again
+comparison: "Compared with this slot: attack {attack} · defense {defense}"

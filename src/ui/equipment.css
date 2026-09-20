@@ -1,0 +1,21 @@
+.equipment-panel { min-width: 0; }
+.equipment-panel header, .equipment-current { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.equipment-panel h3, .equipment-panel h4 { margin: 0; }
+.character-settings .equipment-panel button { width: auto; margin: 0; padding: 8px 12px; min-height: 40px; }
+.equipment-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0; }
+.equipment-slots button { display: grid; text-align: left; gap: 5px; overflow-wrap: anywhere; }
+.equipment-slots button span { font-size: .8rem; color: #aac2c5; }
+.equipment-slots button[aria-pressed="true"] { border-color: #a3dfb8; background: #294b48; }
+.equipment-current { padding: 12px 0; border-bottom: 1px solid #496365; }
+.equipment-inventory { list-style: none; padding: 0; margin: 0; }
+.equipment-inventory li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid #29494f; }
+.equipment-inventory li > div { min-width: 0; }
+.equipment-inventory p { color: #abc0c6; font-size: .85rem; overflow-wrap: anywhere; }
+.equipment-inventory dl { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 8px 0 0; font-size: .85rem; }
+.equipment-inventory dl div { display: flex; gap: 6px; }
+.equipment-inventory dd { margin: 0; color: #c4edce; }
+.equipment-inventory button { flex-shrink: 0; }
+@media (max-width: 480px) {
+  .equipment-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .equipment-inventory li { align-items: flex-start; }
+}

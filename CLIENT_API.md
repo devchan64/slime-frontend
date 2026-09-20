@@ -118,3 +118,11 @@ node scripts/text-client.mjs --help
 대여 목록 항목의 `healthRecoveryPending`은 복사본의 전투불능 회복 대기 여부다. 참이면 최대 HP의 50% 이상을 실제 회복할 때까지 이동할 수 없다. HP 비율만으로 이력을 추정하지 않는다. 이전 API 응답의 필드 누락은 허용하며, 필드가 있으면 boolean이어야 한다.
 
 필드 `members[].fieldRestActive`는 해당 캐릭터의 휴식 여부(boolean)다. 필드에서 참일 때 현재 위치에 앉은 자세로 표시한다. 이전 API 응답에서는 생략될 수 있다. 본인은 `me.fieldRest.active`를 사용한다.
+
+### 캐릭터 장비 화면
+
+캐릭터 설정의 장비 탭은 `GET /v1/game/equipment`를 사용한다. 응답은 `serverTime`, `characterVersion`, `items`, `slots`, `knownEquipmentWeightG`, `nextCursor`를 포함한다. `?after=<개체 UUID>`로 다음 페이지를 요청한다. `slots`는 페이지 밖의 장착물도 포함하며 전체 장비 무게는 장착물과 가방 목록을 중복 합산하지 않은 서버 값이다.
+
+개체의 ID·품목/개체 버전·한영 이름·설명·슬롯·예약 여부·현재/최대 내구도·무게·공격/방어 보정을 표시한다. 목록 로딩 실패를 빈 가방으로 바꾸지 않고 오류를 표시한다. 서버의 `SCHEMA_REQUIRED`는 장비 스키마 갱신이 필요하다는 뜻이며 자동 마이그레이션하지 않는다. 인증 클라이언트가 없는 정적 미리보기에는 장비 탭을 제공하지 않는다.
+
+장착·해제는 `POST /v1/game/equipment/loadout`에 `requestId`, `expectedVersion`, `slot`, `instanceId`, `expectedInstanceVersion`을 보낸다. 해제는 마지막 두 값을 null로 설정한다. 이 API는 일반 명령의 `result.state` 대신 거래 증명을 반환하므로 `Client.command`로 호출하지 않는다. 성공 후 장비 목록과 게임 상태를 다시 조회한다. 응답 유실·서버 오류로 결과가 불명확하면 같은 본문·요청 ID로 결과를 재확인하며 다른 변경 버튼을 잠근다. 확정된 규칙 거절은 서버 메시지를 표시하고 목록을 갱신한다.
