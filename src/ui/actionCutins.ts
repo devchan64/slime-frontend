@@ -1,3 +1,4 @@
+import { parseActionCutinEvent } from './actionCutinContract';
 import type { State } from '../client/types';
 
 export type ActionCutinEvent = {
@@ -61,7 +62,9 @@ export class ActionCutinTracker {
     const incomingActionCutinEvents = incomingBattleRecord
       ? incomingBattleRecord.log.flatMap(actionLogRecord => actionLogRecord.stillshot ? [actionLogRecord.stillshot] : [])
       : incomingStateRecord.me.lastResult?.stillshots ?? [];
-    const freshActionCutinEvents = [...new Map(incomingActionCutinEvents.filter(actionCutinEventRecord =>
+    if (!Array.isArray(incomingActionCutinEvents)) throw new Error('액션 컷인 목록 형식이 올바르지 않습니다.');
+    const validatedActionCutinEvents = incomingActionCutinEvents.map(parseActionCutinEvent);
+    const freshActionCutinEvents = [...new Map(validatedActionCutinEvents.filter(actionCutinEventRecord =>
       findActionCutinPresentation(actionCutinEventRecord.actionType) !== undefined
       && actionCutinEventRecord.battleId === this.trackedBattleIdentity
       && actionCutinEventRecord.sequence > this.highestBattleSequence)

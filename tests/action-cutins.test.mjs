@@ -5,7 +5,7 @@ import { build } from 'esbuild';
 const { outputFiles: actionCutinBuildOutputs } = await build({ entryPoints: ['src/ui/actionCutins.ts'], bundle: true, write: false, format: 'esm', platform: 'node' });
 const { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, findActionCutinPresentation, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_LEGACY_KEY, ACTION_CUTIN_ACTION_PRESENTATIONS } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinBuildOutputs[0].text).toString('base64')}`);
 function createActionCutinEvent(actionSequenceValue, actionTypeValue = 'ATTACK') {
-  return { battleId: 'battle-one', actionId: `battle-one:${actionSequenceValue}`, sequence: actionSequenceValue, actionType: actionTypeValue };
+  return { battleId: 'battle-one', actionId: `battle-one:${actionSequenceValue}`, sequence: actionSequenceValue, actionType: actionTypeValue, unitId:'actor-one', actorName:'모험가', skillId:actionTypeValue==='SKILL'?'physical':null, appearance:{kind:'monster',group:'slime'} };
 }
 function createBattleSnapshot(battleVersionValue, incomingActionCutinEvents = []) {
   return { me: { id: 'player-one', lastResult: null }, battle: { id: 'battle-one', version: battleVersionValue, log: incomingActionCutinEvents.map(actionCutinEventRecord => ({ stillshot: actionCutinEventRecord })) } };
@@ -93,4 +93,32 @@ test('다른 전투의 결과는 종료 기준으로 사용하지 않고 입력 
   assert.deepEqual(actionCutinEventTracker.collectNewActionCutins({me:{id:'player-one',lastResult:{battleId:'old-battle',stillshots:[]}},battle:null}),[]);
   const nextBattleSnapshot = createBattleSnapshot(3,[createActionCutinEvent(3),createActionCutinEvent(2),createActionCutinEvent(2)]);
   assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(nextBattleSnapshot),[createActionCutinEvent(2),createActionCutinEvent(3)]);
+});
+
+test('잘못된 컷인 계약은 순번을 소비하지 않고 정상 재수신을 허용한다', () => {
+  const currentInvalidChanges = [
+    {sequence:'2'}, {sequence:Infinity}, {sequence:0}, {sequence:2.5},
+    {actionId:'unrelated'}, {unitId:''}, {actorName:null}, {skillId:'physical'},
+    {appearance:{kind:'unknown'}}, {appearance:{kind:'monster',group:3}},
+    {appearance:{kind:'character',groups:{costume:'default',hair:'default'}}},
+    {appearance:{kind:'character',groups:{costume:'default',hair:'default',face:'default',extra:1}}},
+    {contractVersion:2}, {extra:'private-data'},
+  ];
+  for (const currentInvalidChange of currentInvalidChanges) {
+    const currentEventTracker=new ActionCutinTracker();
+    currentEventTracker.collectNewActionCutins(createBattleSnapshot(1));
+    assert.throws(()=>currentEventTracker.collectNewActionCutins(createBattleSnapshot(2,[{...createActionCutinEvent(2),...currentInvalidChange}])),/액션 컷인/);
+    assert.deepEqual(currentEventTracker.collectNewActionCutins(createBattleSnapshot(2,[createActionCutinEvent(2)])),[createActionCutinEvent(2)]);
+  }
+});
+
+test('종료 이벤트도 엄격히 검사하며 반환된 컷인은 수신 원본과 분리한다',()=>{
+  const currentEventTracker=new ActionCutinTracker();
+  currentEventTracker.collectNewActionCutins(createBattleSnapshot(1));
+  const currentResultState={me:{id:'player-one',lastResult:{battleId:'battle-one',stillshots:[{...createActionCutinEvent(2),appearance:null}]}},battle:null};
+  assert.throws(()=>currentEventTracker.collectNewActionCutins(currentResultState),/액션 컷인/);
+  currentResultState.me.lastResult.stillshots=[createActionCutinEvent(2)];
+  const currentReturnedEvents=currentEventTracker.collectNewActionCutins(currentResultState);
+  currentReturnedEvents[0].appearance.group='beast';
+  assert.equal(currentResultState.me.lastResult.stillshots[0].appearance.group,'slime');
 });

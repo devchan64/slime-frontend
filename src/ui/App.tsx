@@ -170,7 +170,14 @@ export function App() {
     client.onState = (s) => {
       serverOffset.current = s.serverTime * 1000 - Date.now();
       const previous = stateRef.current;
-      const incomingActionCutinEvents = actionCutinEventTracker.current.collectNewActionCutins(s);
+      let incomingActionCutinEvents: ReturnType<ActionCutinTracker['collectNewActionCutins']> = [];
+      try {
+        incomingActionCutinEvents = actionCutinEventTracker.current.collectNewActionCutins(s);
+      } catch (currentCutinContractError) {
+        // 연출 계약 오류는 표시하되 서버 상태·결과 리포트·스트림 처리를 계속한다.
+        setStatus(currentCutinContractError as Error);
+        setPendingActionCutinEvents([]);
+      }
       if (previous?.me.id !== s.me.id || (s.battle && previous?.battle?.id !== s.battle.id)) setPendingActionCutinEvents([]);
       if (actionCutinEnabledReference.current && incomingActionCutinEvents.length) {
         setPendingActionCutinEvents(currentActionCutinQueue => appendActionCutinQueue(currentActionCutinQueue, incomingActionCutinEvents));
