@@ -81,3 +81,4 @@ fieldHelpEncounter: "조작 카드에서 접근·조우를 선택하세요. 이�
 fieldHelpSelection: "선택 · 터치/클릭 또는 맵 초점 후 방향키"
 fieldHelpCamera: "시점 · 드래그 / 확대 · 휠·± / 회전 · ↶↷"
 fieldHelpReset: "조준점 · 내 위치와 기본 배율로 복귀"
+currentCharacter: 현재 캐릭터

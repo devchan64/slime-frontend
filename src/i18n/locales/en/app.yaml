@@ -81,3 +81,4 @@ fieldHelpEncounter: "Use the controls to approach or encounter. Name colors show
 fieldHelpSelection: "Select · tap/click or focus the map and use arrows"
 fieldHelpCamera: "Pan · drag / Zoom · wheel or ± / Rotate · ↶↷"
 fieldHelpReset: "Crosshair · return to your position and default zoom"
+currentCharacter: Current character

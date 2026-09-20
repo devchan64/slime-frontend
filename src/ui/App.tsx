@@ -19,9 +19,8 @@ import { useMinimumLoading } from "./useMinimumLoading";
 import { FieldPanel, FieldSelection, FieldEventShortcuts, type Walking } from "./FieldPanel";
 import { fieldRoute, sameCell as same } from "./fieldNavigation";
 import { FieldMapHelp } from "./FieldMapHelp";
-import { CharacterPortrait } from "./CharacterPortrait";
 import { CharacterSettings } from "./CharacterSettings";
-import { CharacterDeparture } from "./CharacterDeparture";
+import { CharacterSelectionCard } from "./CharacterSelectionCard";
 import { WorldDrawer } from "./WorldDrawer";
 import { BattlePanel } from "./BattlePanel";
 import { Client } from "../client/api";
@@ -521,20 +520,13 @@ export function App() {
       ) : !inWorld ? (
         <main class={`lobby ${state.me.name ? "character-lobby" : ""}`}>
           <section class="card">
-            <div class="eyebrow">{characterPage === "select" ? "CHARACTER SELECT" : characterPage === "create" ? "NEW EXPLORER" : "CHARACTER SETTINGS"}</div>
             <h1>{characterPage === "select" ? t('app.characterSelect') : characterPage === "create" ? t('app.characterCreate') : t('common.settings')}</h1>
-            {state.me.name && <CharacterDeparture me={state.me} disabled={disabled}
-              onSettings={() => navigateCharacterPage("#/characters/settings")}
-              onEnter={() => command("/v1/world/enter")} />}
-            {state.me.name && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>}
             {characterPage === "select" ? (
               state.me.name ? <>
-                <article class="character-select-card" aria-label={t('app.myCharacter')}>
-                  <CharacterPortrait />
-                  <div><h2>{state.me.name}</h2><p>{t('app.continueAdventure')}</p>
-                    <button class="secondary" disabled={disabled} onClick={() => navigateCharacterPage("#/characters/settings")}>{t('app.characterSettings')}</button>
-                  </div>
-                </article>
+                <CharacterSelectionCard currentPlayerState={state.me} actionsAreDisabled={disabled}
+                  openCharacterSettings={() => navigateCharacterPage("#/characters/settings")}
+                  openAccountRewards={() => setDrawer("rewards")}
+                  enterCurrentWorld={() => command("/v1/world/enter")} />
                 <p class="growth-help">{t('app.characterLimit')}</p>
               </> : <div class="character-select-empty">
                 <p>{t('app.noCharacter')}</p>
