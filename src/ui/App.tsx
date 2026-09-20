@@ -615,7 +615,7 @@ export function App() {
               <nav class="map-menu" aria-label={t('app.mapMenu')}>
                 <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
               </nav>
-              {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} hp={state.me.hp} maxHp={state.me.maxHp} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
+              {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} hp={state.me.hp} maxHp={state.me.maxHp} healthRecoveryPending={state.me.healthRecoveryPending} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
             </div>
             <div class={`map-stage card ${battle ? "battle-map-card" : "field-map-card"}`} role="region" aria-label={battle ? t('app.battleMap') : t('app.fieldMap')}>
               <nav class="map-camera-controls" aria-label={t('app.cameraControls')}>              <button class="secondary compact" aria-label={t('app.zoomOut')} onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>

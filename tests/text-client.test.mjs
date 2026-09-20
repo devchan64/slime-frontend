@@ -144,3 +144,13 @@ test('대여 목록은 조회만 하고 전투 상태를 덮어쓰지 않으며 
   assert.equal(calls[0].body,undefined);
   assert.equal(client.state,originalClientState);
 });
+
+test('회복 대기는 HP가 낮은 것과 구분하여 필드와 전투 상태에 표시한다',()=>{
+ const recoveredStateRecord=state();
+ recoveredStateRecord.me.hp=1;recoveredStateRecord.me.maxHp=10;
+ assert.doesNotMatch(formatState(recoveredStateRecord),/회복 대기/);
+ recoveredStateRecord.me.id='hero';recoveredStateRecord.me.healthRecoveryPending=true;
+ assert.match(formatState(recoveredStateRecord),/50% 이상 회복 전 이동 불가/);
+ recoveredStateRecord.battle={id:'battle',status:'ACTIVE',order:['hero'],index:0,units:[{id:'hero',name:'캐릭터',side:'ally',hp:1,maxHp:10,position:{column:0,row:0},healthRecoveryPending:true}],tactics:{moves:[],attacks:[]}};
+ assert.match(formatState(recoveredStateRecord),/전투 이동 불가: 전투불능 회복 대기/);
+});

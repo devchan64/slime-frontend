@@ -148,6 +148,7 @@ export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
   if (Number.isInteger(state.me.hp) && Number.isInteger(state.me.maxHp)) lines.push('HP ' + state.me.hp + '/' + state.me.maxHp);
+  if (state.me.healthRecoveryPending) lines.push('전투불능 회복 대기 | 최대 HP 50% 이상 회복 전 이동 불가');
   if (state.me.fieldRest?.active) lines.push('휴식 중 | 분당 HP ' + state.me.fieldRest.recoveryPerMinute + ' 회복 | 중단: rest stop');
   if (state.me.lastResult) lines.push(`최근 결과: ${state.me.lastResult.result}`);
   if (state.reservation) lines.push(`조우 예약 ${state.reservation.id}: ready 또는 cancel`);
@@ -155,6 +156,8 @@ export function formatState(state) {
     const b = state.battle;
     lines.push(`전투 ${b.id} | ${b.status} | 턴 ${b.turnId} | 현재 ${b.order[b.index]}`);
     for (const u of b.units) lines.push(`${u.id} ${u.name} [${u.side}] (${u.position.column},${u.position.row}) ${u.side === 'enemy' ? (u.healthVisibility === 'BANDED' ? `추정 건강 단계 ${u.hp}/${u.maxHp}` : '체력 정보 없음') : `HP ${u.hp}/${u.maxHp}${Number.isInteger(u.ap) && Number.isInteger(u.maxAp) ? ` | AP ${u.ap}/${u.maxAp}` : ''}`}`);
+    const recoveringBattleUnit = b.units.find(battleUnitEntry => battleUnitEntry.id === state.me.id && battleUnitEntry.healthRecoveryPending);
+    if (recoveringBattleUnit) lines.push('전투 이동 불가: 전투불능 회복 대기 · 제자리 행동/턴 종료 가능');
     lines.push(`이동 가능: ${(b.tactics?.moves ?? []).map(m => `${m.position.column},${m.position.row}${Number.isInteger(m.apCost) ? ` (${m.apCost} AP → 잔여 ${m.apAfter})` : ''}`).join(' / ') || '없음'}`);
     lines.push(`공격 가능: ${(b.tactics?.attacks ?? []).map(a => `${a.targetId}${Number.isInteger(a.apCost) ? ` (${a.apCost} AP)` : ''}`).join(', ') || '없음'}`);
   } else {
