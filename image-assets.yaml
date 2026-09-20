@@ -82,6 +82,14 @@ data:
     path: src/assets/terrain/water-v3.webp
   - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
     path: src/assets/structures/ward-tower-v1.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-four-directions-v1.down-left.png
+    path: src/assets/characters/character-default-white-shirt-four-directions-v1/down_left.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-four-directions-v1.down-right.png
+    path: src/assets/characters/character-default-white-shirt-four-directions-v1/down_right.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-four-directions-v1.up-left.png
+    path: src/assets/characters/character-default-white-shirt-four-directions-v1/up_left.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-four-directions-v1.up-right.png
+    path: src/assets/characters/character-default-white-shirt-four-directions-v1/up_right.png
   - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
     path: src/assets/cutins/characters/default-punch-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
