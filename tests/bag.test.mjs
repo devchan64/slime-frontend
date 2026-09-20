@@ -9,6 +9,12 @@ function createBagResponse() {
     {id:'iron-ore',kind:'material',quantity:3,nameTranslations:{ko:'철광석',en:'Iron ore'},description:'재료',weightG:null,valueP:null},
   ]}};
 }
+test('붕대 소모품의 수량과 미정 무게도 가방 합계에 포함한다',()=>{
+  const currentBagResponse=createBagResponse();
+  currentBagResponse.bag.items.push({id:'clean-bandage',kind:'consumable',quantity:2,nameTranslations:{ko:'깨끗한 붕대',en:'Clean Bandage'},description:'응급처치 재료',weightG:null,valueP:10});
+  currentBagResponse.bag.unknownWeightQuantity+=2;
+  assert.equal(parseBagInventory(currentBagResponse).bag.unknownWeightQuantity,5);
+});
 test('페이지에 없는 장비도 서버 전체 합계로 계산하고 미정 무게를 보존한다',()=>{
   const currentBagResponse = createBagResponse();
   assert.equal(parseBagInventory(currentBagResponse).bag.knownWeightG,1600);

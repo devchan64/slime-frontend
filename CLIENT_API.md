@@ -132,3 +132,5 @@ node scripts/text-client.mjs --help
 개인 장비 변경 이력은 `GET /v1/game/equipment/{instanceId}/history`로 조회한다. 항목의 `kind`, `createdAt`, 전후 내구도를 표시하며 `nextBefore`가 있으면 `?before=<버전>`으로 과거 기록을 요청한다. 현재 소유자의 권한은 서버가 검사한다. 과거 기록이 없으면 추정 이력을 만들지 않는다. 이력 API와 DB 마이그레이션을 프론트엔드보다 먼저 배포한다.
 
 캐릭터 `me.skillUseLocks`는 선택 필드이며 스킬 ID별 `{reason: "book_sold", bookId, sourceId}` 기록을 제공한다. 없으면 판매 잠금 기록이 없는 기존 상태다. 스킬 목록은 저장 레벨을 유지하고 사용 잠금 사유를 표시한다. 몬스터 공개 정보는 서버가 제한하므로 UI에서 높은 저장 레벨만 보고 공개 단계를 복원하지 않는다. 현재 판매/재소지 명령이나 잠금 중 성장 정책을 새로 제공하는 필드는 아니다.
+
+응급처치 보유자는 선택 필드 `me.firstAid`로 서버 실행 조건을 받는다. 필드 버튼은 `POST /v1/game/skills/first-aid`에 일반 명령 ID·캐릭터 버전만 전달한다. 가방 `items.kind`에는 `consumable`이 추가되며 붕대 수량과 미정 무게를 합계에 포함한다. 소모품 이해가 가능한 프론트를 먼저 배포하고 서버 기능을 활성화한다. 최종 행동 가능 여부·붕대 차감·HP 회복·재시도는 서버가 검증한다.

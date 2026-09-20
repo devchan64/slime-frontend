@@ -14,7 +14,7 @@ export function parseBagInventory(currentResponseValue: unknown): BagInventoryPa
   let calculatedKnownWeight = currentInventoryPage.knownEquipmentWeightG;
   let calculatedUnknownQuantity = 0;
   for (const currentMaterialEntry of currentBagSummary.items) {
-    if (!currentMaterialEntry || currentMaterialEntry.kind !== 'material' || typeof currentMaterialEntry.id !== 'string'
+    if (!currentMaterialEntry || !['material','consumable'].includes(currentMaterialEntry.kind) || typeof currentMaterialEntry.id !== 'string'
         || !currentMaterialEntry.id || currentMaterialIdentifiers.has(currentMaterialEntry.id)
         || !Number.isSafeInteger(currentMaterialEntry.quantity) || currentMaterialEntry.quantity < 1
         || typeof currentMaterialEntry.nameTranslations?.ko !== 'string' || typeof currentMaterialEntry.nameTranslations?.en !== 'string'

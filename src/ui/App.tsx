@@ -1,6 +1,7 @@
 import { ActionCutinOverlay } from './ActionCutin';
 import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
+import { FieldFirstAid } from './FieldFirstAid';
 import { BorrowedLoansPanel } from './BorrowedLoansPanel';
 import { AccountRewardsPanel } from "./AccountRewardsPanel";
 import { BagPanel } from "./BagPanel";
@@ -651,6 +652,8 @@ export function App() {
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               <FieldRestControls currentPlayerState={state.me} currentServerTime={(clock + serverOffset.current) / 1000}
                 actionsAreDisabled={disabled || !!walking} submitRestCommand={commandPathValue => command(commandPathValue)} />
+              <FieldFirstAid currentGameState={state} actionsAreDisabled={disabled || !!walking}
+                submitFirstAidCommand={() => command('/v1/game/skills/first-aid')} />
               </div></div>
               <div ref={selectedFieldCommands} class="field-selected-commands">
               <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
