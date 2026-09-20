@@ -19,3 +19,11 @@ test('복구 영수증이 원래 요청·시설·수령액과 일치해야 한�
  for(const currentInvalidPatch of [{requestId:'other'},{materialId:'salt'},{totalPriceP:5},{quantity:3},{facilityId:'other'}])
   assert.throws(()=>validateGuildSaleReceipt({...currentReceiptFixture,...currentInvalidPatch},currentOriginalRequest,'iseulon-guild'));
 });
+
+test('시민권 가격의 도시·금액·만료 시각을 검증한다',async()=>{
+ const {parseCitizenshipPriceQuote}=await import(`data:text/javascript;base64,${Buffer.from(currentCompiledBundle.outputFiles[0].text).toString('base64')}`);
+ const currentPriceFixture={cityId:'iseulon',policyVersion:1,priceP:100,serverTime:10,expiresAt:70};
+ assert.equal(parseCitizenshipPriceQuote(currentPriceFixture,'iseulon').priceP,100);
+ for(const currentInvalidPatch of [{cityId:'other'},{priceP:0},{priceP:'100'},{expiresAt:10},{serverTime:Infinity},{policyVersion:true}])
+  assert.throws(()=>parseCitizenshipPriceQuote({...currentPriceFixture,...currentInvalidPatch},'iseulon'));
+});

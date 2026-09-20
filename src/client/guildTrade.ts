@@ -31,3 +31,10 @@ export function validateGuildSaleReceipt(currentReceiptValue:any,currentOriginal
   for(const currentFieldName of ['requestId','materialId','quantity','policyVersion','unitPriceP'])
     requireGuildResponseCondition(currentReceiptValue[currentFieldName]===currentOriginalRequest[currentFieldName]);
 }
+
+export function parseCitizenshipPriceQuote(currentResponseValue:any,currentCityIdentifier:string):{priceP:number;serverTime:number;expiresAt:number}{
+  requireGuildResponseCondition(currentResponseValue&&currentResponseValue.cityId===currentCityIdentifier&&isGuildPositiveInteger(currentResponseValue.policyVersion)
+    &&isGuildPositiveInteger(currentResponseValue.priceP)&&Number.isFinite(currentResponseValue.serverTime)&&currentResponseValue.serverTime>=0
+    &&Number.isFinite(currentResponseValue.expiresAt)&&currentResponseValue.expiresAt>currentResponseValue.serverTime);
+  return currentResponseValue;
+}

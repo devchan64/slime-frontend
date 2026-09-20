@@ -12,3 +12,7 @@ retry: Check result and retry
 uncertain: The result is unconfirmed. Check this transaction first and retry only if it has not been recorded.
 pending: Checking transaction details.
 sold: Sale completed.
+citizenshipPrice: Check citizenship price
+citizenshipQuote: 'Current citizenship price {price} P · Quote valid for {seconds}s'
+citizenshipExpired: This quote expired. Check the price again.
+citizenshipReadOnly: Price information only. Purchase and renewal are not available yet.
