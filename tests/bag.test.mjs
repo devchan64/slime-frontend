@@ -15,6 +15,16 @@ test('붕대 소모품의 수량과 미정 무게도 가방 합계에 포함한�
   currentBagResponse.bag.unknownWeightQuantity+=2;
   assert.equal(parseBagInventory(currentBagResponse).bag.unknownWeightQuantity,5);
 });
+test('직접 회복 소모품만 양수 회복량과 소비 수량을 제공한다',()=>{
+  const currentBagResponse=createBagResponse();
+  currentBagResponse.bag.items[0].kind='consumable';
+  currentBagResponse.bag.items[0].useAction={type:'RESTORE_HP',restorationHp:3,consumedOnSuccess:1};
+  assert.equal(parseBagInventory(currentBagResponse).bag.items[0].useAction.restorationHp,3);
+  for(const currentActionValue of [null,{type:'ATTACK',restorationHp:3,consumedOnSuccess:1},{type:'RESTORE_HP',restorationHp:0,consumedOnSuccess:1},{type:'RESTORE_HP',restorationHp:3,consumedOnSuccess:true}]) {
+    currentBagResponse.bag.items[0].useAction=currentActionValue;
+    assert.throws(()=>parseBagInventory(currentBagResponse),/소모품/);
+  }
+});
 test('페이지에 없는 장비도 서버 전체 합계로 계산하고 미정 무게를 보존한다',()=>{
   const currentBagResponse = createBagResponse();
   assert.equal(parseBagInventory(currentBagResponse).bag.knownWeightG,1600);

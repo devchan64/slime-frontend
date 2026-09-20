@@ -86,3 +86,4 @@ currentCharacter: Current character
 bagLoading: "Loading belongings and weight."
 bagChanged: "Your bag changed. Please refresh."
 bagMaterials: "Materials & consumables"
+useHealingItem: "Use {count} · HP +{amount}"

@@ -24,6 +24,12 @@ export function parseBagInventory(currentResponseValue: unknown): BagInventoryPa
       throw new Error('가방 재료 응답이 올바르지 않습니다.');
     }
     currentMaterialIdentifiers.add(currentMaterialEntry.id);
+    if (currentMaterialEntry.useAction !== undefined && (currentMaterialEntry.kind !== 'consumable'
+        || !currentMaterialEntry.useAction || currentMaterialEntry.useAction.type !== 'RESTORE_HP'
+        || !Number.isSafeInteger(currentMaterialEntry.useAction.restorationHp) || currentMaterialEntry.useAction.restorationHp < 1
+        || !Number.isSafeInteger(currentMaterialEntry.useAction.consumedOnSuccess) || currentMaterialEntry.useAction.consumedOnSuccess < 1)) {
+      throw new Error('소모품 사용 응답이 올바르지 않습니다.');
+    }
     if (currentMaterialEntry.weightG === null) calculatedUnknownQuantity += currentMaterialEntry.quantity;
     else calculatedKnownWeight += currentMaterialEntry.quantity * currentMaterialEntry.weightG;
   }

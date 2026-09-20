@@ -134,3 +134,5 @@ node scripts/text-client.mjs --help
 캐릭터 `me.skillUseLocks`는 선택 필드이며 스킬 ID별 `{reason: "book_sold", bookId, sourceId}` 기록을 제공한다. 없으면 판매 잠금 기록이 없는 기존 상태다. 스킬 목록은 저장 레벨을 유지하고 사용 잠금 사유를 표시한다. 몬스터 공개 정보는 서버가 제한하므로 UI에서 높은 저장 레벨만 보고 공개 단계를 복원하지 않는다. 현재 판매/재소지 명령이나 잠금 중 성장 정책을 새로 제공하는 필드는 아니다.
 
 응급처치 보유자는 선택 필드 `me.firstAid`로 서버 실행 조건을 받는다. 필드 버튼은 `POST /v1/game/skills/first-aid`에 일반 명령 ID·캐릭터 버전만 전달한다. 가방 `items.kind`에는 `consumable`이 추가되며 붕대 수량과 미정 무게를 합계에 포함한다. 소모품 이해가 가능한 프론트를 먼저 배포하고 서버 기능을 활성화한다. 최종 행동 가능 여부·붕대 차감·HP 회복·재시도는 서버가 검증한다.
+
+가방 소모품의 선택 필드 `useAction: {type: "RESTORE_HP", restorationHp, consumedOnSuccess}`는 직접 회복 사용 버튼을 제공한다. `/v1/game/consumables/use`에 일반 명령 ID·캐릭터 버전·`itemId`를 보내며 회복량은 보내지 않는다. 성공 상태의 캐릭터 버전 변경으로 가방을 새로 조회한다. 상태 오류와 재시도는 기존 명령 처리 계약을 따른다. `useAction` 없는 붕대·재료에 직접 사용 버튼을 만들지 않는다.

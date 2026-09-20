@@ -6,7 +6,9 @@ import { parseBagInventory, type BagInventoryPage } from '../client/bag';
 import { noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 
-export function BagPanel({me, gameSessionClient}: {me: State['me']; gameSessionClient: Client}) {
+export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, submitConsumableUse}: {
+  me: State['me']; gameSessionClient: Client; actionsAreDisabled?: boolean; submitConsumableUse?: (currentItemIdentifier: string) => unknown;
+}) {
   const {t: translateBagText, locale: currentLocaleCode} = useTranslation();
   const [historyInstanceIdentifier,setHistoryInstanceIdentifier] = useState<string | null>(null);
   const [currentInventoryPage,setCurrentInventoryPage] = useState<BagInventoryPage | null>(null);
@@ -60,6 +62,13 @@ export function BagPanel({me, gameSessionClient}: {me: State['me']; gameSessionC
           {currentLocaleCode === 'ko' && <p>{currentMaterialEntry.description}</p>}
           {currentMaterialEntry.weightG !== null && <p>{translateBagText('app.itemWeight',{weight:currentMaterialEntry.weightG})}</p>}
           {currentMaterialEntry.valueP !== null && <small>{translateBagText('battle.materialValue',{value:currentMaterialEntry.valueP})}</small>}
+          {currentMaterialEntry.useAction && submitConsumableUse && <button class="secondary compact"
+            disabled={actionsAreDisabled || currentRequestPending || me.mode !== 'FIELD' || !!me.battleId || (me.fp ?? 0) < 0
+              || me.hp === undefined || me.maxHp === undefined || me.hp >= me.maxHp
+              || currentMaterialEntry.quantity < currentMaterialEntry.useAction.consumedOnSuccess}
+            onClick={() => submitConsumableUse(currentMaterialEntry.id)}>
+            {translateBagText('app.useHealingItem',{amount:currentMaterialEntry.useAction.restorationHp,count:currentMaterialEntry.useAction.consumedOnSuccess})}
+          </button>}
         </li>)}
       </ul></>}
       {!!currentInventoryPage.items.length && <><h3>{translateBagText('equipment.title')}</h3><ul class="bag-items">

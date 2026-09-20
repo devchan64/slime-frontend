@@ -86,3 +86,4 @@ currentCharacter: 현재 캐릭터
 bagLoading: "소지품과 무게를 확인하고 있습니다."
 bagChanged: "가방이 변경되었습니다. 새로고침해 주세요."
 bagMaterials: "재료·소모품"
+useHealingItem: "{count}개 사용 · HP +{amount}"

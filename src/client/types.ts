@@ -77,7 +77,7 @@ export type State = {
     xp: number;
     coins: number;
     skillUseLocks?: Record<string, {reason: "book_sold"; bookId: string; sourceId: string}>;
-    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null}>};
+    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null; useAction?: {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number}}>};
     firstAid?: {version: number; minimumUseLevel: number; literacyRequired: number; restorationHp: number; consumableId: string; consumedOnSuccess: number};
     fp?: number;
     fpMax?: number;
@@ -101,7 +101,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}> } | null;
+    lastResult: { rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number}}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number}}> } | null;
   };
   map: Surface & {
     id: string;
