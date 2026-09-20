@@ -24,3 +24,5 @@ animations:
     displayNameKo: 잿빛여우 · 대기
   - animationId: monster.crystal-lizard.idle
     displayNameKo: 결정도마뱀 · 대기
+  - animationId: character.default.white-shirt.walk
+    displayNameKo: 기본 캐릭터 · 걷기

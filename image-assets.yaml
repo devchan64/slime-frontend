@@ -138,3 +138,11 @@ data:
     path: src/assets/terrain/extension-v1/tree-base-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.wall-128.webp
     path: src/assets/terrain/extension-v1/wall-128.webp
+  - managementId: image.frontend.character.default.walk-v1.down-left
+    path: src/assets/characters/default/walk-v1/walk-down-left.png
+  - managementId: image.frontend.character.default.walk-v1.down-right
+    path: src/assets/characters/default/walk-v1/walk-down-right.png
+  - managementId: image.frontend.character.default.walk-v1.up-left
+    path: src/assets/characters/default/walk-v1/walk-up-left.png
+  - managementId: image.frontend.character.default.walk-v1.up-right
+    path: src/assets/characters/default/walk-v1/walk-up-right.png
