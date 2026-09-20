@@ -13,7 +13,7 @@ import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt, TILE_W, TILE_H } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
-import { drawSafeTower } from "../terrain/safeTower";
+import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
@@ -138,6 +138,7 @@ export class MainScene extends Phaser.Scene {
     });
     preloadTerrain(this);
     preloadActors(this);
+    preloadSafeTower(this);
     preloadBackdrop(this);
   }
   create() {
