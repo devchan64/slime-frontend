@@ -46,3 +46,6 @@ spiritDescription: "The foundation for spiritual activity"
 
 battleSlots: "Battle skill slots"
 battleSlotsHelp: "Choose skills for the battle list. Selection order is saved. Level 0 has no effect."
+
+skillUseLocked: "Use locked"
+skillBookSold: "Use is locked because the skillbook was sold. Acquisition and level are preserved."

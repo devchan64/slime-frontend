@@ -46,3 +46,6 @@ spiritDescription: "영적 활동의 기반 역량"
 
 battleSlots: "전투 스킬 슬롯"
 battleSlotsHelp: "전투 목록에 표시할 스킬을 지정하세요. 선택한 순서대로 저장됩니다. 0레벨은 효과가 없습니다."
+
+skillUseLocked: "사용 잠김"
+skillBookSold: "스킬북 판매로 사용이 잠겼습니다. 획득 기록과 레벨은 유지됩니다."

@@ -74,7 +74,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
           return <label key={id}><input type="checkbox" checked={index >= 0}
             disabled={disabled || locked || (index < 0 && loadout.length >= me.battleSkillSlotLimit!)}
             onChange={() => command("/v1/characters/me/skill-loadout", {skills: index >= 0 ? loadout.filter(key => key !== id) : [...loadout, id]})} />
-            <span>{index >= 0 ? `${index + 1}. ` : ""}{name} · Lv. {me.skills[id]}</span></label>;
+            <span>{index >= 0 ? `${index + 1}. ` : ""}{name} · Lv. {me.skills[id]}{me.skillUseLocks?.[id] && ` · ${t('character.skillUseLocked')}`}</span></label>;
         })}</div>
       </section>}
       {category === "attributes" && <p class="growth-help">{t("character.nextCost", { category: t("character.attributes"), count: attributeGrowth.count, cost: attributeGrowth.label, currency })}</p>}
@@ -85,7 +85,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
         const insufficient = balance === undefined || balance < cost;
         return <div class={`attribute-card attribute-${id}`} key={id}>
           <span class="attribute-icon" aria-hidden="true">{icon}</span>
-          <div class="attribute-info"><div><strong>{name}</strong><span>Lv. {level}{category === "skills" && level === 0 ? t("character.noEffect") : ""}</span></div><p>{description}</p></div>
+          <div class="attribute-info"><div><strong>{name}</strong><span>Lv. {level}{category === "skills" && level === 0 ? t("character.noEffect") : ""}</span></div><p>{description}</p>{category === 'skills' && me.skillUseLocks?.[id] && <p class="growth-help">{t('character.skillBookSold')}</p>}</div>
           <button disabled={disabled || locked || insufficient}
             onClick={() => command(`/v1/characters/me/${category}`, category === "skills" ? { skill: id } : { attribute: id })}
             aria-label={t("character.raiseLabel", { name, level, next: level + 1, cost: growth.label, currency })}>

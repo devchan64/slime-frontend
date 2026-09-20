@@ -130,3 +130,5 @@ node scripts/text-client.mjs --help
 가방 화면도 장비 목록 API를 사용하며 추가 `bag` 필드가 필요하다. `bag.items`는 재료 목록, `bag.knownWeightG`는 재료+장비 전체의 확인된 무게, `unknownWeightQuantity`는 미정 무게 재료 수량, `capacityG`는 신체 기반 소지 기준이다. 기존 `me.bag` 상태 필드는 재료 조회 표현을 유지한다. 장비 페이지를 합칠 때 `characterVersion` 일치와 개체 중복을 검사하며 불일치하면 새로고침한다. 조회 실패를 장비 0개로 대체하지 않는다. 서버의 추가 필드 배포 후 프론트엔드를 배포한다.
 
 개인 장비 변경 이력은 `GET /v1/game/equipment/{instanceId}/history`로 조회한다. 항목의 `kind`, `createdAt`, 전후 내구도를 표시하며 `nextBefore`가 있으면 `?before=<버전>`으로 과거 기록을 요청한다. 현재 소유자의 권한은 서버가 검사한다. 과거 기록이 없으면 추정 이력을 만들지 않는다. 이력 API와 DB 마이그레이션을 프론트엔드보다 먼저 배포한다.
+
+캐릭터 `me.skillUseLocks`는 선택 필드이며 스킬 ID별 `{reason: "book_sold", bookId, sourceId}` 기록을 제공한다. 없으면 판매 잠금 기록이 없는 기존 상태다. 스킬 목록은 저장 레벨을 유지하고 사용 잠금 사유를 표시한다. 몬스터 공개 정보는 서버가 제한하므로 UI에서 높은 저장 레벨만 보고 공개 단계를 복원하지 않는다. 현재 판매/재소지 명령이나 잠금 중 성장 정책을 새로 제공하는 필드는 아니다.

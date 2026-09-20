@@ -661,7 +661,7 @@ export function App() {
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
 
 </section>}
-            {battle && <BattlePanel me={state.me} battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skills.monster_lore ?? 0} selected={selected}
+            {battle && <BattlePanel me={state.me} battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skillUseLocks?.monster_lore ? 0 : state.me.skills.monster_lore ?? 0} selected={selected}
               disabled={disabled || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
