@@ -46,6 +46,7 @@ export function BorrowedLoansPanel({gameSessionClient, actionsAreDisabled}: {gam
       return <li key={storedLoanEntry.id}>
         <strong>{storedLoanEntry.name}</strong>
         <p>{translateLoanText('loans.health', {current: storedLoanEntry.hp, maximum: storedLoanEntry.maxHp})}</p>
+        {storedLoanEntry.healthRecoveryPending && <p class="is-warning">{translateLoanText('loans.recoveryPending')}</p>}
         <p>{translateLoanText(storedLoanEntry.inBattle ? 'loans.inbattle' : remainingLoanSeconds > 0 ? 'loans.available' : 'loans.ended')}</p>
         <p>{remainingLoanSeconds > 0 ? translateLoanText('loans.remaining', {hours: Math.floor(remainingLoanSeconds / 3600), minutes: Math.floor(remainingLoanSeconds % 3600 / 60)}) : translateLoanText(storedLoanEntry.inBattle ? 'loans.expiredbattle' : 'loans.expired')}</p>
         <p>{translateLoanText('loans.expires', {time: new Date(storedLoanEntry.expiresAt * 1000).toLocaleString(currentLocaleCode)})}</p>

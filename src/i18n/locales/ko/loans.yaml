@@ -12,3 +12,4 @@ expiredbattle: 대여 만료 · 진행 중인 전투와 정산은 유지됩니�
 expired: 대여 종료 · 새로고침하면 목록에서 제외됩니다.
 more: 더 보기
 ended: 대여 종료
+recoveryPending: "전투불능 회복 대기 · 최대 HP 50% 이상 회복 전 이동 불가"

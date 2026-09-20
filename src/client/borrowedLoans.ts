@@ -1,6 +1,6 @@
 export type BorrowedLoanEntry = {
   id: string; name: string; startedAt: number; expiresAt: number; expired: boolean; inBattle: boolean;
-  hp: number; maxHp: number; attributes: Record<string, number>; skills: Record<string, number>;
+  hp: number; maxHp: number; healthRecoveryPending?: boolean; attributes: Record<string, number>; skills: Record<string, number>;
 };
 export type BorrowedLoanPage = {serverTime: number; entries: BorrowedLoanEntry[]; nextCursor: string | null};
 export const LOAN_CLOCK_INTERVAL_MS = 1000;
@@ -26,6 +26,7 @@ export function parseBorrowedLoanPage(rawResponseValue: unknown): BorrowedLoanPa
         || observedLoanIdentifiers.has(receivedLoanEntry.id) || typeof receivedLoanEntry.name !== 'string' || !receivedLoanEntry.name.trim()
         || !Number.isFinite(receivedLoanEntry.startedAt) || !Number.isFinite(receivedLoanEntry.expiresAt)
         || receivedLoanEntry.expiresAt <= receivedLoanEntry.startedAt
+        || ('healthRecoveryPending' in receivedLoanEntry && typeof receivedLoanEntry.healthRecoveryPending !== 'boolean')
         || typeof receivedLoanEntry.expired !== 'boolean' || typeof receivedLoanEntry.inBattle !== 'boolean'
         || !Number.isSafeInteger(receivedLoanEntry.hp) || !Number.isSafeInteger(receivedLoanEntry.maxHp)
         || receivedLoanEntry.hp < 0 || receivedLoanEntry.maxHp <= 0 || receivedLoanEntry.hp > receivedLoanEntry.maxHp

@@ -177,12 +177,14 @@ export function formatBorrowedLoanPage(receivedLoanPage) {
     if (!receivedLoanEntry || typeof receivedLoanEntry.name !== 'string' || typeof receivedLoanEntry.id !== 'string'
         || !Number.isSafeInteger(receivedLoanEntry.hp) || !Number.isSafeInteger(receivedLoanEntry.maxHp)
         || receivedLoanEntry.hp < 0 || receivedLoanEntry.maxHp <= 0 || receivedLoanEntry.hp > receivedLoanEntry.maxHp
+        || ('healthRecoveryPending' in receivedLoanEntry && typeof receivedLoanEntry.healthRecoveryPending !== 'boolean')
         || !Number.isFinite(receivedLoanEntry.expiresAt) || typeof receivedLoanEntry.inBattle !== 'boolean') {
       throw new Error('대여 캐릭터 정보가 올바르지 않습니다.');
     }
     const remainingLoanMinutes = Math.max(0, Math.floor((receivedLoanEntry.expiresAt - receivedLoanPage.serverTime) / 60));
     return receivedLoanEntry.id + ' ' + receivedLoanEntry.name + ' | HP ' + receivedLoanEntry.hp + '/' + receivedLoanEntry.maxHp
       + ' | ' + (receivedLoanEntry.inBattle ? '전투 참가 중' : '대여 유지 중')
+      + (receivedLoanEntry.healthRecoveryPending ? ' | 전투불능 회복 대기 · 최대 HP 50% 이상 회복 전 이동 불가' : '')
       + ' | ' + (receivedLoanEntry.expiresAt <= receivedLoanPage.serverTime ? '대여 만료' : '남은 기간 ' + remainingLoanMinutes + '분');
   });
   if (!renderedLoanLines.length) renderedLoanLines.push('대여 중인 파티원이 없습니다.');

@@ -15,7 +15,7 @@ test('HP 0과 새 스킬 0레벨, 만료된 진행 전투를 표시할 수 있�
   assert.equal(parseBorrowedLoanPage(receivedLoanPage).entries[0].hp,0);
 });
 test('깨진 HP, 레벨, 기한, 상태와 중복 대여 ID를 거절한다',()=>{
-  for (const invalidLoanPatch of [{hp:-1},{hp:26},{hp:1.5},{maxHp:0},{expiresAt:10},{inBattle:'true'},{skills:{physical:-1}},{attributes:[]}]) {
+  for (const invalidLoanPatch of [{hp:-1},{hp:26},{hp:1.5},{maxHp:0},{expiresAt:10},{inBattle:'true'},{healthRecoveryPending:'true'},{healthRecoveryPending:null},{skills:{physical:-1}},{attributes:[]}]) {
     const receivedLoanPage=createLoanResponse();
     Object.assign(receivedLoanPage.entries[0],invalidLoanPatch);
     assert.throws(()=>parseBorrowedLoanPage(receivedLoanPage),/대여/);
@@ -29,4 +29,13 @@ test('남은 시간은 서버 시각과 단조 시계로 계산하고 만료 후
   assert.equal(calculateLoanRemainingSeconds(200,100,60000),40);
   assert.equal(calculateLoanRemainingSeconds(200,100,100000),0);
   assert.equal(calculateLoanRemainingSeconds(200,100,200000),0);
+});
+
+test('회복 대기는 HP 비율로 추정하지 않고 서버 상태를 보존한다',()=>{
+  const receivedLoanPage=createLoanResponse();
+  receivedLoanPage.entries[0].hp=2;
+  receivedLoanPage.entries[0].healthRecoveryPending=true;
+  assert.equal(parseBorrowedLoanPage(receivedLoanPage).entries[0].healthRecoveryPending,true);
+  receivedLoanPage.entries[0].healthRecoveryPending=false;
+  assert.equal(parseBorrowedLoanPage(receivedLoanPage).entries[0].healthRecoveryPending,false);
 });

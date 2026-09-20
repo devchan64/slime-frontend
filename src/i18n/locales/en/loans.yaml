@@ -12,3 +12,4 @@ expiredbattle: Loan expired · The ongoing battle and settlement will continue.
 expired: Loan ended · Refresh to remove it from this list.
 more: Show more
 ended: Loan ended
+recoveryPending: "Recovering from incapacitation · Movement locked until HP recovers to at least 50% of maximum"
