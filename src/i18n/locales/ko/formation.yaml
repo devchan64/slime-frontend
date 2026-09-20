@@ -1,0 +1,17 @@
+title: 파티 모집
+count: '현재 편성 {count} / 4명 (본인 포함)'
+help: 이 길드에 등록된 캐릭터를 선택합니다. 새 대여는 7일간 유지되며, 파티에서 해제해도 대여는 종료되지 않습니다.
+available: 모집 가능
+borrowed: 대여 중 · 기존 복사본으로 편성
+cpBlocked: CP 편성 범위 초과
+full: 대여 정원 마감
+selected: 이미 파티에 편성됨
+empty: 이 길드에 등록된 다른 후보가 없습니다.
+choose: 후보 선택
+confirmName: '{name} 캐릭터를 파티에 등록합니다.'
+add: 파티 모집 등록
+remove: 파티 모집 해제
+next: 다음 후보
+recover: 편성 결과 확인·재시도
+pending: 파티 정보를 확인하고 있습니다.
+saved: 파티 편성을 반영했습니다.

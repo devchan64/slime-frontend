@@ -1,0 +1,17 @@
+title: Party recruitment
+count: 'Party {count} / 4 members (including you)'
+help: Select a character registered at this guild. New loans last seven days. Removing a party member does not end the loan.
+available: Available to recruit
+borrowed: Already borrowed · Use existing copy
+cpBlocked: Outside the CP range
+full: Loan capacity full
+selected: Already in your party
+empty: No other candidates are registered at this guild.
+choose: Select candidate
+confirmName: 'Add {name} to your party.'
+add: Add to party
+remove: Remove from party
+next: Next candidates
+recover: Check formation result and retry
+pending: Checking party details.
+saved: Party formation updated.

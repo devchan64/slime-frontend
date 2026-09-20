@@ -1,5 +1,5 @@
 export type BorrowedLoanEntry = {
-  id: string; name: string; startedAt: number; expiresAt: number; expired: boolean; inBattle: boolean;
+  sourceCharacterId?: string; id: string; name: string; startedAt: number; expiresAt: number; expired: boolean; inBattle: boolean;
   partyCpStatus?: 'ELIGIBLE' | 'OUT_OF_RANGE' | 'MIGRATION_REQUIRED';
   hp: number; maxHp: number; healthRecoveryPending?: boolean; attributes: Record<string, number>; skills: Record<string, number>;
 };
@@ -24,6 +24,7 @@ export function parseBorrowedLoanPage(rawResponseValue: unknown): BorrowedLoanPa
   const observedLoanIdentifiers = new Set<string>();
   for (const receivedLoanEntry of receivedLoanPage.entries) {
     if (!receivedLoanEntry || typeof receivedLoanEntry.id !== 'string' || !receivedLoanEntry.id
+        || ('sourceCharacterId' in receivedLoanEntry && (typeof receivedLoanEntry.sourceCharacterId!=='string'||!receivedLoanEntry.sourceCharacterId))
         || observedLoanIdentifiers.has(receivedLoanEntry.id) || typeof receivedLoanEntry.name !== 'string' || !receivedLoanEntry.name.trim()
         || !Number.isFinite(receivedLoanEntry.startedAt) || !Number.isFinite(receivedLoanEntry.expiresAt)
         || receivedLoanEntry.expiresAt <= receivedLoanEntry.startedAt

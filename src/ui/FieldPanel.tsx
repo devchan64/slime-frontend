@@ -1,4 +1,5 @@
 import {MapKindIcon} from './MapKindIcon';
+import {PartyFormationPanel} from './PartyFormationPanel';
 import {GuildRecruitmentPanel} from './GuildRecruitmentPanel';
 import {CitizenshipPricePanel} from './CitizenshipPricePanel';
 import {GuildTradePanel} from './GuildTradePanel';
@@ -110,6 +111,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {selectedCityBuilding && atBuildingEntrance && field && gameSessionClient && selectedCityBuilding.npcs?.map(currentFacilityNpc=><NpcDialogue
         key={`${state.generation}:${state.me.id}:${state.location.id}:${currentFacilityNpc.id}`} gameSessionClient={gameSessionClient}
         currentNpcIdentifier={currentFacilityNpc.id} currentNpcName={currentFacilityNpc.name} actionsAreDisabled={disabled} currentCharacterVersion={state.me.version} />)}
+      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <PartyFormationPanel
+        key={`formation:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
+        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <GuildRecruitmentPanel
         key={`recruitment:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}

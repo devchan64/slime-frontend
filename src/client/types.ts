@@ -80,6 +80,7 @@ export type State = {
     lastPosition: Position;
     xp: number;
     coins: number;
+    borrowedPartyLoanIds?: string[];
     skillUseLocks?: Record<string, {reason: "book_sold"; bookId: string; sourceId: string}>;
     bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null; useAction?: ConsumableUseAction}>};
     personalMarkers?: PersonalFieldMarker[];
