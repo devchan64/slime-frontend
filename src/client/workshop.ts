@@ -1,3 +1,4 @@
+import {ApiError} from './response';
 export type WorkshopContractKind='craft'|'repair';
 export type WorkshopPriceQuote={costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
@@ -48,4 +49,23 @@ export function parseWorkshopCatalog(currentResponseValue:any):{id:string;name:s
     currentCatalogIdentifiers.add(currentCatalogItem.id);
   }
   return currentResponseValue.items;
+}
+
+
+export async function recoverWorkshopCreationResult(currentRequestClient:{request:(currentRequestPath:string,currentRequestBody?:Record<string,unknown>)=>Promise<any>},
+  currentOriginalRequest:Record<string,unknown>,currentFacilityIdentifier:string):Promise<boolean>{
+  let currentReceiptResponse;
+  try{currentReceiptResponse=await currentRequestClient.request(`/v1/game/workshop-results/${encodeURIComponent(String(currentOriginalRequest.requestId))}?kind=${currentOriginalRequest.kind}`);}
+  catch(currentRecoveryError){
+    // 이 시점에 기록이 없다는 응답만 원본 ID의 명시적 재시도를 허용한다. 통신 장애는 미확정으로 유지한다.
+    if(currentRecoveryError instanceof ApiError&&currentRecoveryError.status===404&&currentRecoveryError.code==='WORKSHOP_RESULT_NOT_FOUND')return false;
+    throw currentRecoveryError;
+  }
+  requireWorkshopCondition(currentReceiptResponse&&currentReceiptResponse.requestId===currentOriginalRequest.requestId
+    &&currentReceiptResponse.kind===currentOriginalRequest.kind&&currentReceiptResponse.facilityId===currentFacilityIdentifier
+    &&currentReceiptResponse.targetId===currentOriginalRequest.targetId
+    &&currentReceiptResponse.expectedInstanceVersion===(currentOriginalRequest.expectedInstanceVersion??null)
+    &&typeof currentReceiptResponse.contractId==='string'&&WORKSHOP_UUID_PATTERN.test(currentReceiptResponse.contractId)
+    &&isWorkshopWholeNumber(currentReceiptResponse.costP));
+  return true;
 }

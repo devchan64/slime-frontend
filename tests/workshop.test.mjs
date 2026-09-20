@@ -21,3 +21,23 @@ test('잘못된 비용·내구도·서명과 중복 계약·허위 수령 가능
   const currentInvalidFixture=structuredClone(currentContractFixture);mutateWorkshopFixture(currentInvalidFixture);assert.throws(()=>parseWorkshopContracts(currentInvalidFixture,'craft'));
  }
 });
+
+test('확정 거래 복구는 조회만 하고 미확정 장애와 다른 요청을 거절한다',async()=>{
+ const {recoverWorkshopCreationResult}=await import(`data:text/javascript;base64,${Buffer.from(currentCompiledBundle.outputFiles[0].text).toString('base64')}`);
+ const currentOriginalRequest={requestId:'22222222-2222-4222-8222-222222222222',kind:'craft',targetId:'iron-sword'};
+ const currentReceiptFixture={...currentOriginalRequest,facilityId:'iseulon-workshop',expectedInstanceVersion:null,contractId:currentContractFixture.entries[0].contractId,costP:23};
+ const currentRecordedRequests=[];
+ const currentRequestClient={async request(currentRequestPath,currentRequestBody){currentRecordedRequests.push([currentRequestPath,currentRequestBody]);return currentReceiptFixture;}};
+ assert.equal(await recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'),true);
+ assert.equal(currentRecordedRequests.length,1);assert.equal(currentRecordedRequests[0][1],undefined);
+ await assert.rejects(()=>recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'other-workshop'));
+ await assert.rejects(()=>recoverWorkshopCreationResult({async request(){throw new Error('network failure');}},currentOriginalRequest,'iseulon-workshop'));
+});
+
+test('원장 미존재 응답만 원본 요청 재시도를 허용하고 조회 장애는 유지한다',async()=>{
+ const currentRecoveryBundle=await build({stdin:{contents:"export {recoverWorkshopCreationResult} from './src/client/workshop'; export {ApiError} from './src/client/response';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm'});
+ const {recoverWorkshopCreationResult,ApiError}=await import(`data:text/javascript;base64,${Buffer.from(currentRecoveryBundle.outputFiles[0].text).toString('base64')}`);
+ const currentOriginalRequest={requestId:'22222222-2222-4222-8222-222222222222',kind:'craft',targetId:'iron-sword'};
+ assert.equal(await recoverWorkshopCreationResult({async request(){throw new ApiError('WORKSHOP_RESULT_NOT_FOUND','없음',404);}},currentOriginalRequest,'iseulon-workshop'),false);
+ for(const currentFailureCode of [404,401,500])await assert.rejects(()=>recoverWorkshopCreationResult({async request(){throw new ApiError('OTHER_ERROR','실패',currentFailureCode);}},currentOriginalRequest,'iseulon-workshop'));
+});

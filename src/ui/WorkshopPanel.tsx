@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'preact/hooks';
 import {ApiError} from '../client/response';
 import type {Client} from '../client/api';
 import {parseEquipmentInventory} from '../client/equipment';
-import {parseWorkshopCatalog,parseWorkshopContracts,parseWorkshopQuote,type WorkshopContractKind,type WorkshopContractPage,type WorkshopQuoteResponse} from '../client/workshop';
+import {recoverWorkshopCreationResult,parseWorkshopCatalog,parseWorkshopContracts,parseWorkshopQuote,type WorkshopContractKind,type WorkshopContractPage,type WorkshopQuoteResponse} from '../client/workshop';
 import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 import './workshop.css';
@@ -68,6 +68,14 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     let currentActionSucceeded=false;
     await runWorkshopRequest(async()=>{
       if(!currentContractIdentifier&&!quotedRequestReference.current)return;
+      if(!currentContractIdentifier&&workshopCreationUncertain&&await recoverWorkshopCreationResult(gameSessionClient,quotedRequestReference.current!,currentFacilityIdentifier)){
+        if(!workshopSessionMatches())return;
+        setWorkshopCreationUncertain(false);setCurrentQuoteResponse(null);quotedRequestReference.current=null;
+        currentActionSucceeded=true;
+        const currentRecoveredState=await gameSessionClient.request('/v1/game/state');
+        if(workshopSessionMatches())gameSessionClient.accept(currentRecoveredState);
+        return;
+      }
       let currentCommandResponse;
       try{currentCommandResponse=await gameSessionClient.request(`${workshopRequestBase}/contracts${currentContractIdentifier?'/'+encodeURIComponent(currentContractIdentifier)+'/claim':''}`,
         currentContractIdentifier?{kind:currentContractKind,expectedVersion:gameSessionClient.state!.me.version}:quotedRequestReference.current!);}
