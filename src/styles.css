@@ -1360,3 +1360,6 @@ body.battle-preview-shell .preview-hud { display: contents; }
   .app-shell > header .connection { gap: 4px; font-size: 11px; }
   .app-shell > header > button { padding-inline: 8px; font-size: 12px; }
 }
+
+.field-rest-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; }
+.field-rest-controls small { color: #b6cbd1; font-size: 12px; }

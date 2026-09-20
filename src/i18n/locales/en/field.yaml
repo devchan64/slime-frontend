@@ -98,4 +98,9 @@ compactCoordinates: "{column},{row} · Height {height}"
 terrainFpPreview: "Base {base} FP · expected {expected} FP · maximum {max} FP. Movement stops if extra costs reduce FP to zero or below."
 terrainFpButton: " · {count} cells"
 
-healthDepleted: Your HP is depleted. Log out to recover before starting an encounter.
+healthDepleted: Your HP is depleted. Rest or log out to recover before starting an encounter.
+
+restStart: Rest
+restStop: Stop resting
+restProgress: Resting · HP +{amount}/min · next recovery in {seconds}s
+restHint: Moving, acting, or being attacked ends rest and discards partial minutes.

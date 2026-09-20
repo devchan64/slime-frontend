@@ -98,4 +98,9 @@ compactCoordinates: "좌표 {column},{row} · 높이 {height}"
 terrainFpPreview: "기본 {base} FP · 예상 {expected} FP · 최대 {max} FP. 추가 소모로 FP가 0 이하가 되면 중단합니다."
 terrainFpButton: " · {count}칸"
 
-healthDepleted: 체력이 없어 조우할 수 없습니다. 로그아웃 후 회복하세요.
+healthDepleted: 체력이 없어 조우할 수 없습니다. 휴식하거나 로그아웃 후 회복하세요.
+
+restStart: 휴식
+restStop: 휴식 종료
+restProgress: 휴식 중 · 1분당 HP +{amount} · 다음 회복 {seconds}초
+restHint: 이동·행동·선공 시 휴식이 끝나며 남은 초는 버립니다.

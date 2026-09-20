@@ -77,6 +77,7 @@ export type State = {
     bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null}>};
     fp?: number;
     fpMax?: number;
+    fieldRest?: { active: boolean; startedAt: number | null; recoveryPerMinute: number; nextRecoveryAt: number | null };
     hp?: number;
     maxHp?: number;
     fpNextChargeAt?: number | null;

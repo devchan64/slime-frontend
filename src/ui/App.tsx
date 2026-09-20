@@ -1,3 +1,4 @@
+import { FieldRestControls } from './FieldRestControls';
 import { AccountRewardsPanel } from "./AccountRewardsPanel";
 import { BagPanel } from "./BagPanel";
 import { noticeText, LocalizedError, type Notice } from '../client/notice';
@@ -602,6 +603,8 @@ export function App() {
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               </div></div>
+              <FieldRestControls currentPlayerState={state.me} currentServerTime={(clock + serverOffset.current) / 1000}
+                actionsAreDisabled={disabled || !!walking} submitRestCommand={commandPathValue => command(commandPathValue)} />
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
 
 </section>}
