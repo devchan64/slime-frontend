@@ -20,6 +20,8 @@ export const TILE_W = 64;
 export const TILE_H = 32;
 export const TEXTURE_SIZE = 128;
 export const TERRAIN_KINDS = ["grass", "dew", "road", "flowers"] as const;
+export const FIELD_TERRAIN_KINDS = [...TERRAIN_KINDS, "water", "ash", "boulder", "gravel", "leaf-litter", "moss", "mud", "paving", "reed-bed", "stone", "tree-base", "wall"] as const;
+export type FieldTerrainKind = (typeof FIELD_TERRAIN_KINDS)[number];
 export type TerrainKind = (typeof TERRAIN_KINDS)[number];
 const DIRECTIONS = [[1, 0], [0, 1], [-1, 0], [0, -1]] as const;
 const JUNCTION_FRACTION = 0.5;
@@ -101,11 +103,10 @@ export function meadowTile(column: number, row: number, road: Set<string>): Terr
   return patchNoise(column, row, DEW_PATCH_SCALE, 317) > 0.55 ? "dew" : "grass";
 }
 
-export function fieldTerrainAt(fieldMapDefinition:TerrainMap,terrainColumnIndex:number,terrainRowIndex:number,fieldRoadCells:Set<string>):TerrainKind | "paving" | "water" {
+export function fieldTerrainAt(fieldMapDefinition:TerrainMap,terrainColumnIndex:number,terrainRowIndex:number,fieldRoadCells:Set<string>):FieldTerrainKind {
   if(!fieldMapDefinition.terrainRows)return meadowTile(terrainColumnIndex,terrainRowIndex,fieldRoadCells);
   const terrainCodeValue=fieldMapDefinition.terrainRows[terrainRowIndex]?.[terrainColumnIndex];
   const terrainKindValue=fieldMapDefinition.terrainCodes?.[terrainCodeValue];
-  if(terrainKindValue === "paving" || terrainKindValue === "water")return terrainKindValue;
-  if(!TERRAIN_KINDS.includes(terrainKindValue as TerrainKind))throw new Error('필드 표시 타일이 누락되었거나 지원하지 않는 종류입니다.');
-  return terrainKindValue as TerrainKind;
+  if(!FIELD_TERRAIN_KINDS.includes(terrainKindValue as FieldTerrainKind))throw new Error('필드 표시 타일이 누락되었거나 지원하지 않는 종류입니다.');
+  return terrainKindValue as FieldTerrainKind;
 }

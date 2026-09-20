@@ -582,7 +582,7 @@ export class MainScene extends Phaser.Scene {
     const cityBuildingCellKeys = new Set((field?[]:s.map.buildings ?? []).flatMap(cityBuildingCells).map(currentCityCell=>`${currentCityCell.column},${currentCityCell.row}`));
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
       : s.map.safeTown ? new Set((s.map.terrainRows ?? []).flatMap((currentTerrainRow,currentRowIndex)=>[...currentTerrainRow].flatMap((currentTerrainCode,currentColumnIndex)=>s.map.terrainCodes?.[currentTerrainCode]==='water'?[`${currentColumnIndex},${currentRowIndex}`]:[])))
-      : theme === "mist-lake" ? blockedCells : new Set<string>();
+      : new Set([...(theme === "mist-lake" ? blockedCells : []), ...(s.map.terrainRows ?? []).flatMap((currentTerrainRow,currentRowIndex)=>[...currentTerrainRow].flatMap((currentTerrainCode,currentColumnIndex)=>s.map.terrainCodes?.[currentTerrainCode]==='water'?[`${currentColumnIndex},${currentRowIndex}`]:[]))]);
     const towerCenterCellKey = field || s.map.safeTown ? null : `${s.map.startPoint.column},${s.map.startPoint.row}`;
     if (towerCenterCellKey) waterCells.delete(towerCenterCellKey);
     this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
@@ -599,7 +599,7 @@ export class MainScene extends Phaser.Scene {
       }
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
-      const kind=terrain==='paving'?'grass':terrain==='water'?'dew':terrain==='rock'||terrain==='thicket'?'grass':terrain;
+      const kind=terrain==='paving'&&!field&&s.map.safeTown?'grass':terrain==='rock'||terrain==='thicket'?'grass':terrain;
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
@@ -612,8 +612,8 @@ export class MainScene extends Phaser.Scene {
         : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
-      if(terrain==='paving')drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p);
-      if (!isWater && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
+      if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p);
+      if (!isWater && !['boulder','tree-base','wall'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);

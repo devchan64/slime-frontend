@@ -59,3 +59,11 @@ test('도시는 FP 비용 없이 최단 경로를 사용하고 필드 경로 캐
  assert.equal(fieldRoute(currentStartPosition,currentEndPosition,currentFieldMap).length,7);
  assert.equal(fieldRoute(currentStartPosition,{column:2,row:2},currentCityMap),null);
 });
+
+test('확장 필드의 16종 표시 이름을 보존하고 미등록 종류를 거절한다',()=>{
+ const currentTerrainNames=['grass','dew','road','flowers','water','ash','boulder','gravel','leaf-litter','moss','mud','paving','reed-bed','stone','tree-base','wall'];
+ const currentTerrainCodes=Object.fromEntries(currentTerrainNames.map((currentTerrainName,currentTerrainIndex)=>[String.fromCharCode(65+currentTerrainIndex),currentTerrainName]));
+ const currentFieldMap={...createWeightedTestMap(),columns:16,terrainRows:[Object.keys(currentTerrainCodes).join('')],terrainCodes:currentTerrainCodes};
+ currentTerrainNames.forEach((currentTerrainName,currentTerrainIndex)=>assert.equal(fieldTerrainAt(currentFieldMap,currentTerrainIndex,0,new Set()),currentTerrainName));
+ currentFieldMap.terrainCodes.A='unknown';assert.throws(()=>fieldTerrainAt(currentFieldMap,0,0,new Set()));
+});

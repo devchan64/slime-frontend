@@ -116,3 +116,25 @@ data:
     path: src/assets/characters/default/rest-v1/rest-v1.png
   - managementId: image.frontend.src.assets.characters.baseline.character-default-white-shirt-four-directions-v2.png
     path: src/assets/characters/default/baseline/character-default-white-shirt-four-directions-v2.png
+  - managementId: image.frontend.src.assets.terrain.extension-v1.ash-128.webp
+    path: src/assets/terrain/extension-v1/ash-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.boulder-128.webp
+    path: src/assets/terrain/extension-v1/boulder-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.gravel-128.webp
+    path: src/assets/terrain/extension-v1/gravel-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.leaf-litter-128.webp
+    path: src/assets/terrain/extension-v1/leaf-litter-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.moss-128.webp
+    path: src/assets/terrain/extension-v1/moss-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.mud-128.webp
+    path: src/assets/terrain/extension-v1/mud-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.paving-128.webp
+    path: src/assets/terrain/extension-v1/paving-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.reed-bed-128.webp
+    path: src/assets/terrain/extension-v1/reed-bed-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.stone-128.webp
+    path: src/assets/terrain/extension-v1/stone-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.tree-base-128.webp
+    path: src/assets/terrain/extension-v1/tree-base-128.webp
+  - managementId: image.frontend.src.assets.terrain.extension-v1.wall-128.webp
+    path: src/assets/terrain/extension-v1/wall-128.webp

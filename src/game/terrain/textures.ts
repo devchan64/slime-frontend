@@ -1,16 +1,28 @@
+import extendedAshSource from "../../assets/terrain/extension-v1/ash-128.webp";
+import extendedBoulderSource from "../../assets/terrain/extension-v1/boulder-128.webp";
+import extendedGravelSource from "../../assets/terrain/extension-v1/gravel-128.webp";
+import extendedLeafLitterSource from "../../assets/terrain/extension-v1/leaf-litter-128.webp";
+import extendedMossSource from "../../assets/terrain/extension-v1/moss-128.webp";
+import extendedMudSource from "../../assets/terrain/extension-v1/mud-128.webp";
+import extendedPavingSource from "../../assets/terrain/extension-v1/paving-128.webp";
+import extendedReedBedSource from "../../assets/terrain/extension-v1/reed-bed-128.webp";
+import extendedStoneSource from "../../assets/terrain/extension-v1/stone-128.webp";
+import extendedTreeBaseSource from "../../assets/terrain/extension-v1/tree-base-128.webp";
+import extendedWallSource from "../../assets/terrain/extension-v1/wall-128.webp";
 import Phaser from "phaser";
 import grass from "../../assets/terrain/grass-v3.webp";
 import dew from "../../assets/terrain/dew-v3.webp";
 import road from "../../assets/terrain/road-v3.webp";
 import water from "../../assets/terrain/water-v3.webp";
 import flowers from "../../assets/terrain/flowers-v3.webp";
-import { TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
+import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
 export const TERRAIN_ATLAS = "meadow-terrain";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
-const SOURCES = { grass, dew, road, flowers, water };
-const SOURCE_KINDS = [...TERRAIN_KINDS, "water"] as const;
+const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": extendedPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": extendedWallSource };
+const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
+const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base", "wall"]);
 const FRAME_W = TEXTURE_SIZE;
 const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;
@@ -76,7 +88,10 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     if (kind === "flowers") {
       ctx.drawImage(grassSource, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
       ctx.drawImage(flowerPatch, 0, 0);
-    } else ctx.drawImage(source, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
+    } else {
+      if (TRANSPARENT_TERRAIN_KINDS.has(kind)) ctx.drawImage(grassSource, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
+      ctx.drawImage(source, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
+    }
     ctx.restore();
     atlas.add(kind, 0, x, y, FRAME_W, FRAME_H);
   });
