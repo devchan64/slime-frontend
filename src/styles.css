@@ -1382,3 +1382,11 @@ body.battle-preview-shell .preview-hud { display: contents; }
 
 .field-selected-commands { min-width: 0; scroll-margin-block: 8px; }
 .field-selected-commands:empty { display: none; }
+.battle-stillshot { position: fixed; inset: 20% 0 auto; z-index: 1100; min-height: 180px; height: min(45dvh, 360px); display: flex; align-items: center; justify-content: center; gap: 24px; padding: 16px; color: #f5fff8; background: linear-gradient(110deg, #071821ee, #235b50f5, #071821ee); border-block: 2px solid #91cbb0; box-shadow: 0 16px 48px #0008; animation: stillshot-enter 140ms ease-out; }
+.battle-stillshot img { width: min(42vw, 320px); height: 100%; object-fit: contain; }
+.battle-stillshot strong { font-size: clamp(1.1rem, 3vw, 1.8rem); overflow-wrap: anywhere; }
+.battle-stillshot button { position: absolute; bottom: 8px; right: 16px; }
+.stillshot-setting { display: flex; align-items: center; gap: 12px; }
+.stillshot-setting input { width: 22px; height: 22px; }
+@keyframes stillshot-enter { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .battle-stillshot { animation: none; } }

@@ -1,0 +1,14 @@
+- kind: character
+  costume: default-v1
+  hair: default-v1
+  face: default-v1
+  asset: default-character
+- kind: monster
+  group: slime
+  asset: slime
+- kind: monster
+  group: beast
+  asset: beast
+- kind: monster
+  group: giant
+  asset: giant

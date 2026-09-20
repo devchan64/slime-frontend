@@ -1,3 +1,5 @@
+import { BattleStillshot } from './BattleStillshot';
+import { StillshotEventTracker, appendStillshotQueue, readStillshotSetting, STILLSHOT_SETTING_KEY, type BattleStillshotEvent } from './battleStillshots';
 import { FieldRestControls } from './FieldRestControls';
 import { AccountRewardsPanel } from "./AccountRewardsPanel";
 import { BagPanel } from "./BagPanel";
@@ -41,6 +43,17 @@ const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const { t, locale } = useTranslation();
+  const [stillshotsAreEnabled, setStillshotsAreEnabled] = useState(() => readStillshotSetting(localStorage));
+  const stillshotEnabledReference = useRef(stillshotsAreEnabled);
+  stillshotEnabledReference.current = stillshotsAreEnabled;
+  const stillshotEventTracker = useRef(new StillshotEventTracker());
+  const [pendingStillshotEvents, setPendingStillshotEvents] = useState<BattleStillshotEvent[]>([]);
+  const updateStillshotSetting = (nextEnabledValue: boolean) => {
+    localStorage.setItem(STILLSHOT_SETTING_KEY, String(nextEnabledValue));
+    stillshotEnabledReference.current = nextEnabledValue;
+    setStillshotsAreEnabled(nextEnabledValue);
+    if (!nextEnabledValue) setPendingStillshotEvents([]);
+  };
   const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
   const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
   const [sponsorApproved, setSponsorApproved] = useState<string | null>(null);
@@ -125,6 +138,7 @@ export function App() {
   }, []);
   const settingsAvailable = !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
   const menuPage = settingsAvailable && characterRoute === "#/menu";
+  const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
   const [drawer, setDrawer] = useState<"nearby" | "party" | "chat" | "bag" | "rewards" | null>(null);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
@@ -151,6 +165,11 @@ export function App() {
     client.onState = (s) => {
       serverOffset.current = s.serverTime * 1000 - Date.now();
       const previous = stateRef.current;
+      const incomingStillshotEvents = stillshotEventTracker.current.collectNewStillshots(s);
+      if (previous?.me.id !== s.me.id || (s.battle && previous?.battle?.id !== s.battle.id)) setPendingStillshotEvents([]);
+      if (stillshotEnabledReference.current && incomingStillshotEvents.length) {
+        setPendingStillshotEvents(currentStillshotQueue => appendStillshotQueue(currentStillshotQueue, incomingStillshotEvents));
+      }
       if (s.me.lastFieldInterruption?.battleId
           && s.me.lastFieldInterruption.battleId !== previous?.me.lastFieldInterruption?.battleId) {
         stopWalking.current = true;
@@ -171,6 +190,10 @@ export function App() {
       setState(s);
     };
     client.onStatus = (ready, msg) => {
+      if (!ready) {
+        stillshotEventTracker.current = new StillshotEventTracker();
+        setPendingStillshotEvents([]);
+      }
       setConnected(ready);
       setStatus(msg);
     };
@@ -191,7 +214,7 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
-  const inWorld = !battleReport && !menuPage && !settingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const inWorld = !battleReport && !menuPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -321,7 +344,7 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
-  const disabled = busy || !connected || renderFailed || loading;
+  const disabled = busy || !connected || renderFailed || loading || pendingStillshotEvents.length > 0;
   const battle = state?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
   const battleCommand = (type: string, targetId?: string) =>
@@ -503,12 +526,21 @@ export function App() {
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>
+              <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("stillshots.settings")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? t('app.invitationCount',{count:state.invitations.length}) : ""}</button>
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
             </nav>
           </section>
         </main>
+      ) : gameSettingsPage ? (
+        <main class="lobby field-menu-page"><section class="card">
+          <div class="field-card-heading"><h1>{t('stillshots.settings')}</h1>
+            <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
+          <label class="stillshot-setting"><input type="checkbox" checked={stillshotsAreEnabled}
+            onChange={settingChangeEvent => updateStillshotSetting(settingChangeEvent.currentTarget.checked)} />{t('stillshots.show')}</label>
+          <p>{t('stillshots.help')}</p>
+        </section></main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">
           <section class="card">
@@ -720,7 +752,14 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
-      {battleReport && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
+      {pendingStillshotEvents[0] && <BattleStillshot key={pendingStillshotEvents[0].actionId}
+        stillshotEventRecord={pendingStillshotEvents[0]}
+        finishStillshotDisplay={() => {
+          const displayedActionIdentity = pendingStillshotEvents[0].actionId;
+          setPendingStillshotEvents(currentStillshotQueue => currentStillshotQueue[0]?.actionId === displayedActionIdentity
+            ? currentStillshotQueue.slice(1) : currentStillshotQueue);
+        }} />}
+      {battleReport && pendingStillshotEvents.length === 0 && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
         setBattleReport(null);
         navigateCharacterPage("#/world");
       }} />}
