@@ -16,3 +16,10 @@ citizenshipPrice: 시민권 가격 조회
 citizenshipQuote: '현재 시민권 가격 {price} P · 견적 유효 {seconds}초'
 citizenshipExpired: 견적이 만료되었습니다. 가격을 다시 조회하세요.
 citizenshipReadOnly: 가격 안내입니다. 구매·갱신은 아직 제공하지 않습니다.
+registrationStatus: 내 모집 등록 상태 확인
+registered: 이 도시의 길드 모집에 등록되어 있습니다.
+unregistered: 이 도시의 길드 모집에 등록하지 않았습니다.
+registrationHelp: 등록에는 현지 시민권이 필요합니다. 모집에서 내려도 이미 성립한 7일 대여는 유지됩니다. 등록만으로 다른 캐릭터를 대여하지 않습니다.
+register: 내 캐릭터 모집 등록
+unregister: 내 캐릭터 모집 해제
+registrationUncertain: 변경 결과를 확인하지 못했습니다. 상태 확인 버튼으로 현재 등록 여부를 먼저 확인하세요.

@@ -16,3 +16,10 @@ citizenshipPrice: Check citizenship price
 citizenshipQuote: 'Current citizenship price {price} P · Quote valid for {seconds}s'
 citizenshipExpired: This quote expired. Check the price again.
 citizenshipReadOnly: Price information only. Purchase and renewal are not available yet.
+registrationStatus: Check my recruitment status
+registered: You are registered for recruitment in this city's guild.
+unregistered: You are not registered for recruitment in this city's guild.
+registrationHelp: Registration requires local citizenship. Unregistering preserves existing seven-day loans. Registering does not borrow another character.
+register: Register my character
+unregister: Unregister my character
+registrationUncertain: The update result is unconfirmed. Check your current registration status first.
