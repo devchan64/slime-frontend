@@ -482,7 +482,7 @@ export class MainScene extends Phaser.Scene {
           m.position,
           m.disposition === "AGGRESSIVE" ? COLORS.enemy : COLORS.passive,
           m.name || "슬라임",
-          false, undefined, false, m, undefined, `monster:${m.id}`,
+          false, undefined, false, m, undefined, `monster:${m.id}`, m.facing,
         );
       for (const member of s.members)
         if (member.mode !== "IN_BATTLE")
