@@ -1,10 +1,24 @@
-import {test} from 'node:test';
+import {test, beforeEach, afterEach} from 'node:test';
+let originalWindowDescriptor;
+let currentMotionPreference;
+beforeEach(() => {
+ originalWindowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+ currentMotionPreference = {matches:false};
+ Object.defineProperty(globalThis, 'window', {configurable:true, value:{matchMedia(mediaQueryValue){
+  assert.equal(mediaQueryValue, '(prefers-reduced-motion: reduce)');
+  return currentMotionPreference;
+ }}});
+});
+afterEach(() => {
+ if(originalWindowDescriptor) Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
+ else delete globalThis.window;
+});
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bundle:true,write:false,platform:'node',format:'esm',
  loader:{'.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
-  build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
+  build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
 const {MainScene}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
@@ -124,4 +138,26 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
  for(const item of scene.movingObjects.filter(item=>item.depth>=scene.annotationDepth()))assert.equal(item.object.depth,item.depth);
  assert.ok(scene.annotationDepth()>30030);
  assert.deepEqual(scene.selected,{column:3,row:2});
+});
+
+
+test('결계 맥동은 씬 시간에 따라 변하고 동작 줄이기 설정은 고정 불투명도로 적용한다',()=>{
+ const currentSceneInstance = new MainScene(()=>{},()=>{},()=>{});
+ const recordedBarrierOpacities = [];
+ currentSceneInstance.safeBarrierGraphics = [{setAlpha(barrierOpacityValue){recordedBarrierOpacities.push(barrierOpacityValue);}}];
+ currentSceneInstance.syncTerrainViewport = ()=>{};
+ currentSceneInstance.syncActorViewport = ()=>{};
+ currentSceneInstance.animateFieldActors = ()=>{};
+ currentSceneInstance.cameras = {main:{zoom:1}};
+ currentSceneInstance.waypointZoom = 1;
+ currentSceneInstance.time.now = 0;currentSceneInstance.update();
+ currentSceneInstance.time.now = 650;currentSceneInstance.update();
+ currentSceneInstance.time.now = 1950;currentSceneInstance.update();
+ assert.ok(recordedBarrierOpacities.every(barrierOpacityValue=>barrierOpacityValue>=0.72&&barrierOpacityValue<=1));
+ assert.ok(recordedBarrierOpacities[1]>recordedBarrierOpacities[0]);
+ assert.ok(recordedBarrierOpacities[2]<recordedBarrierOpacities[0]);
+ currentMotionPreference.matches = true;
+ currentSceneInstance.time.now = 0;currentSceneInstance.update();
+ currentSceneInstance.time.now = 1950;currentSceneInstance.update();
+ assert.deepEqual(recordedBarrierOpacities.slice(-2),[1,1]);
 });
