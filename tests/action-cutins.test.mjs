@@ -22,7 +22,7 @@ test('첫 스냅샷은 재생하지 않고 확정된 일반 공격만 중복 없
 test('전투 종료 스냅샷에서 마지막 공격을 회수하고 재접속·다른 캐릭터에서는 재생하지 않는다', () => {
   const actionCutinEventTracker = new ActionCutinTracker();
   actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(5));
-  const finalBattleSnapshot = { me: { id: 'player-one', lastResult: { stillshots: [createActionCutinEvent(4), createActionCutinEvent(6)] } }, battle: null };
+  const finalBattleSnapshot = { me: { id: 'player-one', lastResult: { battleId: 'battle-one', stillshots: [createActionCutinEvent(4), createActionCutinEvent(6)] } }, battle: null };
   assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(finalBattleSnapshot), [createActionCutinEvent(6)]);
   assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(finalBattleSnapshot), []);
   assert.deepEqual(new ActionCutinTracker().collectNewActionCutins(finalBattleSnapshot), []);
@@ -48,7 +48,7 @@ test('스킬 액션 컷인은 진행 전투와 종료 결과 모두에서 표시
   const actionCutinEventTracker = new ActionCutinTracker();
   actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(1));
   assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(3, [createActionCutinEvent(2, 'SKILL'), createActionCutinEvent(3)])), [createActionCutinEvent(3)]);
-  const finalBattleSnapshot = { me: { id: 'player-one', lastResult: { stillshots: [createActionCutinEvent(4, 'SKILL'), createActionCutinEvent(5)] } }, battle: null };
+  const finalBattleSnapshot = { me: { id: 'player-one', lastResult: { battleId: 'battle-one', stillshots: [createActionCutinEvent(4, 'SKILL'), createActionCutinEvent(5)] } }, battle: null };
   assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(finalBattleSnapshot), [createActionCutinEvent(5)]);
 });
 
@@ -67,4 +67,30 @@ test('새 명령 등록 시 공통 이벤트 추적과 표시 정의를 재사�
     assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(2, [createActionCutinEvent(2, 'MOVE')])), [createActionCutinEvent(2, 'MOVE')]);
     assert.equal(findActionCutinPresentation('MOVE').translationMessageKey, 'test.move');
   } finally { delete ACTION_CUTIN_ACTION_PRESENTATIONS.MOVE; }
+});
+
+
+test('종료 결과 이후 높은 순번의 지연 이벤트도 추가하지 않고 다음 전투는 새로 추적한다', () => {
+  const actionCutinEventTracker = new ActionCutinTracker();
+  actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(1));
+  const finalBattleSnapshot = {me:{id:'player-one',lastResult:{battleId:'battle-one',stillshots:[createActionCutinEvent(2)]}},battle:null};
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(finalBattleSnapshot), [createActionCutinEvent(2)]);
+  finalBattleSnapshot.me.lastResult.stillshots.push(createActionCutinEvent(3));
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(finalBattleSnapshot), []);
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(4,[createActionCutinEvent(4)])), []);
+  const nextBattleSnapshot = createBattleSnapshot(1);
+  nextBattleSnapshot.battle.id = 'battle-two';
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(nextBattleSnapshot), []);
+  const nextBattleEvent = {...createActionCutinEvent(2),battleId:'battle-two',actionId:'battle-two:2'};
+  nextBattleSnapshot.battle.version = 2;
+  nextBattleSnapshot.battle.log = [{stillshot:nextBattleEvent}];
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(nextBattleSnapshot), [nextBattleEvent]);
+});
+
+test('다른 전투의 결과는 종료 기준으로 사용하지 않고 입력 내부 중복은 순서대로 정리한다', () => {
+  const actionCutinEventTracker = new ActionCutinTracker();
+  actionCutinEventTracker.collectNewActionCutins(createBattleSnapshot(1));
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins({me:{id:'player-one',lastResult:{battleId:'old-battle',stillshots:[]}},battle:null}),[]);
+  const nextBattleSnapshot = createBattleSnapshot(3,[createActionCutinEvent(3),createActionCutinEvent(2),createActionCutinEvent(2)]);
+  assert.deepEqual(actionCutinEventTracker.collectNewActionCutins(nextBattleSnapshot),[createActionCutinEvent(2),createActionCutinEvent(3)]);
 });

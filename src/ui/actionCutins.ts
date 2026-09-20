@@ -40,27 +40,37 @@ export class ActionCutinTracker {
   private trackedPlayerIdentity = '';
   private trackedBattleIdentity = '';
   private highestBattleSequence = 0;
+  private trackedBattleFinished = false;
   collectNewActionCutins(incomingStateRecord: State): ActionCutinEvent[] {
     if (this.trackedPlayerIdentity !== incomingStateRecord.me.id) {
       this.trackedPlayerIdentity = incomingStateRecord.me.id;
       this.trackedBattleIdentity = '';
       this.highestBattleSequence = 0;
+      this.trackedBattleFinished = false;
     }
     const incomingBattleRecord = incomingStateRecord.battle;
     if (incomingBattleRecord && incomingBattleRecord.id !== this.trackedBattleIdentity) {
       this.trackedBattleIdentity = incomingBattleRecord.id;
       this.highestBattleSequence = incomingBattleRecord.version;
+      this.trackedBattleFinished = false;
       return [];
     }
+    if (this.trackedBattleFinished) return [];
+    const incomingBattleResult = incomingStateRecord.me.lastResult;
+    if (!incomingBattleRecord && incomingBattleResult?.battleId !== this.trackedBattleIdentity) return [];
     const incomingActionCutinEvents = incomingBattleRecord
       ? incomingBattleRecord.log.flatMap(actionLogRecord => actionLogRecord.stillshot ? [actionLogRecord.stillshot] : [])
       : incomingStateRecord.me.lastResult?.stillshots ?? [];
-    const freshActionCutinEvents = incomingActionCutinEvents.filter(actionCutinEventRecord =>
+    const freshActionCutinEvents = [...new Map(incomingActionCutinEvents.filter(actionCutinEventRecord =>
       findActionCutinPresentation(actionCutinEventRecord.actionType) !== undefined
       && actionCutinEventRecord.battleId === this.trackedBattleIdentity
-      && actionCutinEventRecord.sequence > this.highestBattleSequence);
+      && actionCutinEventRecord.sequence > this.highestBattleSequence)
+      .map(actionCutinEventRecord => [actionCutinEventRecord.actionId, actionCutinEventRecord])).values()]
+      .sort((earlierActionEvent, laterActionEvent) => earlierActionEvent.sequence - laterActionEvent.sequence);
     this.highestBattleSequence = Math.max(this.highestBattleSequence, incomingBattleRecord?.version ?? 0,
       ...freshActionCutinEvents.map(actionCutinEventRecord => actionCutinEventRecord.sequence));
+    // 최초 종료 결과까지의 연출만 허용한다. 결과창 이후 지연된 컷은 다시 열지 않는다.
+    if (!incomingBattleRecord) this.trackedBattleFinished = true;
     return freshActionCutinEvents;
   }
 }
