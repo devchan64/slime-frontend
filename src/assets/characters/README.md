@@ -4,6 +4,7 @@
 
 | 경로 | 내용 | 사용 상태 |
 |---|---|---|
+| `baseline/character-default-white-shirt-down-left-v1.png` | 좌하향 전신 베이스라인 일러스트, 투명 PNG | 원형 참조 에셋 보관 |
 | `character-default-white-shirt-four-directions-v1/` | 방향별 정지 이미지 4개 | 이전 정지 이미지 보존 |
 | `character-default-white-shirt-standing-v2/` | 4방향×4프레임 스탠딩 시트·반복 메타데이터 | 필드·전투 스탠딩 및 캐릭터 설정·선택 초상화 |
 
