@@ -42,6 +42,7 @@ export type Battle = {
   field: Battlefield;
   tactics: {
     canAct: boolean;
+    skillActions?: {actionId: string; skillId: string; name: string; apCost: number; targets: {targetId: string; damage: number}[]}[];
     moves: { position: Position; path: Position[]; cost: number; apCost?: number; apAfter?: number; expectedApCost?: number; maximumApCost?: number; attackRange: Position[]; attacks: { targetId: string; damage: number; apCost?: number }[] }[];
     attacks: { targetId: string; damage: number; apCost?: number }[];
   };

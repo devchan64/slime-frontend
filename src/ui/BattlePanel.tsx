@@ -14,7 +14,7 @@ import type { Battle, Position } from "../client/types";
 
 type Mode = BattleMode;
 const LABELS: Record<string, string> = {
-  MOVE: "battle.move", ATTACK: "battle.attack", GUARD: "battle.guard", END_TURN: "battle.endTurn", WAIT: "battle.wait", SURRENDER: "battle.surrenderVote",
+  SKILL: "battle.skills", MOVE: "battle.move", ATTACK: "battle.attack", GUARD: "battle.guard", END_TURN: "battle.endTurn", WAIT: "battle.wait", SURRENDER: "battle.surrenderVote",
 };
 const same = (a: Position, b: Position | null) => !!b && a.column === b.column && a.row === b.row;
 function BattleConfirmation({ title, summary, disabled, close, confirm, confirmButtonLabel, alternateButtonLabel, alternateConfirmAction, alternateActionDisabled }: {
@@ -62,7 +62,7 @@ function BattleConfirmation({ title, summary, disabled, close, confirm, confirmB
 export function BattlePanel({ me, battle, actor, selected, disabled, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
   me: State["me"]; selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean;
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
-  select: (p: Position | null) => void; execute: (type: string, targetId?: string) => void;
+  select: (p: Position | null) => void; execute: (type: string, targetId?: string, selectedActionIdentifier?: string) => void;
 }) {
   const { t, locale } = useTranslation();
   battle = localizedBattle(battle, locale);
@@ -72,10 +72,10 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     return t(display.labelKey, display.values);
   };
   const [mode, setMode] = useState<Mode | null>(() => defaultBattleMode(battle, actor));
-  useEffect(() => { onMode?.(mode === "MOVE" || mode === "ATTACK" ? mode : null); }, [mode]);
   const [idleNotice, setIdleNotice] = useState(false);
   const [surrenderDialogOpen, setSurrenderDialogOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
+  useEffect(() => { onMode?.(!skillsOpen && (mode === "MOVE" || mode === "ATTACK") ? mode : null); }, [mode, skillsOpen]);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   useEffect(() => { setConfirming(false); setSurrenderDialogOpen(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
@@ -166,7 +166,9 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
       {slottedSkill === "physical_activity" ? <>
         <p role="status">{t("battle.basicAttackSkillHelp")}</p>
         <button disabled={disabled || !skillAction} onClick={() => { if (skillAction) chooseMode(skillAction); }}>{t("battle.attack")}</button>
-      </> : <p role="status">{t(slottedSkill ? "battle.skillPreviewOnly" : "battle.selectSkillHelp")}</p>}
+      </> : <BattleSkillActionPanel key={`${battle.id}:${battle.version}:${slottedSkill}`} currentBattleState={battle}
+        selectedSkillIdentifier={slottedSkill} selectedTargetPosition={selected} currentActionsDisabled={disabled || !own}
+        selectTargetPosition={select} executeSkillCommand={execute} /> }
     </section>}
     {!skillsOpen && mode === "ATTACK" && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
       <div class="battle-target-heading"><h4>{t('battle.targetCount',{count:battle.tactics.attacks.length})}</h4>
@@ -194,7 +196,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   <section class="card battle-help-card" aria-label={t('battle.help')}>
 
     {battle.units.some(currentBattleUnit => same(currentBattleUnit.position, selected)) && <BattleUnitDetails unit={battle.units.find(currentBattleUnit => same(currentBattleUnit.position, selected))} monsterLoreLevel={monsterLoreLevel} />}
-    {skillsOpen && <p class="battle-context-help">{t(slottedSkill ? 'battle.skillPreviewOnly' : 'battle.selectSkillHelp')}</p>}
+    {skillsOpen && <p class="battle-context-help">{t('battle.selectSkillHelp')}</p>}
     {!skillsOpen && mode === "ATTACK" && <p class="battle-context-help">{t('battle.attackHelpDetail')}</p>}
     {!skillsOpen && mode !== null && <>
     {mode === "MOVE" && <div class="battle-range-legend" aria-label={t('battle.movementLegend')}>
@@ -264,5 +266,56 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     alternateConfirmAction={apBattle && mode === "END_TURN" ? () => { setConfirming(false); execute("GUARD"); } : undefined}
     disabled={disabled || !valid} close={() => setConfirming(false)}
     confirm={() => { setConfirming(false); execute(mode, mode === "ATTACK" ? target?.id : undefined); }} />}
+  </>;
+}
+
+
+function BattleSkillActionPanel({currentBattleState, selectedSkillIdentifier, selectedTargetPosition, currentActionsDisabled, selectTargetPosition, executeSkillCommand}: {
+  currentBattleState: Battle; selectedSkillIdentifier: string | null; selectedTargetPosition: Position | null; currentActionsDisabled: boolean;
+  selectTargetPosition: (selectedTargetPosition: Position | null) => void;
+  executeSkillCommand: (selectedCommandType: string, selectedTargetIdentifier?: string, selectedActionIdentifier?: string) => void;
+}) {
+  const {t} = useTranslation();
+  const [selectedActionIdentifier, setSelectedActionIdentifier] = useState<string | null>(null);
+  const [skillConfirmationVisible, setSkillConfirmationVisible] = useState(false);
+  const currentSkillActions = (currentBattleState.tactics.skillActions ?? []).filter(currentActionEntry => currentActionEntry.skillId === selectedSkillIdentifier);
+  const selectedActionEntry = currentSkillActions.find(currentActionEntry => currentActionEntry.actionId === selectedActionIdentifier);
+  const selectedTargetUnit = currentBattleState.units.find(currentUnitEntry => same(currentUnitEntry.position, selectedTargetPosition));
+  const selectedTargetPreview = selectedActionEntry?.targets.find(currentTargetEntry => currentTargetEntry.targetId === selectedTargetUnit?.id);
+  const currentActingUnit = currentBattleState.units.find(currentUnitEntry => currentUnitEntry.id === currentBattleState.order[currentBattleState.index]);
+  const currentActionLabel = (currentActionEntry: NonNullable<Battle['tactics']['skillActions']>[number]) =>
+    currentActionEntry.actionId === 'one_hand_finishing_strike' ? t('battle.finishingStrike') : currentActionEntry.name;
+  return <>
+    {!currentSkillActions.length && <p role="status">{t(selectedSkillIdentifier ? 'battle.skillPreviewOnly' : 'battle.selectSkillHelp')}</p>}
+    <div class="skill-loadout-options">{currentSkillActions.map(currentActionEntry => <button class="secondary" key={currentActionEntry.actionId}
+      disabled={currentActionsDisabled || !currentActionEntry.targets.length} aria-pressed={selectedActionIdentifier === currentActionEntry.actionId}
+      title={!currentActionEntry.targets.length ? t('battle.skillUnavailable') : undefined}
+      onClick={() => {
+        setSelectedActionIdentifier(currentActionEntry.actionId); setSkillConfirmationVisible(false);
+        const singleTargetIdentifier = currentActionEntry.targets.length === 1 ? currentActionEntry.targets[0].targetId : null;
+        selectTargetPosition(currentBattleState.units.find(currentUnitEntry => currentUnitEntry.id === singleTargetIdentifier)?.position ?? null);
+      }}>{currentActionLabel(currentActionEntry)} · {currentActionEntry.apCost} AP</button>)}</div>
+    {currentSkillActions.length > 0 && currentSkillActions.every(currentActionEntry => !currentActionEntry.targets.length) && <p role="status">{t('battle.skillUnavailable')}</p>}
+    {selectedActionEntry && <section class="attack-targets" aria-label={t('battle.targetSelection')}>
+      <div class="battle-target-heading"><h4>{t('battle.targetCount', {count: selectedActionEntry.targets.length})}</h4>
+        {selectedTargetPreview && <button class="compact" disabled={currentActionsDisabled} aria-haspopup="dialog"
+          onClick={() => setSkillConfirmationVisible(true)}>{t('battle.useSkillAction')}</button>}
+      </div>
+      <div class="attack-candidates">{selectedActionEntry.targets.map(currentTargetEntry => {
+        const currentTargetUnit = currentBattleState.units.find(currentUnitEntry => currentUnitEntry.id === currentTargetEntry.targetId);
+        if (!currentTargetUnit) throw new Error('스킬 대상 유닛을 찾을 수 없습니다.');
+        return <button class="secondary compact" key={currentTargetEntry.targetId} disabled={currentActionsDisabled}
+          aria-pressed={selectedTargetUnit?.id === currentTargetEntry.targetId}
+          onClick={() => {selectTargetPosition(currentTargetUnit.position); setSkillConfirmationVisible(false);}}>
+          <strong>{currentTargetUnit.name}</strong> · {t('battle.expectedDamage', {damage: currentTargetEntry.damage})}
+          {selectedTargetUnit?.id === currentTargetEntry.targetId && <small> · {t('battle.selected')}</small>}
+        </button>;
+      })}</div>
+    </section>}
+    {skillConfirmationVisible && selectedActionEntry && selectedTargetPreview && selectedTargetUnit && <BattleConfirmation
+      title={t('battle.confirmAction', {action: currentActionLabel(selectedActionEntry)})}
+      summary={`${selectedTargetUnit.name} · ${t('battle.expectedDamage', {damage: selectedTargetPreview.damage})} · ${t('battle.apPreview', {cost: selectedActionEntry.apCost, remaining: (currentActingUnit?.ap ?? 0) - selectedActionEntry.apCost})}`}
+      disabled={currentActionsDisabled} close={() => setSkillConfirmationVisible(false)}
+      confirm={() => {setSkillConfirmationVisible(false); executeSkillCommand('SKILL', selectedTargetUnit.id, selectedActionEntry.actionId);}} />}
   </>;
 }

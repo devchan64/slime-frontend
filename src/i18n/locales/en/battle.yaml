@@ -102,7 +102,7 @@ apPreview: 'Cost {cost} AP · {remaining} AP after action'
 skills: "Skills"
 skillSelection: "Select a skill"
 noSlottedSkills: "Assign battle skills in character settings."
-skillPreviewOnly: "Skill selection is available. Battle effects are not available yet."
+skillPreviewOnly: "No executable actions. Check unlock levels, battle slots, and equipment requirements."
 
 idleTurnNotice: "No input for 5 seconds. End your turn when you have finished acting."
 
@@ -138,3 +138,7 @@ distributionRoll: "Item {sequence} · Roll {face} → {name}"
 distributionMailbox: "Supporter rewards are held in the character owner's account mailbox."
 
 recoveryPending: Movement is unavailable while recovering from incapacitation. Choose an available action from your position or end the turn.
+
+finishingStrike: Finishing Strike
+skillUnavailable: Not enough AP or no valid target within range.
+useSkillAction: Use skill
