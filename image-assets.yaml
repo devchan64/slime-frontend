@@ -82,3 +82,5 @@ data:
     path: src/assets/terrain/water-v3.png
   - managementId: image.frontend.src.assets.terrain.water-v3.webp
     path: src/assets/terrain/water-v3.webp
+  - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
+    path: src/assets/structures/ward-tower-v1.png
