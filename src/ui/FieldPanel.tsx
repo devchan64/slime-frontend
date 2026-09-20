@@ -71,7 +71,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   return <section class={`field-selection ${!monsters.length ? "field-selection-compact" : ""}`} aria-label={t('field.selectedLocation')}>
     {!monsters.length && <div class="field-selection-heading"><div>
       <h3>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</h3></div>
-      <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button></div>}
+      </div>}
     <div class="field-command-body">
       {monsters.map(m => {
         const distance = fieldDistance(state.me.position, m.position);
@@ -91,7 +91,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
     </div>
-    {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
+    {!monsters.length && <div class="field-tile-actions">
+      <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
+      {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
       {gate && here && <button disabled={disabled || !field} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
     </div>}
   </section>;

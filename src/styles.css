@@ -1287,9 +1287,9 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .field-control-card .field-selection-compact { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 8px; }
 .field-selection-compact .field-selection-heading { grid-column: 1; grid-row: 1; margin: 0; gap: 6px; }
 .field-selection-compact .field-tile-actions { grid-column: 2; grid-row: 1; margin: 0; }
-.field-selection-compact .field-tile-actions:empty { display: none; }
+.field-selection-compact .field-tile-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
 .field-selection-compact .field-tile-actions button { min-height: 44px; margin: 0; padding: 6px 8px; font-size: 13px; }
-.field-selection-compact .field-command-body { grid-column: 1 / -1; margin: 0; }
+.field-selection-compact .field-command-body { grid-column: 1 / -1; grid-row: 2; margin: 0; overflow: visible; }
 .field-selection-compact .field-route-summary { margin: 4px 0; font-size: 12px; }
 .field-location-help { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 6px; }
 .field-help-card .field-location-help p { margin: 0; font-size: 12px; }
