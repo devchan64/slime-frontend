@@ -1,3 +1,4 @@
+import {BorrowedExclusionNotice} from './BorrowedParticipation';
 import { watchTurnIdle } from "./turnIdleNotice";
 import { localizedSkill } from "../client/skillText";
 import type { State } from "../client/types";
@@ -108,6 +109,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     setConfirming(next === "END_TURN");
   };
   if (battle.status === "PREPARING") return <section class="card">
+    <BorrowedExclusionNotice currentExcludedEntries={battle.excludedBorrowedParticipants ?? []}/>
     <h3>{t('battle.preparing')}</h3><p>{t('battle.preparingHelp')}</p>
   </section>;
   const player = battle.units.find(u => u.id === actor && u.side === "ally");
@@ -123,6 +125,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const skillAction = availableSkillAction(battle, actor, slottedSkill, slottedSkill ? me.skills[slottedSkill] : 0);
   const name = (id: string) => battle.units.find(u => u.id === id)?.name || id;
   return <>
+    <BorrowedExclusionNotice currentExcludedEntries={battle.excludedBorrowedParticipants ?? []}/>
   <section class="card battle-panel battle-control-card" aria-label={t('battle.controls')}>
     <div class="battle-control-heading">
       <span class={`battle-turn-indicator${own ? " is-own-turn" : ""}`}>{own ? t('battle.myTurn') : t('battle.waiting')}</span>

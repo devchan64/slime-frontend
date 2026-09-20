@@ -142,3 +142,14 @@ recoveryPending: Movement is unavailable while recovering from incapacitation. C
 finishingStrike: Finishing Strike
 skillUnavailable: Not enough AP or no valid target within range.
 useSkillAction: Use skill
+
+supportExcluded: Party members excluded from this battle
+supportExpired: Loan expired
+supportCpMismatch: CP eligibility not met
+supportMigration: Loan growth record needs updating
+supportRecovering: Recovering from incapacitation
+supportBusy: In another battle
+supportPreview: Expected battle participants
+supportRecheck: Eligibility is checked again at encounter time. Exclusion does not remove the formation.
+supportPreviewFailed: Could not load participants. Please try again.
+supportRefresh: Refresh participants

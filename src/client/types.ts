@@ -33,6 +33,7 @@ export type Battlefield = Surface & {
   blocked?: Position[]; allySpawns?: Position[]; enemySpawns?: Position[];
 };
 export type Battle = {
+  excludedBorrowedParticipants?: import('./borrowedParticipation').BorrowedExclusion[];
   visualVersion?: 1;
   rulesVersion?: string;
   ready?: string[];

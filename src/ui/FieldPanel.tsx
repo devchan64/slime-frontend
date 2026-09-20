@@ -1,3 +1,4 @@
+import {BorrowedParticipationPreview} from './BorrowedParticipation';
 import {FieldScouting} from './FieldScouting';
 import {MapKindIcon} from './MapKindIcon';
 import {PartyFormationPanel} from './PartyFormationPanel';
@@ -101,6 +102,8 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
           <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
           <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button>
+          {gameSessionClient && !!state.me.borrowedPartyLoanIds?.length && <BorrowedParticipationPreview
+            currentGameClient={gameSessionClient} currentGameState={state} currentActionsDisabled={disabled}/>}
           {gameSessionClient && <FieldScouting key={`${state.generation}:${state.me.id}:${state.location.id}:${m.id}`} currentGameState={state} currentTargetMonster={m} currentServerTime={now}
             currentActionsDisabled={disabled} currentGameClient={gameSessionClient} submitScoutCommand={command} />}</div>;
       })}

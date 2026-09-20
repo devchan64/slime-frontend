@@ -142,3 +142,14 @@ recoveryPending: 전투불능 회복 대기 중에는 이동할 수 없습니다
 finishingStrike: 일격필살
 skillUnavailable: AP가 부족하거나 사거리 안에 공격 가능한 대상이 없습니다.
 useSkillAction: 스킬 사용
+
+supportExcluded: 이번 전투에서 제외된 파티원
+supportExpired: 대여 기간 만료
+supportCpMismatch: CP 편성 조건 불충족
+supportMigration: 대여 성장 기록 확인 필요
+supportRecovering: 전투불능 회복 대기
+supportBusy: 다른 전투 참여 중
+supportPreview: 예상 전투 참가자
+supportRecheck: 조우 시 최신 자격으로 다시 판정합니다. 제외되어도 편성은 유지됩니다.
+supportPreviewFailed: 참가 명단을 불러오지 못했습니다. 다시 확인해 주세요.
+supportRefresh: 명단 새로고침
