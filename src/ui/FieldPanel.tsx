@@ -17,6 +17,12 @@ const monsterName = (m: State["monsters"][number]) => m.name ?? t(m.appearance ?
 
 
 const EVENT_SHORTCUT_LIMIT = 3;
+
+function formatCompactMovementEstimate(fieldMapDefinition: State["map"], selectedRouteCells: Position[]) {
+  const { expected: expectedMovementCost, max: maximumMovementCost } = fieldMovementEstimate(fieldMapDefinition, selectedRouteCells);
+  return t("field.terrainFpCompact", { expected: expectedMovementCost, max: maximumMovementCost });
+}
+
 export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<Props, "state" | "selected" | "select" | "disabled">) {
   const { t, locale } = useTranslation();
   const map = localizedFieldMap(state.map, locale);
@@ -78,7 +84,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         const route = encounterRoute(state.me.position, m.position, state.map);
         return <div class="field-target" key={m.id}><div>
           <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
-          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? t('field.terrainFpCompact',fieldMovementEstimate(state.map,route)) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
+          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? formatCompactMovementEstimate(state.map, route) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
           <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
           <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
@@ -86,7 +92,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {!monsters.length && (blocked || here || !path) && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
         {blocked ? t('field.blockedTerrain') : here ? gate ? t('field.arrivalCompact') : t('field.currentPosition') : t('field.noApproach')}
       </p>}
-      {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{t('field.terrainFpCompact',fieldMovementEstimate(state.map,path))}</p> : null}
+      {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{formatCompactMovementEstimate(state.map, path)}</p> : null}
       {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
