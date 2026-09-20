@@ -101,6 +101,17 @@ export class TextClient {
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
     if (name === 'state') { arity(0); return this.snapshot(); }
+    if (name === 'rest') {
+      arity(1);
+      const requestedRestAction = args[0];
+      if (!['start', 'stop'].includes(requestedRestAction)) throw new Error('rest start 또는 rest stop으로 입력하세요.');
+      if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 휴식할 수 있습니다.');
+      return this.command('/v1/game/rest/' + requestedRestAction);
+    }
+    if (name === 'loans') {
+      if (args.length > 1) throw new Error('loans 또는 loans 다음커서로 입력하세요.');
+      return formatBorrowedLoanPage(await this.request('/v1/game/loans' + (args.length ? '?after=' + encodeURIComponent(args[0]) : '')));
+    }
     if (['enter', 'away', 'resume'].includes(name)) { arity(0); return this.command(`/v1/world/${name}`); }
     if (name === 'create') { arity(1); return this.command('/v1/characters/me', { character_name: args[0] }); }
     if (name === 'skill') { arity(1); return this.command('/v1/characters/me/skills', { skill: args[0] }); }
@@ -136,6 +147,8 @@ export class TextClient {
 export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
+  if (Number.isInteger(state.me.hp) && Number.isInteger(state.me.maxHp)) lines.push('HP ' + state.me.hp + '/' + state.me.maxHp);
+  if (state.me.fieldRest?.active) lines.push('휴식 중 | 분당 HP ' + state.me.fieldRest.recoveryPerMinute + ' 회복 | 중단: rest stop');
   if (state.me.lastResult) lines.push(`최근 결과: ${state.me.lastResult.result}`);
   if (state.reservation) lines.push(`조우 예약 ${state.reservation.id}: ready 또는 cancel`);
   if (state.battle) {
@@ -149,4 +162,27 @@ export function formatState(state) {
     for (const g of state.map?.connections ?? []) lines.push(`웨이포인트 ${g.id} (${g.column},${g.row}) → ${g.targetName ?? g.target}`);
   }
   return lines.join('\n');
+}
+
+
+export function formatBorrowedLoanPage(receivedLoanPage) {
+  if (!receivedLoanPage || !Number.isFinite(receivedLoanPage.serverTime) || !Array.isArray(receivedLoanPage.entries)
+      || !(receivedLoanPage.nextCursor === null || typeof receivedLoanPage.nextCursor === 'string')) {
+    throw new Error('대여 목록 응답 형식이 올바르지 않습니다.');
+  }
+  const renderedLoanLines = receivedLoanPage.entries.map(receivedLoanEntry => {
+    if (!receivedLoanEntry || typeof receivedLoanEntry.name !== 'string' || typeof receivedLoanEntry.id !== 'string'
+        || !Number.isSafeInteger(receivedLoanEntry.hp) || !Number.isSafeInteger(receivedLoanEntry.maxHp)
+        || receivedLoanEntry.hp < 0 || receivedLoanEntry.maxHp <= 0 || receivedLoanEntry.hp > receivedLoanEntry.maxHp
+        || !Number.isFinite(receivedLoanEntry.expiresAt) || typeof receivedLoanEntry.inBattle !== 'boolean') {
+      throw new Error('대여 캐릭터 정보가 올바르지 않습니다.');
+    }
+    const remainingLoanMinutes = Math.max(0, Math.floor((receivedLoanEntry.expiresAt - receivedLoanPage.serverTime) / 60));
+    return receivedLoanEntry.id + ' ' + receivedLoanEntry.name + ' | HP ' + receivedLoanEntry.hp + '/' + receivedLoanEntry.maxHp
+      + ' | ' + (receivedLoanEntry.inBattle ? '전투 참가 중' : '대여 유지 중')
+      + ' | ' + (receivedLoanEntry.expiresAt <= receivedLoanPage.serverTime ? '대여 만료' : '남은 기간 ' + remainingLoanMinutes + '분');
+  });
+  if (!renderedLoanLines.length) renderedLoanLines.push('대여 중인 파티원이 없습니다.');
+  if (receivedLoanPage.nextCursor) renderedLoanLines.push('다음 페이지: loans ' + receivedLoanPage.nextCursor);
+  return renderedLoanLines.join('\n');
 }

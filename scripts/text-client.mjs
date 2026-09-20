@@ -13,6 +13,8 @@ encounter 몬스터ID     조우 예약
 ready / cancel         조우·전투 준비 / 조우 예약 취소
 attack 유닛ID          일반 공격
 end / surrender        턴 종료 / 기권
+rest start / rest stop 휴식 시작 / 중단
+loans [다음커서]        대여 파티원 목록
 help / quit            도움말 / 로그아웃 후 종료`;
 
 const args = process.argv.slice(2);
@@ -73,7 +75,7 @@ if (args.length !== 1 || args[0] === '--help') {
       if (line === 'quit') break;
       try {
         const result = await serialize(() => client.interact(line));
-        console.log(result ? formatState(result) : HELP);
+        console.log(typeof result === 'string' ? result : result ? formatState(result) : HELP);
       } catch (error) {
         console.error(`명령 실패: ${error.message}`);
         if (error.code === 'IDLE_DISCONNECTED') {

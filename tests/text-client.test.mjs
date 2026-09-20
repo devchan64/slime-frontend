@@ -115,3 +115,32 @@ test('유휴 만료 활동 알림은 명령을 실행하거나 자동 재시도�
  await assert.rejects(client.interact('enter'),error=>error.code==='IDLE_DISCONNECTED');
  assert.equal(calls.length,1);assert.ok(calls[0].url.endsWith('/sessions/activity'));
 });
+
+test('휴식은 HP 0에서도 명령 버전과 요청 ID를 사용하고 전투 중에는 보내지 않는다', async () => {
+  const {client, calls} = setup([{state:state({cursor:2})},{state:state({cursor:3})}]);
+  client.accept(state());
+  client.state.me.hp=0;
+  await client.execute('rest start');
+  await client.execute('rest stop');
+  assert.ok(calls[0].url.endsWith('/rest/start'));
+  assert.ok(calls[1].url.endsWith('/rest/stop'));
+  assert.equal(calls[0].body.expectedVersion,4);
+  assert.ok(calls[0].body.requestId);
+  await assert.rejects(client.execute('rest invalid'));
+  client.state.battle={id:'battle'};
+  await assert.rejects(client.execute('rest start'),/필드/);
+  assert.equal(calls.length,2);
+});
+
+test('대여 목록은 조회만 하고 전투 상태를 덮어쓰지 않으며 페이지 커서를 인코딩한다', async () => {
+  const {client, calls} = setup([{serverTime:100,nextCursor:'next',entries:[{id:'loan',name:'파티원',hp:0,maxHp:25,expiresAt:99,inBattle:true}]}]);
+  client.accept(state());
+  const originalClientState=client.state;
+  const renderedLoanResult=await client.execute('loans a/b');
+  assert.match(renderedLoanResult,/HP 0\/25/);
+  assert.match(renderedLoanResult,/전투 참가 중.*대여 만료/);
+  assert.match(renderedLoanResult,/loans next/);
+  assert.ok(calls[0].url.endsWith('/v1/game/loans?after=a%2Fb'));
+  assert.equal(calls[0].body,undefined);
+  assert.equal(client.state,originalClientState);
+});
