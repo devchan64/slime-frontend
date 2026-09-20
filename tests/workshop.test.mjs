@@ -41,3 +41,10 @@ test('원장 미존재 응답만 원본 요청 재시도를 허용하고 조회 
  assert.equal(await recoverWorkshopCreationResult({async request(){throw new ApiError('WORKSHOP_RESULT_NOT_FOUND','없음',404);}},currentOriginalRequest,'iseulon-workshop'),false);
  for(const currentFailureCode of [404,401,500])await assert.rejects(()=>recoverWorkshopCreationResult({async request(){throw new ApiError('OTHER_ERROR','실패',currentFailureCode);}},currentOriginalRequest,'iseulon-workshop'));
 });
+
+test('소모품 견적은 수량에 비례하는 제작 시간과 비용을 검증한다',()=>{
+ const currentConsumableQuote={...currentQuoteFixture,quote:{...currentQuoteFixture.quote,quantity:3,unitDurationSeconds:30,unitCostP:1,costP:3,durationSeconds:90}};
+ assert.equal(parseWorkshopQuote(currentConsumableQuote,'consumable').quote.quantity,3);
+ for(const currentInvalidPatch of [{quantity:0},{quantity:1.5},{quantity:1001},{durationSeconds:30},{costP:1},{unitDurationSeconds:0}])
+  assert.throws(()=>parseWorkshopQuote({...currentConsumableQuote,quote:{...currentConsumableQuote.quote,...currentInvalidPatch}},'consumable'));
+});

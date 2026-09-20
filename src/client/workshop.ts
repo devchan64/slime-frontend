@@ -1,6 +1,6 @@
 import {ApiError} from './response';
-export type WorkshopContractKind='craft'|'repair';
-export type WorkshopPriceQuote={costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
+export type WorkshopContractKind='craft'|'repair'|'consumable';
+export type WorkshopPriceQuote={quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
 export type WorkshopQuoteResponse={characterVersion:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractPage={characterVersion:number;serverTime:number;nextCursor:string|null;entries:{contractId:string;kind:WorkshopContractKind;
@@ -12,7 +12,12 @@ function requireWorkshopCondition(currentConditionResult:unknown):asserts curren
 function isWorkshopWholeNumber(currentNumberValue:unknown){return Number.isSafeInteger(currentNumberValue)&&Number(currentNumberValue)>=0;}
 function validateWorkshopQuote(currentQuoteValue:any,currentContractKind:WorkshopContractKind){
   requireWorkshopCondition(currentQuoteValue&&isWorkshopWholeNumber(currentQuoteValue.costP)&&isWorkshopWholeNumber(currentQuoteValue.durationSeconds)&&currentQuoteValue.durationSeconds>0);
-  if(currentContractKind==='craft')requireWorkshopCondition(typeof currentQuoteValue.definitionSnapshot?.name==='string'&&typeof currentQuoteValue.definitionSnapshot?.englishName==='string');
+  if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentQuoteValue.quantity)&&currentQuoteValue.quantity>0&&currentQuoteValue.quantity<=1000
+    &&Number.isSafeInteger(currentQuoteValue.unitDurationSeconds)&&currentQuoteValue.unitDurationSeconds>0
+    &&Number.isSafeInteger(currentQuoteValue.unitCostP)&&currentQuoteValue.unitCostP>0
+    &&currentQuoteValue.durationSeconds===currentQuoteValue.quantity*currentQuoteValue.unitDurationSeconds
+    &&currentQuoteValue.costP===currentQuoteValue.quantity*currentQuoteValue.unitCostP);
+  if(currentContractKind!=='repair')requireWorkshopCondition(typeof currentQuoteValue.definitionSnapshot?.name==='string'&&typeof currentQuoteValue.definitionSnapshot?.englishName==='string');
   else for(const currentDurabilitySnapshot of [currentQuoteValue.before,currentQuoteValue.after])
     requireWorkshopCondition(currentDurabilitySnapshot&&isWorkshopWholeNumber(currentDurabilitySnapshot.currentDurability)&&isWorkshopWholeNumber(currentDurabilitySnapshot.maxDurability)
       &&currentDurabilitySnapshot.currentDurability<=currentDurabilitySnapshot.maxDurability);
@@ -64,6 +69,7 @@ export async function recoverWorkshopCreationResult(currentRequestClient:{reques
   requireWorkshopCondition(currentReceiptResponse&&currentReceiptResponse.requestId===currentOriginalRequest.requestId
     &&currentReceiptResponse.kind===currentOriginalRequest.kind&&currentReceiptResponse.facilityId===currentFacilityIdentifier
     &&currentReceiptResponse.targetId===currentOriginalRequest.targetId
+    &&(currentOriginalRequest.kind!=='consumable'||currentReceiptResponse.quantity===(currentOriginalRequest.quantity??1))
     &&currentReceiptResponse.expectedInstanceVersion===(currentOriginalRequest.expectedInstanceVersion??null)
     &&typeof currentReceiptResponse.contractId==='string'&&WORKSHOP_UUID_PATTERN.test(currentReceiptResponse.contractId)
     &&isWorkshopWholeNumber(currentReceiptResponse.costP));

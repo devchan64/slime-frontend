@@ -20,3 +20,8 @@ readyAt: '완료 시각: {time}'
 claim: 결과물 수령
 next: 다음 계약 페이지
 uncertain: 응답을 확인하지 못했습니다. 아래 계약 버튼으로 같은 요청의 결과를 재확인하세요. 중복 결제하지 않습니다.
+
+consumable: 회복 소모품 제작
+
+quantity: '제작 수량 (1~1000)'
+quantityTime: '{quantity}개 · 개당 {seconds}초 · 다른 계약과 동시 제작'

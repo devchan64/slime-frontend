@@ -14,6 +14,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
   const [currentContractKind,setCurrentContractKind]=useState<WorkshopContractKind>('craft');
   const [currentSelectionOptions,setCurrentSelectionOptions]=useState<WorkshopSelectionOption[]>([]);
   const [currentTargetIdentifier,setCurrentTargetIdentifier]=useState('');
+  const [currentRequestedQuantity,setCurrentRequestedQuantity]=useState(1);
   const [currentQuoteResponse,setCurrentQuoteResponse]=useState<WorkshopQuoteResponse|null>(null);
   const [currentContractPage,setCurrentContractPage]=useState<WorkshopContractPage|null>(null);
   const [currentWorkshopNotice,setCurrentWorkshopNotice]=useState<Notice>('');
@@ -39,7 +40,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     await runWorkshopRequest(async()=>{
       const receivedContractPage=parseWorkshopContracts(await gameSessionClient.request(`${workshopRequestBase}/contracts?kind=${currentRequestedKind}${currentPageCursor?'&after='+encodeURIComponent(currentPageCursor):''}`),currentRequestedKind);
       let receivedSelectionOptions:WorkshopSelectionOption[]=[];
-      if(currentRequestedKind==='craft')receivedSelectionOptions=parseWorkshopCatalog(await gameSessionClient.request(`${workshopRequestBase}/catalog`))
+      if(currentRequestedKind!=='repair')receivedSelectionOptions=parseWorkshopCatalog(await gameSessionClient.request(`${workshopRequestBase}/catalog?kind=${currentRequestedKind}`))
         .map(currentCatalogItem=>({id:currentCatalogItem.id,nameTranslations:{ko:currentCatalogItem.name,en:currentCatalogItem.englishName}}));
       else{
         let currentInventoryCursor:string|null=null;
@@ -59,8 +60,9 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     });
   }
   async function requestWorkshopQuote(){await runWorkshopRequest(async()=>{
-    const receivedQuoteResponse=parseWorkshopQuote(await gameSessionClient.request(`${workshopRequestBase}/quote?kind=${currentContractKind}&targetId=${encodeURIComponent(currentTargetIdentifier)}`),currentContractKind);
+    const receivedQuoteResponse=parseWorkshopQuote(await gameSessionClient.request(`${workshopRequestBase}/quote?kind=${currentContractKind}&targetId=${encodeURIComponent(currentTargetIdentifier)}${currentContractKind==='consumable'?'&quantity='+currentRequestedQuantity:''}`),currentContractKind);
     if(workshopSessionMatches()){setCurrentQuoteResponse(receivedQuoteResponse);quotedRequestReference.current={kind:currentContractKind,targetId:currentTargetIdentifier,
+      ...(currentContractKind==='consumable'?{quantity:receivedQuoteResponse.quote.quantity}:{}),
       quoteToken:receivedQuoteResponse.quoteToken,expectedVersion:receivedQuoteResponse.characterVersion,requestId:crypto.randomUUID(),
       ...(currentContractKind==='repair'?{expectedInstanceVersion:receivedQuoteResponse.quote.instanceVersion}:{})};}
   });}
@@ -91,7 +93,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       onClick={()=>{setWorkshopPanelOpened(!workshopPanelOpened);if(!workshopPanelOpened)void loadWorkshopContents(currentContractKind);}}>{translateWorkshopText('workshop.title')}</button>
     {workshopPanelOpened&&<div>
       <p>{translateWorkshopText('workshop.citizenship')}</p>
-      <div class="workshop-controls">{(['craft','repair'] as const).map(currentKindOption=><button class="secondary compact" aria-pressed={currentContractKind===currentKindOption}
+      <div class="workshop-controls">{(['craft','consumable','repair'] as const).map(currentKindOption=><button class="secondary compact" aria-pressed={currentContractKind===currentKindOption}
         disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentKindOption)}>{translateWorkshopText(`workshop.${currentKindOption}`)}</button>)}
         <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentContractKind)}>{translateWorkshopText('journal.refresh')}</button></div>
       {currentWorkshopNotice&&<p role="alert">{noticeText(currentWorkshopNotice,currentWorkshopLocale,translateWorkshopText)}</p>}
@@ -101,9 +103,12 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
         setCurrentTargetIdentifier(currentSelectionEvent.currentTarget.value);setCurrentQuoteResponse(null);quotedRequestReference.current=null;}}>
         <option value="">{translateWorkshopText('workshop.choose')}</option>{currentSelectionOptions.map(currentSelectionOption=><option value={currentSelectionOption.id}>{currentSelectionOption.nameTranslations[currentWorkshopLocale]}</option>)}
       </select></label>
+      {currentContractKind==='consumable'&&<label>{translateWorkshopText('workshop.quantity')}<input type="number" min="1" max="1000" step="1" value={currentRequestedQuantity} disabled={currentControlsDisabled}
+        onInput={currentQuantityEvent=>{setCurrentRequestedQuantity(Number(currentQuantityEvent.currentTarget.value));setCurrentQuoteResponse(null);quotedRequestReference.current=null;}}/></label>}
       {!currentSelectionOptions.length&&<p>{translateWorkshopText('workshop.noItems')}</p>}
-      <button class="secondary compact" disabled={currentControlsDisabled||!currentTargetIdentifier} onClick={()=>void requestWorkshopQuote()}>{translateWorkshopText('workshop.quote')}</button>
+      <button class="secondary compact" disabled={currentControlsDisabled||!currentTargetIdentifier||(currentContractKind==='consumable'&&(!Number.isSafeInteger(currentRequestedQuantity)||currentRequestedQuantity<1||currentRequestedQuantity>1000))} onClick={()=>void requestWorkshopQuote()}>{translateWorkshopText('workshop.quote')}</button>
       {currentQuoteResponse&&<div class="workshop-quote">
+        {currentQuoteResponse.quote.quantity!==undefined&&<p>{translateWorkshopText('workshop.quantityTime',{quantity:currentQuoteResponse.quote.quantity,seconds:currentQuoteResponse.quote.unitDurationSeconds!})}</p>}
         <p>{translateWorkshopText('workshop.price',{cost:currentQuoteResponse.quote.costP,seconds:currentQuoteResponse.quote.durationSeconds})}</p>
         {currentQuoteResponse.materials.map(currentMaterialRecord=><p>{currentMaterialRecord.nameTranslations[currentWorkshopLocale]} × {currentMaterialRecord.quantity}</p>)}
         {currentQuoteResponse.quote.before&&currentQuoteResponse.quote.after&&<p>{translateWorkshopText('workshop.durability',{
@@ -115,7 +120,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
       <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
-        <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}</strong>
+        <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}{currentContractEntry.kind==='consumable'?' × '+currentContractEntry.quote.quantity:''}</strong>
         <p>{translateWorkshopText(`workshop.${currentContractEntry.status.toLowerCase().replaceAll('_','')}`)}</p>
         <small>{translateWorkshopText('workshop.readyAt',{time:new Date(currentContractEntry.readyAt*1000).toLocaleString(currentWorkshopLocale)})}</small>
         {currentContractEntry.status==='READY'&&<button class="compact" disabled={currentControlsDisabled} onClick={()=>void submitWorkshopContract(currentContractEntry.contractId)}>{translateWorkshopText('workshop.claim')}</button>}

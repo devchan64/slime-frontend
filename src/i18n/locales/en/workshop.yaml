@@ -20,3 +20,8 @@ readyAt: 'Completion time: {time}'
 claim: Collect result
 next: Next contracts page
 uncertain: The response was not confirmed. Use the contract button below to retry the same request without a duplicate charge.
+
+consumable: Recovery supplies
+
+quantity: 'Quantity (1–1000)'
+quantityTime: '{quantity} items · {seconds}s each · Other contracts run concurrently'
