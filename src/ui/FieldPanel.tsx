@@ -94,6 +94,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       })}
       {selectedCityBuilding && <div class="field-target"><div class="field-target-summary">
         <strong>{t(`city.${selectedCityBuilding.facilityKind}`)}</strong>
+        {!!selectedCityBuilding.npcs?.length && <small>{t('city.staff',{names:selectedCityBuilding.npcs.map(currentFacilityNpc=>currentFacilityNpc.name).join(', ')})}</small>}
         <small>{atBuildingEntrance?t('city.arrived'):t('city.safeTown')}</small></div>
         <button class="secondary compact" onClick={()=>select(null)}>{t('field.clear')}</button>
         <button disabled={disabled || !field || !canStep || atBuildingEntrance || !currentEntranceRoute?.length}
@@ -136,7 +137,8 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
     </div> : !state.map.safeTown ? <><h3>{t('field.nearby')}</h3><p class="field-subtitle">{t('field.nearbyHelp')}</p></> : <p>{t('city.safeTown')}</p>}
     {state.map.buildings?.length ? <><h3>{t('city.facilities')}</h3>{state.map.buildings.map(currentCityBuilding=><button
       key={currentCityBuilding.id} class="field-monster secondary" onClick={()=>select(currentCityBuilding.origin)}>
-      <span>{t(`city.${currentCityBuilding.facilityKind}`)}</span></button>)}</>:null}
+      <span><strong>{t(`city.${currentCityBuilding.facilityKind}`)}</strong>
+        {!!currentCityBuilding.npcs?.length && <small>{t('city.staff',{names:currentCityBuilding.npcs.map(currentFacilityNpc=>currentFacilityNpc.name).join(', ')})}</small>}</span></button>)}</>:null}
     {monsters.slice(0, NEARBY_LIMIT).map(renderMonster)}
     {monsters.length > NEARBY_LIMIT && <details class="field-details"><summary>{t('field.remainingMonsters',{count:monsters.length-NEARBY_LIMIT})}</summary>{monsters.slice(NEARBY_LIMIT).map(renderMonster)}</details>}
     {!monsters.length && !state.map.safeTown && <p class="field-subtitle">{t('field.noMonsters')}</p>}

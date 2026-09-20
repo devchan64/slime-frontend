@@ -4,7 +4,7 @@ import type { Surface } from "../game/terrain/elevation";
 import type { SkillDefinition } from "./skillText";
 export type ConsumableUseAction = {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number} | {type: "PLACE_MARKER"; markerKind: "ROUTE" | "LIGHT"; validSeconds: number; consumedOnSuccess: number};
 export type PersonalFieldMarker = {id: string; mapId: string; kind: "ROUTE" | "LIGHT"; position: Position; createdAt: number; expiresAt: number};
-export type CityBuilding = {id:string;name:string;facilityId:string;facilityKind:'guild'|'bookshop'|'inn'|'workshop'|'market';origin:Position;width:number;height:number;entrance:Position;facing:'north'|'south'|'east'|'west'};
+export type CityBuilding = {id:string;name:string;facilityId:string;facilityKind:'guild'|'bookshop'|'inn'|'workshop'|'market';npcs?:{id:string;name:string}[];origin:Position;width:number;height:number;entrance:Position;facing:'north'|'south'|'east'|'west'};
 export type Position = { column: number; row: number };
 export type SizeClass = "small" | "medium" | "large" | "huge";
 export type Appearance = { nameTranslations?: Record<"ko" | "en", string>; monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
