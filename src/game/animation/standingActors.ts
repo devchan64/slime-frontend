@@ -1,3 +1,4 @@
+import { calculateStandingPhase } from "./standingPhase";
 import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
@@ -34,7 +35,7 @@ export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Im
   const actorStandingAsset = ACTOR_STANDING_ASSETS[actorStandingKind];
   if (!actorStandingAsset) throw new Error("등록되지 않은 스탠딩 개체입니다.");
   const actorStandingAnimation = actorStandingAsset.animation;
-  const sampledStandingFrame = actorStandingAnimation.sample(actorStandingAnimation.clip("idle", actorScreenDirection), actorRenderImage.scene.time.now).frame;
+  const sampledStandingFrame = actorStandingAnimation.sample(actorStandingAnimation.clip("idle", actorScreenDirection), actorRenderImage.scene.time.now + actorRenderImage.getData("standingPhaseOffset")).frame;
   const selectedStandingFrame = `cell:${actorStandingAnimation.data.animationId}@${actorStandingAnimation.data.version}:${sampledStandingFrame.frameId}`;
   if (actorRenderImage.frame.name === selectedStandingFrame) return;
   actorRenderImage.setTexture(actorStandingAsset.key, selectedStandingFrame)
@@ -42,13 +43,16 @@ export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Im
 }
 
 export function createActorStandingImage(actorRenderScene: Phaser.Scene, actorStandingKind: StandingActorKind,
-  actorWorldPosition: {x:number;y:number}, actorDisplayHeight: number, actorScreenDirection: Direction) {
+  actorWorldPosition: {x:number;y:number}, actorDisplayHeight: number, actorScreenDirection: Direction, actorStableIdentifier: string) {
   const actorStandingAsset = ACTOR_STANDING_ASSETS[actorStandingKind];
   bindCellTexture(actorRenderScene, actorStandingAsset.key, actorStandingAsset.animation);
+  const standingCycleDuration = actorStandingAsset.animation.data.clips.find(standingClipRecord => standingClipRecord.direction === actorScreenDirection && standingClipRecord.action === "idle")!
+    .frames.reduce((totalFrameDuration, standingFrameRecord) => totalFrameDuration + standingFrameRecord.durationMs, 0);
+  const standingPhaseOffset = calculateStandingPhase(actorStableIdentifier, standingCycleDuration);
   const initialStandingFrame = actorStandingAsset.animation.data.frames[0];
   const actorRenderImage = actorRenderScene.add.image(actorWorldPosition.x, actorWorldPosition.y, actorStandingAsset.key)
     .setScale(actorDisplayHeight / (initialStandingFrame.rect.height * STANDING_BODY_HEIGHT_RATIO))
-    .setData("actorStandingKind", actorStandingKind).setData("characterRestingFacing", actorScreenDirection);
+    .setData("standingPhaseOffset", standingPhaseOffset).setData("actorStandingKind", actorStandingKind).setData("characterRestingFacing", actorScreenDirection);
   updateActorStandingFrame(actorRenderImage, actorScreenDirection);
   return actorRenderImage;
 }
