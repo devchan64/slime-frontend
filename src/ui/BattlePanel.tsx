@@ -133,6 +133,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
+    {player?.healthRecoveryPending && <p class="battle-action-hint" role="status">{t("battle.recoveryPending")}</p>}
     <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
     <div class="battle-button-toolbar">
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>

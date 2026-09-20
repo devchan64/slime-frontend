@@ -136,3 +136,5 @@ distributionSupporter: "Supporter"
 distributionDetails: "Individual rolls"
 distributionRoll: "Item {sequence} · Roll {face} → {name}"
 distributionMailbox: "Supporter rewards are held in the character owner's account mailbox."
+
+recoveryPending: Movement is unavailable while recovering from incapacitation. Choose an available action from your position or end the turn.

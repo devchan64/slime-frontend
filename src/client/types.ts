@@ -13,6 +13,7 @@ export type Unit = Appearance & {
   facing?: WorldFacing;
   /** 적은 서버가 제한한 표시 스케일이며 실제 HP가 아니다. */
   hp: number;
+  healthRecoveryPending?: boolean;
   maxHp: number;
   healthVisibility?: "HIDDEN" | "BANDED";
   /** AP 전투에서 서버가 제공하는 실제 잔고. 이전 전투에서는 생략한다. */
