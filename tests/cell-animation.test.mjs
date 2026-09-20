@@ -21,8 +21,8 @@ test('비반복 종료는 마지막 프레임을 유지하고 명시한 후속 �
  let animation=new CellAnimation(data),clip=animation.clip('idle','down_left');
  assert.equal(animation.sample(clip,350).frame.frameId,'frame.1');
  assert.equal(animation.sample(clip,350).completed,true);
- for(const c of [...data.clips])data.clips.push({...structuredClone(c),clipId:`attack.${c.direction}`,action:'attack',nextClipId:c.clipId});
- animation=new CellAnimation(data);clip=animation.clip('attack','down_left');
+ for(const c of [...data.clips])data.clips.push({...structuredClone(c),clipId:`walk.${c.direction}`,action:'walk',nextClipId:c.clipId});
+ animation=new CellAnimation(data);clip=animation.clip('walk','down_left');
  assert.equal(animation.sample(clip,350).clipId,'idle.down_left');
  assert.equal(animation.sample(clip,450).frame.frameId,'frame.1');
  assert.equal(animation.sample(clip,700).completed,true);

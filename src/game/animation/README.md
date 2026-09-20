@@ -15,7 +15,7 @@ const actor = new CellActor(scene, loadedTextureKey, asset.animation, {
 actor.image.setDepth(depth);
 actor.play('walk', 'down_right');
 // 같은 행동을 새로 시작하는 별도 이벤트에는 restart를 명시한다.
-actor.play('attack', 'down_right', true);
+actor.play('walk', 'down_right', true);
 ```
 
 동작·방향은 등록된 클립만 사용할 수 있다. 이미지의 발 기준점을 `x/y`에 맞추고 모든 프레임에 같은 배율을 사용한다. 위치·깊이는 호출자가 관리한다. 장면의 update 시각으로 프레임을 계산하며 자체 타이머·네트워크 요청·게임 명령을 만들지 않는다. 반복·후속 클립 순환은 긴 경과 시간에도 루프 횟수만큼 반복 계산하지 않는다. 비반복 클립의 후속이 null이면 마지막 프레임을 유지한다.
@@ -37,6 +37,6 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 
 ## 전투 논리 방향
 
-새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation)`으로 현재 화면 방향을 얻고 해당 클립을 선택한다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.
+새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation)`으로 현재 화면 방향을 얻고 지원 동작의 클립을 선택한다. ATTACK 로그의 방향은 보존하지만 공격·스킬 사용 맵 클립은 호출하지 않는다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.
 
 필드에서는 자기 개체의 `me.fieldFacing`, 다른 구성원의 `members[].facing`, 몬스터의 `monsters[].facing`을 같은 `screenFacing()`에 전달한다. 이전 캐시에는 값이 없을 수 있으므로 현재 정적 이미지 표시 경로와 명시적으로 구분한다. 맵 전환·재접속의 위치 차이를 새 이동 방향으로 계산하지 않는다.

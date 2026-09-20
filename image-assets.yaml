@@ -104,3 +104,23 @@ data:
     path: src/assets/characters/character-default-white-shirt-walk-v1/up_right.png
   - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
     path: src/assets/cutins/characters/default-punch-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
+    path: src/assets/monsters/standing-v1/slime-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.giant-idle-v1.png
+    path: src/assets/monsters/standing-v1/giant-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.field-rabbit-idle-v1.png
+    path: src/assets/monsters/standing-v1/field-rabbit-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.stone-crab-idle-v1.png
+    path: src/assets/monsters/standing-v1/stone-crab-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.ridge-boar-idle-v1.png
+    path: src/assets/monsters/standing-v1/ridge-boar-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.lantern-moth-idle-v1.png
+    path: src/assets/monsters/standing-v1/lantern-moth-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.reed-crawler-idle-v1.png
+    path: src/assets/monsters/standing-v1/reed-crawler-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.ash-fox-idle-v1.png
+    path: src/assets/monsters/standing-v1/ash-fox-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.crystal-lizard-idle-v1.png
+    path: src/assets/monsters/standing-v1/crystal-lizard-idle-v1.png
+  - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
+    path: src/assets/monsters/standing-v1/beast-idle-v2.png
