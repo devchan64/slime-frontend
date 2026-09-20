@@ -102,3 +102,5 @@ data:
     path: src/assets/characters/character-default-white-shirt-walk-v1/up_left.png
   - managementId: image.frontend.src.assets.characters.character-default-white-shirt-walk-v1.up-right.png
     path: src/assets/characters/character-default-white-shirt-walk-v1/up_right.png
+  - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
+    path: src/assets/cutins/characters/default-punch-v1.png
