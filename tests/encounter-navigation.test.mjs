@@ -77,3 +77,16 @@ test('같은 공간의 정상 스냅샷 갱신은 접근을 중단하지 않는�
  assert.notEqual(ko.approachFpDebt,en.approachFpDebt);
  assert.deepEqual(events,[]);
 });
+
+test('HP 0이면 접근 이동과 인접 조우를 모두 중단하고 HP 1에서 재개한다', async () => {
+ const {state: currentFieldState, events: recordedFieldEvents, controls: encounterActionControls} = setup();
+ currentFieldState.me.hp = 0;
+ await assert.rejects(approachMonster('slime', encounterActionControls), {key:'field.healthDepleted'});
+ assert.deepEqual(recordedFieldEvents, []);
+ currentFieldState.me.position = {column:3,row:1};
+ await assert.rejects(approachMonster('slime', encounterActionControls), {key:'field.healthDepleted'});
+ assert.deepEqual(recordedFieldEvents, []);
+ currentFieldState.me.hp = 1;
+ await approachMonster('slime', encounterActionControls);
+ assert.deepEqual(recordedFieldEvents, [['reserve','slime']]);
+});

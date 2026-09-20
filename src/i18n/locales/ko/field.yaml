@@ -97,3 +97,5 @@ adjacentCompact: "인접"
 compactCoordinates: "좌표 {column},{row} · 높이 {height}"
 terrainFpPreview: "기본 {base} FP · 예상 {expected} FP · 최대 {max} FP. 추가 소모로 FP가 0 이하가 되면 중단합니다."
 terrainFpButton: " · {count}칸"
+
+healthDepleted: 체력이 없어 조우할 수 없습니다. 로그아웃 후 회복하세요.

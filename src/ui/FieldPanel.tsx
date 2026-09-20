@@ -83,7 +83,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         return <div class="field-target" key={m.id}><div>
           <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
           <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? t('field.terrainFpPreview',fieldMovementEstimate(state.map,route)) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
-          <button class="compact" disabled={disabled || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
+          <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
       })}
       {!monsters.length && (blocked || here || !path) && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
@@ -91,6 +91,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       </p>}
       {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{t('field.terrainFpPreview',fieldMovementEstimate(state.map,path))}</p> : null}
       {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
+      {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
     </div>
     {!monsters.length && <div class="field-tile-actions">{!blocked && !here && <button disabled={disabled || !field || !path?.length || !canStep} onClick={walk}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
@@ -113,7 +114,7 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
   return <section class="card field-panel">
     {reservation ? <div class="field-reservation" aria-label={t('field.preparation')}>
       <h3>{t('field.preparation')}</h3><p role="status">{t('field.readyProgress',{ready:reservation.ready.length,total:reservation.members.length,seconds:Math.max(0,Math.ceil(reservation.deadline-now))})}</p>
-      <div class="actions"><button disabled={disabled || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? t('field.waitingParty') : t('field.ready')}</button>
+      <div class="actions"><button disabled={disabled || state.me.hp === 0 || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? t('field.waitingParty') : t('field.ready')}</button>
       <button class="secondary" disabled={disabled} onClick={() => command("/v1/game/encounters/cancel", { reservationId: reservation.id })}>{t('field.cancelReservation')}</button></div>
     </div> : <><h3>{t('field.nearby')}</h3><p class="field-subtitle">{t('field.nearbyHelp')}</p></>}
     {monsters.slice(0, NEARBY_LIMIT).map(renderMonster)}

@@ -97,3 +97,5 @@ adjacentCompact: "Adjacent"
 compactCoordinates: "{column},{row} · Height {height}"
 terrainFpPreview: "Base {base} FP · expected {expected} FP · maximum {max} FP. Movement stops if extra costs reduce FP to zero or below."
 terrainFpButton: " · {count} cells"
+
+healthDepleted: Your HP is depleted. Log out to recover before starting an encounter.
