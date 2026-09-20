@@ -17,6 +17,8 @@ import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bundle:true,write:false,platform:'node',format:'esm',
  loader:{'.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
+  build.onResolve({filter:/i18n$/},()=>({path:'i18n',namespace:'locale-double'}));
+  build.onLoad({filter:/.*/,namespace:'locale-double'},()=>({contents:'export const t = currentMessageKey => currentMessageKey;'}));
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
   build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
@@ -54,7 +56,8 @@ test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 �
  };
  scene.add={graphics:()=>make(),image:(x,y)=>{const actorImageDouble=make(x,y);actorImageDouble.type="Image";return actorImageDouble;},text:(x,y)=>make(x,y)};
  scene.project=p=>({x:p.column,y:p.row});scene.depth=()=>100;
- scene.viewSurface={columns:1000,rows:1000};
+ scene.viewSurface={columns:4000,rows:1000};
+ scene.state={battle:null,map:scene.viewSurface};
  scene.cameras={main:{scrollX:0,scrollY:0,width:200,height:200,zoom:1}};
  scene.queueUnit('near',{column:50,row:50},0xffffff,'주변',true,undefined,false,undefined,undefined,'member:near');
  scene.queueUnit('far',{column:3000,row:50},0xffffff,'먼 곳',true,undefined,false,undefined,undefined,'member:far');
@@ -143,7 +146,8 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
  };
  scene.add={graphics:()=>make(),image:(x,y)=>{const actorImageDouble=make(x,y);actorImageDouble.type="Image";return actorImageDouble;},text:(x,y)=>make(x,y)};
  scene.project=()=>({x:164,y:82});scene.depth=()=>30030;
- scene.viewSurface={columns:1000,rows:1000};
+ scene.viewSurface={columns:4000,rows:1000};
+ scene.state={battle:null,map:scene.viewSurface};
  scene.selected={column:3,row:2};
  const now=performance.now();
  scene.fieldMotion.sync('map',[{id:'monster:s',cell:{column:2,row:2},point:{x:100,y:50,depth:30020}}],now);
