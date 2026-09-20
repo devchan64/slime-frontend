@@ -15,24 +15,32 @@ afterEach(() => {
 });
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bundle:true,write:false,platform:'node',format:'esm',
+const {outputFiles}=await build({stdin:{contents:"export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_STANDING_TEXTURES} from './src/game/animation/standingActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',
  loader:{'.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
   build.onResolve({filter:/i18n$/},()=>({path:'i18n',namespace:'locale-double'}));
   build.onLoad({filter:/.*/,namespace:'locale-double'},()=>({contents:'export const t = currentMessageKey => currentMessageKey;'}));
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
   build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
-const {MainScene}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {MainScene,ACTOR_STANDING_TEXTURES}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
 
 function createStandingTextureDouble() {
- const registeredTextureFrames=new Set();
- const standingTextureDouble={
-  getSourceImage:()=>({width:1254,height:1254}),
-  has:standingFrameIdentifier=>registeredTextureFrames.has(standingFrameIdentifier),
-  add(standingFrameIdentifier){registeredTextureFrames.add(standingFrameIdentifier);return {};},
+ const currentTextureRegistry=new Map(ACTOR_STANDING_TEXTURES.map(currentStandingAsset=>{
+  const registeredTextureFrames=new Set();
+  return [currentStandingAsset.key, {
+   getSourceImage:()=>({width:currentStandingAsset.animation.data.sheet.width,height:currentStandingAsset.animation.data.sheet.height}),
+   has:standingFrameIdentifier=>registeredTextureFrames.has(standingFrameIdentifier),
+   add(standingFrameIdentifier){registeredTextureFrames.add(standingFrameIdentifier);return {};},
+  }];
+ }));
+ return {
+  exists:currentTextureKey=>currentTextureRegistry.has(currentTextureKey),
+  get:currentTextureKey=>{
+   assert.ok(currentTextureRegistry.has(currentTextureKey),`등록되지 않은 테스트 텍스처: ${currentTextureKey}`);
+   return currentTextureRegistry.get(currentTextureKey);
+  },
  };
- return {exists:()=>true,get:()=>standingTextureDouble};
 }
 
 test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 이동 참조를 함께 해제한다',()=>{
