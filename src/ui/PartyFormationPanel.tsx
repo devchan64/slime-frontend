@@ -8,8 +8,9 @@ import {useTranslation} from '../i18n';
 
 const PARTY_CANDIDATE_LABELS={AVAILABLE:'formation.available',ALREADY_BORROWED:'formation.borrowed',CP_OUT_OF_RANGE:'formation.cpBlocked',CAPACITY_FULL:'formation.full'};
 type PendingFormationRequest={body:Record<string,unknown>;path:string;action:'ADD'|'REMOVE';loanId?:string};
-export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier?:string;actionsAreDisabled:boolean}){
   const {t:translateFormationText,locale:currentFormationLocale}=useTranslation();
+  const [currentFormationLoaded,setCurrentFormationLoaded]=useState(false);
   const [currentCandidatePage,setCurrentCandidatePage]=useState<PartyCandidatePage|null>(null);
   const [currentBorrowedEntries,setCurrentBorrowedEntries]=useState<BorrowedLoanEntry[]>([]);
   const [currentSelectedCandidate,setCurrentSelectedCandidate]=useState<PartyCandidateEntry|null>(null);
@@ -31,7 +32,7 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
     finally{pendingRequestReference.current=false;if(formationSessionMatches())setCurrentRequestPending(false);}
   }
   async function loadFormationContents(currentPageCursor?:string){
-    const currentReceivedPage=parsePartyCandidatePage(await gameSessionClient.request(`/v1/game/guilds/${encodeURIComponent(currentFacilityIdentifier)}/party-candidates${currentPageCursor?'?after='+encodeURIComponent(currentPageCursor):''}`),originalSessionReference.current.map!);
+    const currentReceivedPage=currentFacilityIdentifier?parsePartyCandidatePage(await gameSessionClient.request(`/v1/game/guilds/${encodeURIComponent(currentFacilityIdentifier!)}/party-candidates${currentPageCursor?'?after='+encodeURIComponent(currentPageCursor):''}`),originalSessionReference.current.map!):null;
     const currentLoanEntries:BorrowedLoanEntry[]=[];let currentLoanCursor:string|null=null;
     const currentVisitedCursors=new Set<string>();
     do{
@@ -40,7 +41,7 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
       if(currentLoanCursor&&currentVisitedCursors.has(currentLoanCursor))throw new Error('대여 목록 페이지가 반복되었습니다.');
       if(currentLoanCursor)currentVisitedCursors.add(currentLoanCursor);
     }while(currentLoanCursor&&formationSessionMatches());
-    if(formationSessionMatches()){setCurrentCandidatePage(currentReceivedPage);setCurrentBorrowedEntries(currentLoanEntries);setCurrentSelectedCandidate(null);}
+    if(formationSessionMatches()){setCurrentFormationLoaded(true);setCurrentCandidatePage(currentReceivedPage);setCurrentBorrowedEntries(currentLoanEntries);setCurrentSelectedCandidate(null);}
   }
   async function submitFormationChange(currentRequestedCommand?:PendingFormationRequest){await runFormationRequest(async()=>{
     if(currentRequestedCommand)originalCommandReference.current=currentRequestedCommand;
@@ -73,13 +74,14 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
   const currentSelectedMembers=currentBorrowedEntries.filter(currentLoanEntry=>currentSelectedLoanIds.includes(currentLoanEntry.id));
   const currentControlsDisabled=actionsAreDisabled||currentRequestPending||currentFormationUncertain;
   return <section class="guild-trade-panel">
-    <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runFormationRequest(()=>loadFormationContents())}>{translateFormationText('formation.title')}</button>
-    {currentCandidatePage&&<div>
+    <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runFormationRequest(()=>loadFormationContents())}>{translateFormationText(currentFacilityIdentifier?'formation.title':'formation.manage')}</button>
+    {currentFormationLoaded&&<div>
       <p>{translateFormationText('formation.count',{count:currentSelectedMembers.filter(currentLoanEntry=>!currentLoanEntry.expired).length+1})}</p>
-      <p>{translateFormationText('formation.help')}</p>
-      <ul class="bag-items">{currentSelectedMembers.map(currentLoanEntry=><li key={currentLoanEntry.id}><strong>{currentLoanEntry.name}</strong>
+      <p>{translateFormationText(currentFacilityIdentifier?'formation.help':'formation.fieldHelp')}</p>
+      <ul class="bag-items">{currentSelectedMembers.map(currentLoanEntry=><li key={currentLoanEntry.id}><strong>{currentLoanEntry.name}</strong>{currentLoanEntry.expired&&<span>{translateFormationText('formation.expired')}</span>}
         <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void submitFormationChange({action:'REMOVE',loanId:currentLoanEntry.id,
           path:`/v1/game/borrowed-party/${encodeURIComponent(currentLoanEntry.id)}/remove`,body:{requestId:crypto.randomUUID(),expectedVersion:gameSessionClient.state!.me.version}})}>{translateFormationText('formation.remove')}</button></li>)}</ul>
+      {currentCandidatePage&&<>
       {!currentCandidatePage.entries.length&&<p>{translateFormationText('formation.empty')}</p>}
       <ul class="bag-items">{currentCandidatePage.entries.map(currentCandidateEntry=>{
         const currentAlreadySelected=currentSelectedMembers.some(currentLoanEntry=>!currentLoanEntry.expired&&currentLoanEntry.sourceCharacterId===currentCandidateEntry.characterId);
@@ -88,9 +90,10 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
             onClick={()=>setCurrentSelectedCandidate(currentCandidateEntry)}>{translateFormationText('formation.choose')}</button></li>;
       })}</ul>
       {currentSelectedCandidate&&<div class="guild-sale-quote"><strong>{translateFormationText('formation.confirmName',{name:currentSelectedCandidate.name})}</strong>
-        <button class="compact" disabled={currentControlsDisabled} onClick={()=>void submitFormationChange({action:'ADD',path:`/v1/game/guilds/${encodeURIComponent(currentFacilityIdentifier)}/party-members`,
+        <button class="compact" disabled={currentControlsDisabled} onClick={()=>void submitFormationChange({action:'ADD',path:`/v1/game/guilds/${encodeURIComponent(currentFacilityIdentifier!)}/party-members`,
           body:{requestId:crypto.randomUUID(),expectedVersion:gameSessionClient.state!.me.version,characterId:currentSelectedCandidate.characterId}})}>{translateFormationText('formation.add')}</button></div>}
       {currentCandidatePage.nextCursor&&<button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runFormationRequest(()=>loadFormationContents(currentCandidatePage.nextCursor!))}>{translateFormationText('formation.next')}</button>}
+      </>}
     </div>}
     {currentFormationUncertain&&<button class="compact" disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void submitFormationChange()}>{translateFormationText('formation.recover')}</button>}
     {currentRequestPending&&<p role="status">{translateFormationText('formation.pending')}</p>}

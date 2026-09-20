@@ -15,3 +15,6 @@ next: Next candidates
 recover: Check formation result and retry
 pending: Checking party details.
 saved: Party formation updated.
+manage: Current party formation
+fieldHelp: You can remove members in the field without ending their seven-day loans. Visit a guild to add characters.
+expired: Loan expired · remove from formation
