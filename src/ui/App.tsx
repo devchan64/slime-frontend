@@ -1,5 +1,5 @@
 import { ActionCutinOverlay } from './ActionCutin';
-import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, type ActionCutinEvent } from './actionCutins';
+import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
 import { AccountRewardsPanel } from "./AccountRewardsPanel";
 import { BagPanel } from "./BagPanel";
@@ -43,16 +43,16 @@ const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const { t, locale } = useTranslation();
-  const [cutinsAreEnabled, setActionCutinsAreEnabled] = useState(() => readActionCutinSetting(localStorage));
-  const actionCutinEnabledReference = useRef(cutinsAreEnabled);
-  actionCutinEnabledReference.current = cutinsAreEnabled;
+  const [actionCutinDurationSeconds, setActionCutinDurationSeconds] = useState(() => readActionCutinSetting(localStorage));
+  const actionCutinEnabledReference = useRef(actionCutinDurationSeconds > 0);
+  actionCutinEnabledReference.current = actionCutinDurationSeconds > 0;
   const actionCutinEventTracker = useRef(new ActionCutinTracker());
   const [pendingActionCutinEvents, setPendingActionCutinEvents] = useState<ActionCutinEvent[]>([]);
-  const updateActionCutinSetting = (nextEnabledValue: boolean) => {
-    localStorage.setItem(ACTION_CUTIN_SETTING_KEY, String(nextEnabledValue));
-    actionCutinEnabledReference.current = nextEnabledValue;
-    setActionCutinsAreEnabled(nextEnabledValue);
-    if (!nextEnabledValue) setPendingActionCutinEvents([]);
+  const updateActionCutinSetting = (nextDurationSeconds: ActionCutinDuration) => {
+    localStorage.setItem(ACTION_CUTIN_SETTING_KEY, String(nextDurationSeconds));
+    actionCutinEnabledReference.current = nextDurationSeconds > 0;
+    setActionCutinDurationSeconds(nextDurationSeconds);
+    if (!nextDurationSeconds) setPendingActionCutinEvents([]);
   };
   const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
   const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
@@ -537,8 +537,14 @@ export function App() {
         <main class="lobby field-menu-page"><section class="card">
           <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
-          <label class="action-cutin-setting"><input type="checkbox" checked={cutinsAreEnabled}
-            onChange={settingChangeEvent => updateActionCutinSetting(settingChangeEvent.currentTarget.checked)} />{t('cutins.show')}</label>
+          <label class="action-cutin-setting">{t('cutins.show')}
+            <select value={actionCutinDurationSeconds}
+              onChange={settingChangeEvent => updateActionCutinSetting(parseActionCutinDuration(settingChangeEvent.currentTarget.value))}>
+              {ACTION_CUTIN_DURATION_OPTIONS.map(actionCutinOptionSeconds => <option key={actionCutinOptionSeconds} value={actionCutinOptionSeconds}>
+                {actionCutinOptionSeconds === 0 ? t('cutins.off') : t('cutins.seconds', { seconds: actionCutinOptionSeconds })}
+              </option>)}
+            </select>
+          </label>
           <p>{t('cutins.help')}</p>
         </section></main>
       ) : settingsPage ? (
@@ -752,8 +758,8 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
-      {pendingActionCutinEvents[0] && <ActionCutinOverlay key={pendingActionCutinEvents[0].actionId}
-        actionCutinEventRecord={pendingActionCutinEvents[0]}
+      {actionCutinDurationSeconds !== 0 && pendingActionCutinEvents[0] && <ActionCutinOverlay key={pendingActionCutinEvents[0].actionId}
+        actionCutinEventRecord={pendingActionCutinEvents[0]} actionCutinDurationSeconds={actionCutinDurationSeconds}
         finishActionCutinDisplay={() => {
           const displayedActionIdentity = pendingActionCutinEvents[0].actionId;
           setPendingActionCutinEvents(currentActionCutinQueue => currentActionCutinQueue[0]?.actionId === displayedActionIdentity
