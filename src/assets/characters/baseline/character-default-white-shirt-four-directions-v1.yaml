@@ -3,7 +3,8 @@ asset_id: character-default-white-shirt-four-directions-v1
 image: character-default-white-shirt-four-directions-v1.png
 role: baseline_reference_sheet
 runtime_adopted: false
-reference: character-default-white-shirt-down-left-v1.png
+historical_reference: character-default-white-shirt-down-left-v1.png
+historical_reference_status: 폐기됨; 과거 출처 기록이며 실행 입력 아님
 width: 1254
 height: 1254
 layout: 2x2
