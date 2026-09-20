@@ -94,8 +94,8 @@ export class MainScene extends Phaser.Scene {
     for(const item of this.movingObjects){
       const offset=item.key.startsWith("battle:") ? this.battleMotion.offset(item.key.slice(7),now) : this.fieldMotion.offset(item.key,now);
       const characterRestingFacing = item.object.getData("characterRestingFacing");
-      if (characterRestingFacing && item.key.startsWith("battle:")) {
-        const currentMovementFacing = this.battleMotion.currentWorldFacing(item.key.slice(7), now);
+      if (characterRestingFacing) {
+        const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : undefined;
         updateCharacterFacing(item.object, currentMovementFacing ? screenFacing(currentMovementFacing, this.rotation) : characterRestingFacing);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
@@ -613,7 +613,7 @@ export class MainScene extends Phaser.Scene {
     const depth = this.depth(pos) + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
-      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation));
+      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId);
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
     }

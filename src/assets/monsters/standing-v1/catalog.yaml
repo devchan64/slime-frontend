@@ -1,6 +1,6 @@
 version: 1
-status: generated-candidate
-runtimeRegistered: false
+status: runtime-registered
+runtimeRegistered: true
 assets:
   - id: slime
     sheet: slime-idle-v1.png
