@@ -19,3 +19,5 @@
   .equipment-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .equipment-inventory li { align-items: flex-start; }
 }
+
+.equipment-item-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }

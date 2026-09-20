@@ -1,3 +1,4 @@
+import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { ApiError } from '../client/response';
@@ -15,6 +16,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
   gameSessionClient: Client; actionsAreDisabled: boolean; characterStateVersion: number;
 }) {
   const {t: translateEquipmentText, locale: currentLocaleCode} = useTranslation();
+  const [historyInstanceIdentifier,setHistoryInstanceIdentifier] = useState<string | null>(null);
   const [currentInventoryPage, setCurrentInventoryPage] = useState<EquipmentInventoryPage | null>(null);
   const [selectedEquipmentSlot, setSelectedEquipmentSlot] = useState<EquipmentSlotName>('main_hand');
   const [currentEquipmentNotice, setCurrentEquipmentNotice] = useState<Notice>('');
@@ -108,11 +110,13 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
             defense:formatEquipmentDifference(currentItemEntry.statBonus.defenseFlat - (selectedSlotEquipment?.statBonus.defenseFlat ?? 0)),
           })}</p>}
         </div>
+        <div class="equipment-item-actions"><button class="secondary compact" onClick={() => setHistoryInstanceIdentifier(currentItemEntry.instanceId)}>{translateEquipmentText('equipment.history')}</button>
         <button disabled={equipmentActionsLocked || currentItemEntry.reserved || currentItemEntry.currentDurability === 0 || currentItemEntry.equippedSlot !== null}
-          onClick={() => selectEquipmentInstance(currentItemEntry)}>{translateEquipmentText(currentItemEntry.reserved ? 'equipment.reserved' : currentItemEntry.equippedSlot ? 'equipment.equipped' : currentItemEntry.currentDurability === 0 ? 'equipment.broken' : 'equipment.equip')}</button>
+          onClick={() => selectEquipmentInstance(currentItemEntry)}>{translateEquipmentText(currentItemEntry.reserved ? 'equipment.reserved' : currentItemEntry.equippedSlot ? 'equipment.equipped' : currentItemEntry.currentDurability === 0 ? 'equipment.broken' : 'equipment.equip')}</button></div>
       </li>)}</ul>
       {matchingEquipmentItems.length === 0 && <p>{translateEquipmentText('equipment.noItems')}</p>}
       {currentInventoryPage.nextCursor && <button class="secondary" disabled={equipmentActionsLocked} onClick={() => void loadEquipmentInventory(currentInventoryPage.nextCursor!)}>{translateEquipmentText('equipment.more')}</button>}
     </>}
+    {historyInstanceIdentifier && <EquipmentHistory key={historyInstanceIdentifier} gameSessionClient={gameSessionClient} equipmentInstanceIdentifier={historyInstanceIdentifier} closeEquipmentHistory={() => setHistoryInstanceIdentifier(null)} />}
   </section>;
 }

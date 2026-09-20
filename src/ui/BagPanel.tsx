@@ -1,3 +1,4 @@
+import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { State } from '../client/types';
 import type { Client } from '../client/api';
@@ -7,6 +8,7 @@ import { useTranslation } from '../i18n';
 
 export function BagPanel({me, gameSessionClient}: {me: State['me']; gameSessionClient: Client}) {
   const {t: translateBagText, locale: currentLocaleCode} = useTranslation();
+  const [historyInstanceIdentifier,setHistoryInstanceIdentifier] = useState<string | null>(null);
   const [currentInventoryPage,setCurrentInventoryPage] = useState<BagInventoryPage | null>(null);
   const [currentRequestNotice,setCurrentRequestNotice] = useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending] = useState(false);
@@ -64,10 +66,12 @@ export function BagPanel({me, gameSessionClient}: {me: State['me']; gameSessionC
         {currentInventoryPage.items.map(currentEquipmentEntry => <li key={currentEquipmentEntry.instanceId}>
           <div><strong>{currentEquipmentEntry.nameTranslations[currentLocaleCode]}</strong><span>{translateBagText(currentEquipmentEntry.reserved ? 'equipment.reserved' : currentEquipmentEntry.equippedSlot ? 'equipment.equipped' : 'equipment.emptySlot')}</span></div>
           <p>{translateBagText('equipment.durability')} {currentEquipmentEntry.currentDurability}/{currentEquipmentEntry.maxDurability} · {currentEquipmentEntry.weightG} g</p>
+          <button class="secondary compact" onClick={() => setHistoryInstanceIdentifier(currentEquipmentEntry.instanceId)}>{translateBagText('equipment.history')}</button>
           {currentEquipmentEntry.currentDurability === 0 && <p>{translateBagText('equipment.broken')}</p>}
         </li>)}
       </ul></>}
       {currentInventoryPage.nextCursor && <button class="secondary" disabled={currentRequestPending} onClick={() => void loadBagInventory(currentInventoryPage.nextCursor!)}>{translateBagText('equipment.more')}</button>}
     </>}
+    {historyInstanceIdentifier && <EquipmentHistory key={historyInstanceIdentifier} gameSessionClient={gameSessionClient} equipmentInstanceIdentifier={historyInstanceIdentifier} closeEquipmentHistory={() => setHistoryInstanceIdentifier(null)} />}
   </section>;
 }

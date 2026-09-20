@@ -128,3 +128,5 @@ node scripts/text-client.mjs --help
 장착·해제는 `POST /v1/game/equipment/loadout`에 `requestId`, `expectedVersion`, `slot`, `instanceId`, `expectedInstanceVersion`을 보낸다. 해제는 마지막 두 값을 null로 설정한다. 이 API는 일반 명령의 `result.state` 대신 거래 증명을 반환하므로 `Client.command`로 호출하지 않는다. 성공 후 장비 목록과 게임 상태를 다시 조회한다. 응답 유실·서버 오류로 결과가 불명확하면 같은 본문·요청 ID로 결과를 재확인하며 다른 변경 버튼을 잠근다. 확정된 규칙 거절은 서버 메시지를 표시하고 목록을 갱신한다.
 
 가방 화면도 장비 목록 API를 사용하며 추가 `bag` 필드가 필요하다. `bag.items`는 재료 목록, `bag.knownWeightG`는 재료+장비 전체의 확인된 무게, `unknownWeightQuantity`는 미정 무게 재료 수량, `capacityG`는 신체 기반 소지 기준이다. 기존 `me.bag` 상태 필드는 재료 조회 표현을 유지한다. 장비 페이지를 합칠 때 `characterVersion` 일치와 개체 중복을 검사하며 불일치하면 새로고침한다. 조회 실패를 장비 0개로 대체하지 않는다. 서버의 추가 필드 배포 후 프론트엔드를 배포한다.
+
+개인 장비 변경 이력은 `GET /v1/game/equipment/{instanceId}/history`로 조회한다. 항목의 `kind`, `createdAt`, 전후 내구도를 표시하며 `nextBefore`가 있으면 `?before=<버전>`으로 과거 기록을 요청한다. 현재 소유자의 권한은 서버가 검사한다. 과거 기록이 없으면 추정 이력을 만들지 않는다. 이력 API와 DB 마이그레이션을 프론트엔드보다 먼저 배포한다.

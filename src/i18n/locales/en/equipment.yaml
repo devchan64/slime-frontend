@@ -25,3 +25,14 @@ saved: Equipment saved.
 uncertain: The result could not be confirmed. Check again using the same request.
 retry: Check result again
 comparison: "Compared with this slot: attack {attack} · defense {defense}"
+
+history: "Change history"
+closeHistory: "Close history"
+noHistory: "No recorded changes. Earlier history is not reconstructed."
+historyChanged: "History changed. Please refresh."
+historyAcquired: "Craft claimed"
+historyEquipped: "Equipped"
+historyUnequipped: "Unequipped"
+historyRepairReserved: "Repair started"
+historyRepaired: "Repair claimed"
+historyWorn: "Battle wear"
