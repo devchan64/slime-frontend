@@ -1,6 +1,7 @@
 import { useTranslation } from '../i18n';
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { State } from "../client/types";
+import { PartyRewardReport } from './PartyRewardReport';
 
 export const BATTLE_REPORT_SECONDS = 5;
 const RESULT_LABELS: Record<string, string> = {
@@ -39,10 +40,11 @@ export function BattleReport({ result, onReturn }: {
     <h2 id="battle-report-title">{t('battle.reportTitle')}</h2>
     <p class="battle-report-result">{RESULT_LABELS[result.result] ? t(RESULT_LABELS[result.result]) : result.result}</p>
     <dl>{result.coins > 0 && <div><dt>{t('battle.earnedCurrency')}</dt><dd>+{result.coins}p</dd></div>}
-      {(result.materials ?? []).map(material => <div key={material.materialId}><dt>{material.nameTranslations[locale]}</dt>
+      {!result.rewardDistribution && (result.materials ?? []).map(material => <div key={material.materialId}><dt>{material.nameTranslations[locale]}</dt>
         <dd>×{material.quantity}{material.valueP !== null && <small> · {t('battle.materialValue', {value: material.valueP})}</small>}</dd></div>)}
     </dl>
-    {!result.coins && !(result.materials ?? []).length && <p>{t('battle.noLoot')}</p>}
+    {result.rewardDistribution && <PartyRewardReport rewardReportData={result.rewardDistribution} />}
+    {!result.rewardDistribution && !result.coins && !(result.materials ?? []).length && <p>{t('battle.noLoot')}</p>}
     {!!result.lostMaterials?.length && <section class="battle-lost-loot">
       <h3>{t('battle.lostLoot')}</h3>
       <ul>{result.lostMaterials.map(lostMaterialEntry => <li key={lostMaterialEntry.materialId}>

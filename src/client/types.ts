@@ -97,7 +97,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { stillshots?: BattleStillshotEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}> } | null;
+    lastResult: { rewardDistribution?: PartyRewardReportData; stillshots?: BattleStillshotEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null}> } | null;
   };
   map: Surface & {
     id: string;
@@ -146,3 +146,11 @@ export type Tokens = {
   expires_in: number;
   user_id: string;
 };
+export interface PartyRewardReportData {
+  materials: Array<{
+    materialId: string; nameTranslations: Record<'ko' | 'en', string>;
+    quantity: number; mineQuantity: number;
+    recipients: Array<{ id: string; name: string; role: 'initiator' | 'supporter'; isMine: boolean; quantity: number }>;
+    allocations: Array<{ itemSequence: number; diceFace: number; recipientId: string }>;
+  }>;
+}
