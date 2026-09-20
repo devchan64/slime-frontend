@@ -1,8 +1,7 @@
 settings: Game settings
 show: Show battle stillshots
-help: Briefly show appearance-based stillshots for attacks and skills. This setting is saved in this browser.
+help: Briefly show appearance-based stillshots for basic attacks only. This setting is saved in this browser.
 presentation: Battle stillshot
-attack: Attack
-skill: Skill
+attack: Basic attack
 skip: Skip
 imageFailed: Failed to load the stillshot image.

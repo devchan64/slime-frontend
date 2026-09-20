@@ -2,11 +2,18 @@ import type { State } from '../client/types';
 
 export type BattleStillshotEvent = {
   actionId: string; battleId: string; sequence: number; unitId: string; actorName: string;
-  actionType: 'ATTACK' | 'SKILL'; skillId: string | null;
+  actionType: string; skillId: string | null;
   appearance: { kind: 'character'; groups: { costume: string; hair: string; face: string } }
     | { kind: 'monster'; group: string };
 };
-export const STILLSHOT_DISPLAY_MILLISECONDS = 900;
+export type StillshotActionPresentation = { translationMessageKey: string; displayDurationMilliseconds: number };
+// 명령 확장 시 표시 정의만 등록하며 공통 대기열·외형·컴포넌트를 재사용한다.
+export const STILLSHOT_ACTION_PRESENTATIONS: Readonly<Record<string, StillshotActionPresentation>> = {
+  ATTACK: { translationMessageKey: 'stillshots.attack', displayDurationMilliseconds: 900 },
+};
+export function findStillshotPresentation(actionTypeValue: string): StillshotActionPresentation | undefined {
+  return Object.hasOwn(STILLSHOT_ACTION_PRESENTATIONS, actionTypeValue) ? STILLSHOT_ACTION_PRESENTATIONS[actionTypeValue] : undefined;
+}
 export const STILLSHOT_QUEUE_LIMIT = 4;
 export const STILLSHOT_SETTING_KEY = 'slime.game.stillshots.v1';
 
@@ -38,7 +45,8 @@ export class StillshotEventTracker {
       ? incomingBattleRecord.log.flatMap(actionLogRecord => actionLogRecord.stillshot ? [actionLogRecord.stillshot] : [])
       : incomingStateRecord.me.lastResult?.stillshots ?? [];
     const freshStillshotEvents = incomingStillshotEvents.filter(stillshotEventRecord =>
-      stillshotEventRecord.battleId === this.trackedBattleIdentity
+      findStillshotPresentation(stillshotEventRecord.actionType) !== undefined
+      && stillshotEventRecord.battleId === this.trackedBattleIdentity
       && stillshotEventRecord.sequence > this.highestBattleSequence);
     this.highestBattleSequence = Math.max(this.highestBattleSequence, incomingBattleRecord?.version ?? 0,
       ...freshStillshotEvents.map(stillshotEventRecord => stillshotEventRecord.sequence));
