@@ -494,6 +494,7 @@ export class MainScene extends Phaser.Scene {
             member.id === s.me.id ? COLORS.player : COLORS.other,
             member.name,
             member.id === s.me.id, undefined, false, undefined, undefined, `member:${member.id}`, member.facing ?? (member.id === s.me.id ? s.me.fieldFacing : undefined),
+            member.mode === "FIELD" && (member.id === s.me.id ? !!s.me.fieldRest?.active : !!member.fieldRestActive),
           );
     }
     this.rebuildActorViewport();
@@ -610,7 +611,7 @@ export class MainScene extends Phaser.Scene {
     const left=camera.scrollX+(camera.width-width)/2,top=camera.scrollY+(camera.height-height)/2;
     this.actorCache.sync({left,top,right:left+width,bottom:top+height});
   }
-  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string, actorWorldFacing?: WorldFacing) {
+  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string, actorWorldFacing?: WorldFacing, actorRestIsActive = false) {
     const firstChild=this.children.list.length;
     const p = this.project(pos),
       g = this.add.graphics();
@@ -618,7 +619,7 @@ export class MainScene extends Phaser.Scene {
     const depth = this.depth(pos) + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
-      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, !appearance && !this.state?.battle ? FIELD_CHARACTER_VERTICAL_OFFSET : 0);
+      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, !appearance && !this.state?.battle && !actorRestIsActive ? FIELD_CHARACTER_VERTICAL_OFFSET : 0, actorRestIsActive);
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
     }

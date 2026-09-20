@@ -130,7 +130,7 @@ export type State = {
     movement?: { mode: "STATIONARY" | "ROAM"; interval: number };
     state: string;
   })[];
-  members: { id: string; name: string; position: Position; facing?: WorldFacing; mode: string; partyCpEligible?: boolean }[];
+  members: { id: string; name: string; position: Position; facing?: WorldFacing; mode: string; fieldRestActive?: boolean; partyCpEligible?: boolean }[];
   party: { id: string; leader: string; members: string[] } | null;
   invitations: { id: string; from: string; partyCpEligible?: boolean }[];
   reservation: {

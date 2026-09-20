@@ -8,11 +8,11 @@ const standingModulePath = pathToFileURL(resolve('src/game/animation/standingAct
 const standingBundleOutput = await build({entryPoints:['src/game/animation/standingActors.ts'],bundle:true,write:false,format:'esm',platform:'node',define:{'import.meta.url':JSON.stringify(standingModulePath)}});
 const {ACTOR_STANDING_ASSETS,updateActorStandingFrame} = await import(`data:text/javascript;base64,${Buffer.from(standingBundleOutput.outputFiles[0].text).toString('base64')}`);
 
-test('캐릭터와 몬스터 10종의 등록 파일·관리 ID가 중복되지 않는다',()=>{
+test('캐릭터 스탠딩·휴식과 몬스터 10종의 등록 파일·관리 ID가 중복되지 않는다',()=>{
  const registeredStandingAssets=Object.values(ACTOR_STANDING_ASSETS);
- assert.equal(registeredStandingAssets.length,11);
- assert.equal(new Set(registeredStandingAssets.map(standingAssetRecord=>standingAssetRecord.key)).size,11);
- assert.equal(new Set(registeredStandingAssets.map(standingAssetRecord=>standingAssetRecord.animation.data.animationId)).size,11);
+ assert.equal(registeredStandingAssets.length,12);
+ assert.equal(new Set(registeredStandingAssets.map(standingAssetRecord=>standingAssetRecord.key)).size,12);
+ assert.equal(new Set(registeredStandingAssets.map(standingAssetRecord=>standingAssetRecord.animation.data.animationId)).size,12);
  for(const standingAssetRecord of registeredStandingAssets) assert.ok(existsSync(new URL(standingAssetRecord.url)));
 });
 test('등록된 모든 방향은 지정된 시간 경계에서 프레임을 전환하고 반복한다',()=>{
