@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { useTranslation } from "../i18n";
-import standingPortraitMetadata from "../assets/characters/character-default-white-shirt-standing-v2/idle-v2.animation.json";
+import standingPortraitMetadata from "../assets/characters/default/standing-v3/idle-v3.animation.json";
 
-const DEFAULT_CHARACTER_PORTRAIT = new URL("../assets/characters/character-default-white-shirt-standing-v2/idle-v2.png", import.meta.url).href;
+const DEFAULT_CHARACTER_PORTRAIT = new URL("../assets/characters/default/standing-v3/idle-v3.png", import.meta.url).href;
 const CHARACTER_PORTRAIT_CLIP = standingPortraitMetadata.clips.find(currentClipRecord => currentClipRecord.clipId === "idle.down_right");
 if (!CHARACTER_PORTRAIT_CLIP?.frames.length) throw new Error("캐릭터 초상화의 스탠딩 클립이 없습니다.");
 const CHARACTER_PORTRAIT_FRAMES = CHARACTER_PORTRAIT_CLIP.frames.map(currentClipFrame => {

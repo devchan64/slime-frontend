@@ -83,7 +83,7 @@ data:
   - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
     path: src/assets/structures/ward-tower-v1.png
   - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
-    path: src/assets/cutins/characters/default-punch-v1.png
+    path: src/assets/characters/default/cutins/default-punch-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
     path: src/assets/monsters/standing-v1/slime-idle-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.giant-idle-v1.png
@@ -104,9 +104,9 @@ data:
     path: src/assets/monsters/standing-v1/crystal-lizard-idle-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
     path: src/assets/monsters/standing-v1/beast-idle-v2.png
-  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-standing-v2.idle-v2.png
-    path: src/assets/characters/character-default-white-shirt-standing-v2/idle-v2.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-standing-v3.idle-v3.png
+    path: src/assets/characters/default/standing-v3/idle-v3.png
   - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v1.rest-v1.png
-    path: src/assets/characters/character-default-white-shirt-rest-v1/rest-v1.png
+    path: src/assets/characters/default/rest-v1/rest-v1.png
   - managementId: image.frontend.src.assets.characters.baseline.character-default-white-shirt-four-directions-v2.png
-    path: src/assets/characters/baseline/character-default-white-shirt-four-directions-v2.png
+    path: src/assets/characters/default/baseline/character-default-white-shirt-four-directions-v2.png

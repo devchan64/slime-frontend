@@ -2,8 +2,8 @@ import { calculateStandingPhase } from "./standingPhase";
 import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
-import restingCharacterMetadata from "../../assets/characters/character-default-white-shirt-rest-v1/rest-v1.animation.json";
-import standingMetadata0 from "../../assets/characters/character-default-white-shirt-standing-v2/idle-v2.animation.json";
+import restingCharacterMetadata from "../../assets/characters/default/rest-v1/rest-v1.animation.json";
+import standingMetadata0 from "../../assets/characters/default/standing-v3/idle-v3.animation.json";
 import standingMetadata1 from "../../assets/monsters/standing-v1/slime-idle-v1.animation.json";
 import standingMetadata2 from "../../assets/monsters/standing-v1/beast-idle-v2.animation.json";
 import standingMetadata3 from "../../assets/monsters/standing-v1/giant-idle-v1.animation.json";
@@ -16,8 +16,8 @@ import standingMetadata9 from "../../assets/monsters/standing-v1/ash-fox-idle-v1
 import standingMetadata10 from "../../assets/monsters/standing-v1/crystal-lizard-idle-v1.animation.json";
 
 export const ACTOR_STANDING_ASSETS = {
-  "human-rest": { key: "resting-human", url: new URL("../../assets/characters/character-default-white-shirt-rest-v1/rest-v1.png", import.meta.url).href, animation: new CellAnimation(restingCharacterMetadata) },
-  "human": { key: "standing-human", url: new URL("../../assets/characters/character-default-white-shirt-standing-v2/idle-v2.png", import.meta.url).href, animation: new CellAnimation(standingMetadata0) },
+  "human-rest": { key: "resting-human", url: new URL("../../assets/characters/default/rest-v1/rest-v1.png", import.meta.url).href, animation: new CellAnimation(restingCharacterMetadata) },
+  "human": { key: "standing-human", url: new URL("../../assets/characters/default/standing-v3/idle-v3.png", import.meta.url).href, animation: new CellAnimation(standingMetadata0) },
   "slime": { key: "standing-slime", url: new URL("../../assets/monsters/standing-v1/slime-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata1) },
   "beast": { key: "standing-beast", url: new URL("../../assets/monsters/standing-v1/beast-idle-v2.png", import.meta.url).href, animation: new CellAnimation(standingMetadata2) },
   "giant": { key: "standing-giant", url: new URL("../../assets/monsters/standing-v1/giant-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata3) },

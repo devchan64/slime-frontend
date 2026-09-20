@@ -16,7 +16,7 @@ const { outputFiles: actionCutinAssetOutputs } = await build({
 const { resolveActionCutinAsset, parseActionCutinCatalog } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinAssetOutputs[0].text).toString('base64')}`);
 const defaultCharacterGroups = { kind: 'character', groups: { costume: 'default-v1', hair: 'default-v1', face: 'default-v1' } };
 test('코스튬·헤어·얼굴의 등록된 전체 조합만 연결한다', () => {
-  assert.match(resolveActionCutinAsset(defaultCharacterGroups), /cutins\/characters\/default-punch-v1\.png$/);
+  assert.match(resolveActionCutinAsset(defaultCharacterGroups), /characters\/default\/cutins\/default-punch-v1\.png$/);
   for (const appearanceGroupKey of ['costume', 'hair', 'face']) {
     assert.throws(() => resolveActionCutinAsset({ ...defaultCharacterGroups, groups: { ...defaultCharacterGroups.groups, [appearanceGroupKey]: 'unknown' } }), /조합/);
   }
