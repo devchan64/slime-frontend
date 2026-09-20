@@ -125,3 +125,7 @@ turnEndChoice: "Guard and end costs 1 AP. Ending without guarding costs no AP."
 guardEndUnavailable: "Guarding requires 1 AP. You can end without guarding at no AP cost."
 
 lostLoot: "Lost while fleeing"
+turnEndPrompt: "Choose how to end your turn."
+plainEndDetail: "End your turn without guarding."
+guardEndDetail: "Guard, then end your turn."
+guardEndDisabledDetail: "Not enough AP · Guarding requires 1 AP."

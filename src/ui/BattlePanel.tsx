@@ -33,20 +33,29 @@ function BattleConfirmation({ title, summary, disabled, close, confirm, confirmB
   return <dialog ref={dialog} class="battle-confirm-dialog" aria-labelledby="battle-confirm-title" aria-describedby="battle-confirm-description"
     onCancel={event => { event.preventDefault(); close(); }}>
     <h2 id="battle-confirm-title">{title}</h2>
-    <p id="battle-confirm-description">{summary}</p>
-    <div class="battle-confirm-actions">
-      <button class="secondary" autoFocus onClick={close}>{t('battle.cancel')}</button>
-      {alternateConfirmAction && <button disabled={disabled || alternateActionDisabled} onClick={() => {
+    <p id="battle-confirm-description">{alternateConfirmAction ? t('battle.turnEndPrompt') : summary}</p>
+    {alternateConfirmAction ? <>
+      <div class="battle-end-options">
+        <button class="battle-end-option" disabled={disabled} onClick={() => {
+          if (disabled || submitted.current) return;
+          submitted.current = true;
+          confirm();
+        }}><strong>{confirmButtonLabel}</strong><span>{t('battle.plainEndDetail')}</span></button>
+        <button class="secondary battle-end-option" disabled={disabled || alternateActionDisabled} onClick={() => {
         if (disabled || alternateActionDisabled || submitted.current) return;
         submitted.current = true;
         alternateConfirmAction();
-      }}>{alternateButtonLabel}</button>}
+        }}><strong>{alternateButtonLabel}</strong><span>{t(alternateActionDisabled ? 'battle.guardEndDisabledDetail' : 'battle.guardEndDetail')}</span></button>
+      </div>
+      <div class="battle-end-footer"><button class="secondary" autoFocus onClick={close}>{t('battle.cancel')}</button></div>
+    </> : <div class="battle-confirm-actions">
+      <button class="secondary" autoFocus onClick={close}>{t('battle.cancel')}</button>
       <button disabled={disabled} onClick={() => {
         if (disabled || submitted.current) return;
         submitted.current = true;
         confirm();
       }}>{confirmButtonLabel ?? t('battle.confirm')}</button>
-    </div>
+    </div>}
   </dialog>;
 }
 
