@@ -1,6 +1,5 @@
 import type {Position} from '../../client/types';
 import type {Surface} from './elevation';
-const ACTOR_CENTER_DIVISOR = 2;
 
 /** 논리 셀은 유지하고, 지도 안의 연속된 표시 셀 중앙에 발밑을 맞춘다. */
 export function calculateActorPlacement(actorLogicalPosition: Position, actorDisplayTiles: number,
@@ -15,9 +14,8 @@ export function calculateActorPlacement(actorLogicalPosition: Position, actorDis
     column:firstDisplayColumn + displayCellIndex % actorDisplayTiles,
     row:firstDisplayRow + Math.floor(displayCellIndex / actorDisplayTiles),
   }));
-  const firstProjectedCell = projectTerrainCell(actorDisplayCells[0]);
-  const lastProjectedCell = projectTerrainCell(actorDisplayCells[actorDisplayCells.length - 1]);
-  return {x:(firstProjectedCell.x + lastProjectedCell.x) / ACTOR_CENTER_DIVISOR,
-    y:(firstProjectedCell.y + lastProjectedCell.y) / ACTOR_CENTER_DIVISOR,
+  const projectedDisplayCells = actorDisplayCells.map(projectTerrainCell);
+  return {x:projectedDisplayCells.reduce((totalProjectedValue,currentProjectedCell) => totalProjectedValue + currentProjectedCell.x,0) / projectedDisplayCells.length,
+    y:projectedDisplayCells.reduce((totalProjectedValue,currentProjectedCell) => totalProjectedValue + currentProjectedCell.y,0) / projectedDisplayCells.length,
     depth:Math.max(...actorDisplayCells.map(calculateTerrainDepth)), cells:actorDisplayCells};
 }

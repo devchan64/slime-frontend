@@ -25,3 +25,12 @@ test('지도 끝의 2×2 영역은 지도 안에 두며 1×1 위치는 유지한
  assert.equal(smallActorPlacement.x,calculateTestProjection({column:3,row:2}).x);
  assert.equal(smallActorPlacement.y,calculateTestProjection({column:3,row:2}).y);
 });
+
+test('엇갈린 높이의 네 타일을 모두 표시 중심 계산에 반영한다',()=>{
+ const currentRaisedSurface={columns:2,rows:2,elevations:[[0,2],[2,0]]};
+ const projectRaisedPosition=currentCellPosition=>project(currentCellPosition,currentRaisedSurface);
+ const actualActorPlacement=calculateActorPlacement({column:0,row:0},2,currentRaisedSurface,projectRaisedPosition,cellDepth);
+ const projectedCellCenters=[{column:0,row:0},{column:1,row:0},{column:0,row:1},{column:1,row:1}].map(projectRaisedPosition);
+ assert.equal(actualActorPlacement.y,projectedCellCenters.reduce((totalProjectedValue,currentProjectedCell)=>totalProjectedValue+currentProjectedCell.y,0)/4);
+ assert.equal(actualActorPlacement.y,72);
+});
