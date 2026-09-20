@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import type { Direction } from "../animation/cellAnimation";
-import { ACTOR_STANDING_ASSETS, createActorStandingImage, updateActorStandingFrame, type StandingActorKind } from "../animation/standingActors";
+import { ACTOR_STANDING_TEXTURES, ACTOR_STANDING_ASSETS, createActorStandingImage, updateActorStandingFrame, type StandingActorKind } from "../animation/standingActors";
 import { TILE_W, TILE_H } from "./meadow";
 
 export const HUMAN_HEIGHT = 60;
@@ -16,7 +16,7 @@ const SPRITE_DEPTH_OFFSET = 0.01;
 export const updateCharacterFacing = updateActorStandingFrame;
 
 export function preloadActors(scene: Phaser.Scene) {
-  for (const { key, url } of Object.values(ACTOR_STANDING_ASSETS)) scene.load.image(key, url);
+  for (const { key, url } of ACTOR_STANDING_TEXTURES) scene.load.image(key, url);
 }
 
 // 발밑 좌표가 논리 셀이다. 사람은 머리 1 : 몸통 2 : 다리 2의 5등신이다.

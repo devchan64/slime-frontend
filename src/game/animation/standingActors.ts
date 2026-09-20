@@ -3,7 +3,8 @@ import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
 import restingCharacterMetadata from "../../assets/characters/default/rest-v1/rest-v1.animation.json";
-import standingMetadata0 from "../../assets/characters/default/standing-v3/idle-v3.animation.json";
+import standingSourceMetadata from "../../assets/characters/default/standing-v4/source.json";
+import standingMetadata0 from "../../assets/characters/default/standing-v4/idle-v4.animation.json";
 import standingMetadata1 from "../../assets/monsters/standing-v1/slime-idle-v1.animation.json";
 import standingMetadata2 from "../../assets/monsters/standing-v1/beast-idle-v2.animation.json";
 import standingMetadata3 from "../../assets/monsters/standing-v1/giant-idle-v1.animation.json";
@@ -15,9 +16,17 @@ import standingMetadata8 from "../../assets/monsters/standing-v1/reed-crawler-id
 import standingMetadata9 from "../../assets/monsters/standing-v1/ash-fox-idle-v1.animation.json";
 import standingMetadata10 from "../../assets/monsters/standing-v1/crystal-lizard-idle-v1.animation.json";
 
+const DEFAULT_STANDING_ANIMATION = new CellAnimation(standingMetadata0);
+export const DEFAULT_STANDING_DIRECTION_ASSETS = {
+  down_left: { key: "standing-human-down-left", url: new URL("../../assets/characters/default/standing-v4/standing-down-left.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  down_right: { key: "standing-human-down-right", url: new URL("../../assets/characters/default/standing-v4/standing-down-right.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  up_left: { key: "standing-human-up-left", url: new URL("../../assets/characters/default/standing-v4/standing-up-left.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  up_right: { key: "standing-human-up-right", url: new URL("../../assets/characters/default/standing-v4/standing-up-right.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+} as const;
+
 export const ACTOR_STANDING_ASSETS = {
   "human-rest": { key: "resting-human", url: new URL("../../assets/characters/default/rest-v1/rest-v1.png", import.meta.url).href, animation: new CellAnimation(restingCharacterMetadata) },
-  "human": { key: "standing-human", url: new URL("../../assets/characters/default/standing-v3/idle-v3.png", import.meta.url).href, animation: new CellAnimation(standingMetadata0) },
+  "human": DEFAULT_STANDING_DIRECTION_ASSETS.down_left,
   "slime": { key: "standing-slime", url: new URL("../../assets/monsters/standing-v1/slime-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata1) },
   "beast": { key: "standing-beast", url: new URL("../../assets/monsters/standing-v1/beast-idle-v2.png", import.meta.url).href, animation: new CellAnimation(standingMetadata2) },
   "giant": { key: "standing-giant", url: new URL("../../assets/monsters/standing-v1/giant-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata3) },
@@ -31,10 +40,21 @@ export const ACTOR_STANDING_ASSETS = {
 } as const;
 export type StandingActorKind = keyof typeof ACTOR_STANDING_ASSETS;
 const STANDING_BODY_HEIGHT_RATIO = 0.75;
+const DEFAULT_STANDING_BODY_HEIGHT = standingSourceMetadata.referenceBodyHeight;
+if (!Number.isFinite(DEFAULT_STANDING_BODY_HEIGHT) || DEFAULT_STANDING_BODY_HEIGHT <= 0) throw new Error("기본 캐릭터 기준 높이가 올바르지 않습니다.");
+export const ACTOR_STANDING_TEXTURES = [
+  ...Object.entries(ACTOR_STANDING_ASSETS).filter(([actorStandingKind]) => actorStandingKind !== "human").map(([, actorStandingAsset]) => actorStandingAsset),
+  ...Object.values(DEFAULT_STANDING_DIRECTION_ASSETS),
+];
+export function resolveActorStandingAsset(actorStandingKind: StandingActorKind, actorScreenDirection: Direction) {
+  const selectedStandingAsset = actorStandingKind === "human" ? DEFAULT_STANDING_DIRECTION_ASSETS[actorScreenDirection] : ACTOR_STANDING_ASSETS[actorStandingKind];
+  if (!selectedStandingAsset) throw new Error("등록되지 않은 스탠딩 개체 또는 방향입니다.");
+  return selectedStandingAsset;
+}
 
 export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Image, actorScreenDirection: Direction) {
   const actorStandingKind = actorRenderImage.getData("actorStandingKind") as StandingActorKind;
-  const actorStandingAsset = ACTOR_STANDING_ASSETS[actorStandingKind];
+  const actorStandingAsset = resolveActorStandingAsset(actorStandingKind, actorScreenDirection);
   if (!actorStandingAsset) throw new Error("등록되지 않은 스탠딩 개체입니다.");
   const actorStandingAnimation = actorStandingAsset.animation;
   const sampledStandingFrame = actorStandingAnimation.sample(actorStandingAnimation.clip("idle", actorScreenDirection), actorRenderImage.scene.time.now + actorRenderImage.getData("standingPhaseOffset")).frame;
@@ -49,14 +69,15 @@ export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Im
 
 export function createActorStandingImage(actorRenderScene: Phaser.Scene, actorStandingKind: StandingActorKind,
   actorWorldPosition: {x:number;y:number}, actorDisplayHeight: number, actorScreenDirection: Direction, actorStableIdentifier: string) {
-  const actorStandingAsset = ACTOR_STANDING_ASSETS[actorStandingKind];
-  bindCellTexture(actorRenderScene, actorStandingAsset.key, actorStandingAsset.animation);
+  const actorStandingAsset = resolveActorStandingAsset(actorStandingKind, actorScreenDirection);
+  const requiredStandingTextures = actorStandingKind === "human" ? Object.values(DEFAULT_STANDING_DIRECTION_ASSETS) : [actorStandingAsset];
+  for (const currentStandingTexture of requiredStandingTextures) bindCellTexture(actorRenderScene, currentStandingTexture.key, currentStandingTexture.animation);
   const standingCycleDuration = actorStandingAsset.animation.data.clips.find(standingClipRecord => standingClipRecord.direction === actorScreenDirection && standingClipRecord.action === "idle")!
     .frames.reduce((totalFrameDuration, standingFrameRecord) => totalFrameDuration + standingFrameRecord.durationMs, 0);
   const standingPhaseOffset = calculateStandingPhase(actorStableIdentifier, standingCycleDuration);
   const initialStandingFrame = actorStandingAsset.animation.data.frames[0];
   const actorRenderImage = actorRenderScene.add.image(actorWorldPosition.x, actorWorldPosition.y, actorStandingAsset.key)
-    .setScale(actorDisplayHeight / (initialStandingFrame.rect.height * STANDING_BODY_HEIGHT_RATIO))
+    .setScale(actorDisplayHeight / (actorStandingKind === "human" ? DEFAULT_STANDING_BODY_HEIGHT : initialStandingFrame.rect.height * STANDING_BODY_HEIGHT_RATIO))
     .setData("standingPhaseOffset", standingPhaseOffset).setData("actorStandingKind", actorStandingKind).setData("characterRestingFacing", actorScreenDirection);
   updateActorStandingFrame(actorRenderImage, actorScreenDirection);
   return actorRenderImage;
