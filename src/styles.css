@@ -1379,3 +1379,6 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .character-selection-card .character-departure { position: static; display: flex; flex-direction: column; align-items: stretch; gap: 10px; margin: 0; padding: 12px 0 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
 .character-lobby .character-selection-card .character-departure button { width: 100%; min-width: 0; min-height: 44px; margin: 0; padding: 12px; }
 .character-selection-card .character-departure small { margin-top: 4px; }
+
+.field-selected-commands { min-width: 0; scroll-margin-block: 8px; }
+.field-selected-commands:empty { display: none; }
