@@ -78,7 +78,7 @@ itemWeight: "{weight}g each"
 
 fieldHelpSelect: "Select a destination on the map or a nearby shortcut. Move or encounter using the controls above."
 fieldHelpEncounter: "Use the controls to approach or encounter. Name colors show aggression; danger requires scouting."
-fieldHelpSelection: "Select · tap/click or focus the map and use arrows"
+fieldHelpSelection: "Tap a character or monster to select its tile. Tap overlapping images again to cycle through their tiles. Arrow keys also select tiles."
 fieldHelpCamera: "Pan · drag / Zoom · wheel or ± / Rotate · ↶↷"
 fieldHelpReset: "Crosshair · return to your position and default zoom"
 currentCharacter: Current character

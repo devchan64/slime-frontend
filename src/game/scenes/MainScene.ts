@@ -1,3 +1,4 @@
+import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
 import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
 import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
@@ -172,7 +173,18 @@ export class MainScene extends Phaser.Scene {
       const at = this.cameras.main.getWorldPoint(p.x, p.y);
       if (!this.state) return;
       const picked = pickSurface(at.x, at.y, this.viewSurface!, this.terrainPlan!.heights);
-      const cell = picked ? fromView(picked, this.surface(), this.rotation) : null;
+      const visibleActorRegions: ActorPickRegion[] = [];
+      for (const renderedSceneChild of this.children.list) {
+        if (!(renderedSceneChild instanceof Phaser.GameObjects.Image) || !renderedSceneChild.visible) continue;
+        const renderedActorPosition = renderedSceneChild.getData('actorSelectionPosition') as Position | undefined;
+        if (!renderedActorPosition) continue;
+        const renderedImageBounds = renderedSceneChild.getBounds();
+        visibleActorRegions.push({position: renderedActorPosition, depth: renderedSceneChild.depth,
+          left: renderedImageBounds.left, right: renderedImageBounds.right,
+          top: renderedImageBounds.top, bottom: renderedImageBounds.bottom});
+      }
+      const cell = pickActorPosition(at, visibleActorRegions, this.selected)
+        ?? (picked ? fromView(picked, this.surface(), this.rotation) : null);
       if (cell) {
         this.selected = cell;
         this.draw();
@@ -586,6 +598,9 @@ export class MainScene extends Phaser.Scene {
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
       size.scale, size.tiles);
+    for (const createdActorChild of this.children.list.slice(firstChild)) {
+      if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
+    }
     if (active) {
       g.lineStyle(2, 0xffffff);
       g.strokeEllipse(p.x, p.y + 4, 30, 14);

@@ -78,7 +78,7 @@ itemWeight: "개당 {weight}g"
 
 fieldHelpSelect: "맵이나 주변 숏컷에서 목적지를 선택하세요. 이동·조우는 위 조작 카드에서 실행합니다."
 fieldHelpEncounter: "조작 카드에서 접근·조우를 선택하세요. 이름 색은 선공 여부이며, 위험도는 정찰해야 알 수 있습니다."
-fieldHelpSelection: "선택 · 터치/클릭 또는 맵 초점 후 방향키"
+fieldHelpSelection: "캐릭터·몬스터를 누르면 발밑 타일을 선택합니다. 겹친 영역은 반복해서 눌러 대상을 바꿉니다. 방향키로도 타일을 선택할 수 있습니다."
 fieldHelpCamera: "시점 · 드래그 / 확대 · 휠·± / 회전 · ↶↷"
 fieldHelpReset: "조준점 · 내 위치와 기본 배율로 복귀"
 currentCharacter: 현재 캐릭터
