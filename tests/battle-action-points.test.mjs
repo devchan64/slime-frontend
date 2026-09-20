@@ -24,5 +24,10 @@ test('서버 갱신값을 읽으며 미지원 응답에서 잔고를 만들지 �
  assert.equal(actionPoints({...battle.units[0],ap:undefined}),null);
  assert.equal(actionPoints({...battle.units[0],ap:2}).value,2);
  assert.deepEqual(actionPoints({...battle.units[0],maxAp:undefined}),{value:4,maximum:undefined});
- for(const ap of [-1,1.5,7,NaN]) assert.throws(()=>actionPoints({...battle.units[0],ap}));
+ for(const ap of [1.5,7,NaN]) assert.throws(()=>actionPoints({...battle.units[0],ap}));
+});
+
+test('지형 비용으로 음수가 된 AP도 실제 잔고 그대로 표시한다',()=>{
+ assert.deepEqual(actionPoints({...battle.units[0],ap:-1}),{value:-1,maximum:6});
+ assert.deepEqual(actionPoints({...battle.units[0],ap:-3}),{value:-3,maximum:6});
 });

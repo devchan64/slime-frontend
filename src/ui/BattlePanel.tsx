@@ -113,7 +113,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const player = battle.units.find(u => u.id === actor && u.side === "ally");
   const current = battle.units.find(u => u.id === battle.order[battle.index]);
   const own = battle.tactics.canAct && current?.id === actor;
-  const apExhausted = own && battle.status === "ACTIVE" && !!current && actionPoints(current)?.value === 0;
+  const apExhausted = own && battle.status === "ACTIVE" && !!current && (actionPoints(current)?.value ?? 1) <= 0;
   const move = battle.tactics.moves.find(m => same(m.position, selected));
   const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);

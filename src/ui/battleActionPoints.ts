@@ -4,10 +4,11 @@ type ActionPoints = { value: number; maximum?: number };
 
 export function actionPoints(unit: Unit): ActionPoints | null {
   if (unit.ap === undefined) return null;
-  if (!Number.isInteger(unit.ap) || unit.ap < 0 || (unit.maxAp !== undefined &&
+  if (!Number.isInteger(unit.ap) || (unit.maxAp !== undefined &&
       (!Number.isInteger(unit.maxAp) || unit.maxAp <= 0 || unit.ap > unit.maxAp))) {
     throw new Error('전투 AP 잔고가 올바르지 않습니다.');
   }
+  // 지형 추가 비용은 잔고를 음수로 만들 수 있으며 다음 턴 회복에 반영된다.
   return { value: unit.ap, maximum: unit.maxAp };
 }
 
