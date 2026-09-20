@@ -104,3 +104,6 @@ restStart: Rest
 restStop: Stop resting
 restProgress: Resting · HP +{amount}/min · next recovery in {seconds}s
 restHint: Moving, acting, or being attacked ends rest and discards partial minutes.
+restCompactProgress: HP +{amount} · {seconds}s
+terrainFpCompact: "Est. {expected} FP · max {max}"
+terrainFpHelp: "Movement stops if terrain costs reduce FP to zero or below."

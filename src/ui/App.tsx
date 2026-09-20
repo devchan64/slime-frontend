@@ -594,17 +594,17 @@ export function App() {
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
 </div>
             {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
-              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
-                disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
-                select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
-                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
               <div class="field-card-heading"><div class="field-control-actions">
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
-              </div></div>
               <FieldRestControls currentPlayerState={state.me} currentServerTime={(clock + serverOffset.current) / 1000}
                 actionsAreDisabled={disabled || !!walking} submitRestCommand={commandPathValue => command(commandPathValue)} />
+              </div></div>
+              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+                disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
+                select={selectField} command={command} walking={walking} walk={() => void run(walk)} encounter={id => void run(() => approachEncounter(id))}
+                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
 
 </section>}

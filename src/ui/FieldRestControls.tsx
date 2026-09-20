@@ -16,13 +16,12 @@ export function FieldRestControls({ currentPlayerState, currentServerTime, actio
   const remainingRestSeconds = currentRestState.nextRecoveryAt === null ? 0
     : Math.max(0, Math.ceil(currentRestState.nextRecoveryAt - currentServerTime));
   return <div class="field-rest-controls">
-    <button class="secondary compact" disabled={restActionDisabled}
+    <button class={isCurrentlyResting ? "secondary compact is-resting" : "secondary compact"} aria-pressed={isCurrentlyResting} disabled={restActionDisabled}
       onClick={() => submitRestCommand(`/v1/game/rest/${isCurrentlyResting ? 'stop' : 'start'}`)}>
       {translateRestMessage(isCurrentlyResting ? 'field.restStop' : 'field.restStart')}
     </button>
-    {isCurrentlyResting && <small role="status">{translateRestMessage('field.restProgress', {
+    {isCurrentlyResting && <small role="status" title={translateRestMessage('field.restProgress', { amount: currentRestState.recoveryPerMinute, seconds: remainingRestSeconds })}>{translateRestMessage('field.restCompactProgress', {
       amount: currentRestState.recoveryPerMinute, seconds: remainingRestSeconds,
     })}</small>}
-    <small>{translateRestMessage('field.restHint')}</small>
   </div>;
 }

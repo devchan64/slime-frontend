@@ -27,6 +27,8 @@ export function FieldMapHelp({ currentFieldState, selectedFieldPosition }: {
       <li>{translateHelpMessage('app.fieldHelpSelection')}</li>
       <li>{translateHelpMessage('app.fieldHelpCamera')}</li>
       <li>{translateHelpMessage('app.fieldHelpReset')}</li>
+      <li>{translateHelpMessage('field.restHint')}</li>
+      <li>{translateHelpMessage('field.terrainFpHelp')}</li>
     </ul>
     <TerrainLegend />
     <p class="field-help-position">{translateHelpMessage('app.position', {

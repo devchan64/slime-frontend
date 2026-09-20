@@ -59,11 +59,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
     <p role="status">{t('field.walked',{completed:walking.completed,total:walking.total})} · {walking.stopping ? t('field.stopAfterTile') : t('field.stopAnytime')}</p>
     <progress value={walking.completed} max={walking.total} aria-label={t('field.progressLabel')} />
   </section>;
-  if (!selected) {
-    return <section class="field-selection field-idle" aria-label={t('field.tileCommands')}>
-      <div class="field-selection-heading"><span class="field-selection-hint">{t('field.selectHint')}</span></div>
-    </section>;
-  }
+  if (!selected) return null;
   const blocked = state.map.blocked.some(p => sameCell(p, selected));
   const path = fieldRoute(state.me.position, selected, state.map);
   const here = sameCell(state.me.position, selected);
@@ -73,23 +69,24 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const field = state.me.mode === "FIELD";
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
   return <section class={`field-selection ${!monsters.length ? "field-selection-compact" : ""}`} aria-label={t('field.selectedLocation')}>
-    <div class="field-selection-heading"><div>
-      <h3>{monsters.length ? t('field.monsterEncounter') : blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</h3></div>
-      <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button></div>
+    {!monsters.length && <div class="field-selection-heading"><div>
+      <h3>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</h3></div>
+      <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button></div>}
     <div class="field-command-body">
       {monsters.map(m => {
         const distance = fieldDistance(state.me.position, m.position);
         const route = encounterRoute(state.me.position, m.position, state.map);
         return <div class="field-target" key={m.id}><div>
           <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
-          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? t('field.terrainFpPreview',fieldMovementEstimate(state.map,route)) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
+          <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? t('field.terrainFpCompact',fieldMovementEstimate(state.map,route)) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
+          <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
           <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
       })}
       {!monsters.length && (blocked || here || !path) && <p class={`field-route-summary ${blocked || !path ? "is-warning" : ""}`}>
         {blocked ? t('field.blockedTerrain') : here ? gate ? t('field.arrivalCompact') : t('field.currentPosition') : t('field.noApproach')}
       </p>}
-      {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{t('field.terrainFpPreview',fieldMovementEstimate(state.map,path))}</p> : null}
+      {!monsters.length && path?.length && state.map.movementCosts ? <p class="field-route-summary">{t('field.terrainFpCompact',fieldMovementEstimate(state.map,path))}</p> : null}
       {!canStep && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}

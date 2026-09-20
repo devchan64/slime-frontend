@@ -104,3 +104,6 @@ restStart: 휴식
 restStop: 휴식 종료
 restProgress: 휴식 중 · 1분당 HP +{amount} · 다음 회복 {seconds}초
 restHint: 이동·행동·선공 시 휴식이 끝나며 남은 초는 버립니다.
+restCompactProgress: HP +{amount} · {seconds}초
+terrainFpCompact: "예상 {expected} FP · 최대 {max}"
+terrainFpHelp: "이동 중 지형 추가 소모로 FP가 0 이하가 되면 멈춥니다."
