@@ -1,4 +1,6 @@
 import {MapKindIcon} from './MapKindIcon';
+import {NpcDialogue} from './NpcDialogue';
+import type {Client} from '../client/api';
 import { fieldMovementEstimate } from "./terrainMovementCost";
 import { findCityBuilding } from "../game/terrain/cityBuildings";
 import { localizedMonster } from '../client/monsterText';
@@ -51,7 +53,8 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
   </nav>;
 }
 
-export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason }: Props & {
+export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason, gameSessionClient }: Props & {
+  gameSessionClient?: Client;
   walking: Walking | null; walk: (requestedWalkingDestination?: Position) => void; stop: () => void; encounter?: (monsterId: string) => void; disabledReason?: string;
 }) {
   const { t, locale } = useTranslation();
@@ -100,6 +103,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         <button class="secondary compact" onClick={()=>select(null)}>{t('field.clear')}</button>
         <button disabled={disabled || !field || !canStep || atBuildingEntrance || !currentEntranceRoute?.length}
           onClick={()=>walk(selectedCityBuilding.entrance)}>{t('city.approach')}</button></div>}
+      {selectedCityBuilding && atBuildingEntrance && field && gameSessionClient && selectedCityBuilding.npcs?.map(currentFacilityNpc=><NpcDialogue
+        key={`${state.generation}:${state.me.id}:${state.location.id}:${currentFacilityNpc.id}`} gameSessionClient={gameSessionClient}
+        currentNpcIdentifier={currentFacilityNpc.id} currentNpcName={currentFacilityNpc.name} actionsAreDisabled={disabled} currentCharacterVersion={state.me.version} />)}
       {!monsters.length && !selectedCityBuilding && <div class="field-target">
         <div class="field-target-summary">
           <strong>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</strong>

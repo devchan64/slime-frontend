@@ -1,0 +1,18 @@
+talk: '대화: {name}'
+title: NPC 의뢰
+pending: 의뢰 정보를 확인하는 중입니다.
+reload: 새로고침하여 현재 의뢰 상태를 확인하세요.
+capacity: '미완료 의뢰 {count} / {max} · 메인·시즌·랜덤 합산'
+empty: 이 NPC에게 진행할 메인 의뢰가 없습니다.
+available: 수령 가능
+locked: 조건 미충족
+accepted: 진행 중
+completed: 완료
+accept: 의뢰 수령
+complete: 표시된 재료 전달 · 보상 수령
+giverrequired: 수령 담당 NPC를 방문하세요.
+receiverrequired: 전달 담당 NPC를 방문하세요.
+prerequisiterequired: 선행 의뢰를 먼저 완료하세요.
+questlimitreached: 수령 한도에 도달했습니다. 진행 중인 의뢰를 완료하세요.
+materialsrequired: 전달할 재료가 부족합니다.
+citizenshiprequired: 이 도시의 유효한 시민권이 필요합니다.

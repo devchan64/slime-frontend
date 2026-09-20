@@ -1444,3 +1444,11 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .world-map-node:focus-visible { outline:3px solid #a45316;outline-offset:3px; }
 .world-drawer:has(.world-map-panel) { width:min(720px,calc(100vw - 32px)); }
 .field-control-actions>button { min-width:0;overflow-wrap:anywhere; }
+
+.npc-dialogue { margin-top: .65rem; }
+.npc-dialogue-heading { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.npc-quest-list { list-style: none; padding: 0; display: grid; gap: .65rem; }
+.npc-quest-list > li { padding: .75rem; border: 1px solid #6c7664; border-radius: .5rem; background: #17251ed9; overflow-wrap: anywhere; }
+.npc-quest-list small { display: block; margin-top: .25rem; }
+.npc-quest-list p { margin: .45rem 0; }
+.npc-quest-list button { max-width: 100%; white-space: normal; }

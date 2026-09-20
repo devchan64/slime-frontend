@@ -661,7 +661,7 @@ export function App() {
               <div class="field-support-actions"><FieldFirstAid currentGameState={state} actionsAreDisabled={disabled || !!walking}
                 submitFirstAidCommand={() => command('/v1/game/skills/first-aid')} /></div>
               <div ref={selectedFieldCommands} class="field-selected-commands">
-              <FieldSelection state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
+              <FieldSelection state={state} selected={selected} disabled={disabled} gameSessionClient={client} now={(clock + serverOffset.current) / 1000}
                 disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
                 select={selectField} command={command} walking={walking} walk={requestedWalkingDestination => void run(()=>walk(requestedWalkingDestination))} encounter={id => void run(() => approachEncounter(id))}
                 stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
