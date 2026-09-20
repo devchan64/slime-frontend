@@ -1388,7 +1388,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
   place-items: center;
   padding: 0;
   color: #f5fff8;
-  background: transparent;
+  background: rgba(0, 0, 0, .55);
   border: 0;
   border-radius: inherit;
   box-shadow: none;
