@@ -111,3 +111,11 @@ terrainFpHelp: "Movement stops if terrain costs reduce FP to zero or below."
 recoveryPending: After incapacitation, recover at least 50% of maximum HP before moving. Rest or log out to recover.
 firstAidButton: "First aid · {count} bandages"
 firstAidHint: "Outside safe zones, use {count} bandages to restore {amount} HP. Requires literacy {literacy}."
+
+scoutButton: 'Scout · {cost} FP'
+scoutHelp: 'Current range: {range} tiles · {cost} FP per attempt'
+scoutFailed: 'Observation failed · Count unknown'
+scoutCountExact: 'Observed: {count}'
+scoutCountRange: 'Observed: {minimum}–{maximum}'
+scoutCountAtLeast: 'Observed: {minimum} or more'
+scoutExpires: 'Expires in {seconds}s'

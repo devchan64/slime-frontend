@@ -309,12 +309,13 @@ export function App() {
       setBusy(false);
     }
   }
-  const command = (path: string, body: Record<string, unknown> = {}) =>
+  const command = (path: string, body: Record<string, unknown> = {}, currentResultHandler?: (currentCommandResult: any) => void) =>
     run(async () => {
       const transfer = ["/v1/world/enter", "/v1/maps/transitions", "/v1/game/encounters/reserve", "/v1/game/encounters/ready"].includes(path);
       if (transfer) setTransferPending(true);
       try {
         const result = await client.command(path, body);
+        currentResultHandler?.(result);
         if (path === "/v1/characters/me") { setCharacterPage("select"); setName(""); }
         if (path === "/v1/world/enter") { setWorldGeneration(result.state.generation); navigateCharacterPage("#/world"); }
         if (path === "/v1/world/resume") navigateCharacterPage("#/menu");

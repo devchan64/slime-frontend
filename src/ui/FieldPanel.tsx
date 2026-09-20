@@ -1,3 +1,4 @@
+import {FieldScouting} from './FieldScouting';
 import {MapKindIcon} from './MapKindIcon';
 import {PartyFormationPanel} from './PartyFormationPanel';
 import {GuildRecruitmentPanel} from './GuildRecruitmentPanel';
@@ -18,7 +19,7 @@ import { encounterRoute, fieldDistance, fieldRoute, sameCell } from "./fieldNavi
 type Props = {
   state: State; selected: Position | null; disabled: boolean; now: number;
   select: (position: Position | null) => void;
-  command: (path: string, body?: Record<string, unknown>) => unknown;
+  command: (path: string, body?: Record<string, unknown>, currentResultHandler?: (currentCommandResult: any) => void) => unknown;
 };
 export type Walking = { completed: number; total: number; stopping: boolean };
 const NEARBY_LIMIT = 4;
@@ -58,7 +59,7 @@ export function FieldEventShortcuts({ state, selected, select, disabled }: Pick<
   </nav>;
 }
 
-export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason, gameSessionClient }: Props & {
+export function FieldSelection({ state, selected, disabled, select, command, walking, walk, stop, encounter, disabledReason, gameSessionClient, now }: Props & {
   gameSessionClient?: Client;
   walking: Walking | null; walk: (requestedWalkingDestination?: Position) => void; stop: () => void; encounter?: (monsterId: string) => void; disabledReason?: string;
 }) {
@@ -99,7 +100,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
           <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? formatCompactMovementEstimate(state.map, route) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
           <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
           <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
-            onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button></div>;
+            onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button>
+          {gameSessionClient && <FieldScouting key={`${state.generation}:${state.me.id}:${state.location.id}:${m.id}`} currentGameState={state} currentTargetMonster={m} currentServerTime={now}
+            currentActionsDisabled={disabled} currentGameClient={gameSessionClient} submitScoutCommand={command} />}</div>;
       })}
       {selectedCityBuilding && <div class="field-target"><div class="field-target-summary">
         <strong>{t(`city.${selectedCityBuilding.facilityKind}`)}</strong>

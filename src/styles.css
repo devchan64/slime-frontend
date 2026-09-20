@@ -1462,3 +1462,6 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .citizenship-status { display: inline-block; margin-left: .5rem; font-size: .8rem; }
 .citizenship-status.is-valid { color: #77dec0; }
 .citizenship-status.is-expired { color: #ffb59c; }
+
+.field-control-card .field-scouting-controls { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.field-scouting-controls p { margin: 0; font-size: 12px; overflow-wrap: anywhere; }

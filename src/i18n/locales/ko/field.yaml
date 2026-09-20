@@ -111,3 +111,11 @@ terrainFpCompact: "예상 {expected} FP · 최대 {max}"
 terrainFpHelp: "이동 중 지형 추가 소모로 FP가 0 이하가 되면 멈춥니다."
 
 recoveryPending: 전투불능 후 최대 HP의 50% 이상을 회복해야 이동할 수 있습니다. 휴식하거나 로그아웃 후 회복하세요.
+
+scoutButton: '정찰 · {cost} FP'
+scoutHelp: '현재 거리 제한 {range}칸 · 시도당 {cost} FP'
+scoutFailed: '관측 실패 · 개체 수 미확인'
+scoutCountExact: '관측: {count}마리'
+scoutCountRange: '관측: {minimum}~{maximum}마리'
+scoutCountAtLeast: '관측: {minimum}마리 이상'
+scoutExpires: '{seconds}초 후 만료'
