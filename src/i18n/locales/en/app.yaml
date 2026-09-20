@@ -82,3 +82,7 @@ fieldHelpSelection: "Tap a character or monster to select its tile. Tap overlapp
 fieldHelpCamera: "Pan · drag / Zoom · wheel or ± / Rotate · ↶↷"
 fieldHelpReset: "Crosshair · return to your position and default zoom"
 currentCharacter: Current character
+
+bagLoading: "Loading belongings and weight."
+bagChanged: "Your bag changed. Please refresh."
+bagMaterials: "Materials"
