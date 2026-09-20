@@ -631,6 +631,13 @@ export function App() {
               </button>
 </nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
+      {actionCutinDurationSeconds !== 0 && pendingActionCutinEvents[0] && <ActionCutinOverlay key={pendingActionCutinEvents[0].actionId}
+        actionCutinEventRecord={pendingActionCutinEvents[0]} actionCutinDurationSeconds={actionCutinDurationSeconds}
+        finishActionCutinDisplay={() => {
+          const displayedActionIdentity = pendingActionCutinEvents[0].actionId;
+          setPendingActionCutinEvents(currentActionCutinQueue => currentActionCutinQueue[0]?.actionId === displayedActionIdentity
+            ? currentActionCutinQueue.slice(1) : currentActionCutinQueue);
+        }} />}
 </div>
             {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
               <div class="field-card-heading"><div class="field-control-actions">
@@ -762,13 +769,6 @@ export function App() {
               </p>
             )}
           </WorldDrawer>}
-      {actionCutinDurationSeconds !== 0 && pendingActionCutinEvents[0] && <ActionCutinOverlay key={pendingActionCutinEvents[0].actionId}
-        actionCutinEventRecord={pendingActionCutinEvents[0]} actionCutinDurationSeconds={actionCutinDurationSeconds}
-        finishActionCutinDisplay={() => {
-          const displayedActionIdentity = pendingActionCutinEvents[0].actionId;
-          setPendingActionCutinEvents(currentActionCutinQueue => currentActionCutinQueue[0]?.actionId === displayedActionIdentity
-            ? currentActionCutinQueue.slice(1) : currentActionCutinQueue);
-        }} />}
       {battleReport && pendingActionCutinEvents.length === 0 && <BattleReport key={battleReport.battleId} result={battleReport} onReturn={() => {
         setBattleReport(null);
         navigateCharacterPage("#/world");
