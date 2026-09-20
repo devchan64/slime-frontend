@@ -14,3 +14,9 @@ test('정찰 실패의 인원 누출·내부 UUID·손상된 시각과 수량은
  for(const currentInvalidPatch of [{succeeded:false},{monsterInstanceId:'private'},{expiresAt:100},{observedAt:NaN},{fpCost:0},{countBand:{minimumCount:4,maximumCount:3}},{countBand:{minimumCount:2,maximumCount:3,exactCount:2}}])
   assert.throws(()=>parseScoutingObservation({...currentValidObservation(),...currentInvalidPatch}));
 });
+test('위험도는 승인 등급과 버전만 허용하고 이전 영수증도 읽는다',()=>{
+ for(const currentRiskGrade of ['LOW','EVEN','HIGH','VERY_HIGH','UNKNOWN'])
+  assert.equal(parseScoutingObservation({...currentValidObservation(),riskGrade:currentRiskGrade,riskVersion:1}).riskGrade,currentRiskGrade);
+ for(const currentInvalidPatch of [{riskGrade:'INVALID',riskVersion:1},{riskGrade:'LOW'},{riskVersion:1},{riskGrade:'LOW',riskVersion:2},{riskGrade:'LOW',riskVersion:1,csp:100}])
+  assert.throws(()=>parseScoutingObservation({...currentValidObservation(),...currentInvalidPatch}));
+});

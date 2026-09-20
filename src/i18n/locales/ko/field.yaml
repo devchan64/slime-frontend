@@ -119,3 +119,10 @@ scoutCountExact: '관측: {count}마리'
 scoutCountRange: '관측: {minimum}~{maximum}마리'
 scoutCountAtLeast: '관측: {minimum}마리 이상'
 scoutExpires: '{seconds}초 후 만료'
+
+scoutRiskLow: 위험도 낮음
+scoutRiskEven: 위험도 대등
+scoutRiskHigh: 위험
+scoutRiskVeryHigh: 매우 위험
+scoutRiskUnknown: 위험도 판단 불가
+scoutRiskHelp: 참가 가능한 파티의 전투 성장 수준과 비교합니다. 현재 체력·지형·전술을 반영한 승률이 아닙니다.

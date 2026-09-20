@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {State} from '../client/types';
 import type {Client} from '../client/api';
-import {parseScoutingObservation,type ScoutingObservation} from '../client/scouting';
+import {parseScoutingObservation,SCOUTING_RISK_LABELS,type ScoutingObservation} from '../client/scouting';
 import {fieldActionContext,canContinueFieldAction} from './fieldActionContext';
 import {fieldDistance} from './fieldNavigation';
 import {useTranslation} from '../i18n';
@@ -47,6 +47,7 @@ export function FieldScouting({currentGameState,currentTargetMonster,currentServ
       currentVisibleResult.countBand!.maximumCount===null?t('field.scoutCountAtLeast',{minimum:currentVisibleResult.countBand!.minimumCount}):
       currentVisibleResult.countBand!.minimumCount===currentVisibleResult.countBand!.maximumCount?t('field.scoutCountExact',{count:currentVisibleResult.countBand!.minimumCount}):
       t('field.scoutCountRange',{minimum:currentVisibleResult.countBand!.minimumCount,maximum:currentVisibleResult.countBand!.maximumCount!})}
+      {currentVisibleResult.riskGrade && <span title={t('field.scoutRiskHelp')}>{' · '}{t(SCOUTING_RISK_LABELS[currentVisibleResult.riskGrade])}</span>}
       {' · '}{t('field.scoutExpires',{seconds:Math.max(0,Math.ceil(currentVisibleResult.expiresAt-currentServerTime))})}</p>}
   </div>;
 }

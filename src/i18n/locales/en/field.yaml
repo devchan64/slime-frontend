@@ -119,3 +119,10 @@ scoutCountExact: 'Observed: {count}'
 scoutCountRange: 'Observed: {minimum}–{maximum}'
 scoutCountAtLeast: 'Observed: {minimum} or more'
 scoutExpires: 'Expires in {seconds}s'
+
+scoutRiskLow: Low risk
+scoutRiskEven: Even match
+scoutRiskHigh: High risk
+scoutRiskVeryHigh: Very high risk
+scoutRiskUnknown: Risk unknown
+scoutRiskHelp: Compares combat growth with eligible party members. This is not a win probability and does not account for current health, terrain, or tactics.
