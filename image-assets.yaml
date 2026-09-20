@@ -108,5 +108,5 @@ data:
     path: src/assets/characters/character-default-white-shirt-standing-v2/idle-v2.png
   - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v1.rest-v1.png
     path: src/assets/characters/character-default-white-shirt-rest-v1/rest-v1.png
-  - managementId: image.frontend.src.assets.characters.baseline.character-default-white-shirt-four-directions-v1.png
-    path: src/assets/characters/baseline/character-default-white-shirt-four-directions-v1.png
+  - managementId: image.frontend.src.assets.characters.baseline.character-default-white-shirt-four-directions-v2.png
+    path: src/assets/characters/baseline/character-default-white-shirt-four-directions-v2.png

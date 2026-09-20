@@ -4,6 +4,7 @@
 
 | 경로 | 내용 | 사용 상태 |
 |---|---|---|
+| `baseline/character-default-white-shirt-four-directions-v2.png` | 직접 생성한 2×2 베이스라인 | 현재 제작 외형 참조 |
 | `character-default-white-shirt-standing-v2/` | 4방향×4프레임 스탠딩 시트·반복 메타데이터 | 필드·전투 스탠딩 및 캐릭터 설정·선택 초상화 |
 
 프로토타입 기본 이미지와 런타임 사용 금지였던 걷기 초안은 삭제했다. 구버전 4방향 정지 이미지도 폐기하고 현재 스탠딩 시트를 유지한다.

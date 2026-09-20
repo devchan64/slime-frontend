@@ -14,3 +14,5 @@ cells:
   up_right: {x: 627, y: 0, width: 627, height: 627}
   down_left: {x: 0, y: 627, width: 627, height: 627}
   down_right: {x: 627, y: 627, width: 627, height: 627}
+status: superseded
+superseded_by: character-default-white-shirt-four-directions-v2
