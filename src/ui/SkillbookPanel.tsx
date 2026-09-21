@@ -40,13 +40,14 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
     });
   }
   async function readCurrentBook(currentBookIdentifier:string){
-    if(actionsAreDisabled||!currentBookInventory)return;
+    if(actionsAreDisabled||!currentBookInventory||!gameSessionClient.state)return;
+    const currentCharacterVersion=gameSessionClient.state.me.version;
     await runCurrentBookRequest(async()=>{
-      const currentReadResponse=await gameSessionClient.request(`/v1/game/skillbooks/${encodeURIComponent(currentBookIdentifier)}/read`,{expectedVersion:currentBookInventory.characterVersion});
+      const currentReadResponse=await gameSessionClient.request(`/v1/game/skillbooks/${encodeURIComponent(currentBookIdentifier)}/read`,{expectedVersion:currentCharacterVersion});
       if(!currentBookSessionMatches())return;
       gameSessionClient.accept(currentReadResponse.state);
       await loadCurrentBooks();
-      if(currentBookSessionMatches())setCurrentBookNotice(translateBookText('books.readComplete'));
+      if(currentBookSessionMatches())setCurrentBookNotice({key:'books.readComplete'});
     });
   }
   const currentPlayerRecord=gameSessionClient.state?.me;
