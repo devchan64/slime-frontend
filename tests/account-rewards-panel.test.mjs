@@ -72,3 +72,24 @@ test('수령 요청 중 화면을 닫으면 늦은 응답으로 현재 세션을
   finishClaimRequest({status:'CLAIMED'});await finishPendingPromises();
   assert.equal(observedRequestPaths.includes('/v1/game/state'),false);
 });
+
+test('모두 수령은 추가 페이지를 펼치지 않고 전체 수령 API를 한 번 호출한다',async()=>{
+  const observedRequestPaths=[];let finishClaimRequest;const receivedPlayerStates=[];
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async requestPathValue=>{
+    observedRequestPaths.push(requestPathValue);
+    if(requestPathValue.endsWith('/claim-all'))return new Promise(resolveClaimRequest=>{finishClaimRequest=resolveClaimRequest;});
+    return requestPathValue==='/v1/game/state'?{generation:1,me:{materials:{jelly:303}}}:{...sampleRewardPage(),nextCursor:'more-rewards'};
+  },accept:receivedPlayerState=>receivedPlayerStates.push(receivedPlayerState)};
+  const currentPanelHarness=createPanelHarness(currentSessionClient);
+  try{
+    currentPanelHarness.renderRewardPanel();await finishPendingPromises();
+    const claimRewardButton=findRewardButtons(currentPanelHarness.renderRewardPanel()).find(rewardButtonNode=>rewardButtonNode.props.children==='rewards.claimAll');
+    assert.equal(claimRewardButton.props.disabled,false);
+    claimRewardButton.props.onClick();claimRewardButton.props.onClick();
+    assert.equal(observedRequestPaths.filter(requestPathValue=>requestPathValue.endsWith('/claim-all')).length,1);
+    finishClaimRequest({claimedCount:101,materials:[]});await finishPendingPromises();
+    assert.equal(receivedPlayerStates.length,1);
+    assert.equal(observedRequestPaths.filter(requestPathValue=>requestPathValue==='/v1/accounts/me/rewards').length,2);
+    assert.equal(observedRequestPaths.some(requestPathValue=>requestPathValue.includes('?after=')),false);
+  }finally{currentPanelHarness.closeRewardPanel();}
+});
