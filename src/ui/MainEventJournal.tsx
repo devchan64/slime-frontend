@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseMainEventJournal,type MainJournalPage} from '../client/mainEventJournal';
 import {noticeText,type Notice} from '../client/notice';
-import {useTranslation} from '../i18n';
+import {getLocale,useTranslation} from '../i18n';
 
 export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}) {
   const {t:translateJournalText,locale:currentJournalLocale}=useTranslation();
@@ -19,18 +19,19 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSes
   }
   async function loadJournalEntries() {
     if(pendingRequestReference.current)return;
+    const requestedJournalLocale=getLocale();
     pendingRequestReference.current=true;setJournalRequestPending(true);setCurrentJournalNotice('');
     try {
-      const receivedJournalPage=parseMainEventJournal(await gameSessionClient.request('/v1/game/main-events?includeCapacity=true'));
-      if(journalSessionMatches())setCurrentJournalPage(receivedJournalPage);
+      const receivedJournalPage=parseMainEventJournal(await gameSessionClient.request(`/v1/game/main-events?includeCapacity=true&language=${requestedJournalLocale}`));
+      if(journalSessionMatches()&&requestedJournalLocale===getLocale())setCurrentJournalPage(receivedJournalPage);
     } catch(currentRequestError) {
       if(journalSessionMatches())setCurrentJournalNotice(currentRequestError as Error);
     } finally {
       pendingRequestReference.current=false;
-      if(journalSessionMatches())setJournalRequestPending(false);
+      if(journalSessionMatches()){setJournalRequestPending(false);if(requestedJournalLocale!==getLocale())void loadJournalEntries();}
     }
   }
-  useEffect(()=>{activeJournalReference.current=true;void loadJournalEntries();return()=>{activeJournalReference.current=false;};},[]);
+  useEffect(()=>{activeJournalReference.current=true;void loadJournalEntries();return()=>{activeJournalReference.current=false;};},[currentJournalLocale]);
   return <section aria-label={translateJournalText('journal.title')}>
     <p>{translateJournalText('journal.help')}</p>
     {currentJournalPage?.acceptedCount!==undefined && <div>

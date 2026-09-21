@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseNpcDialogue,type NpcDialoguePage,type NpcQuestEntry} from '../client/npcDialogue';
 import {noticeText,type Notice} from '../client/notice';
-import {useTranslation} from '../i18n';
+import {getLocale,useTranslation} from '../i18n';
 
 export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcName,actionsAreDisabled,currentCharacterVersion}:{
   gameSessionClient:Client;currentNpcIdentifier:string;currentNpcName:string;actionsAreDisabled:boolean;currentCharacterVersion:number}){
@@ -23,13 +23,14 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   }
   async function loadNpcDialogue(){
     if(pendingDialogueReference.current||!dialogueSessionMatches())return;
+    const requestedDialogueLocale=getLocale();
     pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice('');
     try{
-      const receivedDialoguePage=parseNpcDialogue(await gameSessionClient.request(`/v1/game/npcs/${encodeURIComponent(currentNpcIdentifier)}/main-events`));
+      const receivedDialoguePage=parseNpcDialogue(await gameSessionClient.request(`/v1/game/npcs/${encodeURIComponent(currentNpcIdentifier)}/main-events?language=${requestedDialogueLocale}`));
       if(receivedDialoguePage.npc.id!==currentNpcIdentifier)throw new Error('대화 NPC가 요청과 다릅니다.');
-      if(dialogueSessionMatches())setCurrentDialoguePage(receivedDialoguePage);
+      if(dialogueSessionMatches()&&requestedDialogueLocale===getLocale())setCurrentDialoguePage(receivedDialoguePage);
     }catch(currentRequestError){if(dialogueSessionMatches())setCurrentDialogueNotice(currentRequestError as Error);}
-    finally{pendingDialogueReference.current=false;if(dialogueSessionMatches())setDialogueRequestPending(false);}
+    finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);if(requestedDialogueLocale!==getLocale())void loadNpcDialogue();}}
   }
   async function executeNpcQuest(currentQuestEntry:NpcQuestEntry){
     if(actionsAreDisabled||pendingDialogueReference.current||!currentDialoguePage||!currentQuestEntry.canExecute||!dialogueSessionMatches())return;
@@ -45,7 +46,7 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
     if(questActionSucceeded)await loadNpcDialogue();
   }
   useEffect(()=>{activeDialogueReference.current=true;return()=>{activeDialogueReference.current=false;};},[]);
-  useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue();},[dialoguePanelOpened,currentCharacterVersion]);
+  useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue();},[dialoguePanelOpened,currentCharacterVersion,currentDialogueLocale]);
   return <section class="npc-dialogue">
     <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} aria-expanded={dialoguePanelOpened}
       onClick={()=>setDialoguePanelOpened(!dialoguePanelOpened)}>{translateDialogueText('npc.talk',{name:currentNpcName})}</button>
