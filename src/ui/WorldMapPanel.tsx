@@ -41,6 +41,13 @@ export function WorldMapPanel({gameSessionClient,currentMapIdentifier}:{gameSess
   };
   useEffect(()=>setSelectedMapIdentifier(currentMapIdentifier),[currentMapIdentifier]);
   useEffect(()=>focusWorldMapRegion(selectedMapIdentifier),[worldMapNodes,selectedMapIdentifier]);
+  useEffect(()=>{
+    const currentScrollContainer=worldScrollContainer.current;
+    if(!currentScrollContainer)return;
+    const worldViewportObserver=new ResizeObserver(()=>focusWorldMapRegion(selectedMapIdentifier));
+    worldViewportObserver.observe(currentScrollContainer);
+    return ()=>worldViewportObserver.disconnect();
+  },[worldMapNodes,selectedMapIdentifier]);
   const selectWorldMapRegion=(targetMapIdentifier:string)=>{
     setSelectedMapIdentifier(targetMapIdentifier);
     // 같은 지역이 선택돼 있어도 수동 스크롤 후 다시 찾아갈 수 있다.
