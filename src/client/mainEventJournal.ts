@@ -2,7 +2,7 @@ export type JournalNpcIdentity = {id:string;name:string;cityId:string;facilityId
 export type JournalMaterialItem = {itemId:string;required:number;owned:number;nameTranslations:{ko:string;en:string}};
 export type MainJournalEntry = {eventId:string;title:string;acceptedAt:number;completedAt:number|null;moneyP:number;
   status:'ACCEPTED'|'COMPLETED';materialsSufficient:boolean;giver:JournalNpcIdentity;receiver:JournalNpcIdentity;items:JournalMaterialItem[]};
-export type MainJournalPage = {serverTime:number;characterVersion:number;entries:MainJournalEntry[]};
+export type MainJournalPage = {serverTime:number;characterVersion:number;entries:MainJournalEntry[];acceptedCount?:number;maximumAcceptedCount?:number};
 const JOURNAL_INVALID_MESSAGE = '의뢰 기록 응답이 올바르지 않습니다.';
 const validJournalText = (currentTextValue:unknown):currentTextValue is string => typeof currentTextValue==='string' && !!currentTextValue.trim();
 const validJournalNumber = (currentNumberValue:unknown):currentNumberValue is number => typeof currentNumberValue==='number' && Number.isFinite(currentNumberValue) && currentNumberValue>=0;
@@ -11,7 +11,13 @@ function validateJournalRecord(currentRecordValue:unknown,expectedRecordKeys:str
     || Object.keys(currentRecordValue).length!==expectedRecordKeys.length || expectedRecordKeys.some(currentRecordKey=>!Object.hasOwn(currentRecordValue,currentRecordKey))) throw new Error(JOURNAL_INVALID_MESSAGE);
 }
 export function parseMainEventJournal(currentResponseValue:unknown):MainJournalPage {
-  validateJournalRecord(currentResponseValue,['serverTime','characterVersion','entries']);
+  const currentCapacityPresent=!!currentResponseValue && typeof currentResponseValue==='object'
+    && (Object.hasOwn(currentResponseValue,'acceptedCount') || Object.hasOwn(currentResponseValue,'maximumAcceptedCount'));
+  validateJournalRecord(currentResponseValue,['serverTime','characterVersion','entries',
+    ...(currentCapacityPresent?['acceptedCount','maximumAcceptedCount']:[])]);
+  if(currentCapacityPresent && (!Number.isSafeInteger(currentResponseValue.acceptedCount) || currentResponseValue.acceptedCount<0
+    || !Number.isSafeInteger(currentResponseValue.maximumAcceptedCount) || currentResponseValue.maximumAcceptedCount<1))
+    throw new Error(JOURNAL_INVALID_MESSAGE);
   if (!validJournalNumber(currentResponseValue.serverTime) || !Number.isSafeInteger(currentResponseValue.characterVersion)
     || currentResponseValue.characterVersion<0 || !Array.isArray(currentResponseValue.entries)) throw new Error(JOURNAL_INVALID_MESSAGE);
   const observedEventIdentifiers = new Set<string>();

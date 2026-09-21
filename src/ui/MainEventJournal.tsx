@@ -21,7 +21,7 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSes
     if(pendingRequestReference.current)return;
     pendingRequestReference.current=true;setJournalRequestPending(true);setCurrentJournalNotice('');
     try {
-      const receivedJournalPage=parseMainEventJournal(await gameSessionClient.request('/v1/game/main-events'));
+      const receivedJournalPage=parseMainEventJournal(await gameSessionClient.request('/v1/game/main-events?includeCapacity=true'));
       if(journalSessionMatches())setCurrentJournalPage(receivedJournalPage);
     } catch(currentRequestError) {
       if(journalSessionMatches())setCurrentJournalNotice(currentRequestError as Error);
@@ -33,6 +33,11 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSes
   useEffect(()=>{activeJournalReference.current=true;void loadJournalEntries();return()=>{activeJournalReference.current=false;};},[]);
   return <section aria-label={translateJournalText('journal.title')}>
     <p>{translateJournalText('journal.help')}</p>
+    {currentJournalPage?.acceptedCount!==undefined && <div>
+      <p role="status">{translateJournalText('journal.capacity',{count:currentJournalPage.acceptedCount,limit:currentJournalPage.maximumAcceptedCount!})}</p>
+      <p>{translateJournalText('journal.capacityHelp')}</p>
+      {currentJournalPage.acceptedCount>=currentJournalPage.maximumAcceptedCount! && <p>{translateJournalText('journal.capacityFull')}</p>}
+    </div>}
     <button class="secondary" disabled={actionsAreDisabled||journalRequestPending} onClick={()=>void loadJournalEntries()}>{translateJournalText('journal.refresh')}</button>
     {currentJournalNotice && <p role="alert">{noticeText(currentJournalNotice,currentJournalLocale,translateJournalText)}</p>}
     {journalRequestPending && <p role="status">{translateJournalText('journal.loading')}</p>}

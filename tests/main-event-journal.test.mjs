@@ -26,3 +26,12 @@ test('누락·중복·불가능한 완료 시각·잘못된 수량·충족 정�
  ];
  for(const mutateJournalPage of invalidJournalMutations){const invalidJournalPage=structuredClone(currentJournalFixture);mutateJournalPage(invalidJournalPage);assert.throws(()=>parseMainEventJournal(invalidJournalPage));}
 });
+
+test('통합 수령 한도는 메인 목록 길이와 다를 수 있고 이전 응답도 유지한다',()=>{
+ assert.equal(parseMainEventJournal({...currentJournalFixture,acceptedCount:4,maximumAcceptedCount:5}).acceptedCount,4);
+ assert.equal(parseMainEventJournal({...currentJournalFixture,acceptedCount:6,maximumAcceptedCount:5}).acceptedCount,6);
+ assert.equal(parseMainEventJournal(currentJournalFixture).acceptedCount,undefined);
+ for(const currentCapacityFields of [{acceptedCount:1},{maximumAcceptedCount:5},{acceptedCount:-1,maximumAcceptedCount:5},
+   {acceptedCount:1,maximumAcceptedCount:0},{acceptedCount:true,maximumAcceptedCount:5}])
+   assert.throws(()=>parseMainEventJournal({...currentJournalFixture,...currentCapacityFields}));
+});

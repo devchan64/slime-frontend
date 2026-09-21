@@ -12,3 +12,7 @@ paid: '지급된 보상: {amount}p'
 startedAt: '수령: {time}'
 finishedAt: '완료: {time}'
 materialsReady: 재료가 준비되었습니다. 전달 시 NPC 위치와 시민권 등 이용 조건을 다시 확인합니다.
+
+capacity: '수령 중 {count} / {limit}개'
+capacityHelp: 메인·시즌·랜덤 의뢰를 합산합니다. 완료한 의뢰는 한도에서 제외됩니다.
+capacityFull: 수령 한도에 도달했습니다. 진행 중인 의뢰를 완료하면 새 의뢰를 받을 수 있습니다.
