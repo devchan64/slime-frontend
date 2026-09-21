@@ -153,3 +153,6 @@ supportPreview: 예상 전투 참가자
 supportRecheck: 조우 시 최신 자격으로 다시 판정합니다. 제외되어도 편성은 유지됩니다.
 supportPreviewFailed: 참가 명단을 불러오지 못했습니다. 다시 확인해 주세요.
 supportRefresh: 명단 새로고침
+
+distributionGuild: "길드 귀속"
+distributionGuildStorage: "길드 기본 파티원의 당첨 재료는 길드 원장에 보관됩니다. 개인 보관함에서는 수령할 수 없습니다."

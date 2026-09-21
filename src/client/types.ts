@@ -166,7 +166,7 @@ export interface PartyRewardReportData {
   materials: Array<{
     materialId: string; nameTranslations: Record<'ko' | 'en', string>;
     quantity: number; mineQuantity: number;
-    recipients: Array<{ id: string; name: string; role: 'initiator' | 'supporter'; isMine: boolean; quantity: number }>;
+    recipients: Array<{ id: string; name: string; role: 'initiator' | 'supporter'; recipientKind?: 'guild'; isMine: boolean; quantity: number }>;
     allocations: Array<{ itemSequence: number; diceFace: number; recipientId: string }>;
   }>;
 }

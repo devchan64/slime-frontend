@@ -18,3 +18,6 @@ saved: Party formation updated.
 manage: Current party formation
 fieldHelp: You can remove members in the field without ending their seven-day loans. Visit a guild to add characters.
 expired: Loan expired · remove from formation
+
+noviceName: "Novice Guild Member"
+noviceTerms: "Guild companion · Free 7-day contract · 0 earned CP · Allocated materials go to the guild"

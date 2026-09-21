@@ -10,7 +10,7 @@ export function PartyRewardReport({ rewardReportData }: { rewardReportData: Part
       <h4>{materialReportEntry.nameTranslations[selectedLocaleCode]}</h4>
       <p>{translateRewardText('battle.distributionQuantities', { total: materialReportEntry.quantity, mine: materialReportEntry.mineQuantity })}</p>
       <ul>{materialReportEntry.recipients.map(recipientReportEntry => <li key={recipientReportEntry.id}>
-        <span>{recipientReportEntry.name} · {translateRewardText(recipientReportEntry.role === 'initiator' ? 'battle.distributionInitiator' : 'battle.distributionSupporter')}</span>
+        <span>{recipientReportEntry.name} · {translateRewardText(recipientReportEntry.recipientKind === 'guild' ? 'battle.distributionGuild' : recipientReportEntry.role === 'initiator' ? 'battle.distributionInitiator' : 'battle.distributionSupporter')}</span>
         <strong>×{recipientReportEntry.quantity}</strong>
       </li>)}</ul>
       <details><summary>{translateRewardText('battle.distributionDetails')}</summary>
@@ -21,7 +21,9 @@ export function PartyRewardReport({ rewardReportData }: { rewardReportData: Part
         </li>)}</ol>
       </details>
     </article>)}
-    {rewardReportData.materials.some(materialReportEntry => materialReportEntry.recipients.some(recipientReportEntry => recipientReportEntry.role === 'supporter')) &&
+    {rewardReportData.materials.some(materialReportEntry => materialReportEntry.recipients.some(recipientReportEntry => recipientReportEntry.role === 'supporter' && recipientReportEntry.recipientKind !== 'guild')) &&
       <p class="party-reward-note">{translateRewardText('battle.distributionMailbox')}</p>}
+    {rewardReportData.materials.some(materialReportEntry => materialReportEntry.recipients.some(recipientReportEntry => recipientReportEntry.recipientKind === 'guild')) &&
+      <p class="party-reward-note">{translateRewardText('battle.distributionGuildStorage')}</p>}
   </section>;
 }

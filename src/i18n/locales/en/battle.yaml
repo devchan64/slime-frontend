@@ -153,3 +153,6 @@ supportPreview: Expected battle participants
 supportRecheck: Eligibility is checked again at encounter time. Exclusion does not remove the formation.
 supportPreviewFailed: Could not load participants. Please try again.
 supportRefresh: Refresh participants
+
+distributionGuild: "Guild allocation"
+distributionGuildStorage: "Materials allocated to guild companions are stored in the guild ledger, not in a personal reward inbox."

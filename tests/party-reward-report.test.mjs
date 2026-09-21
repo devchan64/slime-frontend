@@ -29,3 +29,13 @@ test('빈 분배에는 획득 없음만 안내한다',()=>{
   assert.match(reportTextValue,/noLoot/);
   assert.doesNotMatch(reportTextValue,/distributionMailbox|distributionQuantities/);
 });
+
+test('길드 귀속 보상에는 개인 보관함 수령 안내를 표시하지 않는다',()=>{
+ const currentReportText=collectReportText(PartyRewardReport({rewardReportData:{materials:[{
+  materialId:'protein-jelly',nameTranslations:{ko:'젤리',en:'Jelly'},quantity:1,mineQuantity:0,
+  recipients:[{id:'p2',name:'초보 길드원',role:'supporter',recipientKind:'guild',isMine:false,quantity:1}],
+  allocations:[{itemSequence:1,diceFace:1,recipientId:'p2'}]
+ }]}}));
+ assert.match(currentReportText,/distributionGuildStorage/);
+ assert.doesNotMatch(currentReportText,/distributionMailbox/);
+});

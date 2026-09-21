@@ -70,6 +70,7 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
     if(formationSessionMatches())setCurrentFormationNotice({key:'formation.saved'});
   });}
   useEffect(()=>{activePanelReference.current=true;return()=>{activePanelReference.current=false;};},[]);
+  function displayFormationMemberName(currentSourceIdentifier:string|undefined,currentMemberName:string){return currentSourceIdentifier==='guild:novice'?translateFormationText('formation.noviceName'):currentMemberName;}
   const currentSelectedLoanIds=gameSessionClient.state?.me.borrowedPartyLoanIds??[];
   const currentSelectedMembers=currentBorrowedEntries.filter(currentLoanEntry=>currentSelectedLoanIds.includes(currentLoanEntry.id));
   const currentControlsDisabled=actionsAreDisabled||currentRequestPending||currentFormationUncertain;
@@ -78,18 +79,18 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
     {currentFormationLoaded&&<div>
       <p>{translateFormationText('formation.count',{count:currentSelectedMembers.filter(currentLoanEntry=>!currentLoanEntry.expired).length+1})}</p>
       <p>{translateFormationText(currentFacilityIdentifier?'formation.help':'formation.fieldHelp')}</p>
-      <ul class="bag-items">{currentSelectedMembers.map(currentLoanEntry=><li key={currentLoanEntry.id}><strong>{currentLoanEntry.name}</strong>{currentLoanEntry.expired&&<span>{translateFormationText('formation.expired')}</span>}
+      <ul class="bag-items">{currentSelectedMembers.map(currentLoanEntry=><li key={currentLoanEntry.id}><strong>{displayFormationMemberName(currentLoanEntry.sourceCharacterId,currentLoanEntry.name)}</strong>{currentLoanEntry.expired&&<span>{translateFormationText('formation.expired')}</span>}
         <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void submitFormationChange({action:'REMOVE',loanId:currentLoanEntry.id,
           path:`/v1/game/borrowed-party/${encodeURIComponent(currentLoanEntry.id)}/remove`,body:{requestId:crypto.randomUUID(),expectedVersion:gameSessionClient.state!.me.version}})}>{translateFormationText('formation.remove')}</button></li>)}</ul>
       {currentCandidatePage&&<>
       {!currentCandidatePage.entries.length&&<p>{translateFormationText('formation.empty')}</p>}
       <ul class="bag-items">{currentCandidatePage.entries.map(currentCandidateEntry=>{
         const currentAlreadySelected=currentSelectedMembers.some(currentLoanEntry=>!currentLoanEntry.expired&&currentLoanEntry.sourceCharacterId===currentCandidateEntry.characterId);
-        return <li key={currentCandidateEntry.characterId}><strong>{currentCandidateEntry.name}</strong><p>{translateFormationText(currentAlreadySelected?'formation.selected':PARTY_CANDIDATE_LABELS[currentCandidateEntry.status])}</p>
+        return <li key={currentCandidateEntry.characterId}><strong>{displayFormationMemberName(currentCandidateEntry.characterId,currentCandidateEntry.name)}</strong>{currentCandidateEntry.source==='GUILD'&&<p>{translateFormationText('formation.noviceTerms')}</p>}<p>{translateFormationText(currentAlreadySelected?'formation.selected':PARTY_CANDIDATE_LABELS[currentCandidateEntry.status])}</p>
           <button class="secondary compact" disabled={currentControlsDisabled||currentAlreadySelected||!['AVAILABLE','ALREADY_BORROWED'].includes(currentCandidateEntry.status)||currentSelectedMembers.filter(currentLoanEntry=>!currentLoanEntry.expired).length>=3}
             onClick={()=>setCurrentSelectedCandidate(currentCandidateEntry)}>{translateFormationText('formation.choose')}</button></li>;
       })}</ul>
-      {currentSelectedCandidate&&<div class="guild-sale-quote"><strong>{translateFormationText('formation.confirmName',{name:currentSelectedCandidate.name})}</strong>
+      {currentSelectedCandidate&&<div class="guild-sale-quote"><strong>{translateFormationText('formation.confirmName',{name:displayFormationMemberName(currentSelectedCandidate.characterId,currentSelectedCandidate.name)})}</strong>
         <button class="compact" disabled={currentControlsDisabled} onClick={()=>void submitFormationChange({action:'ADD',path:`/v1/game/guilds/${encodeURIComponent(currentFacilityIdentifier!)}/party-members`,
           body:{requestId:crypto.randomUUID(),expectedVersion:gameSessionClient.state!.me.version,characterId:currentSelectedCandidate.characterId}})}>{translateFormationText('formation.add')}</button></div>}
       {currentCandidatePage.nextCursor&&<button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runFormationRequest(()=>loadFormationContents(currentCandidatePage.nextCursor!))}>{translateFormationText('formation.next')}</button>}

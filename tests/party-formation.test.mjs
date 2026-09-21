@@ -18,3 +18,13 @@ test('편성 영수증은 요청·동작·최종 목록과 일치해야 한다',
  validatePartyFormationReceipt({...currentReceiptFixture,action:'REMOVE',loanIds:[]},'request','REMOVE','loan');
  assert.throws(()=>validatePartyFormationReceipt({...currentReceiptFixture,action:'REMOVE'},'request','REMOVE','loan'));
 });
+
+test('길드 후보를 이전 유저 목록과 구분하고 잘못된 계약을 거절한다',()=>{
+ const currentGuildCandidate={characterId:'guild:novice',name:'초보 길드원',source:'GUILD',status:'AVAILABLE',cpEligible:true,remainingBorrowerSlots:1,costP:0,contractDays:7};
+ const currentPageFixture={cityId:'iseulon',characterVersion:1,serverTime:10,nextCursor:null,entries:[],guildEntries:[currentGuildCandidate]};
+ assert.equal(parsePartyCandidatePage(currentPageFixture,'iseulon').entries[0].source,'GUILD');
+ assert.equal(currentPageFixture.entries.length,0);
+ assert.throws(()=>parsePartyCandidatePage({...currentPageFixture,guildEntries:[{...currentGuildCandidate,costP:1}]},'iseulon'));
+ assert.throws(()=>parsePartyCandidatePage({...currentPageFixture,guildEntries:[{...currentGuildCandidate,characterId:'guild:unknown'}]},'iseulon'));
+ assert.throws(()=>parsePartyCandidatePage({...currentPageFixture,guildEntries:[currentGuildCandidate,currentGuildCandidate]},'iseulon'));
+});
