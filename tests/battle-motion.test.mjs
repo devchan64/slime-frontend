@@ -7,6 +7,7 @@ const point=p=>({x:p.column*10,y:p.row*10,depth:p.column+p.row});
 const state=(position,log=[])=>({units:[{id:'hero',hp:10,position}],log});
 const start={column:0,row:0},corner={column:1,row:0},end={column:1,row:1};
 const move={unitId:'hero',action:'MOVE',path:[corner,end]};
+const attack={unitId:'hero',action:'ATTACK',targetId:'enemy'};
 test('확정 경로를 꺾이는 칸까지 순서대로 재생하고 중복 스냅샷은 재시작하지 않는다',()=>{
  const m=new BattleMotion();m.sync('a',state(start),point,0);
  m.sync('a',state(end,[move]),point,10);
@@ -55,4 +56,17 @@ test('경로와 맞지 않는 방향 정보는 명시적으로 거절한다',()=
   const battleMotionTracker=new BattleMotion();battleMotionTracker.sync('a',state(start),point,0);
   assert.throws(()=>battleMotionTracker.sync('a',state(end,[{...move,pathFacings:invalidPathFacings}]),point,10),/방향/);
  }
+});
+
+test('일반 공격은 별도 애니메이션 없이 공격자 돌진과 대상 반동 전환만 재생한다',()=>{
+ const battleMotionTracker=new BattleMotion();
+ const initialBattle={units:[{id:'hero',hp:10,position:start},{id:'enemy',hp:10,position:{column:2,row:0}}],log:[]};
+ const attackedBattle={...initialBattle,log:[attack]};
+ const projectBattlePoint=p=>({x:p.column*10,y:p.row*10,depth:p.column+p.row});
+ battleMotionTracker.sync('attack',initialBattle,projectBattlePoint,0);
+ battleMotionTracker.sync('attack',attackedBattle,projectBattlePoint,10);
+ assert.deepEqual(battleMotionTracker.offset('hero',145),{x:6.4,y:0,depth:0.64});
+ assert.deepEqual(battleMotionTracker.offset('enemy',145),{x:-1.6,y:0,depth:-0.16});
+ battleMotionTracker.sync('attack',attackedBattle,projectBattlePoint,150);
+ assert.deepEqual(battleMotionTracker.offset('hero',310),{x:0,y:0,depth:0});
 });

@@ -1,21 +1,38 @@
 import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
 const STEP_MILLISECONDS = 180;
+const ATTACK_TRANSITION_MILLISECONDS = 300;
+const ATTACK_LUNGE_DISTANCE_RATIO = 0.32;
+const ATTACK_RECOIL_DISTANCE_RATIO = 0.08;
 type Point = {x:number;y:number;depth:number};
 type Track = {points:Point[];started:number;segmentWorldFacings:(WorldFacing|undefined)[]};
+type ImpactTrack = {vector:Point;started:number;distanceRatio:number};
 /** 새로 수신한 확정 이동 로그만 재생하며 초기 접속의 과거 기록은 재생하지 않는다. */
 export class BattleMotion {
   private space='';
   private logCount=0;
   private positions=new Map<string,Position>();
   private tracks=new Map<string,Track>();
-  clear(){this.space='';this.logCount=0;this.positions.clear();this.tracks.clear();}
+  private impactTracks=new Map<string,ImpactTrack>();
+  clear(){this.space='';this.logCount=0;this.positions.clear();this.tracks.clear();this.impactTracks.clear();}
   sync(space:string,battle:Battle|null,project:(p:Position, battleUnitIdentifier?: string)=>Point,now:number){
     if(!battle){this.clear();return;}
     if(space!==this.space || battle.log.length<this.logCount){
       this.clear();this.space=space;this.logCount=battle.log.length;
     }
     for(const event of battle.log.slice(this.logCount)){
+      if (event.action === 'ATTACK' && event.targetId) {
+        const actorPosition = this.positions.get(event.unitId);
+        const targetPosition = this.positions.get(event.targetId)
+          ?? battle.units.find(currentUnit => currentUnit.id === event.targetId)?.position;
+        if (actorPosition && targetPosition) {
+          const actorPoint = project(actorPosition, event.unitId);
+          const targetPoint = project(targetPosition, event.targetId);
+          const vector = {x:targetPoint.x-actorPoint.x,y:targetPoint.y-actorPoint.y,depth:targetPoint.depth-actorPoint.depth};
+          this.impactTracks.set(event.unitId,{vector,started:now,distanceRatio:ATTACK_LUNGE_DISTANCE_RATIO});
+          this.impactTracks.set(event.targetId,{vector:{x:-vector.x,y:-vector.y,depth:-vector.depth},started:now,distanceRatio:ATTACK_RECOIL_DISTANCE_RATIO});
+        }
+      }
       if(event.action!=='MOVE' || !event.path?.length)continue;
       if (event.pathFacings !== undefined) {
         if (event.pathFacings.length !== event.path.length) throw new Error('이동 경로와 구간별 방향 개수가 다릅니다.');
@@ -35,6 +52,7 @@ export class BattleMotion {
     this.logCount=battle.log.length;
     for(const unit of battle.units)this.positions.set(unit.id,{...unit.position});
     for(const id of this.tracks.keys())if(!battle.units.some(u=>u.id===id && u.hp>0))this.tracks.delete(id);
+    for(const id of this.impactTracks.keys())if(!battle.units.some(u=>u.id===id && u.hp>0))this.impactTracks.delete(id);
   }
   currentWorldFacing(battleUnitIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
     const currentMotionTrack=this.tracks.get(battleUnitIdentifier);
@@ -44,9 +62,15 @@ export class BattleMotion {
   }
   offset(id:string,now:number):Point{
     const track=this.tracks.get(id);
-    if(!track)return {x:0,y:0,depth:0};
-    const at=this.sample(track,now),end=track.points[track.points.length-1];
-    return {x:at.x-end.x,y:at.y-end.y,depth:at.depth-end.depth};
+    const movementOffset=track ? (()=>{const at=this.sample(track,now),end=track.points[track.points.length-1];
+      return {x:at.x-end.x,y:at.y-end.y,depth:at.depth-end.depth};})() : {x:0,y:0,depth:0};
+    const impactTrack=this.impactTracks.get(id);
+    if(!impactTrack)return movementOffset;
+    const progress=Math.max(0,Math.min(1,(now-impactTrack.started)/ATTACK_TRANSITION_MILLISECONDS));
+    const transitionProgress=progress<0.45 ? progress/0.45 : 1-(progress-0.45)/0.55;
+    return {x:movementOffset.x+impactTrack.vector.x*impactTrack.distanceRatio*transitionProgress,
+      y:movementOffset.y+impactTrack.vector.y*impactTrack.distanceRatio*transitionProgress,
+      depth:movementOffset.depth+impactTrack.vector.depth*impactTrack.distanceRatio*transitionProgress};
   }
   private sample(track:Track,now:number):Point{
     const progress=Math.max(0,now-track.started)/STEP_MILLISECONDS;
