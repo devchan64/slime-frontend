@@ -13,5 +13,6 @@
     "up_left"
   ],
   "anchorMethod": "rest-v1 좌표 유지; 새 이미지에 대한 수동 검수 전",
+  "gameBodyHeight": 36,
   "replaces": "rest-v1"
 }

@@ -23,6 +23,7 @@
     }
   ],
   "referenceBodyHeight": 688.688,
+  "gameBodyHeight": 65,
   "anchorMethod": "mean-of-user-foot-centers",
   "contacts": {
     "down_left.0": [

@@ -2,7 +2,7 @@
   "animationId": "character.default.white-shirt.walk",
   "version": "4-approved",
   "referenceBodyHeight": 288,
-  "gameBodyHeight": 66,
+  "gameBodyHeight": 80,
   "sheets": [
     {
       "image": "walk-down.png",
