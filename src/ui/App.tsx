@@ -544,6 +544,7 @@ export function App() {
         <main class="lobby field-menu-page">
           <section class="card">
             <div class="field-card-heading"><h1>{t('app.menu')}</h1><button class="secondary" onClick={() => navigateCharacterPage("#/world")}>{t('app.backToMap')}</button></div>
+            {state.me.lastPartyDisband?.reason === "LEADER_OFFLINE" && <p role="status">{t("terms.partyDisbandNotice")}</p>}
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>
@@ -568,6 +569,8 @@ export function App() {
           <h2>{t('terms.seasonLoginHeading')}</h2>
           <p>{t('terms.seasonLoginPolicy')}</p>
           <p>{t('terms.currentSeason')}</p>
+          <h2>{t('terms.partyInactivityHeading')}</h2>
+          <p>{t('terms.partyInactivityPolicy')}</p>
           <p>{t('terms.pendingNotice')}</p>
           <h2>{t('terms.reportHeading')}</h2>
           <p>{t('terms.reportPolicy')}</p>

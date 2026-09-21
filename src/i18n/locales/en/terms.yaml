@@ -16,3 +16,6 @@ connectionLimitPolicy: "To keep the game stable, we may limit the number of conc
 seasonLoginHeading: "Daily seasonal login reward"
 seasonLoginPolicy: "Once a season begins, your first login each day during the season earns 1 CP and 1 SP as a seasonal achievement reward. Days follow Korea Standard Time. Additional logins on the same day do not earn another reward."
 currentSeason: "The current season is Season 0 · Test Season. The same daily login reward policy applies."
+partyInactivityHeading: "Party disbanding after inactivity"
+partyInactivityPolicy: "A party is automatically disbanded after its leader has been continuously offline for at least 24 hours. The leader’s character loans also end early, releasing capacity for other parties. Inactivity of ordinary members or the original owners of borrowed characters does not trigger disbanding. Ongoing battles and reward settlement are preserved."
+partyDisbandNotice: "A party you previously belonged to was automatically disbanded after its leader was offline for 24 consecutive hours. The leader’s loan capacity was released. Battles already in progress and their reward settlement are preserved."
