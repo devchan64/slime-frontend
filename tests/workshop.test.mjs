@@ -58,3 +58,26 @@ test('견적 보유량은 음이 아닌 정수이며 이전 API 응답도 수용
   assert.throws(()=>parseWorkshopQuote({...currentOwnedFixture,materials:[{...currentOwnedFixture.materials[0],ownedQuantity:currentInvalidValue}]},'craft'));
  }
 });
+
+test('서버 재료 배분의 필요량·사용량·부족량 일치와 필드 완전성을 검증한다',()=>{
+ const currentMaterialAllocation={...currentQuoteFixture.materials[0],materialId:'iron-ore',ownedQuantity:2,consumedQuantity:2,missingQuantity:2};
+ const currentAllocatedQuote={...currentQuoteFixture,materials:[currentMaterialAllocation]};
+ assert.deepEqual(parseWorkshopQuote(currentAllocatedQuote,'craft').materials[0],currentMaterialAllocation);
+ for(const invalidAllocationPatch of [{consumedQuantity:3},{missingQuantity:3},{ownedQuantity:-1},{materialId:''},{consumedQuantity:undefined}])
+  assert.throws(()=>parseWorkshopQuote({...currentAllocatedQuote,materials:[{...currentMaterialAllocation,...invalidAllocationPatch}]},'craft'));
+ assert.throws(()=>parseWorkshopQuote({...currentAllocatedQuote,materials:[currentMaterialAllocation,currentMaterialAllocation]},'craft'));
+ assert.doesNotThrow(()=>parseWorkshopQuote(currentQuoteFixture,'craft'));
+});
+
+
+test('부족 재료를 포함한 소모품 총액과 과거 계약을 모두 검증한다',()=>{
+ const currentPricedQuote={...currentQuoteFixture,quote:{...currentQuoteFixture.quote,quantity:3,unitDurationSeconds:30,unitCostP:1,durationSeconds:90,
+   baseCostP:3,missingMaterialValueP:15,missingMaterialCostP:23,costP:26,
+   materialPricing:{version:1,guildPriceVersion:1,priceSource:'guild_purchase',numerator:3,denominator:2,rounding:'ceil'},
+   materialAllocation:[{materialId:'reed-fiber',quantity:6,ownedQuantity:0,consumedQuantity:0,missingQuantity:6,unitPriceP:2},
+     {materialId:'clean-water',quantity:3,ownedQuantity:0,consumedQuantity:0,missingQuantity:3,unitPriceP:1}]}};
+ assert.equal(parseWorkshopQuote(currentPricedQuote,'consumable').quote.costP,26);
+ for(const currentInvalidPatch of [{costP:25},{missingMaterialCostP:22},{baseCostP:4},{missingMaterialValueP:14},{materialPricing:undefined},{materialAllocation:[]}])
+   assert.throws(()=>parseWorkshopQuote({...currentPricedQuote,quote:{...currentPricedQuote.quote,...currentInvalidPatch}},'consumable'));
+ assert.equal(parseWorkshopContracts(currentContractFixture,'craft').entries.length,1);
+});

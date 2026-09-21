@@ -27,3 +27,6 @@ quantity: '제작 수량 (1~1000)'
 quantityTime: '{quantity}개 · 개당 {seconds}초 · 다른 계약과 동시 제작'
 balance: '견적 시점 보유 {owned} P · 부족 {missing} P'
 materialBalance: '보유 {owned}개 · 부족 {missing}개'
+materialAllocation: "보유 {owned} · 사용 {used} · 부족 {missing}"
+costBreakdown: '기본 제작비 {base} P + 부족 재료 비용 {missing} P'
+substitutionRule: '보유 재료를 먼저 사용합니다. 부족 수량 × 길드 매입가의 합계에 1.5를 곱하고 올림하여 추가 결제합니다. 부족 재료는 가방에 지급되지 않습니다.'

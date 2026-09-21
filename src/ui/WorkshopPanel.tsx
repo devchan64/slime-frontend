@@ -138,8 +138,12 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       {currentQuoteResponse&&<div class="workshop-quote">
         {currentQuoteResponse.quote.quantity!==undefined&&<p>{translateWorkshopText('workshop.quantityTime',{quantity:currentQuoteResponse.quote.quantity,seconds:currentQuoteResponse.quote.unitDurationSeconds!})}</p>}
         <p>{translateWorkshopText('workshop.price',{cost:currentQuoteResponse.quote.costP,seconds:currentQuoteResponse.quote.durationSeconds})}</p>
+        {currentQuoteResponse.quote.baseCostP!==undefined&&<>
+          <p>{translateWorkshopText('workshop.costBreakdown',{base:currentQuoteResponse.quote.baseCostP,missing:currentQuoteResponse.quote.missingMaterialCostP!})}</p>
+          <small>{translateWorkshopText('workshop.substitutionRule')}</small>
+        </>}
         {currentQuoteResponse.ownedCoins!==undefined&&<p>{translateWorkshopText('workshop.balance',{owned:currentQuoteResponse.ownedCoins,missing:Math.max(0,currentQuoteResponse.quote.costP-currentQuoteResponse.ownedCoins)})}</p>}
-        {currentQuoteResponse.materials.map(currentMaterialRecord=><p>{currentMaterialRecord.nameTranslations[currentWorkshopLocale]} × {currentMaterialRecord.quantity}{currentMaterialRecord.ownedQuantity!==undefined&&<> · {translateWorkshopText('workshop.materialBalance',{owned:currentMaterialRecord.ownedQuantity,missing:Math.max(0,currentMaterialRecord.quantity-currentMaterialRecord.ownedQuantity)})}</>}</p>)}
+        {currentQuoteResponse.materials.map(currentMaterialRecord=><p>{currentMaterialRecord.nameTranslations[currentWorkshopLocale]} × {currentMaterialRecord.quantity}{currentMaterialRecord.ownedQuantity!==undefined&&<> · {currentMaterialRecord.missingQuantity!==undefined ? translateWorkshopText('workshop.materialAllocation',{owned:currentMaterialRecord.ownedQuantity,used:currentMaterialRecord.consumedQuantity!,missing:currentMaterialRecord.missingQuantity}) : translateWorkshopText('workshop.materialBalance',{owned:currentMaterialRecord.ownedQuantity,missing:Math.max(0,currentMaterialRecord.quantity-currentMaterialRecord.ownedQuantity)})}</>}</p>)}
         {currentQuoteResponse.quote.before&&currentQuoteResponse.quote.after&&<p>{translateWorkshopText('workshop.durability',{
           before:currentQuoteResponse.quote.before.currentDurability,beforeMax:currentQuoteResponse.quote.before.maxDurability,
           after:currentQuoteResponse.quote.after.currentDurability,afterMax:currentQuoteResponse.quote.after.maxDurability})}</p>}

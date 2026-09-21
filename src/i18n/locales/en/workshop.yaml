@@ -27,3 +27,6 @@ quantity: 'Quantity (1–1000)'
 quantityTime: '{quantity} items · {seconds}s each · Other contracts run concurrently'
 balance: 'Balance at quote: {owned} P · Shortfall: {missing} P'
 materialBalance: 'Owned: {owned} · Shortfall: {missing}'
+materialAllocation: "Owned {owned} · Used {used} · Missing {missing}"
+costBreakdown: 'Crafting fee {base} P + missing materials {missing} P'
+substitutionRule: 'Owned materials are used first. Missing quantities are valued at guild buying prices; their total is multiplied by 1.5 and rounded up for payment. Missing materials are not added to your bag.'

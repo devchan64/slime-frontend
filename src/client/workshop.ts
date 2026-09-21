@@ -1,8 +1,8 @@
 import {ApiError} from './response';
 export type WorkshopContractKind='craft'|'repair'|'consumable';
-export type WorkshopPriceQuote={quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
+export type WorkshopPriceQuote={baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
-export type WorkshopQuoteResponse={characterVersion:number;ownedCoins?:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;ownedQuantity?:number;nameTranslations:{ko:string;en:string}}[]};
+export type WorkshopQuoteResponse={characterVersion:number;ownedCoins?:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;ownedQuantity?:number;materialId?:string;consumedQuantity?:number;missingQuantity?:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractPage={characterVersion:number;serverTime:number;nextCursor:string|null;entries:{contractId:string;kind:WorkshopContractKind;
   quote:WorkshopPriceQuote;startedAt:number;readyAt:number;claimedAt:number|null;status:'CLAIMED'|'READY'|'IN_PROGRESS'}[]};
 const WORKSHOP_UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -16,7 +16,34 @@ function validateWorkshopQuote(currentQuoteValue:any,currentContractKind:Worksho
     &&Number.isSafeInteger(currentQuoteValue.unitDurationSeconds)&&currentQuoteValue.unitDurationSeconds>0
     &&Number.isSafeInteger(currentQuoteValue.unitCostP)&&currentQuoteValue.unitCostP>0
     &&currentQuoteValue.durationSeconds===currentQuoteValue.quantity*currentQuoteValue.unitDurationSeconds
-    &&currentQuoteValue.costP===currentQuoteValue.quantity*currentQuoteValue.unitCostP);
+    &&(currentQuoteValue.baseCostP??currentQuoteValue.costP)===currentQuoteValue.quantity*currentQuoteValue.unitCostP);
+  if(['baseCostP','missingMaterialValueP','missingMaterialCostP','materialPricing','materialAllocation'].some(currentFieldName=>currentFieldName in currentQuoteValue)){
+    const currentPricingPolicy=currentQuoteValue.materialPricing;
+    requireWorkshopCondition(currentContractKind!=='repair'&&isWorkshopWholeNumber(currentQuoteValue.baseCostP)
+      &&isWorkshopWholeNumber(currentQuoteValue.missingMaterialValueP)&&isWorkshopWholeNumber(currentQuoteValue.missingMaterialCostP)
+      &&currentQuoteValue.costP===currentQuoteValue.baseCostP+currentQuoteValue.missingMaterialCostP
+      &&currentPricingPolicy?.priceSource==='guild_purchase'&&currentPricingPolicy.rounding==='ceil'
+      &&isWorkshopWholeNumber(currentPricingPolicy.version)&&currentPricingPolicy.version>0
+      &&isWorkshopWholeNumber(currentPricingPolicy.guildPriceVersion)&&currentPricingPolicy.guildPriceVersion>0
+      &&isWorkshopWholeNumber(currentPricingPolicy.numerator)&&currentPricingPolicy.numerator>0
+      &&isWorkshopWholeNumber(currentPricingPolicy.denominator)&&currentPricingPolicy.denominator>0
+      &&currentQuoteValue.missingMaterialCostP===Math.ceil(currentQuoteValue.missingMaterialValueP*currentPricingPolicy.numerator/currentPricingPolicy.denominator)
+      &&Array.isArray(currentQuoteValue.materialAllocation));
+    const currentMaterialIdentifiers=new Set<string>();
+    let currentMissingValue=0;
+    for(const currentMaterialEntry of currentQuoteValue.materialAllocation){
+      requireWorkshopCondition(currentMaterialEntry&&typeof currentMaterialEntry.materialId==='string'&&currentMaterialEntry.materialId.trim()
+        &&!currentMaterialIdentifiers.has(currentMaterialEntry.materialId)
+        &&isWorkshopWholeNumber(currentMaterialEntry.quantity)&&currentMaterialEntry.quantity>0
+        &&isWorkshopWholeNumber(currentMaterialEntry.ownedQuantity)&&isWorkshopWholeNumber(currentMaterialEntry.consumedQuantity)
+        &&isWorkshopWholeNumber(currentMaterialEntry.missingQuantity)&&isWorkshopWholeNumber(currentMaterialEntry.unitPriceP)&&currentMaterialEntry.unitPriceP>0
+        &&currentMaterialEntry.consumedQuantity===Math.min(currentMaterialEntry.quantity,currentMaterialEntry.ownedQuantity)
+        &&currentMaterialEntry.missingQuantity===currentMaterialEntry.quantity-currentMaterialEntry.consumedQuantity);
+      currentMaterialIdentifiers.add(currentMaterialEntry.materialId);
+      currentMissingValue+=currentMaterialEntry.missingQuantity*currentMaterialEntry.unitPriceP;
+    }
+    requireWorkshopCondition(Number.isSafeInteger(currentMissingValue)&&currentMissingValue===currentQuoteValue.missingMaterialValueP);
+  }
   if(currentContractKind!=='repair')requireWorkshopCondition(typeof currentQuoteValue.definitionSnapshot?.name==='string'&&typeof currentQuoteValue.definitionSnapshot?.englishName==='string');
   else for(const currentDurabilitySnapshot of [currentQuoteValue.before,currentQuoteValue.after])
     requireWorkshopCondition(currentDurabilitySnapshot&&isWorkshopWholeNumber(currentDurabilitySnapshot.currentDurability)&&isWorkshopWholeNumber(currentDurabilitySnapshot.maxDurability)
@@ -28,9 +55,19 @@ export function parseWorkshopQuote(currentResponseValue:any,currentContractKind:
   validateWorkshopQuote(currentResponseValue.quote,currentContractKind);
   if(currentContractKind==='repair')requireWorkshopCondition(isWorkshopWholeNumber(currentResponseValue.quote.instanceVersion)&&currentResponseValue.quote.instanceVersion>0);
   requireWorkshopCondition(Array.isArray(currentResponseValue.materials));
-  for(const currentMaterialRecord of currentResponseValue.materials)requireWorkshopCondition(currentMaterialRecord&&isWorkshopWholeNumber(currentMaterialRecord.quantity)&&currentMaterialRecord.quantity>0
+  const seenMaterialIdentifiers=new Set<string>();
+  for(const currentMaterialRecord of currentResponseValue.materials){requireWorkshopCondition(currentMaterialRecord&&isWorkshopWholeNumber(currentMaterialRecord.quantity)&&currentMaterialRecord.quantity>0
     &&(currentMaterialRecord.ownedQuantity===undefined||isWorkshopWholeNumber(currentMaterialRecord.ownedQuantity))
     &&typeof currentMaterialRecord.nameTranslations?.ko==='string'&&typeof currentMaterialRecord.nameTranslations?.en==='string');
+    if(['materialId','consumedQuantity','missingQuantity'].some(currentFieldName=>currentFieldName in currentMaterialRecord)){
+      requireWorkshopCondition(typeof currentMaterialRecord.materialId==='string'&&currentMaterialRecord.materialId.trim()
+        &&!seenMaterialIdentifiers.has(currentMaterialRecord.materialId)&&isWorkshopWholeNumber(currentMaterialRecord.ownedQuantity)
+        &&isWorkshopWholeNumber(currentMaterialRecord.consumedQuantity)&&isWorkshopWholeNumber(currentMaterialRecord.missingQuantity)
+        &&currentMaterialRecord.consumedQuantity===Math.min(currentMaterialRecord.quantity,currentMaterialRecord.ownedQuantity)
+        &&currentMaterialRecord.missingQuantity===currentMaterialRecord.quantity-currentMaterialRecord.consumedQuantity);
+      seenMaterialIdentifiers.add(currentMaterialRecord.materialId);
+    }
+  }
   return currentResponseValue;
 }
 export function parseWorkshopContracts(currentResponseValue:any,currentContractKind:WorkshopContractKind):WorkshopContractPage{
