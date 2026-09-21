@@ -6,6 +6,8 @@ export type ActionCutinEvent = {
   actionType: string; skillId: string | null;
   appearance: { kind: 'character'; groups: { costume: string; hair: string; face: string } }
     | { kind: 'monster'; group: string };
+  targetUnitId?: string; targetName?: string;
+  targetAppearance?: ActionCutinEvent['appearance'];
 };
 export type ActionCutinPresentation = { translationMessageKey: string };
 // 명령 확장 시 표시 정의만 등록하며 공통 대기열·외형·컴포넌트를 재사용한다.
