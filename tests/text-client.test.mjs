@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TextClient, ApiFailure, formatState } from '../scripts/text-client-core.mjs';
+import { TextClient, ApiFailure, formatState, formatScoutingResult } from '../scripts/text-client-core.mjs';
 
 function state(extra = {}) {
   return { protocolVersion: 1, generation: 1, epoch: 1, cursor: 1,
@@ -277,4 +277,65 @@ test('전투 스킬 버전 충돌은 조회 후 중단하며 새 턴에 자동 �
   assert.equal(recordedClientCalls.length, 2);
   assert.ok(recordedClientCalls[1].url.endsWith('/game/state'));
   assert.equal(currentTextClient.state.battle.turnId, 4);
+});
+
+
+function createScoutingResponse(currentResultOverrides = {}) {
+  return { monsterId: 'monster-1', mapId: 'meadow', succeeded: true, observedAt: 100, expiresAt: 160,
+    fpCost: 2, countBand: { minimumCount: 2, maximumCount: 4 }, riskGrade: 'HIGH', riskVersion: 1, ...currentResultOverrides };
+}
+
+test('정찰은 활동 갱신 후 명령을 보내고 공개 결과와 최신 FP를 표시한다', async () => {
+  const updatedCharacterState = state({ cursor: 2 });
+  updatedCharacterState.me.fp = 8;
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    {}, { state: updatedCharacterState, scouting: createScoutingResponse() },
+  ]);
+  currentTextClient.accept(state());
+  const renderedCommandResult = await currentTextClient.interact('scout monster-1');
+  assert.ok(recordedClientCalls[0].url.endsWith('/sessions/activity'));
+  assert.ok(recordedClientCalls[1].url.endsWith('/game/skills/scout'));
+  assert.deepEqual(Object.keys(recordedClientCalls[1].body).sort(), ['expectedVersion', 'monsterId', 'requestId']);
+  assert.equal(recordedClientCalls[1].body.monsterId, 'monster-1');
+  assert.equal(recordedClientCalls[1].body.expectedVersion, 4);
+  assert.match(renderedCommandResult, /관측 인원 2~4마리.*위험도 높음/);
+  assert.match(renderedCommandResult, /관측 시각 100.*만료 시각 160/);
+  assert.match(renderedCommandResult, /FP 8/);
+  assert.doesNotMatch(formatState(currentTextClient.state), /관측 인원/);
+});
+
+test('정찰 실패는 자동 반복하지 않으며 전송 불명에만 동일 요청을 재전송한다', async () => {
+  const failedScoutingResult = { monsterId: 'monster-1', mapId: 'meadow', succeeded: false, observedAt: 100, expiresAt: 160, fpCost: 2 };
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    new TypeError('network'), { state: state({ cursor: 2 }), scouting: failedScoutingResult },
+  ]);
+  currentTextClient.accept(state());
+  assert.match(await currentTextClient.execute('scout monster-1'), /정찰 monster-1.*실패.*소비 FP 2/);
+  assert.equal(recordedClientCalls.length, 2);
+  assert.deepEqual(recordedClientCalls[0].body, recordedClientCalls[1].body);
+  assert.doesNotMatch(formatScoutingResult(failedScoutingResult), /인원|위험도/);
+});
+
+test('정찰은 비필드 상태와 잘못된 인수를 전송 전에 거절한다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([]);
+  currentTextClient.accept(state({ battle: { id: 'b' } }));
+  for (const invalidScoutingCommand of ['scout monster-1', 'scout', 'scout one two']) {
+    await assert.rejects(currentTextClient.execute(invalidScoutingCommand));
+  }
+  assert.equal(recordedClientCalls.length, 0);
+});
+
+test('정찰은 공개 인원 구간과 선택적 위험도만 해석하며 잘못된 관측은 거절한다', () => {
+  assert.match(formatScoutingResult(createScoutingResponse({ countBand: { minimumCount: 5, maximumCount: null } })), /5마리 이상/);
+  assert.match(formatScoutingResult(createScoutingResponse({ countBand: { minimumCount: 1, maximumCount: 1 } })), /1마리/);
+  const legacyScoutingResult = createScoutingResponse();
+  delete legacyScoutingResult.riskGrade;
+  delete legacyScoutingResult.riskVersion;
+  assert.doesNotMatch(formatScoutingResult(legacyScoutingResult), /위험도/);
+  for (const invalidScoutingResult of [null, createScoutingResponse({ expiresAt: 99 }),
+    createScoutingResponse({ riskGrade: 'INVALID' }), createScoutingResponse({ riskVersion: 2 }),
+    createScoutingResponse({ countBand: { minimumCount: 4, maximumCount: 2 } }),
+    createScoutingResponse({ succeeded: false }), createScoutingResponse({ enemyHp: 100 })]) {
+    assert.throws(() => formatScoutingResult(invalidScoutingResult), /정찰 응답 형식/);
+  }
 });

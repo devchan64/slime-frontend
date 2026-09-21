@@ -10,6 +10,7 @@ enter / away / resume  월드 입장 / 자리비움 / 복귀
 move 열 행             필드 또는 전투 이동 (0부터 시작)
 gate [웨이포인트ID]    현재 위치의 웨이포인트로 맵 전환
 encounter 몬스터ID     조우 예약
+scout 몬스터ID         개인 정찰 (서버 FP 비용 적용)
 ready / cancel         조우·전투 준비 / 조우 예약 취소
 attack 유닛ID          일반 공격
 use-skill 액션ID 유닛ID 전투 스킬 실행

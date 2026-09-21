@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 const BATTLE_PATH = '/v1/game/battle/commands';
+const SCOUTING_RISK_NAMES = Object.freeze({ LOW: '낮음', EVEN: '대등', HIGH: '높음', VERY_HIGH: '매우 높음', UNKNOWN: '알 수 없음' });
 export class ApiFailure extends Error {
   constructor(code, message) { super(message); this.code = code; }
 }
@@ -68,7 +69,7 @@ export class TextClient {
     this.tokens = null;
     this.state = null;
   }
-  async command(path, body = {}) {
+  async command(path, body = {}, projectCommandResponse = null) {
     if (!this.state) throw new Error('먼저 로그인하세요.');
     const expectedVersion = path === BATTLE_PATH ? this.state.battle?.version : this.state.me.version;
     if (!Number.isSafeInteger(expectedVersion)) throw new Error('명령에 필요한 상태 버전이 없습니다.');
@@ -84,7 +85,7 @@ export class TextClient {
       result = await this.request(path, payload);
     }
     this.accept(result.state);
-    return this.state;
+    return projectCommandResponse ? projectCommandResponse(result) : this.state;
   }
   async interact(line) {
     const input = line.trim();
@@ -107,6 +108,12 @@ export class TextClient {
       if (!['start', 'stop'].includes(requestedRestAction)) throw new Error('rest start 또는 rest stop으로 입력하세요.');
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 휴식할 수 있습니다.');
       return this.command('/v1/game/rest/' + requestedRestAction);
+    }
+    if (name === 'scout') {
+      arity(1);
+      if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 정찰할 수 있습니다.');
+      return this.command('/v1/game/skills/scout', { monsterId: args[0] }, receivedCommandResult =>
+        formatScoutingResult(receivedCommandResult.scouting) + '\n' + formatState(this.state));
     }
     if (name === 'journal') {
       arity(0);
@@ -273,4 +280,37 @@ function formatBattleSkillActions(receivedSkillActions) {
       + '] | ' + receivedSkillAction.apCost + ' AP | 대상: ' + (renderedSkillTargets.join(', ') || '없음')
       + (renderedSkillTargets.length ? ' | 사용: use-skill ' + renderSkillText(receivedSkillAction.actionId) + ' 대상ID' : ' (현재 사용 불가)');
   });
+}
+
+
+
+export function formatScoutingResult(receivedScoutingResult) {
+  const invalidScoutingMessage = '정찰 응답 형식이 올바르지 않습니다.';
+  const renderScoutingText = receivedScoutingText => receivedScoutingText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  if (!receivedScoutingResult || typeof receivedScoutingResult.monsterId !== 'string' || !receivedScoutingResult.monsterId
+      || typeof receivedScoutingResult.mapId !== 'string' || !receivedScoutingResult.mapId
+      || typeof receivedScoutingResult.succeeded !== 'boolean'
+      || !Number.isFinite(receivedScoutingResult.observedAt) || receivedScoutingResult.observedAt < 0
+      || !Number.isFinite(receivedScoutingResult.expiresAt) || receivedScoutingResult.expiresAt <= receivedScoutingResult.observedAt
+      || !Number.isSafeInteger(receivedScoutingResult.fpCost) || receivedScoutingResult.fpCost < 1) throw new Error(invalidScoutingMessage);
+  const expectedScoutingFields = ['monsterId', 'mapId', 'succeeded', 'observedAt', 'expiresAt', 'fpCost',
+    ...(receivedScoutingResult.succeeded ? ['countBand',
+      ...(receivedScoutingResult.riskGrade !== undefined || receivedScoutingResult.riskVersion !== undefined ? ['riskGrade', 'riskVersion'] : [])] : [])];
+  if (Object.keys(receivedScoutingResult).sort().join() !== expectedScoutingFields.sort().join()) throw new Error(invalidScoutingMessage);
+  const renderedScoutingHeader = '정찰 ' + renderScoutingText(receivedScoutingResult.monsterId) + ' | '
+    + (receivedScoutingResult.succeeded ? '성공' : '실패') + ' | 소비 FP ' + receivedScoutingResult.fpCost;
+  if (!receivedScoutingResult.succeeded) return renderedScoutingHeader;
+  const receivedCountRange = receivedScoutingResult.countBand;
+  if (!receivedCountRange || Object.keys(receivedCountRange).sort().join() !== 'maximumCount,minimumCount' || !Number.isSafeInteger(receivedCountRange.minimumCount) || receivedCountRange.minimumCount < 1
+      || (receivedCountRange.maximumCount !== null && (!Number.isSafeInteger(receivedCountRange.maximumCount)
+        || receivedCountRange.maximumCount < receivedCountRange.minimumCount))) throw new Error(invalidScoutingMessage);
+  const hasScoutingRisk = receivedScoutingResult.riskGrade !== undefined || receivedScoutingResult.riskVersion !== undefined;
+  if (hasScoutingRisk && (receivedScoutingResult.riskVersion !== 1
+      || !Object.hasOwn(SCOUTING_RISK_NAMES, receivedScoutingResult.riskGrade))) throw new Error(invalidScoutingMessage);
+  const renderedCountRange = receivedCountRange.maximumCount === null ? receivedCountRange.minimumCount + '마리 이상'
+    : receivedCountRange.minimumCount === receivedCountRange.maximumCount ? receivedCountRange.minimumCount + '마리'
+    : receivedCountRange.minimumCount + '~' + receivedCountRange.maximumCount + '마리';
+  return renderedScoutingHeader + ' | 관측 인원 ' + renderedCountRange
+    + (hasScoutingRisk ? ' | 위험도 ' + SCOUTING_RISK_NAMES[receivedScoutingResult.riskGrade] : '')
+    + ' | 관측 시각 ' + receivedScoutingResult.observedAt + ' | 만료 시각 ' + receivedScoutingResult.expiresAt + ' (Unix 초)';
 }
