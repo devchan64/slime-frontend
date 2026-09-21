@@ -563,6 +563,8 @@ export function App() {
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('terms.backToMenu')}</button></div>
           <h2>{t('terms.operationHeading')}</h2>
           <p>{t('terms.operationPolicy')}</p>
+          <h2>{t('terms.connectionLimitHeading')}</h2>
+          <p>{t('terms.connectionLimitPolicy')}</p>
           <p>{t('terms.pendingNotice')}</p>
           <h2>{t('terms.reportHeading')}</h2>
           <p>{t('terms.reportPolicy')}</p>
