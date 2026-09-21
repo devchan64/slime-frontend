@@ -14,7 +14,7 @@ export function parseBagInventory(currentResponseValue: unknown): BagInventoryPa
   let calculatedKnownWeight = currentInventoryPage.knownEquipmentWeightG;
   let calculatedUnknownQuantity = 0;
   for (const currentMaterialEntry of currentBagSummary.items) {
-    if (!currentMaterialEntry || !['material','consumable'].includes(currentMaterialEntry.kind) || typeof currentMaterialEntry.id !== 'string'
+    if (!currentMaterialEntry || !['material','consumable','skillbook'].includes(currentMaterialEntry.kind) || typeof currentMaterialEntry.id !== 'string'
         || !currentMaterialEntry.id || currentMaterialIdentifiers.has(currentMaterialEntry.id)
         || !Number.isSafeInteger(currentMaterialEntry.quantity) || currentMaterialEntry.quantity < 1
         || typeof currentMaterialEntry.nameTranslations?.ko !== 'string' || typeof currentMaterialEntry.nameTranslations?.en !== 'string'
@@ -23,6 +23,7 @@ export function parseBagInventory(currentResponseValue: unknown): BagInventoryPa
         || !(currentMaterialEntry.valueP === null || Number.isSafeInteger(currentMaterialEntry.valueP) && currentMaterialEntry.valueP > 0)) {
       throw new Error('가방 재료 응답이 올바르지 않습니다.');
     }
+    if(currentMaterialEntry.kind === 'skillbook' && (currentMaterialEntry.quantity !== 1 || currentMaterialEntry.valueP !== null)) throw new Error('스킬북은 한 권만 소유하며 판매할 수 없습니다.');
     currentMaterialIdentifiers.add(currentMaterialEntry.id);
     if (currentMaterialEntry.useAction !== undefined && (currentMaterialEntry.kind !== 'consumable'
         || !currentMaterialEntry.useAction || !['RESTORE_HP','PLACE_MARKER'].includes(currentMaterialEntry.useAction.type)

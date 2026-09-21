@@ -57,3 +57,11 @@ test('중복 재료와 잘못된 수량·무게를 거절한다',()=>{
   const currentBagResponse=createBagResponse();currentBagResponse.bag.items.push(currentBagResponse.bag.items[0]);
   assert.throws(()=>parseBagInventory(currentBagResponse),/가방/);
 });
+test('판매 불가 스킬북 한 권의 무게를 합산한다',()=>{
+  const currentBagResponse=createBagResponse();
+  currentBagResponse.bag.items.push({id:'monster-lore-book',kind:'skillbook',quantity:1,nameTranslations:{ko:'몬스터학',en:'Monster Lore'},description:'책',weightG:450,valueP:null});
+  currentBagResponse.bag.knownWeightG+=450;
+  assert.equal(parseBagInventory(currentBagResponse).bag.knownWeightG,2050);
+  currentBagResponse.bag.items.at(-1).quantity=2;
+  assert.throws(()=>parseBagInventory(currentBagResponse),/스킬북/);
+});

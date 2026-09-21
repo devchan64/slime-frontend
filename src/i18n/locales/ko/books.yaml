@@ -1,0 +1,12 @@
+shop: 서점
+library: 소유 스킬북
+policy: 같은 책은 한 권만 구매할 수 있습니다. 판매할 수 없으며 다시 읽어도 추가 이득은 없습니다.
+refresh: 목록 새로고침
+pending: 스킬북을 확인하고 있습니다.
+readComplete: 읽기를 완료했습니다. 책은 소비되지 않으며 포인트와 스킬 레벨은 변하지 않습니다.
+literacy: '문해 {level} 이상 필요'
+owned: 소유 중
+read: 읽기
+reread: 다시 읽기
+buy: '{price} P로 구매'
+empty: 소유한 스킬북이 없습니다.

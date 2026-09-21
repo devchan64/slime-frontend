@@ -1,0 +1,12 @@
+shop: Bookshop
+library: Owned skillbooks
+policy: You can buy only one copy of each book. Books cannot be sold, and rereading provides no additional benefit.
+refresh: Refresh books
+pending: Checking skillbooks.
+readComplete: Reading completed. The book is kept, and your points and skill levels are unchanged.
+literacy: 'Requires literacy {level}'
+owned: Owned
+read: Read
+reread: Read again
+buy: 'Buy for {price} P'
+empty: You do not own any skillbooks.
