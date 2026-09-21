@@ -1,0 +1,12 @@
+title: Hunt history
+help: Your shared kills recorded by the server at settlement. Records before the ledger was introduced may be absent. Monsters, maps and battles are shown by ID.
+refresh: Refresh from the beginning
+loading: Loading hunt history.
+totals: Totals by monster type
+empty: No hunt records.
+page: Records on this page
+emptyPage: No records on this page.
+map: Map
+result: Result
+battle: Battle
+next: Next page

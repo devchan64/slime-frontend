@@ -1,3 +1,4 @@
+import {HuntLedgerPanel} from './HuntLedgerPanel';
 import {SkillActionProgression} from './SkillActionProgression';
 import {CharacterCitizenships} from "./CharacterCitizenships";
 import { useTranslation } from "../i18n";
@@ -31,7 +32,7 @@ type Props = {
 
 export function CharacterSettings({ me, disabled, command, expanded = false, gameSessionClient }: Props) {
   const { t, locale } = useTranslation();
-  const [category, setCategory] = useState<"attributes" | "skills" | "equipment">("attributes");
+  const [category, setCategory] = useState<"attributes" | "skills" | "equipment" | "hunts">("attributes");
   const entries = category === "attributes" ? ATTRIBUTES.map(entry => ({ ...entry, name: t(`character.${entry.id}Name`), description: t(`character.${entry.id}Description`) })) : Object.keys(me.skills).map(id => {
     // 직전 v1 서버는 생성 시 지급 스킬의 메타데이터를 제공하지 않는다.
     const definition = me.skillDefinitions?.[id] ?? SKILL_DEFINITIONS.find(skill => skill.id === id);
@@ -59,7 +60,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
       <CharacterCitizenships currentCitizenshipSummary={me.citizenshipSummary} />
     </section>
     <section class="character-growth" aria-label={t("character.growth")}>
-      {category !== 'equipment' && <><div class="growth-heading"><div><span class="character-kicker">{t("character.direction")}</span><h3>{t("character.growth")}</h3></div>
+      {category !== 'equipment' && category !== 'hunts' && <><div class="growth-heading"><div><span class="character-kicker">{t("character.direction")}</span><h3>{t("character.growth")}</h3></div>
         <div class="cp-balance" role="status" aria-live="polite"><span>{t("character.available", { currency })}</span><strong>{balance ?? t("character.connectionRequired")}<small> {currency}</small></strong></div>
       </div>
       <dl class="character-resources cp-breakdown" aria-label={t("character.breakdown")}><div><dt>{t("character.generalPoints")}</dt><dd>{me.cpGeneral} <small>CP</small></dd></div><div><dt>{t("character.seasonPoints")}</dt><dd>{me.cpSeasonal} <small>CP</small></dd></div></dl>
@@ -68,8 +69,9 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
         <button class="secondary" aria-pressed={category === "attributes"} onClick={() => setCategory("attributes")}>{t("character.attributes")}</button>
         <button class="secondary" aria-pressed={category === "skills"} onClick={() => setCategory("skills")}>{t("character.skills")}</button>
         {gameSessionClient && <button class="secondary" aria-pressed={category === 'equipment'} onClick={() => setCategory('equipment')}>{t('equipment.title')}</button>}
+        {gameSessionClient && <button class="secondary" aria-pressed={category === 'hunts'} onClick={() => setCategory('hunts')}>{t('hunts.title')}</button>}
       </div>
-      {category === 'equipment' && gameSessionClient ? <EquipmentPanel gameSessionClient={gameSessionClient}
+      {category === 'hunts' && gameSessionClient ? <HuntLedgerPanel key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}`} gameSessionClient={gameSessionClient} /> : category === 'equipment' && gameSessionClient ? <EquipmentPanel gameSessionClient={gameSessionClient}
         actionsAreDisabled={disabled || !!me.battleId || !['LOBBY','FIELD','AWAY'].includes(me.mode)} characterStateVersion={me.version} /> : <>
       <p class="growth-help">{category === "skills" && t("character.skillList")}</p>
       {category === "skills" && me.battleSkillSlotLimit !== undefined && <section class="skill-loadout" aria-label={t("character.battleSlots")}>
