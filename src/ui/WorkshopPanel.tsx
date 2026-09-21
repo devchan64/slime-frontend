@@ -7,6 +7,9 @@ import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 import './workshop.css';
 
+const WORKSHOP_REFRESH_MINIMUM_MS=1000;
+const WORKSHOP_REFRESH_MAXIMUM_MS=2147483647;
+
 type WorkshopSelectionOption={id:string;nameTranslations:{ko:string;en:string}};
 export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
   const {t:translateWorkshopText,locale:currentWorkshopLocale}=useTranslation();
@@ -20,6 +23,9 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
   const [currentWorkshopNotice,setCurrentWorkshopNotice]=useState<Notice>('');
   const [workshopRequestPending,setWorkshopRequestPending]=useState(false);
   const [workshopCreationUncertain,setWorkshopCreationUncertain]=useState(false);
+  const [currentContractCursor,setCurrentContractCursor]=useState<string|null>(null);
+  const contractObservedAtReference=useRef(0);
+  const attemptedRefreshKeyReference=useRef('');
   const activeWorkshopReference=useRef(false);
   const pendingWorkshopReference=useRef(false);
   const quotedRequestReference=useRef<Record<string,unknown>|null>(null);
@@ -55,7 +61,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
           if(currentInventoryCursor)visitedInventoryCursors.add(currentInventoryCursor);
         }while(currentInventoryCursor&&workshopSessionMatches());
       }
-      if(workshopSessionMatches()){setCurrentContractKind(currentRequestedKind);setCurrentContractPage(receivedContractPage);setCurrentSelectionOptions(receivedSelectionOptions);
+      if(workshopSessionMatches()){setCurrentContractKind(currentRequestedKind);setCurrentContractPage(receivedContractPage);contractObservedAtReference.current=performance.now();setCurrentContractCursor(currentPageCursor);attemptedRefreshKeyReference.current='';setCurrentSelectionOptions(receivedSelectionOptions);
         setCurrentTargetIdentifier('');setCurrentQuoteResponse(null);quotedRequestReference.current=null;}
     });
   }
@@ -87,6 +93,27 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     if(currentActionSucceeded)await loadWorkshopContents(currentContractKind);
   }
   useEffect(()=>{activeWorkshopReference.current=true;return()=>{activeWorkshopReference.current=false;};},[]);
+  useEffect(()=>{
+    if(!workshopPanelOpened||!currentContractPage||actionsAreDisabled||workshopRequestPending||workshopCreationUncertain)return;
+    const pendingContractTimes=currentContractPage.entries.filter(currentContractEntry=>currentContractEntry.status==='IN_PROGRESS')
+      .map(currentContractEntry=>currentContractEntry.readyAt);
+    if(!pendingContractTimes.length)return;
+    const nextContractReadyAt=Math.min(...pendingContractTimes);
+    const currentRefreshKey=`${currentContractKind}:${currentContractCursor}:${currentContractPage.serverTime}:${nextContractReadyAt}`;
+    if(attemptedRefreshKeyReference.current===currentRefreshKey)return;
+    const elapsedObservationTime=performance.now()-contractObservedAtReference.current;
+    const remainingContractTime=(nextContractReadyAt-currentContractPage.serverTime)*1000-elapsedObservationTime;
+    const currentRefreshTimer=window.setTimeout(()=>{
+      if(!workshopSessionMatches()||pendingWorkshopReference.current)return;
+      attemptedRefreshKeyReference.current=currentRefreshKey;
+      void runWorkshopRequest(async()=>{
+        const receivedContractPage=parseWorkshopContracts(await gameSessionClient.request(
+          `${workshopRequestBase}/contracts?kind=${currentContractKind}${currentContractCursor?'&after='+encodeURIComponent(currentContractCursor):''}`),currentContractKind);
+        if(workshopSessionMatches()){contractObservedAtReference.current=performance.now();setCurrentContractPage(receivedContractPage);}
+      });
+    },Math.min(WORKSHOP_REFRESH_MAXIMUM_MS,Math.max(WORKSHOP_REFRESH_MINIMUM_MS,remainingContractTime)));
+    return()=>window.clearTimeout(currentRefreshTimer);
+  },[workshopPanelOpened,currentContractPage,currentContractKind,currentContractCursor,actionsAreDisabled,workshopRequestPending,workshopCreationUncertain]);
   const currentControlsDisabled=actionsAreDisabled||workshopRequestPending||workshopCreationUncertain;
   return <section class="workshop-panel">
     <button class="secondary compact" aria-expanded={workshopPanelOpened} disabled={currentControlsDisabled}
