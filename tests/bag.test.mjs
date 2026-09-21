@@ -65,3 +65,18 @@ test('판매 불가 스킬북 한 권의 무게를 합산한다',()=>{
   currentBagResponse.bag.items.at(-1).quantity=2;
   assert.throws(()=>parseBagInventory(currentBagResponse),/스킬북/);
 });
+
+test('수집품과 등급 재료를 구분하고 잘못된 등급을 거절한다',()=>{
+  const currentBagResponse=createBagResponse();
+  currentBagResponse.bag.items[0].kind='collection';
+  currentBagResponse.bag.items[1].kind='refined_material';
+  currentBagResponse.bag.items[1].grade='high';
+  assert.equal(parseBagInventory(currentBagResponse).bag.items[1].grade,'high');
+  for(const invalidMaterialGrade of [undefined,'legendary',1]) {
+    currentBagResponse.bag.items[1].grade=invalidMaterialGrade;
+    assert.throws(()=>parseBagInventory(currentBagResponse),/등급/);
+  }
+  currentBagResponse.bag.items[1].grade='high';
+  currentBagResponse.bag.items[0].grade='low';
+  assert.throws(()=>parseBagInventory(currentBagResponse),/등급/);
+});

@@ -7,6 +7,8 @@ import { parseBagInventory, type BagInventoryPage } from '../client/bag';
 import { LocalizedError, noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 
+const BAG_REFINING_GRADE_KEYS = {low:'app.refiningGradeLow',medium:'app.refiningGradeMedium',high:'app.refiningGradeHigh'} as const;
+
 export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, submitConsumableUse}: {
   me: State['me']; gameSessionClient: Client; actionsAreDisabled?: boolean; submitConsumableUse?: (currentItemIdentifier: string) => unknown;
 }) {
@@ -41,7 +43,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       && gameSessionClient.tokens?.user_id === currentAccountIdentifier;
     setCurrentRequestPending(true); setCurrentRequestNotice('');
     try {
-      const receivedInventoryPage = parseBagInventory(await gameSessionClient.request('/v1/game/equipment?includeSkillbooks=true'
+      const receivedInventoryPage = parseBagInventory(await gameSessionClient.request('/v1/game/equipment?includeSkillbooks=true&includeRefining=true'
         + (afterInstanceIdentifier ? `&after=${encodeURIComponent(afterInstanceIdentifier)}` : '')));
       if (!matchesCurrentRequest()) return;
       const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
@@ -76,9 +78,11 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       <p class="bag-weight">{translateBagText('app.bagWeight',{weight:currentBagSummary.knownWeightG.toLocaleString(currentLocaleCode),capacity:currentBagSummary.capacityG.toLocaleString(currentLocaleCode)})}</p>
       {currentBagSummary.unknownWeightQuantity > 0 && <p>{translateBagText('app.bagUnknownWeight',{count:currentBagSummary.unknownWeightQuantity})}</p>}
       {!currentBagSummary.items.length && !currentInventoryPage.items.length && !currentInventoryPage.nextCursor && <p>{translateBagText('app.emptyBag')}</p>}
-      {currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagMaterials')}</h3><ul class="bag-items">
+      {currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagSupplies')}</h3><ul class="bag-items">
         {currentBagSummary.items.filter(currentItemEntry => currentItemEntry.kind !== 'skillbook').map(currentMaterialEntry => <li key={currentMaterialEntry.id}>
           <div><strong>{currentMaterialEntry.nameTranslations[currentLocaleCode]}</strong><span>×{currentMaterialEntry.quantity}</span></div>
+          {currentMaterialEntry.kind === 'collection' && <small>{translateBagText('app.bagCollection')}</small>}
+          {currentMaterialEntry.kind === 'refined_material' && currentMaterialEntry.grade && <small>{translateBagText('app.bagRefinedMaterial')} · {translateBagText(BAG_REFINING_GRADE_KEYS[currentMaterialEntry.grade])}</small>}
           {currentLocaleCode === 'ko' && <p>{currentMaterialEntry.description}</p>}
           {currentMaterialEntry.weightG !== null && <p>{translateBagText('app.itemWeight',{weight:currentMaterialEntry.weightG})}</p>}
           {currentMaterialEntry.valueP !== null && <small>{translateBagText('battle.materialValue',{value:currentMaterialEntry.valueP})}</small>}
