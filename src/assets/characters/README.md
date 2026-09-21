@@ -17,4 +17,4 @@
 
 단일 베이스라인은 폐기했다. 애니메이션 외형 참조는 승인된 2×2 베이스라인 시트 전체를 사용한다. 신규 캐릭터는 최대 지원 크기의 2×2 시트로 한 번에 생성한다.
 
-기본 캐릭터 자료는 `default/`에 모은다. `default/rest-v1/`은 휴식, `default/cutins/`는 Action Cut-in이다. 이미지 관리 ID와 애니메이션 ID는 경로 이동으로 변경하지 않는다.
+기본 캐릭터 자료는 `default/`에 모은다. `default/rest-v2/`은 휴식, `default/cutins/`는 Action Cut-in이다. 이미지 관리 ID와 애니메이션 ID는 경로 이동으로 변경하지 않는다.

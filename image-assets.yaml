@@ -112,8 +112,8 @@ data:
     path: src/assets/characters/default/standing-v4/standing-up-left.png
   - managementId: image.character.default.standing-v4.up-right
     path: src/assets/characters/default/standing-v4/standing-up-right.png
-  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v1.rest-v1.png
-    path: src/assets/characters/default/rest-v1/rest-v1.png
+  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v2.rest-v2.png
+    path: src/assets/characters/default/rest-v2/rest-v2.png
   - managementId: image.frontend.src.assets.characters.baseline.character-default-white-shirt-four-directions-v2.png
     path: src/assets/characters/default/baseline/character-default-white-shirt-four-directions-v2.png
   - managementId: image.frontend.src.assets.terrain.extension-v1.ash-128.webp

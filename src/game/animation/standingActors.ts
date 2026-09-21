@@ -2,7 +2,7 @@ import { calculateStandingPhase } from "./standingPhase";
 import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
-import restingCharacterMetadata from "../../assets/characters/default/rest-v1/rest-v1.animation.json";
+import restingCharacterMetadata from "../../assets/characters/default/rest-v2/rest-v2.animation.json";
 import standingSourceMetadata from "../../assets/characters/default/standing-v4/source.json";
 import standingMetadata0 from "../../assets/characters/default/standing-v4/idle-v4.animation.json";
 import standingMetadata1 from "../../assets/monsters/standing-v1/slime-idle-v1.animation.json";
@@ -25,7 +25,7 @@ export const DEFAULT_STANDING_DIRECTION_ASSETS = {
 } as const;
 
 export const ACTOR_STANDING_ASSETS = {
-  "human-rest": { key: "resting-human", url: new URL("../../assets/characters/default/rest-v1/rest-v1.png", import.meta.url).href, animation: new CellAnimation(restingCharacterMetadata) },
+  "human-rest": { key: "resting-human", url: new URL("../../assets/characters/default/rest-v2/rest-v2.png", import.meta.url).href, animation: new CellAnimation(restingCharacterMetadata) },
   "human": DEFAULT_STANDING_DIRECTION_ASSETS.down_left,
   "slime": { key: "standing-slime", url: new URL("../../assets/monsters/standing-v1/slime-idle-v1.png", import.meta.url).href, animation: new CellAnimation(standingMetadata1) },
   "beast": { key: "standing-beast", url: new URL("../../assets/monsters/standing-v1/beast-idle-v2.png", import.meta.url).href, animation: new CellAnimation(standingMetadata2) },
