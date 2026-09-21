@@ -1,3 +1,4 @@
+import {SkillActionProgression} from './SkillActionProgression';
 import {CharacterCitizenships} from "./CharacterCitizenships";
 import { useTranslation } from "../i18n";
 import { localizedSkill } from "../client/skillText";
@@ -85,7 +86,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
         const growth = category === "skills" ? growthCost("skills", me.attributes, me.skills, me.skillGrowthBaselines, id) : attributeGrowth;
         const cost = growth.cost;
         const insufficient = balance === undefined || balance < cost;
-        return <div class={`attribute-card attribute-${id}`} key={id}>
+        return <div class={`attribute-card attribute-${id}${category === 'skills' && me.skillDefinitions?.[id]?.actions?.length ? ' has-skill-actions' : ''}`} key={id}>
           <span class="attribute-icon" aria-hidden="true">{icon}</span>
           <div class="attribute-info"><div><strong>{name}</strong><span>Lv. {level}{category === "skills" && level === 0 ? t("character.noEffect") : ""}</span></div><p>{description}</p>{category === 'skills' && me.skillUseLocks?.[id] && <p class="growth-help">{t('character.skillBookSold')}</p>}</div>
           <button disabled={disabled || locked || insufficient}
@@ -93,6 +94,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
             aria-label={t("character.raiseLabel", { name, level, next: level + 1, cost: growth.label, currency })}>
             <strong>{t("character.raise")}</strong><span>{insufficient ? t("character.insufficient", { currency, cost: growth.label }) : t("character.spend", { cost: growth.label, currency })}</span>
           </button>
+          {category === 'skills' && <SkillActionProgression currentSkillActions={me.skillDefinitions?.[id]?.actions} currentSkillLevel={level} currentSkillLocked={!!me.skillUseLocks?.[id]} />}
         </div>;
       })}</div>
       <p class="growth-help">{locked ? t("character.locked") : t("character.saved")}</p>

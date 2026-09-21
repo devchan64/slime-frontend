@@ -1469,3 +1469,8 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .borrowed-participation { grid-column: 1 / -1; font-size: .85rem; }
 .borrowed-participation ul { margin: .3rem 0; padding-left: 1.2rem; }
 .borrowed-participation p { margin: .3rem 0; }
+
+.attribute-card.has-skill-actions { flex-wrap: wrap; }
+.skill-action-progression { flex-basis: 100%; border-top: 1px solid #35515a; padding-top: 8px; }
+.skill-action-progression p { margin: 4px 0; font-size: 12px; color: #b7cecf; }
+.skill-action-progression strong { color: #e3eded; }

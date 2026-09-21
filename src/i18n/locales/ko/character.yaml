@@ -49,3 +49,8 @@ battleSlotsHelp: "전투 목록에 표시할 스킬을 지정하세요. 선택�
 
 skillUseLocked: "사용 잠김"
 skillBookSold: "스킬북 판매로 사용이 잠겼습니다. 획득 기록과 레벨은 유지됩니다."
+
+actionUnlockLevel: "레벨 {level}에서 해금"
+actionUnlocked: "해금됨 · 요구 레벨 {level}"
+actionCostPower: "{ap} AP · 공격력 {power}배"
+actionSwordRequirement: "전투 슬롯 등록과 사용 가능한 한손검이 필요합니다. 본인 턴·사거리·남은 AP에 따라 실행할 수 있습니다."

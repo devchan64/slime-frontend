@@ -49,3 +49,8 @@ battleSlotsHelp: "Choose skills for the battle list. Selection order is saved. L
 
 skillUseLocked: "Use locked"
 skillBookSold: "Use is locked because the skillbook was sold. Acquisition and level are preserved."
+
+actionUnlockLevel: "Unlocks at level {level}"
+actionUnlocked: "Unlocked · requires level {level}"
+actionCostPower: "{ap} AP · {power}× attack power"
+actionSwordRequirement: "Requires a battle skill slot and a usable one-handed sword. Use depends on your turn, range, and remaining AP."

@@ -15,3 +15,12 @@ test('불완전한 번역은 원문으로 숨기지 않고 거절한다', () => 
  for (const translations of [null,{}, {en:{name:'X',description:'Y'}}, {ko:{name:'X',description:'Y'},en:{name:' ',description:'Y'}}])
   assert.throws(() => localizedSkill({...base,translations},'en'));
 });
+
+test('확정 액션 안내는 보존하고 잘못된 레벨·비용·장비·중복은 거절한다', () => {
+ const currentActionDefinition={actionId:'one_hand_finishing_strike',name:'일격필살',requiredLevel:7,apCost:10,powerBasisPoints:30000,requiredEquipment:'one_handed_sword'};
+ assert.deepEqual(localizedSkill({...base,actions:[currentActionDefinition]},'ko').actions,[currentActionDefinition]);
+ for(const currentInvalidActions of [null,{},[{...currentActionDefinition,apCost:0}],[{...currentActionDefinition,requiredLevel:true}],
+   [{...currentActionDefinition,powerBasisPoints:NaN}],[{...currentActionDefinition,requiredEquipment:'unknown'}],
+   [currentActionDefinition,currentActionDefinition]])
+   assert.throws(()=>localizedSkill({...base,actions:currentInvalidActions},'ko'));
+});
