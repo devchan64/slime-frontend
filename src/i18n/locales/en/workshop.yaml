@@ -33,3 +33,12 @@ substitutionRule: 'Owned materials are used first. Missing quantities are valued
 paidTotal: 'Total paid at contract creation: {cost} P'
 
 refiningContracts: Refining contracts & collection
+refiningCreate: Request refining
+refiningBrowse: Browse refining recipes
+refiningUnavailable: Refining is not available in this city yet.
+refiningRecipe: Output material and grade
+refiningQuantity: Output quantity
+refiningQuote: Get quote
+refiningSummary: 'Requires {input} collectibles ({owned} owned) · {cost} P · {seconds} seconds'
+refiningSubmit: Pay and request refining
+refiningCreated: Refining requested. Refresh the contract list and collect when ready.

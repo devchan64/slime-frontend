@@ -1,3 +1,4 @@
+import {RefiningCreatePanel} from './RefiningCreatePanel';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseRefiningContracts,type RefiningContractPage} from '../client/refining';
@@ -38,6 +39,7 @@ export function RefiningContractsPanel({gameSessionClient,currentFacilityIdentif
   }
   useEffect(()=>{activePanelReference.current=true;return ()=>{activePanelReference.current=false;};},[]);
   return <section class="workshop-panel">
+    <RefiningCreatePanel gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={actionsAreDisabled||currentRequestPending}/>
     <h3>{translateRefiningText('workshop.refiningContracts')}</h3>
     <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void loadRefiningContracts()}>{translateRefiningText('journal.refresh')}</button>
     {currentRequestPending&&<p role="status">{translateRefiningText('workshop.pending')}</p>}

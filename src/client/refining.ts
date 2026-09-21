@@ -29,3 +29,34 @@ export function parseRefiningContracts(currentResponseValue:any):RefiningContrac
   }
   return currentResponseValue;
 }
+
+export type RefiningRecipeEntry = RefiningContractEntry['quote'] & {collectionId:string};
+export type RefiningCatalogData = {facilityId:string;available:boolean;unavailableReason:string|null;entries:RefiningRecipeEntry[];grades:string[]};
+export type RefiningQuoteData = {quote:RefiningRecipeEntry & {ownedQuantity:number};quoteToken:string;characterVersion:number;ownedCoins:number};
+function validateRefiningRecipe(currentRecipeValue:any):asserts currentRecipeValue is RefiningRecipeEntry {
+  if(!currentRecipeValue || typeof currentRecipeValue.collectionId!=='string'||!currentRecipeValue.collectionId.trim()
+    || !['low','medium','high'].includes(currentRecipeValue.grade)
+    || ![currentRecipeValue.outputQuantity,currentRecipeValue.inputQuantity,currentRecipeValue.costP,currentRecipeValue.durationSeconds].every(currentNumericValue=>isRefiningInteger(currentNumericValue)&&currentNumericValue>0)
+    || !['materialId','name','englishName'].every(currentFieldName=>typeof currentRecipeValue.outputMaterial?.[currentFieldName]==='string'&&currentRecipeValue.outputMaterial[currentFieldName].trim())) throw new Error('정제 레시피가 올바르지 않습니다.');
+}
+export function parseRefiningCatalog(currentResponseValue:any):RefiningCatalogData {
+  if(!currentResponseValue||typeof currentResponseValue.facilityId!=='string'||!currentResponseValue.facilityId.trim()
+    || typeof currentResponseValue.available!=='boolean'||!Array.isArray(currentResponseValue.entries)||!Array.isArray(currentResponseValue.grades)
+    || currentResponseValue.grades.some((currentGradeValue:unknown)=>!['low','medium','high'].includes(String(currentGradeValue)))
+    || new Set(currentResponseValue.grades).size!==currentResponseValue.grades.length
+    || (currentResponseValue.available?currentResponseValue.unavailableReason!==null||!currentResponseValue.grades.length:
+      currentResponseValue.unavailableReason!=='CITY_SIZE_UNASSIGNED'||currentResponseValue.entries.length||currentResponseValue.grades.length)) throw new Error('정제 목록이 올바르지 않습니다.');
+  const currentRecipeKeys=new Set<string>();
+  for(const currentRecipeEntry of currentResponseValue.entries){
+    validateRefiningRecipe(currentRecipeEntry);
+    const currentRecipeKey=currentRecipeEntry.collectionId+':'+currentRecipeEntry.grade;
+    if(currentRecipeEntry.outputQuantity!==1||!currentResponseValue.grades.includes(currentRecipeEntry.grade)||currentRecipeKeys.has(currentRecipeKey)) throw new Error('정제 목록 등급이 일치하지 않습니다.');
+    currentRecipeKeys.add(currentRecipeKey);
+  }
+  return currentResponseValue;
+}
+export function parseRefiningQuote(currentResponseValue:any):RefiningQuoteData {
+  validateRefiningRecipe(currentResponseValue?.quote);
+  if(!/^[0-9a-f]{64}$/.test(currentResponseValue.quoteToken)||![currentResponseValue.characterVersion,currentResponseValue.ownedCoins,currentResponseValue.quote.ownedQuantity].every(isRefiningInteger)) throw new Error('정제 견적이 올바르지 않습니다.');
+  return currentResponseValue;
+}

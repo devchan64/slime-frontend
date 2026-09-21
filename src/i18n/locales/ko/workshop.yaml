@@ -33,3 +33,12 @@ substitutionRule: '보유 재료를 먼저 사용합니다. 부족 수량 × 길
 paidTotal: '계약 당시 결제 총액: {cost} P'
 
 refiningContracts: 정제 계약·완료품 수령
+refiningCreate: 정제 의뢰
+refiningBrowse: 정제 품목 보기
+refiningUnavailable: 이 도시의 정제 서비스는 아직 준비 중입니다.
+refiningRecipe: 제작할 재료·등급
+refiningQuantity: 제작 수량
+refiningQuote: 견적 확인
+refiningSummary: '수집품 {input}개 필요 (보유 {owned}개) · {cost} P · {seconds}초'
+refiningSubmit: 비용을 지불하고 정제 의뢰
+refiningCreated: 정제 의뢰가 접수되었습니다. 계약 목록을 새로고침하여 완료 후 수령하세요.
