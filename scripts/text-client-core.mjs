@@ -140,6 +140,12 @@ export class TextClient {
       return this.command('/v1/game/skills/scout', { monsterId: args[0] }, receivedCommandResult =>
         formatScoutingResult(receivedCommandResult.scouting) + '\n' + formatState(this.state));
     }
+    if (name === 'hunts') {
+      if (args.length > 1 || args.length === 1 && (!/^\d+$/.test(args[0]) || !Number.isSafeInteger(Number(args[0]))))
+        throw new Error('hunts 또는 hunts 다음커서(0 이상의 정수)를 입력하세요.');
+      const requestedHuntCursor = args.length ? Number(args[0]) : 0;
+      return formatHuntLedger(await this.request('/v1/characters/me/hunts?after=' + requestedHuntCursor + '&limit=50'), requestedHuntCursor);
+    }
     if (name === 'journal') {
       arity(0);
       return formatMainEventJournal(await this.request('/v1/game/main-events'));
@@ -461,4 +467,44 @@ export function formatCharacterSkills(receivedCharacterState) {
   renderedSkillLines.push('실제 실행 가능 여부는 전투의 AP·장비·턴·대상 조건으로 결정됩니다.');
   renderedSkillLines.push('슬롯 변경: loadout 스킬ID ... | 모두 해제: loadout clear');
   return renderedSkillLines.join('\n');
+}
+
+export function formatHuntLedger(receivedHuntLedger, requestedHuntCursor = 0) {
+  const invalidLedgerMessage = '사냥 원장 응답 형식이 올바르지 않습니다.';
+  const renderLedgerText = receivedLedgerText => receivedLedgerText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  if (!Number.isSafeInteger(requestedHuntCursor) || requestedHuntCursor < 0 || !receivedHuntLedger
+      || !Array.isArray(receivedHuntLedger.entries) || !Array.isArray(receivedHuntLedger.totals)) throw new Error(invalidLedgerMessage);
+  const renderedLedgerLines = ['사냥 누적 수량'];
+  const seenSpeciesIdentifiers = new Set();
+  for (const receivedSpeciesTotal of receivedHuntLedger.totals) {
+    if (!receivedSpeciesTotal || typeof receivedSpeciesTotal.monsterTypeId !== 'string' || !receivedSpeciesTotal.monsterTypeId
+        || seenSpeciesIdentifiers.has(receivedSpeciesTotal.monsterTypeId)
+        || !Number.isSafeInteger(receivedSpeciesTotal.quantity) || receivedSpeciesTotal.quantity < 1) throw new Error(invalidLedgerMessage);
+    seenSpeciesIdentifiers.add(receivedSpeciesTotal.monsterTypeId);
+    renderedLedgerLines.push(renderLedgerText(receivedSpeciesTotal.monsterTypeId) + ': ' + receivedSpeciesTotal.quantity);
+  }
+  if (!receivedHuntLedger.totals.length) renderedLedgerLines.push('기록 없음');
+  renderedLedgerLines.push('사냥 기록 (현재 페이지)');
+  let previousRecordIdentifier = requestedHuntCursor;
+  const seenMonsterInstances = new Set();
+  for (const receivedHuntEntry of receivedHuntLedger.entries) {
+    if (!receivedHuntEntry || !Number.isSafeInteger(receivedHuntEntry.id) || receivedHuntEntry.id <= previousRecordIdentifier
+        || !['monsterInstanceId', 'monsterTypeId', 'battleId', 'spawnId', 'mapId', 'result'].every(currentEntryKey =>
+          typeof receivedHuntEntry[currentEntryKey] === 'string' && receivedHuntEntry[currentEntryKey].length > 0)
+        || seenMonsterInstances.has(receivedHuntEntry.monsterInstanceId)
+        || !seenSpeciesIdentifiers.has(receivedHuntEntry.monsterTypeId)
+        || !Number.isSafeInteger(receivedHuntEntry.quantity) || receivedHuntEntry.quantity < 1
+        || !Number.isFinite(receivedHuntEntry.createdAt) || receivedHuntEntry.createdAt < 0) throw new Error(invalidLedgerMessage);
+    previousRecordIdentifier = receivedHuntEntry.id;
+    seenMonsterInstances.add(receivedHuntEntry.monsterInstanceId);
+    renderedLedgerLines.push('#' + receivedHuntEntry.id + ' ' + renderLedgerText(receivedHuntEntry.monsterTypeId) + ' × ' + receivedHuntEntry.quantity
+      + ' | 맵 ' + renderLedgerText(receivedHuntEntry.mapId) + ' | 전투 ' + renderLedgerText(receivedHuntEntry.battleId)
+      + ' | 결과 ' + renderLedgerText(receivedHuntEntry.result) + ' | 정산 시각(Unix) ' + receivedHuntEntry.createdAt);
+  }
+  if (!receivedHuntLedger.entries.length) renderedLedgerLines.push('이 페이지에 기록이 없습니다.');
+  if (receivedHuntLedger.nextCursor !== null) {
+    if (!receivedHuntLedger.entries.length || receivedHuntLedger.nextCursor !== previousRecordIdentifier) throw new Error(invalidLedgerMessage);
+    renderedLedgerLines.push('다음 페이지: hunts ' + receivedHuntLedger.nextCursor);
+  }
+  return renderedLedgerLines.join('\n');
 }

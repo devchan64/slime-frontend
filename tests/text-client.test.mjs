@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag, formatCharacterSkills } from '../scripts/text-client-core.mjs';
+import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag, formatCharacterSkills, formatHuntLedger } from '../scripts/text-client-core.mjs';
 
 function state(extra = {}) {
   return { protocolVersion: 1, generation: 1, epoch: 1, cursor: 1,
@@ -548,4 +548,39 @@ test('잘못된 스킬 액션·잠금 정보는 사용 가능으로 표시하지
   const currentCharacterState = createSkillActionCharacter();
   currentCharacterState.skillUseLocks = { scouting: { reason: 'unknown' } };
   assert.throws(() => formatCharacterSkills(currentCharacterState), /스킬 응답 형식/);
+});
+
+function createHuntLedgerPage() {
+  return {entries:[{id:7,monsterInstanceId:'battle:enemy',monsterTypeId:'slime',battleId:'battle',spawnId:'meadow-passive',mapId:'meadow',quantity:1,result:'WIN',createdAt:100}],
+    totals:[{monsterTypeId:'slime',quantity:12}],nextCursor:7};
+}
+
+test('사냥 원장은 인증된 페이지 조회만 보내고 현재 게임 상태를 보존한다',async()=>{
+  const {client:currentTextClient,calls:recordedClientCalls}=setup([{},createHuntLedgerPage(),{entries:[],totals:[{monsterTypeId:'slime',quantity:12}],nextCursor:null}]);
+  currentTextClient.setTokens({access_token:'token',refresh_token:'refresh'});
+  const originalGameState=state();currentTextClient.accept(originalGameState);
+  assert.match(await currentTextClient.interact('hunts'),/다음 페이지: hunts 7/);
+  assert.match(await currentTextClient.execute('hunts 7'),/이 페이지에 기록이 없습니다/);
+  assert.ok(recordedClientCalls[0].url.endsWith('/sessions/activity'));
+  assert.ok(recordedClientCalls[1].url.endsWith('/characters/me/hunts?after=0&limit=50'));
+  assert.ok(recordedClientCalls[2].url.endsWith('/characters/me/hunts?after=7&limit=50'));
+  assert.equal(recordedClientCalls[1].headers.Authorization,'Bearer token');
+  assert.equal(recordedClientCalls[1].body,undefined);
+  assert.equal(currentTextClient.state,originalGameState);
+});
+
+test('사냥 조회의 잘못된 커서는 전송하지 않는다',async()=>{
+  const {client:currentTextClient,calls:recordedClientCalls}=setup([]);
+  for(const invalidHuntCommand of ['hunts -1','hunts 1.5','hunts abc','hunts 9007199254740992','hunts 1 2'])
+    await assert.rejects(currentTextClient.execute(invalidHuntCommand));
+  assert.equal(recordedClientCalls.length,0);
+});
+
+test('사냥 원장은 누적 수량과 현재 페이지를 구분하고 중복·후퇴 커서를 거절한다',()=>{
+  assert.match(formatHuntLedger(createHuntLedgerPage()),/slime: 12/);
+  assert.match(formatHuntLedger(createHuntLedgerPage()),/#7 slime × 1.*맵 meadow.*결과 WIN/);
+  assert.throws(()=>formatHuntLedger(createHuntLedgerPage(),7),/사냥 원장/);
+  for(const invalidLedgerPatch of [{nextCursor:8},{nextCursor:undefined},{totals:[]},{entries:[...createHuntLedgerPage().entries,...createHuntLedgerPage().entries]}])
+    assert.throws(()=>formatHuntLedger({...createHuntLedgerPage(),...invalidLedgerPatch}),/사냥 원장/);
+  assert.match(formatHuntLedger({entries:[],totals:[],nextCursor:null}),/기록 없음/);
 });
