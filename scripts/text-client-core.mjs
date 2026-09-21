@@ -141,6 +141,7 @@ export class TextClient {
       const position = { column: Number(args[0]), row: Number(args[1]) };
       return this.state?.battle ? battle('MOVE', { position }) : this.command('/v1/game/moves', { position });
     }
+    if (name === 'use-skill') { arity(2); return battle('SKILL', { actionId: args[0], targetId: args[1] }); }
     if (name === 'attack') { arity(1); return battle('ATTACK', { targetId: args[0] }); }
     const actions = { ready: 'READY', end: 'END_TURN', surrender: 'SURRENDER' };
     if (Object.hasOwn(actions, name)) { arity(0); return battle(actions[name]); }
@@ -163,6 +164,7 @@ export function formatState(state) {
     const recoveringBattleUnit = b.units.find(battleUnitEntry => battleUnitEntry.id === state.me.id && battleUnitEntry.healthRecoveryPending);
     if (recoveringBattleUnit) lines.push('전투 이동 불가: 전투불능 회복 대기 · 제자리 행동/턴 종료 가능');
     lines.push(`이동 가능: ${(b.tactics?.moves ?? []).map(m => `${m.position.column},${m.position.row}${Number.isInteger(m.apCost) ? ` (${m.apCost} AP → 잔여 ${m.apAfter})` : ''}`).join(' / ') || '없음'}`);
+    lines.push(...formatBattleSkillActions(b.tactics?.skillActions));
     lines.push(`공격 가능: ${(b.tactics?.attacks ?? []).map(a => `${a.targetId}${Number.isInteger(a.apCost) ? ` (${a.apCost} AP)` : ''}`).join(', ') || '없음'}`);
   } else {
     for (const m of state.monsters ?? []) lines.push(`${m.id} ${m.name ?? ''} (${m.position.column},${m.position.row}) ${m.state}`);
@@ -242,4 +244,33 @@ export function formatMainEventJournal(receivedJournalPage) {
       ? '재료 충족 · 전달 권한은 별도 확인이 필요합니다.' : '재료가 부족합니다.');
   }
   return renderedJournalLines.join('\n') || '수령한 메인 의뢰가 없습니다.';
+}
+
+
+function formatBattleSkillActions(receivedSkillActions) {
+  if (receivedSkillActions === undefined) return [];
+  const invalidSkillMessage = '전투 스킬 응답 형식이 올바르지 않습니다.';
+  const isSkillText = receivedSkillText => typeof receivedSkillText === 'string' && receivedSkillText.trim().length > 0;
+  const renderSkillText = receivedSkillText => receivedSkillText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  if (!Array.isArray(receivedSkillActions)) throw new Error(invalidSkillMessage);
+  const seenActionIdentifiers = new Set();
+  return receivedSkillActions.map(receivedSkillAction => {
+    if (!receivedSkillAction || !isSkillText(receivedSkillAction.actionId) || !isSkillText(receivedSkillAction.name)
+        || !Number.isSafeInteger(receivedSkillAction.apCost) || receivedSkillAction.apCost < 0
+        || !Array.isArray(receivedSkillAction.targets) || seenActionIdentifiers.has(receivedSkillAction.actionId)) {
+      throw new Error(invalidSkillMessage);
+    }
+    seenActionIdentifiers.add(receivedSkillAction.actionId);
+    const seenTargetIdentifiers = new Set();
+    const renderedSkillTargets = receivedSkillAction.targets.map(receivedSkillTarget => {
+      if (!receivedSkillTarget || !isSkillText(receivedSkillTarget.targetId)
+          || !Number.isSafeInteger(receivedSkillTarget.damage) || receivedSkillTarget.damage < 0
+          || seenTargetIdentifiers.has(receivedSkillTarget.targetId)) throw new Error(invalidSkillMessage);
+      seenTargetIdentifiers.add(receivedSkillTarget.targetId);
+      return renderSkillText(receivedSkillTarget.targetId) + ' (예상 피해 ' + receivedSkillTarget.damage + ')';
+    });
+    return '전투 스킬 ' + renderSkillText(receivedSkillAction.name) + ' [' + renderSkillText(receivedSkillAction.actionId)
+      + '] | ' + receivedSkillAction.apCost + ' AP | 대상: ' + (renderedSkillTargets.join(', ') || '없음')
+      + (renderedSkillTargets.length ? ' | 사용: use-skill ' + renderSkillText(receivedSkillAction.actionId) + ' 대상ID' : ' (현재 사용 불가)');
+  });
 }

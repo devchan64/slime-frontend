@@ -12,6 +12,7 @@ gate [웨이포인트ID]    현재 위치의 웨이포인트로 맵 전환
 encounter 몬스터ID     조우 예약
 ready / cancel         조우·전투 준비 / 조우 예약 취소
 attack 유닛ID          일반 공격
+use-skill 액션ID 유닛ID 전투 스킬 실행
 end / surrender        턴 종료 / 기권
 rest start / rest stop 휴식 시작 / 중단
 journal                메인 의뢰 기록 조회

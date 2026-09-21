@@ -60,7 +60,7 @@ quit
 | `/v1/game/encounters/ready`, `/cancel` | `reservationId` (각 경로는 `/v1/game/encounters` 하위) |
 | `/v1/game/battle/commands` | `action: {type, battleId, turnId, ...}` |
 
-전투 action은 MOVE의 `position`, ATTACK의 `targetId`, READY, END_TURN, SURRENDER를 사용한다. 일반 공격은 ATTACK 명령이며 피해량을 직접 보내지 않는다. 전송 결과를 알 수 없을 때만 **같은 requestId·본문**으로 재시도한다. `VERSION_CONFLICT`이면 상태를 다시 읽고 사용자에게 알린다. 변경된 턴에 같은 의도를 자동 재실행하지 않는다.
+전투 action은 MOVE의 `position`, ATTACK의 `targetId`, SKILL의 `actionId`·`targetId`, READY, END_TURN, SURRENDER를 사용한다. 일반 공격은 ATTACK 명령이며 피해량을 직접 보내지 않는다. 전송 결과를 알 수 없을 때만 **같은 requestId·본문**으로 재시도한다. `VERSION_CONFLICT`이면 상태를 다시 읽고 사용자에게 알린다. 변경된 턴에 같은 의도를 자동 재실행하지 않는다.
 
 ## 검증
 
@@ -142,3 +142,6 @@ node scripts/text-client.mjs --help
 ### 텍스트 클라이언트 의뢰 기록
 
 `journal`은 인증된 `GET /v1/game/main-events` 응답에서 수령·완료 상태, 전달 NPC의 도시/시설, 현재 재료 수량과 필요량, 보상 p를 표시한다. 별도 조회 결과로 출력하며 현재 게임 상태·버전을 덮어쓰지 않는다. 재료 충족은 전달 권한 승인을 의미하지 않는다. 이 명령은 의뢰를 수령하거나 완료하지 않는다. 터미널 직접 입력은 기존 활동 알림 경로를 사용한다.
+
+
+전투 스킬은 `state`에 표시되는 액션 ID와 대상 ID로 `use-skill 액션ID 대상ID`를 입력한다. `skill 스킬ID`는 SP 성장 명령이며 전투 실행과 다르다. 비용·예상 피해·대상 목록은 서버의 `battle.tactics.skillActions`를 표시하고 직접 계산하지 않는다. 대상이 없는 액션은 현재 사용 불가로 표시한다. SKILL 요청에는 액션·대상 식별자와 현재 전투·턴·버전만 보내며 피해량이나 AP를 지정하지 않는다. 실제 실행 가능 여부는 서버가 다시 검증한다. 이전 응답에 선택적 `skillActions`가 없으면 해당 안내를 생략한다.

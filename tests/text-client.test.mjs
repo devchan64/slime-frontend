@@ -209,3 +209,72 @@ test('의뢰 조회 실패는 재시도하거나 캐릭터 상태를 덮어쓰�
   assert.equal(currentTextClient.state,originalGameSnapshot);
   assert.equal(currentRequestCalls.length,1);
 });
+
+test('전투 스킬은 서버 명령 계약을 사용하며 전송 불명 재시도 본문을 유지한다', async () => {
+  const currentBattleState = { id: 'battle-skill', version: 7, turnId: 3 };
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    new TypeError('network'), { state: state({ cursor: 2, battle: { ...currentBattleState, version: 8 } }) },
+  ]);
+  currentTextClient.accept(state({ battle: currentBattleState }));
+  await currentTextClient.execute('use-skill one_hand_finishing_strike enemy-1');
+  assert.equal(recordedClientCalls.length, 2);
+  assert.equal(recordedClientCalls[0].url, 'http://localhost:18080/v1/game/battle/commands');
+  assert.deepEqual(recordedClientCalls[0].body, recordedClientCalls[1].body);
+  assert.equal(recordedClientCalls[0].body.expectedVersion, 7);
+  assert.ok(recordedClientCalls[0].body.requestId);
+  assert.deepEqual(recordedClientCalls[0].body.action, {
+    type: 'SKILL', battleId: 'battle-skill', turnId: 3,
+    actionId: 'one_hand_finishing_strike', targetId: 'enemy-1',
+  });
+  assert.equal(currentTextClient.state.battle.version, 8);
+});
+
+test('전투 스킬의 인수와 전투 상태 오류는 명령 전송 전에 거절한다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([]);
+  currentTextClient.accept(state());
+  for (const invalidSkillCommand of ['use-skill', 'use-skill action', 'use-skill action enemy extra', 'use-skill action enemy']) {
+    await assert.rejects(currentTextClient.execute(invalidSkillCommand));
+  }
+  assert.equal(recordedClientCalls.length, 0);
+});
+
+function createSkillPreviewState(receivedSkillActions) {
+  return state({ battle: { id: 'b', status: 'ACTIVE', turnId: 1, order: ['u'], index: 0,
+    units: [{ id: 'enemy-1', name: '몹', side: 'enemy', position: { column: 1, row: 2 }, hp: 9876, maxHp: 9999, healthVisibility: 'HIDDEN' }],
+    tactics: { skillActions: receivedSkillActions } } });
+}
+
+test('스킬 미리보기는 서버 비용과 복수 대상만 표시하고 적 체력을 공개하지 않는다', () => {
+  const renderedStateText = formatState(createSkillPreviewState([
+    { actionId: 'custom_action', name: '시험 스킬', apCost: 7, targets: [{ targetId: 'enemy-1', damage: 31 }, { targetId: 'enemy-2', damage: 12 }] },
+    { actionId: 'unavailable_action', name: '대기 스킬', apCost: 15, targets: [] },
+  ]));
+  assert.match(renderedStateText, /시험 스킬 \[custom_action\] \| 7 AP/);
+  assert.match(renderedStateText, /enemy-1 \(예상 피해 31\), enemy-2 \(예상 피해 12\)/);
+  assert.match(renderedStateText, /use-skill custom_action 대상ID/);
+  assert.match(renderedStateText, /대기 스킬.*대상: 없음 \(현재 사용 불가\)/);
+  assert.doesNotMatch(renderedStateText, /9876|9999|use-skill unavailable_action/);
+  assert.doesNotMatch(formatState(createSkillPreviewState(undefined)), /전투 스킬/);
+});
+
+test('잘못된 스킬 미리보기는 명확하게 거절한다', () => {
+  const validSkillPreview = { actionId: 'action', name: '스킬', apCost: 3, targets: [{ targetId: 'enemy', damage: 2 }] };
+  for (const invalidSkillPreview of [null, {}, [{ ...validSkillPreview, apCost: -1 }],
+    [{ ...validSkillPreview, targets: [{ targetId: 'enemy', damage: '2' }] }],
+    [validSkillPreview, validSkillPreview], [{ ...validSkillPreview, targets: [validSkillPreview.targets[0], validSkillPreview.targets[0]] }]]) {
+    assert.throws(() => formatState(createSkillPreviewState(invalidSkillPreview)), /전투 스킬 응답 형식/);
+  }
+});
+
+test('전투 스킬 버전 충돌은 조회 후 중단하며 새 턴에 자동 실행하지 않는다', async () => {
+  const currentBattleState = { id: 'b', version: 7, turnId: 3 };
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    { status: 409, body: { code: 'VERSION_CONFLICT', messages: { ko: '버전 충돌', en: 'Conflict' } } },
+    state({ cursor: 2, battle: { ...currentBattleState, version: 8, turnId: 4 } }),
+  ]);
+  currentTextClient.accept(state({ battle: currentBattleState }));
+  await assert.rejects(currentTextClient.execute('use-skill action enemy'), receivedClientError => receivedClientError.code === 'VERSION_CONFLICT');
+  assert.equal(recordedClientCalls.length, 2);
+  assert.ok(recordedClientCalls[1].url.endsWith('/game/state'));
+  assert.equal(currentTextClient.state.battle.turnId, 4);
+});
