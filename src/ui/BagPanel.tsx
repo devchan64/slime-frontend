@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { State } from '../client/types';
 import type { Client } from '../client/api';
 import { parseBagInventory, type BagInventoryPage } from '../client/bag';
-import { noticeText, type Notice } from '../client/notice';
+import { LocalizedError, noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 
 export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, submitConsumableUse}: {
@@ -28,11 +28,11 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           || gameSessionClient.state?.me.id !== currentCharacterIdentifier) return;
       const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
       if (afterInstanceIdentifier && receivedInventoryPage.characterVersion !== currentInventoryPage?.characterVersion) {
-        throw new Error(translateBagText('app.bagChanged'));
+        throw new LocalizedError('app.bagChanged');
       }
       const previousInstanceIdentifiers = new Set(previousInventoryItems.map(currentItemEntry => currentItemEntry.instanceId));
       if (receivedInventoryPage.items.some(currentItemEntry => previousInstanceIdentifiers.has(currentItemEntry.instanceId))) {
-        throw new Error(translateBagText('app.bagChanged'));
+        throw new LocalizedError('app.bagChanged');
       }
       setCurrentInventoryPage({...receivedInventoryPage,items:[...previousInventoryItems,...receivedInventoryPage.items]});
     } catch (currentRequestError) {

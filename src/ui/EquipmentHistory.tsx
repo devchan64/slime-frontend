@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseEquipmentHistory,type EquipmentHistoryPage} from '../client/equipmentHistory';
-import {noticeText,type Notice} from '../client/notice';
+import {LocalizedError, noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
 const EQUIPMENT_HISTORY_LABELS = {ACQUIRED:'historyAcquired',EQUIPPED:'historyEquipped',UNEQUIPPED:'historyUnequipped',REPAIR_RESERVED:'historyRepairReserved',REPAIRED:'historyRepaired',WORN:'historyWorn'} as const;
@@ -32,7 +32,7 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
       if(!historySessionMatches() || activeRequestSequence.current!==currentRequestSequence || gameSessionClient.state?.generation!==currentSessionGeneration
           || gameSessionClient.state?.me.id!==currentCharacterIdentifier) return;
       if(beforeInstanceVersion && receivedHistoryPage.items.some(currentHistoryRecord=>currentHistoryRecord.after.stateVersion>=beforeInstanceVersion)) {
-        throw new Error(translateHistoryText('equipment.historyChanged'));
+        throw new LocalizedError('equipment.historyChanged');
       }
       setCurrentHistoryPage({...receivedHistoryPage,items:[...(beforeInstanceVersion?currentHistoryPage?.items??[]:[]),...receivedHistoryPage.items]});
     } catch(currentRequestError) {

@@ -2,7 +2,7 @@ import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { ApiError } from '../client/response';
-import { noticeText, type Notice } from '../client/notice';
+import { LocalizedError, noticeText, type Notice } from '../client/notice';
 import { EQUIPMENT_SLOT_NAMES, parseEquipmentInventory, type EquipmentInventoryPage, type EquipmentInstanceEntry, type EquipmentSlotName, type EquipmentLoadoutCommand } from '../client/equipment';
 import { useTranslation } from '../i18n';
 import './equipment.css';
@@ -37,7 +37,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
     const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
     const previousInstanceIdentifiers = new Set(previousInventoryItems.map(currentItemEntry => currentItemEntry.instanceId));
     if (receivedInventoryPage.items.some(currentItemEntry => previousInstanceIdentifiers.has(currentItemEntry.instanceId))) {
-      throw new Error('장비 페이지에 중복된 개체가 있습니다. 목록을 새로고침하세요.');
+      throw new LocalizedError('equipment.inventoryChanged');
     }
     setCurrentInventoryPage({...receivedInventoryPage, items:[...previousInventoryItems, ...receivedInventoryPage.items]});
   }
