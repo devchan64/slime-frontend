@@ -15,7 +15,11 @@ sold: 판매가 완료되었습니다.
 citizenshipPrice: 시민권 가격 조회
 citizenshipQuote: '현재 시민권 가격 {price} P · 견적 유효 {seconds}초'
 citizenshipExpired: 견적이 만료되었습니다. 가격을 다시 조회하세요.
-citizenshipReadOnly: 가격 안내입니다. 구매·갱신은 아직 제공하지 않습니다.
+citizenshipPurchaseHelp: '{price} P를 지불하면 이 도시의 시민권을 1년간 발급합니다.'
+citizenshipPurchase: 시민권 발급 확정
+citizenshipRetry: 발급 결과 확인·재시도
+citizenshipUncertain: 처리 결과를 확인하지 못했습니다. 같은 발급 요청을 다시 확인합니다.
+citizenshipPurchased: 시민권 발급이 완료되었습니다.
 registrationStatus: 내 캐릭터 후보 등록 상태
 registered: 내 캐릭터가 이 도시의 모집 후보로 등록되어 있습니다.
 unregistered: 내 캐릭터가 이 도시의 모집 후보로 등록되지 않았습니다.

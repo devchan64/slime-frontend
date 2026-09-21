@@ -15,7 +15,11 @@ sold: Sale completed.
 citizenshipPrice: Check citizenship price
 citizenshipQuote: 'Current citizenship price {price} P · Quote valid for {seconds}s'
 citizenshipExpired: This quote expired. Check the price again.
-citizenshipReadOnly: Price information only. Purchase and renewal are not available yet.
+citizenshipPurchaseHelp: 'Pay {price} P to issue this city’s citizenship for one year.'
+citizenshipPurchase: Confirm citizenship issue
+citizenshipRetry: Check result and retry
+citizenshipUncertain: The result is unconfirmed. Check the same citizenship request again.
+citizenshipPurchased: Citizenship issued.
 registrationStatus: Check my candidate registration
 registered: Your character is listed as a recruitment candidate in this city.
 unregistered: Your character is not listed as a recruitment candidate in this city.

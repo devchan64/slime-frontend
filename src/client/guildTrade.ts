@@ -32,9 +32,20 @@ export function validateGuildSaleReceipt(currentReceiptValue:any,currentOriginal
     requireGuildResponseCondition(currentReceiptValue[currentFieldName]===currentOriginalRequest[currentFieldName]);
 }
 
-export function parseCitizenshipPriceQuote(currentResponseValue:any,currentCityIdentifier:string):{priceP:number;serverTime:number;expiresAt:number}{
+export function parseCitizenshipPriceQuote(currentResponseValue:any,currentCityIdentifier:string):{policyVersion:number;priceP:number;serverTime:number;expiresAt:number}{
   requireGuildResponseCondition(currentResponseValue&&currentResponseValue.cityId===currentCityIdentifier&&isGuildPositiveInteger(currentResponseValue.policyVersion)
     &&isGuildPositiveInteger(currentResponseValue.priceP)&&Number.isFinite(currentResponseValue.serverTime)&&currentResponseValue.serverTime>=0
     &&Number.isFinite(currentResponseValue.expiresAt)&&currentResponseValue.expiresAt>currentResponseValue.serverTime);
   return currentResponseValue;
+}
+
+export function validateCitizenshipPurchaseReceipt(currentReceiptValue:any,currentOriginalRequest:Record<string,unknown>,currentFacilityIdentifier:string,currentCityIdentifier:string){
+  requireGuildResponseCondition(currentReceiptValue&&currentReceiptValue.requestId===currentOriginalRequest.requestId
+    &&currentReceiptValue.facilityId===currentFacilityIdentifier&&currentReceiptValue.cityId===currentCityIdentifier
+    &&currentReceiptValue.policyVersion===currentOriginalRequest.policyVersion&&currentReceiptValue.priceP===currentOriginalRequest.priceP
+    &&Number.isFinite(currentReceiptValue.issuedAt)&&currentReceiptValue.citizenship?.cityId===currentCityIdentifier
+    &&currentReceiptValue.citizenship?.source==='purchase'&&Number.isFinite(currentReceiptValue.citizenship?.startsAt)
+    &&Number.isFinite(currentReceiptValue.citizenship?.expiresAt)
+    &&currentReceiptValue.citizenship.startsAt===currentReceiptValue.issuedAt
+    &&currentReceiptValue.citizenship.expiresAt>currentReceiptValue.citizenship.startsAt);
 }
