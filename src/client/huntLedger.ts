@@ -2,7 +2,9 @@ export type HuntLedgerEntry = {
   id:number; monsterInstanceId:string; monsterTypeId:string; battleId:string;
   spawnId:string; mapId:string; quantity:number; result:string; createdAt:number;
 };
+export type HuntNameTranslations = Record<string,{ko:string;en:string}>;
 export type HuntLedgerPage = {
+  monsterNames?:HuntNameTranslations; mapNames?:HuntNameTranslations;
   entries:HuntLedgerEntry[]; totals:{monsterTypeId:string;quantity:number}[]; nextCursor:number|null;
 };
 export function parseHuntLedgerPage(receivedLedgerValue:unknown, requestedLedgerCursor=0):HuntLedgerPage {
@@ -31,5 +33,20 @@ export function parseHuntLedgerPage(receivedLedgerValue:unknown, requestedLedger
   }
   if(currentLedgerPage.nextCursor!==null&&(!currentLedgerPage.entries.length||currentLedgerPage.nextCursor!==previousEntryIdentifier))
     throw new Error(invalidLedgerMessage);
+  validateHuntNameTranslations(currentLedgerPage.monsterNames, [...seenSpeciesIdentifiers]);
+  validateHuntNameTranslations(currentLedgerPage.mapNames, currentLedgerPage.entries.map(currentLedgerEntry=>currentLedgerEntry.mapId));
   return currentLedgerPage;
+}
+
+function validateHuntNameTranslations(receivedNameTranslations:HuntNameTranslations|undefined, requiredNameIdentifiers:string[]) {
+  if(receivedNameTranslations===undefined)return; // 이전 v1 응답은 식별자로 표시한다.
+  if(!receivedNameTranslations||typeof receivedNameTranslations!=='object'||Array.isArray(receivedNameTranslations)
+    ||requiredNameIdentifiers.some(currentNameIdentifier=>!Object.hasOwn(receivedNameTranslations,currentNameIdentifier))
+    ||Object.values(receivedNameTranslations).some(currentNamePair=>!currentNamePair||typeof currentNamePair!=='object'
+      ||Object.keys(currentNamePair).sort().join()!=='en,ko'||Object.values(currentNamePair).some(currentNameText=>typeof currentNameText!=='string'||!currentNameText.trim())))
+    throw new Error('사냥 기록 이름 번역이 올바르지 않습니다.');
+}
+export function localizedHuntName(receivedNameTranslations:HuntNameTranslations|undefined,currentNameIdentifier:string,currentLocaleCode:'ko'|'en'):string {
+  if(receivedNameTranslations===undefined)return currentNameIdentifier;
+  return receivedNameTranslations[currentNameIdentifier][currentLocaleCode];
 }

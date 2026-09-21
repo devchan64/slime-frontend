@@ -1,8 +1,10 @@
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
-import {parseHuntLedgerPage,type HuntLedgerPage} from '../client/huntLedger';
+import {parseHuntLedgerPage,localizedHuntName,type HuntLedgerPage} from '../client/huntLedger';
 import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
+
+const HUNT_RESULT_LABEL_KEYS:Record<string,string>={WIN:'battle.resultWin',LOSE:'battle.resultLose',TIMEOUT:'battle.resultTimeout',SURRENDER:'battle.resultSurrender'};
 
 export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
   const {t:translateLedgerText,locale:currentLocaleCode}=useTranslation();
@@ -37,12 +39,12 @@ export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
     {currentLedgerPage&&<>
       <h4>{translateLedgerText('hunts.totals')}</h4>
       {!currentLedgerPage.totals.length?<p>{translateLedgerText('hunts.empty')}</p>:<ul>{currentLedgerPage.totals.map(currentSpeciesTotal=>
-        <li key={currentSpeciesTotal.monsterTypeId}>{currentSpeciesTotal.monsterTypeId} · {currentSpeciesTotal.quantity.toLocaleString(currentLocaleCode)}</li>)}</ul>}
+        <li key={currentSpeciesTotal.monsterTypeId}>{localizedHuntName(currentLedgerPage.monsterNames,currentSpeciesTotal.monsterTypeId,currentLocaleCode)} · {currentSpeciesTotal.quantity.toLocaleString(currentLocaleCode)}</li>)}</ul>}
       <h4>{translateLedgerText('hunts.page')}</h4>
       {!currentLedgerPage.entries.length?<p>{translateLedgerText('hunts.emptyPage')}</p>:<ul class="bag-items">{currentLedgerPage.entries.map(currentLedgerEntry=>
         <li key={currentLedgerEntry.id} style={{overflowWrap:'anywhere'}}>
-          <strong>{currentLedgerEntry.monsterTypeId} × {currentLedgerEntry.quantity.toLocaleString(currentLocaleCode)}</strong>
-          <p>{translateLedgerText('hunts.map')} · {currentLedgerEntry.mapId} | {translateLedgerText('hunts.result')} · {currentLedgerEntry.result}</p>
+          <strong>{localizedHuntName(currentLedgerPage.monsterNames,currentLedgerEntry.monsterTypeId,currentLocaleCode)} × {currentLedgerEntry.quantity.toLocaleString(currentLocaleCode)}</strong>
+          <p>{translateLedgerText('hunts.map')} · {localizedHuntName(currentLedgerPage.mapNames,currentLedgerEntry.mapId,currentLocaleCode)} | {translateLedgerText('hunts.result')} · {HUNT_RESULT_LABEL_KEYS[currentLedgerEntry.result]?translateLedgerText(HUNT_RESULT_LABEL_KEYS[currentLedgerEntry.result]):currentLedgerEntry.result}</p>
           <p>{translateLedgerText('hunts.battle')} · {currentLedgerEntry.battleId}</p>
           <time dateTime={new Date(currentLedgerEntry.createdAt*1000).toISOString()}>{new Date(currentLedgerEntry.createdAt*1000).toLocaleString(currentLocaleCode)}</time>
         </li>)}</ul>}
