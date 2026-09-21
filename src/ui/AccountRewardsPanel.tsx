@@ -20,7 +20,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
       && gameSessionClient.state?.generation === initialSessionReference.current.generation;
   }
   async function loadRewardPage(afterRewardIdentifier?: string) {
-    if (pendingRewardRequest.current) return;
+    if (pendingRewardRequest.current || !panelSessionMatches()) return;
     pendingRewardRequest.current = true; setIsRewardLoading(true); setCurrentRewardNotice('');
     try {
       const receivedRewardPage = parseAccountRewardPage(await gameSessionClient.request('/v1/accounts/me/rewards' + (afterRewardIdentifier ? `?after=${encodeURIComponent(afterRewardIdentifier)}` : '')));
@@ -37,7 +37,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
     return () => {activePanelReference.current = false; clearInterval(rewardClockTimer);};
   }, []);
   async function claimStoredReward(accountRewardIdentifier: string) {
-    if (pendingRewardRequest.current || actionsAreDisabled) return;
+    if (pendingRewardRequest.current || actionsAreDisabled || !panelSessionMatches()) return;
     pendingRewardRequest.current = true; setClaimedRewardIdentifier(accountRewardIdentifier); setCurrentRewardNotice('');
     try {
       await gameSessionClient.request(`/v1/accounts/me/rewards/${encodeURIComponent(accountRewardIdentifier)}/claim`, {});
