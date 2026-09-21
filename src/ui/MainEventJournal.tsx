@@ -18,7 +18,7 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSes
       && gameSessionClient.state?.me.id===initialSessionReference.current.character;
   }
   async function loadJournalEntries() {
-    if(pendingRequestReference.current)return;
+    if(pendingRequestReference.current||!journalSessionMatches())return;
     const requestedJournalLocale=getLocale();
     pendingRequestReference.current=true;setJournalRequestPending(true);setCurrentJournalNotice('');
     try {

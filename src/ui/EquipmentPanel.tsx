@@ -30,6 +30,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
       && initialSessionIdentity.current.generation === gameSessionClient.state?.generation;
   }
   async function refreshEquipmentInventory(afterInstanceIdentifier?: string) {
+    if (!equipmentSessionMatches()) return;
     const receivedInventoryPage = parseEquipmentInventory(await gameSessionClient.request('/v1/game/equipment'
       + (afterInstanceIdentifier ? `?after=${encodeURIComponent(afterInstanceIdentifier)}` : '')));
     if (!equipmentSessionMatches()) return;
@@ -41,7 +42,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
     setCurrentInventoryPage({...receivedInventoryPage, items:[...previousInventoryItems, ...receivedInventoryPage.items]});
   }
   async function loadEquipmentInventory(afterInstanceIdentifier?: string) {
-    if (equipmentRequestActive.current) return;
+    if (equipmentRequestActive.current || !equipmentSessionMatches()) return;
     equipmentRequestActive.current = true; setEquipmentRequestPending(true); setCurrentEquipmentNotice('');
     try { await refreshEquipmentInventory(afterInstanceIdentifier); }
     catch (currentRequestError) { if (equipmentSessionMatches()) setCurrentEquipmentNotice(currentRequestError as Error); }
@@ -52,7 +53,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
     if (!currentInventoryPage || characterStateVersion > currentInventoryPage.characterVersion) void loadEquipmentInventory();
   }, [characterStateVersion]);
   async function submitEquipmentCommand(currentLoadoutCommand: EquipmentLoadoutCommand) {
-    if (equipmentRequestActive.current || actionsAreDisabled) return;
+    if (equipmentRequestActive.current || actionsAreDisabled || !equipmentSessionMatches()) return;
     equipmentRequestActive.current = true; setEquipmentRequestPending(true); setCurrentEquipmentNotice('');
     let equipmentChangeConfirmed = false;
     try {
@@ -60,6 +61,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
       if (!equipmentSessionMatches()) return;
       equipmentChangeConfirmed = true; setUnresolvedEquipmentCommand(null);
       await refreshEquipmentInventory();
+      if (!equipmentSessionMatches()) return;
       const receivedCharacterState = await gameSessionClient.request('/v1/game/state');
       if (equipmentSessionMatches()) {
         gameSessionClient.accept(receivedCharacterState);

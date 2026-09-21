@@ -45,6 +45,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
   async function loadWorkshopContents(currentRequestedKind:WorkshopContractKind,currentPageCursor:string|null=null){
     await runWorkshopRequest(async()=>{
       const receivedContractPage=parseWorkshopContracts(await gameSessionClient.request(`${workshopRequestBase}/contracts?kind=${currentRequestedKind}${currentPageCursor?'&after='+encodeURIComponent(currentPageCursor):''}`),currentRequestedKind);
+      if(!workshopSessionMatches())return;
       let receivedSelectionOptions:WorkshopSelectionOption[]=[];
       if(currentRequestedKind!=='repair')receivedSelectionOptions=parseWorkshopCatalog(await gameSessionClient.request(`${workshopRequestBase}/catalog?kind=${currentRequestedKind}`))
         .map(currentCatalogItem=>({id:currentCatalogItem.id,nameTranslations:{ko:currentCatalogItem.name,en:currentCatalogItem.englishName}}));

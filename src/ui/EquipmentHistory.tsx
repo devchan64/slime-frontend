@@ -16,7 +16,12 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
   const activeRequestSequence=useRef(0);
   const historySectionElement=useRef<HTMLElement>(null);
   const initialHistoryRevealed=useRef(false);
+  const historyPanelActive=useRef(false);
+  const originalHistorySession=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id});
+  function historySessionMatches(){return historyPanelActive.current&&originalHistorySession.current.owner===gameSessionClient.tokens?.user_id
+    &&originalHistorySession.current.generation===gameSessionClient.state?.generation&&originalHistorySession.current.character===gameSessionClient.state?.me.id;}
   async function loadEquipmentHistory(beforeInstanceVersion?:number) {
+    if(!historySessionMatches())return;
     const currentRequestSequence=++activeRequestSequence.current;
     const currentSessionGeneration=gameSessionClient.state?.generation;
     const currentCharacterIdentifier=gameSessionClient.state?.me.id;
@@ -24,17 +29,17 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
     try {
       const receivedHistoryPage=parseEquipmentHistory(await gameSessionClient.request(`/v1/game/equipment/${encodeURIComponent(equipmentInstanceIdentifier)}/history`
         +(beforeInstanceVersion ? `?before=${beforeInstanceVersion}` : '')),equipmentInstanceIdentifier);
-      if(activeRequestSequence.current!==currentRequestSequence || gameSessionClient.state?.generation!==currentSessionGeneration
+      if(!historySessionMatches() || activeRequestSequence.current!==currentRequestSequence || gameSessionClient.state?.generation!==currentSessionGeneration
           || gameSessionClient.state?.me.id!==currentCharacterIdentifier) return;
       if(beforeInstanceVersion && receivedHistoryPage.items.some(currentHistoryRecord=>currentHistoryRecord.after.stateVersion>=beforeInstanceVersion)) {
         throw new Error(translateHistoryText('equipment.historyChanged'));
       }
       setCurrentHistoryPage({...receivedHistoryPage,items:[...(beforeInstanceVersion?currentHistoryPage?.items??[]:[]),...receivedHistoryPage.items]});
     } catch(currentRequestError) {
-      if(activeRequestSequence.current===currentRequestSequence) setCurrentRequestNotice(currentRequestError as Error);
-    } finally {if(activeRequestSequence.current===currentRequestSequence) setCurrentRequestPending(false);}
+      if(historySessionMatches()&&activeRequestSequence.current===currentRequestSequence) setCurrentRequestNotice(currentRequestError as Error);
+    } finally {if(historySessionMatches()&&activeRequestSequence.current===currentRequestSequence) setCurrentRequestPending(false);}
   }
-  useEffect(()=>{setCurrentHistoryPage(null);void loadEquipmentHistory();return()=>{activeRequestSequence.current++;};},[equipmentInstanceIdentifier,gameSessionClient]);
+  useEffect(()=>{historyPanelActive.current=true;setCurrentHistoryPage(null);void loadEquipmentHistory();return()=>{historyPanelActive.current=false;activeRequestSequence.current++;};},[equipmentInstanceIdentifier,gameSessionClient]);
   useEffect(()=>{
     if(currentHistoryPage && !initialHistoryRevealed.current) {
       initialHistoryRevealed.current=true;historySectionElement.current?.scrollIntoView({block:'nearest',behavior:'smooth'});

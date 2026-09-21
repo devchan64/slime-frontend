@@ -22,7 +22,7 @@ export function BorrowedLoansPanel({gameSessionClient, actionsAreDisabled}: {gam
       && gameSessionClient.state?.generation === initialSessionReference.current.generation;
   }
   async function loadLoanPage(afterLoanIdentifier?: string) {
-    if (pendingLoanRequest.current) return;
+    if (pendingLoanRequest.current || !panelSessionMatches()) return;
     pendingLoanRequest.current = true; setIsLoanLoading(true); setCurrentLoanNotice('');
     try {
       const receivedLoanPage = parseBorrowedLoanPage(await gameSessionClient.request('/v1/game/loans' + (afterLoanIdentifier ? `?after=${encodeURIComponent(afterLoanIdentifier)}` : '')));
