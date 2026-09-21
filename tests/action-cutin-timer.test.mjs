@@ -21,6 +21,12 @@ const actionCutinBuildResult = await build({
   } }],
 });
 const { ActionCutinOverlay } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinBuildResult.outputFiles[0].text).toString('base64')}`);
+function collectCutinElements(currentRenderNode) {
+  if (Array.isArray(currentRenderNode)) return currentRenderNode.flatMap(collectCutinElements);
+  if (!currentRenderNode || typeof currentRenderNode !== 'object') return [];
+  if (typeof currentRenderNode.type === 'function') return collectCutinElements(currentRenderNode.type(currentRenderNode.props));
+  return [currentRenderNode, ...collectCutinElements(currentRenderNode.props?.children)];
+}
 for (const configuredDurationSeconds of [1, 2, 3]) {
   test(`${configuredDurationSeconds}초 후 이미지 로드와 무관하게 종료하고 건너뛰기 버튼을 제공하지 않는다`, () => {
     actionCutinTestRuntime.effects = [];
@@ -44,8 +50,11 @@ for (const configuredDurationSeconds of [1, 2, 3]) {
       const cleanupCutinTimer = actionCutinTestRuntime.effects[0]();
       assert.equal(actionCutinTestRuntime.timers[0].timerDurationMilliseconds, configuredDurationSeconds * 1000);
       assert.equal(finishedCutinCount, 0);
-      assert.equal(renderedCutinNode.props.children.some(renderedChildNode => renderedChildNode?.type === 'button'), false);
-      renderedCutinNode.props.children[0].props.onError();
+      const renderedCutinElements = collectCutinElements(renderedCutinNode);
+      assert.equal(renderedCutinElements.some(renderedChildNode => renderedChildNode.type === 'button'), false);
+      const renderedCutinImage = renderedCutinElements.find(renderedChildNode => renderedChildNode.type === 'img');
+      assert.ok(renderedCutinImage, '컷인 이미지가 렌더링되어야 합니다.');
+      renderedCutinImage.props.onError();
       assert.equal(finishedCutinCount, 0);
       actionCutinTestRuntime.timers[0].timerCallbackFunction();
       assert.equal(finishedCutinCount, 1);
