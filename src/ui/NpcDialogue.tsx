@@ -24,13 +24,14 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   async function loadNpcDialogue(){
     if(pendingDialogueReference.current||!dialogueSessionMatches())return;
     const requestedDialogueLocale=getLocale();
+    const requestedCharacterVersion=gameSessionClient.state?.me.version;
     pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice('');
     try{
       const receivedDialoguePage=parseNpcDialogue(await gameSessionClient.request(`/v1/game/npcs/${encodeURIComponent(currentNpcIdentifier)}/main-events?language=${requestedDialogueLocale}`));
       if(receivedDialoguePage.npc.id!==currentNpcIdentifier)throw new Error('대화 NPC가 요청과 다릅니다.');
       if(dialogueSessionMatches()&&requestedDialogueLocale===getLocale())setCurrentDialoguePage(receivedDialoguePage);
     }catch(currentRequestError){if(dialogueSessionMatches())setCurrentDialogueNotice(currentRequestError as Error);}
-    finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);if(requestedDialogueLocale!==getLocale())void loadNpcDialogue();}}
+    finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);if(requestedDialogueLocale!==getLocale()||requestedCharacterVersion!==gameSessionClient.state?.me.version)void loadNpcDialogue();}}
   }
   async function executeNpcQuest(currentQuestEntry:NpcQuestEntry){
     if(actionsAreDisabled||pendingDialogueReference.current||!currentDialoguePage||!currentQuestEntry.canExecute||!dialogueSessionMatches())return;
