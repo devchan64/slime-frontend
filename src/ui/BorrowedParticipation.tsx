@@ -21,12 +21,15 @@ export function BorrowedParticipationPreview({currentGameClient,currentGameState
     setCurrentParticipationResult(null);setCurrentPreviewFailed(false);
     if(currentActionsDisabled)return;
     const currentRequestContext=fieldActionContext(currentGameState);
+    if(!canContinueFieldAction(currentRequestContext,currentGameClient.state))return;
     void currentGameClient.request('/v1/game/borrowed-party/participation').then(currentResponseValue=>{
       if(currentRequestCancelled || !canContinueFieldAction(currentRequestContext,currentGameClient.state))return;
       setCurrentParticipationResult(parseBorrowedParticipation(currentResponseValue));
-    }).catch(()=>{if(!currentRequestCancelled)setCurrentPreviewFailed(true);});
+    }).catch(()=>{if(!currentRequestCancelled&&canContinueFieldAction(currentRequestContext,currentGameClient.state))setCurrentPreviewFailed(true);});
     return ()=>{currentRequestCancelled=true;};
-  },[currentGameState.me.version,currentActionsDisabled,currentRefreshVersion]);
+  },[currentGameClient,currentGameState.me.id,currentGameState.generation,currentGameState.epoch,
+    currentGameState.location.id,currentGameState.me.lastFieldInterruption?.battleId,currentGameState.me.mode,
+    currentGameState.me.version,currentActionsDisabled,currentRefreshVersion]);
   return <div class="borrowed-participation"><strong>{t('battle.supportPreview')}</strong>
     {currentParticipationResult && <><p>{[currentGameState.me.name,...currentParticipationResult.participants.map(currentParticipantEntry=>currentParticipantEntry.name)].join(' · ')}</p>
       <BorrowedExclusionNotice currentExcludedEntries={currentParticipationResult.excluded}/><small>{t('battle.supportRecheck')}</small></>}
