@@ -87,9 +87,31 @@ test('모두 수령은 추가 페이지를 펼치지 않고 전체 수령 API를
     assert.equal(claimRewardButton.props.disabled,false);
     claimRewardButton.props.onClick();claimRewardButton.props.onClick();
     assert.equal(observedRequestPaths.filter(requestPathValue=>requestPathValue.endsWith('/claim-all')).length,1);
-    finishClaimRequest({claimedCount:101,materials:[]});await finishPendingPromises();
+    finishClaimRequest({claimedCount:101,materials:[{materialId:'jelly',quantity:303}]});await finishPendingPromises();
     assert.equal(receivedPlayerStates.length,1);
     assert.equal(observedRequestPaths.filter(requestPathValue=>requestPathValue==='/v1/accounts/me/rewards').length,2);
     assert.equal(observedRequestPaths.some(requestPathValue=>requestPathValue.includes('?after=')),false);
+  }finally{currentPanelHarness.closeRewardPanel();}
+});
+
+test('수령 직전 만료된 0건 응답에는 지급 성공 대신 수령할 보상 없음을 안내한다',async()=>{
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async currentRequestPath=>{
+    if(currentRequestPath.endsWith('/claim-all'))return {claimedCount:0,materials:[]};
+    if(currentRequestPath==='/v1/game/state')return {generation:1};
+    return sampleRewardPage();
+  },accept:()=>{}};
+  const currentPanelHarness=createPanelHarness(currentSessionClient);
+  function collectPanelText(currentPanelNode){
+    if(Array.isArray(currentPanelNode))return currentPanelNode.map(collectPanelText).join(' ');
+    if(currentPanelNode&&typeof currentPanelNode==='object')return collectPanelText(currentPanelNode.props?.children);
+    return typeof currentPanelNode==='string'?currentPanelNode:'';
+  }
+  try{
+    currentPanelHarness.renderRewardPanel();await finishPendingPromises();
+    findRewardButtons(currentPanelHarness.renderRewardPanel()).find(currentButtonNode=>currentButtonNode.props.children==='rewards.claimAll').props.onClick();
+    await finishPendingPromises();
+    const currentPanelText=collectPanelText(currentPanelHarness.renderRewardPanel());
+    assert.match(currentPanelText,/rewards.nothingClaimed/);
+    assert.doesNotMatch(currentPanelText,/rewards.claimed|rewards.claimSummary/);
   }finally{currentPanelHarness.closeRewardPanel();}
 });

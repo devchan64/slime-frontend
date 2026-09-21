@@ -30,3 +30,23 @@ export function parseAccountRewardPage(rawResponseValue: unknown): AccountReward
   }
   return parsedRewardPage;
 }
+
+
+export type AccountRewardClaimSummary = {claimedCount: number; materialQuantity: number};
+export function parseAccountRewardClaim(rawResponseValue: unknown): AccountRewardClaimSummary {
+  const receivedClaimResult = rawResponseValue as {claimedCount: number; materials: Array<{materialId: string; quantity: number}>};
+  if (!receivedClaimResult || !Number.isSafeInteger(receivedClaimResult.claimedCount) || receivedClaimResult.claimedCount < 0
+      || !Array.isArray(receivedClaimResult.materials)) throw new Error('보상 수령 결과가 올바르지 않습니다.');
+  const seenMaterialIdentifiers = new Set<string>();
+  let claimedMaterialQuantity = 0;
+  for (const receivedMaterialEntry of receivedClaimResult.materials) {
+    if (!receivedMaterialEntry || typeof receivedMaterialEntry.materialId !== 'string' || !receivedMaterialEntry.materialId.trim()
+        || seenMaterialIdentifiers.has(receivedMaterialEntry.materialId) || !Number.isSafeInteger(receivedMaterialEntry.quantity) || receivedMaterialEntry.quantity <= 0)
+      throw new Error('수령 재료 ID·수량이 올바르지 않습니다.');
+    seenMaterialIdentifiers.add(receivedMaterialEntry.materialId);
+    claimedMaterialQuantity += receivedMaterialEntry.quantity;
+    if (!Number.isSafeInteger(claimedMaterialQuantity)) throw new Error('수령 재료 합계가 허용 범위를 벗어났습니다.');
+  }
+  if ((receivedClaimResult.claimedCount === 0) !== (claimedMaterialQuantity === 0)) throw new Error('보상 수령 건수와 재료가 일치하지 않습니다.');
+  return {claimedCount: receivedClaimResult.claimedCount, materialQuantity: claimedMaterialQuantity};
+}

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { noticeText, type Notice } from '../client/notice';
-import { parseAccountRewardPage, rewardRemainingSeconds, REWARD_CLOCK_INTERVAL_MS, type AccountRewardPage } from '../client/accountRewards';
+import { parseAccountRewardPage, parseAccountRewardClaim, type AccountRewardClaimSummary, rewardRemainingSeconds, REWARD_CLOCK_INTERVAL_MS, type AccountRewardPage } from '../client/accountRewards';
 import { useTranslation } from '../i18n';
 
 export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {gameSessionClient: Client; actionsAreDisabled: boolean}) {
   const {t: translateRewardText, locale: currentLocaleCode} = useTranslation();
   const [storedRewardPage, setStoredRewardPage] = useState<AccountRewardPage | null>(null);
+  const [latestClaimSummary, setLatestClaimSummary] = useState<AccountRewardClaimSummary | null>(null);
   const [currentRewardNotice, setCurrentRewardNotice] = useState<Notice>('');
   const [isRewardLoading, setIsRewardLoading] = useState(false);
   const [claimedRewardIdentifier, setClaimedRewardIdentifier] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
   }
   async function loadRewardPage(afterRewardIdentifier?: string) {
     if (pendingRewardRequest.current || !panelSessionMatches()) return;
-    pendingRewardRequest.current = true; setIsRewardLoading(true); setCurrentRewardNotice('');
+    pendingRewardRequest.current = true; setIsRewardLoading(true); setCurrentRewardNotice(''); setLatestClaimSummary(null);
     try {
       const receivedRewardPage = parseAccountRewardPage(await gameSessionClient.request('/v1/accounts/me/rewards' + (afterRewardIdentifier ? `?after=${encodeURIComponent(afterRewardIdentifier)}` : '')));
       if (!panelSessionMatches()) return;
@@ -38,7 +39,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
   }, []);
   async function claimStoredReward(accountRewardIdentifier: string) {
     if (pendingRewardRequest.current || actionsAreDisabled || !panelSessionMatches()) return;
-    pendingRewardRequest.current = true; setClaimedRewardIdentifier(accountRewardIdentifier); setCurrentRewardNotice('');
+    pendingRewardRequest.current = true; setClaimedRewardIdentifier(accountRewardIdentifier); setCurrentRewardNotice(''); setLatestClaimSummary(null);
     try {
       await gameSessionClient.request(`/v1/accounts/me/rewards/${encodeURIComponent(accountRewardIdentifier)}/claim`, {});
       if (!panelSessionMatches()) return;
@@ -51,12 +52,12 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
   }
   async function claimAllStoredRewards() {
     if (pendingRewardRequest.current || actionsAreDisabled || !panelSessionMatches()) return;
-    pendingRewardRequest.current = true; setClaimedRewardIdentifier('all'); setCurrentRewardNotice('');
+    pendingRewardRequest.current = true; setClaimedRewardIdentifier('all'); setCurrentRewardNotice(''); setLatestClaimSummary(null);
     try {
-      await gameSessionClient.request('/v1/accounts/me/rewards/claim-all', {});
+      const receivedClaimSummary = parseAccountRewardClaim(await gameSessionClient.request('/v1/accounts/me/rewards/claim-all', {}));
       if (!panelSessionMatches()) return;
       setStoredRewardPage(null);
-      setCurrentRewardNotice({key:'rewards.claimed'});
+      setLatestClaimSummary(receivedClaimSummary);
       const currentCharacterState = await gameSessionClient.request('/v1/game/state');
       if (!panelSessionMatches()) return;
       gameSessionClient.accept(currentCharacterState);
@@ -73,6 +74,9 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
     <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage()}>{translateRewardText('rewards.refresh')}</button>
     <button disabled={actionsAreDisabled || rewardActionPending || !(storedRewardPage?.nextCursor || storedRewardPage?.entries.some(storedRewardEntry => rewardRemainingSeconds(storedRewardEntry.expiresAt, storedRewardPage.serverTime, rewardClockValue - rewardClockAnchor.current) > 0))} onClick={() => void claimAllStoredRewards()}>{translateRewardText(claimedRewardIdentifier === 'all' ? 'rewards.claiming' : 'rewards.claimAll')}</button>
     <p>{translateRewardText('rewards.claimAllHelp')}</p>
+    {latestClaimSummary && <p role="status">{latestClaimSummary.claimedCount === 0
+      ? translateRewardText('rewards.nothingClaimed')
+      : translateRewardText('rewards.claimSummary', {count: latestClaimSummary.claimedCount, quantity: latestClaimSummary.materialQuantity})}</p>}
     {currentRewardNotice && <p role={currentRewardNotice instanceof Error ? 'alert' : 'status'}>{noticeText(currentRewardNotice, currentLocaleCode, translateRewardText)}</p>}
     {isRewardLoading && <p role="status">{translateRewardText('rewards.loading')}</p>}
     {storedRewardPage && !storedRewardPage.entries.length && <p>{translateRewardText('rewards.empty')}</p>}
