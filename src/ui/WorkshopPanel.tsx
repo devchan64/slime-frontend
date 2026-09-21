@@ -1,3 +1,4 @@
+import {RefiningContractsPanel} from './RefiningContractsPanel';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import {ApiError} from '../client/response';
 import type {Client} from '../client/api';
@@ -149,7 +150,8 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
           after:currentQuoteResponse.quote.after.currentDurability,afterMax:currentQuoteResponse.quote.after.maxDurability})}</p>}
         <p>{translateWorkshopText('workshop.noCancel')}</p>
         <button class="compact" disabled={actionsAreDisabled||workshopRequestPending} onClick={()=>void submitWorkshopContract()}>{translateWorkshopText('workshop.confirm')}</button>
-      </div>}
+        <RefiningContractsPanel key={`${currentFacilityIdentifier}:${gameSessionClient.state?.generation}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={currentControlsDisabled} />
+    </div>}
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
       <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
@@ -162,6 +164,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
         {currentContractEntry.status==='READY'&&<button class="compact" disabled={currentControlsDisabled} onClick={()=>void submitWorkshopContract(currentContractEntry.contractId)}>{translateWorkshopText('workshop.claim')}</button>}
       </li>)}</ul>
       {currentContractPage?.nextCursor&&<button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentContractKind,currentContractPage.nextCursor)}>{translateWorkshopText('workshop.next')}</button>}
+      <RefiningContractsPanel key={`${currentFacilityIdentifier}:${gameSessionClient.state?.generation}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={currentControlsDisabled} />
     </div>}
   </section>;
 }
