@@ -35,6 +35,16 @@ docker compose -f docker-compose.local.yml up -d --build
 
 `npm run build`로 이미지 관리 ID·언어팩·TypeScript 검사와 배포 빌드를 수행한다. 웹은 저장소의 이미지 자산을 사용하며 자산 고지는 `ASSET_LICENSE.md`를 따른다. 비공개 설계 문서는 실행 의존성이 아니다.
 
+## UI 디자인 시스템 검수 빌드
+
+게임 UI 검수는 운영 웹에 포함하지 않는 독립 정적 빌드다. 공통 토큰·기본 컴포넌트, 탐색 메뉴·패널, 캐릭터 설정 대화상자, 전투 패널을 같은 게임 컴포넌트로 묶는다.
+
+```bash
+npm run build:review
+```
+
+명령은 `.tmp/한국시간/ui-review/`에 HTML·번들·에셋과 `manifest.json`을 만든다. manifest에는 소스 커밋, 로컬 수정 포함 여부, 검수 페이지와 모든 파일 해시가 기록된다. 이 폴더를 `slime-workflow` 관리도구에 명시적으로 전달한다. 검수 중 UI는 실제 API 요청을 보내지 않는다.
+
 공개 API의 실제 스키마는 백엔드 `/openapi.json`에서 확인한다. 서버의 결과가 판정 원본이며 UI·그림 변경은 API 권한과 무관하다.
 
 브라우저와 이미지 없이 접속하려면 [텍스트 클라이언트 및 API 사용 안내](CLIENT_API.md)를 따른다. `node scripts/text-client.mjs http://127.0.0.1:18080`으로 실행한다.

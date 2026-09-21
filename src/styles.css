@@ -1,21 +1,5 @@
-:root {
-  font-family: "Noto Sans KR", sans-serif;
-  color: #e4edf0;
-  background: var(--page-bg);
-  font-synthesis: none;
-  --page-bg: #081f23;
-  --brand-primary: #55d6be;
-  --brand-light: #9becdc;
-  --brand-ink: #082c29;
-  --brand-glow: #55d6be60;
-  --panel: #112d31;
-  --border: #2a494d;
-  --muted: #94a8b3;
-  --mint: var(--brand-primary);
-  --radius: 18px;
-  --card-margin: 1px;
-  --button-margin: 1px;
-}
+@import "./ui/design-system/tokens.css";
+
 * {
   box-sizing: border-box;
 }
