@@ -156,3 +156,5 @@ supportRefresh: 명단 새로고침
 
 distributionGuild: "길드 귀속"
 distributionGuildStorage: "길드 기본 파티원의 당첨 재료는 길드 원장에 보관됩니다. 개인 보관함에서는 수령할 수 없습니다."
+dissectionApplied: "해부 보정 적용 · 담당 숙련 레벨 {level}"
+dissectionRecoveryHint: "몬스터별 난이도가 반영됩니다. 해부가 미숙하면 온전한 재료 회수에 실패할 수 있습니다."

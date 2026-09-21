@@ -43,6 +43,7 @@ export function BattleReport({ result, onReturn }: {
       {!result.rewardDistribution && (result.materials ?? []).map(material => <div key={material.materialId}><dt>{material.nameTranslations[locale]}</dt>
         <dd>×{material.quantity}{material.valueP !== null && <small> · {t('battle.materialValue', {value: material.valueP})}</small>}</dd></div>)}
     </dl>
+    {result.dissection && result.result !== 'PREPARATION_FAILED' && <p>{t('battle.dissectionApplied',{level:result.dissection.usableLevel})}<br />{t('battle.dissectionRecoveryHint')}</p>}
     {result.rewardDistribution && <PartyRewardReport rewardReportData={result.rewardDistribution} />}
     {!result.rewardDistribution && !result.coins && !(result.materials ?? []).length && <p>{t('battle.noLoot')}</p>}
     {!!result.lostMaterials?.length && <section class="battle-lost-loot">

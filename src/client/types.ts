@@ -112,7 +112,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}> } | null;
+    lastResult: { dissection?: {operatorId:string;usableLevel:number}; rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}> } | null;
   };
   map: Surface & {
     safeTown?: boolean;
