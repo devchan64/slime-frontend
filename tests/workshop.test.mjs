@@ -77,6 +77,8 @@ test('부족 재료를 포함한 소모품 총액과 과거 계약을 모두 검
    materialAllocation:[{materialId:'reed-fiber',quantity:6,ownedQuantity:0,consumedQuantity:0,missingQuantity:6,unitPriceP:2},
      {materialId:'clean-water',quantity:3,ownedQuantity:0,consumedQuantity:0,missingQuantity:3,unitPriceP:1}]}};
  assert.equal(parseWorkshopQuote(currentPricedQuote,'consumable').quote.costP,26);
+ const currentSavedContract={...currentContractFixture,entries:[{...currentContractFixture.entries[0],kind:'consumable',quote:currentPricedQuote.quote}]};
+ assert.equal(parseWorkshopContracts(currentSavedContract,'consumable').entries[0].quote.missingMaterialCostP,23);
  for(const currentInvalidPatch of [{costP:25},{missingMaterialCostP:22},{baseCostP:4},{missingMaterialValueP:14},{materialPricing:undefined},{materialAllocation:[]}])
    assert.throws(()=>parseWorkshopQuote({...currentPricedQuote,quote:{...currentPricedQuote.quote,...currentInvalidPatch}},'consumable'));
  assert.equal(parseWorkshopContracts(currentContractFixture,'craft').entries.length,1);

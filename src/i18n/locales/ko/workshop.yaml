@@ -30,3 +30,4 @@ materialBalance: '보유 {owned}개 · 부족 {missing}개'
 materialAllocation: "보유 {owned} · 사용 {used} · 부족 {missing}"
 costBreakdown: '기본 제작비 {base} P + 부족 재료 비용 {missing} P'
 substitutionRule: '보유 재료를 먼저 사용합니다. 부족 수량 × 길드 매입가의 합계에 1.5를 곱하고 올림하여 추가 결제합니다. 부족 재료는 가방에 지급되지 않습니다.'
+paidTotal: '계약 당시 결제 총액: {cost} P'

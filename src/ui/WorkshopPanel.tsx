@@ -155,6 +155,9 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
         <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}{currentContractEntry.kind==='consumable'?' × '+currentContractEntry.quote.quantity:''}</strong>
         <p>{translateWorkshopText(`workshop.${currentContractEntry.status.toLowerCase().replaceAll('_','')}`)}</p>
+        <p>{translateWorkshopText('workshop.paidTotal',{cost:currentContractEntry.quote.costP})}</p>
+        {currentContractEntry.quote.baseCostP!==undefined&&<small>{translateWorkshopText('workshop.costBreakdown',{
+          base:currentContractEntry.quote.baseCostP,missing:currentContractEntry.quote.missingMaterialCostP!})}</small>}
         <small>{translateWorkshopText('workshop.readyAt',{time:new Date(currentContractEntry.readyAt*1000).toLocaleString(currentWorkshopLocale)})}</small>
         {currentContractEntry.status==='READY'&&<button class="compact" disabled={currentControlsDisabled} onClick={()=>void submitWorkshopContract(currentContractEntry.contractId)}>{translateWorkshopText('workshop.claim')}</button>}
       </li>)}</ul>
