@@ -13,7 +13,23 @@ const HUMAN_REST_HEIGHT_RATIO = 0.55;
 const HUMAN_CONTACT_SHADOW = { width: 0.32, height: 0.12 };
 const MONSTER_RING = { alpha: 0.45, width: 1 };
 const SPRITE_DEPTH_OFFSET = 0.01;
+const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 2, radius: 5, rise: 14, spread: 16 };
 export const updateCharacterFacing = updateActorStandingFrame;
+
+export function drawRestRecoveryEffect(graphics: Phaser.GameObjects.Graphics, x: number, y: number, height: number, progress: number) {
+  const currentRise = REST_RECOVERY_EFFECT.rise * progress;
+  const currentAlpha = 0.35 + (1 - progress) * 0.55;
+  graphics.clear();
+  graphics.lineStyle(REST_RECOVERY_EFFECT.lineWidth, REST_RECOVERY_EFFECT.color, currentAlpha);
+  const centerY = y - height * 0.72 - currentRise;
+  graphics.strokeCircle(x, centerY, REST_RECOVERY_EFFECT.radius);
+  for (const currentOffset of [-REST_RECOVERY_EFFECT.spread, REST_RECOVERY_EFFECT.spread]) {
+    const symbolX = x + currentOffset * (0.45 + progress * 0.55);
+    const symbolY = centerY + Math.abs(currentOffset) * 0.2;
+    graphics.lineBetween(symbolX - 3, symbolY, symbolX + 3, symbolY);
+    graphics.lineBetween(symbolX, symbolY - 3, symbolX, symbolY + 3);
+  }
+}
 
 export function preloadActors(scene: Phaser.Scene) {
   for (const { key, url } of ACTOR_STANDING_TEXTURES) scene.load.image(key, url);

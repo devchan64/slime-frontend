@@ -19,14 +19,14 @@ import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
-import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
+import { drawActor, drawRestRecoveryEffect, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
 import { drawCityBuilding, drawCityPaving, type CityBuildingRegion } from "../terrain/cityRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
-import { drawCliffs, drawElevationTile } from "../terrain/terraces";
+import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const FIELD_CHARACTER_VERTICAL_OFFSET = 3;
 const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
@@ -74,6 +74,7 @@ const MOVE_OVERLAY = {
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
+const REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS = 1200;
 export class MainScene extends Phaser.Scene {
   private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
   private receivedStateTimestamp = 0;
@@ -82,6 +83,7 @@ export class MainScene extends Phaser.Scene {
   private fieldMotion = new FieldMotion();
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
+  private restRecoveryEffects: {graphics:Phaser.GameObjects.Graphics;x:number;y:number;height:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private cityBuildingRegions: CityBuildingRegion[] = [];
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
@@ -164,6 +166,7 @@ export class MainScene extends Phaser.Scene {
       this.fieldMotion.clear();
       this.battleMotion.clear();
       this.movingObjects=[];
+      this.restRecoveryEffects=[];
       this.terrainCache?.clear();
       this.terrainCache=null;
       this.scale.off(Phaser.Scale.Events.RESIZE, resize);
@@ -314,6 +317,7 @@ export class MainScene extends Phaser.Scene {
     this.syncTerrainViewport();
     this.syncActorViewport();
     this.animateFieldActors();
+    this.animateRestRecoveryEffects();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
     for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom));
@@ -362,6 +366,7 @@ export class MainScene extends Phaser.Scene {
     this.actorCache=null;
     this.actorEntries=[];
     this.movingObjects=[];
+    this.restRecoveryEffects=[];
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.cityBuildingRegions = [];
@@ -559,6 +564,15 @@ export class MainScene extends Phaser.Scene {
     calculateActorPlacement(actorLogicalPosition, actorSize(actorAppearanceData).tiles, this.surface(), this.project, this.depth);
   private annotationDepth = () => mapAnnotationDepth(this.viewSurface!);
 
+  private animateRestRecoveryEffects() {
+    const currentProgress = this.reducedMotionPreference.matches ? 0 :
+      (this.time.now % REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS) / REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS;
+    for (const currentEffect of this.restRecoveryEffects) {
+      drawRestRecoveryEffect(currentEffect.graphics,currentEffect.x,currentEffect.y,currentEffect.height,currentProgress);
+      currentEffect.graphics.setAlpha(1).setDepth(currentEffect.depth);
+    }
+  }
+
   private updateTerrain(s: State, visible: boolean) {
     for (const object of this.terrainObjects) (object as Phaser.GameObjects.Image).setVisible(visible);
     this.backdropLayer?.setVisible(visible);
@@ -607,13 +621,14 @@ export class MainScene extends Phaser.Scene {
       }
       const sides=remember(this.add.graphics().setDepth(depth));
       drawCliffs(sides,this.viewPosition(cell),this.viewSurface!);
+      addCliffWallPatterns(this,remember,this.viewPosition(cell),this.viewSurface!,depth);
       const isWater = waterCells.has(`${column},${row}`);
       const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
         : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
       if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p);
-      if (!isWater && !['boulder','tree-base','wall'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
+      if (!isWater && !['boulder','tree-base'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);
@@ -643,6 +658,7 @@ export class MainScene extends Phaser.Scene {
     this.actorCache=new ActorWindowCache(this.actorEntries,objects=>{
       const removed=new Set(objects);
       this.movingObjects=this.movingObjects.filter(item=>!removed.has(item.object));
+      this.restRecoveryEffects=this.restRecoveryEffects.filter(currentEffect=>!removed.has(currentEffect.graphics));
       for(const object of objects)object.destroy();
     });
     this.syncActorViewport();
@@ -663,6 +679,11 @@ export class MainScene extends Phaser.Scene {
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
       size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, !appearance && !this.state?.battle && !actorRestIsActive ? FIELD_CHARACTER_VERTICAL_OFFSET : 0, actorRestIsActive);
+    if (actorRestIsActive && !appearance && !this.state?.battle) {
+      const recoveryEffectGraphics = this.add.graphics().setDepth(depth + ACTOR_DEPTH.labelOffset);
+      this.restRecoveryEffects.push({graphics:recoveryEffectGraphics,x:p.x,y:p.y,height,depth:depth + ACTOR_DEPTH.labelOffset});
+      drawRestRecoveryEffect(recoveryEffectGraphics,p.x,p.y,height,0);
+    }
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
     }
