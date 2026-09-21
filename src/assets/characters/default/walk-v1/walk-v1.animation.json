@@ -19,7 +19,7 @@
       "image": "walk-up.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "d9f7762f7483d315492420069adc6c17d30d393b007194eb6e49f597fb431962",
+      "sha256": "55c7f051fd01cafaf712871cd44bff6b9e72c54b03b731ca923c5d04d0b84e4e",
       "directions": [
         "up_left",
         "up_right"
