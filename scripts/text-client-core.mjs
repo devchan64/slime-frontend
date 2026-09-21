@@ -109,6 +109,17 @@ export class TextClient {
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 휴식할 수 있습니다.');
       return this.command('/v1/game/rest/' + requestedRestAction);
     }
+    if (name === 'bag') {
+      arity(0);
+      await this.snapshot();
+      return formatCharacterBag(this.state.me.bag);
+    }
+    if (name === 'first-aid' || name === 'use-item') {
+      arity(name === 'first-aid' ? 0 : 1);
+      if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 회복 행동을 사용할 수 있습니다.');
+      return name === 'first-aid' ? this.command('/v1/game/skills/first-aid')
+        : this.command('/v1/game/consumables/use', { itemId: args[0] });
+    }
     if (name === 'scout') {
       arity(1);
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 정찰할 수 있습니다.');
@@ -313,4 +324,32 @@ export function formatScoutingResult(receivedScoutingResult) {
   return renderedScoutingHeader + ' | 관측 인원 ' + renderedCountRange
     + (hasScoutingRisk ? ' | 위험도 ' + SCOUTING_RISK_NAMES[receivedScoutingResult.riskGrade] : '')
     + ' | 관측 시각 ' + receivedScoutingResult.observedAt + ' | 만료 시각 ' + receivedScoutingResult.expiresAt + ' (Unix 초)';
+}
+
+
+export function formatCharacterBag(receivedCharacterBag) {
+  if (receivedCharacterBag === undefined) return '현재 서버 응답에 가방 정보가 없습니다.';
+  const invalidBagMessage = '가방 응답 형식이 올바르지 않습니다.';
+  const renderBagText = receivedBagText => receivedBagText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  if (!receivedCharacterBag || !Array.isArray(receivedCharacterBag.items)) throw new Error(invalidBagMessage);
+  const seenBagIdentifiers = new Set();
+  const renderedBagLines = receivedCharacterBag.items.map(receivedBagItem => {
+    if (!receivedBagItem || typeof receivedBagItem.id !== 'string' || !receivedBagItem.id
+        || typeof receivedBagItem.name !== 'string' || !receivedBagItem.name
+        || !['material', 'consumable', 'skillbook'].includes(receivedBagItem.kind)
+        || !Number.isSafeInteger(receivedBagItem.quantity) || receivedBagItem.quantity < 1
+        || seenBagIdentifiers.has(receivedBagItem.id)) throw new Error(invalidBagMessage);
+    seenBagIdentifiers.add(receivedBagItem.id);
+    let renderedUseCommand = '';
+    if (receivedBagItem.useAction !== undefined) {
+      const receivedUseAction = receivedBagItem.useAction;
+      if (receivedBagItem.kind !== 'consumable' || !receivedUseAction || receivedUseAction.type !== 'RESTORE_HP'
+          || !Number.isSafeInteger(receivedUseAction.restorationHp) || receivedUseAction.restorationHp < 1
+          || !Number.isSafeInteger(receivedUseAction.consumedOnSuccess) || receivedUseAction.consumedOnSuccess < 1) throw new Error(invalidBagMessage);
+      renderedUseCommand = ' | HP 회복 ' + receivedUseAction.restorationHp + ' · 소비 ' + receivedUseAction.consumedOnSuccess
+        + '개 | 사용: use-item ' + renderBagText(receivedBagItem.id);
+    }
+    return renderBagText(receivedBagItem.name) + ' [' + renderBagText(receivedBagItem.id) + '] × ' + receivedBagItem.quantity + renderedUseCommand;
+  });
+  return renderedBagLines.length ? renderedBagLines.join('\n') : '가방이 비어 있습니다.';
 }

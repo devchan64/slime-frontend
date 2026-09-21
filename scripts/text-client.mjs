@@ -16,6 +16,9 @@ attack 유닛ID          일반 공격
 use-skill 액션ID 유닛ID 전투 스킬 실행
 end / surrender        턴 종료 / 기권
 rest start / rest stop 휴식 시작 / 중단
+bag                    최신 가방 목록
+first-aid              응급처치 (붕대 소비)
+use-item 소모품ID      직접 회복 소모품 사용
 journal                메인 의뢰 기록 조회
 loans [다음커서]        대여 파티원 목록
 help / quit            도움말 / 로그아웃 후 종료`;

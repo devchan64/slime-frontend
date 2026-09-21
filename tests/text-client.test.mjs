@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TextClient, ApiFailure, formatState, formatScoutingResult } from '../scripts/text-client-core.mjs';
+import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag } from '../scripts/text-client-core.mjs';
 
 function state(extra = {}) {
   return { protocolVersion: 1, generation: 1, epoch: 1, cursor: 1,
@@ -338,4 +338,65 @@ test('정찰은 공개 인원 구간과 선택적 위험도만 해석하며 잘�
     createScoutingResponse({ succeeded: false }), createScoutingResponse({ enemyHp: 100 })]) {
     assert.throws(() => formatScoutingResult(invalidScoutingResult), /정찰 응답 형식/);
   }
+});
+
+
+test('필드 회복은 회복량과 소비량 없이 서버 명령 계약으로 실행한다', async () => {
+  const recoveredPlayerState = state({ cursor: 2 });
+  recoveredPlayerState.me.hp = 5;
+  recoveredPlayerState.me.maxHp = 20;
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    { state: recoveredPlayerState }, new TypeError('network'), { state: state({ cursor: 3 }) },
+  ]);
+  currentTextClient.accept(state());
+  assert.match(formatState(await currentTextClient.execute('first-aid')), /HP 5\/20/);
+  await currentTextClient.execute('use-item travel-biscuit');
+  assert.ok(recordedClientCalls[0].url.endsWith('/skills/first-aid'));
+  assert.deepEqual(Object.keys(recordedClientCalls[0].body).sort(), ['expectedVersion', 'requestId']);
+  assert.ok(recordedClientCalls[1].url.endsWith('/consumables/use'));
+  assert.deepEqual(Object.keys(recordedClientCalls[1].body).sort(), ['expectedVersion', 'itemId', 'requestId']);
+  assert.equal(recordedClientCalls[1].body.itemId, 'travel-biscuit');
+  assert.deepEqual(recordedClientCalls[1].body, recordedClientCalls[2].body);
+});
+
+test('가방은 최신 상태를 조회하고 직접 사용 가능한 품목에만 명령을 안내한다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([state({ cursor: 2, me: {
+    ...state().me, bag: { items: [
+      { id: 'clean-bandage', name: '깨끗한 붕대', kind: 'consumable', quantity: 2 },
+      { id: 'food', name: '음식', kind: 'consumable', quantity: 3, useAction: { type: 'RESTORE_HP', restorationHp: 12, consumedOnSuccess: 1 } },
+      { id: 'stone', name: '돌', kind: 'material', quantity: 5 },
+    ] },
+  } })]);
+  currentTextClient.accept(state());
+  const renderedBagResult = await currentTextClient.execute('bag');
+  assert.ok(recordedClientCalls[0].url.endsWith('/game/state'));
+  assert.match(renderedBagResult, /깨끗한 붕대 \[clean-bandage\] × 2/);
+  assert.match(renderedBagResult, /HP 회복 12 · 소비 1개 \| 사용: use-item food/);
+  assert.doesNotMatch(renderedBagResult, /use-item clean-bandage|use-item stone/);
+  assert.equal(currentTextClient.state.cursor, 2);
+});
+
+test('회복 행동의 비필드 상태·잘못된 인수를 차단하며 서버 거절을 재시도하지 않는다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    { status: 409, body: { code: 'CONSUMABLE_REQUIRED', messages: { ko: '소모품 부족', en: 'Missing consumable' } } },
+  ]);
+  currentTextClient.accept(state({ battle: { id: 'b' } }));
+  for (const invalidRecoveryCommand of ['first-aid', 'use-item food', 'first-aid extra', 'use-item', 'bag extra']) {
+    await assert.rejects(currentTextClient.execute(invalidRecoveryCommand));
+  }
+  assert.equal(recordedClientCalls.length, 0);
+  currentTextClient.accept(state({ cursor: 2 }));
+  await assert.rejects(currentTextClient.execute('use-item food'), receivedClientError => receivedClientError.code === 'CONSUMABLE_REQUIRED');
+  assert.equal(recordedClientCalls.length, 1);
+});
+
+test('가방은 잘못된 수량·중복 품목·잘못된 사용 행동을 거절한다', () => {
+  const validBagItem = { id: 'food', name: '음식', kind: 'consumable', quantity: 1 };
+  for (const invalidCharacterBag of [null, { items: {} }, { items: [{ ...validBagItem, quantity: 0 }] },
+    { items: [validBagItem, validBagItem] }, { items: [{ ...validBagItem, useAction: { type: 'UNKNOWN' } }] },
+    { items: [{ ...validBagItem, kind: 'material', useAction: { type: 'RESTORE_HP', restorationHp: 12, consumedOnSuccess: 1 } }] }]) {
+    assert.throws(() => formatCharacterBag(invalidCharacterBag), /가방 응답 형식/);
+  }
+  assert.equal(formatCharacterBag({ items: [] }), '가방이 비어 있습니다.');
+  assert.equal(formatCharacterBag(undefined), '현재 서버 응답에 가방 정보가 없습니다.');
 });
