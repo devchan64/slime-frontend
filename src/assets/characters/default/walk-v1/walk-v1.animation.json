@@ -8,7 +8,7 @@
       "image": "walk-down.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "4c6b835665d6802fa4424d225f7e39067ea2afad8bb2780f1c7b411981f205dd",
+      "sha256": "75987b4d3cfaca96915c2405e1fcf80602f16f634851a39d1df08f38c2cce891",
       "directions": [
         "down_left",
         "down_right"
@@ -19,7 +19,7 @@
       "image": "walk-up.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "b0772bc4fde2ba90cfd28fc2abf351f0a2c5e1c71255f446386e0037208792b0",
+      "sha256": "d9f7762f7483d315492420069adc6c17d30d393b007194eb6e49f597fb431962",
       "directions": [
         "up_left",
         "up_right"
@@ -379,8 +379,8 @@
         "y": 336
       },
       "anchorStatus": "inherited-and-transformed",
-      "sha256": "3bea37337c64aa0b435f4c16a6cbde53a489536767aab1aeb65fd06a30f04515",
-      "regenerated": false,
+      "sha256": "560377785478ce8f98b9e1a9fc0fa7b616a2bf0ae11c027097b7d58a1fe3340c",
+      "regenerated": true,
       "texture": "walk-up.png",
       "rect": {
         "x": 1152,
@@ -388,7 +388,8 @@
         "width": 384,
         "height": 384
       },
-      "poseReviewStatus": "user-approved"
+      "poseReviewStatus": "user-approved",
+      "managementId": "image.character.default.walk.up-left.frame-04.generated-candidate-v1"
     },
     {
       "frameId": "up_left.4",
@@ -472,7 +473,7 @@
         "y": 336
       },
       "anchorStatus": "provisional-needs-review",
-      "sha256": "d103091667f626479ccd913645b1fa16533f848092826085ff51999cbb22c8ab",
+      "sha256": "55c7f051fd01cafaf712871cd44bff6b9e72c54b03b731ca923c5d04d0b84e4e",
       "regenerated": true,
       "texture": "walk-up.png",
       "rect": {
@@ -509,7 +510,7 @@
         "y": 336
       },
       "anchorStatus": "provisional-needs-review",
-      "sha256": "ffc39a1d0ecfa797e0fa61d597c4dd3361562ce6138b16621b510e91c9e6c769",
+      "sha256": "5429c74eb232a1a7503a7e23d314e8d3e4ba58543644ca125734473327ab22f0",
       "regenerated": true,
       "texture": "walk-up.png",
       "rect": {

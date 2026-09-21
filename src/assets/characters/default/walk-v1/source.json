@@ -9,7 +9,7 @@
       "image": "walk-down.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "4c6b835665d6802fa4424d225f7e39067ea2afad8bb2780f1c7b411981f205dd",
+      "sha256": "75987b4d3cfaca96915c2405e1fcf80602f16f634851a39d1df08f38c2cce891",
       "directions": [
         "down_left",
         "down_right"
@@ -20,7 +20,7 @@
       "image": "walk-up.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "b0772bc4fde2ba90cfd28fc2abf351f0a2c5e1c71255f446386e0037208792b0",
+      "sha256": "55c7f051fd01cafaf712871cd44bff6b9e72c54b03b731ca923c5d04d0b84e4e",
       "directions": [
         "up_left",
         "up_right"
@@ -55,9 +55,11 @@
     "down_right.0",
     "up_left.4",
     "up_left.6",
-    "up_left.7"
+    "up_left.7",
+    "up_left.3"
   ],
   "poseReviewStatus": "user-approved",
   "anchorReviewStatus": "pending",
-  "approvedAt": "2026-09-21T12:23:19.439197+09:00"
+  "approvedAt": "2026-09-21T12:23:19.439197+09:00",
+  "sha256": "560377785478ce8f98b9e1a9fc0fa7b616a2bf0ae11c027097b7d58a1fe3340c"
 }
