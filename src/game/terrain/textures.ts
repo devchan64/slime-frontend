@@ -21,7 +21,8 @@ import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 export const TERRAIN_ATLAS = "meadow-terrain";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
-const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": extendedPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource };
+// 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
+const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": extendedPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base"]);
 const FRAME_W = TEXTURE_SIZE;
