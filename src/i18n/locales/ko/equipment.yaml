@@ -37,4 +37,4 @@ historyRepairReserved: "수리 맡김"
 historyRepaired: "수리 수령"
 historyWorn: "전투 마모"
 
-inventoryChanged: "장비 페이지에 중복된 개체가 있습니다. 목록을 새로고침하세요."
+inventoryChanged: "장비 목록이 변경되었습니다. 목록을 새로고침하세요."

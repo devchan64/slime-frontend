@@ -37,4 +37,4 @@ historyRepairReserved: "Repair started"
 historyRepaired: "Repair claimed"
 historyWorn: "Battle wear"
 
-inventoryChanged: "The equipment pages contain duplicate items. Please refresh the list."
+inventoryChanged: "The equipment list changed. Please refresh the list."

@@ -2,8 +2,8 @@ import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { ApiError } from '../client/response';
-import { LocalizedError, noticeText, type Notice } from '../client/notice';
-import { EQUIPMENT_SLOT_NAMES, parseEquipmentInventory, type EquipmentInventoryPage, type EquipmentInstanceEntry, type EquipmentSlotName, type EquipmentLoadoutCommand } from '../client/equipment';
+import { noticeText, type Notice } from '../client/notice';
+import { EQUIPMENT_SLOT_NAMES, parseEquipmentInventory, mergeEquipmentInventoryPages, type EquipmentInventoryPage, type EquipmentInstanceEntry, type EquipmentSlotName, type EquipmentLoadoutCommand } from '../client/equipment';
 import { useTranslation } from '../i18n';
 import './equipment.css';
 
@@ -34,12 +34,12 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
     const receivedInventoryPage = parseEquipmentInventory(await gameSessionClient.request('/v1/game/equipment'
       + (afterInstanceIdentifier ? `?after=${encodeURIComponent(afterInstanceIdentifier)}` : '')));
     if (!equipmentSessionMatches()) return;
-    const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
-    const previousInstanceIdentifiers = new Set(previousInventoryItems.map(currentItemEntry => currentItemEntry.instanceId));
-    if (receivedInventoryPage.items.some(currentItemEntry => previousInstanceIdentifiers.has(currentItemEntry.instanceId))) {
-      throw new LocalizedError('equipment.inventoryChanged');
+    try {
+      setCurrentInventoryPage(mergeEquipmentInventoryPages(currentInventoryPage, receivedInventoryPage, afterInstanceIdentifier));
+    } catch (currentInventoryError) {
+      setCurrentInventoryPage(null);
+      throw currentInventoryError;
     }
-    setCurrentInventoryPage({...receivedInventoryPage, items:[...previousInventoryItems, ...receivedInventoryPage.items]});
   }
   async function loadEquipmentInventory(afterInstanceIdentifier?: string) {
     if (equipmentRequestActive.current || !equipmentSessionMatches()) return;

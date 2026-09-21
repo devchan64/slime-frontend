@@ -1,3 +1,5 @@
+import {LocalizedError} from './notice';
+
 export const EQUIPMENT_SLOT_NAMES = ['main_hand', 'off_hand', 'body', 'back', 'feet', 'tool'] as const;
 export type EquipmentSlotName = typeof EQUIPMENT_SLOT_NAMES[number];
 export type EquipmentInstanceEntry = {
@@ -62,4 +64,17 @@ export function parseEquipmentInventory(rawEquipmentResponse: unknown): Equipmen
     }
   }
   return currentInventoryPage;
+}
+
+/** 다른 시점의 장비 상태를 하나의 목록으로 합치지 않는다. */
+export function mergeEquipmentInventoryPages(previousInventoryPage: EquipmentInventoryPage | null,
+  receivedInventoryPage: EquipmentInventoryPage, requestedPageCursor?: string): EquipmentInventoryPage {
+  if (!requestedPageCursor) return receivedInventoryPage;
+  if (!previousInventoryPage || previousInventoryPage.nextCursor !== requestedPageCursor
+      || previousInventoryPage.characterVersion !== receivedInventoryPage.characterVersion)
+    throw new LocalizedError('equipment.inventoryChanged');
+  const previousInstanceIdentifiers = new Set(previousInventoryPage.items.map(currentItemEntry => currentItemEntry.instanceId));
+  if (receivedInventoryPage.items.some(currentItemEntry => previousInstanceIdentifiers.has(currentItemEntry.instanceId)))
+    throw new LocalizedError('equipment.inventoryChanged');
+  return {...receivedInventoryPage, items:[...previousInventoryPage.items, ...receivedInventoryPage.items]};
 }
