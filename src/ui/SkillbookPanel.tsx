@@ -60,10 +60,11 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
     {currentBookNotice&&<p role="status">{noticeText(currentBookNotice,currentBookLocale,translateBookText)}</p>}
     {currentBookInventory&&<ul class="bag-items">{(currentBookInventory.catalog??currentBookInventory.books).map(currentBookEntry=>{
       const currentOwnedBook=currentBookInventory.books.find(currentOwnedEntry=>currentOwnedEntry.definitionId===currentBookEntry.definitionId);
-      return <li key={currentBookEntry.definitionId}><strong>{currentBookEntry.nameTranslations[currentBookLocale]}</strong>
-        <p>{translateBookText('books.literacy',{level:currentBookEntry.literacyRequired})}</p>
+      const currentDisplayedBook=currentOwnedBook??currentBookEntry;
+      return <li key={currentBookEntry.definitionId}><strong>{currentDisplayedBook.nameTranslations[currentBookLocale]}</strong>
+        <p>{translateBookText('books.literacy',{level:currentDisplayedBook.literacyRequired})}</p>
         {currentOwnedBook?<><span>{translateBookText('books.owned')}</span><button class="secondary compact"
-          disabled={currentActionsDisabled||(currentPlayerRecord?.skills.literacy??0)<currentBookEntry.literacyRequired}
+          disabled={currentActionsDisabled||(currentPlayerRecord?.skills.literacy??0)<currentOwnedBook.literacyRequired}
           onClick={()=>void readCurrentBook(currentBookEntry.definitionId)}>{translateBookText(currentOwnedBook.firstReadAt===null?'books.read':'books.reread')}</button></>
           :<button class="compact" disabled={currentActionsDisabled||(currentPlayerRecord?.coins??0)<currentBookEntry.priceP}
             onClick={()=>void purchaseCurrentBook(currentBookEntry)}>{translateBookText('books.buy',{price:currentBookEntry.priceP})}</button>}
