@@ -116,7 +116,7 @@ export class TextClient {
     }
     if (name === 'first-aid' || name === 'use-item') {
       arity(name === 'first-aid' ? 0 : 1);
-      if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 회복 행동을 사용할 수 있습니다.');
+      if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 응급처치·소모품을 사용할 수 있습니다.');
       return name === 'first-aid' ? this.command('/v1/game/skills/first-aid')
         : this.command('/v1/game/consumables/use', { itemId: args[0] });
     }
@@ -185,6 +185,7 @@ export function formatState(state) {
     lines.push(...formatBattleSkillActions(b.tactics?.skillActions));
     lines.push(`공격 가능: ${(b.tactics?.attacks ?? []).map(a => `${a.targetId}${Number.isInteger(a.apCost) ? ` (${a.apCost} AP)` : ''}`).join(', ') || '없음'}`);
   } else {
+    lines.push(...formatPersonalMarkers(state.me.personalMarkers, state.map?.id, state.serverTime));
     for (const m of state.monsters ?? []) lines.push(`${m.id} ${m.name ?? ''} (${m.position.column},${m.position.row}) ${m.state}`);
     for (const g of state.map?.connections ?? []) lines.push(`웨이포인트 ${g.id} (${g.column},${g.row}) → ${g.targetName ?? g.target}`);
   }
@@ -343,13 +344,49 @@ export function formatCharacterBag(receivedCharacterBag) {
     let renderedUseCommand = '';
     if (receivedBagItem.useAction !== undefined) {
       const receivedUseAction = receivedBagItem.useAction;
-      if (receivedBagItem.kind !== 'consumable' || !receivedUseAction || receivedUseAction.type !== 'RESTORE_HP'
-          || !Number.isSafeInteger(receivedUseAction.restorationHp) || receivedUseAction.restorationHp < 1
+      if (receivedBagItem.kind !== 'consumable' || !receivedUseAction
           || !Number.isSafeInteger(receivedUseAction.consumedOnSuccess) || receivedUseAction.consumedOnSuccess < 1) throw new Error(invalidBagMessage);
-      renderedUseCommand = ' | HP 회복 ' + receivedUseAction.restorationHp + ' · 소비 ' + receivedUseAction.consumedOnSuccess
+      let renderedItemEffect = '';
+      if (receivedUseAction.type === 'RESTORE_HP') {
+        if (!Number.isSafeInteger(receivedUseAction.restorationHp) || receivedUseAction.restorationHp < 1
+            || Object.keys(receivedUseAction).sort().join() !== 'consumedOnSuccess,restorationHp,type') throw new Error(invalidBagMessage);
+        renderedItemEffect = 'HP 회복 ' + receivedUseAction.restorationHp;
+      } else if (receivedUseAction.type === 'PLACE_MARKER') {
+        if (!['ROUTE', 'LIGHT'].includes(receivedUseAction.markerKind)
+            || !Number.isSafeInteger(receivedUseAction.validSeconds) || receivedUseAction.validSeconds < 1
+            || Object.keys(receivedUseAction).sort().join() !== 'consumedOnSuccess,markerKind,type,validSeconds') throw new Error(invalidBagMessage);
+        renderedItemEffect = (receivedUseAction.markerKind === 'ROUTE' ? '경로' : '광원') + ' 표식 ' + receivedUseAction.validSeconds + '초 · 현재 타일 설치';
+      } else throw new Error(invalidBagMessage);
+      renderedUseCommand = ' | ' + renderedItemEffect + ' · 소비 ' + receivedUseAction.consumedOnSuccess
         + '개 | 사용: use-item ' + renderBagText(receivedBagItem.id);
     }
     return renderBagText(receivedBagItem.name) + ' [' + renderBagText(receivedBagItem.id) + '] × ' + receivedBagItem.quantity + renderedUseCommand;
   });
   return renderedBagLines.length ? renderedBagLines.join('\n') : '가방이 비어 있습니다.';
+}
+
+
+function formatPersonalMarkers(receivedPersonalMarkers, currentMapIdentifier, observedServerTime) {
+  if (receivedPersonalMarkers === undefined) return [];
+  const invalidMarkerMessage = '개인 표식 응답 형식이 올바르지 않습니다.';
+  if (!Array.isArray(receivedPersonalMarkers)) throw new Error(invalidMarkerMessage);
+  if (!receivedPersonalMarkers.length) return [];
+  if (!Number.isFinite(observedServerTime) || observedServerTime < 0 || typeof currentMapIdentifier !== 'string') throw new Error(invalidMarkerMessage);
+  const seenMarkerIdentifiers = new Set();
+  const renderedMarkerLines = [];
+  for (const receivedPersonalMarker of receivedPersonalMarkers) {
+    if (!receivedPersonalMarker || typeof receivedPersonalMarker.id !== 'string' || !receivedPersonalMarker.id
+        || seenMarkerIdentifiers.has(receivedPersonalMarker.id) || typeof receivedPersonalMarker.mapId !== 'string'
+        || !['ROUTE', 'LIGHT'].includes(receivedPersonalMarker.kind)
+        || !Number.isSafeInteger(receivedPersonalMarker.position?.column) || receivedPersonalMarker.position.column < 0
+        || !Number.isSafeInteger(receivedPersonalMarker.position?.row) || receivedPersonalMarker.position.row < 0
+        || !Number.isFinite(receivedPersonalMarker.createdAt) || receivedPersonalMarker.createdAt < 0
+        || !Number.isFinite(receivedPersonalMarker.expiresAt) || receivedPersonalMarker.expiresAt <= receivedPersonalMarker.createdAt) throw new Error(invalidMarkerMessage);
+    seenMarkerIdentifiers.add(receivedPersonalMarker.id);
+    if (receivedPersonalMarker.mapId !== currentMapIdentifier || receivedPersonalMarker.expiresAt <= observedServerTime) continue;
+    renderedMarkerLines.push('개인 ' + (receivedPersonalMarker.kind === 'ROUTE' ? '경로' : '광원') + ' 표식 ('
+      + receivedPersonalMarker.position.column + ',' + receivedPersonalMarker.position.row + ') | 만료 시각 '
+      + receivedPersonalMarker.expiresAt + ' (Unix 초, 서버 시각 ' + observedServerTime + ' 기준)');
+  }
+  return renderedMarkerLines;
 }

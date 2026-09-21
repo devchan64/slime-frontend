@@ -400,3 +400,60 @@ test('가방은 잘못된 수량·중복 품목·잘못된 사용 행동을 거�
   assert.equal(formatCharacterBag({ items: [] }), '가방이 비어 있습니다.');
   assert.equal(formatCharacterBag(undefined), '현재 서버 응답에 가방 정보가 없습니다.');
 });
+
+test('가방은 회복과 경로·광원 표식의 공개 행동을 함께 표시한다', () => {
+  const renderedBagResult = formatCharacterBag({ items: [
+    { id: 'chalk', name: '분필', kind: 'consumable', quantity: 2, useAction: { type: 'PLACE_MARKER', markerKind: 'ROUTE', validSeconds: 120, consumedOnSuccess: 1 } },
+    { id: 'lantern', name: '등불', kind: 'consumable', quantity: 1, useAction: { type: 'PLACE_MARKER', markerKind: 'LIGHT', validSeconds: 60, consumedOnSuccess: 1 } },
+    { id: 'food', name: '음식', kind: 'consumable', quantity: 1, useAction: { type: 'RESTORE_HP', restorationHp: 5, consumedOnSuccess: 1 } },
+  ] });
+  assert.match(renderedBagResult, /경로 표식 120초 · 현재 타일 설치.*use-item chalk/);
+  assert.match(renderedBagResult, /광원 표식 60초 · 현재 타일 설치.*use-item lantern/);
+  assert.match(renderedBagResult, /HP 회복 5.*use-item food/);
+  for (const invalidUseAction of [
+    { type: 'PLACE_MARKER', markerKind: 'UNKNOWN', validSeconds: 60, consumedOnSuccess: 1 },
+    { type: 'PLACE_MARKER', markerKind: 'LIGHT', validSeconds: 0, consumedOnSuccess: 1 },
+    { type: 'PLACE_MARKER', markerKind: 'LIGHT', validSeconds: 60, consumedOnSuccess: 1, restorationHp: 5 },
+  ]) assert.throws(() => formatCharacterBag({ items: [{ id: 'item', name: '품목', kind: 'consumable', quantity: 1, useAction: invalidUseAction }] }), /가방 응답 형식/);
+});
+
+function createMarkerStateFixture() {
+  const currentGameState = state({ serverTime: 100, map: { id: 'meadow', name: '이슬초원' } });
+  currentGameState.me.personalMarkers = [
+    { id: 'own', mapId: 'meadow', kind: 'ROUTE', position: { column: 2, row: 3 }, createdAt: 90, expiresAt: 210 },
+    { id: 'expired', mapId: 'meadow', kind: 'LIGHT', position: { column: 4, row: 5 }, createdAt: 40, expiresAt: 100 },
+    { id: 'elsewhere', mapId: 'grove', kind: 'LIGHT', position: { column: 6, row: 7 }, createdAt: 90, expiresAt: 150 },
+  ];
+  return currentGameState;
+}
+
+test('개인 표식은 본인 현재 맵의 서버 시각 기준 유효 정보만 표시한다', () => {
+  const currentGameState = createMarkerStateFixture();
+  currentGameState.members = [{ personalMarkers: [{ position: { column: 98, row: 99 } }] }];
+  const renderedStateResult = formatState(currentGameState);
+  assert.match(renderedStateResult, /개인 경로 표식 \(2,3\).*만료 시각 210.*서버 시각 100 기준/);
+  assert.doesNotMatch(renderedStateResult, /\(4,5\)|\(6,7\)|98|99/);
+  currentGameState.serverTime = 210;
+  assert.doesNotMatch(formatState(currentGameState), /개인 .*표식/);
+  currentGameState.me.personalMarkers[0].position.column = -1;
+  assert.throws(() => formatState(currentGameState), /개인 표식 응답 형식/);
+});
+
+test('표식 사용은 현재 타일 명령으로 실행하고 같은 재전송에 좌표를 추가하지 않는다', async () => {
+  const currentGameState = createMarkerStateFixture();
+  currentGameState.cursor = 2;
+  currentGameState.me.hp = 20;
+  currentGameState.me.maxHp = 20;
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    new TypeError('network'), { state: currentGameState },
+  ]);
+  const initialMarkerState = structuredClone(currentGameState);
+  initialMarkerState.cursor = 1;
+  initialMarkerState.me.personalMarkers = [];
+  currentTextClient.accept(initialMarkerState);
+  const renderedStateResult = formatState(await currentTextClient.execute('use-item chalk'));
+  assert.match(renderedStateResult, /개인 경로 표식/);
+  assert.deepEqual(recordedClientCalls[0].body, recordedClientCalls[1].body);
+  assert.deepEqual(Object.keys(recordedClientCalls[0].body).sort(), ['expectedVersion', 'itemId', 'requestId']);
+  assert.equal(recordedClientCalls[0].body.itemId, 'chalk');
+});
