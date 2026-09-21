@@ -565,6 +565,9 @@ export function App() {
           <p>{t('terms.operationPolicy')}</p>
           <h2>{t('terms.connectionLimitHeading')}</h2>
           <p>{t('terms.connectionLimitPolicy')}</p>
+          <h2>{t('terms.seasonLoginHeading')}</h2>
+          <p>{t('terms.seasonLoginPolicy')}</p>
+          <p>{t('terms.seasonLoginPending')}</p>
           <p>{t('terms.pendingNotice')}</p>
           <h2>{t('terms.reportHeading')}</h2>
           <p>{t('terms.reportPolicy')}</p>
