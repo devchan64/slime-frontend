@@ -6,7 +6,7 @@ export function parseWorldMapCatalog(receivedWorldCatalog:unknown):WorldMapNode[
     return currentWorldValue as Record<string,any>;
   };
   const parsedWorldCatalog=requireWorldObject(receivedWorldCatalog,['version','maps']);
-  if(parsedWorldCatalog.version!==1||!Array.isArray(parsedWorldCatalog.maps)||!parsedWorldCatalog.maps.length)throw new Error('월드맵 버전 또는 맵 목록이 올바르지 않습니다.');
+  if(![1,2].includes(parsedWorldCatalog.version)||!Array.isArray(parsedWorldCatalog.maps)||!parsedWorldCatalog.maps.length)throw new Error('월드맵 버전 또는 맵 목록이 올바르지 않습니다.');
   const currentMapIdentifiers=new Set<string>(),occupiedMapPositions=new Set<string>();
   for(const currentWorldNode of parsedWorldCatalog.maps){
     requireWorldObject(currentWorldNode,['id','name','nameTranslations','safeTown','column','row','connections']);
@@ -26,7 +26,7 @@ export function parseWorldMapCatalog(receivedWorldCatalog:unknown):WorldMapNode[
   for(const currentWorldNode of parsedWorldNodes)for(const currentMapLink of currentWorldNode.connections){
     const targetWorldNode=parsedWorldNodes.find(currentTargetNode=>currentTargetNode.id===currentMapLink.target);
     const currentDirectionOffset=WORLD_MAP_DIRECTION_OFFSETS[currentMapLink.direction];
-    if(!targetWorldNode||targetWorldNode.column!==currentWorldNode.column+currentDirectionOffset[0]||targetWorldNode.row!==currentWorldNode.row+currentDirectionOffset[1]||!targetWorldNode.connections.some(reverseMapLink=>reverseMapLink.target===currentWorldNode.id))throw new Error('월드맵 연결 대상 또는 방향이 올바르지 않습니다.');
+    if(!targetWorldNode||Math.sign(targetWorldNode.column-currentWorldNode.column)!==currentDirectionOffset[0]||Math.sign(targetWorldNode.row-currentWorldNode.row)!==currentDirectionOffset[1]||!targetWorldNode.connections.some(reverseMapLink=>reverseMapLink.target===currentWorldNode.id))throw new Error('월드맵 연결 대상 또는 방향이 올바르지 않습니다.');
   }
   return parsedWorldNodes;
 }

@@ -8,6 +8,14 @@ const HORIZONTAL_MARGIN = 1.15;
 const VERTICAL_MARGIN = 1.35;
 const CENTER = 0.5;
 const THEMES: Record<string, number> = {
+  reedhaven: 0xa6c8cb, stonewarm: 0xc9b79b,
+  "ash-edge": 0xa99d97, "cinder-path": 0xa99d97,
+  "boar-ridge": 0xe0cba1, "dawn-overlook": 0xe0cba1,
+  "broken-quarry": 0xc9b79b, "crystal-cut": 0xc9b79b, "dry-creek": 0xc9b79b,
+  "clover-bank": 0xffffff,
+  "fallen-canopy": 0x8db69e, "lantern-wood": 0x8db69e, "moss-clearing": 0x8db69e,
+  "old-orchard": 0x8db69e, "root-trail": 0x8db69e,
+  "pebble-shore": 0xa6c8cb, "reed-crossing": 0xa6c8cb, "silver-marsh": 0xa6c8cb,
   iseulon: 0xe8dcc1, meadow: 0xffffff, grove: 0x8db69e, "mist-lake": 0xa6c8cb, "wind-hills": 0xe0cba1,
 };
 
