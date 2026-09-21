@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag } from '../scripts/text-client-core.mjs';
+import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag, formatCharacterSkills } from '../scripts/text-client-core.mjs';
 
 function state(extra = {}) {
   return { protocolVersion: 1, generation: 1, epoch: 1, cursor: 1,
@@ -507,4 +507,45 @@ test('슬롯의 서버 거절은 재시도하지 않고 기존 상태를 보존�
   await assert.rejects(currentTextClient.execute('loadout unknown_skill'), { code: 'INVALID_SKILL_LOADOUT' });
   assert.equal(currentTextClient.state.me.version, 4);
   assert.equal(recordedClientCalls.length, 1);
+});
+
+function createSkillActionCharacter() {
+  return { skills: { one_handed_swordsmanship: 2, scouting: 0 }, battleSkillLoadout: ['one_handed_swordsmanship'],
+    battleSkillSlotLimit: 5, skillDefinitions: {
+      scouting: { name: '정찰', actions: [] },
+      one_handed_swordsmanship: { name: '한손검술', actions: [
+        { actionId: 'strike', name: '검격', requiredLevel: 1, apCost: 3, powerBasisPoints: 12000, requiredEquipment: 'one_handed_sword' },
+        { actionId: 'finisher', name: '마무리', requiredLevel: 3, apCost: 5, powerBasisPoints: 16000, requiredEquipment: 'one_handed_sword' },
+      ] },
+    } };
+}
+
+test('스킬 액션의 레벨 조건과 전투 실행 조건을 구분한다', () => {
+  const renderedSkillText = formatCharacterSkills(createSkillActionCharacter());
+  assert.match(renderedSkillText, /검격 \[strike\] · 레벨 조건 충족 · 3 AP · 위력 배율 1.2 · 필요 장비: 한손검/);
+  assert.match(renderedSkillText, /마무리 \[finisher\] · Lv.3 필요/);
+  assert.match(renderedSkillText, /정찰 \[scouting\] Lv.0 · 효과 미활성/);
+  assert.match(renderedSkillText, /AP·장비·턴·대상 조건/);
+});
+
+test('사용 잠금은 레벨·슬롯을 보존하여 표시하고 내부 출처는 출력하지 않는다', () => {
+  const currentCharacterState = createSkillActionCharacter();
+  currentCharacterState.skillUseLocks = { one_handed_swordsmanship: { reason: 'book_sold', bookId: 'private-book', sourceId: 'private-source' } };
+  const renderedSkillText = formatCharacterSkills(currentCharacterState);
+  assert.match(renderedSkillText, /Lv.2 · 슬롯 지정 · 사용 잠금/);
+  assert.match(renderedSkillText, /검격 \[strike\] · 사용 잠금/);
+  assert.doesNotMatch(renderedSkillText, /레벨 조건 충족|private-book|private-source/);
+  assert.equal(currentCharacterState.skills.one_handed_swordsmanship, 2);
+});
+
+test('잘못된 스킬 액션·잠금 정보는 사용 가능으로 표시하지 않는다', () => {
+  for (const invalidActionPatch of [{ apCost: -1 }, { requiredLevel: 0 }, { powerBasisPoints: 1.5 },
+    { requiredEquipment: 'unknown' }, { actionId: '' }]) {
+    const currentCharacterState = createSkillActionCharacter();
+    Object.assign(currentCharacterState.skillDefinitions.one_handed_swordsmanship.actions[0], invalidActionPatch);
+    assert.throws(() => formatCharacterSkills(currentCharacterState), /스킬 응답 형식/);
+  }
+  const currentCharacterState = createSkillActionCharacter();
+  currentCharacterState.skillUseLocks = { scouting: { reason: 'unknown' } };
+  assert.throws(() => formatCharacterSkills(currentCharacterState), /스킬 응답 형식/);
 });

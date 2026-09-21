@@ -410,6 +410,7 @@ export function formatCharacterSkills(receivedCharacterState) {
   const receivedSkillDefinitions = receivedCharacterState.skillDefinitions;
   const receivedSkillLoadout = receivedCharacterState.battleSkillLoadout;
   const receivedSlotLimit = receivedCharacterState.battleSkillSlotLimit;
+  const receivedUsageLocks = receivedCharacterState.skillUseLocks ?? {};
   const invalidSkillsMessage = '스킬 응답 형식이 올바르지 않습니다.';
   const renderSkillText = receivedSkillText => receivedSkillText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
   if (receivedSkillLevels === undefined && receivedSkillDefinitions === undefined)
@@ -420,6 +421,10 @@ export function formatCharacterSkills(receivedCharacterState) {
       || !Number.isSafeInteger(receivedSlotLimit) || receivedSlotLimit < 1 || receivedSkillLoadout.length > receivedSlotLimit
       || receivedSkillLoadout.some(receivedSkillIdentifier => typeof receivedSkillIdentifier !== 'string'
         || !Object.hasOwn(receivedSkillLevels, receivedSkillIdentifier))) throw new Error(invalidSkillsMessage);
+  if (typeof receivedUsageLocks !== 'object' || Array.isArray(receivedUsageLocks)
+      || Object.entries(receivedUsageLocks).some(([receivedSkillIdentifier, receivedUsageLock]) =>
+        !Object.hasOwn(receivedSkillLevels, receivedSkillIdentifier) || !receivedUsageLock
+        || receivedUsageLock.reason !== 'book_sold')) throw new Error(invalidSkillsMessage);
   const renderedSkillLines = ['전투 스킬 슬롯 ' + receivedSkillLoadout.length + '/' + receivedSlotLimit
     + ': ' + (receivedSkillLoadout.map(renderSkillText).join(', ') || '비어 있음')];
   for (const [receivedSkillIdentifier, receivedSkillLevel] of Object.entries(receivedSkillLevels)) {
@@ -428,8 +433,32 @@ export function formatCharacterSkills(receivedCharacterState) {
         || !receivedSkillDefinition || typeof receivedSkillDefinition.name !== 'string' || !receivedSkillDefinition.name)
       throw new Error(invalidSkillsMessage);
     renderedSkillLines.push(renderSkillText(receivedSkillDefinition.name) + ' [' + renderSkillText(receivedSkillIdentifier)
-      + '] Lv.' + receivedSkillLevel + (receivedSkillLoadout.includes(receivedSkillIdentifier) ? ' · 슬롯 지정' : ''));
+      + '] Lv.' + receivedSkillLevel + (receivedSkillLoadout.includes(receivedSkillIdentifier) ? ' · 슬롯 지정' : '')
+      + (receivedUsageLocks[receivedSkillIdentifier] ? ' · 사용 잠금 (스킬북 판매 기록)' : receivedSkillLevel === 0 ? ' · 효과 미활성' : ''));
+    if (receivedSkillDefinition.actions !== undefined) {
+      if (!Array.isArray(receivedSkillDefinition.actions)) throw new Error(invalidSkillsMessage);
+      const seenActionIdentifiers = new Set();
+      for (const receivedActionDefinition of receivedSkillDefinition.actions) {
+        if (!receivedActionDefinition || typeof receivedActionDefinition.actionId !== 'string' || !receivedActionDefinition.actionId
+            || seenActionIdentifiers.has(receivedActionDefinition.actionId)
+            || typeof receivedActionDefinition.name !== 'string' || !receivedActionDefinition.name
+            || !['requiredLevel', 'apCost', 'powerBasisPoints'].every(currentActionField =>
+              Number.isSafeInteger(receivedActionDefinition[currentActionField]) && receivedActionDefinition[currentActionField] > 0)
+            || ![null, 'one_handed_sword', 'two_handed_sword'].includes(receivedActionDefinition.requiredEquipment))
+          throw new Error(invalidSkillsMessage);
+        seenActionIdentifiers.add(receivedActionDefinition.actionId);
+        const renderedActionStatus = receivedSkillLevel < receivedActionDefinition.requiredLevel
+          ? 'Lv.' + receivedActionDefinition.requiredLevel + ' 필요'
+          : receivedUsageLocks[receivedSkillIdentifier] ? '사용 잠금' : '레벨 조건 충족';
+        const renderedEquipmentRequirement = receivedActionDefinition.requiredEquipment === 'one_handed_sword' ? '한손검'
+          : receivedActionDefinition.requiredEquipment === 'two_handed_sword' ? '양손검' : '없음';
+        renderedSkillLines.push('  ' + renderSkillText(receivedActionDefinition.name) + ' [' + renderSkillText(receivedActionDefinition.actionId)
+          + '] · ' + renderedActionStatus + ' · ' + receivedActionDefinition.apCost + ' AP · 위력 배율 '
+          + receivedActionDefinition.powerBasisPoints / 10000 + ' · 필요 장비: ' + renderedEquipmentRequirement);
+      }
+    }
   }
+  renderedSkillLines.push('실제 실행 가능 여부는 전투의 AP·장비·턴·대상 조건으로 결정됩니다.');
   renderedSkillLines.push('슬롯 변경: loadout 스킬ID ... | 모두 해제: loadout clear');
   return renderedSkillLines.join('\n');
 }
