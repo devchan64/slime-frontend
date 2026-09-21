@@ -1482,3 +1482,12 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .costume-description summary:focus-visible { outline: 2px solid #a4dbc4; outline-offset: 3px; border-radius: 4px; }
 .costume-description p { line-height: 1.6; overflow-wrap: anywhere; margin: 8px 0; }
 .costume-description .costume-effect-note { color: #9eb9b3; }
+
+/* 모바일 캐릭터 설정의 네 탭 이름을 단어 단위로 읽을 수 있게 배치한다. */
+@media (max-width: 480px) {
+  .character-settings .growth-categories {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .character-settings .growth-categories button { word-break: keep-all; }
+}
