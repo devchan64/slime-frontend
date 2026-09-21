@@ -1,4 +1,6 @@
-<html lang="ko" class="terrain-preview"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>SLIME · 네 맵 탐색 미리보기</title><style>body{margin:0;background:#0d1d28;color:#e5fff7;font:14px sans-serif}header{padding:14px;text-align:center}button{padding:8px;margin:4px}#game{width:100%;max-width:1100px;margin:auto}#result{padding:8px} .preview-tools{height:auto;display:block;padding:14px;text-align:center}.preview-tools button,.preview-tools select{display:inline-block;width:auto;white-space:nowrap;margin:4px}.preview-tools #result{display:block}</style><header class="preview-tools">네 맵 탐색 · 목적지별 웨이포인트 · <a href="/battlefield-preview.html">전술전장 5종 보기</a><br><select id="map-choice" style="padding:8px"><option value="meadow">이슬 초원</option><option value="grove">푸른 숲</option><option value="mist-lake">안개 호수</option><option value="wind-hills">바람 구릉</option></select><button id="zoom-out">최소 줌 0.4</button><button id="zoom-in">최대 줌 1.4</button><button id="character-settings">캐릭터 설정</button><button id="refresh">상태 갱신</button><div id="result">준비 중</div></header><div id="legend-root"></div><div id="game"></div><div id="settings-root"></div><script type="module">
+<html lang="ko" class="terrain-preview"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>SLIME · 네 맵 탐색 미리보기</title><style>body{margin:0;background:#0d1d28;color:#e5fff7;font:14px sans-serif}header{padding:14px;text-align:center}button{padding:8px;margin:4px}#game{width:100%;max-width:1100px;margin:auto}#result{padding:8px} .preview-tools{height:auto;display:block;padding:14px;text-align:center}.preview-tools button,.preview-tools select{display:inline-block;width:auto;white-space:nowrap;margin:4px}.preview-tools #result{display:block}</style><header class="preview-tools">네 맵 탐색 · 목적지별 웨이포인트 · <a href="./battlefield-preview.html">전술전장 5종 보기</a><br><select id="map-choice" style="padding:8px"><option value="meadow">이슬 초원</option><option value="grove">푸른 숲</option><option value="mist-lake">안개 호수</option><option value="wind-hills">바람 구릉</option></select><button id="zoom-out">최소 줌 0.4</button><button id="zoom-in">최대 줌 1.4</button><button id="character-settings">캐릭터 설정</button><button id="refresh">상태 갱신</button><div id="result">준비 중</div></header><div id="legend-root"></div><div id="game"></div><div id="settings-root"></div><script type="module">
+import { installReviewRuntime, registerReviewGame } from "/review/runtime.ts";
+installReviewRuntime();
 import {createGame} from '/src/game/createGame.ts';
 import { h, render } from 'preact';
 import {FieldPoints} from '/src/ui/FieldPoints.tsx';
@@ -34,7 +36,8 @@ world.append(menu);
 let selectedCell=null;
 const selectCell=p=>{selectedCell=p;scene.selectCell(p);drawSelection();};
 const drawSelection=()=>render(h(FieldSelection,{state,selected:selectedCell,disabled:true,disabledReason:'디자인 미리보기에서는 이동·조우를 실행하지 않습니다.',now:0,select:selectCell,command:()=>{},walking:null,walk:()=>{},stop:()=>{}}),selectionRoot);
-const {game,scene}=createGame(gameRoot,p=>{selectedCell=p;drawSelection();},()=>{});
+const {game,scene}=createGame(gameRoot,p=>{selectedCell=p;drawSelection();},()=>{},message=>{throw new Error(message);});
+registerReviewGame(game);
 menu.querySelector('#preview-character').onclick=()=>document.querySelector('#character-settings').click();
 menu.querySelector('#preview-chat').onclick=()=>{
  let draft='';

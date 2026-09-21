@@ -1,0 +1,14 @@
+schemaVersion: 1
+pages:
+  - id: design-system
+    label: 디자인 시스템 · 토큰과 기본 컴포넌트
+    path: review/design-system.html
+  - id: terrain-layout
+    label: 탐색 레이아웃 · 메뉴와 패널
+    path: review/terrain-preview.html
+  - id: character-settings
+    label: 캐릭터 설정 · 대화상자
+    path: review/terrain-preview.html?settings=1
+  - id: battlefield-layout
+    label: 전투 레이아웃 · 전체 전장
+    path: review/battlefield-preview.html
