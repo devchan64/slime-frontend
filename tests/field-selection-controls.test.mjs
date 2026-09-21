@@ -19,7 +19,8 @@ const { outputFiles: fieldBundleOutputs } = await build({
         contents: `import {formatMessage} from ${JSON.stringify(pathToFileURL(resolve('src/i18n/catalog.mjs')).href)};
           const fieldMessageCatalog = ${JSON.stringify(fieldMessageCatalog)};
           export const t = (messageKey, messageValues) => formatMessage(fieldMessageCatalog[messageKey.replace('field.', '')], messageValues);
-          export const useTranslation = () => ({t, locale:'ko'});`,
+          export const getLocale = () => 'ko';
+          export const useTranslation = () => ({t, locale:getLocale()});`,
         loader: 'js', resolveDir: process.cwd(),
       }));
     },
