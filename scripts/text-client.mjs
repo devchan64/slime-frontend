@@ -22,6 +22,7 @@ bag                    최신 가방 목록
 first-aid              응급처치 (붕대 소비)
 use-item 소모품ID      회복·개인 표식 소모품 사용
 journal                메인 의뢰 기록 조회
+rewards [다음커서]      계정 보관함 조회 (claim-all: 전체 수령)
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
 loans [다음커서]        대여 파티원 목록
 help / quit            도움말 / 로그아웃 후 종료`;

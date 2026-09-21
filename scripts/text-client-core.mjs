@@ -140,6 +140,18 @@ export class TextClient {
       return this.command('/v1/game/skills/scout', { monsterId: args[0] }, receivedCommandResult =>
         formatScoutingResult(receivedCommandResult.scouting) + '\n' + formatState(this.state));
     }
+    if (name === 'rewards') {
+      if (args.length > 1) throw new Error('rewards [다음커서] 또는 rewards claim-all을 입력하세요.');
+      if (args[0] === 'claim-all') {
+        const receivedClaimResult = await this.request('/v1/accounts/me/rewards/claim-all', {});
+        const renderedClaimResult = formatRewardClaimResult(receivedClaimResult);
+        await this.snapshot();
+        return renderedClaimResult;
+      }
+      if (args.length && !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(args[0]))
+        throw new Error('보관함에서 표시한 다음커서 UUID를 입력하세요.');
+      return formatAccountRewardPage(await this.request('/v1/accounts/me/rewards' + (args.length ? '?after=' + encodeURIComponent(args[0]) : '')));
+    }
     if (name === 'hunts') {
       if (args.length > 1 || args.length === 1 && (!/^\d+$/.test(args[0]) || !Number.isSafeInteger(Number(args[0]))))
         throw new Error('hunts 또는 hunts 다음커서(0 이상의 정수)를 입력하세요.');
@@ -507,4 +519,54 @@ export function formatHuntLedger(receivedHuntLedger, requestedHuntCursor = 0) {
     renderedLedgerLines.push('다음 페이지: hunts ' + receivedHuntLedger.nextCursor);
   }
   return renderedLedgerLines.join('\n');
+}
+
+
+function validateRewardMaterialEntries(receivedMaterialEntries) {
+  if (!Array.isArray(receivedMaterialEntries)) throw new Error('보상 재료 목록이 올바르지 않습니다.');
+  const seenMaterialIdentifiers = new Set();
+  for (const receivedMaterialEntry of receivedMaterialEntries) {
+    if (!receivedMaterialEntry || typeof receivedMaterialEntry.materialId !== 'string' || !receivedMaterialEntry.materialId
+        || seenMaterialIdentifiers.has(receivedMaterialEntry.materialId)
+        || !Number.isSafeInteger(receivedMaterialEntry.quantity) || receivedMaterialEntry.quantity <= 0)
+      throw new Error('보상 재료 ID·수량이 올바르지 않습니다.');
+    seenMaterialIdentifiers.add(receivedMaterialEntry.materialId);
+  }
+}
+
+export function formatRewardClaimResult(receivedClaimResult) {
+  if (!Number.isSafeInteger(receivedClaimResult?.claimedCount) || receivedClaimResult.claimedCount < 0)
+    throw new Error('보상 수령 응답이 올바르지 않습니다.');
+  validateRewardMaterialEntries(receivedClaimResult.materials);
+  if ((receivedClaimResult.claimedCount === 0) !== (receivedClaimResult.materials.length === 0))
+    throw new Error('보상 수령 건수와 재료가 일치하지 않습니다.');
+  return ['전체 보상 수령: ' + receivedClaimResult.claimedCount + '건', ...receivedClaimResult.materials.map(
+    receivedMaterialEntry => receivedMaterialEntry.materialId + ' × ' + receivedMaterialEntry.quantity)].join('\n');
+}
+
+export function formatAccountRewardPage(receivedRewardPage) {
+  if (!receivedRewardPage || !Number.isFinite(receivedRewardPage.serverTime) || !Array.isArray(receivedRewardPage.entries)
+      || !(receivedRewardPage.nextCursor === null || typeof receivedRewardPage.nextCursor === 'string' && receivedRewardPage.nextCursor))
+    throw new Error('보관함 응답이 올바르지 않습니다.');
+  const renderedRewardLines = ['계정 보관함'];
+  const seenRewardIdentifiers = new Set();
+  for (const receivedRewardEntry of receivedRewardPage.entries) {
+    if (!receivedRewardEntry || typeof receivedRewardEntry.id !== 'string' || !receivedRewardEntry.id || seenRewardIdentifiers.has(receivedRewardEntry.id)
+        || !Number.isFinite(receivedRewardEntry.storedAt) || !Number.isFinite(receivedRewardEntry.expiresAt)
+        || receivedRewardEntry.expiresAt <= receivedRewardEntry.storedAt || !Number.isFinite(new Date(receivedRewardEntry.expiresAt * 1000).getTime()))
+      throw new Error('보관 보상 정보가 올바르지 않습니다.');
+    seenRewardIdentifiers.add(receivedRewardEntry.id);
+    validateRewardMaterialEntries(receivedRewardEntry.materials);
+    if (!receivedRewardEntry.materials.length) throw new Error('보관 보상 재료가 비어 있습니다.');
+    renderedRewardLines.push(receivedRewardEntry.id + ' | 수령 기한 ' + new Date(receivedRewardEntry.expiresAt * 1000).toISOString());
+    for (const receivedMaterialEntry of receivedRewardEntry.materials) {
+      if (!['ko', 'en'].every(currentLocaleCode => typeof receivedMaterialEntry.nameTranslations?.[currentLocaleCode] === 'string'
+          && receivedMaterialEntry.nameTranslations[currentLocaleCode].trim())) throw new Error('보상 재료 이름이 올바르지 않습니다.');
+      renderedRewardLines.push('  ' + receivedMaterialEntry.nameTranslations.ko + ' × ' + receivedMaterialEntry.quantity);
+    }
+  }
+  if (!receivedRewardPage.entries.length) renderedRewardLines.push('수령할 보상이 없습니다.');
+  if (receivedRewardPage.nextCursor) renderedRewardLines.push('다음 페이지: rewards ' + receivedRewardPage.nextCursor);
+  renderedRewardLines.push('전체 페이지의 유효 보상 수령: rewards claim-all');
+  return renderedRewardLines.join('\n');
 }

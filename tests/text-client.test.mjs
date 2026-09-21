@@ -584,3 +584,39 @@ test('사냥 원장은 누적 수량과 현재 페이지를 구분하고 중복�
     assert.throws(()=>formatHuntLedger({...createHuntLedgerPage(),...invalidLedgerPatch}),/사냥 원장/);
   assert.match(formatHuntLedger({entries:[],totals:[],nextCursor:null}),/기록 없음/);
 });
+
+test('보관함 조회는 상태를 유지하고 전체 수령은 합계 출력 후 상태를 갱신한다', async () => {
+  const currentRewardCursor = '12345678-1234-1234-1234-123456789abc';
+  const currentRewardPage = {serverTime:100,nextCursor:currentRewardCursor,entries:[{id:currentRewardCursor,storedAt:50,expiresAt:1000,
+    materials:[{materialId:'protein-jelly',quantity:3,nameTranslations:{ko:'젤리',en:'Jelly'}}]}]};
+  const {client:currentTextClient,calls:observedRequestCalls}=setup([currentRewardPage,{claimedCount:101,materials:[{materialId:'protein-jelly',quantity:303}]},state({cursor:2})]);
+  currentTextClient.accept(state());
+  assert.match(await currentTextClient.execute('rewards ' + currentRewardCursor), /젤리 × 3/);
+  assert.equal(currentTextClient.state.cursor,1);
+  assert.ok(observedRequestCalls[0].url.endsWith('?after=' + currentRewardCursor));
+  assert.match(await currentTextClient.execute('rewards claim-all'), /101건\nprotein-jelly × 303/);
+  assert.ok(observedRequestCalls[1].url.endsWith('/rewards/claim-all'));
+  assert.deepEqual(observedRequestCalls[1].body,{});
+  assert.equal(currentTextClient.state.cursor,2);
+});
+
+test('보관함 잘못된 인수는 송신하지 않고 수령 네트워크 오류는 자동 재시도하지 않는다',async()=>{
+  const {client:currentTextClient,calls:observedRequestCalls}=setup([new Error('network lost')]);
+  for(const invalidRewardCommand of ['rewards invalid','rewards claim-all extra'])await assert.rejects(currentTextClient.execute(invalidRewardCommand));
+  assert.equal(observedRequestCalls.length,0);
+  await assert.rejects(currentTextClient.execute('rewards claim-all'),/network lost/);
+  assert.equal(observedRequestCalls.length,1);
+});
+
+test('전체 수령의 잘못된 건수·수량·중복 재료를 거절한다',async()=>{
+  for(const malformedClaimResponse of [
+    {claimedCount:-1,materials:[]},{claimedCount:1,materials:[]},
+    {claimedCount:0,materials:[{materialId:'jelly',quantity:1}]},
+    {claimedCount:1,materials:[{materialId:'jelly',quantity:0}]},
+    {claimedCount:2,materials:[{materialId:'jelly',quantity:1},{materialId:'jelly',quantity:1}]}
+  ]){
+    const {client:currentTextClient,calls:observedRequestCalls}=setup([malformedClaimResponse]);
+    await assert.rejects(currentTextClient.execute('rewards claim-all'));
+    assert.equal(observedRequestCalls.length,1);
+  }
+});
