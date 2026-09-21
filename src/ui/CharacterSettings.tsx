@@ -48,7 +48,11 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
       <span class="character-kicker">{t("character.adventurer")}</span>
       <h2>{me.name}</h2>
       <div class="portrait-stage"><CharacterPortrait playStandingAnimation /></div>
-      <span class="costume-label">{t("character.costume")}</span>
+      <details class="costume-description">
+        <summary><span class="costume-label">{t("character.costume")}</span><span>{t("character.costumeDetails")}</span></summary>
+        <p>{t("character.costumeDescription")}</p>
+        <p class="costume-effect-note">{t("character.costumeAppearanceOnly")}</p>
+      </details>
       <dl class="character-resources">
         <div><dt>{t("character.coins")}</dt><dd>{me.coins}</dd></div>
       </dl>
