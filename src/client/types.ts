@@ -1,5 +1,6 @@
 import type { WorldFacing } from "../game/animation/facing";
 import type { ActionCutinEvent } from '../ui/actionCutins';
+import type { FieldTerrainKind } from "../game/terrain/meadow";
 import type { Surface } from "../game/terrain/elevation";
 import type { SkillDefinition } from "./skillText";
 export type ConsumableUseAction = {type: "RESTORE_HP"; restorationHp: number; consumedOnSuccess: number} | {type: "PLACE_MARKER"; markerKind: "ROUTE" | "LIGHT"; validSeconds: number; consumedOnSuccess: number};
@@ -29,7 +30,7 @@ export type Battlefield = Surface & {
   id: string; version: string; name?: string; description?: string; columns: number; rows: number;
   sourceMapId?: string; sourceMapVersion?: string; selection?: "random" | "fixed"; eventId?: string | null;
   environment?: { themeId: string; backdrop: string; terrainPalette: string[] };
-  cells?: (Position & { terrain: "grass" | "dew" | "flowers" | "road" | "rock" | "thicket" | "water" })[];
+  cells?: (Position & { terrain: FieldTerrainKind | "rock" | "thicket" })[];
   blocked?: Position[]; allySpawns?: Position[]; enemySpawns?: Position[];
 };
 export type Battle = {
