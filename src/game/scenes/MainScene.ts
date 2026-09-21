@@ -1,3 +1,4 @@
+import type {Notice} from '../../client/notice';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
 import { screenFacing, type WorldFacing } from "../animation/facing";
 import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
@@ -128,7 +129,7 @@ export class MainScene extends Phaser.Scene {
   private preparedLocation = "";
   private onReady: (location: string) => void;
   private loadFailed = false;
-  private onFailure: (message: string) => void;
+  private onFailure: (failureNoticeValue: Notice) => void;
   private reachable = new Set<string>();
   private terrainObjects = new Set<Phaser.GameObjects.GameObject>();
   private backdropLayer: Phaser.GameObjects.Image | null = null;
@@ -138,7 +139,7 @@ export class MainScene extends Phaser.Scene {
   private safeBarrierGraphics: Phaser.GameObjects.Graphics[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   private waypointZoom = 0;
-  constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (message: string) => void) {
+  constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice) => void) {
     super("world");
     this.onSelect = onSelect;
     this.onReady = onReady;
@@ -147,7 +148,7 @@ export class MainScene extends Phaser.Scene {
   preload() {
     this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
       this.loadFailed = true;
-      this.onFailure("맵 자원을 불러오지 못했습니다. 다시 접속해 주세요.");
+      this.onFailure({key:"app.mapAssetsFailed"});
     });
     preloadTerrain(this);
     preloadActors(this);
@@ -175,7 +176,7 @@ export class MainScene extends Phaser.Scene {
     try { createTerrainAtlas(this); }
     catch {
       this.loadFailed = true;
-      this.onFailure("맵 화면을 구성하지 못했습니다. 다시 접속해 주세요.");
+      this.onFailure({key:"app.mapSceneFailed"});
       return;
     }
     this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
