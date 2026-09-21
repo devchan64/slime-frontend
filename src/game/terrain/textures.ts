@@ -8,7 +8,7 @@ import extendedPavingSource from "../../assets/terrain/extension-v1/paving-128.w
 import extendedReedBedSource from "../../assets/terrain/extension-v1/reed-bed-128.webp";
 import extendedStoneSource from "../../assets/terrain/extension-v1/stone-128.webp";
 import extendedTreeBaseSource from "../../assets/terrain/extension-v1/tree-base-128.webp";
-import extendedWallSource from "../../assets/terrain/extension-v1/wall-128.webp";
+import cliffWallPatternSource from "../../assets/terrain/cliffs/dew-meadow-cliff-face-v1.png";
 import Phaser from "phaser";
 import grass from "../../assets/terrain/grass-v3.webp";
 import dew from "../../assets/terrain/dew-v3.webp";
@@ -19,10 +19,11 @@ import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
 export const TERRAIN_ATLAS = "meadow-terrain";
+export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
-const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": extendedPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": extendedWallSource };
+const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": extendedPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
-const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base", "wall"]);
+const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base"]);
 const FRAME_W = TEXTURE_SIZE;
 const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;
@@ -53,6 +54,7 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 
 export function preloadTerrain(scene: Phaser.Scene) {
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
+  scene.load.image(CLIFF_WALL_TEXTURE, cliffWallPatternSource);
 }
 
 // 투명 여백을 둔 단일 아틀라스로 구성해 타일 간 텍스처 번짐을 방지한다.

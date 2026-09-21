@@ -136,8 +136,8 @@ data:
     path: src/assets/terrain/extension-v1/stone-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.tree-base-128.webp
     path: src/assets/terrain/extension-v1/tree-base-128.webp
-  - managementId: image.frontend.src.assets.terrain.extension-v1.wall-128.webp
-    path: src/assets/terrain/extension-v1/wall-128.webp
+  - managementId: image.frontend.src.assets.terrain.cliffs.dew-meadow-cliff-face-v1.png
+    path: src/assets/terrain/cliffs/dew-meadow-cliff-face-v1.png
   - managementId: image.character.default.walk.down-left.frame-05-v1
     path: src/assets/characters/default/walk-v1/approved-frames/walk-down-left-frame-05-v1.png
   - managementId: image.character.default.walk.up-right.frame-01.anypose-imagegen-v1
