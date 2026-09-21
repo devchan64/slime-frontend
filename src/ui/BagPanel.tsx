@@ -16,7 +16,21 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
   const [currentRequestNotice,setCurrentRequestNotice] = useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending] = useState(false);
   const activeRequestSequence = useRef(0);
+  const activePanelReference = useRef(false);
+  const initialSessionReference = useRef({owner:gameSessionClient.tokens?.user_id,
+    generation:gameSessionClient.state?.generation,character:me.id});
+  function matchesBagSession() {
+    return activePanelReference.current
+      && gameSessionClient.tokens?.user_id === initialSessionReference.current.owner
+      && gameSessionClient.state?.generation === initialSessionReference.current.generation
+      && gameSessionClient.state?.me.id === initialSessionReference.current.character;
+  }
+  function useBagConsumable(currentItemIdentifier: string) {
+    if (!matchesBagSession() || actionsAreDisabled || currentRequestPending) return;
+    submitConsumableUse?.(currentItemIdentifier);
+  }
   async function loadBagInventory(afterInstanceIdentifier?: string) {
+    if (!matchesBagSession()) return;
     const currentRequestSequence = ++activeRequestSequence.current;
     const currentSessionGeneration = gameSessionClient.state?.generation;
     const currentCharacterIdentifier = me.id;
@@ -48,9 +62,10 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
     }
   }
   useEffect(() => {
+    activePanelReference.current = true;
     setCurrentInventoryPage(null);
     void loadBagInventory();
-    return () => {activeRequestSequence.current++;};
+    return () => {activePanelReference.current = false;activeRequestSequence.current++;};
   }, [me.id, me.version, gameSessionClient]);
   const currentBagSummary = currentInventoryPage?.bag;
   return <section class="bag-panel" aria-label={translateBagText('app.bag')}>
@@ -71,7 +86,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
             disabled={actionsAreDisabled || currentRequestPending || me.mode !== 'FIELD' || !!me.battleId || (me.fp ?? 0) < 0
               || (currentMaterialEntry.useAction.type === 'RESTORE_HP' && (me.hp === undefined || me.maxHp === undefined || me.hp >= me.maxHp))
               || currentMaterialEntry.quantity < currentMaterialEntry.useAction.consumedOnSuccess}
-            onClick={() => submitConsumableUse(currentMaterialEntry.id)}>
+            onClick={() => useBagConsumable(currentMaterialEntry.id)}>
             {currentMaterialEntry.useAction.type === 'RESTORE_HP'
               ? translateBagText('app.useHealingItem',{amount:currentMaterialEntry.useAction.restorationHp,count:currentMaterialEntry.useAction.consumedOnSuccess})
               : translateBagText('app.useMarkerItem',{seconds:currentMaterialEntry.useAction.validSeconds,count:currentMaterialEntry.useAction.consumedOnSuccess})}
