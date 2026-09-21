@@ -25,3 +25,5 @@ consumable: Consumable crafting
 
 quantity: 'Quantity (1–1000)'
 quantityTime: '{quantity} items · {seconds}s each · Other contracts run concurrently'
+balance: 'Balance at quote: {owned} P · Shortfall: {missing} P'
+materialBalance: 'Owned: {owned} · Shortfall: {missing}'

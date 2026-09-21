@@ -138,7 +138,8 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       {currentQuoteResponse&&<div class="workshop-quote">
         {currentQuoteResponse.quote.quantity!==undefined&&<p>{translateWorkshopText('workshop.quantityTime',{quantity:currentQuoteResponse.quote.quantity,seconds:currentQuoteResponse.quote.unitDurationSeconds!})}</p>}
         <p>{translateWorkshopText('workshop.price',{cost:currentQuoteResponse.quote.costP,seconds:currentQuoteResponse.quote.durationSeconds})}</p>
-        {currentQuoteResponse.materials.map(currentMaterialRecord=><p>{currentMaterialRecord.nameTranslations[currentWorkshopLocale]} × {currentMaterialRecord.quantity}</p>)}
+        {currentQuoteResponse.ownedCoins!==undefined&&<p>{translateWorkshopText('workshop.balance',{owned:currentQuoteResponse.ownedCoins,missing:Math.max(0,currentQuoteResponse.quote.costP-currentQuoteResponse.ownedCoins)})}</p>}
+        {currentQuoteResponse.materials.map(currentMaterialRecord=><p>{currentMaterialRecord.nameTranslations[currentWorkshopLocale]} × {currentMaterialRecord.quantity}{currentMaterialRecord.ownedQuantity!==undefined&&<> · {translateWorkshopText('workshop.materialBalance',{owned:currentMaterialRecord.ownedQuantity,missing:Math.max(0,currentMaterialRecord.quantity-currentMaterialRecord.ownedQuantity)})}</>}</p>)}
         {currentQuoteResponse.quote.before&&currentQuoteResponse.quote.after&&<p>{translateWorkshopText('workshop.durability',{
           before:currentQuoteResponse.quote.before.currentDurability,beforeMax:currentQuoteResponse.quote.before.maxDurability,
           after:currentQuoteResponse.quote.after.currentDurability,afterMax:currentQuoteResponse.quote.after.maxDurability})}</p>}

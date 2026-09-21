@@ -2,7 +2,7 @@ import {ApiError} from './response';
 export type WorkshopContractKind='craft'|'repair'|'consumable';
 export type WorkshopPriceQuote={quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
-export type WorkshopQuoteResponse={characterVersion:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;nameTranslations:{ko:string;en:string}}[]};
+export type WorkshopQuoteResponse={characterVersion:number;ownedCoins?:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;ownedQuantity?:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractPage={characterVersion:number;serverTime:number;nextCursor:string|null;entries:{contractId:string;kind:WorkshopContractKind;
   quote:WorkshopPriceQuote;startedAt:number;readyAt:number;claimedAt:number|null;status:'CLAIMED'|'READY'|'IN_PROGRESS'}[]};
 const WORKSHOP_UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -24,10 +24,12 @@ function validateWorkshopQuote(currentQuoteValue:any,currentContractKind:Worksho
 }
 export function parseWorkshopQuote(currentResponseValue:any,currentContractKind:WorkshopContractKind):WorkshopQuoteResponse{
   requireWorkshopCondition(currentResponseValue&&isWorkshopWholeNumber(currentResponseValue.characterVersion)&&typeof currentResponseValue.quoteToken==='string'&&/^[0-9a-f]{64}$/.test(currentResponseValue.quoteToken));
+  if(currentResponseValue.ownedCoins!==undefined)requireWorkshopCondition(isWorkshopWholeNumber(currentResponseValue.ownedCoins));
   validateWorkshopQuote(currentResponseValue.quote,currentContractKind);
   if(currentContractKind==='repair')requireWorkshopCondition(isWorkshopWholeNumber(currentResponseValue.quote.instanceVersion)&&currentResponseValue.quote.instanceVersion>0);
   requireWorkshopCondition(Array.isArray(currentResponseValue.materials));
   for(const currentMaterialRecord of currentResponseValue.materials)requireWorkshopCondition(currentMaterialRecord&&isWorkshopWholeNumber(currentMaterialRecord.quantity)&&currentMaterialRecord.quantity>0
+    &&(currentMaterialRecord.ownedQuantity===undefined||isWorkshopWholeNumber(currentMaterialRecord.ownedQuantity))
     &&typeof currentMaterialRecord.nameTranslations?.ko==='string'&&typeof currentMaterialRecord.nameTranslations?.en==='string');
   return currentResponseValue;
 }

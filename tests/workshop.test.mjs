@@ -48,3 +48,13 @@ test('소모품 견적은 수량에 비례하는 제작 시간과 비용을 검�
  for(const currentInvalidPatch of [{quantity:0},{quantity:1.5},{quantity:1001},{durationSeconds:30},{costP:1},{unitDurationSeconds:0}])
   assert.throws(()=>parseWorkshopQuote({...currentConsumableQuote,quote:{...currentConsumableQuote.quote,...currentInvalidPatch}},'consumable'));
 });
+
+test('견적 보유량은 음이 아닌 정수이며 이전 API 응답도 수용한다',()=>{
+ assert.equal(parseWorkshopQuote(currentQuoteFixture,'craft').ownedCoins,undefined);
+ const currentOwnedFixture={...currentQuoteFixture,ownedCoins:0,materials:[{...currentQuoteFixture.materials[0],ownedQuantity:2}]};
+ assert.equal(parseWorkshopQuote(currentOwnedFixture,'craft').materials[0].ownedQuantity,2);
+ for(const currentInvalidValue of [-1,1.5,true,null,'3']){
+  assert.throws(()=>parseWorkshopQuote({...currentOwnedFixture,ownedCoins:currentInvalidValue},'craft'));
+  assert.throws(()=>parseWorkshopQuote({...currentOwnedFixture,materials:[{...currentOwnedFixture.materials[0],ownedQuantity:currentInvalidValue}]},'craft'));
+ }
+});
