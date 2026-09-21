@@ -43,3 +43,21 @@ test('이동·확대·회전 교체 시 겹치는 객체 유지, 화면 밖 객�
  cache.clear();assert.equal(destroyed.length,24);assert.equal(new Set(destroyed).size,24);
  cache.sync(a);assert.equal(created.length,40);cache.clear();assert.equal(destroyed.length,40);
 });
+
+test('먼 거리 이동과 확대 시 새 타일 생성 전에 화면 밖 자원을 정리한다',()=>{
+ let currentLiveCount=0,currentPeakCount=0;
+ const currentTileCache=new TerrainWindowCache((currentColumnIndex,currentRowIndex)=>{
+  currentLiveCount++;currentPeakCount=Math.max(currentPeakCount,currentLiveCount);
+  return {column:currentColumnIndex,row:currentRowIndex};
+ },()=>{currentLiveCount--;});
+ currentTileCache.sync({firstColumn:0,lastColumn:9,firstRow:0,lastRow:9});
+ assert.equal(currentLiveCount,100);
+ currentPeakCount=currentLiveCount;
+ currentTileCache.sync({firstColumn:100,lastColumn:109,firstRow:100,lastRow:109});
+ assert.equal(currentPeakCount,100);
+ assert.equal(currentLiveCount,100);
+ currentTileCache.sync({firstColumn:105,lastColumn:119,firstRow:105,lastRow:119});
+ assert.equal(currentLiveCount,225);
+ assert.equal(currentPeakCount,225);
+ currentTileCache.clear();assert.equal(currentLiveCount,0);
+});

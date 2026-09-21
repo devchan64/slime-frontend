@@ -31,16 +31,24 @@ export class TerrainWindowCache<T> {
   private entries=new Map<string,T>();
   private previous='';
   constructor(private create:(column:number,row:number)=>T,private dispose:(value:T)=>void) {}
-  sync(window:TileWindow) {
-    const signature=JSON.stringify(window);
-    if(signature===this.previous)return;
-    const wanted=new Set<string>();
-    for(let row=window.firstRow;row<=window.lastRow;row++)for(let column=window.firstColumn;column<=window.lastColumn;column++) {
-      const key=`${column},${row}`;wanted.add(key);
-      if(!this.entries.has(key))this.entries.set(key,this.create(column,row));
+  sync(currentTileWindow:TileWindow) {
+    const currentWindowSignature=JSON.stringify(currentTileWindow);
+    if(currentWindowSignature===this.previous)return;
+    const currentWantedKeys=new Set<string>();
+    for(let currentRowIndex=currentTileWindow.firstRow;currentRowIndex<=currentTileWindow.lastRow;currentRowIndex++)
+      for(let currentColumnIndex=currentTileWindow.firstColumn;currentColumnIndex<=currentTileWindow.lastColumn;currentColumnIndex++)
+        currentWantedKeys.add(`${currentColumnIndex},${currentRowIndex}`);
+    // 카메라가 멀리 이동해도 이전 화면과 새 화면의 자원을 동시에 유지하지 않는다.
+    for(const [currentTileKey,currentTileValue] of this.entries)if(!currentWantedKeys.has(currentTileKey)){
+      this.dispose(currentTileValue);this.entries.delete(currentTileKey);
     }
-    for(const [key,value] of this.entries)if(!wanted.has(key)){this.dispose(value);this.entries.delete(key);}
-    this.previous=signature;
+    for(let currentRowIndex=currentTileWindow.firstRow;currentRowIndex<=currentTileWindow.lastRow;currentRowIndex++)
+      for(let currentColumnIndex=currentTileWindow.firstColumn;currentColumnIndex<=currentTileWindow.lastColumn;currentColumnIndex++){
+        const currentTileKey=`${currentColumnIndex},${currentRowIndex}`;
+        if(!this.entries.has(currentTileKey))this.entries.set(currentTileKey,this.create(currentColumnIndex,currentRowIndex));
+      }
+    this.previous=currentWindowSignature;
   }
+
   clear(){for(const value of this.entries.values())this.dispose(value);this.entries.clear();this.previous='';}
 }
