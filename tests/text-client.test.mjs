@@ -457,3 +457,54 @@ test('표식 사용은 현재 타일 명령으로 실행하고 같은 재전송�
   assert.deepEqual(Object.keys(recordedClientCalls[0].body).sort(), ['expectedVersion', 'itemId', 'requestId']);
   assert.equal(recordedClientCalls[0].body.itemId, 'chalk');
 });
+
+test('스킬 목록은 최신 응답의 보유 스킬과 슬롯만 표시한다', async () => {
+  const receivedSkillState = state();
+  Object.assign(receivedSkillState.me, { skills: { physical_activity: 1, scouting: 0 },
+    skillDefinitions: { physical_activity: { name: '신체활동' }, scouting: { name: '정찰' }, hidden: { name: '미보유' } },
+    battleSkillLoadout: ['physical_activity'], battleSkillSlotLimit: 5 });
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([receivedSkillState]);
+  currentTextClient.accept(state());
+  const renderedSkillText = await currentTextClient.execute('skills');
+  assert.match(renderedSkillText, /1\/5/);
+  assert.match(renderedSkillText, /신체활동 \[physical_activity\] Lv.1 · 슬롯 지정/);
+  assert.match(renderedSkillText, /정찰 \[scouting\] Lv.0/);
+  assert.doesNotMatch(renderedSkillText, /미보유/);
+  assert.ok(recordedClientCalls[0].url.endsWith('/game/state'));
+});
+
+test('슬롯 변경은 버전과 동일 재시도 ID를 유지하며 빈 목록으로 해제한다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    new Error('연결 종료'), { state: state() }, { state: state() },
+  ]);
+  currentTextClient.accept(state());
+  await currentTextClient.execute('loadout physical_activity scouting');
+  assert.ok(recordedClientCalls[0].url.endsWith('/characters/me/skill-loadout'));
+  assert.deepEqual(recordedClientCalls[0].body.skills, ['physical_activity', 'scouting']);
+  assert.equal(recordedClientCalls[0].body.expectedVersion, 4);
+  assert.deepEqual(recordedClientCalls[0].body, recordedClientCalls[1].body);
+  await currentTextClient.execute('loadout clear');
+  assert.deepEqual(recordedClientCalls[2].body.skills, []);
+});
+
+test('슬롯 중복·잘못된 인수·전투 상태는 전송 전에 거절한다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([]);
+  currentTextClient.accept(state());
+  for (const invalidLoadoutCommand of ['loadout', 'loadout a a', 'loadout clear a', 'skills extra'])
+    await assert.rejects(currentTextClient.execute(invalidLoadoutCommand));
+  for (const blockedCharacterMode of ['IN_BATTLE', 'RESERVED']) {
+    currentTextClient.state.me.mode = blockedCharacterMode;
+    await assert.rejects(currentTextClient.execute('loadout clear'));
+  }
+  assert.equal(recordedClientCalls.length, 0);
+});
+
+test('슬롯의 서버 거절은 재시도하지 않고 기존 상태를 보존한다', async () => {
+  const { client: currentTextClient, calls: recordedClientCalls } = setup([
+    { status: 409, body: { code: 'INVALID_SKILL_LOADOUT', messages: { ko: '보유한 스킬만 지정할 수 있습니다.' } } },
+  ]);
+  currentTextClient.accept(state());
+  await assert.rejects(currentTextClient.execute('loadout unknown_skill'), { code: 'INVALID_SKILL_LOADOUT' });
+  assert.equal(currentTextClient.state.me.version, 4);
+  assert.equal(recordedClientCalls.length, 1);
+});

@@ -5,6 +5,8 @@ import { TextClient, formatState } from './text-client-core.mjs';
 const HELP = `state                  최신 상태 조회
 create 이름            캐릭터 생성
 skill 스킬ID           스킬 성장 (SP 소비)
+skills                 보유 스킬·전투 슬롯 조회
+loadout 스킬ID ...     전투 슬롯 전체 교체 (clear: 모두 해제)
 attribute 능력치ID     능력치 성장 (CP 소비)
 enter / away / resume  월드 입장 / 자리비움 / 복귀
 move 열 행             필드 또는 전투 이동 (0부터 시작)

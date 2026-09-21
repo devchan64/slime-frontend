@@ -109,6 +109,20 @@ export class TextClient {
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 휴식할 수 있습니다.');
       return this.command('/v1/game/rest/' + requestedRestAction);
     }
+    if (name === 'skills') {
+      arity(0);
+      await this.snapshot();
+      return formatCharacterSkills(this.state.me);
+    }
+    if (name === 'loadout') {
+      if (!args.length) throw new Error('loadout 스킬ID ... 또는 loadout clear를 입력하세요.');
+      if (this.state?.battle || !['LOBBY', 'FIELD'].includes(this.state?.me.mode))
+        throw new Error('전투·조우 중에는 스킬 슬롯을 변경할 수 없습니다.');
+      const requestedSkillIdentifiers = args.length === 1 && args[0] === 'clear' ? [] : args;
+      if (requestedSkillIdentifiers.includes('clear') || new Set(requestedSkillIdentifiers).size !== requestedSkillIdentifiers.length)
+        throw new Error('스킬 ID는 중복 없이 지정하고 clear는 단독으로 사용하세요.');
+      return this.command('/v1/characters/me/skill-loadout', { skills: requestedSkillIdentifiers });
+    }
     if (name === 'bag') {
       arity(0);
       await this.snapshot();
@@ -389,4 +403,33 @@ function formatPersonalMarkers(receivedPersonalMarkers, currentMapIdentifier, ob
       + receivedPersonalMarker.expiresAt + ' (Unix 초, 서버 시각 ' + observedServerTime + ' 기준)');
   }
   return renderedMarkerLines;
+}
+
+export function formatCharacterSkills(receivedCharacterState) {
+  const receivedSkillLevels = receivedCharacterState.skills;
+  const receivedSkillDefinitions = receivedCharacterState.skillDefinitions;
+  const receivedSkillLoadout = receivedCharacterState.battleSkillLoadout;
+  const receivedSlotLimit = receivedCharacterState.battleSkillSlotLimit;
+  const invalidSkillsMessage = '스킬 응답 형식이 올바르지 않습니다.';
+  const renderSkillText = receivedSkillText => receivedSkillText.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  if (receivedSkillLevels === undefined && receivedSkillDefinitions === undefined)
+    return '현재 서버 응답에 스킬 정보가 없습니다.';
+  if (!receivedSkillLevels || typeof receivedSkillLevels !== 'object' || Array.isArray(receivedSkillLevels)
+      || !receivedSkillDefinitions || typeof receivedSkillDefinitions !== 'object' || Array.isArray(receivedSkillDefinitions)
+      || !Array.isArray(receivedSkillLoadout) || new Set(receivedSkillLoadout).size !== receivedSkillLoadout.length
+      || !Number.isSafeInteger(receivedSlotLimit) || receivedSlotLimit < 1 || receivedSkillLoadout.length > receivedSlotLimit
+      || receivedSkillLoadout.some(receivedSkillIdentifier => typeof receivedSkillIdentifier !== 'string'
+        || !Object.hasOwn(receivedSkillLevels, receivedSkillIdentifier))) throw new Error(invalidSkillsMessage);
+  const renderedSkillLines = ['전투 스킬 슬롯 ' + receivedSkillLoadout.length + '/' + receivedSlotLimit
+    + ': ' + (receivedSkillLoadout.map(renderSkillText).join(', ') || '비어 있음')];
+  for (const [receivedSkillIdentifier, receivedSkillLevel] of Object.entries(receivedSkillLevels)) {
+    const receivedSkillDefinition = receivedSkillDefinitions[receivedSkillIdentifier];
+    if (!receivedSkillIdentifier || !Number.isSafeInteger(receivedSkillLevel) || receivedSkillLevel < 0
+        || !receivedSkillDefinition || typeof receivedSkillDefinition.name !== 'string' || !receivedSkillDefinition.name)
+      throw new Error(invalidSkillsMessage);
+    renderedSkillLines.push(renderSkillText(receivedSkillDefinition.name) + ' [' + renderSkillText(receivedSkillIdentifier)
+      + '] Lv.' + receivedSkillLevel + (receivedSkillLoadout.includes(receivedSkillIdentifier) ? ' · 슬롯 지정' : ''));
+  }
+  renderedSkillLines.push('슬롯 변경: loadout 스킬ID ... | 모두 해제: loadout clear');
+  return renderedSkillLines.join('\n');
 }
