@@ -8,7 +8,7 @@
       "image": "walk-down.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "60d38ebaaf1f5af201d2cc070313cfc9a57e053e6b60ac3b86997103811b6a7d",
+      "sha256": "4c6b835665d6802fa4424d225f7e39067ea2afad8bb2780f1c7b411981f205dd",
       "directions": [
         "down_left",
         "down_right"
@@ -19,7 +19,7 @@
       "image": "walk-up.png",
       "width": 1536,
       "height": 1536,
-      "sha256": "f6111a7f46bea32dcd02124e5ffd077b08f44dd4745b3527cd605cf4e4dd22b5",
+      "sha256": "b0772bc4fde2ba90cfd28fc2abf351f0a2c5e1c71255f446386e0037208792b0",
       "directions": [
         "up_left",
         "up_right"
