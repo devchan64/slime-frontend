@@ -7,7 +7,7 @@ import { localizedAchievement, type AchievementDefinition as Definition } from '
 type Scope = 'GENERAL' | 'SEASONAL';
 type Progress = {completedAt:number|null;checklist:Record<string,{count:number}>};
 type Ledger = {id:string;achievementId:string;scope:Scope;seasonId:string|null;amount:number;createdAt:number;sourceType:string};
-type Data = {catalog:Record<string,Definition>;progress:Record<string,Progress>;season:string;skills:Record<string,SkillDefinition>;cp:number;sp?:number;cpLedger:Ledger[];spLedger:Ledger[]};
+type Data = {catalog:Record<string,Definition>;progress:Record<string,Progress>;season:string;seasonDisplay?:{number:number;names:Record<'ko'|'en',string>}|null;skills:Record<string,SkillDefinition>;cp:number;sp?:number;cpLedger:Ledger[];spLedger:Ledger[]};
 export function AchievementsPage({client,disabled,onReturn}:{client:Client;disabled:boolean;onReturn:()=>unknown}){
   const {t,locale}=useTranslation();
   const [data,setData]=useState<Data|null>(null);
@@ -17,7 +17,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   useEffect(()=>{
     let cancelled=false;setAchievementRequestNotice('');setData(null);
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
-      .then(([catalog,progress])=>{if(!cancelled)setData({catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
+      .then(([catalog,progress])=>{if(!cancelled)setData({catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
       .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
@@ -38,7 +38,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
       </section>
       <section class="card" aria-label={t(`achievements.${scope.toLowerCase()}`)}>
         <h2>{t(`achievements.${scope.toLowerCase()}`)} <small>{t('achievements.completedCount',{done:completed,total:items.length})}</small></h2>
-        {scope==='SEASONAL'&&<p>{t('achievements.season',{season:data.season})}</p>}
+        {scope==='SEASONAL'&&<p>{t('achievements.season',{season:data.seasonDisplay ? `${data.seasonDisplay.number} · ${data.seasonDisplay.names[locale]}` : data.season})}</p>}
         {!items.length?<p>{t('achievements.empty')}</p>:items.map(([id,d])=>{
           const progress=data.progress[id];
           return <article class="achievement-item" key={id}><h3>{d.name} <small>{t(progress?.completedAt!=null?'achievements.complete':'achievements.inProgress')}</small></h3>
