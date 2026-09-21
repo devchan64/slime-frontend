@@ -289,7 +289,7 @@ export function App() {
   const sponsorKey = state ? `${state.generation}:${state.epoch}:${state.location.id}` : '';
   const sponsorPending = inWorld && sponsorApproved !== sponsorKey;
   const loadingRequested = !battleReport && (transferPending || (inWorld &&
-    (sponsorPending || renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING")));
+    (renderFailed || sponsorPending || renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING")));
   const { loading, minimumElapsed } = useMinimumLoading(loadingRequested);
   useEffect(() => {
     const battle = state?.battle;
