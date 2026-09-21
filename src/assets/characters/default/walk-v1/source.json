@@ -1,35 +1,44 @@
 {
-  "version": 1,
+  "version": 4,
+  "state": "frontend-asset-adopted",
+  "runtimeAdopted": false,
+  "workflowRun": "2026-09-21_12-07-15",
+  "workflowHistoryRepository": "slime-workflow",
   "sheets": [
     {
-      "direction": "down_left",
-      "image": "walk-down-left.png",
-      "sha256": "213b0f8c1f757d491e8afa4a52f9401eb38cd49979782be67a9c4422549ce77e"
+      "image": "walk-down.png",
+      "width": 1536,
+      "height": 1536,
+      "sha256": "60d38ebaaf1f5af201d2cc070313cfc9a57e053e6b60ac3b86997103811b6a7d",
+      "directions": [
+        "down_left",
+        "down_right"
+      ],
+      "managementId": "image.character.default.walk.packed-down-v3"
     },
     {
-      "direction": "down_right",
-      "image": "walk-down-right.png",
-      "sha256": "e2f66bbc38d190f4be0b9712c90de764b7596fcfb5dd2e7ba6546aea3f84c2ab"
-    },
-    {
-      "direction": "up_left",
-      "image": "walk-up-left.png",
-      "sha256": "00b681ab72e879597523d2f4c82db8867d803027dfa01f6045758fe8b99392ab"
-    },
-    {
-      "direction": "up_right",
-      "image": "walk-up-right.png",
-      "sha256": "0db240d69438904209ba6ae6286aaec9977ab0fe33d21fefc916b0dedbafff8c"
+      "image": "walk-up.png",
+      "width": 1536,
+      "height": 1536,
+      "sha256": "f6111a7f46bea32dcd02124e5ffd077b08f44dd4745b3527cd605cf4e4dd22b5",
+      "directions": [
+        "up_left",
+        "up_right"
+      ],
+      "managementId": "image.character.default.walk.packed-up-v3"
     }
   ],
-  "generator": "Codex built-in image_gen",
-  "workflowRun": "2026-09-20_23-46-32",
-  "generationBatchFrames": 4,
   "layout": {
     "columns": 4,
-    "rows": 2
+    "rows": 4
   },
+  "cellSize": [
+    384,
+    384
+  ],
+  "pixelFormat": "RGBA8",
   "frameDurationMs": 150,
+  "frameCount": 32,
   "baselineSha256": "9a425eaa116c4d99ffe66b2db2196a8432be2701ace86bfd652ad76e364cfe98",
   "rigAsset": "five-head-walk-8f/v1",
   "rigHashes": {
@@ -38,11 +47,17 @@
     "up_left": "3757282284f0dffe7fb7e8e45ed38edb944ba896d5c7877c0d6e527c9694ae89",
     "up_right": "194f7c254d319373c2939e24ea8d25bc2b9e8ec04d6adf91b0c77d5e4e63e2ee"
   },
-  "anchorMethod": "provisional-head-axis-and-shoe-bottom-minus-20px",
-  "anchorReviewStatus": "pending",
-  "runtimeAdopted": false,
   "individualRepairs": [
-    "up_left.3",
-    "up_right.0"
-  ]
+    "up_right.0",
+    "up_right.2",
+    "up_right.3",
+    "down_left.4",
+    "down_right.0",
+    "up_left.4",
+    "up_left.6",
+    "up_left.7"
+  ],
+  "poseReviewStatus": "user-approved",
+  "anchorReviewStatus": "pending",
+  "approvedAt": "2026-09-21T12:23:19.439197+09:00"
 }

@@ -1,0 +1,56 @@
+{
+  "assetId": "character.default.white-shirt.walk.down-left.frame-05",
+  "version": 1,
+  "image": "walk-down-left-frame-05-v1.png",
+  "sha256": "de4200545e07ff39e928f370e2612c617023c3fb0c5bfb774ac1e6cc02307846",
+  "size": [
+    1254,
+    1254
+  ],
+  "resized": false,
+  "approval": {
+    "status": "user-approved",
+    "approvedAt": "2026-09-21T08:41:43.310837+09:00",
+    "scope": "사용 가능한 좌하 걷기 5번 원본 에셋"
+  },
+  "direction": "down_left",
+  "frameNumber": 5,
+  "frameId": "down_left.4",
+  "workflowRun": "2026-09-21_08-38-09",
+  "generator": "Codex built-in image_gen",
+  "poseSource": {
+    "workflowRun": "2026-09-21_08-26-24",
+    "model": "Qwen/Qwen-Image-Edit-2511",
+    "sha256": "e3d3abc8fd2ac266692d0c074335382f7f9ce8b994e4c36b12a6f8ff75d17a09"
+  },
+  "identitySource": {
+    "asset": "character-default-white-shirt-four-directions-v2.png",
+    "sha256": "9a425eaa116c4d99ffe66b2db2196a8432be2701ace86bfd652ad76e364cfe98"
+  },
+  "sheetIntegrated": true,
+  "runtimeAdopted": false,
+  "integrationNote": "리사이징 금지 원칙 폐기 지시에 따라 시트용 사본을 균일 축소하여 좌하 5번 교체. 채택 원본 보존.",
+  "integration": {
+    "frameId": "down_left.4",
+    "approvedSource": "approved-frames/walk-down-left-frame-05-v1.png",
+    "sourceSha256": "de4200545e07ff39e928f370e2612c617023c3fb0c5bfb774ac1e6cc02307846",
+    "scale": 0.5288135593220339,
+    "translation": [
+      -1,
+      6
+    ],
+    "rect": {
+      "x": 0,
+      "y": 640,
+      "width": 640,
+      "height": 640
+    },
+    "anchor": {
+      "x": 320,
+      "y": 608
+    },
+    "anchorStatus": "provisional-needs-ground-review",
+    "workflowRun": "2026-09-21_08-45-14",
+    "outsideReplacementPixelsUnchanged": true
+  }
+}

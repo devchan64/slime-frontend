@@ -1,426 +1,616 @@
 {
   "animationId": "character.default.white-shirt.walk",
-  "version": "1",
-  "sheet": {
-    "width": 2560,
-    "height": 1280
-  },
+  "version": "4-approved",
+  "referenceBodyHeight": 288,
+  "gameBodyHeight": 60,
+  "sheets": [
+    {
+      "image": "walk-down.png",
+      "width": 1536,
+      "height": 1536,
+      "sha256": "60d38ebaaf1f5af201d2cc070313cfc9a57e053e6b60ac3b86997103811b6a7d",
+      "directions": [
+        "down_left",
+        "down_right"
+      ],
+      "managementId": "image.character.default.walk.packed-down-v3"
+    },
+    {
+      "image": "walk-up.png",
+      "width": 1536,
+      "height": 1536,
+      "sha256": "f6111a7f46bea32dcd02124e5ffd077b08f44dd4745b3527cd605cf4e4dd22b5",
+      "directions": [
+        "up_left",
+        "up_right"
+      ],
+      "managementId": "image.character.default.walk.packed-up-v3"
+    }
+  ],
   "frames": [
     {
       "frameId": "down_left.0",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "1b23b60e5bb70cd7749bdcab22b9f64672aca110ede49724f858a11a13c77955",
+      "regenerated": false,
+      "texture": "walk-down.png",
       "rect": {
         "x": 0,
         "y": 0,
-        "width": 640,
-        "height": 640
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 320,
-        "y": 601
-      }
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.1",
-      "rect": {
-        "x": 640,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 308,
-        "y": 600
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "e3a5f75288314395d816d2c1a23b3d17cd3679c6dbd5bad996c6a113b8b47867",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.2",
-      "rect": {
-        "x": 1280,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 326,
-        "y": 569
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "9fe5c282b0d6cd28719fb6eca80bcaeed6ae1050049ef7237fc9479af61b8ad1",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.3",
-      "rect": {
-        "x": 1920,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 580
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "e99a69b63d37883a8ec95ff02aa73433cfa99594e402bd67ddca745b8563dacb",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.4",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "2d547f3be7564261991f3c8c1dec2a40fa94db4262bda8eff9b839dddfa0a5af",
+      "regenerated": true,
+      "texture": "walk-down.png",
       "rect": {
         "x": 0,
-        "y": 640,
-        "width": 640,
-        "height": 640
+        "y": 384,
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 320,
-        "y": 608
-      }
+      "managementId": "image.character.default.walk.down-left.frame-05.anypose-imagegen-v1",
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.5",
-      "rect": {
-        "x": 640,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 316,
-        "y": 608
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "915b6c13a6a2334d246fceefa060689fe937f3bedc2192ac8dfa14fdeace58f3",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 384,
+        "y": 384,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.6",
-      "rect": {
-        "x": 1280,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 569
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "791bf36081891a5219dfacdf6c3676dcf0bb315d775dd3edbff34a4c41251d01",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 768,
+        "y": 384,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_left.7",
-      "rect": {
-        "x": 1920,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 569
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "f45ff8fdc7ac3e0f5fd1fd0aaa7e6d58bb353548d9876be92c1e0655fcbb7583",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 1152,
+        "y": 384,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.0",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "2f930921e1be1eec2b07ef1c33420bc73c00fc1e37a1c1b48be655c30877edf4",
+      "regenerated": true,
+      "managementId": "image.character.default.walk.down-right.frame-01.anypose-imagegen-v1",
+      "texture": "walk-down.png",
       "rect": {
         "x": 0,
-        "y": 0,
-        "width": 640,
-        "height": 640
+        "y": 768,
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 320,
-        "y": 594
-      }
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.1",
-      "rect": {
-        "x": 640,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 588
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "585d6221a2a2538f46015fd2fa02fb9ac07ffbc2b15a6b357547535878b1eb38",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 384,
+        "y": 768,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.2",
-      "rect": {
-        "x": 1280,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 338,
-        "y": 581
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "f289e7caa8a5b3868730a62f297f5c6344e48aff329a64d79e58eae824367ae4",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 768,
+        "y": 768,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.3",
-      "rect": {
-        "x": 1920,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 580
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "1d5cac0185be545d874b3c4e397a61c9a4d3dafa9ed2a502f33b806097276fdc",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 1152,
+        "y": 768,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.4",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "b9467770d032db7921452ddd5a9e59a484825620fe94a4ce68241ba683eaa864",
+      "regenerated": false,
+      "texture": "walk-down.png",
       "rect": {
         "x": 0,
-        "y": 640,
-        "width": 640,
-        "height": 640
+        "y": 1152,
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 321,
-        "y": 610
-      }
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.5",
-      "rect": {
-        "x": 640,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 612
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "fbd250fd266430fb37aad677f34a486f7cd7262265683e03b1e177d72c54fb27",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 384,
+        "y": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.6",
-      "rect": {
-        "x": 1280,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 323,
-        "y": 553
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "48b5f763222254fa435b0540236ce790784cc465888a4c8afc67a21c5caf9585",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 768,
+        "y": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "down_right.7",
-      "rect": {
-        "x": 1920,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 558
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "9f0462603e0ef9e56f63ef0c9e1805f89248117c8f4aeb9338c416842b0d6197",
+      "regenerated": false,
+      "texture": "walk-down.png",
+      "rect": {
+        "x": 1152,
+        "y": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.0",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "24ab2ed6e29cffbd927bdc237cf45a68ef3c226b6546ecd5f5a7554a84109024",
+      "regenerated": false,
+      "texture": "walk-up.png",
       "rect": {
         "x": 0,
         "y": 0,
-        "width": 640,
-        "height": 640
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 320,
-        "y": 599
-      }
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.1",
-      "rect": {
-        "x": 640,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 599
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "36741d6d12e271a67e33135640b819819582f05cc59bf3341be17594179f03dd",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.2",
-      "rect": {
-        "x": 1280,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 587
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "68b292e2849bf03553bd07733acd70fc1d98d6c0f18ec16d2d81fbffc7a29a40",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.3",
-      "rect": {
-        "x": 1920,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 583
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "3bea37337c64aa0b435f4c16a6cbde53a489536767aab1aeb65fd06a30f04515",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.4",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "9464a802099d218984d0effaf37a46d5257e68a1a3ce322fdd9629df875b6977",
+      "regenerated": true,
+      "managementId": "image.character.default.walk.up-left.frame-05.anypose-imagegen-v1",
+      "texture": "walk-up.png",
       "rect": {
         "x": 0,
-        "y": 640,
-        "width": 640,
-        "height": 640
+        "y": 384,
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 320,
-        "y": 606
-      }
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.5",
-      "rect": {
-        "x": 640,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 318,
-        "y": 601
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "3b8b8a3d193e4a0d16d3548677a2d0e39282aeebc365a0f25e571376b050d88b",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 384,
+        "y": 384,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.6",
-      "rect": {
-        "x": 1280,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 577
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "c053090e267c82f4e5eaaa3c2069447e79ff9e199584fff96a8ae2966d2ee89a",
+      "regenerated": true,
+      "managementId": "image.character.default.walk.up-left.frame-07.anypose-imagegen-v1",
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 768,
+        "y": 384,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_left.7",
-      "rect": {
-        "x": 1920,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 577
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "4c18ad007291e97bd8f4a3ba979e90b4a9a740d205efe6224a83749295b72926",
+      "regenerated": true,
+      "managementId": "image.character.default.walk.up-left.frame-08.anypose-imagegen-v1",
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 1152,
+        "y": 384,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.0",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "d103091667f626479ccd913645b1fa16533f848092826085ff51999cbb22c8ab",
+      "regenerated": true,
+      "texture": "walk-up.png",
       "rect": {
         "x": 0,
-        "y": 0,
-        "width": 640,
-        "height": 640
+        "y": 768,
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 320,
-        "y": 581
-      }
+      "managementId": "image.character.default.walk.up-right.frame-01.anypose-imagegen-v1",
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.1",
-      "rect": {
-        "x": 640,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 594
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "312168bcf83e0b73ec7917316c96355a983bc42c0c06ed2bc1c37e04f7992400",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 384,
+        "y": 768,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.2",
-      "rect": {
-        "x": 1280,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 574
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "ffc39a1d0ecfa797e0fa61d597c4dd3361562ce6138b16621b510e91c9e6c769",
+      "regenerated": true,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 768,
+        "y": 768,
+        "width": 384,
+        "height": 384
+      },
+      "managementId": "image.character.default.walk.up-right.frame-03.anypose-imagegen-v1",
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.3",
-      "rect": {
-        "x": 1920,
-        "y": 0,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 575
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "provisional-needs-review",
+      "sha256": "d6f4ab90a8c0c0f8ec9f007185f15107154bc02eeabe43dba0193b91f57c22f9",
+      "regenerated": true,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 1152,
+        "y": 768,
+        "width": 384,
+        "height": 384
+      },
+      "managementId": "image.character.default.walk.up-right.frame-04.anypose-imagegen-v1",
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.4",
+      "anchor": {
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "2aee0995748c33d41fdd2e9bfbf22e3fa319d98cc3307a5b09639d43aab878ea",
+      "regenerated": false,
+      "texture": "walk-up.png",
       "rect": {
         "x": 0,
-        "y": 640,
-        "width": 640,
-        "height": 640
+        "y": 1152,
+        "width": 384,
+        "height": 384
       },
-      "anchor": {
-        "x": 344,
-        "y": 601
-      }
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.5",
-      "rect": {
-        "x": 640,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 607
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "575fb1281ef0cc0702e4743672c62c9bf3ba9363963abe61b486ee521995103f",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 384,
+        "y": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.6",
-      "rect": {
-        "x": 1280,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 577
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "4de3b48b8c75a6ee667a082a6b27d17e83a112f8c83ee0c41e3a8e883f797170",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 768,
+        "y": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     },
     {
       "frameId": "up_right.7",
-      "rect": {
-        "x": 1920,
-        "y": 640,
-        "width": 640,
-        "height": 640
-      },
       "anchor": {
-        "x": 320,
-        "y": 580
-      }
+        "x": 192,
+        "y": 336
+      },
+      "anchorStatus": "inherited-and-transformed",
+      "sha256": "e3c1e43f546b2d43bc2f075c3e13c022812022070d913ba2519f95cb329acac4",
+      "regenerated": false,
+      "texture": "walk-up.png",
+      "rect": {
+        "x": 1152,
+        "y": 1152,
+        "width": 384,
+        "height": 384
+      },
+      "poseReviewStatus": "user-approved"
     }
   ],
   "clips": [
@@ -588,5 +778,6 @@
       "loop": true,
       "nextClipId": null
     }
-  ]
+  ],
+  "poseReviewStatus": "user-approved"
 }

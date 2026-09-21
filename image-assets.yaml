@@ -138,11 +138,25 @@ data:
     path: src/assets/terrain/extension-v1/tree-base-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.wall-128.webp
     path: src/assets/terrain/extension-v1/wall-128.webp
-  - managementId: image.frontend.character.default.walk-v1.down-left
-    path: src/assets/characters/default/walk-v1/walk-down-left.png
-  - managementId: image.frontend.character.default.walk-v1.down-right
-    path: src/assets/characters/default/walk-v1/walk-down-right.png
-  - managementId: image.frontend.character.default.walk-v1.up-left
-    path: src/assets/characters/default/walk-v1/walk-up-left.png
-  - managementId: image.frontend.character.default.walk-v1.up-right
-    path: src/assets/characters/default/walk-v1/walk-up-right.png
+  - managementId: image.character.default.walk.down-left.frame-05-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-down-left-frame-05-v1.png
+  - managementId: image.character.default.walk.up-right.frame-01.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-up-right-01-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.up-right.frame-03.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-up-right-03-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.up-right.frame-04.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-up-right-04-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.down-left.frame-05.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-down-left-05-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.down-right.frame-01.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-down-right-01-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.up-left.frame-05.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-up-left-05-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.up-left.frame-07.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-up-left-07-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.up-left.frame-08.anypose-imagegen-v1
+    path: src/assets/characters/default/walk-v1/approved-frames/walk-up-left-08-anypose-imagegen-v1.png
+  - managementId: image.character.default.walk.packed-down-v3
+    path: src/assets/characters/default/walk-v1/walk-down.png
+  - managementId: image.character.default.walk.packed-up-v3
+    path: src/assets/characters/default/walk-v1/walk-up.png
