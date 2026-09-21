@@ -1,3 +1,5 @@
+import boarCutinMetadata from '../assets/monsters/standing-v1/ridge-boar-idle-v1.animation.json';
+import crabCutinMetadata from '../assets/monsters/standing-v1/stone-crab-idle-v1.animation.json';
 import crawlerCutinMetadata from '../assets/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
 import mothCutinMetadata from '../assets/monsters/standing-v1/lantern-moth-idle-v1.animation.json';
 import rabbitCutinMetadata from '../assets/monsters/standing-v1/field-rabbit-idle-v1.animation.json';
@@ -8,6 +10,8 @@ import actionCutinCatalogSource from '../assets/cutins.yaml?raw';
 // 기본 이미지는 코스튬·헤어·얼굴 세 그룹을 합성한 정식 기본 조합이다.
 // 새 조합은 전용 합성 산출물을 등록해야 하며 다른 외형으로 대체하지 않는다.
 const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
+  'ridge-boar': new URL('../assets/monsters/standing-v1/ridge-boar-idle-v1.png', import.meta.url).href,
+  'stone-crab': new URL('../assets/monsters/standing-v1/stone-crab-idle-v1.png', import.meta.url).href,
   'field-rabbit': new URL('../assets/monsters/standing-v1/field-rabbit-idle-v1.png', import.meta.url).href,
   'lantern-moth': new URL('../assets/monsters/standing-v1/lantern-moth-idle-v1.png', import.meta.url).href,
   'reed-crawler': new URL('../assets/monsters/standing-v1/reed-crawler-idle-v1.png', import.meta.url).href,
@@ -50,6 +54,8 @@ export function resolveActionCutinAsset(actionCutinAppearanceRecord: ActionCutin
 
 
 const REGISTERED_CUTIN_SHEETS: Record<string, typeof rabbitCutinMetadata> = {
+  'ridge-boar': boarCutinMetadata,
+  'stone-crab': crabCutinMetadata,
   'field-rabbit': rabbitCutinMetadata, 'lantern-moth': mothCutinMetadata, 'reed-crawler': crawlerCutinMetadata,
 };
 export function resolveActionCutinFrame(actionCutinAppearance: ActionCutinEvent['appearance']) {

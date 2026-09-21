@@ -33,8 +33,8 @@ test('잘못된 YAML·중복 그룹·알 수 없는 필드·없는 이미지 참
   ]) assert.throws(() => parseActionCutinCatalog(invalidCatalogSource), /액션 컷인/);
 });
 
-test('이슬초원 신규 종은 등록 시트의 첫 프레임만 컷인으로 사용한다', () => {
-  for (const currentMonsterGroup of ['field-rabbit','lantern-moth','reed-crawler']) {
+test('등록된 시트 몬스터는 첫 프레임만 컷인으로 사용한다', () => {
+  for (const currentMonsterGroup of ['field-rabbit','lantern-moth','reed-crawler','stone-crab','ridge-boar']) {
     const currentMonsterAppearance = {kind:'monster',group:currentMonsterGroup};
     assert.ok(resolveActionCutinAsset(currentMonsterAppearance).endsWith(`${currentMonsterGroup}-idle-v1.png`));
     const currentCutinFrame = resolveActionCutinFrame(currentMonsterAppearance);
