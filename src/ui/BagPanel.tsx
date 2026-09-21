@@ -20,12 +20,16 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
     const currentRequestSequence = ++activeRequestSequence.current;
     const currentSessionGeneration = gameSessionClient.state?.generation;
     const currentCharacterIdentifier = me.id;
+    const currentAccountIdentifier = gameSessionClient.tokens?.user_id;
+    const matchesCurrentRequest = () => activeRequestSequence.current === currentRequestSequence
+      && gameSessionClient.state?.generation === currentSessionGeneration
+      && gameSessionClient.state?.me.id === currentCharacterIdentifier
+      && gameSessionClient.tokens?.user_id === currentAccountIdentifier;
     setCurrentRequestPending(true); setCurrentRequestNotice('');
     try {
       const receivedInventoryPage = parseBagInventory(await gameSessionClient.request('/v1/game/equipment?includeSkillbooks=true'
         + (afterInstanceIdentifier ? `&after=${encodeURIComponent(afterInstanceIdentifier)}` : '')));
-      if (activeRequestSequence.current !== currentRequestSequence || gameSessionClient.state?.generation !== currentSessionGeneration
-          || gameSessionClient.state?.me.id !== currentCharacterIdentifier) return;
+      if (!matchesCurrentRequest()) return;
       const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
       if (afterInstanceIdentifier && receivedInventoryPage.characterVersion !== currentInventoryPage?.characterVersion) {
         throw new LocalizedError('app.bagChanged');
@@ -36,11 +40,11 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       }
       setCurrentInventoryPage({...receivedInventoryPage,items:[...previousInventoryItems,...receivedInventoryPage.items]});
     } catch (currentRequestError) {
-      if (activeRequestSequence.current === currentRequestSequence) {
+      if (matchesCurrentRequest()) {
         setCurrentInventoryPage(null); setCurrentRequestNotice(currentRequestError as Error);
       }
     } finally {
-      if (activeRequestSequence.current === currentRequestSequence) setCurrentRequestPending(false);
+      if (matchesCurrentRequest()) setCurrentRequestPending(false);
     }
   }
   useEffect(() => {
