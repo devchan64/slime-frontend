@@ -205,6 +205,7 @@ export function App() {
     };
     client.onStatus = (ready, msg) => {
       if (!ready) {
+        stopWalking.current = true;
         actionCutinEventTracker.current = new ActionCutinTracker();
         setPendingActionCutinEvents([]);
       }
@@ -239,6 +240,7 @@ export function App() {
     let canvas: HTMLCanvasElement | null = null;
     const lost = (e: Event) => {
       e.preventDefault();
+      stopWalking.current = true;
       setRenderFailed(true);
       client.disconnect();
       setConnected(false);
@@ -249,6 +251,7 @@ export function App() {
       .then(({ createGame }) => {
         if (disposed || !container.current) return;
         renderer.current = createGame(container.current, position => { setSelected(position); setBattleSelectionIntent(value => value + 1); }, setRenderedLocation, message => {
+          stopWalking.current = true;
           setRenderFailed(true);
           setRenderError(message);
           setStatus(message);
@@ -260,6 +263,7 @@ export function App() {
         canvas.addEventListener("webglcontextlost", lost);
       })
       .catch(() => {
+        stopWalking.current = true;
         setRenderFailed(true);
         client.disconnect();
         setRenderError({key:"app.webglUnsupported"});
