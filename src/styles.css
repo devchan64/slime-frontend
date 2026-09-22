@@ -1426,8 +1426,12 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .field-support-actions { display:flex;justify-content:flex-end;margin-top:6px; }
 .world-map-legend,.world-map-connections { display:flex;gap:12px;flex-wrap:wrap;margin:12px 0; }
 .world-map-legend span { display:inline-flex;align-items:center; }
-.world-map-scroll { overflow:auto;max-height:50dvh;border:1px solid #718b8066;border-radius:12px;margin-top:12px; }
-.world-map-canvas { position:relative;background:radial-gradient(ellipse,#dce8dc,#eef3ea); }
+.world-map-controls { display:flex;align-items:center;gap:8px;margin-top:12px; }
+.world-map-controls output { min-width:3.5rem;text-align:center;font-variant-numeric:tabular-nums; }
+.world-map-scroll { overflow:auto;max-height:50dvh;border:1px solid #718b8066;border-radius:12px;margin-top:8px;cursor:grab;touch-action:none; }
+.world-map-scroll:active { cursor:grabbing; }
+.world-map-zoom-surface { position:relative; }
+.world-map-canvas { position:relative;background:radial-gradient(ellipse,#dce8dc,#eef3ea);transform-origin:top left; }
 .world-map-canvas>svg { position:absolute;inset:0; }
 .world-map-canvas line { stroke:#6d897c;stroke-width:3; }
 .world-map-node { position:absolute;padding:8px;background:#fff;color:#244735;border:2px solid #95aa99;border-radius:12px;display:flex;flex-direction:column;justify-content:center;gap:4px; }
