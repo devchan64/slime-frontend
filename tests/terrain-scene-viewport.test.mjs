@@ -175,6 +175,22 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
  assert.deepEqual(scene.selected,{column:3,row:2});
 });
 
+test('필드에서 자기 캐릭터가 보간 이동하면 카메라도 현재 화면 위치를 따라간다',()=>{
+ const scene=new MainScene(()=>{},()=>{},()=>{}),recordedCenters=[];
+ scene.state={battle:null,me:{id:'hero',position:{column:3,row:2}}};
+ scene.cameras={main:{centerOn:(horizontalPosition,verticalPosition)=>recordedCenters.push({horizontalPosition,verticalPosition})}};
+ scene.calculateActorPlacement=()=>({x:164,y:82,depth:0});
+ const currentTimestamp=performance.now();
+ scene.fieldMotion.sync('map',[{id:'member:hero',cell:{column:2,row:2},point:{x:100,y:50,depth:0}}],currentTimestamp);
+ scene.fieldMotion.sync('map',[{id:'member:hero',cell:{column:3,row:2},point:{x:164,y:82,depth:0}}],currentTimestamp);
+ scene.followMovingFieldCharacter();
+ assert.equal(recordedCenters.length,1);
+ assert.ok(recordedCenters[0].horizontalPosition<164);
+ assert.ok(recordedCenters[0].verticalPosition<82);
+ scene.panStart={};scene.followMovingFieldCharacter();
+ assert.equal(recordedCenters.length,1,'드래그 중에는 자동 추적하지 않는다');
+});
+
 
 test('결계 맥동은 씬 시간에 따라 변하고 동작 줄이기 설정은 고정 불투명도로 적용한다',()=>{
  const currentSceneInstance = new MainScene(()=>{},()=>{},()=>{});

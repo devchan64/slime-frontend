@@ -76,6 +76,7 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
 const REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS = 1200;
+const FIELD_CAMERA_FOLLOW_MINIMUM_DISTANCE = 0.01;
 export class MainScene extends Phaser.Scene {
   private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
   private receivedStateTimestamp = 0;
@@ -318,6 +319,7 @@ export class MainScene extends Phaser.Scene {
     this.syncTerrainViewport();
     this.syncActorViewport();
     this.animateFieldActors();
+    this.followMovingFieldCharacter();
     this.animateRestRecoveryEffects();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
@@ -572,6 +574,19 @@ export class MainScene extends Phaser.Scene {
       drawRestRecoveryEffect(currentEffect.graphics,currentEffect.x,currentEffect.y,currentEffect.height,currentProgress);
       currentEffect.graphics.setAlpha(1).setDepth(currentEffect.depth);
     }
+  }
+
+  /** 필드에서 자기 캐릭터의 보간 이동 구간에만 카메라를 함께 이동한다. */
+  private followMovingFieldCharacter() {
+    const currentGameState = this.state;
+    if (!currentGameState || !currentGameState.me || currentGameState.battle || this.panStart) return;
+    const currentMotionOffset = this.fieldMotion.offset(`member:${currentGameState.me.id}`, performance.now());
+    if (Math.hypot(currentMotionOffset.x, currentMotionOffset.y) < FIELD_CAMERA_FOLLOW_MINIMUM_DISTANCE) return;
+    const currentCharacterPoint = this.calculateActorPlacement(currentGameState.me.position);
+    this.cameras.main.centerOn(
+      currentCharacterPoint.x + currentMotionOffset.x,
+      currentCharacterPoint.y + currentMotionOffset.y,
+    );
   }
 
   private updateTerrain(s: State, visible: boolean) {
