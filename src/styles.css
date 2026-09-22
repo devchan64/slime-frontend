@@ -333,8 +333,9 @@ small {
   gap: 4px;
 }
 .chat-lines {
-  max-height: 140px;
-  overflow: auto;
+  height: 238px;
+  max-height: 238px;
+  overflow-y: auto;
   min-height: 35px;
 }
 .chat-lines p {
@@ -631,7 +632,7 @@ footer {
 .drawer-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
 .drawer-heading h2 { margin: 0; font-size: 18px; }
 .world-drawer .card { border: 0; padding: 0; background: transparent; box-shadow: none; }
-.world-drawer .chat-lines { max-height: 45dvh; }
+.world-drawer .chat-lines { height: 238px; max-height: 238px; }
 .world-layout--immersive .battle-panel { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 16px 24px; margin: 0; border-radius: 0; padding: 18px 20px; border: 0; border-top: 1px solid var(--border); }
 .battle-status h3 { margin: 8px 0; }
 .battle-status p { font-size: 12px; margin: 8px 0; }
@@ -802,7 +803,7 @@ button, summary { touch-action: manipulation; }
   .chat input { font-size: 16px; }
   .chat button { flex-shrink: 0; }
   .world-drawer .chat { display: flex; flex-direction: column; min-height: 0; }
-  .world-drawer .chat-lines { max-height: min(36dvh, 240px); }
+  .world-drawer .chat-lines { height: 238px; max-height: 238px; }
   .world-drawer .chat form { position: sticky; bottom: -16px; padding: 8px 0 16px; background: #102a2a; }
   .unit-row { flex-wrap: wrap; overflow-wrap: anywhere; }
   .world-drawer h2, .field-monster { overflow-wrap: anywhere; min-width: 0; }
