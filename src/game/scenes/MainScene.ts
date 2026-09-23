@@ -24,7 +24,7 @@ import { drawActor, drawRestRecoveryEffect, preloadActors, updateCharacterFacing
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
-import { drawCityBuilding, drawCityPaving, type CityBuildingRegion } from "../terrain/cityRendering";
+import { drawCityBuilding, drawCityPaving, preloadCityBuildingTextures, type CityBuildingRegion } from "../terrain/cityRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
@@ -152,6 +152,7 @@ export class MainScene extends Phaser.Scene {
       this.onFailure({key:"app.mapAssetsFailed"});
     });
     preloadTerrain(this);
+    preloadCityBuildingTextures(this);
     preloadActors(this);
     preloadSafeTower(this);
     preloadBackdrop(this);
@@ -629,7 +630,7 @@ export class MainScene extends Phaser.Scene {
       }
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
-      const kind=terrain==='paving'&&!field&&s.map.safeTown?'grass':terrain==='rock'||terrain==='thicket'?'grass':terrain;
+      const kind=terrain==='rock'||terrain==='thicket'?'grass':terrain;
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);

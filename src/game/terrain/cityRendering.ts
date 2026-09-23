@@ -4,6 +4,8 @@ import {t} from '../../i18n';
 import {cityBuildingCells} from './cityBuildings';
 import {TILE_W,TILE_H} from './meadow';
 import {TERRAIN_DEPTH} from './elevation';
+import iseulonRoofSource from '../../assets/world/isloon/buildings/roof-timber-v1.png';
+import iseulonWallSource from '../../assets/world/isloon/buildings/wall-timber-v1.png';
 
 const CITY_BUILDING_STYLE = {
   wallHeight:36, canopyHeight:18, wallLight:0xc8b68d, wallDark:0x8f8067,
@@ -13,8 +15,14 @@ const CITY_BUILDING_STYLE = {
 };
 const CITY_PAVING_STYLE = {fill:0xc8c4a4,edge:0xa4a28b,lineWidth:0.6,alpha:0.95};
 const CITY_HALF_TILE = 0.5;
+const ISLOON_BUILDING_TEXTURES = { roof: 'iseulon-roof-timber-v1', wall: 'iseulon-wall-timber-v1' };
 type CityScreenPoint = {x:number;y:number};
 export type CityBuildingRegion = {position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
+
+export function preloadCityBuildingTextures(currentMapScene: Phaser.Scene) {
+  currentMapScene.load.image(ISLOON_BUILDING_TEXTURES.roof, iseulonRoofSource);
+  currentMapScene.load.image(ISLOON_BUILDING_TEXTURES.wall, iseulonWallSource);
+}
 
 export function drawCityPaving(currentTileGraphic: Phaser.GameObjects.Graphics,currentTilePosition:CityScreenPoint) {
   const currentTileCorners = [{x:currentTilePosition.x,y:currentTilePosition.y-TILE_H/2},

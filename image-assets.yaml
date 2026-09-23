@@ -130,6 +130,12 @@ data:
     path: src/assets/terrain/extension-v1/mud-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.paving-128.webp
     path: src/assets/terrain/extension-v1/paving-128.webp
+  - managementId: image.frontend.src.assets.world.isloon.terrain.paving-v1.png
+    path: src/assets/world/isloon/terrain/paving-v1.png
+  - managementId: image.frontend.src.assets.world.isloon.buildings.roof-timber-v1.png
+    path: src/assets/world/isloon/buildings/roof-timber-v1.png
+  - managementId: image.frontend.src.assets.world.isloon.buildings.wall-timber-v1.png
+    path: src/assets/world/isloon/buildings/wall-timber-v1.png
   - managementId: image.frontend.src.assets.terrain.extension-v1.reed-bed-128.webp
     path: src/assets/terrain/extension-v1/reed-bed-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.stone-128.webp

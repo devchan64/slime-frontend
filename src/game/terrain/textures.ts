@@ -4,7 +4,7 @@ import extendedGravelSource from "../../assets/terrain/extension-v1/gravel-128.w
 import extendedLeafLitterSource from "../../assets/terrain/extension-v1/leaf-litter-128.webp";
 import extendedMossSource from "../../assets/terrain/extension-v1/moss-128.webp";
 import extendedMudSource from "../../assets/terrain/extension-v1/mud-128.webp";
-import extendedPavingSource from "../../assets/terrain/extension-v1/paving-128.webp";
+import iseulonPavingSource from "../../assets/world/isloon/terrain/paving-v1.png";
 import extendedReedBedSource from "../../assets/terrain/extension-v1/reed-bed-128.webp";
 import extendedStoneSource from "../../assets/terrain/extension-v1/stone-128.webp";
 import extendedTreeBaseSource from "../../assets/terrain/extension-v1/tree-base-128.webp";
@@ -22,7 +22,7 @@ export const TERRAIN_ATLAS = "meadow-terrain";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
-const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": extendedPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
+const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base"]);
 const FRAME_W = TEXTURE_SIZE;
