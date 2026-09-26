@@ -2,13 +2,13 @@ import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
 import {t} from '../../i18n';
 import {cityBuildingCells} from './cityBuildings';
-import {resolveMapTileSize} from './renderMetrics';
+import {resolveMapTileSize, TOWN_WALL_HEIGHT, TOWN_CANOPY_HEIGHT} from './renderMetrics';
 import {TERRAIN_DEPTH} from './elevation';
 import iseulonRoofSource from '../../assets/world/isloon/buildings/roof-timber-v1.png';
 import iseulonWallSource from '../../assets/world/isloon/buildings/wall-timber-v1.png';
 
 const CITY_BUILDING_STYLE = {
-  wallHeight:48, canopyHeight:24, wallLight:0xc8b68d, wallDark:0x8f8067,
+  wallHeight:TOWN_WALL_HEIGHT, canopyHeight:TOWN_CANOPY_HEIGHT, wallLight:0xc8b68d, wallDark:0x8f8067,
   outlineColor:0x453d35, outlineWidth:2, selectedColor:0xffdd78, selectedWidth:4,
   roofAlpha:0.9, labelFont:'17px', labelOffset:12, entranceRadius:7,
   roofColors:{guild:0x467c75,bookshop:0x755c84,inn:0xa56f54,workshop:0x626f7a,market:0xd4ad63},

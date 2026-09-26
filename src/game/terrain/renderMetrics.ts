@@ -16,3 +16,6 @@ const TOWN_TILE_DIMENSIONS = Object.freeze({width: TOWN_TILE_WIDTH, height: TOWN
 export function resolveMapTileSize(currentMapSurface: {safeTown?: boolean}) {
   return currentMapSurface.safeTown ? TOWN_TILE_DIMENSIONS : FIELD_TILE_DIMENSIONS;
 }
+
+export const TOWN_WALL_HEIGHT = 48;
+export const TOWN_CANOPY_HEIGHT = 24;
