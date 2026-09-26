@@ -169,3 +169,5 @@ data:
 
   - managementId: image.world.isloon.wood-plain-wall-v1
     path: src/assets/world/isloon/buildings/wood-plain-wall-v1.png
+  - managementId: image.world.isloon.wood-roof-v2
+    path: src/assets/world/isloon/buildings/wood-roof-v2.png
