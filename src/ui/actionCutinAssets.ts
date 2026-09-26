@@ -3,7 +3,7 @@ import crabCutinMetadata from '../assets/monsters/standing-v1/stone-crab-idle-v1
 import crawlerCutinMetadata from '../assets/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
 import mothCutinMetadata from '../assets/monsters/standing-v1/lantern-moth-idle-v1.animation.json';
 import rabbitCutinMetadata from '../assets/monsters/standing-v1/field-rabbit-idle-v1.animation.json';
-import characterStandingMetadata from '../assets/characters/default/standing-v4/idle-v4.animation.json';
+import characterStandingMetadata from '../assets/characters/default/standing-v5/idle-v5.animation.json';
 import type { ActionCutinEvent } from './actionCutins';
 import { parseDocument } from 'yaml';
 import actionCutinCatalogSource from '../assets/cutins.yaml?raw';
@@ -21,7 +21,7 @@ const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
   beast: new URL('../assets/monsters/beast-v2.png', import.meta.url).href,
   giant: new URL('../assets/monsters/giant-v2.png', import.meta.url).href,
 };
-const DEFAULT_CHARACTER_STANDING_IMAGE = new URL('../assets/characters/default/standing-v4/standing-down-left.png', import.meta.url).href;
+const DEFAULT_CHARACTER_STANDING_IMAGE = new URL('../assets/characters/default/standing-v5/standing-down-left.png', import.meta.url).href;
 type ActionCutinActorRole = 'attacker' | 'target';
 export function parseActionCutinCatalog(actionCutinYamlSource: string): Map<string, string> {
   const parsedCatalogDocument = parseDocument(actionCutinYamlSource, { uniqueKeys: true });

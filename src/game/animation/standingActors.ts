@@ -3,8 +3,8 @@ import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
 import restingCharacterMetadata from "../../assets/characters/default/rest-v2/rest-v2.animation.json";
-import standingSourceMetadata from "../../assets/characters/default/standing-v4/source.json";
-import standingMetadata0 from "../../assets/characters/default/standing-v4/idle-v4.animation.json";
+import standingSourceMetadata from "../../assets/characters/default/standing-v5/source.json";
+import standingMetadata0 from "../../assets/characters/default/standing-v5/idle-v5.animation.json";
 import standingMetadata1 from "../../assets/monsters/standing-v1/slime-idle-v1.animation.json";
 import standingMetadata2 from "../../assets/monsters/standing-v1/beast-idle-v2.animation.json";
 import standingMetadata3 from "../../assets/monsters/standing-v1/giant-idle-v1.animation.json";
@@ -18,10 +18,10 @@ import standingMetadata10 from "../../assets/monsters/standing-v1/crystal-lizard
 
 const DEFAULT_STANDING_ANIMATION = new CellAnimation(standingMetadata0);
 export const DEFAULT_STANDING_DIRECTION_ASSETS = {
-  down_left: { key: "standing-human-down-left", url: new URL("../../assets/characters/default/standing-v4/standing-down-left.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
-  down_right: { key: "standing-human-down-right", url: new URL("../../assets/characters/default/standing-v4/standing-down-right.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
-  up_left: { key: "standing-human-up-left", url: new URL("../../assets/characters/default/standing-v4/standing-up-left.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
-  up_right: { key: "standing-human-up-right", url: new URL("../../assets/characters/default/standing-v4/standing-up-right.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  down_left: { key: "standing-human-down-left", url: new URL("../../assets/characters/default/standing-v5/standing-down-left.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  down_right: { key: "standing-human-down-right", url: new URL("../../assets/characters/default/standing-v5/standing-down-right.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  up_left: { key: "standing-human-up-left", url: new URL("../../assets/characters/default/standing-v5/standing-up-left.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
+  up_right: { key: "standing-human-up-right", url: new URL("../../assets/characters/default/standing-v5/standing-up-right.png", import.meta.url).href, animation: DEFAULT_STANDING_ANIMATION },
 } as const;
 
 export const ACTOR_STANDING_ASSETS = {

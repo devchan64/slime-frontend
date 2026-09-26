@@ -53,29 +53,24 @@ test('네 방향 텍스처가 모두 로드 대상이고 방향 전환 시 올�
   setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;}};
  for(const [currentDirectionName,currentDirectionAsset] of Object.entries(DEFAULT_STANDING_DIRECTION_ASSETS)) {
   assert.ok(existsSync(new URL(currentDirectionAsset.url)));
-  for(const currentFrameTime of [0,400,800,1200,1600]) {
+  for(const currentFrameTime of [0,250,750,1750,2000]) {
    renderedCharacterImage.scene.time.now=currentFrameTime;
    updateActorStandingFrame(renderedCharacterImage,currentDirectionName);
    assert.equal(renderedCharacterImage.textureKey,currentDirectionAsset.key);
-   assert.match(renderedCharacterImage.frame.name,new RegExp(`${currentDirectionName}\\.${(currentFrameTime/400)%4}$`));
+   assert.match(renderedCharacterImage.frame.name,new RegExp(`${currentDirectionName}\\.${(currentFrameTime/250)%8}$`));
   }
  }
  assert.throws(()=>resolveActorStandingAsset('human','invalid'));
 });
-test('16개 앵커는 양발 접지점 평균이며 원점 변환 후 월드 접지 중간이 고정된다',()=>{
- const sourceContactMetadata=JSON.parse(readFileSync('src/assets/characters/default/standing-v4/source.json','utf8'));
- for(const currentFrameRecord of ACTOR_STANDING_ASSETS.human.animation.data.frames) {
-  const currentFootContacts=sourceContactMetadata.contacts[currentFrameRecord.frameId];
-  const currentFootEndpoints=sourceContactMetadata.footprintEndpoints[currentFrameRecord.frameId];
-  if(sourceContactMetadata.coordinateMode==='toe-heel')for(const footSequenceIndex of [0,1]) for(const coordinateAxisName of ['x','y']) assert.equal(currentFootContacts[footSequenceIndex][coordinateAxisName],Math.round((currentFootEndpoints[footSequenceIndex*2][coordinateAxisName]+currentFootEndpoints[footSequenceIndex*2+1][coordinateAxisName])/2));
-  for(const coordinateAxisName of ['x','y']) {
-   const midpointCoordinateValue=(currentFootContacts[0][coordinateAxisName]+currentFootContacts[1][coordinateAxisName])/2;
-   assert.equal(currentFrameRecord.anchor[coordinateAxisName],Math.round(midpointCoordinateValue));
-   assert.ok(Number.isInteger(currentFrameRecord.anchor[coordinateAxisName]));
-   const transformedMidpointValue=currentFootContacts.reduce((accumulatedCoordinateValue,currentFootContact)=>accumulatedCoordinateValue+(currentFootContact[coordinateAxisName]-currentFrameRecord.anchor[coordinateAxisName])*60/sourceContactMetadata.referenceBodyHeight,0)/2;
-   assert.ok(Math.abs(transformedMidpointValue)<=0.5*60/sourceContactMetadata.referenceBodyHeight+1e-9);
-  }
+test('교체된 대기 에셋은 32프레임과 셀 내부 앵커·출처를 갖는다',()=>{
+ const currentSourceMetadata=JSON.parse(readFileSync('src/assets/characters/default/standing-v5/source.json','utf8'));
+ assert.equal(currentSourceMetadata.generationId,'2026-09-26_11-42-00-59d460b0');
+ assert.equal(currentSourceMetadata.gameBodyHeight,80);
+ assert.equal(ACTOR_STANDING_ASSETS.human.animation.data.frames.length,32);
+ for(const currentFrameRecord of ACTOR_STANDING_ASSETS.human.animation.data.frames){
+  assert.ok(currentFrameRecord.anchor.x>=0&&currentFrameRecord.anchor.x<512);
+  assert.ok(currentFrameRecord.anchor.y>=0&&currentFrameRecord.anchor.y<512);
+  assert.ok(currentSourceMetadata.frames.some(currentSourceFrame=>currentSourceFrame.frameId===currentFrameRecord.frameId));
  }
- assert.equal(ACTOR_STANDING_ASSETS.human.animation.data.frames.length,16);
- assert.equal(existsSync('src/assets/characters/default/standing-v3'),false);
+ assert.equal(existsSync('src/assets/characters/default/standing-v4'),false);
 });

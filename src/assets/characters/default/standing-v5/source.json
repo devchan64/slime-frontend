@@ -1,0 +1,192 @@
+{
+  "version": 5,
+  "generationId": "2026-09-26_11-42-00-59d460b0",
+  "sheets": [
+    {
+      "direction": "down_left",
+      "image": "standing-down-left.png",
+      "sha256": "5bd1a4f0338f964ea7ba9e67f38d937de0dfe342133e4971af4461554e1e2168"
+    },
+    {
+      "direction": "down_right",
+      "image": "standing-down-right.png",
+      "sha256": "bb57ee48b283741c9ea34a6d16dd424c9e609d55e8d0626c7c2fcf08df3610e4"
+    },
+    {
+      "direction": "up_left",
+      "image": "standing-up-left.png",
+      "sha256": "f897d4c64a8a1b557fb8dc72d36a66ff6d1ca1a56ec646c31bf45ec414394246"
+    },
+    {
+      "direction": "up_right",
+      "image": "standing-up-right.png",
+      "sha256": "1cebe636dddb1d4e3d9f87fe3440e715bc12f78fca54ce033d40dcd7b9cd1759"
+    }
+  ],
+  "frames": [
+    {
+      "frameId": "down_left.0",
+      "sourceFrame": 1,
+      "sourceSha256": "6caef9359d8643d2042043ee4d683bd5a13da919ec6a8101f0a56a552505c34d"
+    },
+    {
+      "frameId": "down_left.1",
+      "sourceFrame": 3,
+      "sourceSha256": "38e35f99313a0e7022dc5f52d574018da4b381b01194d2c8835c9a7738cbbf0a"
+    },
+    {
+      "frameId": "down_left.2",
+      "sourceFrame": 5,
+      "sourceSha256": "1bf70f41f149d1003fc9b59aa97e712ba78447dff8a5505df0da610f5405c0c1"
+    },
+    {
+      "frameId": "down_left.3",
+      "sourceFrame": 7,
+      "sourceSha256": "61693d366ddb50931c5b8d9beaf8fde1ebc7d73920836467c2dd9513f55d0bb9"
+    },
+    {
+      "frameId": "down_left.4",
+      "sourceFrame": 9,
+      "sourceSha256": "f3f727522fd46704a67977a3d4b9592ac9669c683ae01b6e8d5d1b29f8cf8b83"
+    },
+    {
+      "frameId": "down_left.5",
+      "sourceFrame": 11,
+      "sourceSha256": "f02087886b173a8625cf61088cdc4a307edba8282f4c904a5c3fcc58f71aa73a"
+    },
+    {
+      "frameId": "down_left.6",
+      "sourceFrame": 13,
+      "sourceSha256": "b1c0327b41c0e7b98390b711930442e30418dc9caf36daea70aa3c6a9de794f6"
+    },
+    {
+      "frameId": "down_left.7",
+      "sourceFrame": 15,
+      "sourceSha256": "9f5e9d5d0299c9a11a51256fbba3852a73ccc5b568e1b40ee2732289ad08679c"
+    },
+    {
+      "frameId": "down_right.0",
+      "sourceFrame": 1,
+      "sourceSha256": "476bfaffe64522bd776f20fc326fb95361ded92c35ee234e79236269f759787a"
+    },
+    {
+      "frameId": "down_right.1",
+      "sourceFrame": 3,
+      "sourceSha256": "e2e38168ae370f23bc570d8c24dc6a92255eb8cdd532b29a8ec36142fe28b002"
+    },
+    {
+      "frameId": "down_right.2",
+      "sourceFrame": 5,
+      "sourceSha256": "7fc5e7f511af6659593a73cc975570790caf37fc01885ae0715becbbdb35cb66"
+    },
+    {
+      "frameId": "down_right.3",
+      "sourceFrame": 7,
+      "sourceSha256": "62fb75df33d5d965dec4e1374bcfa550594edad63b0835bd11e1e620cd3d3f48"
+    },
+    {
+      "frameId": "down_right.4",
+      "sourceFrame": 9,
+      "sourceSha256": "532c196b3387b2d3adfdaa5780201978c4c13a9f4440d27589dedb773d507426"
+    },
+    {
+      "frameId": "down_right.5",
+      "sourceFrame": 11,
+      "sourceSha256": "dcb77810ede9153da17f675d7564c12f4b0122606bfa30b8261291495699ebff"
+    },
+    {
+      "frameId": "down_right.6",
+      "sourceFrame": 13,
+      "sourceSha256": "0f8669af06ddfc807beb87852897fa7bc51965489a7996246376f424d3d092d7"
+    },
+    {
+      "frameId": "down_right.7",
+      "sourceFrame": 15,
+      "sourceSha256": "e7d9473eb40534b12d23dfdf6f5868f93429363bed8ea06156d0db0f9eceb594"
+    },
+    {
+      "frameId": "up_left.0",
+      "sourceFrame": 1,
+      "sourceSha256": "d3ae9bce99791bbe68f89eb1ec94a699dcadb28a6d17d3b5f9cbe3c8995d9401"
+    },
+    {
+      "frameId": "up_left.1",
+      "sourceFrame": 3,
+      "sourceSha256": "a4212497b6991d40b700f5427945891bc30a18dca9dbb45d69665ac24dd895ed"
+    },
+    {
+      "frameId": "up_left.2",
+      "sourceFrame": 5,
+      "sourceSha256": "f6840383c55902ed89869bb86bbb2ab45bb9183b7fad275f4e3c4452a07c92a8"
+    },
+    {
+      "frameId": "up_left.3",
+      "sourceFrame": 7,
+      "sourceSha256": "c12461308ce8fb7a7817d935fe9867c93c6a67a96a1ce631ae5e2e3d4654e6f1"
+    },
+    {
+      "frameId": "up_left.4",
+      "sourceFrame": 9,
+      "sourceSha256": "6957b6c34c4f962597f713febe4da5d6fcf0da0315e222aca44d1d77ff877d1f"
+    },
+    {
+      "frameId": "up_left.5",
+      "sourceFrame": 11,
+      "sourceSha256": "5259f206d79e5c54a534e46f9616bab5ef170ed3629079bfcec8d25fc546b15d"
+    },
+    {
+      "frameId": "up_left.6",
+      "sourceFrame": 13,
+      "sourceSha256": "ebaf6c77a22af5c07335ca58c5d7807f975124024f6fc3eb1890e9b6b8fa3f33"
+    },
+    {
+      "frameId": "up_left.7",
+      "sourceFrame": 15,
+      "sourceSha256": "309a20795c922c741af234889f9f7d5786a7b9a5e2c60db17e1dd5eca7ef5867"
+    },
+    {
+      "frameId": "up_right.0",
+      "sourceFrame": 1,
+      "sourceSha256": "4a3ec999a084938cebbcec8d1842f7127ef0e9fdd6acc695bcc516f4c87b2450"
+    },
+    {
+      "frameId": "up_right.1",
+      "sourceFrame": 3,
+      "sourceSha256": "1bcbddd0be483a1c26381f74a52a99fd4f09116709811f2b3fd127208d608d06"
+    },
+    {
+      "frameId": "up_right.2",
+      "sourceFrame": 5,
+      "sourceSha256": "e80fb976eb498e4b0de44244fa14be9e4694cf35fce89652a1b835cd92e844d6"
+    },
+    {
+      "frameId": "up_right.3",
+      "sourceFrame": 7,
+      "sourceSha256": "379e56336e2bc12555f930c00228b4b4070b26cade2e639fcd18266e86d9415d"
+    },
+    {
+      "frameId": "up_right.4",
+      "sourceFrame": 9,
+      "sourceSha256": "1c2a91a38603b7d99945eaea8b57fd4596878a9f6c5069d4d041f6821a4d52b1"
+    },
+    {
+      "frameId": "up_right.5",
+      "sourceFrame": 11,
+      "sourceSha256": "1644607efcc0987e65cd4dd437c4c4a32a99f306fadbbfc469eebf5eb5f5c41d"
+    },
+    {
+      "frameId": "up_right.6",
+      "sourceFrame": 13,
+      "sourceSha256": "867a02f6eb2fd5c31c190bc86828ac608b89f12a8c9d8449e3fcb623f05c316e"
+    },
+    {
+      "frameId": "up_right.7",
+      "sourceFrame": 15,
+      "sourceSha256": "a8d252fb6ab11cc5d61dbe005859f1a225c7bc4a51475ff5c85c341709957505"
+    }
+  ],
+  "gameBodyHeight": 80,
+  "anchorMethod": "visible-body-bottom-band-midpoint",
+  "backgroundMethod": "edge-connected-near-white",
+  "referenceBodyHeight": 431.0
+}
