@@ -20,7 +20,7 @@ for(const currentReviewPage of reviewCatalogValue.pages){
 }
 mkdirSync(reviewOutputRoot,{recursive:true});
 console.log(`${reviewStartedTime}/ui-review/build ${reviewOutputRoot}`);
-await buildReviewBundle({configFile:false,base:'./',publicDir:false,build:{outDir:reviewOutputRoot,emptyOutDir:false,rollupOptions:{input:['review/design-system.html','review/terrain-preview.html','review/battlefield-preview.html'].map(currentEntryPath=>resolveReviewPath(currentEntryPath))}}});
+await buildReviewBundle({configFile:false,base:'./',publicDir:false,esbuild:{jsx:'automatic',jsxImportSource:'preact'},build:{outDir:reviewOutputRoot,emptyOutDir:false,rollupOptions:{input:['review/design-system.html','review/terrain-preview.html','review/battlefield-preview.html'].map(currentEntryPath=>resolveReviewPath(currentEntryPath))}}});
 function collectReviewFiles(currentDirectoryPath){
  return readdirSync(currentDirectoryPath,{withFileTypes:true}).flatMap(currentDirectoryEntry=>{
  const currentAbsolutePath=resolveReviewPath(currentDirectoryPath,currentDirectoryEntry.name);
