@@ -2,7 +2,7 @@
 export type TerrainBlockRecord = {id:string;column:number;row:number;layer:number;offsetHeight:number;height:number;shape:'full'|'ramp';highSide?:'north'|'south'|'east'|'west';material:'wall'|'roof';walkable:boolean};
 export type BlockVertexPoint = {column:number;row:number;height:number};
 export type BlockSurfaceFace = {vertices:BlockVertexPoint[];material:'wall'|'roof';top:boolean};
-const BLOCK_LAYER_HEIGHT = 48;
+const BLOCK_LAYER_HEIGHT = 60;
 const BLOCK_CORNER_OFFSETS = [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
 const BLOCK_NEIGHBOR_OFFSETS = [[0,-1],[1,0],[0,1],[-1,0]];
 const BLOCK_HEIGHT_EPSILON = 0.00001;
