@@ -32,5 +32,5 @@ test('엇갈린 높이의 네 타일을 모두 표시 중심 계산에 반영한
  const actualActorPlacement=calculateActorPlacement({column:0,row:0},2,currentRaisedSurface,projectRaisedPosition,cellDepth);
  const projectedCellCenters=[{column:0,row:0},{column:1,row:0},{column:0,row:1},{column:1,row:1}].map(projectRaisedPosition);
  assert.equal(actualActorPlacement.y,projectedCellCenters.reduce((totalProjectedValue,currentProjectedCell)=>totalProjectedValue+currentProjectedCell.y,0)/4);
- assert.equal(actualActorPlacement.y,69);
+ assert.equal(actualActorPlacement.y,68);
 });

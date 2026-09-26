@@ -8,7 +8,7 @@ import iseulonRoofSource from '../../assets/world/isloon/buildings/roof-timber-v
 import iseulonWallSource from '../../assets/world/isloon/buildings/wall-timber-v1.png';
 
 const CITY_BUILDING_STYLE = {
-  wallHeight:47, canopyHeight:23, wallLight:0xc8b68d, wallDark:0x8f8067,
+  wallHeight:48, canopyHeight:24, wallLight:0xc8b68d, wallDark:0x8f8067,
   outlineColor:0x453d35, outlineWidth:2, selectedColor:0xffdd78, selectedWidth:4,
   roofAlpha:0.9, labelFont:'17px', labelOffset:12, entranceRadius:7,
   roofColors:{guild:0x467c75,bookshop:0x755c84,inn:0xa56f54,workshop:0x626f7a,market:0xd4ad63},

@@ -3,7 +3,7 @@ export const MAP_DEFAULT_ZOOM = 1;
 export const MAP_TILE_WIDTH = 80;
 export const MAP_TILE_HEIGHT = 40;
 export const CHARACTER_BODY_HEIGHT = 80;
-export const MAP_ELEVATION_HEIGHT = 31;
+export const MAP_ELEVATION_HEIGHT = 32;
 export const MAP_BASE_THICKNESS = 16;
 // 이전 1.3 카메라 배율을 월드 단위로 이전한 비율. 줌 조작의 화면 변화량도 보존한다.
 export const WORLD_UNIT_MIGRATION = 1.3;

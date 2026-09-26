@@ -8,7 +8,7 @@ test('정수 크기로 필드·전투 80×40, 마을 160×80, 사람 높이 80�
  assert.equal(normalizedRenderModule.CHARACTER_BODY_HEIGHT,80);
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({}),{width:80,height:40});
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:true}),{width:160,height:80});
- assert.equal(normalizedRenderModule.MAP_ELEVATION_HEIGHT,31);
+ assert.equal(normalizedRenderModule.MAP_ELEVATION_HEIGHT,32);
  assert.equal(normalizedRenderModule.MAP_BASE_THICKNESS,16);
 });
 test('마을과 필드의 네 방향 회전·투영·클릭·화면 타일 범위가 같은 크기를 사용한다',()=>{
@@ -20,7 +20,7 @@ test('마을과 필드의 네 방향 회전·투영·클릭·화면 타일 범�
    const currentCellPosition={column:currentColumnIndex,row:currentRowIndex};
    const currentWorldPoint=normalizedRenderModule.project(currentCellPosition,currentTestSurface);
    assert.equal(currentWorldPoint.x-normalizedRenderModule.MAP_ORIGIN.x,(currentColumnIndex-currentRowIndex)*currentExpectedWidth/2);
-   assert.equal(currentWorldPoint.y-normalizedRenderModule.MAP_ORIGIN.y,(currentColumnIndex+currentRowIndex)*currentExpectedHeight/2-31);
+   assert.equal(currentWorldPoint.y-normalizedRenderModule.MAP_ORIGIN.y,(currentColumnIndex+currentRowIndex)*currentExpectedHeight/2-32);
    assert.deepEqual(normalizedRenderModule.pickSurface(currentWorldPoint.x,currentWorldPoint.y,currentTestSurface,{min:1,max:1}),currentCellPosition);
    const currentVisibleWindow=normalizedRenderModule.terrainWindow(currentTestSurface,{min:1,max:1},{left:currentWorldPoint.x-1,right:currentWorldPoint.x+1,top:currentWorldPoint.y-1,bottom:currentWorldPoint.y+1});
    assert.ok(currentVisibleWindow.firstColumn<=currentColumnIndex&&currentVisibleWindow.lastColumn>=currentColumnIndex);
