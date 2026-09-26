@@ -166,3 +166,6 @@ data:
     path: src/assets/characters/default/walk-v1/walk-down.png
   - managementId: image.character.default.walk.packed-up-v3
     path: src/assets/characters/default/walk-v1/walk-up.png
+
+  - managementId: image.world.isloon.wood-plain-wall-v1
+    path: src/assets/world/isloon/buildings/wood-plain-wall-v1.png
