@@ -1,4 +1,4 @@
-import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION} from "../terrain/renderMetrics";
+import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION, resolveMapTileSize} from "../terrain/renderMetrics";
 import { FieldIdleAction } from "../animation/fieldIdleAction";
 import { calculateFieldIdleDuration } from "../animation/standingActors";
 import type {Notice} from '../../client/notice';
@@ -15,7 +15,7 @@ import { elevationTileAt, type Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
-import { buildMeadowRoad, fieldTerrainAt, TILE_W, TILE_H } from "../terrain/meadow";
+import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
@@ -33,7 +33,7 @@ import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTil
 import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const FIELD_CHARACTER_VERTICAL_OFFSET = 3;
-const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1.3, alpha: 0.65 };
+const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -48,13 +48,13 @@ const COLORS = {
 };
 const TEXT = {
   fontFamily: "sans-serif",
-  fontSize: "16.9px",
+  fontSize: "17px",
   color: "#eaf7fa",
   backgroundColor: "#10222dcc",
-  padding: { x: 6.5, y: 3.9 },
+  padding: { x: 7, y: 4 },
 };
 const CENTER = 0.5,
-  LABEL_OFFSET = 32.5,
+  LABEL_OFFSET = 33,
   BATTLE_DISPLAY_SCALE = 1.2,
   PORTRAIT_BATTLE_FILL = 1.5,
   CAMERA_PADDING = 52,
@@ -62,10 +62,10 @@ const CENTER = 0.5,
   ZOOM_MIN = 0.4 / WORLD_UNIT_MIGRATION,
   ZOOM_MAX = 1.4 / WORLD_UNIT_MIGRATION,
   FIELD_ZOOM_MAX = 2.8 / WORLD_UNIT_MIGRATION,
-  TURN_BADGE_OFFSET = 20.8,
-  TURN_BADGE_RADIUS = 14.3,
-  PATH_WIDTH = 3.9,
-  PATH_NODE_RADIUS = 9.1,
+  TURN_BADGE_OFFSET = 21,
+  TURN_BADGE_RADIUS = 14,
+  PATH_WIDTH = 4,
+  PATH_NODE_RADIUS = 9,
   PATH_COLOR = 0x9eeeff,
   ARRIVAL_COLOR = 0xffbb66;
 const DEFAULT_TILE_ZOOM = MAP_DEFAULT_ZOOM;
@@ -73,8 +73,8 @@ const SAFE_BARRIER_PULSE = { cycleMilliseconds: 2600, minimumOpacity: 0.72, opac
 const BATTLE_FRAMING_ZOOM = DEFAULT_TILE_ZOOM / BATTLE_DISPLAY_SCALE;
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
-  outline: 0x071e35, outlineWidth: 7.8, edge: 0x9ceaff, edgeWidth: 3.9,
-  arrivalInset: 0.72, arrivalWidth: 2.6, targetWidth: 5.2, selectedWidth: 5.2,
+  outline: 0x071e35, outlineWidth: 8, edge: 0x9ceaff, edgeWidth: 4,
+  arrivalInset: 0.72, arrivalWidth: 3, targetWidth: 5, selectedWidth: 5,
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
@@ -360,8 +360,8 @@ export class MainScene extends Phaser.Scene {
     if (this.state) {
       const battle = this.state.battle;
       const extent = battle ? battle.field.columns + battle.field.rows : 0;
-      const widthFit = this.cameras.main.width / (extent * TILE_W / 2 + CAMERA_PADDING);
-      const heightFit = this.cameras.main.height / (extent * TILE_H / 2 + CAMERA_PADDING);
+      const widthFit = this.cameras.main.width / (extent * this.currentTileDimensions.width / 2 + CAMERA_PADDING);
+      const heightFit = this.cameras.main.height / (extent * this.currentTileDimensions.height / 2 + CAMERA_PADDING);
       this.cameras.main.setZoom(battle ? Math.min(BATTLE_FRAMING_ZOOM,
         this.cameras.main.width < this.cameras.main.height ? Math.min(heightFit, widthFit * PORTRAIT_BATTLE_FILL) : Math.min(widthFit, heightFit)) : DEFAULT_TILE_ZOOM);
       if (battle && this.backdropLayer) {
@@ -376,9 +376,9 @@ export class MainScene extends Phaser.Scene {
       if(battle) {
         const bounds=battle.units.filter(unit=>unit.hp>0).map(unit=>{
           const p=this.calculateActorPlacement(unit.position,unit.side==='ally'?undefined:unit),size=actorSize(unit.side==='ally'?undefined:unit);
-          return {left:p.x-TILE_W*size.tiles/2,right:p.x+TILE_W*size.tiles/2,
+          return {left:p.x-this.currentTileDimensions.width*size.tiles/2,right:p.x+this.currentTileDimensions.width*size.tiles/2,
             top:p.y-HUMAN_HEIGHT*size.scale-TURN_BADGE_OFFSET-TURN_BADGE_RADIUS,
-            bottom:p.y+TILE_H*size.tiles/2};
+            bottom:p.y+this.currentTileDimensions.height*size.tiles/2};
         });
         this.cameras.main.setZoom(fitActorZoom(this.cameras.main.zoom,point,this.cameras.main,bounds));
       }
@@ -441,12 +441,12 @@ export class MainScene extends Phaser.Scene {
                 : COLORS.alternate;
         const polygon = [
           point.x,
-          point.y - TILE_H / 2,
-          point.x + TILE_W / 2,
+          point.y - this.currentTileDimensions.height / 2,
+          point.x + this.currentTileDimensions.width / 2,
           point.y,
           point.x,
-          point.y + TILE_H / 2,
-          point.x - TILE_W / 2,
+          point.y + this.currentTileDimensions.height / 2,
+          point.x - this.currentTileDimensions.width / 2,
           point.y,
         ];
         if (!meadow || isSafe) {
@@ -458,7 +458,7 @@ export class MainScene extends Phaser.Scene {
           this.safeBarrierGraphics.push(g);
         }
         if (!meadow && !textured) {
-          g.lineStyle(1.3, COLORS.edge, 0.5);
+          g.lineStyle(1, COLORS.edge, 0.5);
           g.strokePoints(this.points(polygon), true);
         }
         // 지형 명암과 구별되는 이중선으로 서버가 허용한 이동 칸만 표시한다.
@@ -483,12 +483,12 @@ export class MainScene extends Phaser.Scene {
           g.strokePoints(inset, true);
         }
         if (!selectedMove && attackCells.has(`${column},${row}`)) {
-          g.lineStyle(3.9, COLORS.enemy);
+          g.lineStyle(4, COLORS.enemy);
           g.strokePoints(this.points(polygon), true);
         }
         if (this.selected?.column === column && this.selected.row === row) {
           g.setDepth(this.annotationDepth());
-          g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 2.6, COLORS.selected);
+          g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 3, COLORS.selected);
           g.strokePoints(this.points(polygon), true);
         }
       }
@@ -586,6 +586,7 @@ export class MainScene extends Phaser.Scene {
     }
   }
   private surface = () => this.state!.battle?.field ?? this.state!.map;
+  private get currentTileDimensions() { return resolveMapTileSize(this.viewSurface ?? {}); }
   private viewPosition = (p: Position) => toView(p, this.surface(), this.rotation);
   private project = (p: Position) => project(this.viewPosition(p), this.viewSurface!);
   private depth = (p: Position) => cellDepth(this.viewPosition(p));
@@ -625,7 +626,7 @@ export class MainScene extends Phaser.Scene {
     if (!this.backdropLayer) this.backdropLayer = createBackdrop(this);
     fitBackdrop(this.backdropLayer, this.cameras.main,
       this.project({column:(definition.columns-1)/2,row:(definition.rows-1)/2}),
-      (definition.columns+definition.rows)*TILE_W/2,(definition.columns+definition.rows)*TILE_H/2,theme);
+      (definition.columns+definition.rows)*this.currentTileDimensions.width/2,(definition.columns+definition.rows)*this.currentTileDimensions.height/2,theme);
     this.backdropLayer.setAlpha(.5);
     const signature=`${this.rotation}:${this.terrainPlan!.signature}`;
     if(signature===this.terrainSignature && this.terrainCache) { this.syncTerrainViewport(); return; }
@@ -650,8 +651,8 @@ export class MainScene extends Phaser.Scene {
       const {column,row}=cell,p=this.project(cell),depth=this.depth(cell);
       if(field){
         const grid=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.overlay));
-        grid.lineStyle(1.3,COLORS.edge,.5);
-        grid.strokePoints(this.points([p.x,p.y-TILE_H/2,p.x+TILE_W/2,p.y,p.x,p.y+TILE_H/2,p.x-TILE_W/2,p.y]),true);
+        grid.lineStyle(1,COLORS.edge,.5);
+        grid.strokePoints(this.points([p.x,p.y-this.currentTileDimensions.height/2,p.x+this.currentTileDimensions.width/2,p.y,p.x,p.y+this.currentTileDimensions.height/2,p.x-this.currentTileDimensions.width/2,p.y]),true);
       }
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
@@ -668,8 +669,8 @@ export class MainScene extends Phaser.Scene {
       const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
         : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
-        .setDisplaySize(TILE_W,TILE_H).setDepth(depth+TERRAIN_DEPTH.surface));
-      if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p);
+        .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
+      if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p,this.currentTileDimensions);
       if (!isWater && !['boulder','tree-base'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
@@ -733,18 +734,18 @@ export class MainScene extends Phaser.Scene {
     const selected = this.selected?.column === pos.column && this.selected.row === pos.row;
     if (active || selected) {
       g.lineStyle(ACTOR_GROUND_SELECTION.lineWidth, active ? COLORS.player : COLORS.selected, ACTOR_GROUND_SELECTION.alpha);
-      g.strokeEllipse(p.x, p.y, TILE_W * ACTOR_GROUND_SELECTION.widthRatio, TILE_H * ACTOR_GROUND_SELECTION.heightRatio);
+      g.strokeEllipse(p.x, p.y, this.currentTileDimensions.width * ACTOR_GROUND_SELECTION.widthRatio, this.currentTileDimensions.height * ACTOR_GROUND_SELECTION.heightRatio);
     }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
       const badgeY=p.y-height-TURN_BADGE_OFFSET;
       if (health?.side === "enemy") annotation.fillRoundedRect(p.x-TURN_BADGE_RADIUS,badgeY-TURN_BADGE_RADIUS,TURN_BADGE_RADIUS*2,TURN_BADGE_RADIUS*2,3);
       else annotation.fillCircle(p.x,badgeY,TURN_BADGE_RADIUS);
-      annotation.lineStyle(2.6, active ? 0xffffff : color, completed ? 0.4 : 1);
+      annotation.lineStyle(3, active ? 0xffffff : color, completed ? 0.4 : 1);
       if (health?.side === "enemy") annotation.strokeRoundedRect(p.x-TURN_BADGE_RADIUS,badgeY-TURN_BADGE_RADIUS,TURN_BADGE_RADIUS*2,TURN_BADGE_RADIUS*2,3);
       else annotation.strokeCircle(p.x,badgeY,TURN_BADGE_RADIUS);
       this.add.text(p.x, p.y - height - TURN_BADGE_OFFSET, String(rank), {
-        fontFamily: "sans-serif", fontSize: "18.2px", fontStyle: "bold",
+        fontFamily: "sans-serif", fontSize: "18px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {

@@ -40,7 +40,7 @@ export function prepareTerrain(state: State, rotation: MapRotation, previous: Te
   if (unchanged && previous.rotation === rotation) return previous;
   const map = state.battle?.field ?? state.map;
   const source = unchanged ? previous.source : {
-    columns: map.columns, rows: map.rows,
+    columns: map.columns, rows: map.rows, safeTown: !state.battle && Boolean(state.map.safeTown),
     elevations: map.elevations?.map(row => row.slice()),
     ramps: structuredClone(map.ramps), elevationTiles: structuredClone(map.elevationTiles),
   };

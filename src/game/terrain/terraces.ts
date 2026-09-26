@@ -3,7 +3,7 @@ import type {Position} from '../../client/types';
 import {cliffFaces, elevationTileFaces, type ElevationTile, type Surface} from './elevation';
 import {CLIFF_WALL_TEXTURE} from './textures';
 
-const CLIFF = { light:0x8d7655, dark:0x675642, seam:0x4b4639, rim:0xb5bb79, strata:10.4 };
+const CLIFF = { light:0x8d7655, dark:0x675642, seam:0x4b4639, rim:0xb5bb79, strata:10 };
 export function drawCliffs(g:Phaser.GameObjects.Graphics,cell:Position,map:Surface){
   for(const [index,face] of cliffFaces(cell,map).entries()){
     const points=face.map(p=>new Phaser.Geom.Point(p.x,p.y));

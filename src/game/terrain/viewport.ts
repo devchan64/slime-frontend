@@ -1,9 +1,10 @@
-import { BASE_THICKNESS, CELL_HEIGHT, CELL_WIDTH, ELEVATION_STEP, MAP_ORIGIN, type Surface } from './elevation';
+import {resolveMapTileSize} from "./renderMetrics";
+import { BASE_THICKNESS, ELEVATION_STEP, MAP_ORIGIN, type Surface } from './elevation';
 
 export type ViewBounds = {left:number;top:number;right:number;bottom:number};
 export type TileWindow = {firstColumn:number;lastColumn:number;firstRow:number;lastRow:number};
 // 장식과 선 두께, 카메라 이동 직전의 경계를 포함한다.
-const OVERSCAN = CELL_WIDTH * 2;
+
 
 export function elevationRange(surface: Surface): {min:number;max:number} {
   if (surface.heightSource) return elevationRange(surface.heightSource.surface);
@@ -14,10 +15,12 @@ export function elevationRange(surface: Surface): {min:number;max:number} {
 
 /** 회전된 표시 좌표에서 지면·절벽·승강 타일 전체를 포함하는 보수적 범위. */
 export function terrainWindow(surface: Surface, heights: {min:number;max:number}, bounds: ViewBounds): TileWindow {
-  const differenceMin=(bounds.left-OVERSCAN-MAP_ORIGIN.x)/(CELL_WIDTH/2);
-  const differenceMax=(bounds.right+OVERSCAN-MAP_ORIGIN.x)/(CELL_WIDTH/2);
-  const sumMin=(bounds.top-OVERSCAN-BASE_THICKNESS-MAP_ORIGIN.y+heights.min*ELEVATION_STEP)/(CELL_HEIGHT/2);
-  const sumMax=(bounds.bottom+OVERSCAN-MAP_ORIGIN.y+heights.max*ELEVATION_STEP)/(CELL_HEIGHT/2);
+  const currentTileDimensions = resolveMapTileSize(surface);
+  const currentOverscanDistance = currentTileDimensions.width * 2;
+  const differenceMin=(bounds.left-currentOverscanDistance-MAP_ORIGIN.x)/(currentTileDimensions.width/2);
+  const differenceMax=(bounds.right+currentOverscanDistance-MAP_ORIGIN.x)/(currentTileDimensions.width/2);
+  const sumMin=(bounds.top-currentOverscanDistance-BASE_THICKNESS-MAP_ORIGIN.y+heights.min*ELEVATION_STEP)/(currentTileDimensions.height/2);
+  const sumMax=(bounds.bottom+currentOverscanDistance-MAP_ORIGIN.y+heights.max*ELEVATION_STEP)/(currentTileDimensions.height/2);
   return {
     firstColumn:Math.max(0,Math.floor((sumMin+differenceMin)/2)),
     lastColumn:Math.min(surface.columns-1,Math.ceil((sumMax+differenceMax)/2)),

@@ -1,10 +1,10 @@
-import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT, MAP_ELEVATION_HEIGHT, MAP_BASE_THICKNESS} from "./renderMetrics";
+import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT, MAP_ELEVATION_HEIGHT, MAP_BASE_THICKNESS, resolveMapTileSize} from "./renderMetrics";
 import type { Position } from '../../client/types';
 
 export type TerrainLink = { start: Position; end: Position; id?: string;
   kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
-export type Surface = { columns: number; rows: number; elevations?: number[][];
+export type Surface = { columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
@@ -29,8 +29,8 @@ export const elevationTileAt = (p: Position, map: Surface): ElevationTile | unde
   map.elevationTileIndex ? map.elevationTileIndex.get(`${p.column},${p.row}`)
     : map.elevationTiles?.find(tile => same(tile.cell,p));
 export const project = (p: Position, map: Surface) => ({
-  x: MAP_ORIGIN.x + (p.column-p.row) * CELL_WIDTH/2,
-  y: MAP_ORIGIN.y + (p.column+p.row) * CELL_HEIGHT/2 - (heightAt(p,map) - (elevationTileAt(p,map) ? 0.5 : 0))*ELEVATION_STEP,
+  x: MAP_ORIGIN.x + (p.column-p.row) * resolveMapTileSize(map).width/2,
+  y: MAP_ORIGIN.y + (p.column+p.row) * resolveMapTileSize(map).height/2 - (heightAt(p,map) - (elevationTileAt(p,map) ? 0.5 : 0))*ELEVATION_STEP,
 });
 // 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
 export function surfaceElevationTiles(map: Surface): ElevationTile[] {
@@ -48,7 +48,7 @@ export function elevationTileFaces(tile: ElevationTile, map: Surface): TileFace[
   const low=heightAt(tile.cell,map)-1;
   const point=(u:number,v:number,z:number)=>{
     const c=tile.cell.column+dc*u-dr*v,r=tile.cell.row+dr*u+dc*v;
-    return {x:MAP_ORIGIN.x+(c-r)*CELL_WIDTH/2,y:MAP_ORIGIN.y+(c+r)*CELL_HEIGHT/2-z*ELEVATION_STEP};
+    return {x:MAP_ORIGIN.x+(c-r)*resolveMapTileSize(map).width/2,y:MAP_ORIGIN.y+(c+r)*resolveMapTileSize(map).height/2-z*ELEVATION_STEP};
   };
   const blocks=Array.from({length:STEP_COUNT},(_,i)=>{
     const u=i/STEP_COUNT-.5,w=(i+1)/STEP_COUNT-.5,z=low+(i+1)/STEP_COUNT;
@@ -69,8 +69,8 @@ export function canStep(start: Position, end: Position, map: Surface) {
 export function cliffFaces(p: Position, map: Surface) {
   if (!map.elevations && !map.heightSource) return [];
   const center=project(p,map), h=heightAt(p,map);
-  return [{ neighbor:{column:p.column+1,row:p.row}, edge:[[0,CELL_HEIGHT/2],[CELL_WIDTH/2,0]] },
-    { neighbor:{column:p.column,row:p.row+1}, edge:[[-CELL_WIDTH/2,0],[0,CELL_HEIGHT/2]] }]
+  return [{ neighbor:{column:p.column+1,row:p.row}, edge:[[0,resolveMapTileSize(map).height/2],[resolveMapTileSize(map).width/2,0]] },
+    { neighbor:{column:p.column,row:p.row+1}, edge:[[-resolveMapTileSize(map).width/2,0],[0,resolveMapTileSize(map).height/2]] }]
     .flatMap(({neighbor,edge}) => {
       const drop=inBounds(neighbor,map) ? (h-heightAt(neighbor,map))*ELEVATION_STEP : h*ELEVATION_STEP+BASE_THICKNESS;
       if (drop<=0) return [];
@@ -87,19 +87,20 @@ const contains = (x:number,y:number,polygon:{x:number;y:number}[]) => {
   return inside;
 };
 // 앞쪽 지면/절벽부터 검사하므로 가려진 뒤쪽 타일을 선택하지 않는다.
-const PICK_VERTICAL_PADDING = CELL_HEIGHT + BASE_THICKNESS + ELEVATION_STEP;
+
 export function pickSurface(x:number,y:number,map:Surface,heights:{min:number;max:number}):Position|null {
+  const currentPickingPadding = resolveMapTileSize(map).height + BASE_THICKNESS + ELEVATION_STEP;
   if(!Number.isFinite(x)||!Number.isFinite(y))return null;
   // 지면·계단·절벽은 셀 중심에서 가로 반 셀 범위를 넘지 않는다.
   // column-row 후보를 먼저 좁혀 전체 면적 대신 대각선 수에 비례해 검사한다.
-  const difference=(x-MAP_ORIGIN.x)/(CELL_WIDTH/2);
+  const difference=(x-MAP_ORIGIN.x)/(resolveMapTileSize(map).width/2);
   const first=Math.max(1-map.rows,Math.floor(difference)-1);
   const last=Math.min(map.columns-1,Math.ceil(difference)+1);
   if(first>last)return null;
   // 준비된 고도 범위를 쓰면 멀리 있는 대각선도 검사하지 않는다.
   // 수직 여유는 계단 측면·절벽 바닥까지 포함하며 앞→뒤 순서는 유지한다.
-  const firstDiagonal=Math.max(0,Math.ceil((y-MAP_ORIGIN.y-PICK_VERTICAL_PADDING+heights.min*ELEVATION_STEP)/(CELL_HEIGHT/2)));
-  const lastDiagonal=Math.min(map.columns+map.rows-2,Math.floor((y-MAP_ORIGIN.y+PICK_VERTICAL_PADDING+heights.max*ELEVATION_STEP)/(CELL_HEIGHT/2)));
+  const firstDiagonal=Math.max(0,Math.ceil((y-MAP_ORIGIN.y-currentPickingPadding+heights.min*ELEVATION_STEP)/(resolveMapTileSize(map).height/2)));
+  const lastDiagonal=Math.min(map.columns+map.rows-2,Math.floor((y-MAP_ORIGIN.y+currentPickingPadding+heights.max*ELEVATION_STEP)/(resolveMapTileSize(map).height/2)));
   for(let diagonal=lastDiagonal;diagonal>=firstDiagonal;diagonal--)
     for(let delta=first;delta<=last;delta++){
       const row=(diagonal-delta)/2,column=diagonal-row;
@@ -111,7 +112,7 @@ export function pickSurface(x:number,y:number,map:Surface,heights:{min:number;ma
           if(contains(x,y,face.points))return face.top?cell:null;
         continue;
       }
-      if(Math.abs(x-p.x)/(CELL_WIDTH/2)+Math.abs(y-p.y)/(CELL_HEIGHT/2)<=1)return cell;
+      if(Math.abs(x-p.x)/(resolveMapTileSize(map).width/2)+Math.abs(y-p.y)/(resolveMapTileSize(map).height/2)<=1)return cell;
       if(cliffFaces(cell,map).some(face=>contains(x,y,face)))return null;
     }
   return null;

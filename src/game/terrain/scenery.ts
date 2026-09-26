@@ -7,7 +7,7 @@ const STYLE = {
   leaves: 0x356d52, leavesLight: 0x639267, leavesDark: 0x264f42,
   shadowWidth: TILE_W * 0.82, shadowHeight: TILE_H * 0.68,
   bushWidth: TILE_W * 0.43, bushHeight: TILE_H * 0.75,
-  baseAlpha: 0.8, lineWidth: 1.3,
+  baseAlpha: 0.8, lineWidth: 1,
 };
 const ROCK_OUTLINE = [[-0.34, 0.04], [-0.29, -0.52], [-0.06, -0.86],
   [0.23, -0.64], [0.35, -0.1], [0.11, 0.28], [-0.16, 0.26]];

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { Waypoint } from "./meadow";
 
 const STYLE = {
-  tileWidth: 62.4, tileHeight: 31.2, radius: 16, lift: 29,
+  tileWidth: 62, tileHeight: 31, radius: 16, lift: 29,
   arrowHalf: 7, arrowRise: 5, arrowGap: 7,
   labelY: -53, labelSize: "12px", line: 2,
   background: 0x123d47, ink: 0xc2fff1, accent: 0x72e8d2,

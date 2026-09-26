@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import type { PersonalFieldMarker } from '../../client/types';
 
-const PERSONAL_MARKER_STYLE = {routeColor:0x8ee4cf,lightColor:0xffd77b,lineWidth:2.6,radius:9.1,glowRadius:19.5,glowAlpha:0.16};
+const PERSONAL_MARKER_STYLE = {routeColor:0x8ee4cf,lightColor:0xffd77b,lineWidth:3,radius:9,glowRadius:20,glowAlpha:0.16};
 
 export function drawPersonalMarker(currentRenderScene: Phaser.Scene,currentMarkerRecord: PersonalFieldMarker,currentProjectedPosition: {x:number;y:number}) {
   const currentMarkerGraphic = currentRenderScene.add.graphics({x:currentProjectedPosition.x,y:currentProjectedPosition.y});

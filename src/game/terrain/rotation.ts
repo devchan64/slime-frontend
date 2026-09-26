@@ -31,7 +31,7 @@ export function rotatedSurface(map: Surface, rotation: MapRotation): Surface {
     // 이전 목록 조회와 같이 같은 좌표의 첫 정의를 사용한다.
     if(!elevationTileIndex.has(key))elevationTileIndex.set(key,tile);
   }
-  return { columns, rows, heightSource, elevationTiles, elevationTileIndex, ramps: map.ramps?.map(ramp => ({ ...ramp,
+  return { columns, rows, safeTown: map.safeTown, heightSource, elevationTiles, elevationTileIndex, ramps: map.ramps?.map(ramp => ({ ...ramp,
     start: toView(ramp.start, map, rotation), end: toView(ramp.end, map, rotation),
   })) };
 }
