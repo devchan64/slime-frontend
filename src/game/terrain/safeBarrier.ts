@@ -4,7 +4,7 @@ import { TILE_W, TILE_H } from './meadow';
 
 const SAFE_BARRIER_STYLE = {
   boundaryGlowColor: 0x66e8d0, boundaryLineColor: 0xd3fff1,
-  boundaryGlowWidth: 9, boundaryLineWidth: 2,
+  boundaryGlowWidth: 11.7, boundaryLineWidth: 2.6,
   boundaryGlowAlpha: 0.24, boundaryLineAlpha: 0.95,
 };
 const SAFE_BOUNDARY_DIRECTIONS = [

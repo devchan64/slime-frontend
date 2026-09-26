@@ -3,12 +3,12 @@ import Phaser from "phaser";
 const SAFE_TOWER_TEXTURE = {
   key: "structure-ward-tower-v1",
   url: new URL("../../assets/structures/ward-tower-v1.png", import.meta.url).href,
-  anchorX: 627, anchorY: 1095, bodyTop: 82, displayHeight: 86,
+  anchorX: 627, anchorY: 1095, bodyTop: 82, displayHeight: 111.8,
 };
 const SAFE_TOWER_GROUND = {
-  ringWidth: 46, ringHeight: 22, lineWidth: 1,
+  ringWidth: 59.8, ringHeight: 28.6, lineWidth: 1.3,
   glowColor: 0x90ebd9, glowAlpha: 0.55,
-  shadowColor: 0x18392e, shadowAlpha: 0.2, shadowWidth: 40, shadowHeight: 16,
+  shadowColor: 0x18392e, shadowAlpha: 0.2, shadowWidth: 52, shadowHeight: 20.8,
 };
 
 export function preloadSafeTower(currentGameScene: Phaser.Scene) {

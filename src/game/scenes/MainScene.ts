@@ -1,3 +1,4 @@
+import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION} from "../terrain/renderMetrics";
 import { FieldIdleAction } from "../animation/fieldIdleAction";
 import { calculateFieldIdleDuration } from "../animation/standingActors";
 import type {Notice} from '../../client/notice';
@@ -32,7 +33,7 @@ import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTil
 import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const FIELD_CHARACTER_VERTICAL_OFFSET = 3;
-const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
+const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1.3, alpha: 0.65 };
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -47,33 +48,33 @@ const COLORS = {
 };
 const TEXT = {
   fontFamily: "sans-serif",
-  fontSize: "13px",
+  fontSize: "16.9px",
   color: "#eaf7fa",
   backgroundColor: "#10222dcc",
-  padding: { x: 5, y: 3 },
+  padding: { x: 6.5, y: 3.9 },
 };
 const CENTER = 0.5,
-  LABEL_OFFSET = 25,
+  LABEL_OFFSET = 32.5,
   BATTLE_DISPLAY_SCALE = 1.2,
   PORTRAIT_BATTLE_FILL = 1.5,
-  CAMERA_PADDING = 40,
+  CAMERA_PADDING = 52,
   DRAG_THRESHOLD = 6,
-  ZOOM_MIN = 0.4,
-  ZOOM_MAX = 1.4,
-  FIELD_ZOOM_MAX = 2.8,
-  TURN_BADGE_OFFSET = 16,
-  TURN_BADGE_RADIUS = 11,
-  PATH_WIDTH = 3,
-  PATH_NODE_RADIUS = 7,
+  ZOOM_MIN = 0.4 / WORLD_UNIT_MIGRATION,
+  ZOOM_MAX = 1.4 / WORLD_UNIT_MIGRATION,
+  FIELD_ZOOM_MAX = 2.8 / WORLD_UNIT_MIGRATION,
+  TURN_BADGE_OFFSET = 20.8,
+  TURN_BADGE_RADIUS = 14.3,
+  PATH_WIDTH = 3.9,
+  PATH_NODE_RADIUS = 9.1,
   PATH_COLOR = 0x9eeeff,
   ARRIVAL_COLOR = 0xffbb66;
-const DEFAULT_TILE_ZOOM = 1.3;
+const DEFAULT_TILE_ZOOM = MAP_DEFAULT_ZOOM;
 const SAFE_BARRIER_PULSE = { cycleMilliseconds: 2600, minimumOpacity: 0.72, opacityRange: 0.28 };
 const BATTLE_FRAMING_ZOOM = DEFAULT_TILE_ZOOM / BATTLE_DISPLAY_SCALE;
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
-  outline: 0x071e35, outlineWidth: 6, edge: 0x9ceaff, edgeWidth: 3,
-  arrivalInset: 0.72, arrivalWidth: 2, targetWidth: 4, selectedWidth: 4,
+  outline: 0x071e35, outlineWidth: 7.8, edge: 0x9ceaff, edgeWidth: 3.9,
+  arrivalInset: 0.72, arrivalWidth: 2.6, targetWidth: 5.2, selectedWidth: 5.2,
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
@@ -254,7 +255,7 @@ export class MainScene extends Phaser.Scene {
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
       this.cameras.main.setZoom(
-        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001, ZOOM_MIN, this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX),
+        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001 / WORLD_UNIT_MIGRATION, ZOOM_MIN, this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX),
       ),
     );
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
@@ -288,7 +289,7 @@ export class MainScene extends Phaser.Scene {
     this.draw();
   }
   adjustZoom(delta: number) {
-    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta,ZOOM_MIN,this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX));
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta / WORLD_UNIT_MIGRATION,ZOOM_MIN,this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX));
   }
   rotateMap(direction: -1 | 1) {
     if (!this.state || !this.sys.isActive()) return;
@@ -457,7 +458,7 @@ export class MainScene extends Phaser.Scene {
           this.safeBarrierGraphics.push(g);
         }
         if (!meadow && !textured) {
-          g.lineStyle(1, COLORS.edge, 0.5);
+          g.lineStyle(1.3, COLORS.edge, 0.5);
           g.strokePoints(this.points(polygon), true);
         }
         // 지형 명암과 구별되는 이중선으로 서버가 허용한 이동 칸만 표시한다.
@@ -482,12 +483,12 @@ export class MainScene extends Phaser.Scene {
           g.strokePoints(inset, true);
         }
         if (!selectedMove && attackCells.has(`${column},${row}`)) {
-          g.lineStyle(3, COLORS.enemy);
+          g.lineStyle(3.9, COLORS.enemy);
           g.strokePoints(this.points(polygon), true);
         }
         if (this.selected?.column === column && this.selected.row === row) {
           g.setDepth(this.annotationDepth());
-          g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 2, COLORS.selected);
+          g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 2.6, COLORS.selected);
           g.strokePoints(this.points(polygon), true);
         }
       }
@@ -508,7 +509,7 @@ export class MainScene extends Phaser.Scene {
         g.fillStyle(PATH_COLOR);
         g.fillCircle(point.x, point.y, PATH_NODE_RADIUS);
         if (s.battle) this.add.text(point.x, point.y, String(index + 1), {
-          fontFamily: "sans-serif", fontSize: "10px", fontStyle: "bold", color: "#10202a",
+          fontFamily: "sans-serif", fontSize: "13px", fontStyle: "bold", color: "#10202a",
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
@@ -649,7 +650,7 @@ export class MainScene extends Phaser.Scene {
       const {column,row}=cell,p=this.project(cell),depth=this.depth(cell);
       if(field){
         const grid=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.overlay));
-        grid.lineStyle(1,COLORS.edge,.5);
+        grid.lineStyle(1.3,COLORS.edge,.5);
         grid.strokePoints(this.points([p.x,p.y-TILE_H/2,p.x+TILE_W/2,p.y,p.x,p.y+TILE_H/2,p.x-TILE_W/2,p.y]),true);
       }
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
@@ -739,11 +740,11 @@ export class MainScene extends Phaser.Scene {
       const badgeY=p.y-height-TURN_BADGE_OFFSET;
       if (health?.side === "enemy") annotation.fillRoundedRect(p.x-TURN_BADGE_RADIUS,badgeY-TURN_BADGE_RADIUS,TURN_BADGE_RADIUS*2,TURN_BADGE_RADIUS*2,3);
       else annotation.fillCircle(p.x,badgeY,TURN_BADGE_RADIUS);
-      annotation.lineStyle(2, active ? 0xffffff : color, completed ? 0.4 : 1);
+      annotation.lineStyle(2.6, active ? 0xffffff : color, completed ? 0.4 : 1);
       if (health?.side === "enemy") annotation.strokeRoundedRect(p.x-TURN_BADGE_RADIUS,badgeY-TURN_BADGE_RADIUS,TURN_BADGE_RADIUS*2,TURN_BADGE_RADIUS*2,3);
       else annotation.strokeCircle(p.x,badgeY,TURN_BADGE_RADIUS);
       this.add.text(p.x, p.y - height - TURN_BADGE_OFFSET, String(rank), {
-        fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold",
+        fontFamily: "sans-serif", fontSize: "18.2px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
     } else if (active || selected) {

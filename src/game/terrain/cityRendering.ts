@@ -8,12 +8,12 @@ import iseulonRoofSource from '../../assets/world/isloon/buildings/roof-timber-v
 import iseulonWallSource from '../../assets/world/isloon/buildings/wall-timber-v1.png';
 
 const CITY_BUILDING_STYLE = {
-  wallHeight:36, canopyHeight:18, wallLight:0xc8b68d, wallDark:0x8f8067,
-  outlineColor:0x453d35, outlineWidth:1.5, selectedColor:0xffdd78, selectedWidth:3,
-  roofAlpha:0.9, labelFont:'13px', labelOffset:9, entranceRadius:5,
+  wallHeight:46.8, canopyHeight:23.4, wallLight:0xc8b68d, wallDark:0x8f8067,
+  outlineColor:0x453d35, outlineWidth:1.95, selectedColor:0xffdd78, selectedWidth:3.9,
+  roofAlpha:0.9, labelFont:'16.9px', labelOffset:11.7, entranceRadius:6.5,
   roofColors:{guild:0x467c75,bookshop:0x755c84,inn:0xa56f54,workshop:0x626f7a,market:0xd4ad63},
 };
-const CITY_PAVING_STYLE = {fill:0xc8c4a4,edge:0xa4a28b,lineWidth:0.6,alpha:0.95};
+const CITY_PAVING_STYLE = {fill:0xc8c4a4,edge:0xa4a28b,lineWidth:0.78,alpha:0.95};
 const CITY_HALF_TILE = 0.5;
 const ISLOON_BUILDING_TEXTURES = { roof: 'iseulon-roof-timber-v1', wall: 'iseulon-wall-timber-v1' };
 type CityScreenPoint = {x:number;y:number};
@@ -64,7 +64,7 @@ export function drawCityBuilding(currentMapScene:Phaser.Scene,currentCityBuildin
   const currentRoofCenter = {x:currentRoofCorners.reduce((currentTotalValue,currentCornerPoint)=>currentTotalValue+currentCornerPoint.x,0)/currentRoofCorners.length,
     y:currentRoofCorners.reduce((currentTotalValue,currentCornerPoint)=>currentTotalValue+currentCornerPoint.y,0)/currentRoofCorners.length};
   currentMapScene.add.text(currentRoofCenter.x,currentRoofCenter.y-CITY_BUILDING_STYLE.labelOffset,t(`city.${currentCityBuilding.facilityKind}`),
-    {fontFamily:'sans-serif',fontSize:CITY_BUILDING_STYLE.labelFont,color:'#fff7de',stroke:'#39362d',strokeThickness:3})
+    {fontFamily:'sans-serif',fontSize:CITY_BUILDING_STYLE.labelFont,color:'#fff7de',stroke:'#39362d',strokeThickness:3.9})
     .setOrigin(CITY_HALF_TILE).setDepth(currentAnnotationDepth);
   const currentVisiblePoints = [...currentBuildingCorners,...currentRoofCorners];
   return {position:currentCityBuilding.origin,depth:currentBuildingDepth,

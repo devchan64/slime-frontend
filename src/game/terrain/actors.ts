@@ -1,19 +1,20 @@
+import {CHARACTER_BODY_HEIGHT} from "./renderMetrics";
 import Phaser from "phaser";
 import type { Direction } from "../animation/cellAnimation";
 import { ACTOR_STANDING_TEXTURES, ACTOR_STANDING_ASSETS, createActorStandingImage, updateActorStandingFrame, type StandingActorKind } from "../animation/standingActors";
 import { TILE_W, TILE_H } from "./meadow";
 
-export const HUMAN_HEIGHT = 60;
+export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
 export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
-const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
+const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1.3, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
 const SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.54, height: 0.24, coreAlpha: 0.24, coreScale: 0.65 };
 const HUMAN_REST_HEIGHT_RATIO = 0.55;
 const HUMAN_CONTACT_SHADOW = { width: 0.32, height: 0.12 };
-const MONSTER_RING = { alpha: 0.45, width: 1 };
+const MONSTER_RING = { alpha: 0.45, width: 1.3 };
 const SPRITE_DEPTH_OFFSET = 0.01;
-const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 2, radius: 5, rise: 14, spread: 16 };
+const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 2.6, radius: 6.5, rise: 18.2, spread: 20.8 };
 export const updateCharacterFacing = updateActorStandingFrame;
 
 export function drawRestRecoveryEffect(graphics: Phaser.GameObjects.Graphics, x: number, y: number, height: number, progress: number) {
@@ -26,8 +27,8 @@ export function drawRestRecoveryEffect(graphics: Phaser.GameObjects.Graphics, x:
   for (const currentOffset of [-REST_RECOVERY_EFFECT.spread, REST_RECOVERY_EFFECT.spread]) {
     const symbolX = x + currentOffset * (0.45 + progress * 0.55);
     const symbolY = centerY + Math.abs(currentOffset) * 0.2;
-    graphics.lineBetween(symbolX - 3, symbolY, symbolX + 3, symbolY);
-    graphics.lineBetween(symbolX, symbolY - 3, symbolX, symbolY + 3);
+    graphics.lineBetween(symbolX - 3.9, symbolY, symbolX + 3.9, symbolY);
+    graphics.lineBetween(symbolX, symbolY - 3.9, symbolX, symbolY + 3.9);
   }
 }
 

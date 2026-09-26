@@ -1,3 +1,4 @@
+import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT} from "./renderMetrics";
 import {canStep, type Surface} from "./elevation";
 export type Position = { column: number; row: number };
 export type Waypoint = Position & {
@@ -16,8 +17,8 @@ export type TerrainMap = Surface & {
   terrainCodes?: Record<string,string>;
 };
 
-export const TILE_W = 64;
-export const TILE_H = 32;
+export const TILE_W = MAP_TILE_WIDTH;
+export const TILE_H = MAP_TILE_HEIGHT;
 export const TEXTURE_SIZE = 128;
 export const TERRAIN_KINDS = ["grass", "dew", "road", "flowers"] as const;
 export const FIELD_TERRAIN_KINDS = [...TERRAIN_KINDS, "water", "ash", "boulder", "gravel", "leaf-litter", "moss", "mud", "paving", "reed-bed", "stone", "tree-base", "wall"] as const;

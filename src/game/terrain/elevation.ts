@@ -1,3 +1,4 @@
+import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT, MAP_ELEVATION_HEIGHT, MAP_BASE_THICKNESS} from "./renderMetrics";
 import type { Position } from '../../client/types';
 
 export type TerrainLink = { start: Position; end: Position; id?: string;
@@ -7,11 +8,11 @@ export type Surface = { columns: number; rows: number; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
-export const ELEVATION_STEP = 24;
-export const CELL_WIDTH = 64, CELL_HEIGHT = 32;
+export const ELEVATION_STEP = MAP_ELEVATION_HEIGHT;
+export const CELL_WIDTH = MAP_TILE_WIDTH, CELL_HEIGHT = MAP_TILE_HEIGHT;
 export const MAP_ORIGIN = { x: 1040, y: 80 };
 export const TERRAIN_DEPTH = { stride: 100, base: 100, surface: 1, overlay: 10, actor: 20, annotation: 10000 };
-export const BASE_THICKNESS = 12;
+export const BASE_THICKNESS = MAP_BASE_THICKNESS;
 const same = (a: Position, b: Position) => a.column === b.column && a.row === b.row;
 export const inBounds = (p: Position, map: Surface) => Number.isInteger(p.column) && Number.isInteger(p.row) && p.column >= 0 && p.row >= 0 && p.column < map.columns && p.row < map.rows;
 export const heightAt = (p: Position, map: Surface): number => {

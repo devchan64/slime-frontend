@@ -3,7 +3,7 @@ import { TILE_H, type Position } from "./meadow";
 
 const ROAD = { shoulder: 0x92866a, surface: 0xcbb88d, center: 0xdfcca0,
   width: TILE_H * 0.52, shoulderWidth: TILE_H * 0.72, centerWidth: TILE_H * 0.12 };
-const GRAVEL = { dark: 0x88734f, light: 0xf0ddae, width: 3, height: 1.8, spread: 6, offset: 4 };
+const GRAVEL = { dark: 0x88734f, light: 0xf0ddae, width: 3.9, height: 2.34, spread: 7.8, offset: 5.2 };
 const EDGES = [[1, 0], [0, 1]] as const;
 const NEIGHBORS = [[1, 0], [0, 1], [-1, 0], [0, -1]] as const;
 const SMOOTH = { center: 0.5, neighbor: 0.25 };
