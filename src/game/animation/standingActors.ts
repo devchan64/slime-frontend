@@ -52,12 +52,12 @@ export function resolveActorStandingAsset(actorStandingKind: StandingActorKind, 
   return selectedStandingAsset;
 }
 
-export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Image, actorScreenDirection: Direction) {
+export function updateActorStandingFrame(actorRenderImage: Phaser.GameObjects.Image, actorScreenDirection: Direction, actionElapsedMilliseconds?: number) {
   const actorStandingKind = actorRenderImage.getData("actorStandingKind") as StandingActorKind;
   const actorStandingAsset = resolveActorStandingAsset(actorStandingKind, actorScreenDirection);
   if (!actorStandingAsset) throw new Error("등록되지 않은 스탠딩 개체입니다.");
   const actorStandingAnimation = actorStandingAsset.animation;
-  const sampledStandingFrame = actorStandingAnimation.sample(actorStandingAnimation.clip("idle", actorScreenDirection), actorRenderImage.scene.time.now + actorRenderImage.getData("standingPhaseOffset")).frame;
+  const sampledStandingFrame = actorStandingAnimation.sample(actorStandingAnimation.clip("idle", actorScreenDirection), actionElapsedMilliseconds ?? (actorRenderImage.scene.time.now + actorRenderImage.getData("standingPhaseOffset"))).frame;
   const selectedStandingFrame = `cell:${actorStandingAnimation.data.animationId}@${actorStandingAnimation.data.version}:${sampledStandingFrame.frameId}`;
   const selectedFrameOriginX = sampledStandingFrame.anchor.x / sampledStandingFrame.rect.width;
   const selectedFrameOriginY = sampledStandingFrame.anchor.y / sampledStandingFrame.rect.height;
@@ -81,4 +81,10 @@ export function createActorStandingImage(actorRenderScene: Phaser.Scene, actorSt
     .setData("standingPhaseOffset", standingPhaseOffset).setData("actorStandingKind", actorStandingKind).setData("characterRestingFacing", actorScreenDirection);
   updateActorStandingFrame(actorRenderImage, actorScreenDirection);
   return actorRenderImage;
+}
+
+// 스트레칭 에셋 채택 전에는 현재 스탠딩 한 주기를 대신 재생한다.
+export function calculateFieldIdleDuration(actorScreenDirection: Direction): number {
+  const selectedStandingClip = DEFAULT_STANDING_ANIMATION.data.clips.find(clipRecordValue => clipRecordValue.action === "idle" && clipRecordValue.direction === actorScreenDirection)!;
+  return selectedStandingClip.frames.reduce((totalDurationValue, frameRecordValue) => totalDurationValue + frameRecordValue.durationMs, 0);
 }

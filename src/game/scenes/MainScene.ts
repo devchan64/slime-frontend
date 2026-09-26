@@ -1,3 +1,5 @@
+import { FieldIdleAction } from "../animation/fieldIdleAction";
+import { calculateFieldIdleDuration } from "../animation/standingActors";
 import type {Notice} from '../../client/notice';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
 import { screenFacing, type WorldFacing } from "../animation/facing";
@@ -106,6 +108,7 @@ export class MainScene extends Phaser.Scene {
     this.fieldMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,
       actors.map(a=>({...a,point:this.calculateActorPlacement(a.cell,a.appearance)})),performance.now());
   }
+  private fieldIdleAction = new FieldIdleAction();
   private animateFieldActors() {
     const now=performance.now();
     for(const item of this.movingObjects){
@@ -113,7 +116,15 @@ export class MainScene extends Phaser.Scene {
       const characterRestingFacing = item.object.getData("characterRestingFacing");
       if (characterRestingFacing) {
         const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : undefined;
-        updateCharacterFacing(item.object, currentMovementFacing ? screenFacing(currentMovementFacing, this.rotation) : characterRestingFacing);
+        const selectedScreenFacing = currentMovementFacing ? screenFacing(currentMovementFacing, this.rotation) : characterRestingFacing;
+        let idleActionElapsedTime: number | null = null;
+        if (item.key === `member:${this.state?.me.id}`) {
+          const idleActionAllowedFlag = this.state?.location.kind === "FIELD" && !this.state.battle && !document.hidden &&
+            item.object.getData("actorStandingKind") === "human" && offset.x === 0 && offset.y === 0;
+          idleActionElapsedTime = this.fieldIdleAction.sampleIdleAction(now, calculateFieldIdleDuration(selectedScreenFacing), idleActionAllowedFlag);
+          item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "standing" : "stretch-placeholder");
+        }
+        updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
       item.object.setDepth(item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0));
@@ -159,6 +170,16 @@ export class MainScene extends Phaser.Scene {
   }
   create() {
     if (this.loadFailed) return;
+    this.fieldIdleAction.resetIdleAction(performance.now());
+    const resetFieldIdleAction = () => this.fieldIdleAction.resetIdleAction(performance.now());
+    const recordFieldPointerDrag = (pointerEventValue: PointerEvent) => { if (pointerEventValue.buttons) resetFieldIdleAction(); };
+    const idleActivityEventNames = ['pointerdown', 'pointerup', 'keydown', 'keyup', 'wheel', 'visibilitychange'] as const;
+    for (const activityEventName of idleActivityEventNames) document.addEventListener(activityEventName, resetFieldIdleAction, {capture:true, passive:true});
+    document.addEventListener('pointermove', recordFieldPointerDrag, {capture:true, passive:true});
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      for (const activityEventName of idleActivityEventNames) document.removeEventListener(activityEventName, resetFieldIdleAction, true);
+      document.removeEventListener('pointermove', recordFieldPointerDrag, true);
+    });
     // 화면 회전 후 새 캔버스 크기를 기준으로 전장을 다시 맞춘다.
     const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
     this.scale.on(Phaser.Scale.Events.RESIZE, resize);
@@ -299,6 +320,9 @@ export class MainScene extends Phaser.Scene {
     }
   }
   setState(s: State) {
+    if (!this.state || this.state.location.id !== s.location.id || this.state.generation !== s.generation || this.state.epoch !== s.epoch ||
+        Boolean(this.state.battle) !== Boolean(s.battle) || this.state.me.position.column !== s.me.position.column || this.state.me.position.row !== s.me.position.row)
+      this.fieldIdleAction.resetIdleAction(performance.now());
     this.state = s;
     this.receivedStateTimestamp = performance.now();
     this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);

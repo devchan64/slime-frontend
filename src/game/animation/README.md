@@ -40,3 +40,9 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation)`으로 현재 화면 방향을 얻고 지원 동작의 클립을 선택한다. ATTACK 로그의 방향은 보존하지만 공격·스킬 사용 맵 클립은 호출하지 않는다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.
 
 필드에서는 자기 개체의 `me.fieldFacing`, 다른 구성원의 `members[].facing`, 몬스터의 `monsters[].facing`을 같은 `screenFacing()`에 전달한다. 이전 캐시에는 값이 없을 수 있으므로 현재 정적 이미지 표시 경로와 명시적으로 구분한다. 맵 전환·재접속의 위치 차이를 새 이동 방향으로 계산하지 않는다.
+
+## 필드 무조작 연출
+
+`FieldIdleAction`은 자기 캐릭터의 무조작 15초 후 대기 동작을 한 번 실행하고, 종료 시점부터 다시 15초를 기다린다. 키·포인터·휠 입력, 드래그, 이동·맵/전투 전환은 타이머를 초기화한다. 휴식 자세·전투·숨겨진 문서에서는 실행하지 않는다. 서버 폴링과 단순 다시 그리기는 대기 시간을 초기화하지 않는다.
+
+현재 스트레칭·걷기 전용 에셋은 사용하지 않는다. 스트레칭 구간은 스탠딩 한 주기를 처음부터 재생하며 `fieldIdleAction=stretch-placeholder`로 구분한다. `calculateFieldIdleDuration()`은 그 방향의 스탠딩 클립 길이를 사용한다. 실제 스트레칭 에셋 채택 시 이 길이와 해당 구간의 프레임 선택을 함께 교체한다. 걷기 중 이미지는 기존 스탠딩을 유지한다. 사용자의 입력은 자동 연출을 즉시 중단하며 게임 명령에 15초 제한을 걸지 않는다.
