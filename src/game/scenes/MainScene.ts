@@ -27,7 +27,7 @@ import { drawActor, drawRestRecoveryEffect, preloadActors, updateCharacterFacing
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
-import { drawCityBuilding, drawCityPaving, preloadCityBuildingTextures, type CityBuildingRegion } from "../terrain/cityRendering";
+import { drawBlockStructure, drawCityPaving, type CityBuildingRegion } from "../terrain/blockStructureRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
@@ -164,7 +164,7 @@ export class MainScene extends Phaser.Scene {
       this.onFailure({key:"app.mapAssetsFailed"});
     });
     preloadTerrain(this);
-    preloadCityBuildingTextures(this);
+
     preloadActors(this);
     preloadSafeTower(this);
     preloadBackdrop(this);
@@ -551,7 +551,7 @@ export class MainScene extends Phaser.Scene {
       if(!s.map.safeTown)drawSafeTower(this, this.project(s.map.startPoint)).setDepth(this.depth(s.map.startPoint) + TERRAIN_DEPTH.overlay);
       const selectedCityBuilding = findCityBuilding(s.map.buildings,this.selected);
       for(const currentCityBuilding of s.map.buildings ?? [])
-        this.cityBuildingRegions.push(drawCityBuilding(this,currentCityBuilding,this.project,this.depth,this.annotationDepth(),currentCityBuilding.id===selectedCityBuilding?.id));
+        this.cityBuildingRegions.push(drawBlockStructure(this,currentCityBuilding,this.project,this.depth,this.annotationDepth(),currentCityBuilding.id===selectedCityBuilding?.id));
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
           m.position,
