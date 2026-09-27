@@ -25,7 +25,7 @@
     13
   ],
   "resizeMethod": "RGBA premultiplied alpha Lanczos; 전체 캔버스 비율 유지, 자르기 없음",
-  "anchorMethod": "저장 이력 20260927T141349-d2f92b00의 배치 값을 적용한 프레임별 런타임 기준점",
+  "anchorMethod": "좌표 저장 이력 2026-09-27_23-41-30-3ac44a67의 셀 기준 앵커를 직접 적용",
   "gameBodyHeight": 80,
   "frames": [
     {
@@ -410,5 +410,124 @@
         "scale": 1
       }
     }
+  },
+  "anchorReview": {
+    "id": "2026-09-27_23-41-30-3ac44a67",
+    "sha256": "534269c295137a82378b0fb28768526c977fe22bdbc16098b2b7582f40f803ef",
+    "coordinateMode": "anchor",
+    "frames": [
+      {
+        "frameId": "down_left.0",
+        "anchor": {
+          "x": 205,
+          "y": 345
+        }
+      },
+      {
+        "frameId": "down_left.1",
+        "anchor": {
+          "x": 205,
+          "y": 345
+        }
+      },
+      {
+        "frameId": "down_left.2",
+        "anchor": {
+          "x": 205,
+          "y": 345
+        }
+      },
+      {
+        "frameId": "down_left.3",
+        "anchor": {
+          "x": 205,
+          "y": 345
+        }
+      },
+      {
+        "frameId": "down_right.0",
+        "anchor": {
+          "x": 178,
+          "y": 341
+        }
+      },
+      {
+        "frameId": "down_right.1",
+        "anchor": {
+          "x": 165,
+          "y": 341
+        }
+      },
+      {
+        "frameId": "down_right.2",
+        "anchor": {
+          "x": 171,
+          "y": 341
+        }
+      },
+      {
+        "frameId": "down_right.3",
+        "anchor": {
+          "x": 169,
+          "y": 341
+        }
+      },
+      {
+        "frameId": "up_left.0",
+        "anchor": {
+          "x": 215,
+          "y": 340
+        }
+      },
+      {
+        "frameId": "up_left.1",
+        "anchor": {
+          "x": 205,
+          "y": 340
+        }
+      },
+      {
+        "frameId": "up_left.2",
+        "anchor": {
+          "x": 205,
+          "y": 340
+        }
+      },
+      {
+        "frameId": "up_left.3",
+        "anchor": {
+          "x": 204,
+          "y": 340
+        }
+      },
+      {
+        "frameId": "up_right.0",
+        "anchor": {
+          "x": 179,
+          "y": 341
+        }
+      },
+      {
+        "frameId": "up_right.1",
+        "anchor": {
+          "x": 179,
+          "y": 341
+        }
+      },
+      {
+        "frameId": "up_right.2",
+        "anchor": {
+          "x": 177,
+          "y": 342
+        }
+      },
+      {
+        "frameId": "up_right.3",
+        "anchor": {
+          "x": 177,
+          "y": 343
+        }
+      }
+    ]
   }
 }
