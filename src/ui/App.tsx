@@ -262,7 +262,8 @@ export function App() {
         canvas = renderer.current.game.canvas;
         canvas.addEventListener("webglcontextlost", lost);
       })
-      .catch(() => {
+      .catch((worldInitializationError) => {
+        console.error(`[${new Date().toISOString()}/world/renderer-init] 월드 렌더러 초기화 실패`, worldInitializationError);
         stopWalking.current = true;
         setRenderFailed(true);
         client.disconnect();

@@ -159,7 +159,8 @@ export class MainScene extends Phaser.Scene {
     this.onFailure = onFailure;
   }
   preload() {
-    this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
+    this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, (failedAssetFile: Phaser.Loader.File) => {
+      console.error(`[${new Date().toISOString()}/world/asset-load] 에셋 로딩 실패`, {key: failedAssetFile.key, type: failedAssetFile.type, src: failedAssetFile.src});
       this.loadFailed = true;
       this.onFailure({key:"app.mapAssetsFailed"});
     });
@@ -198,7 +199,8 @@ export class MainScene extends Phaser.Scene {
       this.game.events.off(Phaser.Core.Events.POST_STEP, this.focus, this);
     });
     try { createTerrainAtlas(this); }
-    catch {
+    catch (terrainInitializationError) {
+      console.error(`[${new Date().toISOString()}/world/terrain-validation] 지형 초기화 실패`, terrainInitializationError);
       this.loadFailed = true;
       this.onFailure({key:"app.mapSceneFailed"});
       return;

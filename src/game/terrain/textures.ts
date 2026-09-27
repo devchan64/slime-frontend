@@ -51,7 +51,7 @@ const FLOWER_BLEND = { center: TEXTURE_SIZE / 2, radius: TEXTURE_SIZE * .64, inn
 function readValidatedTileSource(scene: Phaser.Scene, sourceKey: string) {
   const sourceImage = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
   if (sourceImage.width !== GAME_TILE_SOURCE_SIZE || sourceImage.height !== GAME_TILE_SOURCE_SIZE) {
-    throw new Error(`타일 원본 크기 오류: ${sourceKey}는 ${GAME_TILE_SOURCE_SIZE}×${GAME_TILE_SOURCE_SIZE}px여야 합니다.`);
+    throw new Error(`타일 원본 크기 오류: ${sourceKey}는 ${GAME_TILE_SOURCE_SIZE}×${GAME_TILE_SOURCE_SIZE}px여야 합니다. 실제 ${sourceImage.width}×${sourceImage.height}px.`);
   }
   return sourceImage;
 }
