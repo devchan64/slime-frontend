@@ -134,6 +134,10 @@ data:
     path: src/assets/world/isloon/terrain/paving-v1.png
   - managementId: image.world.stonewarm.gravel-paving-v1
     path: src/assets/world/stonewarm/terrain/gravel-paving-v1.png
+  - managementId: image.world.stonewarm.marble-paving-v1
+    path: src/assets/world/stonewarm/terrain/marble-paving-v1.png
+  - managementId: image.world.stonewarm.stone-wall-v1
+    path: src/assets/world/stonewarm/buildings/stone-wall-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.roof-timber-v1.png
     path: src/assets/world/isloon/buildings/roof-timber-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.wall-timber-v1.png
