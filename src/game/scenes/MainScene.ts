@@ -16,7 +16,7 @@ import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/rende
 import Phaser from "phaser";
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
-import { createTerrainAtlas, preloadTerrain, TERRAIN_ATLAS } from "../terrain/textures";
+import { createTerrainAtlas, preloadTerrain, resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
@@ -667,7 +667,8 @@ export class MainScene extends Phaser.Scene {
       addCliffWallPatterns(this,remember,this.viewPosition(cell),this.viewSurface!,depth);
       const isWater = waterCells.has(`${column},${row}`);
       const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
-        : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation)) : kind;
+        : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation))
+          : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
       if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p,this.currentTileDimensions);

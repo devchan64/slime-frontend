@@ -5,6 +5,7 @@ import extendedLeafLitterSource from "../../assets/terrain/extension-v1/leaf-lit
 import extendedMossSource from "../../assets/terrain/extension-v1/moss-128.webp";
 import extendedMudSource from "../../assets/terrain/extension-v1/mud-128.webp";
 import iseulonPavingSource from "../../assets/world/isloon/terrain/paving-v1.png";
+import stonewarmGravelPavingSource from "../../assets/world/stonewarm/terrain/gravel-paving-v1.png";
 import extendedReedBedSource from "../../assets/terrain/extension-v1/reed-bed-128.webp";
 import extendedStoneSource from "../../assets/terrain/extension-v1/stone-128.webp";
 import extendedTreeBaseSource from "../../assets/terrain/extension-v1/tree-base-128.webp";
@@ -20,17 +21,19 @@ import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
 export const TERRAIN_ATLAS = "meadow-terrain";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
+export const STONEWARM_PAVING_FRAME = "stonewarm-paving";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
 const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
+const SPECIAL_TERRAIN_SOURCES = [{ frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource }];
 const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base"]);
 const FRAME_W = TEXTURE_SIZE;
 const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;
 const FRAME_STRIDE = FRAME_W + FRAME_PADDING * 2;
 const ATLAS_COLUMNS = 8;
-const FRAME_COUNT = SOURCE_KINDS.length + ROAD_TILE_COUNT * 2;
+const FRAME_COUNT = SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + ROAD_TILE_COUNT * 2;
 const framePosition = (index: number) => ({ x: (index % ATLAS_COLUMNS) * FRAME_STRIDE + FRAME_PADDING,
   y: Math.floor(index / ATLAS_COLUMNS) * (FRAME_H + FRAME_PADDING * 2) + FRAME_PADDING });
 const ROAD_SHAPE = { inset: TEXTURE_SIZE * .08, radius: TEXTURE_SIZE * .2, half: TEXTURE_SIZE / 2 };
@@ -55,7 +58,12 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 
 export function preloadTerrain(scene: Phaser.Scene) {
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
+  for (const specialSourceRecord of SPECIAL_TERRAIN_SOURCES) scene.load.image(`terrain-source-${specialSourceRecord.frame}`, specialSourceRecord.source);
   scene.load.image(CLIFF_WALL_TEXTURE, cliffWallPatternSource);
+}
+
+export function resolvePavingFrameForMap(mapIdentifier: string) {
+  return mapIdentifier === "stonewarm" ? STONEWARM_PAVING_FRAME : "paving";
 }
 
 // 투명 여백을 둔 단일 아틀라스로 구성해 타일 간 텍스처 번짐을 방지한다.
@@ -98,10 +106,21 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     ctx.restore();
     atlas.add(kind, 0, x, y, FRAME_W, FRAME_H);
   });
+  SPECIAL_TERRAIN_SOURCES.forEach((specialSourceRecord, specialSourceIndex) => {
+    const source = scene.textures.get(`terrain-source-${specialSourceRecord.frame}`).getSourceImage() as HTMLImageElement;
+    const { x, y } = framePosition(SOURCE_KINDS.length + specialSourceIndex);
+    ctx.save();
+    ctx.translate(x + FRAME_W / 2, y);
+    ctx.transform(FRAME_W / (2 * TEXTURE_SIZE), FRAME_H / (2 * TEXTURE_SIZE),
+      -FRAME_W / (2 * TEXTURE_SIZE), FRAME_H / (2 * TEXTURE_SIZE), 0, 0);
+    ctx.drawImage(source, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
+    ctx.restore();
+    atlas.add(specialSourceRecord.frame, 0, x, y, FRAME_W, FRAME_H);
+  });
   for (const [surfaceIndex, surface] of ["road", "water"].entries()) {
     const surfaceSource = scene.textures.get(`terrain-source-${surface}`).getSourceImage() as HTMLImageElement;
     for (let mask = 0; mask < ROAD_TILE_COUNT; mask++) {
-      const { x, y } = framePosition(SOURCE_KINDS.length + surfaceIndex * ROAD_TILE_COUNT + mask);
+      const { x, y } = framePosition(SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + surfaceIndex * ROAD_TILE_COUNT + mask);
       ctx.save();
       ctx.translate(x + FRAME_W / 2, y);
       ctx.transform(FRAME_W / (2 * TEXTURE_SIZE), FRAME_H / (2 * TEXTURE_SIZE),
