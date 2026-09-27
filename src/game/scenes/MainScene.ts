@@ -32,7 +32,6 @@ import { actorSize } from "../terrain/sizes";
 import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
 import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
-const FIELD_CHARACTER_VERTICAL_OFFSET = 3;
 const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
 const COLORS = {
   ground: 0x172e3b,
@@ -724,7 +723,7 @@ export class MainScene extends Phaser.Scene {
     const depth = p.depth + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
-      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, !appearance && !this.state?.battle && !actorRestIsActive ? FIELD_CHARACTER_VERTICAL_OFFSET : 0, actorRestIsActive);
+      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, 0, actorRestIsActive);
     if (actorRestIsActive && !appearance && !this.state?.battle) {
       const recoveryEffectGraphics = this.add.graphics().setDepth(depth + ACTOR_DEPTH.labelOffset);
       this.restRecoveryEffects.push({graphics:recoveryEffectGraphics,x:p.x,y:p.y,height,depth:depth + ACTOR_DEPTH.labelOffset});
