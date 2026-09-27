@@ -5,6 +5,7 @@ import extendedLeafLitterSource from "../../assets/terrain/extension-v1/leaf-lit
 import extendedMossSource from "../../assets/terrain/extension-v1/moss-128.webp";
 import extendedMudSource from "../../assets/terrain/extension-v1/mud-128.webp";
 import iseulonPavingSource from "../../assets/world/isloon/terrain/paving-v1.png";
+import reedhavenDirtRoadSource from "../../assets/world/reedhaven/terrain/dirt-road-v1.png";
 import stonewarmGravelPavingSource from "../../assets/world/stonewarm/terrain/gravel-paving-v1.png";
 import stonewarmMarblePavingSource from "../../assets/world/stonewarm/terrain/marble-paving-v1.png";
 import extendedReedBedSource from "../../assets/terrain/extension-v1/reed-bed-128.webp";
@@ -25,11 +26,13 @@ export const TERRAIN_ATLAS = "meadow-terrain";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
 export const STONEWARM_PAVING_FRAME = "stonewarm-paving";
 export const STONEWARM_MARBLE_PAVING_FRAME = "stonewarm-marble-paving";
+export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
 const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: REEDHAVEN_DIRT_ROAD_FRAME, source: reedhavenDirtRoadSource },
   { frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource },
   { frame: STONEWARM_MARBLE_PAVING_FRAME, source: stonewarmMarblePavingSource },
 ];
@@ -77,7 +80,9 @@ export function preloadTerrain(scene: Phaser.Scene) {
 }
 
 export function resolvePavingFrameForMap(mapIdentifier: string) {
-  return mapIdentifier === "stonewarm" ? STONEWARM_MARBLE_PAVING_FRAME : "paving";
+  if (mapIdentifier === "stonewarm") return STONEWARM_MARBLE_PAVING_FRAME;
+  if (mapIdentifier === "reedhaven") return REEDHAVEN_DIRT_ROAD_FRAME;
+  return "paving";
 }
 
 // 투명 여백을 둔 단일 아틀라스로 구성해 타일 간 텍스처 번짐을 방지한다.
