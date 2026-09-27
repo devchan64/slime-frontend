@@ -25,7 +25,7 @@
     13
   ],
   "resizeMethod": "RGBA premultiplied alpha Lanczos; 전체 캔버스 비율 유지, 자르기 없음",
-  "anchorMethod": "셀의 alpha >= 128 경계 상자 하단 중앙; 셀 내부 좌표",
+  "anchorMethod": "저장 이력 20260927T141349-d2f92b00의 배치 값을 적용한 프레임별 런타임 기준점",
   "gameBodyHeight": 80,
   "frames": [
     {
@@ -241,5 +241,174 @@
   "sheet": {
     "image": "idle-v6.png",
     "sha256": "5919714f071d9c5db55b6f200eb8350fe5611dc8ad3d8484a33912c4bdbfb61a"
+  },
+  "alignment": {
+    "revision": "20260927T141349-d2f92b00",
+    "savedAt": "2026-09-27T14:13:49.519016+00:00",
+    "sourceDigest": "2020fe663f9da4840043a443b85e54d03b9beddac54a32015519041387ac5cf8",
+    "recordSha256": "e7860e647f59c4bb3217724d5d4b9a22e10f3f55bf676a1a08a68f76d6a9288a",
+    "method": "배율 1의 편집 배치를 anchor=(anchorX-x, anchorY-y)로 반영; 이미지 픽셀은 유지",
+    "frames": {
+      "down_left.0": {
+        "center": 197.5,
+        "floor": 374,
+        "head": 2,
+        "anchorX": 197.5,
+        "anchorY": 374,
+        "x": 5.5,
+        "y": 5,
+        "scale": 1
+      },
+      "down_left.1": {
+        "center": 203.5,
+        "floor": 374,
+        "head": 1,
+        "anchorX": 203.5,
+        "anchorY": 374,
+        "x": 5.5,
+        "y": 5,
+        "scale": 1
+      },
+      "down_left.2": {
+        "center": 193.5,
+        "floor": 373,
+        "head": 2,
+        "anchorX": 193.5,
+        "anchorY": 373,
+        "x": 7.5,
+        "y": 4,
+        "scale": 1
+      },
+      "down_left.3": {
+        "center": 196.5,
+        "floor": 371,
+        "head": 1,
+        "anchorX": 196.5,
+        "anchorY": 371,
+        "x": 7.5,
+        "y": 3,
+        "scale": 1
+      },
+      "down_right.0": {
+        "center": 189.5,
+        "floor": 374,
+        "head": 6,
+        "anchorX": 189.5,
+        "anchorY": 374,
+        "x": -11.5,
+        "y": 5,
+        "scale": 1
+      },
+      "down_right.1": {
+        "center": 178.5,
+        "floor": 374,
+        "head": 2,
+        "anchorX": 178.5,
+        "anchorY": 374,
+        "x": -13.5,
+        "y": 5,
+        "scale": 1
+      },
+      "down_right.2": {
+        "center": 184,
+        "floor": 374,
+        "head": 6,
+        "anchorX": 184,
+        "anchorY": 374,
+        "x": -14,
+        "y": 5,
+        "scale": 1
+      },
+      "down_right.3": {
+        "center": 179.5,
+        "floor": 374,
+        "head": 2,
+        "anchorX": 179.5,
+        "anchorY": 374,
+        "x": -12.5,
+        "y": 5,
+        "scale": 1
+      },
+      "up_left.0": {
+        "center": 202.5,
+        "floor": 368,
+        "head": 7,
+        "anchorX": 202.5,
+        "anchorY": 368,
+        "x": -0.5,
+        "y": 2,
+        "scale": 1
+      },
+      "up_left.1": {
+        "center": 192,
+        "floor": 368,
+        "head": 8,
+        "anchorX": 192,
+        "anchorY": 368,
+        "x": 0,
+        "y": -1,
+        "scale": 1
+      },
+      "up_left.2": {
+        "center": 193,
+        "floor": 370,
+        "head": 11,
+        "anchorX": 193,
+        "anchorY": 370,
+        "x": 1,
+        "y": 1,
+        "scale": 1
+      },
+      "up_left.3": {
+        "center": 194.5,
+        "floor": 371,
+        "head": 7,
+        "anchorX": 194.5,
+        "anchorY": 371,
+        "x": 2.5,
+        "y": 2,
+        "scale": 1
+      },
+      "up_right.0": {
+        "center": 189.5,
+        "floor": 370,
+        "head": 8,
+        "anchorX": 189.5,
+        "anchorY": 370,
+        "x": -3.5,
+        "y": 2,
+        "scale": 1
+      },
+      "up_right.1": {
+        "center": 189.5,
+        "floor": 371,
+        "head": 7,
+        "anchorX": 189.5,
+        "anchorY": 371,
+        "x": -2.5,
+        "y": 2,
+        "scale": 1
+      },
+      "up_right.2": {
+        "center": 186.5,
+        "floor": 372,
+        "head": 8,
+        "anchorX": 186.5,
+        "anchorY": 372,
+        "x": -3.5,
+        "y": 1,
+        "scale": 1
+      },
+      "up_right.3": {
+        "center": 186.5,
+        "floor": 372,
+        "head": 7,
+        "anchorX": 186.5,
+        "anchorY": 372,
+        "x": -3.5,
+        "y": 1,
+        "scale": 1
+      }
+    }
   }
 }
