@@ -1,7 +1,8 @@
 {
-  "generation_id": "2026-09-27_20-41-44-8f32c1c9",
-  "source_sha256": "8e327369d86693d1248bf3357f7f82be0f744ceb614bc2a5b7a3218ee2539adb",
-  "sha256": "13d67bfd3591ba1cefe125734ab7af95d17215467aa3962dadf47c174f4096b2",
+  "generation_id": "2026-09-27_22-31-28-c7577c26",
+  "source_path": "slime-workflow/.tmp/test/qwen-image-2512/tile-map/2026-09-27_22-31-28-c7577c26/result.png",
+  "source_sha256": "a3de53e3c6e629cf5fc76dd25da57135f8a435ec220dac03a465d5d12c89a939",
+  "sha256": "1c0e35d146b826686b1258058fbb4b628821f823a725869d5665b7b38e03eb42",
   "role": "stone_roof",
   "version": 1,
   "width": 256,
