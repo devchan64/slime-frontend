@@ -3,7 +3,7 @@ import crabCutinMetadata from '../assets/monsters/standing-v1/stone-crab-idle-v1
 import crawlerCutinMetadata from '../assets/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
 import mothCutinMetadata from '../assets/monsters/standing-v1/lantern-moth-idle-v1.animation.json';
 import rabbitCutinMetadata from '../assets/monsters/standing-v1/field-rabbit-idle-v1.animation.json';
-import characterStandingMetadata from '../assets/characters/default/standing-v5/idle-v5.animation.json';
+import characterIdleMetadata from '../assets/characters/default/idle-v6/idle-v6.animation.json';
 import type { ActionCutinEvent } from './actionCutins';
 import { parseDocument } from 'yaml';
 import actionCutinCatalogSource from '../assets/cutins.yaml?raw';
@@ -21,7 +21,7 @@ const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
   beast: new URL('../assets/monsters/beast-v2.png', import.meta.url).href,
   giant: new URL('../assets/monsters/giant-v2.png', import.meta.url).href,
 };
-const DEFAULT_CHARACTER_STANDING_IMAGE = new URL('../assets/characters/default/standing-v5/standing-down-left.png', import.meta.url).href;
+const DEFAULT_CHARACTER_IDLE_IMAGE = new URL('../assets/characters/default/idle-v6/idle-v6.png', import.meta.url).href;
 type ActionCutinActorRole = 'attacker' | 'target';
 export function parseActionCutinCatalog(actionCutinYamlSource: string): Map<string, string> {
   const parsedCatalogDocument = parseDocument(actionCutinYamlSource, { uniqueKeys: true });
@@ -47,7 +47,7 @@ export function parseActionCutinCatalog(actionCutinYamlSource: string): Map<stri
 const VALIDATED_ACTION_CUTIN_CATALOG = parseActionCutinCatalog(actionCutinCatalogSource);
 export function resolveActionCutinAsset(actionCutinAppearanceRecord: ActionCutinEvent['appearance'], actionCutinActorRole: ActionCutinActorRole): string {
   if (!['character', 'monster'].includes(actionCutinAppearanceRecord.kind)) throw new Error('지원하지 않는 액션 컷인 외형 종류입니다.');
-  if (actionCutinAppearanceRecord.kind === 'character' && actionCutinActorRole === 'target') return DEFAULT_CHARACTER_STANDING_IMAGE;
+  if (actionCutinAppearanceRecord.kind === 'character' && actionCutinActorRole === 'target') return DEFAULT_CHARACTER_IDLE_IMAGE;
   const appearanceLookupKey = actionCutinAppearanceRecord.kind === 'character'
     ? ['character', actionCutinAppearanceRecord.groups.costume, actionCutinAppearanceRecord.groups.hair, actionCutinAppearanceRecord.groups.face].join('/')
     : `monster/${actionCutinAppearanceRecord.group}`;
@@ -64,9 +64,9 @@ const REGISTERED_CUTIN_SHEETS: Record<string, typeof rabbitCutinMetadata> = {
 };
 export function resolveActionCutinFrame(actionCutinAppearance: ActionCutinEvent['appearance'], actionCutinActorRole: ActionCutinActorRole) {
   if (actionCutinAppearance.kind === 'character' && actionCutinActorRole === 'target') {
-    const selectedStandingFrame = characterStandingMetadata.frames.find(currentStandingFrame => currentStandingFrame.frameId === 'down_left.0');
-    if (!selectedStandingFrame) throw new Error('캐릭터 피격 컷인의 스탠딩 첫 프레임이 없습니다.');
-    return {rect: selectedStandingFrame.rect, sheet: characterStandingMetadata.sheet};
+    const selectedIdleFrame = characterIdleMetadata.frames.find(currentIdleFrame => currentIdleFrame.frameId === 'down_left.0');
+    if (!selectedIdleFrame) throw new Error('캐릭터 피격 컷인의 대기 첫 프레임이 없습니다.');
+    return {rect: selectedIdleFrame.rect, sheet: characterIdleMetadata.sheet};
   }
   if (actionCutinAppearance.kind !== 'monster' || !Object.hasOwn(REGISTERED_CUTIN_SHEETS, actionCutinAppearance.group)) return null;
   const currentSheetMetadata = REGISTERED_CUTIN_SHEETS[actionCutinAppearance.group];

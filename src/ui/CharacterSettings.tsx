@@ -48,7 +48,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
     <section class="character-identity" aria-label={t("character.identity")}>
       <span class="character-kicker">{t("character.adventurer")}</span>
       <h2>{me.name}</h2>
-      <div class="portrait-stage"><CharacterPortrait playStandingAnimation /></div>
+      <div class="portrait-stage"><CharacterPortrait playIdleAnimation /></div>
       <details class="costume-description">
         <summary><span class="costume-label">{t("character.costume")}</span><span>{t("character.costumeDetails")}</span></summary>
         <p>{t("character.costumeDescription")}</p>

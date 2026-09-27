@@ -1,6 +1,6 @@
 import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION, resolveMapTileSize} from "../terrain/renderMetrics";
 import { FieldIdleAction } from "../animation/fieldIdleAction";
-import { calculateFieldIdleDuration } from "../animation/standingActors";
+import { calculateFieldIdleDuration } from "../animation/idleActors";
 import type {Notice} from '../../client/notice';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
 import { screenFacing, type WorldFacing } from "../animation/facing";
@@ -121,9 +121,9 @@ export class MainScene extends Phaser.Scene {
         let idleActionElapsedTime: number | null = null;
         if (item.key === `member:${this.state?.me.id}`) {
           const idleActionAllowedFlag = this.state?.location.kind === "FIELD" && !this.state.battle && !document.hidden &&
-            item.object.getData("actorStandingKind") === "human" && offset.x === 0 && offset.y === 0;
+            item.object.getData("actorIdleKind") === "human" && offset.x === 0 && offset.y === 0;
           idleActionElapsedTime = this.fieldIdleAction.sampleIdleAction(now, calculateFieldIdleDuration(selectedScreenFacing), idleActionAllowedFlag);
-          item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "standing" : "stretch-placeholder");
+          item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "idle" : "stretch-placeholder");
         }
         updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined);
       }

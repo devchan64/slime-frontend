@@ -15,23 +15,23 @@ afterEach(() => {
 });
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({stdin:{contents:"export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_STANDING_TEXTURES} from './src/game/animation/standingActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',
+const {outputFiles}=await build({stdin:{contents:"export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_IDLE_TEXTURES} from './src/game/animation/idleActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',
  loader:{'.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
   build.onResolve({filter:/i18n$/},()=>({path:'i18n',namespace:'locale-double'}));
   build.onLoad({filter:/.*/,namespace:'locale-double'},()=>({contents:'export const t = currentMessageKey => currentMessageKey;'}));
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
   build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
-const {MainScene,ACTOR_STANDING_TEXTURES}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {MainScene,ACTOR_IDLE_TEXTURES}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
 
-function createStandingTextureDouble() {
- const currentTextureRegistry=new Map(ACTOR_STANDING_TEXTURES.map(currentStandingAsset=>{
+function createIdleTextureDouble() {
+ const currentTextureRegistry=new Map(ACTOR_IDLE_TEXTURES.map(currentIdleAsset=>{
   const registeredTextureFrames=new Set();
-  return [currentStandingAsset.key, {
-   getSourceImage:()=>({width:currentStandingAsset.animation.data.sheet.width,height:currentStandingAsset.animation.data.sheet.height}),
-   has:standingFrameIdentifier=>registeredTextureFrames.has(standingFrameIdentifier),
-   add(standingFrameIdentifier){registeredTextureFrames.add(standingFrameIdentifier);return {};},
+  return [currentIdleAsset.key, {
+   getSourceImage:()=>({width:currentIdleAsset.animation.data.sheet.width,height:currentIdleAsset.animation.data.sheet.height}),
+   has:idleFrameIdentifier=>registeredTextureFrames.has(idleFrameIdentifier),
+   add(idleFrameIdentifier){registeredTextureFrames.add(idleFrameIdentifier);return {};},
   }];
  }));
  return {
@@ -45,7 +45,7 @@ function createStandingTextureDouble() {
 
 test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 이동 참조를 함께 해제한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
- scene.children={list:[]};scene.textures=createStandingTextureDouble();
+ scene.children={list:[]};scene.textures=createIdleTextureDouble();
  const make=(x=0,y=0)=>{
   const target={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},destroyed:false};
   const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
@@ -139,7 +139,7 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
 
 test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 논리 선택 좌표를 유지한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{});
- scene.children={list:[]};scene.textures=createStandingTextureDouble();
+ scene.children={list:[]};scene.textures=createIdleTextureDouble();
  const make=(x=0,y=0)=>{
   const object={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{}};
   const proxy=new Proxy(object,{get(o,key){if(key in o)return o[key];return (...args)=>{

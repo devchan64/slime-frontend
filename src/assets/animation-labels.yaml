@@ -1,7 +1,7 @@
 schemaVersion: 1
 animations:
   - animationId: character.default.white-shirt.idle
-    displayNameKo: 기본 캐릭터 · 스탠딩
+    displayNameKo: 기본 캐릭터 · 대기
   - animationId: character.default.white-shirt.rest
     displayNameKo: 기본 캐릭터 · 휴식
   - animationId: monster.slime.idle
