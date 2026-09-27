@@ -17,6 +17,7 @@ import road from "../../assets/terrain/road-v3.webp";
 import water from "../../assets/terrain/water-v3.webp";
 import flowers from "../../assets/terrain/flowers-v3.webp";
 import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
+import { GAME_TILE_SOURCE_SIZE } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
 export const TERRAIN_ATLAS = "meadow-terrain";
@@ -38,6 +39,14 @@ const framePosition = (index: number) => ({ x: (index % ATLAS_COLUMNS) * FRAME_S
   y: Math.floor(index / ATLAS_COLUMNS) * (FRAME_H + FRAME_PADDING * 2) + FRAME_PADDING });
 const ROAD_SHAPE = { inset: TEXTURE_SIZE * .08, radius: TEXTURE_SIZE * .2, half: TEXTURE_SIZE / 2 };
 const FLOWER_BLEND = { center: TEXTURE_SIZE / 2, radius: TEXTURE_SIZE * .64, innerStop: .8 };
+
+function readValidatedTileSource(scene: Phaser.Scene, sourceKey: string) {
+  const sourceImage = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
+  if (sourceImage.width !== GAME_TILE_SOURCE_SIZE || sourceImage.height !== GAME_TILE_SOURCE_SIZE) {
+    throw new Error(`타일 원본 크기 오류: ${sourceKey}는 ${GAME_TILE_SOURCE_SIZE}×${GAME_TILE_SOURCE_SIZE}px여야 합니다.`);
+  }
+  return sourceImage;
+}
 
 // 연결된 변은 타일 끝까지 흙으로 채우고, 끊긴 변과 모서리에는 풀밭을 남긴다.
 function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
@@ -73,7 +82,8 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     FRAME_STRIDE * ATLAS_COLUMNS, (FRAME_H + FRAME_PADDING * 2) * Math.ceil(FRAME_COUNT / ATLAS_COLUMNS));
   if (!atlas) throw new Error("초원 타일 아틀라스를 만들 수 없습니다.");
   const ctx = atlas.getContext();
-  const grassSource = scene.textures.get("terrain-source-grass").getSourceImage() as HTMLImageElement;
+  const grassSource = readValidatedTileSource(scene, "terrain-source-grass");
+  readValidatedTileSource(scene, CLIFF_WALL_TEXTURE);
   const flowerPatch = document.createElement("canvas");
   flowerPatch.width = flowerPatch.height = TEXTURE_SIZE;
   const flowerContext = flowerPatch.getContext("2d");
@@ -90,7 +100,7 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
   SOURCE_KINDS.forEach((kind, index) => {
     const sourceKey = `terrain-source-${kind}`;
     if (!scene.textures.exists(sourceKey)) throw new Error(`초원 타일 누락: ${kind}`);
-    const source = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
+    const source = readValidatedTileSource(scene, sourceKey);
     const { x, y } = framePosition(index);
     ctx.save();
     ctx.translate(x + FRAME_W / 2, y);
@@ -107,7 +117,7 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     atlas.add(kind, 0, x, y, FRAME_W, FRAME_H);
   });
   SPECIAL_TERRAIN_SOURCES.forEach((specialSourceRecord, specialSourceIndex) => {
-    const source = scene.textures.get(`terrain-source-${specialSourceRecord.frame}`).getSourceImage() as HTMLImageElement;
+    const source = readValidatedTileSource(scene, `terrain-source-${specialSourceRecord.frame}`);
     const { x, y } = framePosition(SOURCE_KINDS.length + specialSourceIndex);
     ctx.save();
     ctx.translate(x + FRAME_W / 2, y);
@@ -118,7 +128,7 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     atlas.add(specialSourceRecord.frame, 0, x, y, FRAME_W, FRAME_H);
   });
   for (const [surfaceIndex, surface] of ["road", "water"].entries()) {
-    const surfaceSource = scene.textures.get(`terrain-source-${surface}`).getSourceImage() as HTMLImageElement;
+    const surfaceSource = readValidatedTileSource(scene, `terrain-source-${surface}`);
     for (let mask = 0; mask < ROAD_TILE_COUNT; mask++) {
       const { x, y } = framePosition(SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + surfaceIndex * ROAD_TILE_COUNT + mask);
       ctx.save();

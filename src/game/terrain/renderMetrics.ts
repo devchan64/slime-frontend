@@ -2,6 +2,8 @@
 export const MAP_DEFAULT_ZOOM = 1;
 export const MAP_TILE_WIDTH = 80;
 export const MAP_TILE_HEIGHT = 40;
+/** 게임에 등록하는 지형 원본 스프라이트의 고정 정사각형 해상도다. */
+export const GAME_TILE_SOURCE_SIZE = 256;
 export const CHARACTER_BODY_HEIGHT = 80;
 export const MAP_ELEVATION_HEIGHT = 32;
 export const MAP_BASE_THICKNESS = 16;
