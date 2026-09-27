@@ -1,5 +1,5 @@
 import {build as buildReviewBundle} from 'vite';
-import {readFileSync, writeFileSync, mkdirSync, readdirSync} from 'node:fs';
+import {readFileSync, writeFileSync, mkdirSync, mkdtempSync, readdirSync} from 'node:fs';
 import {resolve as resolveReviewPath, relative as relativeReviewPath} from 'node:path';
 import {createHash as createReviewHash} from 'node:crypto';
 import {parseDocument as parseYamlDocument} from 'yaml';
@@ -7,7 +7,8 @@ import {parseDocument as parseYamlDocument} from 'yaml';
 const reviewProjectRoot=process.cwd();
 const reviewStartedTime=new Date().toISOString();
 const reviewTimeParts=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()).replace(' ','_').replaceAll(':','-');
-const reviewOutputRoot=resolveReviewPath('.tmp',reviewTimeParts,'ui-review');
+mkdirSync(resolveReviewPath('.tmp'),{recursive:true});
+const reviewOutputRoot=resolveReviewPath(mkdtempSync(resolveReviewPath('.tmp',reviewTimeParts+'-')),'ui-review');
 const reviewCatalogDocument=parseYamlDocument(readFileSync('review/catalog.yaml','utf8'),{uniqueKeys:true});
 if(reviewCatalogDocument.errors.length)throw new Error(reviewCatalogDocument.errors.map(currentYamlError=>currentYamlError.message).join('\n'));
 const reviewCatalogValue=reviewCatalogDocument.toJS();
