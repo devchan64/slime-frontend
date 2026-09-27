@@ -4,7 +4,7 @@ import extendedGravelSource from "../../assets/terrain/extension-v1/gravel-128.w
 import extendedLeafLitterSource from "../../assets/terrain/extension-v1/leaf-litter-128.webp";
 import extendedMossSource from "../../assets/terrain/extension-v1/moss-128.webp";
 import extendedMudSource from "../../assets/terrain/extension-v1/mud-128.webp";
-import iseulonPavingSource from "../../assets/world/isloon/terrain/paving-v1.png";
+import iseulonLimestoneFloorTypeASource from "../../assets/world/isloon/terrain/limestone-floor-type-a-v1.png";
 import reedhavenDirtRoadSource from "../../assets/world/reedhaven/terrain/dirt-road-v1.png";
 import stonewarmGravelPavingSource from "../../assets/world/stonewarm/terrain/gravel-paving-v1.png";
 import stonewarmMarblePavingSource from "../../assets/world/stonewarm/terrain/marble-paving-v1.png";
@@ -29,7 +29,7 @@ export const STONEWARM_MARBLE_PAVING_FRAME = "stonewarm-marble-paving";
 export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
-const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonPavingSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
+const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
   { frame: REEDHAVEN_DIRT_ROAD_FRAME, source: reedhavenDirtRoadSource },
