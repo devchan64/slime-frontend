@@ -185,3 +185,5 @@ data:
     path: src/assets/world/isloon/buildings/marble-roof-v2.png
   - managementId: image.character.default.idle-v6.sheet
     path: src/assets/characters/default/idle-v6/idle-v6.png
+  - managementId: image.world.isloon.grass-mud-frame-v1
+    path: src/assets/world/isloon/terrain/grass-mud-frame-v1.png
