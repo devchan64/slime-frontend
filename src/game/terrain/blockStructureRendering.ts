@@ -1,3 +1,4 @@
+import {STONEWARM_ROOF_TEXTURE} from "./textures";
 import {buildBlockSurfaceFaces} from './blockGeometry';
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
@@ -46,6 +47,43 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
   for(const currentProjectedFace of currentVisibleFaces) {
     currentBuildingGraphic.fillStyle(currentProjectedFace.surface.material==='roof'?CITY_BUILDING_STYLE.roofColors[currentCityBuilding.facilityKind]:CITY_BUILDING_STYLE.wallLight,1).fillPoints(currentProjectedFace.points,true);
     currentBuildingGraphic.lineStyle(1,CITY_BUILDING_STYLE.outlineColor,.35).strokePoints(currentProjectedFace.points,true);
+  }
+  if (currentCityBuilding.id.startsWith('stonewarm-')) {
+    const roofSurfaceFaces=currentVisibleFaces.filter(currentFaceRecord=>currentFaceRecord.surface.material==='roof'&&currentFaceRecord.surface.top);
+    if (roofSurfaceFaces.length) {
+      const roofCornerPoints=roofSurfaceFaces.flatMap(currentFaceRecord=>currentFaceRecord.points);
+      const roofMinimumX=Math.floor(Math.min(...roofCornerPoints.map(currentPointValue=>currentPointValue.x)));
+      const roofMinimumY=Math.floor(Math.min(...roofCornerPoints.map(currentPointValue=>currentPointValue.y)));
+      const roofCanvasWidth=Math.ceil(Math.max(...roofCornerPoints.map(currentPointValue=>currentPointValue.x)))-roofMinimumX;
+      const roofCanvasHeight=Math.ceil(Math.max(...roofCornerPoints.map(currentPointValue=>currentPointValue.y)))-roofMinimumY;
+      const roofTextureIdentifier=Phaser.Utils.String.UUID();
+      const roofCanvasTexture=currentMapScene.textures.createCanvas(roofTextureIdentifier,roofCanvasWidth,roofCanvasHeight);
+      if (!roofCanvasTexture) throw new Error('석재 지붕 캔버스 생성 실패');
+      const roofDrawingContext=roofCanvasTexture.getContext();
+      const roofSourceImage=currentMapScene.textures.get(STONEWARM_ROOF_TEXTURE).getSourceImage() as HTMLImageElement;
+      for (const roofFaceRecord of roofSurfaceFaces) {
+        const roofFacePoints=roofFaceRecord.points;
+        if (roofFacePoints.length!==4) throw new Error('석재 지붕 면은 사각형이어야 합니다.');
+        roofDrawingContext.save();
+        roofDrawingContext.beginPath();
+        roofFacePoints.forEach((roofPointValue,roofPointIndex)=>{
+          if (roofPointIndex===0) roofDrawingContext.moveTo(roofPointValue.x-roofMinimumX,roofPointValue.y-roofMinimumY);
+          else roofDrawingContext.lineTo(roofPointValue.x-roofMinimumX,roofPointValue.y-roofMinimumY);
+        });
+        roofDrawingContext.closePath();
+        roofDrawingContext.clip();
+        roofDrawingContext.transform((roofFacePoints[1].x-roofFacePoints[0].x)/roofSourceImage.width,
+          (roofFacePoints[1].y-roofFacePoints[0].y)/roofSourceImage.width,
+          (roofFacePoints[3].x-roofFacePoints[0].x)/roofSourceImage.height,
+          (roofFacePoints[3].y-roofFacePoints[0].y)/roofSourceImage.height,
+          roofFacePoints[0].x-roofMinimumX,roofFacePoints[0].y-roofMinimumY);
+        roofDrawingContext.drawImage(roofSourceImage,0,0);
+        roofDrawingContext.restore();
+      }
+      roofCanvasTexture.refresh();
+      currentMapScene.add.image(roofMinimumX,roofMinimumY,roofTextureIdentifier).setOrigin(0).setDepth(currentBuildingDepth+0.01)
+        .once('destroy',()=>currentMapScene.textures.remove(roofTextureIdentifier));
+    }
   }
   const currentRoofCorners=currentVisibleFaces.flatMap(currentProjectedFace=>currentProjectedFace.points);
   const currentEntrancePoint = projectTerrainPosition(currentCityBuilding.entrance);

@@ -187,3 +187,5 @@ data:
     path: src/assets/characters/default/idle-v6/idle-v6.png
   - managementId: image.world.isloon.grass-mud-frame-v1
     path: src/assets/world/isloon/terrain/grass-mud-frame-v1.png
+  - managementId: image.world.stonewarm.stone-roof-v1
+    path: src/assets/world/stonewarm/buildings/stone-roof-v1.png
