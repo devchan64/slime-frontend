@@ -31,7 +31,10 @@ test('4방향 걷기는 각 6프레임을 250ms 간격으로 반복하고 정지
       updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,true);
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
       assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%6}`));
-      assert.equal(renderedCharacterImage.originY,369/384);
+      const expectedAnchorCoordinates={down_left:[[212,348],[212,348],[212,348],[212,348],[212,348],[212,348]],down_right:[[189,343],[189,343],[189,343],[189,343],[189,343],[189,343]],up_left:[[191,347],[191,351],[191,349],[191,347],[191,351],[191,351]],up_right:[[201,341],[201,341],[201,341],[201,348],[200,352],[200,342]]};
+      const selectedAnchorCoordinates=expectedAnchorCoordinates[currentDirectionName][frameColumnIndex%6];
+      assert.equal(renderedCharacterImage.originX,selectedAnchorCoordinates[0]/384);
+      assert.equal(renderedCharacterImage.originY,selectedAnchorCoordinates[1]/384);
       assert.equal(renderedCharacterImage.scaleX,80/352);
     }
     updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,false);

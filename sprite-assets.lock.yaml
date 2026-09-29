@@ -20,13 +20,13 @@ files:
   source_path: assets/sprites/characters/default/rest-v2/source.json
   sha256: 610d60ea4dc4b6ed5ecb908cc5f7242276499c6346303968ed1930870ece0e93
 - path: src/assets/characters/default/walk-v2/source.yaml
-  source_path: assets/sprites/characters/default/walk-v2/versions/20260929T144323-c0809460/source.yaml
-  sha256: 3d49b67e4afa8237ec96db5a139cfdf0dc0ecb81c390d25789297416ef0b9911
+  source_path: assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/source.yaml
+  sha256: 5a2a8e5ae966145c9ead554339287d401bf4fd506494c7dd4290b9da6798adb5
 - path: src/assets/characters/default/walk-v2/walk-v2.animation.json
-  source_path: assets/sprites/characters/default/walk-v2/versions/20260929T144323-c0809460/walk-v2.animation.json
-  sha256: d9574316ca3ac85c1019f01687d8391b09b1ab4b342549a705b6996b4370c16d
+  source_path: assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.animation.json
+  sha256: d633380550bad07c56a75e5b6badb4d8a747953c95e231abdedf34a0b76a648f
 - path: src/assets/characters/default/walk-v2/walk-v2.png
-  source_path: assets/sprites/characters/default/walk-v2/versions/20260929T144323-c0809460/walk-v2.png
+  source_path: assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.png
   sha256: 8dc36a5eba26cb44bd3151618b38a775924032a82d8d3decb9d43ad8f0785fa0
 - path: src/assets/monsters/standing-v1/ash-fox-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/ash-fox-idle-v1.animation.json
