@@ -113,6 +113,8 @@ export class MainScene extends Phaser.Scene {
     const now=performance.now();
     for(const item of this.movingObjects){
       const offset=item.key.startsWith("battle:") ? this.battleMotion.offset(item.key.slice(7),now) : this.fieldMotion.offset(item.key,now);
+      const characterMovementActive = item.key.startsWith("battle:")
+        ? this.battleMotion.isMovementActive(item.key.slice(7), now) : this.fieldMotion.isMovementActive(item.key, now);
       const characterRestingFacing = item.object.getData("characterRestingFacing");
       if (characterRestingFacing) {
         const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : undefined;
@@ -124,7 +126,7 @@ export class MainScene extends Phaser.Scene {
           idleActionElapsedTime = this.fieldIdleAction.sampleIdleAction(now, calculateFieldIdleDuration(selectedScreenFacing), idleActionAllowedFlag);
           item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "idle" : "stretch-placeholder");
         }
-        updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined);
+        updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementActive);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
       item.object.setDepth(item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0));

@@ -1,7 +1,8 @@
+import { DEFAULT_CHARACTER_WALK_ASSET, updateCharacterAnimationFrame } from "../animation/walkingActors";
 import {CHARACTER_BODY_HEIGHT} from "./renderMetrics";
 import Phaser from "phaser";
 import type { Direction } from "../animation/cellAnimation";
-import { ACTOR_IDLE_TEXTURES, ACTOR_IDLE_ASSETS, createActorIdleImage, updateActorIdleFrame, type IdleActorKind } from "../animation/idleActors";
+import { ACTOR_IDLE_TEXTURES, ACTOR_IDLE_ASSETS, createActorIdleImage, type IdleActorKind } from "../animation/idleActors";
 import { TILE_W, TILE_H } from "./meadow";
 
 export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
@@ -15,7 +16,7 @@ const HUMAN_CONTACT_SHADOW = { width: 0.32, height: 0.12 };
 const MONSTER_RING = { alpha: 0.45, width: 1 };
 const SPRITE_DEPTH_OFFSET = 0.01;
 const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 3, radius: 7, rise: 18, spread: 21 };
-export const updateCharacterFacing = updateActorIdleFrame;
+export const updateCharacterFacing = updateCharacterAnimationFrame;
 
 export function drawRestRecoveryEffect(graphics: Phaser.GameObjects.Graphics, x: number, y: number, height: number, progress: number) {
   const currentRise = REST_RECOVERY_EFFECT.rise * progress;
@@ -33,7 +34,7 @@ export function drawRestRecoveryEffect(graphics: Phaser.GameObjects.Graphics, x:
 }
 
 export function preloadActors(scene: Phaser.Scene) {
-  for (const { key, url } of ACTOR_IDLE_TEXTURES) scene.load.image(key, url);
+  for (const { key, url } of [...ACTOR_IDLE_TEXTURES, DEFAULT_CHARACTER_WALK_ASSET]) scene.load.image(key, url);
 }
 
 // 발밑 좌표가 논리 셀이다. 사람은 머리 1 : 몸통 2 : 다리 2의 5등신이다.

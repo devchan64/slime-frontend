@@ -79,7 +79,7 @@ export function createActorIdleImage(actorRenderScene: Phaser.Scene, actorIdleKi
   const initialIdleFrame = actorIdleAsset.animation.data.frames[0];
   const actorRenderImage = actorRenderScene.add.image(actorWorldPosition.x, actorWorldPosition.y, actorIdleAsset.key)
     .setScale(actorDisplayHeight / (actorIdleKind === "human" ? DEFAULT_IDLE_BODY_HEIGHT : initialIdleFrame.rect.height * IDLE_BODY_HEIGHT_RATIO))
-    .setData("idlePhaseOffset", idlePhaseOffset).setData("actorIdleKind", actorIdleKind).setData("characterRestingFacing", actorScreenDirection);
+    .setData("actorDisplayHeight", actorDisplayHeight).setData("idlePhaseOffset", idlePhaseOffset).setData("actorIdleKind", actorIdleKind).setData("characterRestingFacing", actorScreenDirection);
   updateActorIdleFrame(actorRenderImage, actorScreenDirection);
   return actorRenderImage;
 }

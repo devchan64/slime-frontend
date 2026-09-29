@@ -60,6 +60,11 @@ export class BattleMotion {
     const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/STEP_MILLISECONDS);
     return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
+  isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
+    const currentMotionTrack=this.tracks.get(actorStableIdentifier);
+    if(!currentMotionTrack)return false;
+    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.points.length - 1) * STEP_MILLISECONDS;
+  }
   offset(id:string,now:number):Point{
     const track=this.tracks.get(id);
     const movementOffset=track ? (()=>{const at=this.sample(track,now),end=track.points[track.points.length-1];

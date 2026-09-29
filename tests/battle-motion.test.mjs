@@ -70,3 +70,13 @@ test('일반 공격은 별도 애니메이션 없이 공격자 돌진과 대상 
  battleMotionTracker.sync('attack',attackedBattle,projectBattlePoint,150);
  assert.deepEqual(battleMotionTracker.offset('hero',310),{x:0,y:0,depth:0});
 });
+
+test('공격 돌진은 걷기로 처리하지 않고 이동 경로의 종료 경계에서 걷기를 해제한다',()=>{
+ const battleMotionTracker=new BattleMotion();
+ battleMotionTracker.sync('a',state(start),point,0);
+ battleMotionTracker.sync('a',state(start,[attack]),point,10);
+ assert.equal(battleMotionTracker.isMovementActive('hero',10),false);
+ battleMotionTracker.sync('a',state(end,[attack,move]),point,20);
+ assert.equal(battleMotionTracker.isMovementActive('hero',379),true);
+ assert.equal(battleMotionTracker.isMovementActive('hero',380),false);
+});

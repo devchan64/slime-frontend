@@ -24,6 +24,12 @@ export class FieldMotion {
     }
     this.tracks=next;
   }
+  isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
+    const currentMotionTrack=this.tracks.get(actorStableIdentifier);
+    if(!currentMotionTrack)return false;
+    return currentRenderTime < currentMotionTrack.started + STEP_MILLISECONDS &&
+      (currentMotionTrack.from.x !== currentMotionTrack.point.x || currentMotionTrack.from.y !== currentMotionTrack.point.y);
+  }
   offset(id:string,now:number):Point {
     const track=this.tracks.get(id);
     if(!track)return {x:0,y:0,depth:0};

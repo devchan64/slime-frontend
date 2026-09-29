@@ -33,3 +33,14 @@ test('공간/회전/세대 변경·원거리 보정·사라진 개체 재등장�
  assert.equal(motion.offset('slime',40).x,0);
  motion.clear();assert.equal(motion.offset('slime',40).x,0);
 });
+
+test('걷기 상태는 인접 이동 중에만 켜지고 완료·순간 배치 시 꺼진다',()=>{
+ const fieldMotionTracker=new FieldMotion();
+ fieldMotionTracker.sync('field',[actor(2,100)],0);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',0),false);
+ fieldMotionTracker.sync('field',[actor(3,164)],10);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',189),true);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',190),false);
+ fieldMotionTracker.sync('field',[actor(6,356)],200);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',200),false);
+});
