@@ -9,8 +9,8 @@ const spriteAssetsSelected = process.argv.includes('--sprites');
 const selectedLogArea = spriteAssetsSelected ? 'sprite-assets' : 'map-assets';
 const selectedLockFilename = spriteAssetsSelected ? 'sprite-assets.lock.yaml' : 'map-assets.lock.yaml';
 const selectedSourceDirectory = spriteAssetsSelected ? 'assets/sprites' : 'assets/tiles';
-const allowedTargetPattern = spriteAssetsSelected ? /^src\/assets\/(characters|monsters)\/[\w./-]+$/ : /^src\/assets\/(terrain|world)\/[\w./-]+$/;
-const allowedSourcePattern = spriteAssetsSelected ? /^assets\/sprites\/(characters|monsters)\/[\w./-]+$/ : /^assets\/tiles\/(terrain|buildings)\/[\w./-]+$/;
+const allowedTargetPattern = spriteAssetsSelected ? /^src\/assets\/(characters|monsters|structures)\/[\w./-]+$/ : /^src\/assets\/(terrain|world)\/[\w./-]+$/;
+const allowedSourcePattern = spriteAssetsSelected ? /^assets\/sprites\/(characters|monsters|structures)\/[\w./-]+$/ : /^assets\/tiles\/(terrain|buildings)\/[\w./-]+$/;
 
 const assetRepositoryDirectory = realpathSync(process.env.SLIME_ASSETS_ROOT || resolve(frontendRootDirectory, '../slime-assets'));
 function readUniqueDocument(documentFilePath) {

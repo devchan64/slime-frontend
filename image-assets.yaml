@@ -14,18 +14,6 @@ data:
     path: public/favicon.ico
   - managementId: image.frontend.src.assets.login.slime-welcome-v4.png
     path: src/assets/login/slime-welcome-v4.png
-  - managementId: image.frontend.src.assets.monsters.beast-v1.png
-    path: src/assets/monsters/beast-v1.png
-  - managementId: image.frontend.src.assets.monsters.beast-v2.png
-    path: src/assets/monsters/beast-v2.png
-  - managementId: image.frontend.src.assets.monsters.giant-v1.png
-    path: src/assets/monsters/giant-v1.png
-  - managementId: image.frontend.src.assets.monsters.giant-v2.png
-    path: src/assets/monsters/giant-v2.png
-  - managementId: image.frontend.src.assets.monsters.slime-v1.png
-    path: src/assets/monsters/slime-v1.png
-  - managementId: image.frontend.src.assets.monsters.slime-v2.png
-    path: src/assets/monsters/slime-v2.png
   - managementId: image.frontend.src.assets.terrain.dew-v3.webp
     path: src/assets/terrain/dew-v3.webp
   - managementId: image.frontend.src.assets.terrain.flowers-v3.png

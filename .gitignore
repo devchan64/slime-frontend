@@ -99,12 +99,6 @@ dist/
 /src/assets/characters/default/walk-v2/source.yaml
 /src/assets/characters/default/walk-v2/walk-v2.animation.json
 /src/assets/characters/default/walk-v2/walk-v2.png
-/src/assets/monsters/beast-v1.png
-/src/assets/monsters/beast-v2.png
-/src/assets/monsters/giant-v1.png
-/src/assets/monsters/giant-v2.png
-/src/assets/monsters/slime-v1.png
-/src/assets/monsters/slime-v2.png
 /src/assets/monsters/standing-v1/ash-fox-idle-v1.animation.json
 /src/assets/monsters/standing-v1/ash-fox-idle-v1.png
 /src/assets/monsters/standing-v1/beast-idle-v2.animation.json
@@ -126,3 +120,9 @@ dist/
 /src/assets/monsters/standing-v1/slime-idle-v1.png
 /src/assets/monsters/standing-v1/stone-crab-idle-v1.animation.json
 /src/assets/monsters/standing-v1/stone-crab-idle-v1.png
+
+# 에셋 저장소에서 준비하는 구조물 스프라이트
+/src/assets/structures/ward-tower-v1.png
+
+# 에셋 저장소에서 준비하는 캐릭터 컷인
+/src/assets/characters/default/cutins/default-punch-v1.png

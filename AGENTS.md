@@ -147,7 +147,11 @@
 - 프론트엔드의 등록된 `src/assets/characters/`·`src/assets/monsters/` 파일은 전달 사본이다. `sprite-assets.lock.yaml`에 원본 경로·해시를 고정하고 개발·빌드·검수 준비 시 에셋 저장소에서 검증해 가져온다. 전달 사본을 직접 편집하지 않는다.
 - 관리도구도 등록된 스프라이트 원본과 재생 메타데이터를 에셋 저장소에서 검증하여 게시하며 이미지·메타데이터 출처와 해시를 보존한다. 브라우저에는 게시 사본을 제공한다.
 - 신규 채택·수정은 에셋 저장소에 먼저 등록하고 잠금 목록과 소비자를 함께 갱신한다. 생성 중간 프레임·후보·로그·모델은 워크플로우의 기존 보관 정책을 유지한다.
-- 이번 이관은 등록된 캐릭터 애니메이션 시트와 몬스터 스프라이트에 한정한다. 개별 승인 프레임·외형 기준 이미지·컷인·제작 프롬프트는 포함하지 않는다.
+- 이번 이관은 등록된 캐릭터 애니메이션 시트와 몬스터 스프라이트에 한정한다. 개별 승인 프레임·외형 기준 이미지·제작 프롬프트는 포함하지 않는다. 채택된 캐릭터 컷인은 `slime-assets/assets/sprites/characters/<캐릭터>/cutins/`에서 원본을 관리하며 스프라이트 잠금 목록으로 전달한다.
 
 ## Generated Asset Copies
 - `map-assets.lock.yaml`·`sprite-assets.lock.yaml`에 등록된 전달 사본은 프론트 Git에 커밋하지 않는다. 원본은 `slime-assets`에서만 추적하며 `.gitignore`에 전달 경로를 등록한다. 개발·빌드·검수 준비 단계에서만 사본을 생성한다. 새 잠금 항목과 제외 경로를 함께 갱신한다.
+
+## Structure Sprite Ownership
+- 구조물 스프라이트 원본은 `slime-assets/assets/sprites/structures/`에서 관리한다.
+- `src/assets/structures/`의 등록 파일은 `sprite-assets.lock.yaml`로 해시를 고정한 빌드용 전달 사본이며 Git에서 제외한다. 기존 스프라이트 준비·검증 명령으로 가져온다.
