@@ -205,3 +205,6 @@ files:
 - path: src/assets/world/common/buildings/wood-door-wall-v1.png
   source_path: assets/tiles/buildings/wall/common/wood-door-wall-v1.png
   sha256: d0fbf17c5f6f1d6af32196476d270af469907df638c829adbb76467a2f5bc37f
+- path: src/assets/world/common/buildings/wood-crossbar-wall-v1.png
+  source_path: assets/tiles/buildings/wall/common/wood-crossbar-wall-v1.png
+  sha256: 7766b27f8e82f2f708afa420efa1a6dcf45c7840002d6d473b327ef3abfb0808

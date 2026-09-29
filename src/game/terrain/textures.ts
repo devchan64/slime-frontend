@@ -1,3 +1,4 @@
+import woodCrossbarWallSource from "../../assets/world/common/buildings/wood-crossbar-wall-v1.png";
 import woodDoorWallSource from "../../assets/world/common/buildings/wood-door-wall-v1.png";
 import woodWindowWallSource from "../../assets/world/common/buildings/wood-window-wall-v1.png";
 import unifiedWoodWallSource from "../../assets/world/common/buildings/wood-wall-v2.png";
@@ -27,6 +28,7 @@ import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { GAME_TILE_SOURCE_SIZE } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
+export const WOOD_CROSSBAR_WALL_TEXTURE = "wood-crossbar-wall-v1";
 export const WOOD_DOOR_WALL_TEXTURE = "wood-door-wall-v1";
 export const WOOD_WINDOW_WALL_TEXTURE = "wood-window-wall-v1";
 export const UNIFIED_WOOD_WALL_TEXTURE = "unified-wood-wall-v2";
@@ -89,6 +91,7 @@ export function preloadTerrain(scene: Phaser.Scene) {
   scene.load.image(UNIFIED_WOOD_WALL_TEXTURE, unifiedWoodWallSource);
   scene.load.image(WOOD_WINDOW_WALL_TEXTURE, woodWindowWallSource);
   scene.load.image(WOOD_DOOR_WALL_TEXTURE, woodDoorWallSource);
+  scene.load.image(WOOD_CROSSBAR_WALL_TEXTURE, woodCrossbarWallSource);
   scene.load.image(STONEWARM_GUILD_ROOF_TEXTURE, stonewarmGuildRoofSource);
   scene.load.image(STONEWARM_ROOF_TEXTURE, stonewarmRoofImageSource);
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
