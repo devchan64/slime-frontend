@@ -189,3 +189,5 @@ data:
     path: src/assets/world/isloon/terrain/grass-mud-frame-v1.png
   - managementId: image.world.stonewarm.stone-roof-v1
     path: src/assets/world/stonewarm/buildings/stone-roof-v1.png
+  - managementId: image.frontend.src.assets.terrain.grass-v4.png
+    path: src/assets/terrain/grass-v4.png

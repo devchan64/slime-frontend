@@ -1,5 +1,4 @@
 import stonewarmRoofImageSource from "../../assets/world/stonewarm/buildings/stone-roof-v1.png";
-import iseulonGrassFrameSource from "../../assets/world/isloon/terrain/grass-mud-frame-v1.png";
 import extendedAshSource from "../../assets/terrain/extension-v1/ash-128.webp";
 import extendedBoulderSource from "../../assets/terrain/extension-v1/boulder-128.webp";
 import extendedGravelSource from "../../assets/terrain/extension-v1/gravel-128.webp";
@@ -15,7 +14,7 @@ import extendedStoneSource from "../../assets/terrain/extension-v1/stone-128.web
 import extendedTreeBaseSource from "../../assets/terrain/extension-v1/tree-base-128.webp";
 import cliffWallPatternSource from "../../assets/terrain/cliffs/dew-meadow-cliff-face-v1.png";
 import Phaser from "phaser";
-import grass from "../../assets/terrain/grass-v3.webp";
+import grassTileImageSource from "../../assets/terrain/grass-v4.png";
 import dew from "../../assets/terrain/dew-v3.webp";
 import road from "../../assets/terrain/road-v3.webp";
 import water from "../../assets/terrain/water-v3.webp";
@@ -33,10 +32,10 @@ export const ISEULON_GRASS_FRAME = "iseulon-grass-mud-frame";
 export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
-const SOURCES = { grass, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
+const SOURCES = { grass: grassTileImageSource, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
-  { frame: ISEULON_GRASS_FRAME, source: iseulonGrassFrameSource },
+  { frame: ISEULON_GRASS_FRAME, source: grassTileImageSource },
   { frame: REEDHAVEN_DIRT_ROAD_FRAME, source: reedhavenDirtRoadSource },
   { frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource },
   { frame: STONEWARM_MARBLE_PAVING_FRAME, source: stonewarmMarblePavingSource },
