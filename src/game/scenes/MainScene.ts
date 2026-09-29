@@ -29,7 +29,7 @@ import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
 import { drawBlockStructure, drawCityPaving, type CityBuildingRegion } from "../terrain/blockStructureRendering";
 import { actorSize } from "../terrain/sizes";
-import { roadConnections, roadFrame, waterConnections } from "../terrain/roadTiles";
+import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
 import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
@@ -670,7 +670,7 @@ export class MainScene extends Phaser.Scene {
       addCliffWallPatterns(this,remember,this.viewPosition(cell),this.viewSurface!,depth);
       const isWater = waterCells.has(`${column},${row}`);
       const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
-        : kind === 'road' ? roadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation))
+        : kind === 'road' ? selectFieldRoadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation), cell, Boolean(s.map.safeTown))
           : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));

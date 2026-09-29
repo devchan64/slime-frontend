@@ -31,3 +31,10 @@ export function roadConnections(cell: Position, map: Surface, road: Set<string>)
   }
   return mask;
 }
+
+// 필드 도로 일부를 좌표에 따라 고정 선택하여 회전·재접속 시 재질이 바뀌지 않는다.
+const DIRT_ROAD_VARIANT_PERIOD = 3;
+export function selectFieldRoadFrame(connectionMaskValue:number,currentCellPosition:Position,currentMapIsTown:boolean):string {
+  const roadVariantIndex=((currentCellPosition.column+currentCellPosition.row)%DIRT_ROAD_VARIANT_PERIOD+DIRT_ROAD_VARIANT_PERIOD)%DIRT_ROAD_VARIANT_PERIOD;
+  return !currentMapIsTown&&roadVariantIndex===0?`dirt-road-${connectionMaskValue}`:roadFrame(connectionMaskValue);
+}

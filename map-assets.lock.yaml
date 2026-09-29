@@ -202,3 +202,6 @@ files:
 - path: src/assets/world/common/buildings/wood-roof-v3.png
   source_path: assets/tiles/buildings/roof/common/wood-roof-v3.png
   sha256: dad396783aeeff901983aa7963877ac81f2dc535173221bc9f0a3109d983c5a3
+- path: src/assets/terrain/roads/packed-dirt-road-v1.png
+  source_path: assets/tiles/terrain/dirt/common/packed-dirt-road-v1.png
+  sha256: 35d978fd6a7a535782198be475dd93dbea9c743a5256514ad9070914566fe844

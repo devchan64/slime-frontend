@@ -4,7 +4,7 @@ import { build } from 'esbuild';
 
 const { outputFiles } = await build({ entryPoints: ['src/game/terrain/roadTiles.ts'], bundle: true,
   write: false, format: 'esm', platform: 'node' });
-const { roadConnections, waterConnections } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const { roadConnections, waterConnections, selectFieldRoadFrame } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 const center = { column: 1, row: 1 };
 const surface = { columns: 3, rows: 3 };
 
@@ -36,4 +36,14 @@ test('수면은 같은 높이에서 이어지고 계단이 있어도 단차를 �
   const map = { ...surface, elevations: [[0,0,1],[0,0,1],[0,0,1]],
     ramps: [{ start: center, end: { column: 2, row: 1 } }] };
   assert.equal(waterConnections(center, map, water), 0);
+});
+
+test('흙도로는 필드 일부에 고정 배치되고 마을·연결 마스크를 유지한다', () => {
+  for (let connectionMaskValue=0;connectionMaskValue<16;connectionMaskValue++) {
+    assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},false),`dirt-road-${connectionMaskValue}`);
+    assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:1,row:0},false),`road-${connectionMaskValue}`);
+    assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},true),`road-${connectionMaskValue}`);
+  }
+  const selectedRoadFrames=Array.from({length:9},(_,currentColumnIndex)=>selectFieldRoadFrame(5,{column:currentColumnIndex,row:0},false));
+  assert.equal(selectedRoadFrames.filter(currentFrameName=>currentFrameName==='dirt-road-5').length,3);
 });
