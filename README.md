@@ -13,6 +13,8 @@ bash scripts/local_frontend_run.sh
 
 http://localhost:8080 으로 접속한다. 소스 저장 시 Vite가 즉시 반영하며 `npm run build`나 Docker 이미지 빌드는 필요 없다. `npm run dev`로 직접 실행해도 같다. Ctrl+C로 종료한다. 포트가 사용 중이면 다른 포트로 자동 변경하지 않고 오류를 낸다. Docker 웹이 실행 중이면 `docker compose -f docker-compose.local.yml stop web`으로 먼저 종료한다. 기본 `/v1` HTTP·WebSocket 프록시는 http://127.0.0.1:18080 의 별도 백엔드를 사용한다. 다른 API를 쓸 때는 비밀이 아닌 빌드 설정 `VITE_API_BASE_URL`을 지정하고 서버에 해당 웹 origin을 등록한다.
 
+Linux 개발 서버는 시스템 inotify 한도(`ENOSPC: System limit for number of file watchers reached`)의 영향을 받지 않도록 폴링 감시를 사용한다. 소스는 500ms, 바이너리 에셋은 1초 간격으로 변경을 확인하며 `.local/`, `.tmp/`, `report/`는 감시하지 않는다. HMR은 유지되며 폴링에 따른 소량의 CPU·파일 조회 비용이 발생한다.
+
 ## Docker
 
 백엔드의 로컬 서비스가 실행 중일 때 다음 명령으로 정적 빌드를 제공한다. Vite와 같은 8080 포트를 쓰므로 둘을 동시에 실행하지 않는다.
@@ -57,3 +59,5 @@ npm run build:review
 전투는 화면 크기와 살아 있는 유닛의 범위에 따라 1 이하로 자동 맞춤할 수 있다.
 원본 이미지의 픽셀 크기·시트 프레임·논리 셀·화면 고정 UI는 월드 단위와 구분한다.
 관리도구 마을 검수의 128×64 프로필은 별도 설정이며 게임의 마을 크기 160×80과 구분한다.
+
+에셋 직접 참조: 인접 `slime-assets/assets/`를 사용하며 프론트엔드 사본은 생성하지 않습니다. 현재 경로와 배포 방식은 [에셋 참조 가이드](ASSET-CATALOG.md)를 따릅니다.

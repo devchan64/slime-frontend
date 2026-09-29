@@ -1,30 +1,30 @@
-import giantCutinMetadata from '../assets/monsters/standing-v1/giant-idle-v1.animation.json';
-import beastCutinMetadata from '../assets/monsters/standing-v1/beast-idle-v2.animation.json';
-import slimeCutinMetadata from '../assets/monsters/standing-v1/slime-idle-v1.animation.json';
-import boarCutinMetadata from '../assets/monsters/standing-v1/ridge-boar-idle-v1.animation.json';
-import crabCutinMetadata from '../assets/monsters/standing-v1/stone-crab-idle-v1.animation.json';
-import crawlerCutinMetadata from '../assets/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
-import mothCutinMetadata from '../assets/monsters/standing-v1/lantern-moth-idle-v1.animation.json';
-import rabbitCutinMetadata from '../assets/monsters/standing-v1/field-rabbit-idle-v1.animation.json';
-import characterIdleMetadata from '../assets/characters/default/idle-v6/idle-v6.animation.json';
+import giantCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/giant-idle-v1.animation.json';
+import beastCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/beast-idle-v2.animation.json';
+import slimeCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/slime-idle-v1.animation.json';
+import boarCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/ridge-boar-idle-v1.animation.json';
+import crabCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/stone-crab-idle-v1.animation.json';
+import crawlerCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
+import mothCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/lantern-moth-idle-v1.animation.json';
+import rabbitCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/field-rabbit-idle-v1.animation.json';
+import characterIdleMetadata from '../../../slime-assets/assets/sprites/characters/default/idle-v6/idle-v6.animation.json';
 import type { ActionCutinEvent } from './actionCutins';
 import { parseDocument } from 'yaml';
-import actionCutinCatalogSource from '../assets/cutins.yaml?raw';
+import actionCutinCatalogSource from '../../../slime-assets/assets/ui/cutins.yaml?raw';
 
 // 기본 이미지는 코스튬·헤어·얼굴 세 그룹을 합성한 정식 기본 조합이다.
 // 새 조합은 전용 합성 산출물을 등록해야 하며 다른 외형으로 대체하지 않는다.
 const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
-  'ridge-boar': new URL('../assets/monsters/standing-v1/ridge-boar-idle-v1.png', import.meta.url).href,
-  'stone-crab': new URL('../assets/monsters/standing-v1/stone-crab-idle-v1.png', import.meta.url).href,
-  'field-rabbit': new URL('../assets/monsters/standing-v1/field-rabbit-idle-v1.png', import.meta.url).href,
-  'lantern-moth': new URL('../assets/monsters/standing-v1/lantern-moth-idle-v1.png', import.meta.url).href,
-  'reed-crawler': new URL('../assets/monsters/standing-v1/reed-crawler-idle-v1.png', import.meta.url).href,
-  'default-punch': new URL('../assets/characters/default/cutins/default-punch-v1.png', import.meta.url).href,
-  slime: new URL('../assets/monsters/standing-v1/slime-idle-v1.png', import.meta.url).href,
-  beast: new URL('../assets/monsters/standing-v1/beast-idle-v2.png', import.meta.url).href,
-  giant: new URL('../assets/monsters/standing-v1/giant-idle-v1.png', import.meta.url).href,
+  'ridge-boar': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/ridge-boar-idle-v1.png', import.meta.url).href,
+  'stone-crab': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/stone-crab-idle-v1.png', import.meta.url).href,
+  'field-rabbit': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/field-rabbit-idle-v1.png', import.meta.url).href,
+  'lantern-moth': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/lantern-moth-idle-v1.png', import.meta.url).href,
+  'reed-crawler': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/reed-crawler-idle-v1.png', import.meta.url).href,
+  'default-punch': new URL('../../../slime-assets/assets/sprites/characters/default/cutins/default-punch-v1.png', import.meta.url).href,
+  slime: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/slime-idle-v1.png', import.meta.url).href,
+  beast: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/beast-idle-v2.png', import.meta.url).href,
+  giant: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/giant-idle-v1.png', import.meta.url).href,
 };
-const DEFAULT_CHARACTER_IDLE_IMAGE = new URL('../assets/characters/default/idle-v6/idle-v6.png', import.meta.url).href;
+const DEFAULT_CHARACTER_IDLE_IMAGE = new URL('../../../slime-assets/assets/sprites/characters/default/idle-v6/idle-v6.png', import.meta.url).href;
 type ActionCutinActorRole = 'attacker' | 'target';
 export function parseActionCutinCatalog(actionCutinYamlSource: string): Map<string, string> {
   const parsedCatalogDocument = parseDocument(actionCutinYamlSource, { uniqueKeys: true });

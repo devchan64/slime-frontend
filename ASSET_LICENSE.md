@@ -14,7 +14,7 @@
 
 ## 로그인 이미지
 
-- 현재 사용 파일: `src/assets/login/slime-welcome-v4.png`
+- 현재 사용 파일: `assets/login/slime-welcome-v4.png`
 - 아래 생성 정보는 기반 이미지 v2의 제작 기록이다. 미사용 중간 이미지 v2·v3는 삭제했다.
 - 생성: OpenAI 내장 imagegen, 2026-09-19
 - 제공 및 기본 저작자 표시: SLIME / devchan64

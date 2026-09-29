@@ -54,7 +54,7 @@ test('캐릭터 피격 컷인은 통합 대기 시트의 전방 좌측 첫 셀�
 test('슬라임·짐승·거인 컷인은 공격·피격 모두 대기 시트 첫 프레임을 사용한다', async () => {
   for (const [currentMonsterGroup,currentSheetVersion] of [['slime',1],['beast',2],['giant',1]]) {
     const currentMonsterAppearance={kind:'monster',group:currentMonsterGroup};
-    const currentAnimationMetadata=JSON.parse(await readFile(`src/assets/monsters/standing-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.animation.json`,'utf8'));
+    const currentAnimationMetadata=JSON.parse(await readFile(`../slime-assets/assets/sprites/monsters/standing-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.animation.json`,'utf8'));
     const expectedCutinRectangle=currentAnimationMetadata.frames.find(currentFrameRecord=>currentFrameRecord.frameId==='down_left.0').rect;
     for(const currentActorRole of ['attacker','target']) {
       assert.ok(resolveActionCutinAsset(currentMonsterAppearance,currentActorRole).endsWith(`/standing-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.png`));

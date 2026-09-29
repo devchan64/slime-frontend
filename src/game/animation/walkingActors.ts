@@ -2,12 +2,12 @@ import type Phaser from "phaser";
 import { CellAnimation, type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
 import { updateActorIdleFrame } from "./idleActors";
-import walkingCharacterMetadata from "../../assets/characters/default/walk-v2/walk-v2.animation.json";
+import walkingCharacterMetadata from "../../../../slime-assets/assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.animation.json";
 
 const WALKING_REFERENCE_BODY_HEIGHT = 352;
 export const DEFAULT_CHARACTER_WALK_ASSET = {
   key: "walking-human-v2",
-  url: new URL("../../assets/characters/default/walk-v2/walk-v2.png", import.meta.url).href,
+  url: new URL("../../../../slime-assets/assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.png", import.meta.url).href,
   animation: new CellAnimation(walkingCharacterMetadata),
 } as const;
 

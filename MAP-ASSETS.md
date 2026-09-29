@@ -1,6 +1,6 @@
 # 맵 에셋 전달 계약
 
-`src/assets/terrain/`과 `src/assets/world/`의 관리 원본은 slime-assets의 `assets/tiles/terrain/<지형 종류>/`, `assets/tiles/buildings/<roof|wall|door>/<지역>/`로 이관했다. 기존 이미지 ID와 파일명, 버전별 파일을 유지한다. 프론트엔드의 같은 경로는 게임 빌드에 포함하는 전달 사본이다.
+`assets/terrain/`과 `assets/world/`의 관리 원본은 slime-assets의 `assets/tiles/terrain/<지형 종류>/`, `assets/tiles/buildings/<roof|wall|door>/<지역>/`로 이관했다. 기존 이미지 ID와 파일명, 버전별 파일을 유지한다. 프론트엔드의 같은 경로는 게임 빌드에 포함하는 전달 사본이다.
 
 변경은 slime-assets에서 새 버전으로 등록한 뒤 선택한 파일을 프론트엔드에 명시적으로 전달하고 `map-assets.lock.yaml`의 원본 경로·SHA-256을 갱신한다. `npm run check:map-assets`와 `npm run build`에서 사본 해시를 확인한다. 개발·빌드 준비 단계는 `slime-assets` 원본을 직접 참조한다. 배포된 브라우저는 빌드에 포함된 정적 사본만 사용하며 CDN 배포 방식과 비용은 바뀌지 않는다.
 
@@ -19,3 +19,5 @@
 ## 전달 사본의 Git 제외
 
 에셋 저장소로 이관된 파일은 프론트엔드 Git에서 삭제하고 `.gitignore`에 경로별로 등록한다. 잠금 파일과 import 경로는 유지하며 개발·빌드 준비 명령이 필요한 사본을 다시 만든다. 신규 전달 경로 추가 시 잠금 목록과 `.gitignore`를 함께 갱신한다. 이미지 목록은 생성된 전달 사본의 검증 용도로 유지한다.
+
+에셋 직접 참조: 인접 `slime-assets/assets/`를 사용하며 프론트엔드 사본은 생성하지 않습니다. 현재 경로와 배포 방식은 [에셋 참조 가이드](ASSET-CATALOG.md)를 따릅니다.

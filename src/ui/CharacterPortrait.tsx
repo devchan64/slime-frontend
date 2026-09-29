@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { useTranslation } from "../i18n";
-import characterIdlePortraitMetadata from "../assets/characters/default/idle-v6/idle-v6.animation.json";
+import characterIdlePortraitMetadata from "../../../slime-assets/assets/sprites/characters/default/idle-v6/idle-v6.animation.json";
 
-const DEFAULT_CHARACTER_PORTRAIT = new URL("../assets/characters/default/idle-v6/idle-v6.png", import.meta.url).href;
+const DEFAULT_CHARACTER_PORTRAIT = new URL("../../../slime-assets/assets/sprites/characters/default/idle-v6/idle-v6.png", import.meta.url).href;
 const CHARACTER_PORTRAIT_CLIP = characterIdlePortraitMetadata.clips.find(currentClipRecord => currentClipRecord.clipId === "idle.down_right");
 if (!CHARACTER_PORTRAIT_CLIP?.frames.length) throw new Error("캐릭터 초상화의 대기 클립이 없습니다.");
 const CHARACTER_PORTRAIT_FRAMES = CHARACTER_PORTRAIT_CLIP.frames.map(currentClipFrame => {

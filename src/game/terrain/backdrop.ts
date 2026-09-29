@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import background from "../../assets/terrain/meadow-backdrop-v2.webp";
+import background from "../../../../slime-assets/assets/tiles/terrain/meadow-backdrop/meadow-backdrop-v2.webp";
 
 const BACKDROP_KEY = "meadow-backdrop";
 const BACKDROP_DEPTH = -3;

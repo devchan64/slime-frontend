@@ -8,7 +8,7 @@ data:
   version: 1
   images:
     - managementId: image.frontend.src.assets.characters.default-v1.png
-      path: src/assets/characters/default-v1.png
+      path: assets/characters/default-v1.png
 ```
 
 - 새 이미지는 고유한 관리 ID와 저장소 상대 경로를 등록합니다. ID 형식은 소문자·숫자를 점·하이픈으로 연결합니다.
@@ -19,3 +19,5 @@ data:
 - 검사 로그는 `node_modules/.cache/image-assets.log`에 누적됩니다. 이미지를 해석하거나 픽셀 품질을 검사하지 않습니다.
 
 이미지 파일·화면·기존 URL은 변경하지 않습니다. Vite의 해시 파일명과 기존 정적 배포를 유지합니다.
+
+에셋 직접 참조: 인접 `slime-assets/assets/`를 사용하며 프론트엔드 사본은 생성하지 않습니다. 현재 경로와 배포 방식은 [에셋 참조 가이드](ASSET-CATALOG.md)를 따릅니다.

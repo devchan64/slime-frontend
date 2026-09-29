@@ -20,7 +20,7 @@ export function validateImages(root, areas = ['src', 'public']) {
     if (typeof entry.managementId !== 'string' || !ID.test(entry.managementId) || ids.has(entry.managementId)) throw new Error(`관리 ID 누락·형식 오류·중복: ${entry.managementId}`);
     ids.add(entry.managementId);
     const path = entry.path;
-    if (typeof path !== 'string' || isAbsolute(path) || path.includes('\\') || path.split('/').some(part => !part || part === '.' || part === '..') || !EXTENSIONS.has(extname(path).toLowerCase()) || paths.has(path)) throw new Error(`이미지 경로 오류·중복: ${path}`);
+    if (typeof path !== 'string' || isAbsolute(path) || path.includes('\\') || (path.startsWith('../slime-assets/assets/') ? path.slice('../slime-assets/assets/'.length) : path).split('/').some(part => !part || part === '.' || part === '..') || !EXTENSIONS.has(extname(path).toLowerCase()) || paths.has(path)) throw new Error(`이미지 경로 오류·중복: ${path}`);
     paths.add(path);
   }
   const actual = new Set();
@@ -33,6 +33,12 @@ export function validateImages(root, areas = ['src', 'public']) {
     }
   }
   for (const area of areas) walk(resolve(root, area));
+  for (const currentImagePath of paths) {
+    if (currentImagePath.startsWith('../slime-assets/assets/')) {
+      if (!lstatSync(resolve(root, currentImagePath)).isFile()) throw new Error(`공유 이미지 파일 없음: ${currentImagePath}`);
+      actual.add(currentImagePath);
+    }
+  }
   for (const path of actual) if (!paths.has(path)) throw new Error(`이미지 관리 ID 미등록: ${path}`);
   for (const path of paths) if (!actual.has(path)) throw new Error(`이미지 파일이 없거나 관리 영역 밖입니다: ${path}`);
   return paths.size;

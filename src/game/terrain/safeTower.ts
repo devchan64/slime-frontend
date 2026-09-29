@@ -2,7 +2,7 @@ import Phaser from "phaser";
 
 const SAFE_TOWER_TEXTURE = {
   key: "structure-ward-tower-v1",
-  url: new URL("../../assets/structures/ward-tower-v1.png", import.meta.url).href,
+  url: new URL("../../../../slime-assets/assets/sprites/structures/ward-tower-v1.png", import.meta.url).href,
   anchorX: 627, anchorY: 1095, bodyTop: 82, displayHeight: 112,
 };
 const SAFE_TOWER_GROUND = {

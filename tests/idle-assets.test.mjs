@@ -63,7 +63,7 @@ test('단일 대기 시트는 한 번 로드하고 방향 전환 시 해당 행�
  assert.throws(()=>resolveActorIdleAsset('human','invalid'));
 });
 test('교체된 대기 에셋은 16프레임과 셀 내부 앵커·출처를 갖는다',()=>{
- const currentSourceMetadata=JSON.parse(readFileSync('src/assets/characters/default/idle-v6/source.json','utf8'));
+ const currentSourceMetadata=JSON.parse(readFileSync('../slime-assets/assets/sprites/characters/default/idle-v6/source.json','utf8'));
  assert.equal(currentSourceMetadata.generationId,'2026-09-27_21-49-33');
  assert.equal(currentSourceMetadata.gameBodyHeight,80);
  assert.equal(ACTOR_IDLE_ASSETS.human.animation.data.frames.length,16);
@@ -72,12 +72,12 @@ test('교체된 대기 에셋은 16프레임과 셀 내부 앵커·출처를 갖
   assert.ok(currentFrameRecord.anchor.y>=0&&currentFrameRecord.anchor.y<384);
   assert.ok(currentSourceMetadata.frames.some(currentSourceFrame=>currentSourceFrame.frameId===currentFrameRecord.frameId));
  }
- assert.equal(existsSync('src/assets/characters/default/standing-v5'),false);
+ assert.equal(existsSync('assets/characters/default/standing-v5'),false);
 });
 
 test('4×4 시트는 방향별 행과 1·5·9·13번 열 순서를 유지한다',()=>{
  const currentAnimationData=ACTOR_IDLE_ASSETS.human.animation.data;
- const currentSourceMetadata=JSON.parse(readFileSync('src/assets/characters/default/idle-v6/source.json','utf8'));
+ const currentSourceMetadata=JSON.parse(readFileSync('../slime-assets/assets/sprites/characters/default/idle-v6/source.json','utf8'));
  const expectedDirectionOrder=['down_left','down_right','up_left','up_right'];
  const expectedSourceFrames=[1,5,9,13];
  assert.deepEqual(currentAnimationData.sheet,{width:1536,height:1536});

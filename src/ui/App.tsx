@@ -35,7 +35,7 @@ import { registrationIssue } from "../client/credentials";
 import type { Position, State } from "../client/types";
 import type { createGame } from "../game/createGame";
 const WALK_STEP_DELAY_MS = 270;
-const loginIllustration = new URL("../assets/login/slime-welcome-v4.png", import.meta.url).href;
+const loginIllustration = new URL("../../../slime-assets/assets/ui/login/slime-welcome-v4.png", import.meta.url).href;
 const RESULT_NAMES: Record<string, string> = {
   WIN: "battle.resultWin",
   LOSE: "battle.resultLose",
