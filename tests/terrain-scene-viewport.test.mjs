@@ -15,18 +15,18 @@ afterEach(() => {
 });
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({stdin:{contents:"export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_IDLE_TEXTURES} from './src/game/animation/idleActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',
+const {outputFiles}=await build({stdin:{contents:"export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_IDLE_TEXTURES} from './src/game/animation/idleActors.ts'; export {DEFAULT_CHARACTER_WALK_ASSET} from './src/game/animation/walkingActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',
  loader:{'.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
   build.onResolve({filter:/i18n$/},()=>({path:'i18n',namespace:'locale-double'}));
   build.onLoad({filter:/.*/,namespace:'locale-double'},()=>({contents:'export const t = currentMessageKey => currentMessageKey;'}));
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
   build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
-const {MainScene,ACTOR_IDLE_TEXTURES}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {MainScene,ACTOR_IDLE_TEXTURES,DEFAULT_CHARACTER_WALK_ASSET}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
 
 function createIdleTextureDouble() {
- const currentTextureRegistry=new Map(ACTOR_IDLE_TEXTURES.map(currentIdleAsset=>{
+ const currentTextureRegistry=new Map([...ACTOR_IDLE_TEXTURES,DEFAULT_CHARACTER_WALK_ASSET].map(currentIdleAsset=>{
   const registeredTextureFrames=new Set();
   return [currentIdleAsset.key, {
    getSourceImage:()=>({width:currentIdleAsset.animation.data.sheet.width,height:currentIdleAsset.animation.data.sheet.height}),
@@ -211,4 +211,30 @@ test('결계 맥동은 씬 시간에 따라 변하고 동작 줄이기 설정은
  currentSceneInstance.time.now = 0;currentSceneInstance.update();
  currentSceneInstance.time.now = 1950;currentSceneInstance.update();
  assert.deepEqual(recordedBarrierOpacities.slice(-2),[1,1]);
+});
+
+
+test('프레임 지연으로 이동이 끝나도 카메라를 최종 좌표에 한 번 동기화한다',()=>{
+ const currentSceneInstance=new MainScene(()=>{},()=>{},()=>{});
+ const recordedCameraCenters=[];
+ currentSceneInstance.state={battle:null,me:{id:'hero',position:{column:3,row:2}}};
+ currentSceneInstance.cameras={main:{centerOn:(x,y)=>recordedCameraCenters.push({x,y})}};
+ currentSceneInstance.calculateActorPlacement=()=>({x:164,y:82,depth:0});
+ const expiredMotionTimestamp=performance.now()-1000;
+ currentSceneInstance.fieldMotion.sync('map',[{id:'member:hero',cell:{column:2,row:2},point:{x:100,y:50,depth:0}}],expiredMotionTimestamp);
+ currentSceneInstance.fieldMotion.sync('map',[{id:'member:hero',cell:{column:3,row:2},point:{x:164,y:82,depth:0}}],expiredMotionTimestamp);
+ currentSceneInstance.fieldCameraFollowPending=true;
+ currentSceneInstance.followMovingFieldCharacter();
+ currentSceneInstance.followMovingFieldCharacter();
+ assert.deepEqual(recordedCameraCenters,[{x:164,y:82}]);
+});
+
+test('이동 카메라를 적용한 뒤 지형과 개체 표시 범위를 계산한다',()=>{
+ const currentSceneInstance=new MainScene(()=>{},()=>{},()=>{});
+ const recordedRenderStages=[];
+ currentSceneInstance.cameras={main:{zoom:0}};
+ for(const currentMethodName of ['followMovingFieldCharacter','syncTerrainViewport','syncActorViewport','animateFieldActors'])
+  currentSceneInstance[currentMethodName]=()=>recordedRenderStages.push(currentMethodName);
+ currentSceneInstance.update();
+ assert.deepEqual(recordedRenderStages,['followMovingFieldCharacter','syncTerrainViewport','syncActorViewport','animateFieldActors']);
 });

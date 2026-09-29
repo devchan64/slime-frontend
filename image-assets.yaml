@@ -77,13 +77,13 @@ data:
   - managementId: image.world.stonewarm.marble-paving-v1
     path: ../slime-assets/assets/tiles/terrain/marble/stonewarm/marble-paving-v1.png
   - managementId: image.world.stonewarm.stone-wall-v1
-    path: ../slime-assets/assets/tiles/buildings/wall/common/stone-wall-v1.png
+    path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-v1.png
   - managementId: image.world.stonewarm.stone-small-window-wall-v1
-    path: ../slime-assets/assets/tiles/buildings/wall/common/stone-small-window-wall-v1.png
+    path: ../slime-assets/assets/tiles/buildings/stone/stone-small-window-wall-v1.png
   - managementId: image.world.stonewarm.stone-large-window-wall-v1
-    path: ../slime-assets/assets/tiles/buildings/wall/common/stone-large-window-wall-v1.png
+    path: ../slime-assets/assets/tiles/buildings/stone/stone-large-window-wall-v1.png
   - managementId: image.world.stonewarm.stone-door-v1
-    path: ../slime-assets/assets/tiles/buildings/door/stonewarm/stone-door-v1.png
+    path: ../slime-assets/assets/tiles/buildings/stone/stone-door-v1.png
   - managementId: image.frontend.src.assets.terrain.extension-v1.reed-bed-128.webp
     path: ../slime-assets/assets/tiles/terrain/reed-bed/reed-bed-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.stone-128.webp
@@ -93,34 +93,34 @@ data:
   - managementId: image.frontend.src.assets.terrain.cliffs.dew-meadow-cliff-face-v1.png
     path: ../slime-assets/assets/tiles/terrain/cliff/dew-meadow-cliff-face-v1.png
   - managementId: image.world.isloon.marble-roof-v2
-    path: ../slime-assets/assets/tiles/buildings/roof/isloon/marble-roof-v2.png
+    path: ../slime-assets/assets/tiles/buildings/marble/marble-roof-v2.png
   - managementId: image.character.default.idle-v6.sheet
     path: ../slime-assets/assets/sprites/characters/default/idle-v6/idle-v6.png
   - managementId: image.world.isloon.grass-mud-frame-v1
     path: ../slime-assets/assets/tiles/terrain/grass/isloon/grass-mud-frame-v1.png
   - managementId: image.world.stonewarm.stone-roof-v1
-    path: ../slime-assets/assets/tiles/buildings/roof/stonewarm/stone-roof-v1.png
+    path: ../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png
   - managementId: image.character.default.walk.imagegen-v2
     path: ../slime-assets/assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.png
   - managementId: image.frontend.src.assets.terrain.grass-v4.png
     path: ../slime-assets/assets/tiles/terrain/grass/grass-v4.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.marble-large-window-wall-v1.png
-    path: ../slime-assets/assets/tiles/buildings/wall/isloon/marble-large-window-wall-v1.png
+    path: ../slime-assets/assets/tiles/buildings/marble/marble-large-window-wall-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.marble-plain-wall-v1.png
-    path: ../slime-assets/assets/tiles/buildings/wall/isloon/marble-plain-wall-v1.png
+    path: ../slime-assets/assets/tiles/buildings/marble/marble-plain-wall-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.marble-small-door-v1.png
-    path: ../slime-assets/assets/tiles/buildings/door/isloon/marble-small-door-v1.png
+    path: ../slime-assets/assets/tiles/buildings/marble/marble-small-door-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.marble-small-window-wall-v1.png
-    path: ../slime-assets/assets/tiles/buildings/wall/isloon/marble-small-window-wall-v1.png
+    path: ../slime-assets/assets/tiles/buildings/marble/marble-small-window-wall-v1.png
   - managementId: image.frontend.src.assets.world.isloon.terrain.limestone-floor-type-a-v1.png
     path: ../slime-assets/assets/tiles/terrain/limestone/isloon/limestone-floor-type-a-v1.png
   - managementId: image.frontend.src.assets.world.stonewarm.buildings.stone-wall-crossbar-v1.png
-    path: ../slime-assets/assets/tiles/buildings/wall/common/stone-wall-crossbar-v1.png
+    path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
   - managementId: image.frontend.src.assets.world.stonewarm.terrain.exposed-rock-ground-v1.png
     path: ../slime-assets/assets/tiles/terrain/rock/stonewarm/exposed-rock-ground-v1.png
   - managementId: image.frontend.src.assets.world.stonewarm.buildings.red-stone-roof-v2.png
-    path: ../slime-assets/assets/tiles/buildings/roof/common/red-stone-roof-v2.png
+    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v2.png
   - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
-    path: ../slime-assets/assets/tiles/buildings/wall/common/wood-wall-v2.png
+    path: ../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png
   - managementId: tile.buildings.roof.wood
-    path: ../slime-assets/assets/tiles/buildings/roof/common/wood-roof-v3.png
+    path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v3.png

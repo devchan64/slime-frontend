@@ -78,13 +78,13 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
 const REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS = 1200;
-const FIELD_CAMERA_FOLLOW_MINIMUM_DISTANCE = 0.01;
 export class MainScene extends Phaser.Scene {
   private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
   private receivedStateTimestamp = 0;
   private state: State | null = null;
   private useDefaultTileScale = false;
   private fieldMotion = new FieldMotion();
+  private fieldCameraFollowPending = false;
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
   private restRecoveryEffects: {graphics:Phaser.GameObjects.Graphics;x:number;y:number;height:number;depth:number}[] = [];
@@ -107,6 +107,8 @@ export class MainScene extends Phaser.Scene {
     ];
     this.fieldMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,
       actors.map(a=>({...a,point:this.calculateActorPlacement(a.cell,a.appearance)})),performance.now());
+    if (!s.battle && this.fieldMotion.isMovementActive(`member:${s.me.id}`, performance.now()))
+      this.fieldCameraFollowPending = true;
   }
   private fieldIdleAction = new FieldIdleAction();
   private animateFieldActors() {
@@ -129,7 +131,8 @@ export class MainScene extends Phaser.Scene {
         updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementActive);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
-      item.object.setDepth(item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0));
+      const currentActorDepth = item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0);
+      if (item.object.depth !== currentActorDepth) item.object.setDepth(currentActorDepth);
     }
   }
   private selected: Position | null = null;
@@ -176,6 +179,7 @@ export class MainScene extends Phaser.Scene {
   create() {
     this.buildingLayerSignature = "";
     this.buildingLayerObjects.clear();
+    this.fieldCameraFollowPending = false;
     if (this.loadFailed) return;
     this.fieldIdleAction.resetIdleAction(performance.now());
     const resetFieldIdleAction = () => this.fieldIdleAction.resetIdleAction(performance.now());
@@ -349,10 +353,10 @@ export class MainScene extends Phaser.Scene {
       + SAFE_BARRIER_PULSE.opacityRange * (1 + Math.sin(this.time.now * Math.PI * 2 / SAFE_BARRIER_PULSE.cycleMilliseconds)) / 2;
     for (const safeBarrierGraphic of this.safeBarrierGraphics) safeBarrierGraphic.setAlpha(safeBarrierOpacity);
     if (this.backdropLayer?.visible) constrainBackdropCamera(this.backdropLayer, this.cameras.main);
+    this.followMovingFieldCharacter();
     this.syncTerrainViewport();
     this.syncActorViewport();
     this.animateFieldActors();
-    this.followMovingFieldCharacter();
     this.animateRestRecoveryEffects();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
@@ -610,9 +614,15 @@ export class MainScene extends Phaser.Scene {
   /** 필드에서 자기 캐릭터의 보간 이동 구간에만 카메라를 함께 이동한다. */
   private followMovingFieldCharacter() {
     const currentGameState = this.state;
-    if (!currentGameState || !currentGameState.me || currentGameState.battle || this.panStart) return;
-    const currentMotionOffset = this.fieldMotion.offset(`member:${currentGameState.me.id}`, performance.now());
-    if (Math.hypot(currentMotionOffset.x, currentMotionOffset.y) < FIELD_CAMERA_FOLLOW_MINIMUM_DISTANCE) return;
+    if (!currentGameState || !currentGameState.me || currentGameState.battle || this.panStart) {
+      this.fieldCameraFollowPending = false;
+      return;
+    }
+    const currentRenderTimestamp = performance.now();
+    const currentMovementActive = this.fieldMotion.isMovementActive(`member:${currentGameState.me.id}`, currentRenderTimestamp);
+    if (!currentMovementActive && !this.fieldCameraFollowPending) return;
+    const currentMotionOffset = this.fieldMotion.offset(`member:${currentGameState.me.id}`, currentRenderTimestamp);
+    this.fieldCameraFollowPending = currentMovementActive;
     const currentCharacterPoint = this.calculateActorPlacement(currentGameState.me.position);
     this.cameras.main.centerOn(
       currentCharacterPoint.x + currentMotionOffset.x,
