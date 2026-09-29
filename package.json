@@ -10,7 +10,10 @@
     "check:i18n": "node scripts/check-locales.mjs",
     "check:images": "node scripts/check-images.mjs",
     "build:review": "bash scripts/build_ui_review.sh",
-    "check:map-assets": "node scripts/check-map-assets.mjs"
+    "check:map-assets": "node scripts/prepare-map-assets.mjs --check && node scripts/check-map-assets.mjs",
+    "prepare:map-assets": "node scripts/prepare-map-assets.mjs",
+    "predev": "npm run prepare:map-assets",
+    "prebuild": "npm run prepare:map-assets"
   },
   "dependencies": {
     "phaser": "^3.90.0",
