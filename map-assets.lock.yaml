@@ -124,15 +124,6 @@ files:
 - path: src/assets/world/isloon/buildings/wood-door-v1.source.json
   source_path: assets/tiles/buildings/door/isloon/wood-door-v1.source.json
   sha256: 1d2751d7f06b08c514d96d5cef5e335e4b6332db277494382ec5a36062bcad47
-- path: src/assets/world/isloon/buildings/wood-large-window-wall-v1.png
-  source_path: assets/tiles/buildings/wall/isloon/wood-large-window-wall-v1.png
-  sha256: 1b30db90893f4504bbca06e0f9c729992e0967acf3f54766a0a382c19e0918cb
-- path: src/assets/world/isloon/buildings/wood-plain-wall-v1.png
-  source_path: assets/tiles/buildings/wall/isloon/wood-plain-wall-v1.png
-  sha256: 52a9d30122b823392d571f5d18a9602ce6ae6bcf2b80760dbd27c8a2b6cca706
-- path: src/assets/world/isloon/buildings/wood-plain-wall-v1.source.json
-  source_path: assets/tiles/buildings/wall/isloon/wood-plain-wall-v1.source.json
-  sha256: 42236e583c91b89513ea637634c2517fcac515a5ea3e37fcea8cac73b59242a9
 - path: src/assets/world/isloon/buildings/wood-roof-v1.png
   source_path: assets/tiles/buildings/roof/isloon/wood-roof-v1.png
   sha256: 38ef6614ae9d3fe63b58fb006e5c7576797f2dd16570f0c4e03ba89df8322f08
@@ -142,15 +133,6 @@ files:
 - path: src/assets/world/isloon/buildings/wood-roof-v2.source.json
   source_path: assets/tiles/buildings/roof/isloon/wood-roof-v2.source.json
   sha256: 57962016b33fa33a5865a0f5a48215c8615a49eb06f3bfa5e95028fb1d5b517a
-- path: src/assets/world/isloon/buildings/wood-small-window-wall-v1.png
-  source_path: assets/tiles/buildings/wall/isloon/wood-small-window-wall-v1.png
-  sha256: a0adadb8ee1eb3a84cefdf60b4b86a7cc679632d38698169d2e55ee2af6232ac
-- path: src/assets/world/isloon/buildings/wood-wall-crossbar-v1.png
-  source_path: assets/tiles/buildings/wall/isloon/wood-wall-crossbar-v1.png
-  sha256: 70bf751e370585a34143dd9ac774932be56cfacec23896c39da50d3b536c4dab
-- path: src/assets/world/isloon/buildings/wood-wall-crossbar-v1.source.json
-  source_path: assets/tiles/buildings/wall/isloon/wood-wall-crossbar-v1.source.json
-  sha256: 4f7525613e571a3383bb8e701525429e8e9527ed157c3f7b5ae536dbb167c554
 - path: src/assets/world/isloon/buildings/workshop-door-v2.png
   source_path: assets/tiles/buildings/door/isloon/workshop-door-v2.png
   sha256: 31e884f90e67d4b48f406b5d52195c0161a21a83f18d83ce50c42f56c1473946
@@ -214,3 +196,6 @@ files:
 - path: src/assets/world/stonewarm/buildings/red-stone-roof-v2.png
   source_path: assets/tiles/buildings/roof/common/red-stone-roof-v2.png
   sha256: 44e70c213ff5b69af96035971f9033856473a01832d688f9d341e5d620b9ffe3
+- path: src/assets/world/common/buildings/wood-wall-v2.png
+  source_path: assets/tiles/buildings/wall/common/wood-wall-v2.png
+  sha256: a769af976e198aa8f1d07429e52d8beb7bb328dbce6e8f59f22c8892c5c5eee9

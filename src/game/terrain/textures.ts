@@ -1,3 +1,4 @@
+import unifiedWoodWallSource from "../../assets/world/common/buildings/wood-wall-v2.png";
 import stonewarmRoofImageSource from "../../assets/world/stonewarm/buildings/stone-roof-v1.png";
 import stonewarmGuildRoofSource from "../../assets/world/stonewarm/buildings/red-stone-roof-v2.png";
 import extendedAshSource from "../../assets/terrain/extension-v1/ash-128.webp";
@@ -24,6 +25,7 @@ import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { GAME_TILE_SOURCE_SIZE } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
+export const UNIFIED_WOOD_WALL_TEXTURE = "unified-wood-wall-v2";
 export const STONEWARM_ROOF_TEXTURE = "stonewarm-stone-roof";
 export const STONEWARM_GUILD_ROOF_TEXTURE = "stonewarm-guild-red-stone-roof-v2";
 export const TERRAIN_ATLAS = "meadow-terrain";
@@ -80,6 +82,7 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 }
 
 export function preloadTerrain(scene: Phaser.Scene) {
+  scene.load.image(UNIFIED_WOOD_WALL_TEXTURE, unifiedWoodWallSource);
   scene.load.image(STONEWARM_GUILD_ROOF_TEXTURE, stonewarmGuildRoofSource);
   scene.load.image(STONEWARM_ROOF_TEXTURE, stonewarmRoofImageSource);
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);

@@ -1,4 +1,4 @@
-import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE} from "./textures";
+import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE} from "./textures";
 import {buildBlockSurfaceFaces} from './blockGeometry';
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
@@ -47,6 +47,37 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
   for(const currentProjectedFace of currentVisibleFaces) {
     currentBuildingGraphic.fillStyle(currentProjectedFace.surface.material==='roof'?CITY_BUILDING_STYLE.roofColors[currentCityBuilding.facilityKind]:CITY_BUILDING_STYLE.wallLight,1).fillPoints(currentProjectedFace.points,true);
     currentBuildingGraphic.lineStyle(1,CITY_BUILDING_STYLE.outlineColor,.35).strokePoints(currentProjectedFace.points,true);
+  }
+  const usesUnifiedWoodWall=currentCityBuilding.id.startsWith('reedhaven-')||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
+  if (usesUnifiedWoodWall) {
+    const wallSourceImage=currentMapScene.textures.get(UNIFIED_WOOD_WALL_TEXTURE).getSourceImage() as HTMLImageElement;
+    for (const currentWallFace of currentVisibleFaces.filter(currentFaceRecord=>!currentFaceRecord.surface.top)) {
+      const wallMinimumScreenX=Math.floor(Math.min(...currentWallFace.points.map(currentPointValue=>currentPointValue.x)));
+      const wallMinimumScreenY=Math.floor(Math.min(...currentWallFace.points.map(currentPointValue=>currentPointValue.y)));
+      const wallCanvasPixelWidth=Math.ceil(Math.max(...currentWallFace.points.map(currentPointValue=>currentPointValue.x)))-wallMinimumScreenX;
+      const wallCanvasPixelHeight=Math.ceil(Math.max(...currentWallFace.points.map(currentPointValue=>currentPointValue.y)))-wallMinimumScreenY;
+      const wallTextureUniqueIdentifier=Phaser.Utils.String.UUID();
+      const wallCanvasTexture=currentMapScene.textures.createCanvas(wallTextureUniqueIdentifier,wallCanvasPixelWidth,wallCanvasPixelHeight);
+      if(!wallCanvasTexture)throw new Error('나무 벽 캔버스 생성 실패');
+      const wallDrawingContext=wallCanvasTexture.getContext();
+      const wallVertexRecords=currentWallFace.surface.vertices;
+      const wallColumnVaries=wallVertexRecords.some(currentVertexPoint=>currentVertexPoint.column!==wallVertexRecords[0].column);
+      const wallMinimumHorizontal=Math.min(...wallVertexRecords.map(currentVertexPoint=>wallColumnVaries?currentVertexPoint.column:currentVertexPoint.row));
+      const wallMaximumHorizontal=Math.max(...wallVertexRecords.map(currentVertexPoint=>wallColumnVaries?currentVertexPoint.column:currentVertexPoint.row));
+      const wallMinimumHeight=Math.min(...wallVertexRecords.map(currentVertexPoint=>currentVertexPoint.height));
+      const wallMaximumHeight=Math.max(...wallVertexRecords.map(currentVertexPoint=>currentVertexPoint.height));
+      const wallOriginPosition={column:currentCityBuilding.origin.column+(wallColumnVaries?wallMinimumHorizontal:wallVertexRecords[0].column),row:currentCityBuilding.origin.row+(wallColumnVaries?wallVertexRecords[0].row:wallMinimumHorizontal)};
+      const wallOriginScreenPoint=projectTerrainPosition(wallOriginPosition);
+      const wallEndScreenPoint=projectTerrainPosition({column:wallOriginPosition.column+(wallColumnVaries?wallMaximumHorizontal-wallMinimumHorizontal:0),row:wallOriginPosition.row+(wallColumnVaries?0:wallMaximumHorizontal-wallMinimumHorizontal)});
+      wallDrawingContext.beginPath();
+      currentWallFace.points.forEach((currentPointValue,currentPointIndex)=>{if(currentPointIndex===0)wallDrawingContext.moveTo(currentPointValue.x-wallMinimumScreenX,currentPointValue.y-wallMinimumScreenY);else wallDrawingContext.lineTo(currentPointValue.x-wallMinimumScreenX,currentPointValue.y-wallMinimumScreenY);});
+      wallDrawingContext.closePath();
+      wallDrawingContext.clip();
+      wallDrawingContext.transform((wallEndScreenPoint.x-wallOriginScreenPoint.x)/wallSourceImage.width,(wallEndScreenPoint.y-wallOriginScreenPoint.y)/wallSourceImage.width,0,(wallMaximumHeight-wallMinimumHeight)/wallSourceImage.height,wallOriginScreenPoint.x-wallMinimumScreenX,wallOriginScreenPoint.y-wallMaximumHeight-wallMinimumScreenY);
+      wallDrawingContext.drawImage(wallSourceImage,0,0);
+      wallCanvasTexture.refresh();
+      currentMapScene.add.image(wallMinimumScreenX,wallMinimumScreenY,wallTextureUniqueIdentifier).setOrigin(0).setDepth(currentBuildingDepth+0.01).once('destroy',()=>currentMapScene.textures.remove(wallTextureUniqueIdentifier));
+    }
   }
   if (currentCityBuilding.id.startsWith('stonewarm-')) {
     const roofSurfaceFaces=currentVisibleFaces.filter(currentFaceRecord=>currentFaceRecord.surface.material==='roof'&&currentFaceRecord.surface.top);
