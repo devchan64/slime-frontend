@@ -4,6 +4,7 @@ set -Eeuo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/script_logging.sh"
 cd "$SCRIPT_LOG_ROOT"
 npm run prepare:map-assets
+npm run prepare:sprite-assets
 export UI_REVIEW_SOURCE_COMMIT="$(git rev-parse HEAD)"
 if [[ -n "$(git status --porcelain)" ]]; then
   export UI_REVIEW_SOURCE_DIRTY=true

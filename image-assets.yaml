@@ -132,10 +132,6 @@ data:
     path: src/assets/characters/default/walk-v1/approved-frames/walk-up-left-07-anypose-imagegen-v1.png
   - managementId: image.character.default.walk.up-left.frame-08.anypose-imagegen-v1
     path: src/assets/characters/default/walk-v1/approved-frames/walk-up-left-08-anypose-imagegen-v1.png
-  - managementId: image.character.default.walk.packed-down-v3
-    path: src/assets/characters/default/walk-v1/walk-down.png
-  - managementId: image.character.default.walk.packed-up-v3
-    path: src/assets/characters/default/walk-v1/walk-up.png
   - managementId: image.world.isloon.marble-roof-v2
     path: src/assets/world/isloon/buildings/marble-roof-v2.png
   - managementId: image.character.default.idle-v6.sheet
