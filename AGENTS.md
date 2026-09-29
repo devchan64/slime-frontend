@@ -118,6 +118,7 @@
 - API 요청·응답, DB 저장 표현, 도구·표준이 요구하는 JSON 파일과 생성 산출물은 해당 계약을 유지한다. 예: `package.json`, `tsconfig.json`, glTF 및 에셋 sidecar.
 - 기존 파일은 관련 작업에서 소비 코드·검증·배포 구성을 함께 변경할 때 전환하며, 확장자만 일괄 변경하지 않는다.
 ## Asset Generation and Output Ownership
+- 맵 타일(`src/assets/terrain`, `src/assets/world`)의 관리 원본은 `slime-assets/assets/tiles`에 둔다. 프론트엔드 경로는 `map-assets.lock.yaml`의 SHA-256으로 고정한 전달 사본이며 직접 편집하지 않는다. 아래 일반 에셋 소유 규칙보다 이 규칙을 우선한다.
 - `slime-workflow`는 에셋 생성 방식·모델 준비·제작 노드·파이프라인·검증·export를 관리한다.
 - 최종 전달 이미지·프레임·시트 등 에셋의 관리 원본은 `slime-frontend`에 둔다. 에셋 보관과 게임 런타임 채택은 구분한다.
 - 생성 과정의 중간 결과물(관절 모션·SMPL 피팅 결과·Depth·마스크·보정 전 프레임 등)은 `slime-workflow`에 보관한다. 실행별 경로와 출처를 유지하고 최종 전달 에셋과 구분한다.

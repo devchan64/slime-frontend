@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run check:images && npm run check:i18n && tsc -b && vite build",
+    "build": "npm run check:map-assets && npm run check:images && npm run check:i18n && tsc -b && vite build",
     "preview": "vite preview",
     "check:i18n": "node scripts/check-locales.mjs",
     "check:images": "node scripts/check-images.mjs",
-    "build:review": "bash scripts/build_ui_review.sh"
+    "build:review": "bash scripts/build_ui_review.sh",
+    "check:map-assets": "node scripts/check-map-assets.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",
