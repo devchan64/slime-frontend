@@ -30,52 +30,18 @@ data:
     path: src/assets/monsters/slime-v1.png
   - managementId: image.frontend.src.assets.monsters.slime-v2.png
     path: src/assets/monsters/slime-v2.png
-  - managementId: image.frontend.src.assets.terrain.dew-v2.png
-    path: src/assets/terrain/dew-v2.png
-  - managementId: image.frontend.src.assets.terrain.dew-v3.png
-    path: src/assets/terrain/dew-v3.png
   - managementId: image.frontend.src.assets.terrain.dew-v3.webp
     path: src/assets/terrain/dew-v3.webp
-  - managementId: image.frontend.src.assets.terrain.dew.webp
-    path: src/assets/terrain/dew.webp
-  - managementId: image.frontend.src.assets.terrain.flowers-v2.png
-    path: src/assets/terrain/flowers-v2.png
-  - managementId: image.frontend.src.assets.terrain.flowers-v2.webp
-    path: src/assets/terrain/flowers-v2.webp
   - managementId: image.frontend.src.assets.terrain.flowers-v3.png
     path: src/assets/terrain/flowers-v3.png
   - managementId: image.frontend.src.assets.terrain.flowers-v3.webp
     path: src/assets/terrain/flowers-v3.webp
-  - managementId: image.frontend.src.assets.terrain.flowers.webp
-    path: src/assets/terrain/flowers.webp
-  - managementId: image.frontend.src.assets.terrain.grass-v2.png
-    path: src/assets/terrain/grass-v2.png
-  - managementId: image.frontend.src.assets.terrain.grass-v2.webp
-    path: src/assets/terrain/grass-v2.webp
   - managementId: image.frontend.src.assets.terrain.grass-v3.png
     path: src/assets/terrain/grass-v3.png
-  - managementId: image.frontend.src.assets.terrain.grass-v3.webp
-    path: src/assets/terrain/grass-v3.webp
-  - managementId: image.frontend.src.assets.terrain.grass.webp
-    path: src/assets/terrain/grass.webp
-  - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.png
-    path: src/assets/terrain/meadow-backdrop-v2.png
   - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
     path: src/assets/terrain/meadow-backdrop-v2.webp
-  - managementId: image.frontend.src.assets.terrain.meadow-backdrop.webp
-    path: src/assets/terrain/meadow-backdrop.webp
-  - managementId: image.frontend.src.assets.terrain.road-v2.png
-    path: src/assets/terrain/road-v2.png
-  - managementId: image.frontend.src.assets.terrain.road-v2.webp
-    path: src/assets/terrain/road-v2.webp
-  - managementId: image.frontend.src.assets.terrain.road-v3.png
-    path: src/assets/terrain/road-v3.png
   - managementId: image.frontend.src.assets.terrain.road-v3.webp
     path: src/assets/terrain/road-v3.webp
-  - managementId: image.frontend.src.assets.terrain.road.webp
-    path: src/assets/terrain/road.webp
-  - managementId: image.frontend.src.assets.terrain.water-v2.webp
-    path: src/assets/terrain/water-v2.webp
   - managementId: image.frontend.src.assets.terrain.water-v3.png
     path: src/assets/terrain/water-v3.png
   - managementId: image.frontend.src.assets.terrain.water-v3.webp
@@ -120,8 +86,6 @@ data:
     path: src/assets/terrain/extension-v1/moss-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.mud-128.webp
     path: src/assets/terrain/extension-v1/mud-128.webp
-  - managementId: image.frontend.src.assets.terrain.extension-v1.paving-128.webp
-    path: src/assets/terrain/extension-v1/paving-128.webp
   - managementId: image.frontend.src.assets.world.isloon.terrain.paving-v1.png
     path: src/assets/world/isloon/terrain/paving-v1.png
   - managementId: image.world.reedhaven.dirt-road-v1
@@ -130,10 +94,6 @@ data:
     path: src/assets/world/stonewarm/terrain/gravel-paving-v1.png
   - managementId: image.world.stonewarm.marble-paving-v1
     path: src/assets/world/stonewarm/terrain/marble-paving-v1.png
-  - managementId: image.world.stonewarm.marble-paving-b-v1
-    path: src/assets/world/stonewarm/terrain/marble-paving-b-v1.png
-  - managementId: image.world.stonewarm.marble-paving-c-v1
-    path: src/assets/world/stonewarm/terrain/marble-paving-c-v1.png
   - managementId: image.world.stonewarm.stone-wall-v1
     path: src/assets/world/stonewarm/buildings/stone-wall-v1.png
   - managementId: image.world.stonewarm.stone-small-window-wall-v1
