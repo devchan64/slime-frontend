@@ -1,4 +1,4 @@
-import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE} from "./textures";
+import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE} from "./textures";
 import {buildBlockSurfaceFaces} from './blockGeometry';
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
@@ -50,7 +50,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
   }
   const usesUnifiedWoodWall=currentCityBuilding.id.startsWith('reedhaven-')||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
   if (usesUnifiedWoodWall) {
-    const wallSourceImage=currentMapScene.textures.get(UNIFIED_WOOD_WALL_TEXTURE).getSourceImage() as HTMLImageElement;
+    const woodRoofBaseHeight=Math.min(...currentSurfaceFaces.filter(currentFaceRecord=>currentFaceRecord.material==='roof').flatMap(currentFaceRecord=>currentFaceRecord.vertices.map(currentVertexPoint=>currentVertexPoint.height)));
     for (const currentWallFace of currentVisibleFaces.filter(currentFaceRecord=>!currentFaceRecord.surface.top)) {
       const wallMinimumScreenX=Math.floor(Math.min(...currentWallFace.points.map(currentPointValue=>currentPointValue.x)));
       const wallMinimumScreenY=Math.floor(Math.min(...currentWallFace.points.map(currentPointValue=>currentPointValue.y)));
@@ -66,6 +66,10 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       const wallMaximumHorizontal=Math.max(...wallVertexRecords.map(currentVertexPoint=>wallColumnVaries?currentVertexPoint.column:currentVertexPoint.row));
       const wallMinimumHeight=Math.min(...wallVertexRecords.map(currentVertexPoint=>currentVertexPoint.height));
       const wallMaximumHeight=Math.max(...wallVertexRecords.map(currentVertexPoint=>currentVertexPoint.height));
+      const wallHorizontalIndex=Math.floor(wallMinimumHorizontal+CITY_HALF_TILE);
+      const wallUsesWindowTexture=wallMinimumHeight<woodRoofBaseHeight&&wallHorizontalIndex%2!==0;
+      const wallSelectedTexture=wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
+      const wallSourceImage=currentMapScene.textures.get(wallSelectedTexture).getSourceImage() as HTMLImageElement;
       const wallOriginPosition={column:currentCityBuilding.origin.column+(wallColumnVaries?wallMinimumHorizontal:wallVertexRecords[0].column),row:currentCityBuilding.origin.row+(wallColumnVaries?wallVertexRecords[0].row:wallMinimumHorizontal)};
       const wallOriginScreenPoint=projectTerrainPosition(wallOriginPosition);
       const wallEndScreenPoint=projectTerrainPosition({column:wallOriginPosition.column+(wallColumnVaries?wallMaximumHorizontal-wallMinimumHorizontal:0),row:wallOriginPosition.row+(wallColumnVaries?0:wallMaximumHorizontal-wallMinimumHorizontal)});
