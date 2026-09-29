@@ -9,7 +9,7 @@ test('서버 인접 이동의 몸체·발밑·높이·깊이는 같은 보간 �
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);
  motion.sync('field',[actor(3,164)],10);
  assert.deepEqual(motion.offset('slime',10),{x:-64,y:-32,depth:-10});
- assert.deepEqual(motion.offset('slime',100),{x:-32,y:-16,depth:-5});
+ assert.deepEqual(motion.offset('slime',100),{x:-16,y:-8,depth:-2.5});
  assert.deepEqual(motion.offset('slime',190),{x:0,y:0,depth:0});
 });
 test('중복 상태와 선택 화면 재조회는 이동을 다시 시작하지 않는다',()=>{
@@ -21,7 +21,7 @@ test('연속 확정 이동은 현재 화면 위치에서 이어지고 서버 좌
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(3,164)],10);
  const next=actor(4,228),original=structuredClone(next);
  motion.sync('field',[next],100);
- assert.equal(motion.offset('slime',100).x+next.point.x,132);
+ assert.equal(motion.offset('slime',100).x+next.point.x,148);
  assert.deepEqual(next,original);
  assert.equal(motion.offset('slime',280).x,0);
 });

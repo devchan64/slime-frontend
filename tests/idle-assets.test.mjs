@@ -44,7 +44,7 @@ test('첫 프레임이 이미 선택되어 있어도 발 기준점을 적용한�
  assert.equal(renderedCharacterImage.originY,initialIdleFrame.anchor.y/initialIdleFrame.rect.height);
 });
 
-test('단일 대기 시트는 한 번 로드하고 방향 전환 시 해당 행을 사용한다',()=>{
+test('정면왼쪽 대기 시트는 한 번 로드하고 8fps로 재생한다',()=>{
  assert.equal(ACTOR_IDLE_TEXTURES.length,12);
  assert.equal(new Set(ACTOR_IDLE_TEXTURES.map(currentAssetRecord=>currentAssetRecord.key)).size,12);
  const renderedCharacterImage={scene:{time:{now:0}},frame:{name:''},originX:0,originY:0,
@@ -57,37 +57,18 @@ test('단일 대기 시트는 한 번 로드하고 방향 전환 시 해당 행�
    renderedCharacterImage.scene.time.now=currentFrameTime;
    updateActorIdleFrame(renderedCharacterImage,currentDirectionName);
    assert.equal(renderedCharacterImage.textureKey,currentDirectionAsset.key);
-   assert.match(renderedCharacterImage.frame.name,new RegExp(`${currentDirectionName}\\.${(currentFrameTime/250)%4}$`));
+   assert.match(renderedCharacterImage.frame.name,new RegExp(`${currentDirectionName}\\.${(currentFrameTime/125)%4}$`));
   }
  }
  assert.throws(()=>resolveActorIdleAsset('human','invalid'));
 });
-test('교체된 대기 에셋은 16프레임과 셀 내부 앵커·출처를 갖는다',()=>{
- const currentSourceMetadata=JSON.parse(readFileSync('../slime-assets/assets/sprites/characters/default/idle-v6/source.json','utf8'));
- assert.equal(currentSourceMetadata.generationId,'2026-09-27_21-49-33');
- assert.equal(currentSourceMetadata.gameBodyHeight,80);
- assert.equal(ACTOR_IDLE_ASSETS.human.animation.data.frames.length,16);
- for(const currentFrameRecord of ACTOR_IDLE_ASSETS.human.animation.data.frames){
-  assert.ok(currentFrameRecord.anchor.x>=0&&currentFrameRecord.anchor.x<384);
-  assert.ok(currentFrameRecord.anchor.y>=0&&currentFrameRecord.anchor.y<384);
-  assert.ok(currentSourceMetadata.frames.some(currentSourceFrame=>currentSourceFrame.frameId===currentFrameRecord.frameId));
- }
- assert.equal(existsSync('assets/characters/default/standing-v5'),false);
-});
-
-test('4×4 시트는 방향별 행과 1·5·9·13번 열 순서를 유지한다',()=>{
+test('정면왼쪽 대기 4프레임은 한 행과 기존 셀 크기를 유지한다',()=>{
  const currentAnimationData=ACTOR_IDLE_ASSETS.human.animation.data;
- const currentSourceMetadata=JSON.parse(readFileSync('../slime-assets/assets/sprites/characters/default/idle-v6/source.json','utf8'));
- const expectedDirectionOrder=['down_left','down_right','up_left','up_right'];
- const expectedSourceFrames=[1,5,9,13];
- assert.deepEqual(currentAnimationData.sheet,{width:1536,height:1536});
- assert.equal(new Set(Object.values(DEFAULT_IDLE_DIRECTION_ASSETS).map(currentAssetRecord=>currentAssetRecord.url)).size,1);
- for(const [directionRowIndex,directionKeyName] of expectedDirectionOrder.entries()){
-  for(const [frameColumnIndex,sourceFrameNumber] of expectedSourceFrames.entries()){
-   const currentFrameIdentifier=`${directionKeyName}.${frameColumnIndex}`;
-   const currentFrameRecord=currentAnimationData.frames.find(currentFrameValue=>currentFrameValue.frameId===currentFrameIdentifier);
-   assert.deepEqual(currentFrameRecord.rect,{x:frameColumnIndex*384,y:directionRowIndex*384,width:384,height:384});
-   assert.equal(currentSourceMetadata.frames.find(currentSourceFrame=>currentSourceFrame.frameId===currentFrameIdentifier).sourceFrame,sourceFrameNumber);
-  }
- }
+ assert.equal(currentAnimationData.frames.length,4);
+ assert.deepEqual(currentAnimationData.sheet,{width:1536,height:384});
+ assert.deepEqual(Object.keys(DEFAULT_IDLE_DIRECTION_ASSETS),['down_left']);
+ currentAnimationData.frames.forEach((currentFrameRecord,frameColumnIndex)=>{
+  assert.equal(currentFrameRecord.frameId,`down_left.${frameColumnIndex}`);
+  assert.deepEqual(currentFrameRecord.rect,{x:frameColumnIndex*384,y:0,width:384,height:384});
+ });
 });

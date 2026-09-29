@@ -2,19 +2,12 @@ import type {MapRotation} from '../terrain/rotation';
 import type {Direction} from './cellAnimation';
 
 export type WorldFacing = 'column_positive' | 'column_negative' | 'row_positive' | 'row_negative';
-const VECTORS: Record<WorldFacing, readonly [number,number]> = {
-  column_positive: [1,0], column_negative: [-1,0], row_positive: [0,1], row_negative: [0,-1],
-};
-const SCREEN: Record<WorldFacing,Direction> = {
-  column_positive: 'down_right', column_negative: 'up_left', row_positive: 'down_left', row_negative: 'up_right',
-};
+export const BOARD_ACTOR_SCREEN_DIRECTION: Direction = 'down_left';
+const SUPPORTED_WORLD_FACINGS: readonly WorldFacing[] = ['column_positive', 'column_negative', 'row_positive', 'row_negative'];
 
-/** 저장된 논리 방향은 바꾸지 않고 현재 맵 회전에 따른 시트 방향을 선택한다. */
-export function screenFacing(facing: WorldFacing, rotation: MapRotation): Direction {
-  if (typeof facing !== 'string' || !Object.hasOwn(VECTORS,facing)) throw new Error('지원하지 않는 전투 논리 방향입니다.');
-  if (!Number.isInteger(rotation) || rotation < 0 || rotation > 3) throw new Error('지원하지 않는 맵 회전입니다.');
-  const [column,row] = VECTORS[facing];
-  const [c,r] = rotation === 0 ? [column,row] : rotation === 1 ? [-row,column]
-    : rotation === 2 ? [-column,-row] : [row,-column];
-  return SCREEN[c > 0 ? 'column_positive' : c < 0 ? 'column_negative' : r > 0 ? 'row_positive' : 'row_negative'];
+/** 논리 방향을 검증하되 맵 위 개체는 항상 정면왼쪽 클립을 사용한다. */
+export function screenFacing(actorWorldFacing: WorldFacing, currentMapRotation: MapRotation): Direction {
+  if (!SUPPORTED_WORLD_FACINGS.includes(actorWorldFacing)) throw new Error('지원하지 않는 전투 논리 방향입니다.');
+  if (!Number.isInteger(currentMapRotation) || currentMapRotation < 0 || currentMapRotation > 3) throw new Error('지원하지 않는 맵 회전입니다.');
+  return BOARD_ACTOR_SCREEN_DIRECTION;
 }

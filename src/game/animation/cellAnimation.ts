@@ -72,8 +72,10 @@ export function validateCellAnimation(value: unknown): CellAnimationData {
     clips.set(key, value as CellClip);
   }
   if (used.size !== frames.size) throw new Error('사용하지 않는 프레임이 있습니다.');
-  for (const action of actions) for (const direction of DIRECTIONS)
-    if (!pairs.has(JSON.stringify([action, direction]))) throw new Error('모든 동작에 네 방향 클립이 필요합니다.');
+  const selectedClipDirections = new Set([...clips.values()].map(currentClipRecord => currentClipRecord.direction));
+  if (!(selectedClipDirections.size === 1 && selectedClipDirections.has('down_left')) && selectedClipDirections.size !== DIRECTIONS.length) throw new Error('정면왼쪽 단일 방향 또는 네 방향 클립이 필요합니다.');
+  for (const action of actions) for (const direction of selectedClipDirections)
+    if (!pairs.has(JSON.stringify([action, direction]))) throw new Error('모든 동작의 방향 구성이 같아야 합니다.');
   for (const clip of clips.values()) if (clip.nextClipId !== null && clips.get(clip.nextClipId)?.direction !== clip.direction)
     throw new Error('종료 후 클립은 존재하며 같은 방향이어야 합니다.');
   return freeze(structuredClone(value as CellAnimationData));

@@ -1,3 +1,4 @@
+import {calculateTileMovementProgress} from './movementTransition';
 import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
 const STEP_MILLISECONDS = 180;
@@ -80,7 +81,7 @@ export class BattleMotion {
   private sample(track:Track,now:number):Point{
     const progress=Math.max(0,now-track.started)/STEP_MILLISECONDS;
     const index=Math.min(Math.floor(progress),track.points.length-1);
-    const a=track.points[index],b=track.points[Math.min(index+1,track.points.length-1)],t=Math.min(1,progress-index);
+    const a=track.points[index],b=track.points[Math.min(index+1,track.points.length-1)],t=calculateTileMovementProgress(progress-index);
     return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,depth:a.depth+(b.depth-a.depth)*t};
   }
 }

@@ -80,3 +80,13 @@ test('공격 돌진은 걷기로 처리하지 않고 이동 경로의 종료 경
  assert.equal(battleMotionTracker.isMovementActive('hero',379),true);
  assert.equal(battleMotionTracker.isMovementActive('hero',380),false);
 });
+
+test('각 타일 구간은 ease-out으로 감속하고 끝에서 정확히 도착한다',()=>{
+ const battleMotionTracker=new BattleMotion();
+ battleMotionTracker.sync('a',state(start),point,0);
+ battleMotionTracker.sync('a',state(end,[move]),point,10);
+ assert.deepEqual(battleMotionTracker.offset('hero',100),{x:-2.5,y:-10,depth:-1.25});
+ assert.deepEqual(battleMotionTracker.offset('hero',280),{x:0,y:-2.5,depth:-0.25});
+ assert.equal(battleMotionTracker.isMovementActive('hero',369),true);
+ assert.equal(battleMotionTracker.isMovementActive('hero',370),false);
+});

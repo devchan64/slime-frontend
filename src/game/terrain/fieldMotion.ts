@@ -1,3 +1,4 @@
+import {calculateTileMovementProgress} from './movementTransition';
 import type {Position} from '../../client/types';
 const STEP_MILLISECONDS = 180;
 type Point = {x:number;y:number;depth:number};
@@ -37,7 +38,7 @@ export class FieldMotion {
     return {x:at.x-track.point.x,y:at.y-track.point.y,depth:at.depth-track.point.depth};
   }
   private sample(track:Track,now:number):Point {
-    const t=Math.max(0,Math.min(1,(now-track.started)/STEP_MILLISECONDS));
+    const t=calculateTileMovementProgress((now-track.started)/STEP_MILLISECONDS);
     return {x:track.from.x+(track.point.x-track.from.x)*t,
       y:track.from.y+(track.point.y-track.from.y)*t,
       depth:track.from.depth+(track.point.depth-track.from.depth)*t};

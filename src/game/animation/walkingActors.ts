@@ -1,14 +1,15 @@
+import { createBoardActorAnimation } from './boardAnimation';
 import type Phaser from "phaser";
-import { CellAnimation, type Direction } from "./cellAnimation";
+import { type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
 import { updateActorIdleFrame } from "./idleActors";
-import walkingCharacterMetadata from "../../../../slime-assets/assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.animation.json";
+import walkingCharacterMetadata from "../../../../slime-assets/assets/sprites/characters/default/walk-v2/down-left-v1/walk-v2.animation.json";
 
 const WALKING_REFERENCE_BODY_HEIGHT = 352;
 export const DEFAULT_CHARACTER_WALK_ASSET = {
   key: "walking-human-v2",
-  url: new URL("../../../../slime-assets/assets/sprites/characters/default/walk-v2/versions/2026-09-29_23-57-11-7cd2df31/walk-v2.png", import.meta.url).href,
-  animation: new CellAnimation(walkingCharacterMetadata),
+  url: new URL("../../../../slime-assets/assets/sprites/characters/default/walk-v2/down-left-v1/walk-v2.png", import.meta.url).href,
+  animation: createBoardActorAnimation(walkingCharacterMetadata),
 } as const;
 
 /** 이동 중 걷기를 표시하고 정지 시 원래 크기와 대기로 돌아간다. */
