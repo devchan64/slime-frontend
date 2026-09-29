@@ -4,7 +4,6 @@
 
 | 경로 | 내용 | 사용 상태 |
 |---|---|---|
-| `default/baseline/character-default-white-shirt-four-directions-v2.png` | 직접 생성한 2×2 베이스라인 | 현재 제작 외형 참조 |
 | `default/idle-v6/` | 4방향 × 4프레임, 384px 셀의 4×4 대기 시트 1장·반복 메타데이터 | 필드·전투 대기 및 캐릭터 설정·선택 초상화 |
 
 프로토타입 기본 이미지와 런타임 사용 금지였던 걷기 초안은 삭제했다. 구버전 4방향 정지 이미지도 폐기하고 현재 대기 시트를 유지한다.
@@ -18,3 +17,5 @@
 단일 베이스라인은 폐기했다. 애니메이션 외형 참조는 승인된 2×2 베이스라인 시트 전체를 사용한다. 신규 캐릭터는 최대 지원 크기의 2×2 시트로 한 번에 생성한다.
 
 기본 캐릭터 자료는 `default/`에 모은다. `default/rest-v2/`은 휴식, `default/cutins/`는 Action Cut-in이다. 이미지 관리 ID와 애니메이션 ID는 경로 이동으로 변경하지 않는다.
+
+제작용 기준 시트 원본은 `slime-workflow/assets/animation-references/character-default/baseline-source-v2/`에서 관리한다.
