@@ -331,7 +331,8 @@ export function App() {
     });
   async function walk(requestedWalkingDestination: Position | null = selected) {
     if (!state || !requestedWalkingDestination) return;
-    selectField(requestedWalkingDestination);
+    setSelected(requestedWalkingDestination);
+    renderer.current?.scene.selectCell(requestedWalkingDestination);
     const steps = fieldRoute(state.me.position, requestedWalkingDestination, state.map);
     if (!steps) throw new LocalizedError("app.noRouteError");
     const context = fieldActionContext(state);
