@@ -1,3 +1,6 @@
+import giantCutinMetadata from '../assets/monsters/standing-v1/giant-idle-v1.animation.json';
+import beastCutinMetadata from '../assets/monsters/standing-v1/beast-idle-v2.animation.json';
+import slimeCutinMetadata from '../assets/monsters/standing-v1/slime-idle-v1.animation.json';
 import boarCutinMetadata from '../assets/monsters/standing-v1/ridge-boar-idle-v1.animation.json';
 import crabCutinMetadata from '../assets/monsters/standing-v1/stone-crab-idle-v1.animation.json';
 import crawlerCutinMetadata from '../assets/monsters/standing-v1/reed-crawler-idle-v1.animation.json';
@@ -17,9 +20,9 @@ const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
   'lantern-moth': new URL('../assets/monsters/standing-v1/lantern-moth-idle-v1.png', import.meta.url).href,
   'reed-crawler': new URL('../assets/monsters/standing-v1/reed-crawler-idle-v1.png', import.meta.url).href,
   'default-punch': new URL('../assets/characters/default/cutins/default-punch-v1.png', import.meta.url).href,
-  slime: new URL('../assets/monsters/slime-v2.png', import.meta.url).href,
-  beast: new URL('../assets/monsters/beast-v2.png', import.meta.url).href,
-  giant: new URL('../assets/monsters/giant-v2.png', import.meta.url).href,
+  slime: new URL('../assets/monsters/standing-v1/slime-idle-v1.png', import.meta.url).href,
+  beast: new URL('../assets/monsters/standing-v1/beast-idle-v2.png', import.meta.url).href,
+  giant: new URL('../assets/monsters/standing-v1/giant-idle-v1.png', import.meta.url).href,
 };
 const DEFAULT_CHARACTER_IDLE_IMAGE = new URL('../assets/characters/default/idle-v6/idle-v6.png', import.meta.url).href;
 type ActionCutinActorRole = 'attacker' | 'target';
@@ -57,7 +60,9 @@ export function resolveActionCutinAsset(actionCutinAppearanceRecord: ActionCutin
 }
 
 
+// 전용 몬스터 컷인 완성 전에는 대기 애니메이션의 전방 좌측 첫 프레임을 사용한다.
 const REGISTERED_CUTIN_SHEETS: Record<string, typeof rabbitCutinMetadata> = {
+  slime: slimeCutinMetadata, beast: beastCutinMetadata, giant: giantCutinMetadata,
   'ridge-boar': boarCutinMetadata,
   'stone-crab': crabCutinMetadata,
   'field-rabbit': rabbitCutinMetadata, 'lantern-moth': mothCutinMetadata, 'reed-crawler': crawlerCutinMetadata,
