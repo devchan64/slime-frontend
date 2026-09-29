@@ -12,10 +12,6 @@ data:
     path: public/assets/brand/slime-touch-icon-v2.png
   - managementId: image.frontend.public.favicon.ico
     path: public/favicon.ico
-  - managementId: image.frontend.src.assets.login.slime-welcome-v2.png
-    path: src/assets/login/slime-welcome-v2.png
-  - managementId: image.frontend.src.assets.login.slime-welcome-v3.png
-    path: src/assets/login/slime-welcome-v3.png
   - managementId: image.frontend.src.assets.login.slime-welcome-v4.png
     path: src/assets/login/slime-welcome-v4.png
   - managementId: image.frontend.src.assets.monsters.beast-v1.png
