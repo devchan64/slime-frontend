@@ -8,7 +8,7 @@ import unifiedWoodWallSource from "../../../../slime-assets/assets/tiles/buildin
 import stonewarmRoofImageSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png";
 import stonewarmGuildRoofSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v2.png";
 import extendedAshSource from "../../../../slime-assets/assets/tiles/terrain/non-road/ash-128.webp";
-import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/non-road/boulder-128.webp";
+import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-128.webp";
 import extendedGravelSource from "../../../../slime-assets/assets/tiles/terrain/non-road/gravel-128.webp";
 import extendedLeafLitterSource from "../../../../slime-assets/assets/tiles/terrain/non-road/leaf-litter-128.webp";
 import extendedMossSource from "../../../../slime-assets/assets/tiles/terrain/non-road/moss-128.webp";
@@ -19,13 +19,13 @@ import stonewarmGravelPavingSource from "../../../../slime-assets/assets/tiles/t
 import stonewarmMarblePavingSource from "../../../../slime-assets/assets/tiles/terrain/road/marble-paving-v1.png";
 import extendedReedBedSource from "../../../../slime-assets/assets/tiles/terrain/non-road/reed-bed-128.webp";
 import extendedStoneSource from "../../../../slime-assets/assets/tiles/terrain/non-road/stone-128.webp";
-import extendedTreeBaseSource from "../../../../slime-assets/assets/tiles/terrain/non-road/tree-base-128.webp";
-import cliffWallPatternSource from "../../../../slime-assets/assets/tiles/terrain/non-road/dew-meadow-cliff-face-v1.png";
+import extendedTreeBaseSource from "../../../../slime-assets/assets/tiles/terrain/blocked/tree-base-128.webp";
+import cliffWallPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/dew-meadow-cliff-face-v1.png";
 import Phaser from "phaser";
 import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-v4.png";
 import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/dew-v3.webp";
 import road from "../../../../slime-assets/assets/tiles/terrain/road/road-v3.webp";
-import water from "../../../../slime-assets/assets/tiles/terrain/non-road/water-v3.webp";
+import water from "../../../../slime-assets/assets/tiles/terrain/blocked/water-v3.webp";
 import flowers from "../../../../slime-assets/assets/tiles/terrain/non-road/flowers-v3.webp";
 import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { GAME_TILE_SOURCE_SIZE } from "./renderMetrics";

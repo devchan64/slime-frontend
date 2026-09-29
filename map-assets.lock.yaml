@@ -2,7 +2,7 @@ schema_version: 1
 repository: slime-assets
 files:
 - path: assets/terrain/cliffs/dew-meadow-cliff-face-v1.png
-  source_path: assets/tiles/terrain/non-road/dew-meadow-cliff-face-v1.png
+  source_path: assets/tiles/terrain/blocked/dew-meadow-cliff-face-v1.png
   sha256: c3067751642888ccfb8fe8c7ce014107b6ea9fe29f7226a64f4ed1c34b610fb5
 - path: assets/terrain/dew-v3.webp
   source_path: assets/tiles/terrain/non-road/dew-v3.webp
@@ -11,7 +11,7 @@ files:
   source_path: assets/tiles/terrain/non-road/ash-128.webp
   sha256: 74822b6dd6afaf2868848a97942480a50e1c3e6d82ca3864c779986ff5048014
 - path: assets/terrain/extension-v1/boulder-128.webp
-  source_path: assets/tiles/terrain/non-road/boulder-128.webp
+  source_path: assets/tiles/terrain/blocked/boulder-128.webp
   sha256: 65f74c4a6786f7fab068b4ba6980a9d0cedde987ccd149ec36d92a8fc4c44922
 - path: assets/terrain/extension-v1/gravel-128.webp
   source_path: assets/tiles/terrain/non-road/gravel-128.webp
@@ -32,7 +32,7 @@ files:
   source_path: assets/tiles/terrain/non-road/stone-128.webp
   sha256: 99636cb984decb0f25952676cd0a7f5f19f460f1715d8256c0c70c83d761760b
 - path: assets/terrain/extension-v1/tree-base-128.webp
-  source_path: assets/tiles/terrain/non-road/tree-base-128.webp
+  source_path: assets/tiles/terrain/blocked/tree-base-128.webp
   sha256: bc87125e869290fa2cdb035431a62860faa5e203721d228babc589dfa91897d0
 - path: assets/terrain/flowers-v3.png
   source_path: assets/tiles/terrain/non-road/flowers-v3.png
@@ -50,10 +50,10 @@ files:
   source_path: assets/tiles/terrain/road/road-v3.webp
   sha256: d3d5a4f50b68c03a767417aba89349867655069f509fb7acef6f031cfe9e125a
 - path: assets/terrain/water-v3.png
-  source_path: assets/tiles/terrain/non-road/water-v3.png
+  source_path: assets/tiles/terrain/blocked/water-v3.png
   sha256: 14294b9c0d4651fd0eff58e98013acc950fb073c43414b7b5985eecc169a7773
 - path: assets/terrain/water-v3.webp
-  source_path: assets/tiles/terrain/non-road/water-v3.webp
+  source_path: assets/tiles/terrain/blocked/water-v3.webp
   sha256: fce409971bb0dd69502b306d6e9f5627a656ca44a4ccdaf75255daeac54c4f5b
 - path: assets/world/isloon/buildings/marble-large-window-wall-v1.png
   source_path: assets/tiles/buildings/marble/marble-large-window-wall-v1.png
