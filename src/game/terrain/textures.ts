@@ -1,3 +1,4 @@
+import stoneSlabRoadSource from "../../assets/terrain/roads/stone-slab-road-v1.png";
 import packedDirtRoadSource from "../../assets/terrain/roads/packed-dirt-road-v1.png";
 import unifiedWoodRoofSource from "../../assets/world/common/buildings/wood-roof-v3.png";
 import woodCrossbarWallSource from "../../assets/world/common/buildings/wood-crossbar-wall-v1.png";
@@ -59,7 +60,7 @@ const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;
 const FRAME_STRIDE = FRAME_W + FRAME_PADDING * 2;
 const ATLAS_COLUMNS = 8;
-const FRAME_COUNT = SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + ROAD_TILE_COUNT * 3;
+const FRAME_COUNT = SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + ROAD_TILE_COUNT * 4;
 const framePosition = (index: number) => ({ x: (index % ATLAS_COLUMNS) * FRAME_STRIDE + FRAME_PADDING,
   y: Math.floor(index / ATLAS_COLUMNS) * (FRAME_H + FRAME_PADDING * 2) + FRAME_PADDING });
 const ROAD_SHAPE = { inset: TEXTURE_SIZE * .08, radius: TEXTURE_SIZE * .2, half: TEXTURE_SIZE / 2 };
@@ -92,6 +93,7 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 
 export function preloadTerrain(scene: Phaser.Scene) {
   scene.load.image("terrain-source-dirt-road", packedDirtRoadSource);
+  scene.load.image("terrain-source-stone-road", stoneSlabRoadSource);
   scene.load.image(UNIFIED_WOOD_WALL_TEXTURE, unifiedWoodWallSource);
   scene.load.image(UNIFIED_WOOD_ROOF_TEXTURE, unifiedWoodRoofSource);
   scene.load.image(WOOD_WINDOW_WALL_TEXTURE, woodWindowWallSource);
@@ -166,9 +168,9 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     ctx.restore();
     atlas.add(specialSourceRecord.frame, 0, x, y, FRAME_W, FRAME_H);
   });
-  for (const [surfaceIndex, surface] of ["road", "water", "dirt-road"].entries()) {
-    const surfaceSource = surface === "dirt-road"
-      ? scene.textures.get("terrain-source-dirt-road").getSourceImage() as HTMLImageElement
+  for (const [surfaceIndex, surface] of ["road", "water", "dirt-road", "stone-road"].entries()) {
+    const surfaceSource = (surface === "dirt-road" || surface === "stone-road")
+      ? scene.textures.get(`terrain-source-${surface}`).getSourceImage() as HTMLImageElement
       : readValidatedTileSource(scene, `terrain-source-${surface}`);
     for (let mask = 0; mask < ROAD_TILE_COUNT; mask++) {
       const { x, y } = framePosition(SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + surfaceIndex * ROAD_TILE_COUNT + mask);

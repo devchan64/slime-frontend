@@ -205,3 +205,6 @@ files:
 - path: src/assets/terrain/roads/packed-dirt-road-v1.png
   source_path: assets/tiles/terrain/dirt/common/packed-dirt-road-v1.png
   sha256: 35d978fd6a7a535782198be475dd93dbea9c743a5256514ad9070914566fe844
+- path: src/assets/terrain/roads/stone-slab-road-v1.png
+  source_path: assets/tiles/terrain/stone/common/stone-slab-road-v1.png
+  sha256: 64aca1b4d6887ebb81ba3cc85e78d21b59d81de5b08708435ab2714c81a82205

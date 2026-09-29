@@ -47,3 +47,14 @@ test('흙도로는 필드 일부에 고정 배치되고 마을·연결 마스크
   const selectedRoadFrames=Array.from({length:9},(_,currentColumnIndex)=>selectFieldRoadFrame(5,{column:currentColumnIndex,row:0},false));
   assert.equal(selectedRoadFrames.filter(currentFrameName=>currentFrameName==='dirt-road-5').length,3);
 });
+
+test('채석장·절개지 도로는 석판으로 연결하며 다른 맵과 마을은 유지한다', () => {
+  for (const currentMapIdentifier of ['broken-quarry','crystal-cut']) {
+    for(let connectionMaskValue=0;connectionMaskValue<16;connectionMaskValue++) {
+      assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},false,currentMapIdentifier),`stone-road-${connectionMaskValue}`);
+      assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:1,row:0},false,currentMapIdentifier),`stone-road-${connectionMaskValue}`);
+      assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},true,currentMapIdentifier),`road-${connectionMaskValue}`);
+    }
+  }
+  assert.equal(selectFieldRoadFrame(5,{column:0,row:0},false,'meadow'),'dirt-road-5');
+});
