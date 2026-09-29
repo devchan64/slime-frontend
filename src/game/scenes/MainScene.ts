@@ -148,6 +148,8 @@ export class MainScene extends Phaser.Scene {
   private terrainObjects = new Set<Phaser.GameObjects.GameObject>();
   private backdropLayer: Phaser.GameObjects.Image | null = null;
   private terrainSignature = "";
+  private buildingLayerSignature = "";
+  private buildingLayerObjects = new Set<Phaser.GameObjects.GameObject>();
   private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
   private safeBarrierGraphics: Phaser.GameObjects.Graphics[] = [];
@@ -172,6 +174,8 @@ export class MainScene extends Phaser.Scene {
     preloadBackdrop(this);
   }
   create() {
+    this.buildingLayerSignature = "";
+    this.buildingLayerObjects.clear();
     if (this.loadFailed) return;
     this.fieldIdleAction.resetIdleAction(performance.now());
     const resetFieldIdleAction = () => this.fieldIdleAction.resetIdleAction(performance.now());
@@ -400,14 +404,14 @@ export class MainScene extends Phaser.Scene {
     this.movingObjects=[];
     this.restRecoveryEffects=[];
     for (const child of [...this.children.list])
-      if (!this.terrainObjects.has(child) && child !== this.backdropLayer) child.destroy();
-    this.cityBuildingRegions = [];
+      if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.waypointMarkers = [];
     this.personalMarkerGraphics = [];
     this.safeBarrierGraphics = [];
     const meadow = !s.battle;
     const textured = meadow || !!s.battle?.field.cells;
     this.updateTerrain(s, textured);
+    this.syncBuildingRenderLayer(s);
     const blocked = s.battle?.blocked || s.map.blocked;
     this.reachable.clear();
     for (const move of this.battleMode === "MOVE" ? s.battle?.tactics.moves || [] : [])
@@ -552,9 +556,6 @@ export class MainScene extends Phaser.Scene {
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
       }
       if(!s.map.safeTown)drawSafeTower(this, this.project(s.map.startPoint)).setDepth(this.depth(s.map.startPoint) + TERRAIN_DEPTH.overlay);
-      const selectedCityBuilding = findCityBuilding(s.map.buildings,this.selected);
-      for(const currentCityBuilding of s.map.buildings ?? [])
-        this.cityBuildingRegions.push(drawBlockStructure(this,currentCityBuilding,this.project,this.depth,this.annotationDepth(),currentCityBuilding.id===selectedCityBuilding?.id));
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
           m.position,
@@ -684,6 +685,24 @@ export class MainScene extends Phaser.Scene {
     }, objects=>{for(const object of objects){this.terrainObjects.delete(object);object.destroy();}});
     this.terrainSignature=signature;
     this.syncTerrainViewport();
+  }
+
+  private syncBuildingRenderLayer(currentSceneState: State) {
+    const currentBuildingRecords = currentSceneState.battle ? [] : currentSceneState.map.buildings ?? [];
+    const selectedBuildingRecord = findCityBuilding(currentBuildingRecords, this.selected);
+    const currentLayerSignature = JSON.stringify([this.terrainSignature, currentSceneState.map.id,
+      currentBuildingRecords, selectedBuildingRecord?.id, this.annotationDepth()]);
+    if (currentLayerSignature === this.buildingLayerSignature) return;
+    for (const currentBuildingObject of this.buildingLayerObjects) currentBuildingObject.destroy();
+    this.buildingLayerObjects.clear();
+    this.cityBuildingRegions = [];
+    const previousSceneObjects = new Set(this.children.list);
+    for (const currentBuildingRecord of currentBuildingRecords)
+      this.cityBuildingRegions.push(drawBlockStructure(this, currentBuildingRecord, this.project, this.depth,
+        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id));
+    for (const currentSceneObject of this.children.list)
+      if (!previousSceneObjects.has(currentSceneObject)) this.buildingLayerObjects.add(currentSceneObject);
+    this.buildingLayerSignature = currentLayerSignature;
   }
 
   private syncTerrainViewport() {
