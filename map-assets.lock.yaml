@@ -124,15 +124,6 @@ files:
 - path: src/assets/world/isloon/buildings/wood-door-v1.source.json
   source_path: assets/tiles/buildings/door/isloon/wood-door-v1.source.json
   sha256: 1d2751d7f06b08c514d96d5cef5e335e4b6332db277494382ec5a36062bcad47
-- path: src/assets/world/isloon/buildings/wood-roof-v1.png
-  source_path: assets/tiles/buildings/roof/isloon/wood-roof-v1.png
-  sha256: 38ef6614ae9d3fe63b58fb006e5c7576797f2dd16570f0c4e03ba89df8322f08
-- path: src/assets/world/isloon/buildings/wood-roof-v2.png
-  source_path: assets/tiles/buildings/roof/isloon/wood-roof-v2.png
-  sha256: 6ec06223c826e1e82a887a19dc745abeceac984382eab98cf0149cd3dd8f44b8
-- path: src/assets/world/isloon/buildings/wood-roof-v2.source.json
-  source_path: assets/tiles/buildings/roof/isloon/wood-roof-v2.source.json
-  sha256: 57962016b33fa33a5865a0f5a48215c8615a49eb06f3bfa5e95028fb1d5b517a
 - path: src/assets/world/isloon/buildings/workshop-door-v2.png
   source_path: assets/tiles/buildings/door/isloon/workshop-door-v2.png
   sha256: 31e884f90e67d4b48f406b5d52195c0161a21a83f18d83ce50c42f56c1473946

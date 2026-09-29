@@ -136,8 +136,6 @@ data:
     path: src/assets/characters/default/walk-v1/walk-down.png
   - managementId: image.character.default.walk.packed-up-v3
     path: src/assets/characters/default/walk-v1/walk-up.png
-  - managementId: image.world.isloon.wood-roof-v2
-    path: src/assets/world/isloon/buildings/wood-roof-v2.png
   - managementId: image.world.isloon.marble-roof-v2
     path: src/assets/world/isloon/buildings/marble-roof-v2.png
   - managementId: image.character.default.idle-v6.sheet
@@ -186,8 +184,6 @@ data:
     path: src/assets/world/isloon/buildings/market-wall-v2.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.wood-door-v1.png
     path: src/assets/world/isloon/buildings/wood-door-v1.png
-  - managementId: image.frontend.src.assets.world.isloon.buildings.wood-roof-v1.png
-    path: src/assets/world/isloon/buildings/wood-roof-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.workshop-door-v2.png
     path: src/assets/world/isloon/buildings/workshop-door-v2.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.workshop-roof-v2.png
@@ -204,3 +200,5 @@ data:
     path: src/assets/world/stonewarm/buildings/red-stone-roof-v2.png
   - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
     path: src/assets/world/common/buildings/wood-wall-v2.png
+  - managementId: tile.buildings.roof.wood
+    path: src/assets/world/common/buildings/wood-roof-v3.png
