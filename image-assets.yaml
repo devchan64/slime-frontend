@@ -208,3 +208,5 @@ data:
     path: src/assets/world/stonewarm/buildings/stone-wall-crossbar-v1.png
   - managementId: image.frontend.src.assets.world.stonewarm.terrain.exposed-rock-ground-v1.png
     path: src/assets/world/stonewarm/terrain/exposed-rock-ground-v1.png
+  - managementId: image.frontend.src.assets.world.stonewarm.buildings.red-stone-roof-v2.png
+    path: src/assets/world/stonewarm/buildings/red-stone-roof-v2.png

@@ -211,3 +211,6 @@ files:
 - path: src/assets/world/stonewarm/terrain/marble-paving-v1.png
   source_path: assets/tiles/terrain/marble/stonewarm/marble-paving-v1.png
   sha256: 98a707024ebd8518f0714c28dc38954f45fec16a3fb30a7b4b2d272f91764825
+- path: src/assets/world/stonewarm/buildings/red-stone-roof-v2.png
+  source_path: assets/tiles/buildings/roof/common/red-stone-roof-v2.png
+  sha256: 44e70c213ff5b69af96035971f9033856473a01832d688f9d341e5d620b9ffe3

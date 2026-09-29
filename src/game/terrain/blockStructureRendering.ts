@@ -1,4 +1,4 @@
-import {STONEWARM_ROOF_TEXTURE} from "./textures";
+import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE} from "./textures";
 import {buildBlockSurfaceFaces} from './blockGeometry';
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
@@ -60,7 +60,8 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       const roofCanvasTexture=currentMapScene.textures.createCanvas(roofTextureIdentifier,roofCanvasWidth,roofCanvasHeight);
       if (!roofCanvasTexture) throw new Error('석재 지붕 캔버스 생성 실패');
       const roofDrawingContext=roofCanvasTexture.getContext();
-      const roofSourceImage=currentMapScene.textures.get(STONEWARM_ROOF_TEXTURE).getSourceImage() as HTMLImageElement;
+      const selectedRoofTextureIdentifier=currentCityBuilding.facilityKind==='guild'?STONEWARM_GUILD_ROOF_TEXTURE:STONEWARM_ROOF_TEXTURE;
+      const roofSourceImage=currentMapScene.textures.get(selectedRoofTextureIdentifier).getSourceImage() as HTMLImageElement;
       for (const roofFaceRecord of roofSurfaceFaces) {
         const roofFacePoints=roofFaceRecord.points;
         if (roofFacePoints.length!==4) throw new Error('석재 지붕 면은 사각형이어야 합니다.');
