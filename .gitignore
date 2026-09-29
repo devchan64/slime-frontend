@@ -126,3 +126,5 @@ dist/
 
 # 에셋 저장소에서 준비하는 캐릭터 컷인
 /src/assets/characters/default/cutins/default-punch-v1.png
+/src/assets/terrain/grass-v4.png
+/src/assets/terrain/grass-v4.source.json
