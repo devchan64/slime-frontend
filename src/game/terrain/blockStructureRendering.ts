@@ -1,4 +1,4 @@
-import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE} from "./textures";
+import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE,WOOD_DOOR_WALL_TEXTURE} from "./textures";
 import {buildBlockSurfaceFaces} from './blockGeometry';
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
@@ -15,6 +15,7 @@ const CITY_BUILDING_STYLE = {
 };
 const CITY_PAVING_STYLE = {fill:0xc8c4a4,edge:0xa4a28b,lineWidth:1,alpha:0.95};
 const CITY_HALF_TILE = 0.5;
+const WALL_ENTRANCE_POSITION_TOLERANCE = 0.01;
 type CityScreenPoint = {x:number;y:number};
 export type CityBuildingRegion = {position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
 
@@ -68,7 +69,15 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       const wallMaximumHeight=Math.max(...wallVertexRecords.map(currentVertexPoint=>currentVertexPoint.height));
       const wallHorizontalIndex=Math.floor(wallMinimumHorizontal+CITY_HALF_TILE);
       const wallUsesWindowTexture=wallMinimumHeight<woodRoofBaseHeight&&wallHorizontalIndex%2!==0;
-      const wallSelectedTexture=wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
+      const entranceColumnLocal=currentCityBuilding.entrance.column-currentCityBuilding.origin.column;
+      const entranceRowLocal=currentCityBuilding.entrance.row-currentCityBuilding.origin.row;
+      const entranceAlongWall=wallColumnVaries?entranceColumnLocal:entranceRowLocal;
+      const entranceAcrossWall=wallColumnVaries?entranceRowLocal:entranceColumnLocal;
+      const wallFixedCoordinate=wallColumnVaries?wallVertexRecords[0].row:wallVertexRecords[0].column;
+      const wallUsesDoorTexture=wallMinimumHeight<WALL_ENTRANCE_POSITION_TOLERANCE
+        &&Math.abs(entranceAlongWall-(wallMinimumHorizontal+wallMaximumHorizontal)/2)<WALL_ENTRANCE_POSITION_TOLERANCE
+        &&Math.abs(Math.abs(entranceAcrossWall-wallFixedCoordinate)-CITY_HALF_TILE)<WALL_ENTRANCE_POSITION_TOLERANCE;
+      const wallSelectedTexture=wallUsesDoorTexture?WOOD_DOOR_WALL_TEXTURE:wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
       const wallSourceImage=currentMapScene.textures.get(wallSelectedTexture).getSourceImage() as HTMLImageElement;
       const wallOriginPosition={column:currentCityBuilding.origin.column+(wallColumnVaries?wallMinimumHorizontal:wallVertexRecords[0].column),row:currentCityBuilding.origin.row+(wallColumnVaries?wallVertexRecords[0].row:wallMinimumHorizontal)};
       const wallOriginScreenPoint=projectTerrainPosition(wallOriginPosition);

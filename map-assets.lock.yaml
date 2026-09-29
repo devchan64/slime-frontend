@@ -202,3 +202,6 @@ files:
 - path: src/assets/world/common/buildings/wood-window-wall-v1.png
   source_path: assets/tiles/buildings/wall/common/wood-window-wall-v1.png
   sha256: ca85feac1c1b9203ecb882a572600d4122b5f0f05cc1e945cab132bb4695509b
+- path: src/assets/world/common/buildings/wood-door-wall-v1.png
+  source_path: assets/tiles/buildings/wall/common/wood-door-wall-v1.png
+  sha256: d0fbf17c5f6f1d6af32196476d270af469907df638c829adbb76467a2f5bc37f
