@@ -35,7 +35,7 @@ data:
   - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
     path: ../slime-assets/assets/sprites/characters/default/cutins/default-punch-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.png
+    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.giant-idle-v1.png
     path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.field-rabbit-idle-v1.png

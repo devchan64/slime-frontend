@@ -42,7 +42,7 @@ files:
   sha256: 7ed125c02b2ae470c9fcbc6a96544c2423c05d0e4e16c195565f4c4d5bb6c8c6
 - path: assets/monsters/standing-v1/catalog.yaml
   source_path: assets/sprites/monsters/standing-v1/catalog.yaml
-  sha256: 7c84c55d9823018229423ca9643d38bc90c4f545854a53039f20d2be725e16d5
+  sha256: 51169e77071aac0c772729b3b6a7b3f3a51460bb9cb6de4b5becb92437e53565
 - path: assets/monsters/standing-v1/crystal-lizard-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/crystal-lizard-idle-v1.animation.json
   sha256: 6b29aa7aa7ef08f82830577742c9aa7a40da09f3ebc21d753c89dbebd521d4d4
@@ -80,11 +80,11 @@ files:
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/ridge-boar-idle-v1.png
   sha256: 1c0c964d7f604fadec490681a476d6c251409e7ababa78c3e1c0913695fb17fd
 - path: assets/monsters/standing-v1/slime-idle-v1.animation.json
-  source_path: assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.animation.json
-  sha256: ae0b91aeb3061e12d54ce09d8cf64ef62fc4083a020f5d4e08d9852e00e15c3a
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json
+  sha256: 93918eb04e4e4703d3c94ff93c11056694d22d97977bcaa8f09bbe41c7f701fa
 - path: assets/monsters/standing-v1/slime-idle-v1.png
-  source_path: assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.png
-  sha256: 52ef66df3ec44f25742135e8f03708ba42068f45f4a8c1c1c5fa7438e35e3ec6
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png
+  sha256: e1f502d736925c3230bcc17c692753a1ed569f50ce17264df3d71d1906451aa9
 - path: assets/monsters/standing-v1/stone-crab-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/stone-crab-idle-v1.animation.json
   sha256: b46cd6b078a6c303d16cee9bd74c512867df8e7dbefb945aadd878c4244bc919

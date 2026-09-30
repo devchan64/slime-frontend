@@ -6,7 +6,7 @@ import { bindCellTexture } from "./cellActor";
 import restingCharacterMetadata from "../../../../slime-assets/assets/sprites/characters/default/rest-v2/down-left-v1/rest-v2.animation.json";
 import characterIdleSourceMetadata from "../../../../slime-assets/assets/sprites/characters/default/idle-v6/down-left-v1/source.json";
 import actorIdleMetadata0 from "../../../../slime-assets/assets/sprites/characters/default/idle-v6/down-left-v1/idle-v6.animation.json";
-import actorIdleMetadata1 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.animation.json";
+import actorIdleMetadata1 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json";
 import actorIdleMetadata2 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.animation.json";
 import actorIdleMetadata3 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.animation.json";
 import actorIdleMetadata4 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.animation.json";
@@ -29,7 +29,7 @@ export const DEFAULT_IDLE_DIRECTION_ASSETS = {
 export const ACTOR_IDLE_ASSETS = {
   "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/sprites/characters/default/rest-v2/down-left-v1/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
   "human": DEFAULT_IDLE_DIRECTION_ASSETS.down_left,
-  "slime": { key: "idle-slime", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata1) },
+  "slime": { key: "idle-slime", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata1) },
   "beast": { key: "idle-beast", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata2) },
   "giant": { key: "idle-giant", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata3) },
   "field-rabbit": { key: "idle-field-rabbit", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata4) },

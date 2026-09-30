@@ -1,6 +1,6 @@
 import giantCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.animation.json';
 import beastCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.animation.json';
-import slimeCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.animation.json';
+import slimeCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json';
 import boarCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ridge-boar-idle-v1.animation.json';
 import crabCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/stone-crab-idle-v1.animation.json';
 import crawlerCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/reed-crawler-idle-v1.animation.json';
@@ -20,7 +20,7 @@ const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
   'lantern-moth': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/lantern-moth-idle-v1.png', import.meta.url).href,
   'reed-crawler': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/reed-crawler-idle-v1.png', import.meta.url).href,
   'default-punch': new URL('../../../slime-assets/assets/sprites/characters/default/cutins/default-punch-v1.png', import.meta.url).href,
-  slime: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v1.png', import.meta.url).href,
+  slime: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png', import.meta.url).href,
   beast: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png', import.meta.url).href,
   giant: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png', import.meta.url).href,
 };
