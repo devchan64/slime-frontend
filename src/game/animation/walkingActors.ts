@@ -29,7 +29,7 @@ export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjec
     bindCellTexture(actorRenderImage.scene, characterWalkAsset.key, characterWalkAsset.animation);
     actorRenderImage.setData("walkingIdleScale", actorRenderImage.scaleX);
   }
-  // 180ms 단위의 짧은 이동에도 매번 첫 프레임으로 되돌아가지 않는다.
+  // 타일별 이동마다 첫 프레임으로 되돌아가지 않는다.
   const walkingElapsedMilliseconds = actorRenderImage.scene.time.now + actorRenderImage.getData("idlePhaseOffset");
   const sampledWalkingFrame = characterWalkAsset.animation.sample(
     characterWalkAsset.animation.clip("walk", actorScreenDirection), walkingElapsedMilliseconds).frame;

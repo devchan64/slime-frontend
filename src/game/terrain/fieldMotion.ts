@@ -1,6 +1,5 @@
-import {calculateTileMovementProgress} from './movementTransition';
+import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './movementTransition';
 import type {Position} from '../../client/types';
-const STEP_MILLISECONDS = 180;
 type Point = {x:number;y:number;depth:number};
 export type FieldActor = {id:string;cell:Position;point:Point};
 type Track = FieldActor & {from:Point;started:number};
@@ -28,7 +27,7 @@ export class FieldMotion {
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;
-    return currentRenderTime < currentMotionTrack.started + STEP_MILLISECONDS &&
+    return currentRenderTime < currentMotionTrack.started + TILE_MOVEMENT_DURATION_MS &&
       (currentMotionTrack.from.x !== currentMotionTrack.point.x || currentMotionTrack.from.y !== currentMotionTrack.point.y);
   }
   offset(id:string,now:number):Point {
@@ -38,7 +37,7 @@ export class FieldMotion {
     return {x:at.x-track.point.x,y:at.y-track.point.y,depth:at.depth-track.point.depth};
   }
   private sample(track:Track,now:number):Point {
-    const t=calculateTileMovementProgress((now-track.started)/STEP_MILLISECONDS);
+    const t=calculateTileMovementProgress((now-track.started)/TILE_MOVEMENT_DURATION_MS);
     return {x:track.from.x+(track.point.x-track.from.x)*t,
       y:track.from.y+(track.point.y-track.from.y)*t,
       depth:track.from.depth+(track.point.depth-track.from.depth)*t};

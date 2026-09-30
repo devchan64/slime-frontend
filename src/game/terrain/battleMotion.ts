@@ -1,7 +1,6 @@
-import {calculateTileMovementProgress} from './movementTransition';
+import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './movementTransition';
 import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
-const STEP_MILLISECONDS = 180;
 const ATTACK_TRANSITION_MILLISECONDS = 300;
 const ATTACK_LUNGE_DISTANCE_RATIO = 0.32;
 const ATTACK_RECOIL_DISTANCE_RATIO = 0.08;
@@ -42,8 +41,8 @@ export class BattleMotion {
       const old=this.positions.get(event.unitId);
       if(!old)continue;
       const track=this.tracks.get(event.unitId);
-      const points=track ? [this.sample(track,now),...track.points.slice(Math.min(track.points.length,Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS)+1))] : [project(old, event.unitId)];
-      const remainingSegmentIndex = track ? Math.floor(Math.max(0,now-track.started)/STEP_MILLISECONDS) : 0;
+      const points=track ? [this.sample(track,now),...track.points.slice(Math.min(track.points.length,Math.floor(Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS)+1))] : [project(old, event.unitId)];
+      const remainingSegmentIndex = track ? Math.floor(Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS) : 0;
       const segmentWorldFacings = track ? track.segmentWorldFacings.slice(remainingSegmentIndex) : [];
       segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
       points.push(...event.path.map(battlePathPosition => project(battlePathPosition, event.unitId)));
@@ -58,13 +57,13 @@ export class BattleMotion {
   currentWorldFacing(battleUnitIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
     const currentMotionTrack=this.tracks.get(battleUnitIdentifier);
     if(!currentMotionTrack)return undefined;
-    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/STEP_MILLISECONDS);
+    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS);
     return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;
-    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.points.length - 1) * STEP_MILLISECONDS;
+    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.points.length - 1) * TILE_MOVEMENT_DURATION_MS;
   }
   offset(id:string,now:number):Point{
     const track=this.tracks.get(id);
@@ -79,7 +78,7 @@ export class BattleMotion {
       depth:movementOffset.depth+impactTrack.vector.depth*impactTrack.distanceRatio*transitionProgress};
   }
   private sample(track:Track,now:number):Point{
-    const progress=Math.max(0,now-track.started)/STEP_MILLISECONDS;
+    const progress=Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS;
     const index=Math.min(Math.floor(progress),track.points.length-1);
     const a=track.points[index],b=track.points[Math.min(index+1,track.points.length-1)],t=calculateTileMovementProgress(progress-index);
     return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,depth:a.depth+(b.depth-a.depth)*t};

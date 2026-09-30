@@ -51,4 +51,4 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 
 대기·휴식·걷기와 몬스터 클립은 `createBoardActorAnimation()`을 통해 임시 8fps(125ms/프레임)를 적용한다. 원본 메타데이터를 변경하지 않으며 프레임 수를 늘리거나 보간 프레임을 생성하지 않는다.
 
-타일 간 이동은 180ms 구간별 quadratic ease-out을 사용하며 이동 중 기본 캐릭터 걷기를 재생한다. 위치·그림자·깊이·카메라는 같은 보간 위치를 따른다.
+타일 간 이동은 360ms 구간별 약한 ease-out-back(최대 약 3.7% 초과 후 복귀)을 사용하며 이동 중 기본 캐릭터 걷기를 재생한다. 위치·그림자·깊이·카메라는 같은 보간 위치를 따른다. 필드의 다음 이동 요청은 전환 시간에 도착 여유 90ms를 더한 450ms 뒤에 보내며, 공통 `movementTransition.ts`에서 시간을 관리한다.
