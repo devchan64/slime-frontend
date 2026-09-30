@@ -46,12 +46,6 @@ files:
 - path: assets/terrain/road-v3.webp
   source_path: assets/tiles/terrain/road/road-v3.webp
   sha256: d3d5a4f50b68c03a767417aba89349867655069f509fb7acef6f031cfe9e125a
-- path: assets/terrain/water-v3.png
-  source_path: assets/tiles/terrain/blocked/water-v3.png
-  sha256: 14294b9c0d4651fd0eff58e98013acc950fb073c43414b7b5985eecc169a7773
-- path: assets/terrain/water-v3.webp
-  source_path: assets/tiles/terrain/blocked/water-v3.webp
-  sha256: fce409971bb0dd69502b306d6e9f5627a656ca44a4ccdaf75255daeac54c4f5b
 - path: assets/world/isloon/buildings/marble-large-window-wall-v1.png
   source_path: assets/tiles/buildings/marble/marble-large-window-wall-v1.png
   sha256: cb74be69643edf7376117cf7370b39952833995fee9c39c3f143b7cfd7b685f3
@@ -145,3 +139,9 @@ files:
 - path: assets/terrain/cactus-v1.png
   source_path: assets/tiles/terrain/blocked/cactus-v1.png
   sha256: ac72f4126f6e4b8a95b41d1770394777c063c8a8a6915531b05f64989e1ee70e
+- path: assets/terrain/shallow-water-v1.png
+  source_path: assets/tiles/terrain/blocked/shallow-water-v1.png
+  sha256: e584233a5cc40d588d0867e76844f9e1c635d7d257b1e81fb4b36e49b3e39aa4
+- path: assets/terrain/deep-water-v1.png
+  source_path: assets/tiles/terrain/blocked/deep-water-v1.png
+  sha256: d10e5ca3e54aad29a6d8d2f840f20ebd88011dddf73bee8eed50fff91c8458bc

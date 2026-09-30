@@ -24,10 +24,6 @@ data:
     path: ../slime-assets/assets/tiles/terrain/non-road/meadow-backdrop-v2.webp
   - managementId: image.frontend.src.assets.terrain.road-v3.webp
     path: ../slime-assets/assets/tiles/terrain/road/road-v3.webp
-  - managementId: image.frontend.src.assets.terrain.water-v3.png
-    path: ../slime-assets/assets/tiles/terrain/blocked/water-v3.png
-  - managementId: image.frontend.src.assets.terrain.water-v3.webp
-    path: ../slime-assets/assets/tiles/terrain/blocked/water-v3.webp
   - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
     path: ../slime-assets/assets/sprites/structures/ward-tower-v1.png
   - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
@@ -122,3 +118,7 @@ data:
     path: ../slime-assets/assets/tiles/terrain/non-road/grass-v5.png
   - managementId: image.terrain.cactus
     path: ../slime-assets/assets/tiles/terrain/blocked/cactus-v1.png
+  - managementId: image.terrain.shallow-water
+    path: ../slime-assets/assets/tiles/terrain/blocked/shallow-water-v1.png
+  - managementId: image.terrain.deep-water
+    path: ../slime-assets/assets/tiles/terrain/blocked/deep-water-v1.png
