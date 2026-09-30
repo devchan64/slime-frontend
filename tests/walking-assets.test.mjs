@@ -9,7 +9,7 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
   const characterDataValues = new Map(Object.entries({actorIdleKind:actorIdleKindValue,idlePhaseOffset:0,actorDisplayHeight:80}));
   const registeredTextureFrames = new Set();
   const walkingTextureRecord = {
-    getSourceImage:()=>({width:2304,height:1536}),
+    getSourceImage:()=>({width:2304,height:384}),
     has:(currentFrameIdentifier)=>registeredTextureFrames.has(currentFrameIdentifier),
     add(currentFrameIdentifier){registeredTextureFrames.add(currentFrameIdentifier);return {};},
   };
@@ -23,18 +23,16 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
     setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
   };
 }
-test('4방향 걷기는 각 6프레임을 250ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
+test('정면왼쪽 걷기는 6프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
-  for(const currentDirectionName of ['down_left','down_right','up_left','up_right']) {
+  for(const currentDirectionName of ['down_left']) {
     for(let frameColumnIndex=0;frameColumnIndex<=6;frameColumnIndex++) {
-      renderedCharacterImage.scene.time.now=frameColumnIndex*250;
+      renderedCharacterImage.scene.time.now=frameColumnIndex*125;
       updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,true);
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
       assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%6}`));
-      const expectedAnchorCoordinates={down_left:[[212,348],[212,348],[212,348],[212,348],[212,348],[212,348]],down_right:[[189,343],[189,343],[189,343],[189,343],[189,343],[189,343]],up_left:[[191,347],[191,351],[191,349],[191,347],[191,351],[191,351]],up_right:[[201,341],[201,341],[201,341],[201,348],[200,352],[200,342]]};
-      const selectedAnchorCoordinates=expectedAnchorCoordinates[currentDirectionName][frameColumnIndex%6];
-      assert.equal(renderedCharacterImage.originX,selectedAnchorCoordinates[0]/384);
-      assert.equal(renderedCharacterImage.originY,selectedAnchorCoordinates[1]/384);
+      assert.equal(renderedCharacterImage.originX,212/384);
+      assert.equal(renderedCharacterImage.originY,348/384);
       assert.equal(renderedCharacterImage.scaleX,80/352);
     }
     updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,false);
@@ -44,11 +42,11 @@ test('4방향 걷기는 각 6프레임을 250ms 간격으로 반복하고 정지
 });
 test('짧은 이동을 반복해도 걷기를 첫 프레임으로 재시작하지 않고 몬스터·휴식은 대기를 유지한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
-  updateCharacterAnimationFrame(renderedCharacterImage,'down_right',undefined,true);
-  updateCharacterAnimationFrame(renderedCharacterImage,'down_right',undefined,false);
-  renderedCharacterImage.scene.time.now=750;
-  updateCharacterAnimationFrame(renderedCharacterImage,'down_right',undefined,true);
-  assert.ok(renderedCharacterImage.frame.name.endsWith('down_right.3'));
+  updateCharacterAnimationFrame(renderedCharacterImage,'down_left',undefined,true);
+  updateCharacterAnimationFrame(renderedCharacterImage,'down_left',undefined,false);
+  renderedCharacterImage.scene.time.now=375;
+  updateCharacterAnimationFrame(renderedCharacterImage,'down_left',undefined,true);
+  assert.ok(renderedCharacterImage.frame.name.endsWith('down_left.3'));
   for(const actorIdleKindValue of ['slime','human-rest']) {
     const otherCharacterImage=createCharacterTestImage(actorIdleKindValue);
     updateCharacterAnimationFrame(otherCharacterImage,'down_left',undefined,true);
