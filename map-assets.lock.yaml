@@ -142,3 +142,6 @@ files:
 - path: assets/terrain/grass-v5.png
   source_path: assets/tiles/terrain/non-road/grass-v5.png
   sha256: 2ecfa4037acbd97ea2e29f2836479a23be689dff32334ac8d41487661a3dc49a
+- path: assets/terrain/cactus-v1.png
+  source_path: assets/tiles/terrain/blocked/cactus-v1.png
+  sha256: ac72f4126f6e4b8a95b41d1770394777c063c8a8a6915531b05f64989e1ee70e

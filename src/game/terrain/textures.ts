@@ -1,3 +1,4 @@
+import cactusTileImageSource from "../../../../slime-assets/assets/tiles/terrain/blocked/cactus-v1.png";
 import stoneSlabRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/stone-slab-road-v1.png";
 import packedDirtRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/packed-dirt-road-v1.png";
 import unifiedWoodRoofSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-roof-v3.png";
@@ -46,7 +47,7 @@ export const ISEULON_GRASS_FRAME = "iseulon-grass-mud-frame";
 export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
-const SOURCES = { grass: grassTileImageSource, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
+const SOURCES = { cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
   { frame: ISEULON_GRASS_FRAME, source: grassTileImageSource },

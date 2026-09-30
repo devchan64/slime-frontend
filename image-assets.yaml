@@ -120,3 +120,5 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v3.png
   - managementId: image.terrain.grass
     path: ../slime-assets/assets/tiles/terrain/non-road/grass-v5.png
+  - managementId: image.terrain.cactus
+    path: ../slime-assets/assets/tiles/terrain/blocked/cactus-v1.png
