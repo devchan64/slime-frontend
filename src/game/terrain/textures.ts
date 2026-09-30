@@ -111,9 +111,10 @@ export function resolveGrassFrameForMap(currentMapIdentifier: string) {
   return currentMapIdentifier === "iseulon" ? ISEULON_GRASS_FRAME : "grass";
 }
 
-export function resolvePavingFrameForMap(mapIdentifier: string) {
-  if (mapIdentifier === "stonewarm") return STONEWARM_MARBLE_PAVING_FRAME;
-  if (mapIdentifier === "reedhaven") return REEDHAVEN_DIRT_ROAD_FRAME;
+export function resolvePavingFrameForMap(currentMapIdentifier: string) {
+  if (currentMapIdentifier === "stonewarm") return STONEWARM_MARBLE_PAVING_FRAME;
+  if (currentMapIdentifier === "saltford") return STONEWARM_PAVING_FRAME;
+  if (currentMapIdentifier === "reedhaven" || currentMapIdentifier === "grainstead") return REEDHAVEN_DIRT_ROAD_FRAME;
   return "paving";
 }
 

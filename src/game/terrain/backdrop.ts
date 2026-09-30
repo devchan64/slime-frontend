@@ -9,6 +9,9 @@ const VERTICAL_MARGIN = 1.35;
 const CENTER = 0.5;
 const THEMES: Record<string, number> = {
   reedhaven: 0xa6c8cb, stonewarm: 0xc9b79b,
+  grainstead: 0xe0d3a1, saltford: 0xc3d7d7,
+  "windrow-road": 0xe0d3a1, "granary-flats": 0xd3d5ad, "mill-ridge": 0xc9b79b,
+  "brine-bank": 0xb5caca, "salt-causeway": 0xc3d7d7, "salt-flat": 0xd4dfd5,
   "ash-edge": 0xa99d97, "cinder-path": 0xa99d97,
   "boar-ridge": 0xe0cba1, "dawn-overlook": 0xe0cba1,
   "broken-quarry": 0xc9b79b, "crystal-cut": 0xc9b79b, "dry-creek": 0xc9b79b,

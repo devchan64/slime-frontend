@@ -49,7 +49,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
     currentBuildingGraphic.fillStyle(currentProjectedFace.surface.material==='roof'?CITY_BUILDING_STYLE.roofColors[currentCityBuilding.facilityKind]:CITY_BUILDING_STYLE.wallLight,1).fillPoints(currentProjectedFace.points,true);
     currentBuildingGraphic.lineStyle(1,CITY_BUILDING_STYLE.outlineColor,.35).strokePoints(currentProjectedFace.points,true);
   }
-  const usesUnifiedWoodWall=currentCityBuilding.id.startsWith('reedhaven-')||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
+  const usesUnifiedWoodWall=['reedhaven-', 'grainstead-', 'saltford-'].some(currentCityPrefix => currentCityBuilding.id.startsWith(currentCityPrefix))||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
   if (usesUnifiedWoodWall) {
     const woodRoofBaseHeight=Math.min(...currentSurfaceFaces.filter(currentFaceRecord=>currentFaceRecord.material==='roof').flatMap(currentFaceRecord=>currentFaceRecord.vertices.map(currentVertexPoint=>currentVertexPoint.height)));
     for (const currentWallFace of currentVisibleFaces.filter(currentFaceRecord=>!currentFaceRecord.surface.top)) {
