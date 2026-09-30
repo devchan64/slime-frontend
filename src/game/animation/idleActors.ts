@@ -3,9 +3,9 @@ import { calculateIdlePhase } from "./idlePhase";
 import type Phaser from "phaser";
 import { type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
-import restingCharacterMetadata from "../../../../slime-assets/assets/sprites/characters/default/rest-v2/down-left-v1/rest-v2.animation.json";
-import characterIdleSourceMetadata from "../../../../slime-assets/assets/sprites/characters/default/idle-v6/down-left-v1/source.json";
-import actorIdleMetadata0 from "../../../../slime-assets/assets/sprites/characters/default/idle-v6/down-left-v1/idle-v6.animation.json";
+import restingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-v1/rest-v2.animation.json";
+import characterIdleSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-v1/source.json";
+import actorIdleMetadata0 from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-v1/idle-v6.animation.json";
 import actorIdleMetadata1 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json";
 import actorIdleMetadata2 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.animation.json";
 import actorIdleMetadata3 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.animation.json";
@@ -19,7 +19,7 @@ import actorIdleMetadata10 from "../../../../slime-assets/assets/sprites/monster
 
 const DEFAULT_IDLE_ANIMATION = createBoardActorAnimation(actorIdleMetadata0);
 const DEFAULT_CHARACTER_IDLE_ASSET = {
-  key: "idle-human", url: new URL("../../../../slime-assets/assets/sprites/characters/default/idle-v6/down-left-v1/idle-v6.png", import.meta.url).href,
+  key: "idle-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-v1/idle-v6.png", import.meta.url).href,
   animation: DEFAULT_IDLE_ANIMATION,
 } as const;
 export const DEFAULT_IDLE_DIRECTION_ASSETS = {
@@ -27,7 +27,7 @@ export const DEFAULT_IDLE_DIRECTION_ASSETS = {
 } as const;
 
 export const ACTOR_IDLE_ASSETS = {
-  "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/sprites/characters/default/rest-v2/down-left-v1/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
+  "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-v1/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
   "human": DEFAULT_IDLE_DIRECTION_ASSETS.down_left,
   "slime": { key: "idle-slime", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata1) },
   "beast": { key: "idle-beast", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata2) },

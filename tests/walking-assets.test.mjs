@@ -9,7 +9,7 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
   const characterDataValues = new Map(Object.entries({actorIdleKind:actorIdleKindValue,idlePhaseOffset:0,actorDisplayHeight:80}));
   const registeredTextureFrames = new Set();
   const walkingTextureRecord = {
-    getSourceImage:()=>({width:2304,height:384}),
+    getSourceImage:()=>({width:1536,height:768}),
     has:(currentFrameIdentifier)=>registeredTextureFrames.has(currentFrameIdentifier),
     add(currentFrameIdentifier){registeredTextureFrames.add(currentFrameIdentifier);return {};},
   };
@@ -23,17 +23,17 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
     setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
   };
 }
-test('정면왼쪽 걷기는 6프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
+test('정면왼쪽 걷기는 8프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
   for(const currentDirectionName of ['down_left']) {
-    for(let frameColumnIndex=0;frameColumnIndex<=6;frameColumnIndex++) {
+    for(let frameColumnIndex=0;frameColumnIndex<=8;frameColumnIndex++) {
       renderedCharacterImage.scene.time.now=frameColumnIndex*125;
       updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,true);
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
-      assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%6}`));
-      assert.equal(renderedCharacterImage.originX,212/384);
-      assert.equal(renderedCharacterImage.originY,348/384);
-      assert.equal(renderedCharacterImage.scaleX,80/352);
+      assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%8}`));
+      assert.equal(renderedCharacterImage.originX,192/384);
+      assert.equal(renderedCharacterImage.originY,376/384);
+      assert.equal(renderedCharacterImage.scaleX,80/362.0);
     }
     updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,false);
     assert.equal(renderedCharacterImage.textureKey,'idle-human');

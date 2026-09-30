@@ -11,7 +11,7 @@ const selectedLogArea = interfaceAssetsSelected ? 'ui-assets' : spriteAssetsSele
 const selectedLockFilename = interfaceAssetsSelected ? 'ui-assets.lock.yaml' : spriteAssetsSelected ? 'sprite-assets.lock.yaml' : 'map-assets.lock.yaml';
 const selectedSourceDirectory = interfaceAssetsSelected ? 'assets/ui' : spriteAssetsSelected ? 'assets/sprites' : 'assets/tiles';
 const allowedTargetPattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters|monsters|structures)\/[\w./-]+$/ : /^assets\/(terrain|world|backgrounds)\/[\w./-]+$/;
-const allowedSourcePattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/sprites\/(characters|monsters|structures)\/[\w./-]+$/ : /^assets\/(tiles\/(terrain|buildings)|backgrounds)\/[\w./-]+$/;
+const allowedSourcePattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters\/[\w-]+\/(animations|battle-cutins|emotion-cutins)|sprites\/(monsters|structures))\/[\w./-]+$/ : /^assets\/(tiles\/(terrain|buildings)|backgrounds)\/[\w./-]+$/;
 
 const assetRepositoryDirectory = realpathSync(resolve(frontendRootDirectory, '../slime-assets'));
 function readUniqueDocument(documentFilePath) {
@@ -43,7 +43,7 @@ try {
     const currentRegistryRecord = registeredSourcePaths.get(currentLockRecord.source_path);
     if (!currentRegistryRecord || currentRegistryRecord.sha256 !== currentLockRecord.sha256) throw Error(`에셋 등록·잠금 불일치: ${currentLockRecord.source_path}`);
     const currentSourcePath = realpathSync(resolve(assetRepositoryDirectory, currentLockRecord.source_path));
-    const currentSourceDirectory = !interfaceAssetsSelected && !spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/backgrounds/') ? 'assets/backgrounds' : selectedSourceDirectory;
+    const currentSourceDirectory = spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/characters/') ? 'assets/characters' : !interfaceAssetsSelected && !spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/backgrounds/') ? 'assets/backgrounds' : selectedSourceDirectory;
     if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentSourceDirectory) + sep)) throw Error('에셋 원본 경로 이탈');
     if (createHash('sha256').update(readFileSync(currentSourcePath)).digest('hex') !== currentLockRecord.sha256) throw Error(`에셋 원본 해시 불일치: ${currentLockRecord.source_path}`);
     verifiedAssetRecords.push(currentSourcePath);
