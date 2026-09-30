@@ -120,3 +120,5 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/deep-water-v1.png
   - managementId: image.terrain.wildflowers
     path: ../slime-assets/assets/tiles/terrain/non-road/wildflowers-v1.png
+  - managementId: image.terrain.dry-soil-branches
+    path: ../slime-assets/assets/tiles/terrain/non-road/dry-soil-branches-v1.png

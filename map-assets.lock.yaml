@@ -142,3 +142,6 @@ files:
 - path: assets/terrain/wildflowers-v1.png
   source_path: assets/tiles/terrain/non-road/wildflowers-v1.png
   sha256: 7bd0abaf01a5542083a8487f02f12ec7929e4f01ae1a1dc251fabe3afcad5687
+- path: assets/terrain/dry-soil-branches-v1.png
+  source_path: assets/tiles/terrain/non-road/dry-soil-branches-v1.png
+  sha256: d8971343804d7b4e31529533cc799b79f5f85b4b930ff668b4665048883567ec
