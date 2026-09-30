@@ -34,12 +34,6 @@ files:
 - path: assets/terrain/extension-v1/tree-base-128.webp
   source_path: assets/tiles/terrain/blocked/tree-base-128.webp
   sha256: bc87125e869290fa2cdb035431a62860faa5e203721d228babc589dfa91897d0
-- path: assets/terrain/flowers-v3.png
-  source_path: assets/tiles/terrain/non-road/flowers-v3.png
-  sha256: 20df9098136a8b652d6802093544d0e0096f841880328d566ee68b35f52afb77
-- path: assets/terrain/flowers-v3.webp
-  source_path: assets/tiles/terrain/non-road/flowers-v3.webp
-  sha256: 80f38fead4691177825ed98ac75b12b0e271bcf7d21b9ec832dd23f8dcb96570
 - path: assets/backgrounds/meadow-backdrop-v2.webp
   source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
@@ -145,3 +139,6 @@ files:
 - path: assets/terrain/deep-water-v1.png
   source_path: assets/tiles/terrain/blocked/deep-water-v1.png
   sha256: d10e5ca3e54aad29a6d8d2f840f20ebd88011dddf73bee8eed50fff91c8458bc
+- path: assets/terrain/wildflowers-v1.png
+  source_path: assets/tiles/terrain/non-road/wildflowers-v1.png
+  sha256: 7bd0abaf01a5542083a8487f02f12ec7929e4f01ae1a1dc251fabe3afcad5687

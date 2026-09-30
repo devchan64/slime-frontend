@@ -16,10 +16,6 @@ data:
     path: ../slime-assets/assets/ui/login/slime-welcome-v4.png
   - managementId: image.frontend.src.assets.terrain.dew-v3.webp
     path: ../slime-assets/assets/tiles/terrain/non-road/dew-v3.webp
-  - managementId: image.frontend.src.assets.terrain.flowers-v3.png
-    path: ../slime-assets/assets/tiles/terrain/non-road/flowers-v3.png
-  - managementId: image.frontend.src.assets.terrain.flowers-v3.webp
-    path: ../slime-assets/assets/tiles/terrain/non-road/flowers-v3.webp
   - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
     path: ../slime-assets/assets/backgrounds/meadow-backdrop-v2.webp
   - managementId: image.frontend.src.assets.terrain.road-v3.webp
@@ -122,3 +118,5 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/shallow-water-v1.png
   - managementId: image.terrain.deep-water
     path: ../slime-assets/assets/tiles/terrain/blocked/deep-water-v1.png
+  - managementId: image.terrain.wildflowers
+    path: ../slime-assets/assets/tiles/terrain/non-road/wildflowers-v1.png

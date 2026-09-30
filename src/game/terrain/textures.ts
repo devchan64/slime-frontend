@@ -28,7 +28,7 @@ import Phaser from "phaser";
 import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-v5.png";
 import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/dew-v3.webp";
 import road from "../../../../slime-assets/assets/tiles/terrain/road/road-v3.webp";
-import flowers from "../../../../slime-assets/assets/tiles/terrain/non-road/flowers-v3.webp";
+import flowers from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflowers-v1.png";
 import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { GAME_TILE_SOURCE_SIZE } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
