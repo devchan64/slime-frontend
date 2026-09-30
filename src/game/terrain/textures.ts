@@ -31,7 +31,7 @@ import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/dew-v3.w
 import road from "../../../../slime-assets/assets/tiles/terrain/road/road-v3.webp";
 import flowers from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflowers-v1.png";
 import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
-import { GAME_TILE_SOURCE_SIZE } from "./renderMetrics";
+import { validateTerrainSourceDimensions } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
 export const UNIFIED_WOOD_ROOF_TEXTURE = "wood-roof-v3";
@@ -69,12 +69,10 @@ const framePosition = (index: number) => ({ x: (index % ATLAS_COLUMNS) * FRAME_S
 const ROAD_SHAPE = { inset: TEXTURE_SIZE * .08, radius: TEXTURE_SIZE * .2, half: TEXTURE_SIZE / 2 };
 const FLOWER_BLEND = { center: TEXTURE_SIZE / 2, radius: TEXTURE_SIZE * .64, innerStop: .8 };
 
-function readValidatedTileSource(scene: Phaser.Scene, sourceKey: string) {
-  const sourceImage = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
-  if (sourceImage.width !== GAME_TILE_SOURCE_SIZE || sourceImage.height !== GAME_TILE_SOURCE_SIZE) {
-    throw new Error(`타일 원본 크기 오류: ${sourceKey}는 ${GAME_TILE_SOURCE_SIZE}×${GAME_TILE_SOURCE_SIZE}px여야 합니다. 실제 ${sourceImage.width}×${sourceImage.height}px.`);
-  }
-  return sourceImage;
+function readValidatedTileSource(currentPhaserScene: Phaser.Scene, currentSourceKey: string) {
+  const currentSourceImage = currentPhaserScene.textures.get(currentSourceKey).getSourceImage() as HTMLImageElement;
+  validateTerrainSourceDimensions(currentSourceKey, currentSourceImage.width, currentSourceImage.height);
+  return currentSourceImage;
 }
 
 // 연결된 변은 타일 끝까지 흙으로 채우고, 끊긴 변과 모서리에는 풀밭을 남긴다.

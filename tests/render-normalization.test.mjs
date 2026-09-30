@@ -40,3 +40,12 @@ test('마을에서 전투로 전환한 뒤 복귀하면 지형 크기와 캐시�
  const currentReturnPlan=normalizedRenderModule.prepareTerrain(currentGameState,1,currentBattlePlan);
  assert.equal(normalizedRenderModule.resolveMapTileSize(currentReturnPlan.surface).width,160);
 });
+
+test('등록된 256·512 정사각형 지형 원본을 허용하고 잘못된 규격을 거부한다',()=>{
+ for(const currentSourceSize of [256,512]) {
+  assert.doesNotThrow(()=>normalizedRenderModule.validateTerrainSourceDimensions('terrain-source-grass',currentSourceSize,currentSourceSize));
+ }
+ for(const [currentSourceWidth,currentSourceHeight] of [[0,0],[128,128],[512,256],[1024,1024]]) {
+  assert.throws(()=>normalizedRenderModule.validateTerrainSourceDimensions('terrain-source-grass',currentSourceWidth,currentSourceHeight),/타일 원본 크기 오류: terrain-source-grass/);
+ }
+});
