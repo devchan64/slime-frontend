@@ -22,7 +22,7 @@ import extendedStoneSource from "../../../../slime-assets/assets/tiles/terrain/n
 import extendedTreeBaseSource from "../../../../slime-assets/assets/tiles/terrain/blocked/tree-base-128.webp";
 import cliffWallPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/dew-meadow-cliff-face-v1.png";
 import Phaser from "phaser";
-import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-v4.png";
+import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-v5.png";
 import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/dew-v3.webp";
 import road from "../../../../slime-assets/assets/tiles/terrain/road/road-v3.webp";
 import water from "../../../../slime-assets/assets/tiles/terrain/blocked/water-v3.webp";

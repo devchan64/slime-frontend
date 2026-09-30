@@ -20,8 +20,6 @@ data:
     path: ../slime-assets/assets/tiles/terrain/non-road/flowers-v3.png
   - managementId: image.frontend.src.assets.terrain.flowers-v3.webp
     path: ../slime-assets/assets/tiles/terrain/non-road/flowers-v3.webp
-  - managementId: image.frontend.src.assets.terrain.grass-v3.png
-    path: ../slime-assets/assets/tiles/terrain/non-road/grass-v3.png
   - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
     path: ../slime-assets/assets/tiles/terrain/non-road/meadow-backdrop-v2.webp
   - managementId: image.frontend.src.assets.terrain.road-v3.webp
@@ -96,14 +94,10 @@ data:
     path: ../slime-assets/assets/tiles/buildings/marble/marble-roof-v2.png
   - managementId: image.character.default.idle-v6.sheet
     path: ../slime-assets/assets/sprites/characters/default/idle-v6/down-left-v1/idle-v6.png
-  - managementId: image.world.isloon.grass-mud-frame-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/grass-mud-frame-v1.png
   - managementId: image.world.stonewarm.stone-roof-v1
     path: ../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png
   - managementId: image.character.default.walk.imagegen-v2
     path: ../slime-assets/assets/sprites/characters/default/walk-v2/down-left-v1/walk-v2.png
-  - managementId: image.frontend.src.assets.terrain.grass-v4.png
-    path: ../slime-assets/assets/tiles/terrain/non-road/grass-v4.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.marble-large-window-wall-v1.png
     path: ../slime-assets/assets/tiles/buildings/marble/marble-large-window-wall-v1.png
   - managementId: image.frontend.src.assets.world.isloon.buildings.marble-plain-wall-v1.png
@@ -124,3 +118,5 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png
   - managementId: tile.buildings.roof.wood
     path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v3.png
+  - managementId: image.terrain.grass
+    path: ../slime-assets/assets/tiles/terrain/non-road/grass-v5.png
