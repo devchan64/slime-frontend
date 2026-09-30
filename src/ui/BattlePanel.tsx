@@ -1,3 +1,4 @@
+import {formatSkillEffectPreview} from '../client/skillEffectText';
 import {BorrowedExclusionNotice} from './BorrowedParticipation';
 import { watchTurnIdle } from "./turnIdleNotice";
 import { localizedSkill } from "../client/skillText";
@@ -310,14 +311,14 @@ function BattleSkillActionPanel({currentBattleState, selectedSkillIdentifier, se
         return <button class="secondary compact" key={currentTargetEntry.targetId} disabled={currentActionsDisabled}
           aria-pressed={selectedTargetUnit?.id === currentTargetEntry.targetId}
           onClick={() => {selectTargetPosition(currentTargetUnit.position); setSkillConfirmationVisible(false);}}>
-          <strong>{currentTargetUnit.name}</strong> · {t('battle.expectedDamage', {damage: currentTargetEntry.damage})}
+          <strong>{currentTargetUnit.name}</strong> · {formatSkillEffectPreview(currentTargetEntry,t)}
           {selectedTargetUnit?.id === currentTargetEntry.targetId && <small> · {t('battle.selected')}</small>}
         </button>;
       })}</div>
     </section>}
     {skillConfirmationVisible && selectedActionEntry && selectedTargetPreview && selectedTargetUnit && <BattleConfirmation
       title={t('battle.confirmAction', {action: currentActionLabel(selectedActionEntry)})}
-      summary={`${selectedTargetUnit.name} · ${t('battle.expectedDamage', {damage: selectedTargetPreview.damage})} · ${t('battle.apPreview', {cost: selectedActionEntry.apCost, remaining: (currentActingUnit?.ap ?? 0) - selectedActionEntry.apCost})}`}
+      summary={`${selectedTargetUnit.name} · ${formatSkillEffectPreview(selectedTargetPreview,t)} · ${t('battle.apPreview', {cost: selectedActionEntry.apCost, remaining: (currentActingUnit?.ap ?? 0) - selectedActionEntry.apCost})}`}
       disabled={currentActionsDisabled} close={() => setSkillConfirmationVisible(false)}
       confirm={() => {setSkillConfirmationVisible(false); executeSkillCommand('SKILL', selectedTargetUnit.id, selectedActionEntry.actionId);}} />}
   </>;

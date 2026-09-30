@@ -1,7 +1,9 @@
 export type SkillText = { name: string; description: string };
 export type SkillActionProgression = {
   actionId: string; name: string; requiredLevel: number; apCost: number;
-  powerBasisPoints: number; requiredEquipment: 'one_handed_sword';
+  powerBasisPoints: number; requiredEquipment: 'one_handed_sword' | 'two_handed_sword' | null;
+  effect?: 'physical_damage' | 'physical_drain' | 'magic_damage' | 'healing';
+  minimumRange?: number; maximumRange?: number; drainBasisPoints?: number; requiresFeedingAnatomy?: boolean;
 };
 export type SkillDefinition = SkillText & {
   id: string; icon: string; initial?: boolean;
@@ -17,11 +19,20 @@ export function localizedSkill(definition: SkillDefinition, locale: "ko" | "en")
     for (const currentActionDefinition of definition.actions) {
       if (!currentActionDefinition || typeof currentActionDefinition.actionId !== 'string' || !currentActionDefinition.actionId.trim()
           || typeof currentActionDefinition.name !== 'string' || !currentActionDefinition.name.trim()
-          || currentActionDefinition.requiredEquipment !== 'one_handed_sword'
+          || !['one_handed_sword','two_handed_sword',null].includes(currentActionDefinition.requiredEquipment)
           || ![currentActionDefinition.requiredLevel,currentActionDefinition.apCost,currentActionDefinition.powerBasisPoints]
             .every(currentPositiveInteger => Number.isSafeInteger(currentPositiveInteger) && currentPositiveInteger > 0)
           || currentActionIdentifiers.has(currentActionDefinition.actionId))
         throw new Error(`스킬 액션 정의가 올바르지 않습니다: ${definition.id}`);
+      if (currentActionDefinition.effect !== undefined) {
+        if (!['physical_damage','physical_drain','magic_damage','healing'].includes(currentActionDefinition.effect)
+            || !Number.isSafeInteger(currentActionDefinition.minimumRange) || currentActionDefinition.minimumRange! < 0
+            || !Number.isSafeInteger(currentActionDefinition.maximumRange) || currentActionDefinition.maximumRange! < 1
+            || currentActionDefinition.minimumRange! > currentActionDefinition.maximumRange!
+            || !Number.isSafeInteger(currentActionDefinition.drainBasisPoints) || currentActionDefinition.drainBasisPoints! < 0 || currentActionDefinition.drainBasisPoints! > 10000
+            || typeof currentActionDefinition.requiresFeedingAnatomy !== 'boolean')
+          throw new Error(`스킬 효과 정의가 올바르지 않습니다: ${definition.id}`);
+      }
       currentActionIdentifiers.add(currentActionDefinition.actionId);
     }
   }

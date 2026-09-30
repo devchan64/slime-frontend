@@ -318,7 +318,15 @@ function formatBattleSkillActions(receivedSkillActions) {
           || !Number.isSafeInteger(receivedSkillTarget.damage) || receivedSkillTarget.damage < 0
           || seenTargetIdentifiers.has(receivedSkillTarget.targetId)) throw new Error(invalidSkillMessage);
       seenTargetIdentifiers.add(receivedSkillTarget.targetId);
-      return renderSkillText(receivedSkillTarget.targetId) + ' (예상 피해 ' + receivedSkillTarget.damage + ')';
+      for (const currentEffectField of ['healing', 'drainHealing']) {
+        if (receivedSkillTarget[currentEffectField] !== undefined &&
+            (!Number.isSafeInteger(receivedSkillTarget[currentEffectField]) || receivedSkillTarget[currentEffectField] < 0))
+          throw new Error(invalidSkillMessage);
+      }
+      const currentEffectDescription = receivedSkillTarget.healing !== undefined
+        ? '예상 HP 회복 ' + receivedSkillTarget.healing
+        : '예상 피해 ' + receivedSkillTarget.damage + (receivedSkillTarget.drainHealing !== undefined ? ' · 자신 HP 회복 ' + receivedSkillTarget.drainHealing : '');
+      return renderSkillText(receivedSkillTarget.targetId) + ' (' + currentEffectDescription + ')';
     });
     return '전투 스킬 ' + renderSkillText(receivedSkillAction.name) + ' [' + renderSkillText(receivedSkillAction.actionId)
       + '] | ' + receivedSkillAction.apCost + ' AP | 대상: ' + (renderedSkillTargets.join(', ') || '없음')

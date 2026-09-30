@@ -57,3 +57,11 @@ actionSwordRequirement: "전투 슬롯 등록과 사용 가능한 한손검이 �
 costumeDetails: "의상 설명"
 costumeDescription: "흰색 반팔 티셔츠와 회색 반바지, 하얀색 운동화로 구성된 기본 의상입니다."
 costumeAppearanceOnly: "코스튬은 외형만 바꾸며 능력치나 스킬 성능에는 영향을 주지 않습니다."
+
+actionHealingPower: "{ap} AP · 영성 × {power} HP 회복"
+actionMagicPower: "{ap} AP · (10 + 2 × 영성) × {power} 위력"
+actionGreatswordRequirement: "전투 슬롯과 사용 가능한 양손검이 필요합니다. 본인 턴·사거리·AP 조건을 확인하세요."
+actionGeneralRequirement: "전투 슬롯 등록이 필요합니다. 본인 턴·대상·사거리·AP 조건을 확인하세요."
+actionRange: "사거리 {minimum}~{maximum}칸"
+actionFeedingRequirement: "포식에 적합한 신체가 필요합니다."
+actionDrainRate: "실제 HP 피해의 {percent}%를 자신 HP로 회복합니다."

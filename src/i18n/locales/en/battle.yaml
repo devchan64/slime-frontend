@@ -158,3 +158,6 @@ distributionGuild: "Guild allocation"
 distributionGuildStorage: "Materials allocated to guild companions are stored in the guild ledger, not in a personal reward inbox."
 dissectionApplied: "Dissection applied · operator skill level {level}"
 dissectionRecoveryHint: "Difficulty varies by monster. Low dissection proficiency may prevent intact material recovery."
+
+expectedHealing: "Expected HP healing {healing}"
+expectedDrain: "Self HP healing {healing}"

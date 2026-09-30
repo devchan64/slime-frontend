@@ -24,3 +24,10 @@ test('확정 액션 안내는 보존하고 잘못된 레벨·비용·장비·중
    [currentActionDefinition,currentActionDefinition]])
    assert.throws(()=>localizedSkill({...base,actions:currentInvalidActions},'ko'));
 });
+
+test('마법·회복의 사거리와 장비 없는 정의를 읽고 불완전한 효과를 거절한다',()=>{
+ const currentActionDefinition={actionId:'healing_weave',name:'상처 엮기',requiredLevel:1,apCost:4,powerBasisPoints:20000,requiredEquipment:null,effect:'healing',minimumRange:0,maximumRange:2,drainBasisPoints:0,requiresFeedingAnatomy:false};
+ assert.equal(localizedSkill({...base,actions:[currentActionDefinition]},'ko').actions[0].effect,'healing');
+ for(const currentInvalidFields of [{effect:'unknown'},{minimumRange:3},{maximumRange:undefined},{drainBasisPoints:10001},{requiresFeedingAnatomy:1}])
+  assert.throws(()=>localizedSkill({...base,actions:[{...currentActionDefinition,...currentInvalidFields}]},'ko'));
+});

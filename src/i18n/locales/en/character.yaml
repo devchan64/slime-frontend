@@ -57,3 +57,11 @@ actionSwordRequirement: "Requires a battle skill slot and a usable one-handed sw
 costumeDetails: "Outfit details"
 costumeDescription: "A standard outfit with a white short-sleeved T-shirt, gray shorts, and white sneakers."
 costumeAppearanceOnly: "Costumes change appearance only. They do not affect attributes or skill performance."
+
+actionHealingPower: "{ap} AP · Restore spirit × {power} HP"
+actionMagicPower: "{ap} AP · (10 + 2 × spirit) × {power} power"
+actionGreatswordRequirement: "Requires a battle slot and a usable two-handed sword. Check turn, range, and AP."
+actionGeneralRequirement: "Requires a battle slot. Check turn, target, range, and AP."
+actionRange: "Range {minimum}–{maximum} cells"
+actionFeedingRequirement: "Requires anatomy suited to feeding on the target."
+actionDrainRate: "Restore {percent}% of actual HP damage as self HP."
