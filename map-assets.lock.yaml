@@ -40,8 +40,8 @@ files:
 - path: assets/terrain/flowers-v3.webp
   source_path: assets/tiles/terrain/non-road/flowers-v3.webp
   sha256: 80f38fead4691177825ed98ac75b12b0e271bcf7d21b9ec832dd23f8dcb96570
-- path: assets/terrain/meadow-backdrop-v2.webp
-  source_path: assets/tiles/terrain/non-road/meadow-backdrop-v2.webp
+- path: assets/backgrounds/meadow-backdrop-v2.webp
+  source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
 - path: assets/terrain/road-v3.webp
   source_path: assets/tiles/terrain/road/road-v3.webp
