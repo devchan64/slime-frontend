@@ -1,0 +1,14 @@
+title: Mail and parcels
+help: Collect all parcel attachments at a guildhall. Expired parcels are discarded.
+refresh: Refresh parcels
+empty: No parcels available to collect.
+claim: Collect all
+next: Next page
+retry: Check collection result
+uncertain: The result is unknown. Check the same parcel again.
+pending: Processing parcel request…
+received: Parcel attachments collected.
+money: "{amount}p"
+costume: "Costume {name}"
+item: "{name} × {quantity}"
+expires: "Expires: {time}"
