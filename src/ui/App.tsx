@@ -1,4 +1,3 @@
-import {CityTaxPanel} from './CityTaxPanel';
 import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
 import {MainEventJournal} from './MainEventJournal';
@@ -554,7 +553,6 @@ export function App() {
           <section class="card">
             <div class="field-card-heading"><h1>{t('app.menu')}</h1><button class="secondary" onClick={() => navigateCharacterPage("#/world")}>{t('app.backToMap')}</button></div>
             {state.me.lastPartyDisband?.reason === "LEADER_OFFLINE" && <p role="status">{t("terms.partyDisbandNotice")}</p>}
-            <CityTaxPanel key={`${client.tokens?.user_id}:${state.generation}:${state.me.id}`} gameSessionClient={client}/>
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>

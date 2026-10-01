@@ -1,8 +1,0 @@
-title: City tax rates
-description: Confirmed rate information. Transaction quotes and tax settlement are not connected yet.
-refresh: Refresh tax rates
-loading: Loading tax rates
-invalid: Invalid tax rate response. Please refresh.
-period: 'Effective period (KST): {start} until {end}, exclusive'
-count: '{count} valid paid citizenships'
-refreshRule: Rates are evaluated daily at 04:00 Korea time. This view does not update automatically; refresh for the latest rates.
