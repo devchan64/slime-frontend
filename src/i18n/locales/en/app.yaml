@@ -109,3 +109,6 @@ refiningGradeMedium: "Mid grade"
 refiningGradeHigh: "High grade"
 
 partyListedMembers: "{count} listed characters"
+partyCreationFieldRequired: "Finish the encounter or battle and return to field mode to create a party."
+partyCreationGuildRequired: "Visit a city guild entrance to create a party."
+partyCreationCitizenshipRequired: "Obtain valid local citizenship, then visit the guild entrance to create a party."

@@ -109,3 +109,6 @@ refiningGradeMedium: "중급"
 refiningGradeHigh: "상급"
 
 partyListedMembers: "목록 인원 {count}명"
+partyCreationFieldRequired: "탐색 상태에서 전투·조우를 종료한 뒤 파티를 생성하세요."
+partyCreationGuildRequired: "도시의 모험가 길드 출입구에서 파티를 생성하세요."
+partyCreationCitizenshipRequired: "현지 시민권을 발급받은 뒤 길드 출입구에서 파티를 생성하세요."

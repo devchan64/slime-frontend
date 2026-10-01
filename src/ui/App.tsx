@@ -1,3 +1,4 @@
+import {readPartyCreationIssue} from './partyCreationAccess.mjs';
 import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCutinSettings';
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
 import {ChannelPanel} from './ChannelPanel';
@@ -376,6 +377,7 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
+  const currentPartyCreationIssue = readPartyCreationIssue(state);
   const disabled = !!battleReport || busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
   const battle = (battleReport ? battleReportSceneSnapshot.current : state)?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
@@ -767,15 +769,18 @@ export function App() {
                     )}
                   </>
                 ) : (
+                  <>
+                  {currentPartyCreationIssue && <p class="muted">{t(currentPartyCreationIssue)}</p>}
                   <button
                     class="secondary"
-                    disabled={disabled || state.me.mode !== "FIELD"}
+                    disabled={disabled || !!currentPartyCreationIssue}
                     onClick={() =>
                       command("/v1/game/party/commands", { action: "CREATE" })
                     }
                   >
                     {t('app.createParty')}
                   </button>
+                  </>
                 )}
                 {state.members
                   .filter((m) => m.id !== state.me.id)
