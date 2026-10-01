@@ -1,6 +1,6 @@
 import {executeSubstituteHuntCommand} from './text-substitute-hunts.mjs';
 import {executeParcelCommand} from './text-parcel-commands.mjs';
-import {readCostumeCatalog} from './text-costume-catalog.mjs';
+import {executeCostumeReadCommand} from './text-costume-catalog.mjs';
 import {executeNpcCommand} from './text-npc-commands.mjs';
 import {executeGuildSaleCommand} from './text-guild-sales.mjs';
 import {executeCitizenshipCommand,formatCitizenshipSummary} from './text-citizenship-commands.mjs';
@@ -159,7 +159,7 @@ export class TextClient {
     };
     if (name === 'substitute') return executeSubstituteHuntCommand(this,args);
     if (name === 'parcels') return executeParcelCommand(this,args);
-    if (name === 'costumes') return readCostumeCatalog(this,args);
+    if (name === 'costumes') return executeCostumeReadCommand(this,args);
     if (name === 'npc'||name === 'quest') return executeNpcCommand(this,name,args);
     if (name === 'materials') return executeGuildSaleCommand(this,args);
     if (name === 'citizenship') return executeCitizenshipCommand(this,args);
