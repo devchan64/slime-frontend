@@ -30,13 +30,15 @@ window.fetch=async(currentInput,currentOptions)=>{
 };
 (async()=>{try{
  const currentTestContext=await (await fetch('/test-context')).json();
- setLocale('ko');currentGameClient.tokens=currentTestContext.tokens;currentFacilityIdentifier=currentTestContext.facilityId;
+ setLocale(currentTestContext.locale);currentGameClient.tokens=currentTestContext.tokens;currentFacilityIdentifier=currentTestContext.facilityId;
  currentGameClient.onState=()=>renderParcelPanel();
  currentGameClient.accept(await currentGameClient.request('/v1/game/state'));
  const currentOriginalVersion=currentGameClient.state!.me.version;
  await currentWaitRender();await currentWaitRender();
  await clickParcelButton('parcels.refresh');
  await waitParcelCondition(()=>document.body.textContent!.includes('7p'),'첨부 금액 표시');
+ assertBrowserCondition(document.body.textContent!.includes(currentTestContext.expectedMaterialName+' × 2'),'실제 카탈로그의 언어별 재료 이름 표시');
+ assertBrowserCondition(!document.body.textContent!.includes('protein-jelly'),'내부 아이템 ID 대신 이름 표시');
  await clickParcelButton('parcels.claim');
  await waitParcelCondition(()=>document.body.textContent!.includes(t('parcels.uncertain')),'응답 유실 후 미확정 안내');
  await clickParcelButton('parcels.retry');
