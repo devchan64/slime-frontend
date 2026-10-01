@@ -16,6 +16,9 @@ citizenship list        보유 시민권·상태·기간 최신 조회
 citizenship guilds      현재 맵 길드 ID·입구 조회
 citizenship quote 길드ID 시민권 발급 견적
 citizenship buy 길드ID  확인한 견적으로 시민권 발급
+workshop craft|repair|consumable catalog 시설ID [다음커서] 품목·수리 대상 조회
+workshop craft|repair|consumable quote 시설ID 품목ID [소모품 수량] 견적
+workshop craft|repair|consumable create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID
 consumables catalog 시설ID / quote 시설ID 품목ID 수량 소모품 제작 목록·견적
 consumables create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID 제작·조회·수령
 processing facilities  현재 맵 작업장 ID·입구 조회
