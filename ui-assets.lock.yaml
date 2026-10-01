@@ -3,10 +3,10 @@ repository: slime-assets
 files:
 - path: assets/ui/animation-labels.yaml
   source_path: assets/ui/animation-labels.yaml
-  sha256: 7cd7818caf4d2dec79a133e8e9eef806e8f1e1df5393c3eb8c175b8676c2b341
+  sha256: 0031bc4f95a9e480699fdf4523d3426a6fe8722ef35c4e03741b3ea553926339
 - path: assets/ui/cutins.yaml
   source_path: assets/ui/cutins.yaml
-  sha256: 3861a99a517b021fab5d1ed7db30345ec11390dda86d71ea11c8ef11e6f6ee7a
+  sha256: 68839bd550424322eeabc9781ccf3d8cd470f6432d63906172283f2a5364271b
 - path: assets/ui/login/slime-welcome-v4.png
   source_path: assets/ui/login/slime-welcome-v4.png
   sha256: d0e0ee50f661b50812cc4560a26f60ff40eef65265756c7340d96495c5437490

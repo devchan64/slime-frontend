@@ -1,3 +1,8 @@
+import newMonsterMetadata4 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.animation.json";
+import newMonsterMetadata3 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.animation.json";
+import newMonsterMetadata2 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.animation.json";
+import newMonsterMetadata1 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.animation.json";
+import newMonsterMetadata0 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.animation.json";
 import { createBoardActorAnimation } from './boardAnimation';
 import { calculateIdlePhase } from "./idlePhase";
 import type Phaser from "phaser";
@@ -29,6 +34,11 @@ export const DEFAULT_IDLE_DIRECTION_ASSETS = {
 export const ACTOR_IDLE_ASSETS = {
   "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-v1/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
   "human": DEFAULT_IDLE_DIRECTION_ASSETS.down_left,
+  "moss-turtle": { key: "idle-moss-turtle", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata0) },
+  "mist-frog": { key: "idle-mist-frog", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata1) },
+  "sand-scorpion": { key: "idle-sand-scorpion", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata2) },
+  "ember-hedgehog": { key: "idle-ember-hedgehog", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata3) },
+  "crystal-bat": { key: "idle-crystal-bat", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata4) },
   "slime": { key: "idle-slime", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata1) },
   "beast": { key: "idle-beast", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata2) },
   "giant": { key: "idle-giant", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(actorIdleMetadata3) },

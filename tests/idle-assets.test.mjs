@@ -8,11 +8,11 @@ const idleModulePath = pathToFileURL(resolve('src/game/animation/idleActors.ts')
 const idleBundleOutput = await build({entryPoints:['src/game/animation/idleActors.ts'],bundle:true,write:false,format:'esm',platform:'node',define:{'import.meta.url':JSON.stringify(idleModulePath)}});
 const {ACTOR_IDLE_ASSETS,ACTOR_IDLE_TEXTURES,DEFAULT_IDLE_DIRECTION_ASSETS,resolveActorIdleAsset,updateActorIdleFrame} = await import(`data:text/javascript;base64,${Buffer.from(idleBundleOutput.outputFiles[0].text).toString('base64')}`);
 
-test('캐릭터 대기·휴식과 몬스터 10종의 등록 파일·관리 ID가 중복되지 않는다',()=>{
+test('캐릭터 대기·휴식과 몬스터 15종의 등록 파일·관리 ID가 중복되지 않는다',()=>{
  const registeredIdleAssets=Object.values(ACTOR_IDLE_ASSETS);
- assert.equal(registeredIdleAssets.length,12);
- assert.equal(new Set(registeredIdleAssets.map(idleAssetRecord=>idleAssetRecord.key)).size,12);
- assert.equal(new Set(registeredIdleAssets.map(idleAssetRecord=>idleAssetRecord.animation.data.animationId)).size,12);
+ assert.equal(registeredIdleAssets.length,17);
+ assert.equal(new Set(registeredIdleAssets.map(idleAssetRecord=>idleAssetRecord.key)).size,17);
+ assert.equal(new Set(registeredIdleAssets.map(idleAssetRecord=>idleAssetRecord.animation.data.animationId)).size,17);
  for(const idleAssetRecord of registeredIdleAssets) assert.ok(existsSync(new URL(idleAssetRecord.url)));
 });
 test('등록된 모든 방향은 지정된 시간 경계에서 프레임을 전환하고 반복한다',()=>{
@@ -45,8 +45,8 @@ test('첫 프레임이 이미 선택되어 있어도 발 기준점을 적용한�
 });
 
 test('정면왼쪽 대기 시트는 한 번 로드하고 8fps로 재생한다',()=>{
- assert.equal(ACTOR_IDLE_TEXTURES.length,12);
- assert.equal(new Set(ACTOR_IDLE_TEXTURES.map(currentAssetRecord=>currentAssetRecord.key)).size,12);
+ assert.equal(ACTOR_IDLE_TEXTURES.length,17);
+ assert.equal(new Set(ACTOR_IDLE_TEXTURES.map(currentAssetRecord=>currentAssetRecord.key)).size,17);
  const renderedCharacterImage={scene:{time:{now:0}},frame:{name:''},originX:0,originY:0,
   getData(currentDataName){return currentDataName==='actorIdleKind'?'human':0;},
   setTexture(currentTextureKey,currentFrameName){this.textureKey=currentTextureKey;this.frame.name=currentFrameName;return this;},

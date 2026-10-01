@@ -16,11 +16,11 @@ const { outputFiles: actionCutinAssetOutputs } = await build({
 const { resolveActionCutinAsset, parseActionCutinCatalog, resolveActionCutinFrame } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinAssetOutputs[0].text).toString('base64')}`);
 const defaultCharacterGroups = { kind: 'character', groups: { costume: 'default-v1', hair: 'default-v1', face: 'default-v1' } };
 test('코스튬·헤어·얼굴의 등록된 전체 조합만 연결한다', () => {
-  assert.match(resolveActionCutinAsset(defaultCharacterGroups), /characters\/default\/cutins\/default-punch-v1\.png$/);
+  assert.match(resolveActionCutinAsset(defaultCharacterGroups), /characters\/default\/battle-cutins\/default-punch-v1\.png$/);
   for (const appearanceGroupKey of ['costume', 'hair', 'face']) {
     assert.throws(() => resolveActionCutinAsset({ ...defaultCharacterGroups, groups: { ...defaultCharacterGroups.groups, [appearanceGroupKey]: 'unknown' } }), /조합/);
   }
-  assert.match(resolveActionCutinAsset({ kind: 'monster', group: 'slime' }), /standing-v1\/slime-idle-v1\.png$/);
+  assert.match(resolveActionCutinAsset({ kind: 'monster', group: 'slime' }), /standing-v1\/down-left-v1\/slime-idle-v2\.png$/);
   assert.throws(() => resolveActionCutinAsset({ kind: 'monster', group: '__proto__' }), /조합/);
 });
 test('잘못된 YAML·중복 그룹·알 수 없는 필드·없는 이미지 참조는 거절한다', () => {
@@ -33,31 +33,32 @@ test('잘못된 YAML·중복 그룹·알 수 없는 필드·없는 이미지 참
   ]) assert.throws(() => parseActionCutinCatalog(invalidCatalogSource), /액션 컷인/);
 });
 
-test('등록된 시트 몬스터는 첫 프레임만 컷인으로 사용한다', () => {
-  for (const currentMonsterGroup of ['field-rabbit','lantern-moth','reed-crawler','stone-crab','ridge-boar']) {
+test('등록된 시트 몬스터는 첫 프레임만 컷인으로 사용한다', async () => {
+  for (const currentMonsterGroup of ['field-rabbit','lantern-moth','reed-crawler','stone-crab','ridge-boar','moss-turtle','mist-frog','sand-scorpion','ember-hedgehog','crystal-bat']) {
     const currentMonsterAppearance = {kind:'monster',group:currentMonsterGroup};
     assert.ok(resolveActionCutinAsset(currentMonsterAppearance).endsWith(`${currentMonsterGroup}-idle-v1.png`));
     const currentCutinFrame = resolveActionCutinFrame(currentMonsterAppearance);
-    assert.deepEqual(currentCutinFrame.rect,{x:0,y:0,width:313,height:313});
+    const registeredMonsterMetadata=JSON.parse(await readFile(`../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/${currentMonsterGroup}-idle-v1.animation.json`,'utf8'));
+    assert.deepEqual(currentCutinFrame.rect,registeredMonsterMetadata.frames[0].rect);
     assert.ok(currentCutinFrame.sheet.width > currentCutinFrame.rect.width);
   }
   assert.equal(resolveActionCutinFrame(defaultCharacterGroups),null);
 });
 
 test('캐릭터 피격 컷인은 통합 대기 시트의 전방 좌측 첫 셀을 사용한다',()=>{
- assert.match(resolveActionCutinAsset(defaultCharacterGroups,'target'),/idle-v6\/idle-v6\.png$/);
+ assert.match(resolveActionCutinAsset(defaultCharacterGroups,'target'),/idle-v6\/down-left-8frames-v1\/idle-v6\.png$/);
  assert.deepEqual(resolveActionCutinFrame(defaultCharacterGroups,'target'),{
-  rect:{x:0,y:0,width:384,height:384},sheet:{width:1536,height:1536}
+  rect:{x:0,y:0,width:384,height:384},sheet:{width:1536,height:768}
  });
 });
 
 test('슬라임·짐승·거인 컷인은 공격·피격 모두 대기 시트 첫 프레임을 사용한다', async () => {
-  for (const [currentMonsterGroup,currentSheetVersion] of [['slime',1],['beast',2],['giant',1]]) {
+  for (const [currentMonsterGroup,currentSheetVersion] of [['slime',2],['beast',2],['giant',1]]) {
     const currentMonsterAppearance={kind:'monster',group:currentMonsterGroup};
-    const currentAnimationMetadata=JSON.parse(await readFile(`../slime-assets/assets/sprites/monsters/standing-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.animation.json`,'utf8'));
+    const currentAnimationMetadata=JSON.parse(await readFile(`../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.animation.json`,'utf8'));
     const expectedCutinRectangle=currentAnimationMetadata.frames.find(currentFrameRecord=>currentFrameRecord.frameId==='down_left.0').rect;
     for(const currentActorRole of ['attacker','target']) {
-      assert.ok(resolveActionCutinAsset(currentMonsterAppearance,currentActorRole).endsWith(`/standing-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.png`));
+      assert.ok(resolveActionCutinAsset(currentMonsterAppearance,currentActorRole).endsWith(`/standing-v1/down-left-v1/${currentMonsterGroup}-idle-v${currentSheetVersion}.png`));
       assert.deepEqual(resolveActionCutinFrame(currentMonsterAppearance,currentActorRole),{rect:expectedCutinRectangle,sheet:currentAnimationMetadata.sheet});
     }
   }

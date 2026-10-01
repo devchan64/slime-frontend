@@ -42,7 +42,7 @@ files:
   sha256: 17c90152a0d5bf30a6d782c2fa895e72b6f833b82b1c4be0ebcb246547698bb1
 - path: assets/monsters/standing-v1/catalog.yaml
   source_path: assets/sprites/monsters/standing-v1/catalog.yaml
-  sha256: 51169e77071aac0c772729b3b6a7b3f3a51460bb9cb6de4b5becb92437e53565
+  sha256: 3ccf9d7fd3052b3f02b8f798ae66dfcbf8c026956f1a8cda8dc480040a362e0f
 - path: assets/monsters/standing-v1/crystal-lizard-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/crystal-lizard-idle-v1.animation.json
   sha256: 94be1597f66aca09e4865ec01282a0096440abe2d4837acc4f082742621517d8
@@ -97,3 +97,33 @@ files:
 - path: assets/characters/default/cutins/default-punch-v1.png
   source_path: assets/characters/default/battle-cutins/default-punch-v1.png
   sha256: 1439db1d819c579cd065c79d9b3da41d9439f280f5a4be27c437fbffc51a45b9
+- path: assets/monsters/standing-v1/moss-turtle-idle-v1.png
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png
+  sha256: 8cfd43954bb54499d56fb8b41383d57d4c3b4301bf45654e73d41b813f757011
+- path: assets/monsters/standing-v1/moss-turtle-idle-v1.animation.json
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.animation.json
+  sha256: b536e61bea315ecec319c528380872afd7d97802054f9d8e2243c213afea2193
+- path: assets/monsters/standing-v1/mist-frog-idle-v1.png
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png
+  sha256: e7d10a139c6f14a391ddb2245dae41e7386f399a10a87073fed40afdfba5cec2
+- path: assets/monsters/standing-v1/mist-frog-idle-v1.animation.json
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.animation.json
+  sha256: 1acec492f59da19caea0e70e2d9b9eb2e1d6aaa66e20aab3b1a7367ca17e2068
+- path: assets/monsters/standing-v1/sand-scorpion-idle-v1.png
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.png
+  sha256: 6c763b5f4ad0ee455ddd8f752aa0439ba23441a375b10623f574192eab2246ec
+- path: assets/monsters/standing-v1/sand-scorpion-idle-v1.animation.json
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.animation.json
+  sha256: e8e8b20ee05672c47f7ef985a2d65c0090b2eccfcadb9d778f0c14894d3d946d
+- path: assets/monsters/standing-v1/ember-hedgehog-idle-v1.png
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.png
+  sha256: 732f29efdaf7d290f840532e4cbf06294888d1d5ba20ad0b4fa5a3970406b303
+- path: assets/monsters/standing-v1/ember-hedgehog-idle-v1.animation.json
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.animation.json
+  sha256: 2f7977a1175ae919cc6e69fd08209342572c3e79dfe472ab49bf00372ef99f8c
+- path: assets/monsters/standing-v1/crystal-bat-idle-v1.png
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.png
+  sha256: 5d85bd185bbb2c4f689253eb4cc5f84099e0d23a7a9aad965848131699d3b3d8
+- path: assets/monsters/standing-v1/crystal-bat-idle-v1.animation.json
+  source_path: assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.animation.json
+  sha256: b73abe01b870650f8a51749a0bbb49c20abf5a1ab0bf6db79e6085b5be3b4b07

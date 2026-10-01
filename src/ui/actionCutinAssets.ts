@@ -1,3 +1,8 @@
+import newMonsterMetadata4 from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.animation.json';
+import newMonsterMetadata3 from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.animation.json';
+import newMonsterMetadata2 from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.animation.json';
+import newMonsterMetadata1 from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.animation.json';
+import newMonsterMetadata0 from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.animation.json';
 import giantCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.animation.json';
 import beastCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.animation.json';
 import slimeCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json';
@@ -14,6 +19,11 @@ import actionCutinCatalogSource from '../../../slime-assets/assets/ui/cutins.yam
 // 기본 이미지는 코스튬·헤어·얼굴 세 그룹을 합성한 정식 기본 조합이다.
 // 새 조합은 전용 합성 산출물을 등록해야 하며 다른 외형으로 대체하지 않는다.
 const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
+  'crystal-bat': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.png', import.meta.url).href,
+  'ember-hedgehog': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.png', import.meta.url).href,
+  'sand-scorpion': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.png', import.meta.url).href,
+  'mist-frog': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png', import.meta.url).href,
+  'moss-turtle': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png', import.meta.url).href,
   'ridge-boar': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ridge-boar-idle-v1.png', import.meta.url).href,
   'stone-crab': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/stone-crab-idle-v1.png', import.meta.url).href,
   'field-rabbit': new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.png', import.meta.url).href,
@@ -63,6 +73,11 @@ export function resolveActionCutinAsset(actionCutinAppearanceRecord: ActionCutin
 // 전용 몬스터 컷인 완성 전에는 대기 애니메이션의 전방 좌측 첫 프레임을 사용한다.
 const REGISTERED_CUTIN_SHEETS: Record<string, typeof rabbitCutinMetadata> = {
   slime: slimeCutinMetadata, beast: beastCutinMetadata, giant: giantCutinMetadata,
+  'moss-turtle': newMonsterMetadata0,
+  'mist-frog': newMonsterMetadata1,
+  'sand-scorpion': newMonsterMetadata2,
+  'ember-hedgehog': newMonsterMetadata3,
+  'crystal-bat': newMonsterMetadata4,
   'ridge-boar': boarCutinMetadata,
   'stone-crab': crabCutinMetadata,
   'field-rabbit': rabbitCutinMetadata, 'lantern-moth': mothCutinMetadata, 'reed-crawler': crawlerCutinMetadata,
