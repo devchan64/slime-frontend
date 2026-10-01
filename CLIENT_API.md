@@ -269,3 +269,15 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 `node scripts/build-skillbook-browser-test.mjs <출력.js>`로 실제 `SkillbookPanel`·`Client`를 사용하는 검사 번들을 만든다. 백엔드 자동화 회귀 실행 시 `SLIME_SKILLBOOK_BROWSER_BUNDLE`에 이 파일의 절대 경로를 전달하고 `tests/test_skillbook_live_browser.py`를 선택한다. 검사 서버가 인증 문맥을 제공하며 Chrome에서 구매·열람의 첫 성공 응답을 각각 유실시키고 같은 버튼으로 재시도한다. 요청 본문 유지, 완료 표시, 재열람 무변경을 확인하고 서버 검사가 DB의 단일 결제·소유 기록을 확인한다. 번들은 검사용 산출물이며 제품 런타임 의존성이 아니다.
 
 전투 상태의 선택적 `apRecoveryPolicyVersion`은 자기 턴 AP 회복의 반올림 방식을 고정한다. `2`는 최대 AP의 절반을 내림하고 `1` 또는 필드가 없는 저장 전투는 기존 반올림을 유지한다. AP 패널의 회복량과 규칙 설명은 이 값을 함께 사용한다. 새 필드를 이해하는 클라이언트를 먼저 배포해야 신규 전투의 안내가 서버 판정과 일치한다.
+
+### 텍스트 소모품 제작
+
+`processing facilities`로 공방 입구를 찾은 뒤 다음 명령을 사용한다. 기존 공방 API의 `kind=consumable` 계약이며, GUI와 `workshop-validation.mjs`의 목록·견적·계약 검증을 공유한다.
+
+- `consumables catalog 시설ID`: 제작 품목 ID·이름
+- `consumables quote 시설ID 품목ID 수량`: 1~1000개 견적, 총 대금·시간·재료 소비·부족분 대체 구매 수량
+- `consumables create 시설ID`: 확인한 견적으로 계약
+- `consumables contracts 시설ID [다음커서]`: 제작 중·수령 가능·수령 완료 계약 조회
+- `consumables claim 시설ID 계약ID`: 완성 소모품 수령
+
+견적은 캐릭터·세션·위치·상태 버전에 연결한다. 변경되면 다시 견적을 받아야 한다. 계약/수령 응답이 불명확하면 `retry`로 원래 본문을 재전송한다. 수령은 계약 ID로 중복 지급을 방지하므로 별도 요청 ID를 보내지 않는다. 시민권·가격·재료·완료 시각의 최종 판정은 서버가 담당한다.
