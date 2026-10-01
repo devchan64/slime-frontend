@@ -6,6 +6,7 @@ const HELP = `state                  최신 상태 조회
 guards                 현재 필드 경비센터 ID·좌표 조회
 permit quote 경비센터ID 5p 여행자증명서 견적 조회
 permit buy 경비센터ID   확인한 견적으로 발급 확정
+citizenship list        보유 시민권·상태·기간 최신 조회
 citizenship guilds      현재 맵 길드 ID·입구 조회
 citizenship quote 길드ID 시민권 100p 발급 견적
 citizenship buy 길드ID  확인한 견적으로 시민권 발급

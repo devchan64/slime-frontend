@@ -46,3 +46,22 @@ test('만료·상태 버전·채널 변경 후에는 이전 견적으로 구매�
   await assert.rejects(currentTextClient.execute('citizenship buy iseulon-guild'),/견적/);assert.equal(currentRequestCalls.length,1);
  }
 });
+
+test('시민권 최신 목록·상태 출력은 유효·만료 경계와 UTC 기간을 표시한다',async()=>{
+ const {formatCitizenshipSummary}=await import('../scripts/text-citizenship-commands.mjs');
+ const {formatState}=await import('../scripts/text-client-core.mjs');
+ const currentCitizenRecord={cityId:'iseulon',cityName:'이슬온',source:'purchase',startsAt:100,expiresAt:200,status:'VALID'};
+ assert.match(formatCitizenshipSummary({records:[currentCitizenRecord]},199),/유효.*유료 발급.*1970-01-01T/);
+ assert.throws(()=>formatCitizenshipSummary({records:[currentCitizenRecord]},200),/일치/);
+ const currentSummaryData={records:[{...currentCitizenRecord,status:'EXPIRED'}]};
+ const currentGameState={...createCitizenshipState(),serverTime:200};currentGameState.me.citizenshipSummary=currentSummaryData;
+ const {currentTextClient,currentRequestCalls}=setupCitizenshipClient([currentGameState]);
+ assert.match(await currentTextClient.execute('citizenship list'),/이슬온.*만료/);
+ assert.match(formatState(currentTextClient.state),/이슬온.*만료/);
+ assert.equal(currentRequestCalls[0].url,'http://localhost:18080/v1/game/state');
+ assert.equal(currentRequestCalls[0].body,undefined);
+ assert.match(formatCitizenshipSummary(undefined,200),/정보가 없습니다/);
+ assert.match(formatCitizenshipSummary({records:[]},200),/보유 시민권이 없습니다/);
+ assert.throws(()=>formatCitizenshipSummary(currentSummaryData,NaN),/서버 시각/);
+ assert.throws(()=>formatCitizenshipSummary({records:[{...currentCitizenRecord,extra:true}]},150));
+});

@@ -1,4 +1,4 @@
-import {executeCitizenshipCommand} from './text-citizenship-commands.mjs';
+import {executeCitizenshipCommand,formatCitizenshipSummary} from './text-citizenship-commands.mjs';
 import {executeProcessingCommand} from './text-processing-commands.mjs';
 import {formatTravelerPermitSummary,readTravelerGuardCenters,requireTravelerGuardPresence,validateTravelerQuoteResponse,captureTravelerQuoteContext} from './text-traveler-permits.mjs';
 import {normalizeChannelAddressInput,validateChannelIdentifierInput,formatChannelListingOutput} from './text-channel-commands.mjs';
@@ -245,6 +245,7 @@ export class TextClient {
 export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
+  if(state.me.citizenshipSummary!==undefined)lines.push(formatCitizenshipSummary(state.me.citizenshipSummary,state.serverTime));
   if(state.me.travelerPermitSummary!==undefined)lines.push(formatTravelerPermitSummary(state.me.travelerPermitSummary,state.serverTime,state.me.id));
   if(state.channel)lines.push('채널 '+normalizeChannelAddressInput(state.channel.address)+' ['+validateChannelIdentifierInput(state.channel.id)+']');
   if (Number.isInteger(state.me.hp) && Number.isInteger(state.me.maxHp)) lines.push('HP ' + state.me.hp + '/' + state.me.maxHp);
