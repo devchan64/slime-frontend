@@ -66,6 +66,7 @@ substitute list        대체 사냥 대상·비용 조회
 substitute run 조우ID   대체 사냥 실행
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
 loans [다음커서]        대여 파티원 목록
+loans participation     대여 전투 참가 예상·제외 사유
 retry                  결과 불명 명령을 같은 요청 ID로 재확인
 help / quit            도움말 / 로그아웃 후 종료`;
 

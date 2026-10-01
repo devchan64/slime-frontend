@@ -1,3 +1,4 @@
+import {readBorrowedParticipation} from './text-borrowed-participation.mjs';
 import {executeEquipmentCommand} from './text-equipment-commands.mjs';
 import {executeWorkshopCommand} from './text-workshop-commands.mjs';
 import {executeConsumableCommand} from './text-consumable-commands.mjs';
@@ -316,6 +317,7 @@ export class TextClient {
       return formatMainEventJournal(await this.request('/v1/game/main-events'));
     }
     if (name === 'loans') {
+      if(args[0]==='participation'){arity(1);return readBorrowedParticipation(this);}
       if (args.length > 1) throw new Error('loans 또는 loans 다음커서로 입력하세요.');
       return formatBorrowedLoanPage(await this.request('/v1/game/loans' + (args.length ? '?after=' + encodeURIComponent(args[0]) : '')));
     }
