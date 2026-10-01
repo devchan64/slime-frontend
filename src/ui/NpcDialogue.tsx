@@ -12,18 +12,22 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   const [currentDialogueNotice,setCurrentDialogueNotice]=useState<Notice>('');
   const [dialogueRequestPending,setDialogueRequestPending]=useState(false);
   const [dialoguePanelOpened,setDialoguePanelOpened]=useState(false);
+  const [pendingDeliveryEntry,setPendingDeliveryEntry]=useState<NpcQuestEntry|null>(null);
+  const confirmedDeliveryReference=useRef<NpcQuestEntry|null>(null);
   const activeDialogueReference=useRef(false);
   const pendingDialogueReference=useRef(false);
-  const initialSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
+  const initialSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch,
     character:gameSessionClient.state?.me.id,location:gameSessionClient.state?.location.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   function dialogueSessionMatches(){
     return activeDialogueReference.current&&gameSessionClient.tokens?.user_id===initialSessionReference.current.owner
       &&gameSessionClient.state?.generation===initialSessionReference.current.generation&&gameSessionClient.state?.me.id===initialSessionReference.current.character
+      &&gameSessionClient.state?.epoch===initialSessionReference.current.epoch
       &&gameSessionClient.state?.location.id===initialSessionReference.current.location&&gameSessionClient.state?.me.mode==='FIELD'
       &&createPositionIdentity(gameSessionClient.state?.me.position)===initialSessionReference.current.position;
   }
   async function loadNpcDialogue(){
     if(pendingDialogueReference.current||!dialogueSessionMatches())return;
+    clearDeliveryConfirmation();
     const requestedDialogueLocale=getLocale();
     const requestedCharacterVersion=gameSessionClient.state?.me.version;
     pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice('');
@@ -34,8 +38,20 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
     }catch(currentRequestError){if(dialogueSessionMatches())setCurrentDialogueNotice(currentRequestError as Error);}
     finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);if(requestedDialogueLocale!==getLocale()||requestedCharacterVersion!==gameSessionClient.state?.me.version)void loadNpcDialogue();}}
   }
+  function clearDeliveryConfirmation(){
+    confirmedDeliveryReference.current=null;setPendingDeliveryEntry(null);
+  }
+  function selectDeliveryEntry(currentQuestEntry:NpcQuestEntry){
+    if(actionsAreDisabled||pendingDialogueReference.current||!dialogueSessionMatches()||!currentQuestEntry.canExecute
+      ||currentDialoguePage?.characterVersion!==gameSessionClient.state?.me.version)return;
+    confirmedDeliveryReference.current=currentQuestEntry;setPendingDeliveryEntry(currentQuestEntry);
+  }
   async function executeNpcQuest(currentQuestEntry:NpcQuestEntry){
-    if(actionsAreDisabled||pendingDialogueReference.current||!currentDialoguePage||!currentQuestEntry.canExecute||!dialogueSessionMatches())return;
+    if(actionsAreDisabled||pendingDialogueReference.current||!currentDialoguePage||!currentQuestEntry.canExecute||!dialogueSessionMatches()
+      ||currentDialoguePage.characterVersion!==gameSessionClient.state?.me.version
+      ||!currentDialoguePage.entries.includes(currentQuestEntry)
+      ||(currentQuestEntry.action==='complete'&&confirmedDeliveryReference.current!==currentQuestEntry))return;
+    clearDeliveryConfirmation();
     pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice('');
     let questActionSucceeded=false;
     try{
@@ -51,7 +67,7 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue();},[dialoguePanelOpened,currentCharacterVersion,currentDialogueLocale]);
   return <section class="npc-dialogue">
     <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} aria-expanded={dialoguePanelOpened}
-      onClick={()=>setDialoguePanelOpened(!dialoguePanelOpened)}>{translateDialogueText('npc.talk',{name:currentNpcName})}</button>
+      onClick={()=>{clearDeliveryConfirmation();setDialoguePanelOpened(!dialoguePanelOpened);}}>{translateDialogueText('npc.talk',{name:currentNpcName})}</button>
     {dialoguePanelOpened&&<div>
       <div class="npc-dialogue-heading"><h3>{currentDialoguePage?.npc.name??translateDialogueText('npc.title')}</h3>
         <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void loadNpcDialogue()}>{translateDialogueText('journal.refresh')}</button></div>
@@ -68,8 +84,17 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
         <p>{translateDialogueText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>
         {currentQuestEntry.blockedReasons.map(currentReasonCode=><p class="is-warning" key={currentReasonCode}>{translateDialogueText(`npc.${currentReasonCode.toLowerCase().replaceAll('_','')}`)}</p>)}
         {currentQuestEntry.action&&<button class="compact" disabled={actionsAreDisabled||dialogueRequestPending||!currentQuestEntry.canExecute||currentDialoguePage.characterVersion!==currentCharacterVersion}
-          onClick={()=>void executeNpcQuest(currentQuestEntry)}>{translateDialogueText(`npc.${currentQuestEntry.action}`)}</button>}
+          onClick={()=>currentQuestEntry.action==='complete'?selectDeliveryEntry(currentQuestEntry):void executeNpcQuest(currentQuestEntry)}>{translateDialogueText(`npc.${currentQuestEntry.action}`)}</button>}
       </li>)}</ul>
+      {pendingDeliveryEntry&&currentDialoguePage?.characterVersion===currentCharacterVersion&&<section aria-label={translateDialogueText('npc.deliveryReview')}>
+        <h4>{translateDialogueText('npc.deliveryReview')}: {pendingDeliveryEntry.title}</h4>
+        <p>{translateDialogueText('npc.deliveryCharacter',{name:gameSessionClient.state?.me.name??''})}</p>
+        {pendingDeliveryEntry.items.map(currentMaterialItem=><p key={currentMaterialItem.itemId}>{translateDialogueText('npc.deliveryMaterial',{
+          name:currentMaterialItem.nameTranslations[currentDialogueLocale],quantity:currentMaterialItem.required})}</p>)}
+        <p>{translateDialogueText('journal.reward',{amount:pendingDeliveryEntry.moneyP})}</p>
+        <button disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void executeNpcQuest(pendingDeliveryEntry)}>{translateDialogueText('npc.deliveryConfirm')}</button>
+        <button class="secondary" disabled={dialogueRequestPending} onClick={clearDeliveryConfirmation}>{translateDialogueText('npc.deliveryCancel')}</button>
+      </section>}
     </div>}
   </section>;
 }

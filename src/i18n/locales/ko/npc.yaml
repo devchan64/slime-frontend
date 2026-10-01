@@ -9,10 +9,15 @@ locked: 조건 미충족
 accepted: 진행 중
 completed: 완료
 accept: 의뢰 수령
-complete: 표시된 재료 전달 · 보상 수령
+complete: 전달 내용 확인
 giverrequired: 수령 담당 NPC를 방문하세요.
 receiverrequired: 전달 담당 NPC를 방문하세요.
 prerequisiterequired: 선행 의뢰를 먼저 완료하세요.
 questlimitreached: 수령 한도에 도달했습니다. 진행 중인 의뢰를 완료하세요.
 materialsrequired: 전달할 재료가 부족합니다.
 citizenshiprequired: 이 도시의 유효한 시민권이 필요합니다.
+deliveryReview: 전달 내용 확인
+deliveryCharacter: '선택한 캐릭터: {name}'
+deliveryMaterial: '{name} {quantity}개 차감'
+deliveryConfirm: 전달하기
+deliveryCancel: 돌아가기

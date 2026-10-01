@@ -9,10 +9,15 @@ locked: Requirements not met
 accepted: In progress
 completed: Completed
 accept: Accept quest
-complete: Deliver listed materials · Claim reward
+complete: Review delivery
 giverrequired: Visit the NPC who offers this quest.
 receiverrequired: Visit the delivery NPC.
 prerequisiterequired: Complete the prerequisite quest first.
 questlimitreached: Quest limit reached. Complete an active quest first.
 materialsrequired: You do not have enough delivery materials.
 citizenshiprequired: Valid citizenship in this town is required.
+deliveryReview: Review delivery
+deliveryCharacter: 'Selected character: {name}'
+deliveryMaterial: 'Consume {quantity} × {name}'
+deliveryConfirm: Deliver
+deliveryCancel: Go back
