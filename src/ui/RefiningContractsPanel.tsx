@@ -34,6 +34,7 @@ export function RefiningContractsPanel({gameSessionClient,currentFacilityIdentif
         if(!matchesRefiningSession()) return;
       }
       const currentReceivedPage=parseRefiningContracts(await gameSessionClient.request(currentRequestBase+(currentPageCursor?'?after='+encodeURIComponent(currentPageCursor):'')));
+      if(currentReceivedPage.entries.some(currentContractEntry=>currentContractEntry.facilityId!==currentFacilityIdentifier))throw new Error('요청한 작업장과 가공 계약 목록이 일치하지 않습니다.');
       if(matchesRefiningSession()) setCurrentContractPage(currentReceivedPage);
     } catch(currentRequestError) {if(matchesRefiningSession()) setCurrentRequestNotice(currentRequestError as Error);}
     finally {pendingRequestReference.current=false;if(matchesRefiningSession()) setCurrentRequestPending(false);}

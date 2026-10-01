@@ -50,3 +50,35 @@ for(const currentFirstSubmissionFails of [false,true])test('가공 의뢰 완료
   currentClientMock.tokens.user_id='other';findRefiningButton(renderRefiningPanel(),'workshop.refiningBrowse').props.onClick();await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));assert.equal(currentRequestCalls.length,currentFirstSubmissionFails?4:3);
  }finally{globalThis.refiningCreateHarness=previousTestHarness;}
 });
+
+for(const currentMismatchKind of ['facility','collection','grade','quantity'])test('요청 조건과 다른 가공 응답을 계약에 사용하지 않는다: '+currentMismatchKind,async()=>{
+ const currentStateSlots=[],currentReferenceSlots=[],currentEffects=[],currentRequestCalls=[];
+ let currentStateCursor=0,currentReferenceCursor=0;
+ const currentRecipeEntry={collectionId:'hide',grade:'low',outputQuantity:1,inputQuantity:2,costP:1,durationSeconds:30,outputMaterial:{materialId:'leather-low',name:'하급 가죽',englishName:'Low leather'}};
+ const currentClientMock={tokens:{user_id:'owner'},state:{generation:1,location:{id:'city'},me:{id:'character',mode:'FIELD',battleId:null,position:{column:1,row:1},version:1}},request:async(currentRequestPath,currentRequestBody)=>{
+  currentRequestCalls.push({currentRequestPath,currentRequestBody});
+  if(currentRequestPath.includes('catalog'))return {facilityId:currentMismatchKind==='facility'?'other':'workshop',available:true,unavailableReason:null,grades:['low'],entries:[currentRecipeEntry]};
+  return {quote:{...currentRecipeEntry,ownedQuantity:10,collectionId:currentMismatchKind==='collection'?'iron-ore':'hide',grade:currentMismatchKind==='grade'?'high':'low',outputQuantity:currentMismatchKind==='quantity'?2:1},quoteToken:'a'.repeat(64),characterVersion:1,ownedCoins:10};
+ }};
+ const previousTestHarness=globalThis.refiningCreateHarness;
+ globalThis.refiningCreateHarness={effects:currentEffects,useState:currentInitialValue=>{
+  const currentSlotIndex=currentStateCursor++;if(!(currentSlotIndex in currentStateSlots))currentStateSlots[currentSlotIndex]=currentInitialValue;
+  return [currentStateSlots[currentSlotIndex],currentNextValue=>{currentStateSlots[currentSlotIndex]=currentNextValue;}];
+ },useRef:currentInitialValue=>{const currentSlotIndex=currentReferenceCursor++;return currentReferenceSlots[currentSlotIndex]??={current:currentInitialValue};}};
+ function renderRefiningMismatchPanel(){currentStateCursor=0;currentReferenceCursor=0;return RefiningCreatePanel({gameSessionClient:currentClientMock,currentFacilityIdentifier:'workshop',actionsAreDisabled:false});}
+ try{
+  let currentPanelTree=renderRefiningMismatchPanel();currentEffects[0]();
+  findRefiningButton(currentPanelTree,'workshop.refiningBrowse').props.onClick();
+  await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
+  currentPanelTree=renderRefiningMismatchPanel();
+  if(currentMismatchKind==='facility')assert.equal(findRefiningButton(currentPanelTree,'workshop.refiningQuote'),null);
+  else{
+   findRefiningButton(currentPanelTree,'workshop.refiningQuote').props.onClick();
+   await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
+   currentPanelTree=renderRefiningMismatchPanel();
+  }
+  assert.equal(findRefiningButton(currentPanelTree,'workshop.refiningSubmit'),null);
+  assert.equal(currentRequestCalls.filter(currentRequestCall=>currentRequestCall.currentRequestBody).length,0);
+  assert.match(currentStateSlots[4].message,/일치하지/);
+ }finally{globalThis.refiningCreateHarness=previousTestHarness;}
+});

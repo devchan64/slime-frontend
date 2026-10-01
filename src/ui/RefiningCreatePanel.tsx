@@ -28,7 +28,9 @@ export function RefiningCreatePanel({gameSessionClient,currentFacilityIdentifier
   pendingRequestReference.current=true;setCurrentRequestPending(true);setCurrentRequestNotice('');
   try{
    if(currentActionName==='catalog'){
+    setCurrentCatalogData(null);setCurrentQuoteData(null);currentCommandReference.current=null;
     const currentResponseData=parseRefiningCatalog(await gameSessionClient.request(currentRequestBase+'catalog'));
+    if(currentResponseData.facilityId!==currentFacilityIdentifier)throw new Error('요청한 작업장과 가공 목록이 일치하지 않습니다.');
     if(matchesRefiningSession()){setCurrentCatalogData(currentResponseData);setSelectedRecipeIndex(0);setCurrentQuoteData(null);currentCommandReference.current=null;}
    }else if(currentActionName==='quote'){
     const currentRecipeEntry=currentCatalogData?.entries[selectedRecipeIndex];
@@ -36,6 +38,8 @@ export function RefiningCreatePanel({gameSessionClient,currentFacilityIdentifier
     setCurrentQuoteData(null);currentCommandReference.current=null;
     const currentQueryParameters=new URLSearchParams({collectionId:currentRecipeEntry.collectionId,grade:currentRecipeEntry.grade,quantity:String(requestedOutputQuantity)});
     const currentResponseData=parseRefiningQuote(await gameSessionClient.request(currentRequestBase+'quote?'+currentQueryParameters));
+    if(currentResponseData.quote.collectionId!==currentRecipeEntry.collectionId||currentResponseData.quote.grade!==currentRecipeEntry.grade
+      ||currentResponseData.quote.outputQuantity!==requestedOutputQuantity)throw new Error('요청한 재료·등급·수량과 가공 견적이 일치하지 않습니다.');
     if(matchesRefiningSession()){setCurrentQuoteData(currentResponseData);currentCommandReference.current={requestId:crypto.randomUUID(),quote:currentResponseData};}
    }else{
     const currentSavedCommand=currentCommandReference.current;

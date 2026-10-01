@@ -57,3 +57,20 @@ test('가공 생성 완료 알림은 첫 계약 페이지를 갱신하고 떠난
   }finally{currentCleanupCallbacks.forEach(currentCleanup=>currentCleanup?.());globalThis.refiningHarness=previousTestHarness;}
  }
 });
+
+test('다른 작업장의 가공 계약 응답은 표시하지 않는다',async()=>{
+ const currentStoredPages=[],currentStoredNotices=[];let currentStateIndex=0;
+ const currentContractPage={serverTime:150,characterVersion:1,nextCursor:null,entries:[{contractId:'one',facilityId:'other',startedAt:100,readyAt:130,claimedAt:null,status:'READY',quote:{grade:'low',outputQuantity:1,inputQuantity:2,costP:1,durationSeconds:30,outputMaterial:{materialId:'leather',name:'가죽',englishName:'Leather'}}}]};
+ const currentClientMock={tokens:{user_id:'owner'},state:{generation:1,location:{id:'city'},me:{id:'character',mode:'FIELD',battleId:null,position:{column:1,row:1},version:1}},request:async()=>currentContractPage};
+ const previousTestHarness=globalThis.refiningHarness;
+ globalThis.refiningHarness={effects:[],useState:currentInitialValue=>{const currentSlotIndex=currentStateIndex++;return [currentInitialValue,currentNextValue=>{if(currentSlotIndex===0)currentStoredPages.push(currentNextValue);if(currentSlotIndex===1)currentStoredNotices.push(currentNextValue);}];}};
+ let currentCleanupCallbacks=[];
+ try{
+  const currentPanelTree=RefiningContractsPanel({gameSessionClient:currentClientMock,currentFacilityIdentifier:'workshop',actionsAreDisabled:false});
+  currentCleanupCallbacks=globalThis.refiningHarness.effects.map(currentEffect=>currentEffect());
+  currentPanelTree.props.children[0].props.onRefiningCreated();
+  await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
+  assert.deepEqual(currentStoredPages,[]);
+  assert.match(currentStoredNotices.at(-1).message,/일치하지/);
+ }finally{currentCleanupCallbacks.forEach(currentCleanup=>currentCleanup?.());globalThis.refiningHarness=previousTestHarness;}
+});
