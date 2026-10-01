@@ -9,7 +9,8 @@ export function parseSkillbookInventory(currentResponseValue:unknown):SkillbookI
     const currentBookIdentifiers=new Set<string>();
     for(const currentBookEntry of currentEntryCollection){
       if(!currentBookEntry||typeof currentBookEntry.definitionId!=='string'||!currentBookEntry.definitionId||currentBookIdentifiers.has(currentBookEntry.definitionId)
-        ||![currentBookEntry.definitionVersion,currentBookEntry.priceP,currentBookEntry.literacyRequired].every(currentNumericValue=>Number.isSafeInteger(currentNumericValue)&&currentNumericValue>=1)
+        ||![currentBookEntry.definitionVersion,currentBookEntry.literacyRequired].every(currentNumericValue=>Number.isSafeInteger(currentNumericValue)&&currentNumericValue>=1)
+        ||!Number.isSafeInteger(currentBookEntry.priceP)||currentBookEntry.priceP<(currentEntryCollection===currentBookResponse.books?0:1)
         ||typeof currentBookEntry.grantsSkill!=='string'||!currentBookEntry.grantsSkill||!currentBookEntry.nameTranslations?.ko||!currentBookEntry.nameTranslations?.en
         ||typeof currentBookEntry.nameTranslations.ko!=='string'||typeof currentBookEntry.nameTranslations.en!=='string')throw new Error('스킬북 정의 응답이 올바르지 않습니다.');
       currentBookIdentifiers.add(currentBookEntry.definitionId);

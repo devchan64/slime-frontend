@@ -24,3 +24,11 @@ test('서점 소유 여부가 실제 목록과 일치해야 한다',()=>{
   currentBookResponse.catalog[0].owned=false;
   assert.throws(()=>parseSkillbookInventory(currentBookResponse));
 });
+
+test('소포 지급 책의 0p 소유 기록은 허용하고 음수 가격은 거절한다',()=>{
+ const currentBookResponse=createSkillbookResponse();
+ currentBookResponse.books[0].priceP=0;
+ assert.equal(parseSkillbookInventory(currentBookResponse).books[0].priceP,0);
+ currentBookResponse.books[0].priceP=-1;
+ assert.throws(()=>parseSkillbookInventory(currentBookResponse));
+});
