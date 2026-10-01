@@ -1,3 +1,4 @@
+import {updateMapPointerGesture,type MapPointerGesture} from '../mapPointerGesture';
 import {validateSceneCostumeReferences} from '../../client/costumeAppearance';
 import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION, resolveMapTileSize} from "../terrain/renderMetrics";
 import { FieldIdleAction } from "../animation/fieldIdleAction";
@@ -147,7 +148,7 @@ export class MainScene extends Phaser.Scene {
   private rotation: MapRotation = 0;
   private viewSurface: Surface | null = null;
   private terrainPlan: TerrainPlan | null = null;
-  private panStart: {x:number;y:number;scrollX:number;scrollY:number} | null = null;
+  private panStart: MapPointerGesture & {x:number;y:number;scrollX:number;scrollY:number} | null = null;
   private battleMode: "MOVE" | "ATTACK" | null = null;
   private onSelect: (p: Position) => void;
   private previousMap = "";
@@ -225,19 +226,23 @@ export class MainScene extends Phaser.Scene {
     }
     this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
-      this.panStart={x:p.x,y:p.y,scrollX:this.cameras.main.scrollX,scrollY:this.cameras.main.scrollY};
+      if(this.panStart)return;
+      this.panStart={x:p.x,y:p.y,scrollX:this.cameras.main.scrollX,scrollY:this.cameras.main.scrollY,
+        currentPointerIdentifier:p.id,currentStartPositionX:p.x,currentStartPositionY:p.y,currentDragOccurred:false};
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({preventScroll:true});
     });
     this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
-      if (!p.isDown || !this.panStart) return;
+      if (!p.isDown || !this.panStart || !updateMapPointerGesture(this.panStart,p.id,p.x,p.y,DRAG_THRESHOLD)) return;
       const dx=p.x-this.panStart.x,dy=p.y-this.panStart.y;
-      if (Math.hypot(dx,dy)<DRAG_THRESHOLD) return;
+      if (!this.panStart.currentDragOccurred) return;
       this.cameras.main.setScroll(this.panStart.scrollX-dx/this.cameras.main.zoom,
         this.panStart.scrollY-dy/this.cameras.main.zoom);
     });
     this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
-      const start=this.panStart;this.panStart=null;
-      if (!start || Math.hypot(p.x-start.x,p.y-start.y)>=DRAG_THRESHOLD) return;
+      const start=this.panStart;
+      if (!start || !updateMapPointerGesture(start,p.id,p.x,p.y,DRAG_THRESHOLD)) return;
+      this.panStart=null;
+      if (start.currentDragOccurred) return;
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({ preventScroll: true });
       const at = this.cameras.main.getWorldPoint(p.x, p.y);
       if (!this.state) return;
@@ -272,6 +277,9 @@ export class MainScene extends Phaser.Scene {
         this.draw();
         this.onSelect(cell);
       }
+    });
+    this.input.on("pointerupoutside", (currentPointerEvent:Phaser.Input.Pointer) => {
+      if(this.panStart?.currentPointerIdentifier===currentPointerEvent.id)this.panStart=null;
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
       this.cameras.main.setZoom(
