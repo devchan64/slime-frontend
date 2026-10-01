@@ -40,6 +40,10 @@ rest start / rest stop 휴식 시작 / 중단
 bag                    최신 가방 목록
 first-aid              응급처치 (붕대 소비)
 use-item 소모품ID      회복·개인 표식 소모품 사용
+npc list               현재 맵 NPC ID·입구 조회
+npc talk NPC_ID        현장 NPC 대화·의뢰 조건 조회
+quest accept NPC_ID 의뢰ID 확인한 의뢰 수령
+quest complete NPC_ID 의뢰ID 확인한 재료 전달·완료
 journal                메인 의뢰 기록 조회
 rewards [다음커서]      계정 보관함 조회 (claim-all: 전체 수령)
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량

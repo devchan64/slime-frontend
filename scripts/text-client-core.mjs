@@ -1,3 +1,4 @@
+import {executeNpcCommand} from './text-npc-commands.mjs';
 import {executeGuildSaleCommand} from './text-guild-sales.mjs';
 import {executeCitizenshipCommand,formatCitizenshipSummary} from './text-citizenship-commands.mjs';
 import {executeProcessingCommand} from './text-processing-commands.mjs';
@@ -127,11 +128,13 @@ export class TextClient {
     if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','loans'].includes(name)
       &&!(name==='citizenship'&&['list','guilds'].includes(args[0]))
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
+      &&!(name==='npc'&&['list','talk'].includes(args[0]))
       &&!(name==='materials'&&args[0]==='list'))throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const battle = (type, extra = {}) => {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'npc'||name === 'quest') return executeNpcCommand(this,name,args);
     if (name === 'materials') return executeGuildSaleCommand(this,args);
     if (name === 'citizenship') return executeCitizenshipCommand(this,args);
     if (name === 'processing') return executeProcessingCommand(this,args);
