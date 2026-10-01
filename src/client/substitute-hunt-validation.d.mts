@@ -1,0 +1,3 @@
+import type {SubstituteHuntCatalog,SubstituteHuntReceipt} from './substituteHunt';
+export function parseSubstituteHuntCatalog(currentResponseValue:unknown):SubstituteHuntCatalog;
+export function parseSubstituteHuntReceipt(currentResponseValue:unknown,currentRequestIdentifier:string,currentEncounterIdentifier:string):SubstituteHuntReceipt;

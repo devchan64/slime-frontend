@@ -1,3 +1,4 @@
+import {executeSubstituteHuntCommand} from './text-substitute-hunts.mjs';
 import {executeParcelCommand} from './text-parcel-commands.mjs';
 import {readCostumeCatalog} from './text-costume-catalog.mjs';
 import {executeNpcCommand} from './text-npc-commands.mjs';
@@ -84,7 +85,7 @@ export class TextClient {
     if(this.pendingCommandRequest)throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const expectedVersion = path === BATTLE_PATH ? this.state.battle?.version : this.state.me.version;
     if (!Number.isSafeInteger(expectedVersion)) throw new Error('명령에 필요한 상태 버전이 없습니다.');
-    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,validateCommandResponse:currentCommandOptions.validateCommandResponse,
+    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,validateCommandResponse:currentCommandOptions.validateCommandResponse,fetchStateAfterReceipt:currentCommandOptions.fetchStateAfterReceipt,
       characterId:this.state.me.id,generation:this.state.generation,ownerId:this.tokens?.user_id};
     return this.submitPendingCommand();
   }
@@ -99,11 +100,20 @@ export class TextClient {
       for(let currentAttemptCount=0;currentAttemptCount<2;currentAttemptCount++){
         let currentCommandResult;
         try{
-          currentCommandResult=await this.request(currentPendingCommand.path,currentPendingCommand.payload);
-          currentPendingCommand.validateCommandResponse?.(currentCommandResult);
-          this.accept(currentCommandResult.state);
+          currentCommandResult=currentPendingCommand.confirmedCommandResult??await this.request(currentPendingCommand.path,currentPendingCommand.payload);
+          currentPendingCommand.validateCommandResponse?.(currentCommandResult,currentPendingCommand.payload);
+          if(currentPendingCommand.fetchStateAfterReceipt){
+            currentPendingCommand.confirmedCommandResult=currentCommandResult;
+            const currentFetchedState=await this.request('/v1/game/state');
+            if(this.state?.me.id!==currentPendingCommand.characterId||this.state.generation!==currentPendingCommand.generation
+              ||this.tokens?.user_id!==currentPendingCommand.ownerId||currentFetchedState.me?.id!==currentPendingCommand.characterId
+              ||currentFetchedState.generation!==currentPendingCommand.generation
+              ||currentFetchedState.me.version<currentCommandResult.substituteHunt.characterVersion)
+              throw new Error('대체 사냥 이후 상태가 현재 캐릭터·세션과 일치하지 않습니다.');
+            this.accept(currentFetchedState);
+          }else this.accept(currentCommandResult.state);
         }catch(currentRequestError){
-          const currentOutcomeUncertain=!(currentRequestError instanceof ApiFailure)||currentRequestError.status>=500||currentRequestError.code==='INVALID_API_RESPONSE';
+          const currentOutcomeUncertain=!!currentPendingCommand.confirmedCommandResult||!(currentRequestError instanceof ApiFailure)||currentRequestError.status>=500||currentRequestError.code==='INVALID_API_RESPONSE';
           if(!currentOutcomeUncertain){
             this.pendingCommandRequest=null;
             if(currentRequestError.code==='VERSION_CONFLICT')await this.snapshot();
@@ -132,11 +142,13 @@ export class TextClient {
       &&!(name==='citizenship'&&['list','guilds'].includes(args[0]))
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
       &&!(name==='npc'&&['list','talk'].includes(args[0]))
+      &&!(name==='substitute'&&args[0]==='list')
       &&!(name==='materials'&&args[0]==='list'))throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const battle = (type, extra = {}) => {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'substitute') return executeSubstituteHuntCommand(this,args);
     if (name === 'parcels') return executeParcelCommand(this,args);
     if (name === 'costumes') return readCostumeCatalog(this,args);
     if (name === 'npc'||name === 'quest') return executeNpcCommand(this,name,args);
