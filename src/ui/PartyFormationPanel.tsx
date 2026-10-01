@@ -20,10 +20,11 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
   const [currentFormationUncertain,setCurrentFormationUncertain]=useState(false);
   const activePanelReference=useRef(false),pendingRequestReference=useRef(false);
   const originalCommandReference=useRef<PendingFormationRequest|null>(null);
-  const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id,
+  const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch,location:gameSessionClient.state?.location?.id,character:gameSessionClient.state?.me.id,
     map:gameSessionClient.state?.map.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   function formationSessionMatches(){return activePanelReference.current&&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
     &&gameSessionClient.state?.generation===originalSessionReference.current.generation&&gameSessionClient.state?.me.id===originalSessionReference.current.character
+    &&gameSessionClient.state?.epoch===originalSessionReference.current.epoch&&gameSessionClient.state?.location?.id===originalSessionReference.current.location
     &&gameSessionClient.state?.map.id===originalSessionReference.current.map&&gameSessionClient.state?.me.mode==='FIELD'
     &&createPositionIdentity(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
   async function runFormationRequest(currentRequestAction:()=>Promise<void>){

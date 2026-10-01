@@ -21,7 +21,7 @@ async function inspectPermitPanelSession(currentSessionMutation){
   const currentHookValues=[];const currentEffectCallbacks=[];let currentHookIndex=0;let currentStateWrites=0;let currentRequestCount=0;let resolvePendingRequest;
   const previousHarnessValue=globalThis.permitPanelHarness;
   globalThis.permitPanelHarness={useState(currentInitialValue){currentHookIndex++;return [currentInitialValue,()=>{currentStateWrites++;}];},useRef(currentInitialValue){const currentHookSlot=currentHookIndex++;return currentHookValues[currentHookSlot]={current:currentInitialValue};},useEffect(currentCallbackValue){currentEffectCallbacks.push(currentCallbackValue);}};
-  const currentSessionClient={tokens:{user_id:'account'},state:{generation:1,me:{id:'owner',version:1,mode:'FIELD',battleId:null,position:{column:31,row:16}},map:{id:'moss-clearing'}},request:()=>{currentRequestCount++;return new Promise(currentResolveValue=>{resolvePendingRequest=currentResolveValue;});}};
+  const currentSessionClient={tokens:{user_id:'account'},state:{generation:1,epoch:1,location:{id:'source-channel'},me:{id:'owner',version:1,mode:'FIELD',battleId:null,position:{column:31,row:16}},map:{id:'moss-clearing'}},request:()=>{currentRequestCount++;return new Promise(currentResolveValue=>{resolvePendingRequest=currentResolveValue;});}};
   try{
     const currentPanelTree=TravelerPermitPanel({gameSessionClient:currentSessionClient,currentGuardDefinition,actionsAreDisabled:false});
     const currentCleanupCallbacks=currentEffectCallbacks.map(currentCallbackValue=>currentCallbackValue());
@@ -35,10 +35,12 @@ async function inspectPermitPanelSession(currentSessionMutation){
     return currentStateWrites-previousStateWrites;
   }finally{globalThis.permitPanelHarness=previousHarnessValue;}
 }
-test('발급 창구의 중복 클릭과 계정·캐릭터·위치·전투·화면 종료 뒤 늦은 응답을 차단한다',async()=>{
+test('발급 창구의 중복 클릭과 계정·캐릭터·채널·위치·전투·화면 종료 뒤 늦은 응답을 차단한다',async()=>{
   for(const currentSessionMutation of [
     currentSessionClient=>{currentSessionClient.tokens.user_id='another';},
     currentSessionClient=>{currentSessionClient.state.generation++;},
+    currentSessionClient=>{currentSessionClient.state.epoch++;},
+    currentSessionClient=>{currentSessionClient.state.location.id='other-channel';},
     currentSessionClient=>{currentSessionClient.state.me.id='another';},
     currentSessionClient=>{currentSessionClient.state.me.position={column:1,row:1};},
     currentSessionClient=>{currentSessionClient.state.me.battleId='battle';},

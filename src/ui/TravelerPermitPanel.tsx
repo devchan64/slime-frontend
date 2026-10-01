@@ -18,10 +18,11 @@ export function TravelerPermitPanel({gameSessionClient,currentGuardDefinition,ac
   const activePanelReference=useRef(false);
   const pendingRequestReference=useRef(false);
   const originalPurchaseReference=useRef<Record<string,unknown>|null>(null);
-  const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
+  const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch,location:gameSessionClient.state?.location?.id,
     character:gameSessionClient.state?.me.id,position:createPositionIdentity(gameSessionClient.state?.me.position),map:gameSessionClient.state?.map.id});
   function travelerSessionMatches(){return activePanelReference.current&&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
     &&gameSessionClient.state?.generation===originalSessionReference.current.generation&&gameSessionClient.state?.me.id===originalSessionReference.current.character
+    &&gameSessionClient.state?.epoch===originalSessionReference.current.epoch&&gameSessionClient.state?.location?.id===originalSessionReference.current.location
     &&gameSessionClient.state?.map.id===originalSessionReference.current.map&&gameSessionClient.state?.me.mode==='FIELD'&&!gameSessionClient.state?.me.battleId
     &&createPositionIdentity(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
   async function requestTravelerPrice(){
