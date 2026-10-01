@@ -59,6 +59,16 @@ async function enterChannelAddress(currentAddressText:string){const currentInput
   findChannelButton('aa22').click();await waitRenderCycle();
   verifyCurrentCondition(document.querySelector('[role="alert"]')?.textContent===(location.hash==='#en'?'Channel filled during transfer.':'경합으로 만석입니다.'),'서버의 만석 경합 오류를 선택 언어로 표시');
   verifyCurrentCondition(!document.body.textContent!.includes(t('channels.uncertain')),'확정 거절은 결과 불명과 구분');
+  currentRequestHandler=async()=>currentChannelRecords.map(currentChannelEntry=>currentChannelEntry.address==='aa22'
+    ? {...currentChannelEntry,onlineUsers:30,reservedSeats:30}:structuredClone(currentChannelEntry));
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(findChannelButton('aa22').disabled && findNamedButton(t('channels.joinAddress')).disabled,'만석 경합 후 갱신한 목록과 주소 입력 모두 이동 차단');
+  verifyCurrentCondition(document.querySelector('[data-channel-address="aa22"]')?.textContent?.includes(t('channels.population',{used:30,capacity:30,online:30})),'갱신한 서버 정원 표시');
+  const currentCommandsBeforeRefresh=currentCommandRecords.length;
+  currentRequestHandler=null;
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(!findChannelButton('aa22').disabled && !findNamedButton(t('channels.joinAddress')).disabled,'좌석이 빈 새 목록에서는 목록과 주소 이동 재개');
+  verifyCurrentCondition(currentCommandRecords.length===currentCommandsBeforeRefresh,'목록 갱신만으로 이동 명령을 자동 재전송하지 않음');
   currentFixtureClient.state={...currentFixtureClient.state,me:{...currentFixtureClient.state.me,partyId:'party'}};renderCurrentPanel();await waitRenderCycle();
   verifyCurrentCondition(findChannelButton('aa22').disabled && document.body.textContent!.includes(t('channels.leaveParty')),'파티 탈퇴 안내');
   currentFixtureClient.state=structuredClone(currentInitialState);currentPanelRevision++;
