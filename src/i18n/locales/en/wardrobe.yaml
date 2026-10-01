@@ -5,3 +5,10 @@ loading: Loading costumes…
 empty: No acquired costumes. The default design is available.
 value: "Standard value: {value}p"
 received: "Received by parcel: {time}"
+equip: Equip
+default: Use default design
+retry: Check equip result
+uncertain: The result is unknown. Check the same equip request again.
+equipped: Costume changed.
+unavailable: Finish combat and change your costume from the menu.
+invalidResponse: The equip response does not match the request, character, or design.

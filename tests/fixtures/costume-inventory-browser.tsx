@@ -8,7 +8,17 @@ function assertCostumeInventory(currentConditionValue:unknown,currentMessageText
 const currentOwnedEntry={costumeId:'default',version:1,designId:'default',designVersion:1,valueP:25,source:'parcel',acquiredAt:100,nameTranslations:{ko:'기본 의상',en:'Default outfit'},descriptionTranslations:{ko:'획득 당시 설명',en:'Description at acquisition'}};
 let currentResponseData:any={characterVersion:4,defaultCostumeId:'default',entries:[]};
 let currentDelayedResolve:((currentValue:any)=>void)|null=null;
-const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,me:{id:'hero'}},request:async()=>currentResponseData==='delay'?new Promise(currentResolveCallback=>{currentDelayedResolve=currentResolveCallback;}):structuredClone(currentResponseData)};
+let currentEquipAttempts=0;
+let currentOriginalEquipBody:any;
+const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,me:{id:'hero',mode:'FIELD',version:4}},request:async(currentRequestPath:string,currentRequestBody:any)=>{
+ if(currentRequestPath==='/v1/characters/me/costume'){
+  currentEquipAttempts++;
+  if(currentEquipAttempts===1){currentOriginalEquipBody=structuredClone(currentRequestBody);throw new TypeError('response lost');}
+  assertCostumeInventory(JSON.stringify(currentOriginalEquipBody)===JSON.stringify(currentRequestBody),'착용 재시도 원본 유지');
+  return {requestId:currentRequestBody.requestId,state:{...currentClientStub.state,me:{...currentClientStub.state.me,version:5,costumeAppearance:{costumeId:'default',costumeVersion:1,designId:'default',designVersion:1}}}};
+ }
+ return currentResponseData==='delay'?new Promise(currentResolveCallback=>{currentDelayedResolve=currentResolveCallback;}):structuredClone(currentResponseData);
+ },accept:(currentGameState:any)=>{currentClientStub.state=currentGameState;}};
 async function clickCostumeRefresh(){const currentRefreshButton=document.querySelector('button')!;assertCostumeInventory(!currentRefreshButton.disabled,'조회 버튼 사용 가능');currentRefreshButton.click();await currentWaitRender();}
 (async()=>{try{
  setLocale(location.hash==='#en'?'en':'ko');
@@ -28,6 +38,14 @@ async function clickCostumeRefresh(){const currentRefreshButton=document.querySe
  assertCostumeInventory(!document.body.textContent!.includes(t('wardrobe.value',{value:25})),'이전 세션의 지연 응답 무시');
  render(null,document.getElementById('root')!);currentResponseData=currentSavedResponse;
  render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);await currentWaitRender();await clickCostumeRefresh();
+ const currentEquipButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('wardrobe.equip'))!;
+ assertCostumeInventory(!currentEquipButton.disabled,'보유 코스튬 착용 가능');currentEquipButton.click();await currentWaitRender();
+ assertCostumeInventory(document.body.textContent!.includes(t('wardrobe.uncertain')),'착용 응답 유실 안내');
+ assertCostumeInventory(document.querySelector('button')!.disabled,'착용 미확정 중 조회 차단');
+ const currentRetryButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('wardrobe.retry'))!;currentRetryButton.click();await currentWaitRender();
+ assertCostumeInventory(document.body.textContent!.includes(t('wardrobe.equipped'))&&currentClientStub.state.me.version===5,'착용 결과와 상태 반영');
+ currentClientStub.state.me.mode='IN_BATTLE';render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);await currentWaitRender();
+ assertCostumeInventory([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('wardrobe.default'))?.disabled,'전투 중 기본 디자인 변경 차단');
  assertCostumeInventory(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();
