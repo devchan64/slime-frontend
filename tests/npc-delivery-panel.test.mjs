@@ -16,7 +16,7 @@ for(const currentChangeKind of ['none','version','epoch','location'])test('전�
  let currentStateCursor=0,currentReferenceCursor=0,currentAcceptedCount=0;
  const currentClientState={generation:1,epoch:1,location:{id:'city'},me:{id:'character',name:'여행자',version:2,mode:'FIELD',position:{column:1,row:1}}};
  const currentDialoguePage={serverTime:30,characterVersion:2,npc:{id:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market'},acceptedCount:1,maximumAcceptedCount:5,entries:[{eventId:'first',title:'첫 납품',status:'ACCEPTED',dialogue:'전달해 주세요.',items:[{itemId:'protein-jelly',required:2,owned:3,nameTranslations:{ko:'단백질젤리',en:'Protein jelly'}}],moneyP:4,action:'complete',canExecute:true,blockedReasons:[],giverNpcId:'npc',receiverNpcId:'npc'}]};
- const currentClientMock={tokens:{user_id:'owner'},state:currentClientState,accept:()=>{currentAcceptedCount++;},request:async(currentRequestPath,currentRequestBody)=>{currentRequestCalls.push({currentRequestPath,currentRequestBody});return currentRequestBody?{state:currentClientState}:currentDialoguePage;}};
+ const currentClientMock={tokens:{user_id:'owner'},state:currentClientState,accept:()=>{currentAcceptedCount++;},request:async(currentRequestPath,currentRequestBody)=>{currentRequestCalls.push({currentRequestPath,currentRequestBody});return currentRequestBody?{state:currentClientState}:currentRequestPath==='/v1/game/state'?currentClientState:currentDialoguePage;}};
  const previousTestHarness=globalThis.npcDeliveryHarness;
  globalThis.npcDeliveryHarness={effects:currentEffectCallbacks,useState:currentInitialValue=>{const currentSlotIndex=currentStateCursor++;if(!(currentSlotIndex in currentStateSlots))currentStateSlots[currentSlotIndex]=currentInitialValue;return [currentStateSlots[currentSlotIndex],currentNextValue=>{currentStateSlots[currentSlotIndex]=currentNextValue;}];},useRef:currentInitialValue=>{const currentSlotIndex=currentReferenceCursor++;return currentReferenceSlots[currentSlotIndex]??={current:currentInitialValue};}};
  function renderDeliveryPanel(){currentStateCursor=0;currentReferenceCursor=0;return NpcDialogue({gameSessionClient:currentClientMock,currentNpcIdentifier:'npc',currentNpcName:'모라',actionsAreDisabled:false,currentCharacterVersion:currentClientState.me.version});}
@@ -35,7 +35,7 @@ for(const currentChangeKind of ['none','version','epoch','location'])test('전�
   if(currentChangeKind==='location')currentClientState.location.id='other';
   currentConfirmButton.props.onClick();currentConfirmButton.props.onClick();await settleDeliveryWork();
   const currentPostedRequests=currentRequestCalls.filter(currentRequestCall=>currentRequestCall.currentRequestBody);
-  assert.equal(currentPostedRequests.length,currentChangeKind==='none'?1:0);assert.equal(currentAcceptedCount,currentChangeKind==='none'?1:0);
+  assert.equal(currentPostedRequests.length,currentChangeKind==='none'?1:0);assert.equal(currentAcceptedCount,currentChangeKind==='none'?2:1);
   if(currentChangeKind==='none')assert.deepEqual(currentPostedRequests[0],{currentRequestPath:'/v1/game/main-events/first/complete',currentRequestBody:{npcId:'npc',expectedVersion:2}});
  }finally{globalThis.npcDeliveryHarness=previousTestHarness;}
 });

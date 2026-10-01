@@ -25,18 +25,24 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
       &&gameSessionClient.state?.location.id===initialSessionReference.current.location&&gameSessionClient.state?.me.mode==='FIELD'
       &&createPositionIdentity(gameSessionClient.state?.me.position)===initialSessionReference.current.position;
   }
-  async function loadNpcDialogue(){
+  async function loadNpcDialogue(retainedDialogueNotice:Notice='',refreshCharacterState=false){
     if(pendingDialogueReference.current||!dialogueSessionMatches())return;
     clearDeliveryConfirmation();
     const requestedDialogueLocale=getLocale();
     const requestedCharacterVersion=gameSessionClient.state?.me.version;
-    pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice('');
+    pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice(retainedDialogueNotice);
     try{
+      if(refreshCharacterState){
+        const refreshedCharacterState=await gameSessionClient.request('/v1/game/state');
+        if(!dialogueSessionMatches())return;
+        gameSessionClient.accept(refreshedCharacterState);
+        if(!dialogueSessionMatches())return;
+      }
       const receivedDialoguePage=parseNpcDialogue(await gameSessionClient.request(`/v1/game/npcs/${encodeURIComponent(currentNpcIdentifier)}/main-events?language=${requestedDialogueLocale}`));
       if(receivedDialoguePage.npc.id!==currentNpcIdentifier)throw new Error('대화 NPC가 요청과 다릅니다.');
       if(dialogueSessionMatches()&&requestedDialogueLocale===getLocale())setCurrentDialoguePage(receivedDialoguePage);
     }catch(currentRequestError){if(dialogueSessionMatches())setCurrentDialogueNotice(currentRequestError as Error);}
-    finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);if(requestedDialogueLocale!==getLocale()||requestedCharacterVersion!==gameSessionClient.state?.me.version)void loadNpcDialogue();}}
+    finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);if(requestedDialogueLocale!==getLocale()||requestedCharacterVersion!==gameSessionClient.state?.me.version)void loadNpcDialogue(retainedDialogueNotice);}}
   }
   function clearDeliveryConfirmation(){
     confirmedDeliveryReference.current=null;setPendingDeliveryEntry(null);
@@ -54,23 +60,25 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
     clearDeliveryConfirmation();
     pendingDialogueReference.current=true;setDialogueRequestPending(true);setCurrentDialogueNotice('');
     let questActionSucceeded=false;
+    let failedQuestNotice:Notice='';
     try{
       const currentActionResponse=await gameSessionClient.request(`/v1/game/main-events/${encodeURIComponent(currentQuestEntry.eventId)}/${currentQuestEntry.action}`,
         {npcId:currentNpcIdentifier,expectedVersion:currentDialoguePage.characterVersion});
       if(dialogueSessionMatches()){gameSessionClient.accept(currentActionResponse.state);questActionSucceeded=true;}
-    }catch(currentRequestError){if(dialogueSessionMatches())setCurrentDialogueNotice(currentRequestError as Error);}
+    }catch(currentRequestError){if(dialogueSessionMatches()){failedQuestNotice=currentRequestError as Error;setCurrentDialogueNotice(failedQuestNotice);}}
     finally{pendingDialogueReference.current=false;if(dialogueSessionMatches()){setDialogueRequestPending(false);setCurrentDialoguePage(null);}}
-    // 명령 실패도 자동 재실행하지 않는다. 명시적인 새로고침으로 현재 조건을 다시 확인한다.
+    // 실패 후에는 상태와 대화만 재조회하며 재료 전달 명령을 다시 실행하지 않는다.
     if(questActionSucceeded)await loadNpcDialogue();
+    else if(failedQuestNotice&&dialogueSessionMatches())await loadNpcDialogue(failedQuestNotice,true);
   }
   useEffect(()=>{activeDialogueReference.current=true;return()=>{activeDialogueReference.current=false;};},[]);
-  useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue();},[dialoguePanelOpened,currentCharacterVersion,currentDialogueLocale]);
+  useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue(currentDialogueNotice);},[dialoguePanelOpened,currentCharacterVersion,currentDialogueLocale]);
   return <section class="npc-dialogue">
     <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} aria-expanded={dialoguePanelOpened}
       onClick={()=>{clearDeliveryConfirmation();setDialoguePanelOpened(!dialoguePanelOpened);}}>{translateDialogueText('npc.talk',{name:currentNpcName})}</button>
     {dialoguePanelOpened&&<div>
       <div class="npc-dialogue-heading"><h3>{currentDialoguePage?.npc.name??translateDialogueText('npc.title')}</h3>
-        <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void loadNpcDialogue()}>{translateDialogueText('journal.refresh')}</button></div>
+        <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void loadNpcDialogue('',true)}>{translateDialogueText('journal.refresh')}</button></div>
       {currentDialogueNotice&&<p role="alert">{noticeText(currentDialogueNotice,currentDialogueLocale,translateDialogueText)}</p>}
       {dialogueRequestPending&&<p role="status">{translateDialogueText('npc.pending')}</p>}
       {!dialogueRequestPending&&!currentDialoguePage&&<p>{translateDialogueText('npc.reload')}</p>}

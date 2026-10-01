@@ -5,10 +5,17 @@ import {t,setLocale,getLocale} from '../../src/i18n';
 const currentAssertionLabels:string[]=[];
 const currentMutationRequests:Array<{path:string;body:any}>=[];
 let currentQuestCompleted=false;
+let currentDeliveryFailure='';
+let currentMaterialsMissing=false;
 const currentFixtureClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,location:{id:'city'},me:{id:'hero',name:'여행자',mode:'FIELD',position:{column:1,row:1},version:2}},
  async request(currentRequestPath:string,currentRequestBody?:any):Promise<any>{
-  if(currentRequestBody){currentMutationRequests.push({path:currentRequestPath,body:structuredClone(currentRequestBody)});currentQuestCompleted=true;return {state:{...this.state,me:{...this.state.me,version:3}}};}
-  return {serverTime:30,characterVersion:this.state.me.version,npc:{id:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market'},acceptedCount:currentQuestCompleted?0:1,maximumAcceptedCount:5,entries:[{eventId:'first',title:'첫 납품',status:currentQuestCompleted?'COMPLETED':'ACCEPTED',dialogue:currentQuestCompleted?'고맙습니다.':'전달해 주세요.',items:[{itemId:'protein-jelly',required:2,owned:currentQuestCompleted?1:3,nameTranslations:{ko:'단백질젤리',en:'Protein jelly'}}],moneyP:4,action:currentQuestCompleted?null:'complete',canExecute:!currentQuestCompleted,blockedReasons:[],giverNpcId:'npc',receiverNpcId:'npc'}]};
+  if(currentRequestBody){currentMutationRequests.push({path:currentRequestPath,body:structuredClone(currentRequestBody)});
+   if(currentDeliveryFailure==='materials'){currentMaterialsMissing=true;this.state.me.version++;throw new Error('테스트 재료 부족');}
+   currentQuestCompleted=true;
+   if(currentDeliveryFailure==='response'){this.state.me.version++;throw new TypeError('테스트 응답 유실');}
+   return {state:{...this.state,me:{...this.state.me,version:3}}};}
+  if(currentRequestPath==='/v1/game/state')return structuredClone(this.state);
+  return {serverTime:30,characterVersion:this.state.me.version,npc:{id:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market'},acceptedCount:currentQuestCompleted?0:1,maximumAcceptedCount:5,entries:[{eventId:'first',title:'첫 납품',status:currentQuestCompleted?'COMPLETED':'ACCEPTED',dialogue:currentQuestCompleted?'고맙습니다.':'전달해 주세요.',items:[{itemId:'protein-jelly',required:2,owned:currentQuestCompleted||currentMaterialsMissing?1:3,nameTranslations:{ko:'단백질젤리',en:'Protein jelly'}}],moneyP:4,action:currentQuestCompleted?null:'complete',canExecute:!currentQuestCompleted&&!currentMaterialsMissing,blockedReasons:currentMaterialsMissing?['MATERIALS_REQUIRED']:[],giverNpcId:'npc',receiverNpcId:'npc'}]};
  },accept(currentReceivedState:any){this.state=currentReceivedState;renderDeliveryPanel();},
 };
 function renderDeliveryPanel(){render(<NpcDialogue gameSessionClient={currentFixtureClient as unknown as Client} currentNpcIdentifier="npc" currentNpcName="모라" actionsAreDisabled={false} currentCharacterVersion={currentFixtureClient.state.me.version}/>,document.getElementById('root')!);}
@@ -30,9 +37,15 @@ async function clickDeliveryButton(currentTranslationKey:string){const currentBu
  await clickDeliveryButton('npc.complete');await clickDeliveryButton('journal.refresh');
  verifyDeliveryCondition(!findNamedButton(t('npc.deliveryConfirm')),'새로고침 시 이전 확인 폐기');
  await clickDeliveryButton('npc.complete');
+ currentDeliveryFailure='materials';await clickDeliveryButton('npc.deliveryConfirm');await waitRenderCycle();
+ verifyDeliveryCondition(currentMutationRequests.length===1&&!currentQuestCompleted,'재료 부족 오류 뒤 전달 자동 재실행 없음');
+ verifyDeliveryCondition(findNamedButton(t('npc.complete'))?.disabled&&document.body.textContent?.includes(t('npc.materialsrequired')),'갱신된 재료 부족 조건 표시');
+ verifyDeliveryCondition(document.body.textContent?.includes('테스트 재료 부족'),'실패 이유 보존');
+ currentMaterialsMissing=false;currentFixtureClient.state.me.version++;await clickDeliveryButton('journal.refresh');
+ await clickDeliveryButton('npc.complete');currentDeliveryFailure='response';
  const currentConfirmButton=findNamedButton(t('npc.deliveryConfirm'))!;currentConfirmButton.click();currentConfirmButton.click();await waitRenderCycle();await waitRenderCycle();
- verifyDeliveryCondition(currentMutationRequests.length===1,'연속 클릭에도 전달 한 번');
- verifyDeliveryCondition(JSON.stringify(currentMutationRequests[0])===JSON.stringify({path:'/v1/game/main-events/first/complete',body:{npcId:'npc',expectedVersion:2}}),'확인한 버전과 NPC로 전달');
+ verifyDeliveryCondition(currentMutationRequests.length===2,'응답 유실·연속 클릭에도 추가 전달 없음');
+ verifyDeliveryCondition(JSON.stringify(currentMutationRequests[1])===JSON.stringify({path:'/v1/game/main-events/first/complete',body:{npcId:'npc',expectedVersion:4}}),'확인한 버전과 NPC로 전달');
  verifyDeliveryCondition(!findNamedButton(t('npc.deliveryConfirm'))&&!findNamedButton(t('npc.complete')),'완료 후 전달 버튼 제거');
  verifyDeliveryCondition(document.querySelector('li')?.textContent?.includes(t('npc.completed')),'완료 상태 갱신');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionLabels});
