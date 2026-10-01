@@ -51,3 +51,22 @@ test('이전 버전 목록과 예약 중 장비는 장착하지 않는다',async
  await assert.rejects(currentTextClient.execute('equipment unequip main_hand'),/먼저 조회/);
  assert.equal(currentRequestEntries.length,1);
 });
+
+test('장비 이력은 소유자·페이지 범위와 다음 버전을 검증한다',async()=>{
+ const currentHistorySnapshot={ownerCharacterId:'character',stateVersion:3,currentDurability:70,maxDurability:72,equippedSlot:null,reserved:false};
+ const currentHistoryPage={instanceId:CURRENT_INSTANCE_IDENTIFIER,nextBefore:3,items:[{recordId:'record',kind:'REPAIRED',sourceId:'repair-contract',before:{...currentHistorySnapshot,stateVersion:2,currentDurability:20,maxDurability:80},after:currentHistorySnapshot,createdAt:100}]};
+ const {currentTextClient,currentRequestEntries}=createEquipmentClient([currentHistoryPage]);
+ assert.match(await currentTextClient.execute('equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 4'),/수리 완료.*20\/80 → 70\/72\n다음 이전버전: 3/);
+ assert.ok(currentRequestEntries[0].url.endsWith('/history?before=4'));
+ for(const currentInvalidPage of [{...currentHistoryPage,nextBefore:2},{...currentHistoryPage,items:[{...currentHistoryPage.items[0],after:{...currentHistorySnapshot,ownerCharacterId:'other'}}]}]){
+  const {currentTextClient:currentInvalidClient}=createEquipmentClient([currentInvalidPage]);
+  await assert.rejects(currentInvalidClient.execute('equipment history '+CURRENT_INSTANCE_IDENTIFIER));
+ }
+ const {currentTextClient:currentWrongPageClient}=createEquipmentClient([currentHistoryPage]);
+ await assert.rejects(currentWrongPageClient.execute('equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 3'),/범위/);
+});
+test('장비 이력의 잘못된 개체와 페이지 인수는 요청하지 않는다',async()=>{
+ const {currentTextClient,currentRequestEntries}=createEquipmentClient([]);
+ for(const currentCommandText of ['equipment history','equipment history ../other','equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 0','equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 1.5','equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 9007199254740992'])await assert.rejects(currentTextClient.execute(currentCommandText));
+ assert.equal(currentRequestEntries.length,0);
+});

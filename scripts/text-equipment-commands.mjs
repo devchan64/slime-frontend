@@ -1,11 +1,33 @@
+import {parseEquipmentHistory} from '../src/client/equipment-history-validation.mjs';
 import {parseEquipmentInventory,EQUIPMENT_SLOT_NAMES} from '../src/client/equipment-validation.mjs';
+const EQUIPMENT_HISTORY_LABELS={ACQUIRED:'획득',EQUIPPED:'장착',UNEQUIPPED:'해제',REPAIR_RESERVED:'수리 예약',REPAIRED:'수리 완료',WORN:'전투 마모'};
 const EQUIPMENT_IDENTIFIER_PATTERN=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 function captureEquipmentContext(currentTextClient){
  const currentGameState=currentTextClient.state;
  return JSON.stringify([currentTextClient.tokens?.user_id,currentGameState?.me.id,currentGameState?.generation,currentGameState?.epoch,currentGameState?.me.version]);
 }
 export async function executeEquipmentCommand(currentTextClient,currentCommandArguments){
- const [currentActionName,currentTargetIdentifier]=currentCommandArguments;
+ const [currentActionName,currentTargetIdentifier,currentBeforeVersionText]=currentCommandArguments;
+ if(currentActionName==='history'){
+  if(currentCommandArguments.length<2||currentCommandArguments.length>3||!EQUIPMENT_IDENTIFIER_PATTERN.test(currentTargetIdentifier)
+   ||(currentBeforeVersionText!==undefined&&(!/^[1-9][0-9]*$/.test(currentBeforeVersionText)||!Number.isSafeInteger(Number(currentBeforeVersionText)))))throw new Error('equipment history 개체ID [이전버전]');
+  const currentHistoryContext=captureEquipmentContext(currentTextClient);
+  const currentHistoryOwner=currentTextClient.state?.me.id;
+  const currentHistoryPage=parseEquipmentHistory(await currentTextClient.request('/v1/game/equipment/'+currentTargetIdentifier+'/history'+(currentBeforeVersionText?'?before='+currentBeforeVersionText:'')),currentTargetIdentifier);
+  if(captureEquipmentContext(currentTextClient)!==currentHistoryContext)throw new Error('장비 이력 조회 중 캐릭터·세션·상태가 바뀌었습니다. 다시 조회하세요.');
+  const currentHistoryLines=currentHistoryPage.items.map(currentHistoryRecord=>{
+   if(currentHistoryRecord.after.ownerCharacterId!==currentHistoryOwner||(currentHistoryRecord.before!==null&&currentHistoryRecord.before.ownerCharacterId!==currentHistoryOwner)
+    ||(currentBeforeVersionText&&currentHistoryRecord.after.stateVersion>=Number(currentBeforeVersionText)))throw new Error('장비 이력의 소유자 또는 페이지 범위가 일치하지 않습니다.');
+   const currentHistoryDate=new Date(currentHistoryRecord.createdAt*1000);
+   if(!Number.isFinite(currentHistoryDate.getTime())||currentHistoryRecord.createdAt<0)throw new Error('장비 이력 시각이 올바르지 않습니다.');
+   return EQUIPMENT_HISTORY_LABELS[currentHistoryRecord.kind]+' · '+currentHistoryDate.toISOString()+' · v'+currentHistoryRecord.after.stateVersion+' · 내구도 '+(currentHistoryRecord.before?currentHistoryRecord.before.currentDurability+'/'+currentHistoryRecord.before.maxDurability+' → ':'')+currentHistoryRecord.after.currentDurability+'/'+currentHistoryRecord.after.maxDurability;
+  });
+  if(currentHistoryPage.nextBefore!==null){
+   if(currentHistoryPage.nextBefore!==currentHistoryPage.items.at(-1)?.after.stateVersion)throw new Error('장비 이력의 다음 페이지 기준이 올바르지 않습니다.');
+   currentHistoryLines.push('다음 이전버전: '+currentHistoryPage.nextBefore);
+  }
+  return currentHistoryLines.join('\n')||'보존된 장비 이력이 없습니다. 과거 기록을 추정해 복원하지 않습니다.';
+ }
  if(!(['list','equip','unequip'].includes(currentActionName)&&currentCommandArguments.length<3
   &&(currentActionName==='list'?currentTargetIdentifier===undefined||EQUIPMENT_IDENTIFIER_PATTERN.test(currentTargetIdentifier):currentTargetIdentifier!==undefined)))throw new Error('equipment list [다음커서] / equip 개체ID / unequip 슬롯');
  const currentEquipmentContext=captureEquipmentContext(currentTextClient);

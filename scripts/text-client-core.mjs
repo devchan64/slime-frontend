@@ -158,7 +158,7 @@ export class TextClient {
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
       &&!(name==='npc'&&['list','talk'].includes(args[0]))
       &&!(name==='substitute'&&args[0]==='list')
-      &&!(name==='equipment'&&args[0]==='list')
+      &&!(name==='equipment'&&['list','history'].includes(args[0]))
       &&!(name==='workshop'&&['catalog','contracts'].includes(args[1]))
       &&!(name==='consumables'&&['catalog','contracts'].includes(args[0]))
       &&!(name==='books'&&['list','shop'].includes(args[0]))
