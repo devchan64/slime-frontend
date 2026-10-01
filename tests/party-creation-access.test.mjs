@@ -20,3 +20,10 @@ test('만료·다른 도시·누락된 시민권으로 생성 버튼을 열지 �
  const currentGameState=createGuildEntryState();delete currentGameState.me.citizenshipSummary;
  assert.equal(readPartyCreationIssue(currentGameState),'app.partyCreationCitizenshipRequired');
 });
+
+test('대여 편성을 해제해야 온라인 파티 생성 메뉴를 활성화한다',()=>{
+ const currentGameState=createGuildEntryState();currentGameState.me.borrowedPartyLoanIds=['existing-loan'];
+ assert.equal(readPartyCreationIssue(currentGameState),'app.partyCreationFormationRequired');
+ currentGameState.me.borrowedPartyLoanIds=[];
+ assert.equal(readPartyCreationIssue(currentGameState),null);
+});

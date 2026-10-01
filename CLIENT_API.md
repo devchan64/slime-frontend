@@ -327,3 +327,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 `POST /v1/game/party/commands`의 `action: "CREATE"`는 기존 `requestId`·`expectedVersion` 본문을 유지한다. 서버는 잠긴 캐릭터의 현지 길드 출입구와 유효 시민권을 검사한다. 조건 미충족은 `GUILD_CANDIDATE_ACCESS_REQUIRED`다. 기존 성공 요청 재전송은 저장된 응답을 반환한다. 기존 파티 조회·탈퇴·해산에 새 현장 조건을 적용하지 않는다.
 
 웹 파티 메뉴는 현재 맵 건물의 길드 출입구와 `me.citizenshipSummary.records`의 현지 VALID 기록을 확인하여 생성 버튼과 이동/발급 안내를 표시한다. 응답 이후 만료·이동·권한 변경은 서버가 최종 판정한다. 이전 서버의 시민권 공개 정보가 누락된 경우 버튼을 활성화하지 않는다. 서버 검증 배포 후 클라이언트를 배포한다.
+
+`me.borrowedPartyLoanIds`에 편성원이 있으면 온라인 파티 생성 버튼을 비활성화하고 편성 해제를 안내한다. 대여 계약 취소를 요구하지 않으며 서버의 `PARTY_FORMATION_CONFLICT` 규칙을 따른다.

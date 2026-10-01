@@ -2,6 +2,7 @@
 export function readPartyCreationIssue(currentGameState) {
   if (!currentGameState || currentGameState.me.mode !== 'FIELD' || currentGameState.battle || currentGameState.reservation)
     return 'app.partyCreationFieldRequired';
+  if (currentGameState.me.borrowedPartyLoanIds?.length) return 'app.partyCreationFormationRequired';
   const currentGuildBuilding = currentGameState.map?.buildings?.find(currentBuildingRecord =>
     currentBuildingRecord.facilityKind === 'guild'
     && currentBuildingRecord.entrance.column === currentGameState.me.position?.column
