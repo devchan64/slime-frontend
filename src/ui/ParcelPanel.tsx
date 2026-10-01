@@ -19,7 +19,7 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
  function readParcelServerTime(){return currentListingClock.current?currentListingClock.current.serverTime+(performance.now()-currentListingClock.current.receivedAt)/1000:0;}
  const currentActiveReference=useRef(false);
  const currentPendingReference=useRef(false);
- const currentOriginalRequest=useRef<{parcelId:string;expectedVersion:number}|null>(null);
+ const currentOriginalRequest=useRef<{parcelId:string;expectedVersion:number;attachments:ParcelAttachment[]}|null>(null);
  function captureParcelContext(){return JSON.stringify([gameSessionClient.tokens?.user_id,gameSessionClient.state?.generation,gameSessionClient.state?.epoch,gameSessionClient.state?.me.id,gameSessionClient.state?.location?.id,gameSessionClient.state?.map.id,createPositionIdentity(gameSessionClient.state?.me.position)]);}
  const currentInitialContext=useRef(captureParcelContext());
  function parcelContextMatches(){return currentActiveReference.current&&captureParcelContext()===currentInitialContext.current&&gameSessionClient.state?.me.mode==='FIELD'&&!gameSessionClient.state?.me.battleId;}
@@ -39,12 +39,12 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
    const currentSelectedParcel=currentParcelListing!.entries.find(currentParcelEntry=>currentParcelEntry.parcelId===currentParcelIdentifier);
    if(!currentSelectedParcel||currentSelectedParcel.expiresAt<=readParcelServerTime()){setCurrentDisplayTime(readParcelServerTime());setCurrentParcelNotice({key:'parcels.expired'});return;}
   }
-  const currentRequestRecord=currentOriginalRequest.current??{parcelId:currentParcelIdentifier,expectedVersion:currentParcelListing!.characterVersion};
+  const currentRequestRecord=currentOriginalRequest.current??{parcelId:currentParcelIdentifier,expectedVersion:currentParcelListing!.characterVersion,attachments:structuredClone(currentParcelListing!.entries.find(currentParcelEntry=>currentParcelEntry.parcelId===currentParcelIdentifier)!.attachments)};
   if(currentRequestRecord.parcelId!==currentParcelIdentifier)return;
   currentOriginalRequest.current=currentRequestRecord;currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentParcelNotice('');
   try{
    const currentResponseRecord=await gameSessionClient.request(currentEndpointPrefix+'/'+currentParcelIdentifier+'/claim',{expectedVersion:currentRequestRecord.expectedVersion});
-   validateParcelReceipt(currentResponseRecord.receipt,currentParcelIdentifier,gameSessionClient.state!.me.id);
+   validateParcelReceipt(currentResponseRecord.receipt,currentParcelIdentifier,gameSessionClient.state!.me.id,currentRequestRecord.attachments);
    if(currentResponseRecord.state?.me?.id!==gameSessionClient.state?.me.id||currentResponseRecord.state?.generation!==gameSessionClient.state?.generation)throw new Error('소포 수령 응답의 캐릭터·세션이 다릅니다.');
    if(!parcelContextMatches())return;
    gameSessionClient.accept(currentResponseRecord.state);

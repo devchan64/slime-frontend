@@ -16,8 +16,8 @@ const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoc
   if(currentClaimAttempts===1){currentOriginalPayload=structuredClone(currentRequestBody);throw new TypeError('response lost');}
   assertParcelBrowser(JSON.stringify(currentRequestBody)===JSON.stringify(currentOriginalPayload),'재시도 원본 요청 유지');
   assertParcelBrowser(Object.keys(currentRequestBody).join(',')==='expectedVersion'&&currentRequestBody.expectedVersion===4,'소포 ID 기반 수령 계약');
-  currentParcelClaimed=true;
-  return {receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',facilityId:'iseulon-guild',claimedAt:110,attachments:[{kind:'money',amountP:7}]},state:{...currentClientStub.state,me:{...currentClientStub.state.me,version:5}}};
+  currentParcelClaimed=currentClaimAttempts>=3;
+  return {receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',facilityId:'iseulon-guild',claimedAt:110,attachments:currentClaimAttempts===2?[{kind:'money',amountP:7}]:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]},state:{...currentClientStub.state,me:{...currentClientStub.state.me,version:5}}};
  },accept:(currentGameState:any)=>{currentClientStub.state=currentGameState;}};
 async function clickParcelButton(currentTranslationKey:string){
  const currentButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t(currentTranslationKey));
@@ -35,6 +35,9 @@ async function clickParcelButton(currentTranslationKey:string){
  await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1200));
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.expired')),'응답 유실 후 만료 도달');
  await clickParcelButton('parcels.retry');
+ assertParcelBrowser(document.body.textContent!.includes(t('parcels.uncertain')),'누락된 첨부물 영수증은 결과 불명 유지');
+ assertParcelBrowser(currentClientStub.state.me.version===4,'잘못된 영수증은 상태 적용하지 않음');
+ await clickParcelButton('parcels.retry');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.received')),'수령 완료 표시');
  assertParcelBrowser(currentClientStub.state.me.version===5,'수령 상태 반영');
  await clickParcelButton('parcels.refresh');
@@ -45,7 +48,7 @@ async function clickParcelButton(currentTranslationKey:string){
  await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1200));
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.expired')),'열린 목록의 만료 안내');
  assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.claim'))?.disabled,'만료 소포 신규 수령 차단');
- assertParcelBrowser(currentClaimAttempts===2,'만료 표시가 수령 요청을 만들지 않음');
+ assertParcelBrowser(currentClaimAttempts===3,'만료 표시가 수령 요청을 만들지 않음');
  assertParcelBrowser(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

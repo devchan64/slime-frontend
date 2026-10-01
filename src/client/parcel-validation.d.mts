@@ -4,6 +4,6 @@ export type ParcelListing={serverTime:number;characterVersion:number;nextCursor:
 export function validateParcelListing(currentListingRecord:unknown):ParcelListing;
 export function validateParcelAttachments(currentAttachmentEntries:unknown):string[];
 export function formatParcelListing(currentListingRecord:unknown,currentNameLocale?:'ko'|'en'|null):string;
-export function validateParcelReceipt(currentReceiptRecord:unknown,currentParcelIdentifier:string,currentCharacterIdentifier:string):{parcelId:string;characterId:string;facilityId:string;claimedAt:number;attachments:ParcelAttachment[]};
+export function validateParcelReceipt(currentReceiptRecord:unknown,currentParcelIdentifier:string,currentCharacterIdentifier:string,currentExpectedAttachments?:ParcelAttachment[]):{parcelId:string;characterId:string;facilityId:string;claimedAt:number;attachments:ParcelAttachment[]};
 
 export function validateNamedParcelListing(currentListingRecord:unknown):ParcelListing;

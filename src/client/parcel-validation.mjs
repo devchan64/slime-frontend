@@ -42,9 +42,15 @@ export function formatParcelListing(currentListingRecord,currentNameLocale=null)
 }
 
 export function validateParcelListing(currentListingRecord){formatParcelListing(currentListingRecord);return currentListingRecord;}
-export function validateParcelReceipt(currentReceiptRecord,currentParcelIdentifier,currentCharacterIdentifier){
+export function validateParcelReceipt(currentReceiptRecord,currentParcelIdentifier,currentCharacterIdentifier,currentExpectedAttachments){
  requireParcelCondition(currentReceiptRecord&&currentReceiptRecord.parcelId===currentParcelIdentifier&&currentReceiptRecord.characterId===currentCharacterIdentifier&&PARCEL_FACILITY_PATTERN.test(currentReceiptRecord.facilityId)&&Number.isFinite(currentReceiptRecord.claimedAt)&&currentReceiptRecord.claimedAt>=0);
  validateParcelAttachments(currentReceiptRecord.attachments);
+ if(currentExpectedAttachments!==undefined){
+  validateParcelAttachments(currentExpectedAttachments);
+  const canonicalizeParcelAttachments=currentAttachmentEntries=>JSON.stringify(currentAttachmentEntries.map(currentAttachmentRecord=>
+   JSON.stringify(Object.keys(currentAttachmentRecord).sort().map(currentFieldName=>[currentFieldName,currentAttachmentRecord[currentFieldName]]))).sort());
+  requireParcelCondition(canonicalizeParcelAttachments(currentReceiptRecord.attachments)===canonicalizeParcelAttachments(currentExpectedAttachments));
+ }
  return currentReceiptRecord;
 }
 

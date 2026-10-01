@@ -43,3 +43,16 @@ test('길드 외부·잘못된 명령·소포 ID는 요청 전에 거절한다',
  await assert.rejects(()=>currentTextClient.execute('parcels list iseulon-guild'),/입구/);
  assert.equal(currentRequestEntries.length,0);
 });
+
+test('확인한 소포와 다른 금액·수량·종류·누락 영수증을 거절한다',async()=>{
+ const {validateParcelReceipt}=await import('../src/client/parcel-validation.mjs');
+ const currentExpectedAttachments=[{kind:'money',amountP:7},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}];
+ const currentReceiptRecord={...createParcelReceipt(),attachments:currentExpectedAttachments};
+ assert.equal(validateParcelReceipt({...currentReceiptRecord,attachments:[...currentExpectedAttachments].reverse()},CURRENT_PARCEL_IDENTIFIER,'character',currentExpectedAttachments).parcelId,CURRENT_PARCEL_IDENTIFIER);
+ for(const currentChangedAttachments of [
+  [{kind:'money',amountP:8},currentExpectedAttachments[1]],
+  [currentExpectedAttachments[0],{...currentExpectedAttachments[1],quantity:3}],
+  [currentExpectedAttachments[0],{...currentExpectedAttachments[1],category:'consumable'}],
+  [currentExpectedAttachments[0]],
+ ])assert.throws(()=>validateParcelReceipt({...currentReceiptRecord,attachments:currentChangedAttachments},CURRENT_PARCEL_IDENTIFIER,'character',currentExpectedAttachments));
+});
