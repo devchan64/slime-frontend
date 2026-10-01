@@ -59,3 +59,16 @@ test('상태 재조회에서 좌표 필드 순서만 바뀌어도 확인한 대�
  assert.equal(currentRequestCalls.length,3);
  assert.deepEqual(currentRequestCalls[2].body,{npcId:'helper',expectedVersion:1});
 });
+
+
+test('수령 전 전달 도시·NPC와 명령 ID를 표시하고 제어 문자를 제거한다',async()=>{
+ const currentDialoguePage=createNpcDialogue();
+ currentDialoguePage.entries[0].receiverNpcId='receiver';
+ currentDialoguePage.entries[0].destination={npcId:'receiver',name:'서린\n안내',cityId:'reedhaven',facilityId:'reedhaven-market',cityNameTranslations:{ko:'갈대나루',en:'Reedhaven'}};
+ const {currentTextClient,currentRequestCalls}=setupNpcClient([currentDialoguePage]);
+ const currentDialogueText=await currentTextClient.execute('npc talk helper');
+ assert.match(currentDialogueText,/전달처: 갈대나루 · 서린 안내 \[receiver\]/);
+ assert.ok(currentRequestCalls[0].url.endsWith('language=ko&includeDestination=true'));
+ assert.equal(currentRequestCalls[0].body,undefined);
+ assert.match(currentDialogueText,/확정: quest accept helper first-delivery/);
+});

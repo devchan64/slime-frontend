@@ -21,11 +21,12 @@ export async function executeNpcCommand(currentTextClient,currentCommandName,cur
  const currentDialogueContext=captureDialogueContext(currentGameState);
  if(currentCommandName==='npc'){
   currentTextClient.npcDialoguePage=null;
-  const currentDialoguePage=parseNpcDialogue(await currentTextClient.request('/v1/game/npcs/'+encodeURIComponent(currentNpcIdentifier)+'/main-events?language=ko'));
+  const currentDialoguePage=parseNpcDialogue(await currentTextClient.request('/v1/game/npcs/'+encodeURIComponent(currentNpcIdentifier)+'/main-events?language=ko&includeDestination=true'));
   if(currentDialoguePage.npc.id!==currentNpcIdentifier||currentDialoguePage.npc.cityId!==currentGameState.map.id||captureDialogueContext(currentTextClient.state)!==currentDialogueContext||currentDialoguePage.characterVersion!==currentGameState.me.version)throw new Error('대화 대상 또는 상태가 변경되었습니다. state 조회 후 다시 대화하세요.');
   currentTextClient.npcDialoguePage={context:currentDialogueContext,data:currentDialoguePage};
   return sanitizeDialogueText(currentDialoguePage.npc.name)+' · 수령 '+currentDialoguePage.acceptedCount+'/'+currentDialoguePage.maximumAcceptedCount+'\n'+currentDialoguePage.entries.map(currentQuestEntry=>[
    sanitizeDialogueText(currentQuestEntry.title)+' ['+sanitizeDialogueText(currentQuestEntry.eventId)+']',sanitizeDialogueText(currentQuestEntry.dialogue),
+   ...(currentQuestEntry.destination?['전달처: '+sanitizeDialogueText(currentQuestEntry.destination.cityNameTranslations.ko)+' · '+sanitizeDialogueText(currentQuestEntry.destination.name)+' ['+sanitizeDialogueText(currentQuestEntry.destination.npcId)+']']:[]),
    ...currentQuestEntry.items.map(currentMaterialEntry=>sanitizeDialogueText(currentMaterialEntry.nameTranslations.ko)+': '+currentMaterialEntry.owned+'/'+currentMaterialEntry.required),
    (currentQuestEntry.status==='COMPLETED'?'완료 보상 ':'완료 시 재료 차감 · 보상 ')+currentQuestEntry.moneyP+'p',
    ...currentQuestEntry.blockedReasons.map(currentReasonCode=>NPC_REASON_LABELS[currentReasonCode]),
