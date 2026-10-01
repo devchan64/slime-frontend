@@ -128,6 +128,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <GuildRecruitmentPanel
         key={`recruitment:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
+      {selectedGuardCenter && field && <p class="field-target-summary">{t('field.guardCenterHelp')}</p>}
       {selectedGuardCenter && here && field && gameSessionClient && <TravelerPermitPanel
         key={`permit:${state.generation}:${state.me.id}:${state.location.id}:${selectedGuardCenter.id}`}
         gameSessionClient={gameSessionClient} currentGuardDefinition={selectedGuardCenter} actionsAreDisabled={disabled}/>}

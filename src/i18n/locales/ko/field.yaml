@@ -126,3 +126,4 @@ scoutRiskHigh: 위험
 scoutRiskVeryHigh: 매우 위험
 scoutRiskUnknown: 위험도 판단 불가
 scoutRiskHelp: 참가 가능한 파티의 전투 성장 수준과 비교합니다. 현재 체력·지형·전술을 반영한 승률이 아닙니다.
+guardCenterHelp: 이 도시 입구에는 경비센터가 있습니다. 현지 시민권이 없으면 이곳에서 여행자증명서를 발급받아 입장할 수 있습니다. 발급 창구는 입구에 도착하면 열립니다.

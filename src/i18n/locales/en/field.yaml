@@ -126,3 +126,4 @@ scoutRiskHigh: High risk
 scoutRiskVeryHigh: Very high risk
 scoutRiskUnknown: Risk unknown
 scoutRiskHelp: Compares combat growth with eligible party members. This is not a win probability and does not account for current health, terrain, or tactics.
+guardCenterHelp: A guard center serves this city entrance. Without local citizenship, obtain a traveler permit here to enter. The permit desk opens when you reach the entrance.
