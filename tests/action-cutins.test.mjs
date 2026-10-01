@@ -122,3 +122,28 @@ test('종료 이벤트도 엄격히 검사하며 반환된 컷인은 수신 원�
   currentReturnedEvents[0].appearance.group='beast';
   assert.equal(currentResultState.me.lastResult.stillshots[0].appearance.group,'slime');
 });
+
+test('첫 스냅샷도 검증하며 거절한 스냅샷으로 재생 기준점을 변경하지 않는다', () => {
+  const current_event_tracker = new ActionCutinTracker();
+  const current_invalid_event = {...createActionCutinEvent(3), sequence: -1};
+  assert.throws(() => current_event_tracker.collectNewActionCutins(createBattleSnapshot(3, [current_invalid_event])), /액션 컷인/);
+  assert.deepEqual(current_event_tracker.collectNewActionCutins(createBattleSnapshot(2, [createActionCutinEvent(2)])), []);
+  assert.deepEqual(current_event_tracker.collectNewActionCutins(createBattleSnapshot(3, [createActionCutinEvent(3)])), [createActionCutinEvent(3)]);
+  const current_invalid_player = createBattleSnapshot(10, [current_invalid_event]);
+  current_invalid_player.me.id = 'different-player';
+  assert.throws(() => current_event_tracker.collectNewActionCutins(current_invalid_player), /액션 컷인/);
+  assert.deepEqual(current_event_tracker.collectNewActionCutins(createBattleSnapshot(4, [createActionCutinEvent(4)])), [createActionCutinEvent(4)]);
+});
+
+test('거짓 값 이벤트와 종료 후 손상 이벤트도 명시적으로 거절한다', () => {
+  for (const current_invalid_value of [false, 0, '']) {
+    const current_event_tracker = new ActionCutinTracker();
+    assert.throws(() => current_event_tracker.collectNewActionCutins(createBattleSnapshot(1, [current_invalid_value])), /액션 컷인/);
+  }
+  const current_event_tracker = new ActionCutinTracker();
+  current_event_tracker.collectNewActionCutins(createBattleSnapshot(1));
+  const current_final_state = {me: {id:'player-one', lastResult:{battleId:'battle-one', stillshots:[createActionCutinEvent(2)]}}, battle:null};
+  current_event_tracker.collectNewActionCutins(current_final_state);
+  current_final_state.me.lastResult.stillshots = [{...createActionCutinEvent(3), appearance:null}];
+  assert.throws(() => current_event_tracker.collectNewActionCutins(current_final_state), /액션 컷인/);
+});

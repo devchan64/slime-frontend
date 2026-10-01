@@ -45,13 +45,18 @@ export class ActionCutinTracker {
   private highestBattleSequence = 0;
   private trackedBattleFinished = false;
   collectNewActionCutins(incomingStateRecord: State): ActionCutinEvent[] {
+    const incomingBattleRecord = incomingStateRecord.battle;
+    const incomingActionCutinEvents = incomingBattleRecord
+      ? incomingBattleRecord.log.flatMap(actionLogRecord => actionLogRecord.stillshot != null ? [actionLogRecord.stillshot] : [])
+      : incomingStateRecord.me.lastResult?.stillshots ?? [];
+    if (!Array.isArray(incomingActionCutinEvents)) throw new Error('액션 컷인 목록 형식이 올바르지 않습니다.');
+    const validatedActionCutinEvents = incomingActionCutinEvents.map(parseActionCutinEvent);
     if (this.trackedPlayerIdentity !== incomingStateRecord.me.id) {
       this.trackedPlayerIdentity = incomingStateRecord.me.id;
       this.trackedBattleIdentity = '';
       this.highestBattleSequence = 0;
       this.trackedBattleFinished = false;
     }
-    const incomingBattleRecord = incomingStateRecord.battle;
     if (incomingBattleRecord && incomingBattleRecord.id !== this.trackedBattleIdentity) {
       this.trackedBattleIdentity = incomingBattleRecord.id;
       this.highestBattleSequence = incomingBattleRecord.version;
@@ -61,11 +66,6 @@ export class ActionCutinTracker {
     if (this.trackedBattleFinished) return [];
     const incomingBattleResult = incomingStateRecord.me.lastResult;
     if (!incomingBattleRecord && incomingBattleResult?.battleId !== this.trackedBattleIdentity) return [];
-    const incomingActionCutinEvents = incomingBattleRecord
-      ? incomingBattleRecord.log.flatMap(actionLogRecord => actionLogRecord.stillshot ? [actionLogRecord.stillshot] : [])
-      : incomingStateRecord.me.lastResult?.stillshots ?? [];
-    if (!Array.isArray(incomingActionCutinEvents)) throw new Error('액션 컷인 목록 형식이 올바르지 않습니다.');
-    const validatedActionCutinEvents = incomingActionCutinEvents.map(parseActionCutinEvent);
     const freshActionCutinEvents = [...new Map(validatedActionCutinEvents.filter(actionCutinEventRecord =>
       findActionCutinPresentation(actionCutinEventRecord.actionType) !== undefined
       && actionCutinEventRecord.battleId === this.trackedBattleIdentity
