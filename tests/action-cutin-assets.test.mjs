@@ -63,3 +63,8 @@ test('슬라임·짐승·거인 컷인은 공격·피격 모두 대기 시트 �
     }
   }
 });
+
+
+test('등록되지 않은 피격 캐릭터 외형을 기본 시트로 대체하지 않는다', () => {
+  assert.throws(() => resolveActionCutinAsset({...defaultCharacterGroups,groups:{...defaultCharacterGroups.groups,costume:'unknown'}}, 'target'), /조합/);
+});

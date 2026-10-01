@@ -60,12 +60,12 @@ export function parseActionCutinCatalog(actionCutinYamlSource: string): Map<stri
 const VALIDATED_ACTION_CUTIN_CATALOG = parseActionCutinCatalog(actionCutinCatalogSource);
 export function resolveActionCutinAsset(actionCutinAppearanceRecord: ActionCutinEvent['appearance'], actionCutinActorRole: ActionCutinActorRole): string {
   if (!['character', 'monster'].includes(actionCutinAppearanceRecord.kind)) throw new Error('지원하지 않는 액션 컷인 외형 종류입니다.');
-  if (actionCutinAppearanceRecord.kind === 'character' && actionCutinActorRole === 'target') return DEFAULT_CHARACTER_IDLE_IMAGE;
   const appearanceLookupKey = actionCutinAppearanceRecord.kind === 'character'
     ? ['character', actionCutinAppearanceRecord.groups.costume, actionCutinAppearanceRecord.groups.hair, actionCutinAppearanceRecord.groups.face].join('/')
     : `monster/${actionCutinAppearanceRecord.group}`;
   const selectedAssetUrl = VALIDATED_ACTION_CUTIN_CATALOG.get(appearanceLookupKey);
   if (typeof selectedAssetUrl !== 'string') throw new Error('등록되지 않은 액션 컷인 에셋 그룹 조합입니다.');
+  if (actionCutinAppearanceRecord.kind === 'character' && actionCutinActorRole === 'target') return DEFAULT_CHARACTER_IDLE_IMAGE;
   return selectedAssetUrl;
 }
 

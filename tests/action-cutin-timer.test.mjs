@@ -15,7 +15,7 @@ const actionCutinBuildResult = await build({
         ? 'export const useState=value=>[value,()=>{}]; export const useRef=value=>({current:value}); export const useEffect=callback=>globalThis.actionCutinTestRuntime.effects.push(callback);'
         : importedModuleRecord.path === '../i18n'
           ? 'export const useTranslation=()=>({t:key=>key});'
-          : 'export const resolveActionCutinAsset=()=>"/test.png"; export const resolveActionCutinFrame=()=>null;',
+          : 'export const resolveActionCutinAsset=()=>{if(globalThis.actionCutinTestRuntime.assetFailure)throw new Error("unregistered");return "/test.png";}; export const resolveActionCutinFrame=()=>null;',
       loader: 'js',
     }));
   } }],
@@ -63,3 +63,23 @@ for (const configuredDurationSeconds of [1, 2, 3]) {
     } finally { globalThis.window = previousWindowObject; }
   });
 }
+
+
+test('미등록 외형 오류는 국소 안내로 표시하고 기존 타이머로 종료한다', () => {
+  actionCutinTestRuntime.effects=[];
+  actionCutinTestRuntime.assetFailure=true;
+  const previous_window_object=globalThis.window;
+  let current_finish_count=0;
+  let current_timer_callback;
+  globalThis.window={setTimeout(current_callback){current_timer_callback=current_callback;return 1;},clearTimeout(){}};
+  try {
+    const current_render_node=ActionCutinOverlay({actionCutinEventRecord:{actionType:'ATTACK',actorName:'모험가',appearance:{}},actionCutinDurationSeconds:1,finishActionCutinDisplay:()=>{current_finish_count++;}});
+    const current_render_elements=collectCutinElements(current_render_node);
+    assert.ok(current_render_elements.some(current_child_node=>current_child_node.props?.role==='alert'));
+    assert.equal(current_render_elements.some(current_child_node=>current_child_node.type==='img'),false);
+    const dispose_timer_callback=actionCutinTestRuntime.effects[0]();
+    current_timer_callback();
+    assert.equal(current_finish_count,1);
+    dispose_timer_callback();
+  } finally {globalThis.window=previous_window_object;actionCutinTestRuntime.assetFailure=false;}
+});

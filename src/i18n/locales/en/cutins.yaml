@@ -11,3 +11,4 @@ settingReadFailed: Cut-ins are suspended because the setting could not be read. 
 settingWriteFailed: Could not save the cut-in setting. The previous setting is unchanged. Allow browser storage access and try again.
 restoreDefault: Restore default (3 seconds)
 settingUnavailable: Setting needs attention
+assetUnavailable: The cut-in appearance is unregistered or damaged. The game will resume when the presentation ends.

@@ -6,8 +6,17 @@ const ACTION_CUTIN_SECOND_MILLISECONDS = 1000;
 const ACTION_CUTIN_COLLISION_MILLISECONDS = 260;
 
 function CutinActor({ appearance, side, imageFailed }: { appearance: ActionCutinEvent['appearance']; side: 'attacker' | 'target'; imageFailed: () => void }) {
-  const currentCutinFrame = resolveActionCutinFrame(appearance, side);
-  const currentCutinUrl = resolveActionCutinAsset(appearance, side);
+  const {t: translateActorError} = useTranslation();
+  let currentCutinFrame: ReturnType<typeof resolveActionCutinFrame>;
+  let currentCutinUrl: string;
+  try {
+    currentCutinUrl = resolveActionCutinAsset(appearance, side);
+    currentCutinFrame = resolveActionCutinFrame(appearance, side);
+  } catch {
+    return <div class={`action-cutin-duel-actor action-cutin-duel-${side}`}>
+      <p role="alert">{translateActorError('cutins.assetUnavailable')}</p>
+    </div>;
+  }
   return <div class={`action-cutin-duel-actor action-cutin-duel-${side}`}>
     {currentCutinFrame ? <svg aria-hidden="true" viewBox={`${currentCutinFrame.rect.x} ${currentCutinFrame.rect.y} ${currentCutinFrame.rect.width} ${currentCutinFrame.rect.height}`}>
       <image href={currentCutinUrl} width={currentCutinFrame.sheet.width} height={currentCutinFrame.sheet.height} onError={imageFailed} />
