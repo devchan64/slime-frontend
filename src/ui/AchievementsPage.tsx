@@ -1,3 +1,4 @@
+import {SubstituteHuntPanel} from './SubstituteHuntPanel';
 import { useEffect, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { noticeText, type Notice } from '../client/notice';
@@ -14,6 +15,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   const [currentAchievementNotice,setAchievementRequestNotice]=useState<Notice>('');
   const [attempt,setAttempt]=useState(0);
   const [scope,setScope]=useState<Scope>('GENERAL');
+  const [currentHuntMenuOpen,setCurrentHuntMenuOpen]=useState(false);
   useEffect(()=>{
     let cancelled=false;setAchievementRequestNotice('');setData(null);
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
@@ -28,6 +30,8 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   const ledger=data?[...data.cpLedger.map(entry=>({...entry,currency:'CP'})),...data.spLedger.map(entry=>({...entry,currency:'SP'}))]
     .filter(entry=>entry.scope===scope).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)||a.currency.localeCompare(b.currency)):[];
   return <main class="achievements-page"><div class="achievement-heading"><div><h1>{t('achievements.title')}</h1><p>{t('achievements.away')}</p></div><button disabled={disabled} onClick={onReturn}>{t('achievements.return')}</button></div>
+    <button class="secondary" aria-expanded={currentHuntMenuOpen} onClick={()=>setCurrentHuntMenuOpen(!currentHuntMenuOpen)}>{t('hunts.substituteTitle')}</button>
+    {currentHuntMenuOpen&&<SubstituteHuntPanel key={`${client.tokens?.user_id}:${client.state?.generation}:${client.state?.me.id}`} gameSessionClient={client} actionsAreDisabled={disabled}/>}
     {currentAchievementNotice?<p role="alert">{noticeText(currentAchievementNotice,locale,t)} <button class="secondary" onClick={()=>setAttempt(v=>v+1)}>{t('achievements.retry')}</button></p>:!data?<p role="status">{t('achievements.loading')}</p>:<>
       <section class="card achievement-overview" aria-label={t('achievements.balance')}>
         <div><strong>{t('achievements.balance')}</strong><p>{number(data.cp)} CP · {data.sp===undefined?t('achievements.unsupported'):number(data.sp)} SP</p></div>
