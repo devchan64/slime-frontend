@@ -1,3 +1,4 @@
+import {validateSceneCostumeReferences} from '../../client/costumeAppearance';
 import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION, resolveMapTileSize} from "../terrain/renderMetrics";
 import { FieldIdleAction } from "../animation/fieldIdleAction";
 import { FieldRestAnimation } from "../animation/fieldRestAnimation";
@@ -340,6 +341,7 @@ export class MainScene extends Phaser.Scene {
     }
   }
   setState(s: State) {
+    validateSceneCostumeReferences(s);
     if (!this.state || this.state.location.id !== s.location.id || this.state.generation !== s.generation || this.state.epoch !== s.epoch || Boolean(this.state.battle) !== Boolean(s.battle))
       this.fieldRestAnimation.resetRestAnimations();
     this.fieldRestAnimation.syncRestAnimations(s.battle ? [] : s.members.filter(currentMemberRecord => currentMemberRecord.mode === 'FIELD').map(currentMemberRecord => ({

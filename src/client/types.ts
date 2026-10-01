@@ -1,3 +1,4 @@
+import type {CostumeAppearanceReference} from './costumeAppearance';
 import type {TerrainBlockRecord} from '../game/terrain/blockGeometry';
 import type { WorldFacing } from "../game/animation/facing";
 import type { ActionCutinEvent } from '../ui/actionCutins';
@@ -11,6 +12,7 @@ export type Position = { column: number; row: number };
 export type SizeClass = "small" | "medium" | "large" | "huge";
 export type Appearance = { nameTranslations?: Record<"ko" | "en", string>; monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
 export type Unit = Appearance & {
+  costumeAppearance?: CostumeAppearanceReference;
   id: string;
   name: string;
   owner: string | null;
@@ -74,6 +76,7 @@ export type State = {
   epoch: number;
   cursor: number;
   me: {
+    costumeAppearance?: CostumeAppearanceReference;
     travelerPermitSummary?: import("./travelerPermits").TravelerPermitSummary;
     citizenshipSummary?: import("./citizenshipSummary").CitizenshipSummary;
     id: string;
@@ -150,7 +153,7 @@ export type State = {
     movement?: { mode: "STATIONARY" | "ROAM"; interval: number };
     state: string;
   })[];
-  members: { id: string; name: string; position: Position; facing?: WorldFacing; mode: string; fieldRestActive?: boolean; partyCpEligible?: boolean }[];
+  members: { costumeAppearance?: CostumeAppearanceReference; id: string; name: string; position: Position; facing?: WorldFacing; mode: string; fieldRestActive?: boolean; partyCpEligible?: boolean }[];
   party: { id: string; leader: string; members: string[] } | null;
   invitations: { id: string; from: string; partyCpEligible?: boolean }[];
   reservation: {
