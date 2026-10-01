@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 
 const { outputFiles: actionCutinBuildOutputs } = await build({ entryPoints: ['src/ui/actionCutins.ts'], bundle: true, write: false, format: 'esm', platform: 'node' });
-const { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, findActionCutinPresentation, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_LEGACY_KEY, ACTION_CUTIN_ACTION_PRESENTATIONS } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinBuildOutputs[0].text).toString('base64')}`);
+const { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, readActionCutinSetting, findActionCutinPresentation, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_LEGACY_KEY, ACTION_CUTIN_ACTION_PRESENTATIONS } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinBuildOutputs[0].text).toString('base64')}`);
 function createActionCutinEvent(actionSequenceValue, actionTypeValue = 'ATTACK') {
   return { battleId: 'battle-one', actionId: `battle-one:${actionSequenceValue}`, sequence: actionSequenceValue, actionType: actionTypeValue, unitId:'actor-one', actorName:'모험가', skillId:actionTypeValue==='SKILL'?'physical':null, appearance:{kind:'monster',group:'slime'} };
 }
@@ -146,4 +146,26 @@ test('거짓 값 이벤트와 종료 후 손상 이벤트도 명시적으로 거
   current_event_tracker.collectNewActionCutins(current_final_state);
   current_final_state.me.lastResult.stillshots = [{...createActionCutinEvent(3), appearance:null}];
   assert.throws(() => current_event_tracker.collectNewActionCutins(current_final_state), /액션 컷인/);
+});
+
+
+test('탭 숨김은 현재·대기 컷인을 비우고 복귀 및 해제 후에는 작업을 발행하지 않는다', () => {
+  const current_document_source = new EventTarget();
+  current_document_source.visibilityState = 'visible';
+  let current_clear_count = 0;
+  const dispose_visibility_watch = watchActionCutinVisibility(current_document_source, () => { current_clear_count += 1; });
+  assert.equal(current_clear_count, 0);
+  current_document_source.visibilityState = 'hidden';
+  current_document_source.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(current_clear_count, 1);
+  current_document_source.visibilityState = 'visible';
+  current_document_source.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(current_clear_count, 1);
+  dispose_visibility_watch();
+  current_document_source.visibilityState = 'hidden';
+  current_document_source.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(current_clear_count, 1);
+  const dispose_hidden_watch = watchActionCutinVisibility(current_document_source, () => { current_clear_count += 1; });
+  assert.equal(current_clear_count, 2);
+  dispose_hidden_watch();
 });

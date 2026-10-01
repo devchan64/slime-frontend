@@ -3,7 +3,7 @@ import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
 import {MainEventJournal} from './MainEventJournal';
 import { ActionCutinOverlay } from './ActionCutin';
-import { ActionCutinTracker, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
+import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
 import { FieldFirstAid } from './FieldFirstAid';
 import { BorrowedLoansPanel } from './BorrowedLoansPanel';
@@ -54,6 +54,7 @@ export function App() {
   actionCutinEnabledReference.current = actionCutinDurationSeconds > 0;
   const actionCutinEventTracker = useRef(new ActionCutinTracker());
   const [pendingActionCutinEvents, setPendingActionCutinEvents] = useState<ActionCutinEvent[]>([]);
+  useEffect(() => watchActionCutinVisibility(document, () => setPendingActionCutinEvents([])), []);
   const updateActionCutinSetting = (nextDurationSeconds: ActionCutinDuration) => {
     localStorage.setItem(ACTION_CUTIN_SETTING_KEY, String(nextDurationSeconds));
     actionCutinEnabledReference.current = nextDurationSeconds > 0;
@@ -183,7 +184,7 @@ export function App() {
         setPendingActionCutinEvents([]);
       }
       if (previous?.me.id !== s.me.id || (s.battle && previous?.battle?.id !== s.battle.id)) setPendingActionCutinEvents([]);
-      if (actionCutinEnabledReference.current && incomingActionCutinEvents.length) {
+      if (document.visibilityState === 'visible' && actionCutinEnabledReference.current && incomingActionCutinEvents.length) {
         setPendingActionCutinEvents(currentActionCutinQueue => appendActionCutinQueue(currentActionCutinQueue, incomingActionCutinEvents));
       }
       if (s.me.lastFieldInterruption?.battleId

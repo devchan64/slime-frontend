@@ -86,3 +86,16 @@ export function appendActionCutinQueue(currentActionCutinQueue: ActionCutinEvent
   return combinedActionCutinQueue.length <= ACTION_CUTIN_QUEUE_LIMIT ? combinedActionCutinQueue
     : [combinedActionCutinQueue[0], ...combinedActionCutinQueue.slice(-(ACTION_CUTIN_QUEUE_LIMIT - 1))];
 }
+
+
+export function watchActionCutinVisibility(
+  current_document_source: Pick<Document, 'visibilityState' | 'addEventListener' | 'removeEventListener'>,
+  clear_pending_cutins: () => void,
+) {
+  const handle_visibility_change = () => {
+    if (current_document_source.visibilityState !== 'visible') clear_pending_cutins();
+  };
+  current_document_source.addEventListener('visibilitychange', handle_visibility_change);
+  handle_visibility_change();
+  return () => current_document_source.removeEventListener('visibilitychange', handle_visibility_change);
+}
