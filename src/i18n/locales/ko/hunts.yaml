@@ -10,3 +10,17 @@ map: 맵
 result: 결과
 battle: 전투
 next: 다음 페이지
+substituteTitle: FP 대체 사냥
+substituteHelp: 첫 사냥을 완료한 몬스터의 수집품을 FP로 얻습니다. 재료가 나오지 않아도 FP는 소비됩니다.
+refreshTargets: 대상 새로고침
+processing: 처리 중입니다.
+invalidState: 전투·예약·정산을 종료하고 필드 또는 자리비움 상태에서 이용하세요.
+firstRequired: 해당 종의 첫 사냥 업적을 먼저 달성하세요.
+fpRequired: FP가 부족합니다. 회복 후 새로고침하세요.
+fpBalance: '보유 FP: {amount}'
+fpCost: '소비 FP: {amount}'
+execute: 대체 사냥 실행
+uncertain: 이전 요청의 결과를 먼저 확인하세요.
+retry: 같은 요청 다시 확인
+completed: '{amount} FP를 소비했습니다.'
+emptyDrop: 이번에는 획득한 재료가 없습니다.

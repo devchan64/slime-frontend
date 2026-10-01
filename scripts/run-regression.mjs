@@ -12,7 +12,7 @@ await mkdir(currentOutputDirectory,{recursive:true});
 const currentLogStream=createWriteStream(resolve(currentOutputDirectory,'run.log'));
 function writeRegressionTrace(currentStageName,currentStageMessage){currentLogStream.write(`${new Date().toISOString()}/regression/${currentStageName} ${currentStageMessage}\n`);}
 let currentExitCode=0;
-for(const currentCommandArguments of [['node_modules/typescript/bin/tsc','-b'],['--test',...currentTestTargets]]){
+for(const currentCommandArguments of [['scripts/check-locales.mjs'],['node_modules/typescript/bin/tsc','-b'],['--test',...currentTestTargets]]){
  writeRegressionTrace('start',JSON.stringify(currentCommandArguments));
  const currentTestProcess=spawn(process.execPath,currentCommandArguments,{stdio:['ignore','pipe','pipe']});
  currentTestProcess.stdout.pipe(currentLogStream,{end:false});currentTestProcess.stderr.pipe(currentLogStream,{end:false});

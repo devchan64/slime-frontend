@@ -10,3 +10,17 @@ map: Map
 result: Result
 battle: Battle
 next: Next page
+substituteTitle: FP substitute hunt
+substituteHelp: Spend FP for materials from species you have hunted before. FP is spent even when no materials drop.
+refreshTargets: Refresh targets
+processing: Processing.
+invalidState: Finish combat or reservations and return to the field or away mode.
+firstRequired: Complete this species’ first hunt achievement first.
+fpRequired: Not enough FP. Refresh after recovery.
+fpBalance: 'Available FP: {amount}'
+fpCost: 'FP cost: {amount}'
+execute: Execute substitute hunt
+uncertain: Check the previous request’s outcome first.
+retry: Check the same request again
+completed: 'Spent {amount} FP.'
+emptyDrop: No materials dropped this time.
