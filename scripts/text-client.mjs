@@ -43,6 +43,10 @@ rest start / rest stop 휴식 시작 / 중단
 bag                    최신 가방 목록
 first-aid              응급처치 (붕대 소비)
 use-item 소모품ID      회복·개인 표식 소모품 사용
+books list             보유 스킬북·열람 상태 조회
+books shop 서점ID      서점 최종 가격·소유 여부 확인
+books buy 스킬북ID     확인한 서점 가격으로 구매
+books read 스킬북ID    보유 스킬북 열람
 costumes               전체 디자인 코스튬 카탈로그·설명 조회
 costumes owned         본인 보유 코스튬·획득 출처 조회 (교체는 게임 메뉴)
 npc list               현재 맵 NPC ID·입구 조회

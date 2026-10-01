@@ -1,3 +1,4 @@
+import {executeSkillbookCommand} from './text-skillbook-commands.mjs';
 import {executeSubstituteHuntCommand} from './text-substitute-hunts.mjs';
 import {executeParcelCommand} from './text-parcel-commands.mjs';
 import {executeCostumeReadCommand} from './text-costume-catalog.mjs';
@@ -152,11 +153,13 @@ export class TextClient {
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
       &&!(name==='npc'&&['list','talk'].includes(args[0]))
       &&!(name==='substitute'&&args[0]==='list')
+      &&!(name==='books'&&['list','shop'].includes(args[0]))
       &&!(name==='materials'&&args[0]==='list'))throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const battle = (type, extra = {}) => {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'books') return executeSkillbookCommand(this,args);
     if (name === 'substitute') return executeSubstituteHuntCommand(this,args);
     if (name === 'parcels') return executeParcelCommand(this,args);
     if (name === 'costumes') return executeCostumeReadCommand(this,args);
