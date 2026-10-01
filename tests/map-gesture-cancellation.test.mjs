@@ -1,0 +1,25 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+const currentModuleBuild=await build({entryPoints:['src/game/mapGestureCancellation.ts'],bundle:true,write:false,format:'esm',platform:'node'});
+const {bindMapGestureCancellation}=await import(`data:text/javascript;base64,${Buffer.from(currentModuleBuild.outputFiles[0].text).toString('base64')}`);
+test('터치 취소·포커스 이탈·숨김은 제스처를 폐기하고 종료 후 리스너를 회수한다',()=>{
+ const currentCanvasTarget=new EventTarget(),currentDocumentTarget=new EventTarget(),currentWindowTarget=new EventTarget();
+ currentDocumentTarget.hidden=false;
+ let currentCancelledCount=0;
+ const releaseMapListeners=bindMapGestureCancellation(currentCanvasTarget,currentDocumentTarget,currentWindowTarget,()=>currentCancelledCount++);
+ currentDocumentTarget.dispatchEvent(new Event('visibilitychange'));
+ assert.equal(currentCancelledCount,0);
+ currentCanvasTarget.dispatchEvent(new Event('pointercancel'));
+ currentCanvasTarget.dispatchEvent(new Event('touchcancel'));
+ currentWindowTarget.dispatchEvent(new Event('blur'));
+ currentDocumentTarget.hidden=true;
+ currentDocumentTarget.dispatchEvent(new Event('visibilitychange'));
+ assert.equal(currentCancelledCount,4);
+ releaseMapListeners();releaseMapListeners();
+ currentCanvasTarget.dispatchEvent(new Event('pointercancel'));
+ currentCanvasTarget.dispatchEvent(new Event('touchcancel'));
+ currentWindowTarget.dispatchEvent(new Event('blur'));
+ currentDocumentTarget.dispatchEvent(new Event('visibilitychange'));
+ assert.equal(currentCancelledCount,4);
+});

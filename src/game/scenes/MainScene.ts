@@ -1,3 +1,4 @@
+import {bindMapGestureCancellation} from '../mapGestureCancellation';
 import {updateMapPointerGesture,type MapPointerGesture} from '../mapPointerGesture';
 import {validateSceneCostumeReferences} from '../../client/costumeAppearance';
 import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION, resolveMapTileSize} from "../terrain/renderMetrics";
@@ -190,6 +191,11 @@ export class MainScene extends Phaser.Scene {
     this.buildingLayerObjects.clear();
     this.fieldCameraFollowPending = false;
     if (this.loadFailed) return;
+    const releaseMapGestureListeners=bindMapGestureCancellation(this.game.canvas,document,window,()=>{this.panStart=null;});
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{
+      releaseMapGestureListeners();
+      this.panStart=null;
+    });
     this.fieldIdleAction.resetIdleAction(performance.now());
     const resetFieldIdleAction = () => this.fieldIdleAction.resetIdleAction(performance.now());
     const recordFieldPointerDrag = (pointerEventValue: PointerEvent) => { if (pointerEventValue.buttons) resetFieldIdleAction(); };
