@@ -43,7 +43,7 @@ test('재접속은 설치된 cursor를 요청하고 복구 승인 후 연속 이
  class Socket {static OPEN=1;readyState=1;sent=[];closed=false;constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.closed=true;this.onclose?.();}}
  try {
   Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)},location:{href:'http://localhost/'},setInterval:()=>{intervals.add(++id);return id;},clearInterval:id=>intervals.delete(id),setTimeout:()=>++id,clearTimeout:()=>{}});
-  const state=cursor=>({protocolVersion:1,generation:3,epoch:4,cursor,location:{id:'map:meadow'}});
+  const state=cursor=>({protocolVersion:1,generation:3,epoch:4,cursor,serverTime:100,me:{id:'hero'},location:{id:'map:meadow'}});
   const client=new Client();client.stopped=false;client.state=state(8);client.request=async()=>({ticket:'test',resumeSupported:true});client.onState=s=>applied.push(s.cursor);
   await client.connect();ws.onopen();
   assert.deepEqual(ws.sent[0],{ticket:'test',protocolVersion:1,resume:{generation:3,epoch:4,cursor:8}});
@@ -68,7 +68,7 @@ test('마지막 이벤트 유실은 heartbeat head로 발견하고 정상 지연
  class Socket {static OPEN=1;readyState=1;closed=false;constructor(){ws=this;}send(){}close(){this.closed=true;this.onclose?.();}}
  try {
   Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener(){},removeEventListener(){}},location:{href:'http://localhost/'},setInterval:()=>++id,clearInterval:()=>{},setTimeout:(fn,delay)=>{timers.set(++id,{fn,delay});return id;},clearTimeout:key=>timers.delete(key)});
-  const state=(epoch,cursor)=>({protocolVersion:1,generation:3,epoch,cursor,location:{id:'map:meadow'}});
+  const state=(epoch,cursor)=>({protocolVersion:1,generation:3,epoch,cursor,serverTime:100,me:{id:'hero'},location:{id:'map:meadow'}});
   const client=new Client();client.stopped=false;client.state=state(4,8);client.request=async()=>({ticket:'test'});
   const frame=msg=>ws.onmessage({data:JSON.stringify(msg)});
   await client.connect();ws.onopen();frame({type:'snapshot',state:state(4,8)});
@@ -95,7 +95,7 @@ test('ACK는 적용한 서버 상태만 묶어 확인하고 HTTP의 더 큰 curs
  class Socket {static OPEN=1;readyState=1;sent=[];constructor(){ws=this;}send(data){this.sent.push(JSON.parse(data));}close(){this.onclose?.();}}
  try {
   Object.assign(globalThis,{WebSocket:Socket,document:{addEventListener(){},removeEventListener(){}},location:{href:'http://localhost/'},setInterval:()=>++id,clearInterval:()=>{},setTimeout:(fn,delay)=>{timers.set(++id,{fn,delay});return id;},clearTimeout:key=>timers.delete(key)});
-  const state=cursor=>({protocolVersion:1,generation:3,epoch:4,cursor,location:{id:'map:meadow'}});
+  const state=cursor=>({protocolVersion:1,generation:3,epoch:4,cursor,serverTime:100,me:{id:'hero'},location:{id:'map:meadow'}});
   const client=new Client();client.stopped=false;client.state=state(8);client.request=async()=>({ticket:'test',resumeSupported:true,ackSupported:true});
   const frame=msg=>ws.onmessage({data:JSON.stringify(msg)});
   await client.connect();ws.onopen();frame({type:'resumed',generation:3,epoch:4,cursor:8});
@@ -507,4 +507,25 @@ test('채널 이동 전에 발급 중이던 채팅 티켓은 이동 후 사용�
   finishTicketRequest({ticket:'previous-channel-ticket'});await rejectedChatConnection;
   assert.equal(createdSocketCount,0);assert.equal(activeGameClient.state.location.id,'channel-two');
  } finally {activeGameClient.disconnect();globalThis.WebSocket=originalSocketClass;globalThis.location=originalLocationValue;}
+});
+
+
+test('서버 시계는 HTTP 왕복 시간을 반영하고 오래된 상태로 뒤로 이동하지 않는다',async(currentTestContext)=>{
+ let currentMonotonicTime=0;
+ currentTestContext.mock.method(performance,'now',()=>currentMonotonicTime);
+ const currentServerState={messages:[],protocolVersion:1,generation:3,epoch:4,cursor:1,serverTime:100,me:{id:'hero'},location:{id:'map:meadow'}};
+ currentTestContext.mock.method(globalThis,'fetch',async()=>{currentMonotonicTime=200;return Response.json(currentServerState);});
+ const currentGameClient=new Client();
+ assert.throws(()=>currentGameClient.readServerTimestamp());
+ currentGameClient.accept(await currentGameClient.request('/v1/game/state'));
+ assert.equal(currentGameClient.readServerTimestamp(),100.2);
+ currentMonotonicTime=400;
+ currentGameClient.accept({...currentServerState,cursor:2,serverTime:100.1});
+ assert.ok(Math.abs(currentGameClient.readServerTimestamp()-100.4)<1e-10);
+ currentGameClient.accept({...currentServerState,cursor:1,serverTime:500});
+ assert.ok(Math.abs(currentGameClient.readServerTimestamp()-100.4)<1e-10);
+ currentGameClient.accept({...currentServerState,generation:4,serverTime:99});
+ assert.equal(currentGameClient.readServerTimestamp(),99);
+ currentGameClient.state=null;
+ assert.throws(()=>currentGameClient.readServerTimestamp());
 });
