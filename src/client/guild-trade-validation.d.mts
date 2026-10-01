@@ -1,0 +1,6 @@
+import type {GuildMaterialCatalog,GuildMaterialQuote} from './guildTrade';
+export function parseGuildMaterialCatalog(currentResponseValue:unknown):GuildMaterialCatalog;
+export function parseGuildMaterialQuote(currentResponseValue:unknown,currentMaterialIdentifier:string,currentSaleQuantity:number):GuildMaterialQuote;
+export function validateGuildSaleReceipt(currentReceiptValue:unknown,currentOriginalRequest:Record<string,unknown>,currentFacilityIdentifier:string):void;
+export function parseCitizenshipPriceQuote(currentResponseValue:unknown,currentCityIdentifier:string):{policyVersion:number;priceP:number;serverTime:number;expiresAt:number};
+export function validateCitizenshipPurchaseReceipt(currentReceiptValue:unknown,currentOriginalRequest:Record<string,unknown>,currentFacilityIdentifier:string,currentCityIdentifier:string):void;
