@@ -5,6 +5,7 @@ import { TextClient, formatState } from './text-client-core.mjs';
 const HELP = `state                  최신 상태 조회
 guards                 현재 필드 경비센터 ID·좌표 조회
 permit quote 경비센터ID 5p 여행자증명서 견적 조회
+permit barter 경비센터ID 현금p 재료ID=수량 ... 혼합 납부 견적
 permit buy 경비센터ID   확인한 견적으로 발급 확정
 materials list 길드ID  보유 원물·가공재 매입 목록
 materials quote 길드ID 재료ID 수량 판매 견적

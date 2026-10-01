@@ -224,3 +224,7 @@ GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공
 `npc list`는 현재 도시 건물에 등록된 NPC ID·입구를 표시합니다. 현장에 도착하여 `npc talk NPC_ID`로 현재 의뢰의 대사·소지/요구 재료·보상·차단 사유를 확인합니다. 실행 가능한 의뢰만 `quest accept NPC_ID 의뢰ID` 또는 `quest complete NPC_ID 의뢰ID`로 확정합니다. 목록/대화 조회가 자동 수령·전달이나 채널 메시지 전송을 실행하지 않습니다.
 
 `/v1/game/npcs/{id}/main-events?language=ko`와 기존 의뢰 행동 API를 사용합니다. GUI와 대화·의뢰 응답 검증을 공유하며, 대화한 NPC와 현재 캐릭터·세션·채널·위치·버전이 일치할 때만 확인한 행동을 보냅니다. 현장 접근·시민권·선행 조건·재료는 서버가 최종 검증합니다. 의뢰 행동 API는 `{npcId,expectedVersion}`만 받으므로 공용 `retry` 대상이 아닙니다. 응답이 불명확하면 `state`, `journal`, `npc talk`로 실제 상태를 확인하며 자동 재전송하지 않습니다.
+
+### 여행자증명서 혼합 납부
+
+경비센터 현장에서 `permit barter 경비센터ID 2 protein-jelly=4`처럼 현금 p와 재료별 수량을 지정합니다. 표준 가치·합계·반환하지 않는 초과액을 확인한 뒤 `permit buy 경비센터ID`로 발급합니다. 현금 0도 가능하며 재료는 하나 이상 필요합니다. 기존 `permit quote`는 현금 전용 견적입니다. 위치·상태 변경 또는 만료 후에는 견적을 다시 받습니다.

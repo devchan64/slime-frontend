@@ -40,7 +40,7 @@ export function validateTravelerQuoteResponse(currentQuoteResponse,currentGuardE
 }
 
 export function captureTravelerQuoteContext(currentGameState) {
-  return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position?.column,currentGameState.me.position?.row]);
+  return JSON.stringify([currentGameState.me.id,currentGameState.me.version,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position?.column,currentGameState.me.position?.row]);
 }
 
 const TRAVELER_PERMIT_PUBLIC_KEYS = 'characterId,cityId,cityName,expiresAt,instanceId,issuedAt,issuerId,itemId,nameTranslations,quantity,status,weightG';
@@ -72,4 +72,42 @@ export function formatTravelerPermitSummary(currentPermitSummary,currentServerTi
       +' | 발급 '+currentIssuedDate.toISOString()+' | 만료 '+currentExpiryDate.toISOString());
   }
   return renderedPermitLines.join('\n') || '보유한 여행자증명서가 없습니다.';
+}
+
+export function parseTravelerBarterSelection(currentCommandArguments) {
+  if(currentCommandArguments.length<4||!/^(0|[1-9][0-9]*)$/.test(currentCommandArguments[2]))throw new Error('permit barter 경비센터ID 현금p 재료ID=수량 ... 형식으로 입력하세요.');
+  const currentCashAmount=Number(currentCommandArguments[2]);
+  if(!Number.isSafeInteger(currentCashAmount))throw new Error('현금 수치가 올바르지 않습니다.');
+  const currentMaterialSelection={};
+  for(const currentMaterialToken of currentCommandArguments.slice(3)){
+    const currentTokenMatch=/^([a-z][a-z0-9]*(?:-[a-z0-9]+)*)=([1-9][0-9]*)$/.exec(currentMaterialToken);
+    if(!currentTokenMatch||Object.hasOwn(currentMaterialSelection,currentTokenMatch[1])||!Number.isSafeInteger(Number(currentTokenMatch[2])))throw new Error('재료 ID와 양의 정수 수량을 중복 없이 입력하세요.');
+    currentMaterialSelection[currentTokenMatch[1]]=Number(currentTokenMatch[2]);
+  }
+  return {cashP:currentCashAmount,materials:currentMaterialSelection};
+}
+
+export function validateTravelerBarterQuote(currentQuoteResponse,currentGuardEntry,currentSelectedPayment) {
+  if(!currentQuoteResponse||!Object.hasOwn(currentQuoteResponse,'payment'))throw new Error('혼합 납부 견적이 없습니다.');
+  const {payment:currentPaymentRecord,...currentBaseQuote}=currentQuoteResponse;
+  validateTravelerQuoteResponse(currentBaseQuote,currentGuardEntry);
+  const currentInvalidMessage='혼합 납부 견적 응답이 올바르지 않습니다.';
+  if(!currentPaymentRecord||Object.keys(currentPaymentRecord).sort().join(',')!=='cashP,excessValueP,materialValues,materials,totalValueP'
+    ||currentPaymentRecord.cashP!==currentSelectedPayment.cashP||!currentPaymentRecord.materials||!currentPaymentRecord.materialValues
+    ||Object.keys(currentPaymentRecord.materials).sort().join(',')!==Object.keys(currentSelectedPayment.materials).sort().join(',')
+    ||Object.keys(currentPaymentRecord.materialValues).sort().join(',')!==Object.keys(currentSelectedPayment.materials).sort().join(','))throw new Error(currentInvalidMessage);
+  let currentTotalValue=currentPaymentRecord.cashP;
+  for(const [currentMaterialIdentifier,currentMaterialQuantity] of Object.entries(currentSelectedPayment.materials)){
+    const currentStandardValue=currentPaymentRecord.materialValues[currentMaterialIdentifier];
+    if(currentPaymentRecord.materials[currentMaterialIdentifier]!==currentMaterialQuantity||!Number.isSafeInteger(currentStandardValue)||currentStandardValue<1)throw new Error(currentInvalidMessage);
+    currentTotalValue+=currentMaterialQuantity*currentStandardValue;
+  }
+  if(!Number.isSafeInteger(currentTotalValue)||currentTotalValue<currentBaseQuote.priceP||currentPaymentRecord.totalValueP!==currentTotalValue||currentPaymentRecord.excessValueP!==currentTotalValue-currentBaseQuote.priceP)throw new Error(currentInvalidMessage);
+  return currentQuoteResponse;
+}
+
+export function formatTravelerBarterPayment(currentPaymentRecord) {
+  return '현금 '+currentPaymentRecord.cashP+'p\n'+Object.entries(currentPaymentRecord.materials).map(([currentMaterialIdentifier,currentMaterialQuantity])=>
+    currentMaterialIdentifier+' × '+currentMaterialQuantity+' · 표준 가치 '+currentPaymentRecord.materialValues[currentMaterialIdentifier]+'p/개').join('\n')
+    +'\n납부 가치 '+currentPaymentRecord.totalValueP+'p · 초과 '+currentPaymentRecord.excessValueP+'p (거스름돈 없음)';
 }

@@ -3,7 +3,7 @@ import {executeNpcCommand} from './text-npc-commands.mjs';
 import {executeGuildSaleCommand} from './text-guild-sales.mjs';
 import {executeCitizenshipCommand,formatCitizenshipSummary} from './text-citizenship-commands.mjs';
 import {executeProcessingCommand} from './text-processing-commands.mjs';
-import {formatTravelerPermitSummary,readTravelerGuardCenters,requireTravelerGuardPresence,validateTravelerQuoteResponse,captureTravelerQuoteContext} from './text-traveler-permits.mjs';
+import {parseTravelerBarterSelection,validateTravelerBarterQuote,formatTravelerBarterPayment,formatTravelerPermitSummary,readTravelerGuardCenters,requireTravelerGuardPresence,validateTravelerQuoteResponse,captureTravelerQuoteContext} from './text-traveler-permits.mjs';
 import {normalizeChannelAddressInput,validateChannelIdentifierInput,formatChannelListingOutput} from './text-channel-commands.mjs';
 import { randomUUID } from 'node:crypto';
 
@@ -145,24 +145,28 @@ export class TextClient {
       return readTravelerGuardCenters(this.state).map(currentGuardEntry=>currentGuardEntry.name.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ')+' ['+currentGuardEntry.id+'] ('+currentGuardEntry.position.column+','+currentGuardEntry.position.row+')').join('\n') || '현재 맵에 경비센터가 없습니다.';
     }
     if (name === 'permit') {
-      arity(2);
-      if(!['quote','buy'].includes(args[0]))throw new Error('permit quote 경비센터ID 또는 permit buy 경비센터ID로 입력하세요.');
+      if(args[0]!=='barter')arity(2);
+      if(!['quote','barter','buy'].includes(args[0]))throw new Error('permit quote 경비센터ID 또는 permit buy 경비센터ID로 입력하세요.');
       const currentGuardEntry=requireTravelerGuardPresence(this.state,args[1]);
       const currentQuoteContext=captureTravelerQuoteContext(this.state);
       const currentEndpointPrefix='/v1/game/guard-centers/'+encodeURIComponent(currentGuardEntry.id);
-      if(args[0]==='quote'){
+      if(args[0]==='quote'||args[0]==='barter'){
         this.travelerPermitQuote=null;
-        const currentQuoteResponse=validateTravelerQuoteResponse(await this.request(currentEndpointPrefix+'/traveler-permit-quote'),currentGuardEntry);
+        const currentRequestStarted=performance.now();
+        const currentPaymentSelection=args[0]==='barter'?parseTravelerBarterSelection(args):null;
+        const currentQuoteResponse=currentPaymentSelection
+          ?validateTravelerBarterQuote(await this.request(currentEndpointPrefix+'/traveler-permit-barter-quote',currentPaymentSelection),currentGuardEntry,currentPaymentSelection)
+          :validateTravelerQuoteResponse(await this.request(currentEndpointPrefix+'/traveler-permit-quote'),currentGuardEntry);
         if(captureTravelerQuoteContext(this.state)!==currentQuoteContext)throw new Error('견적 조회 중 캐릭터·위치가 변경되었습니다.');
-        this.travelerPermitQuote={quote:currentQuoteResponse,context:currentQuoteContext,receivedAt:performance.now()};
-        return '여행자증명서 5p · 현실 7일 · 견적 유효 '+(currentQuoteResponse.expiresAt-currentQuoteResponse.serverTime)+'초 · 발급 확정: permit buy '+currentGuardEntry.id;
+        this.travelerPermitQuote={quote:currentQuoteResponse,context:currentQuoteContext,receivedAt:currentRequestStarted};
+        return (currentQuoteResponse.payment?formatTravelerBarterPayment(currentQuoteResponse.payment)+'\n':'')+'여행자증명서 5p · 현실 7일 · 견적 유효 '+(currentQuoteResponse.expiresAt-currentQuoteResponse.serverTime)+'초 · 발급 확정: permit buy '+currentGuardEntry.id;
       }
       const currentStoredQuote=this.travelerPermitQuote;
       if(!currentStoredQuote || currentStoredQuote.context!==currentQuoteContext || currentStoredQuote.quote.guardCenterId!==currentGuardEntry.id
         || performance.now()-currentStoredQuote.receivedAt>=(currentStoredQuote.quote.expiresAt-currentStoredQuote.quote.serverTime)*1000)
         throw new Error('유효한 견적이 없습니다. permit quote 경비센터ID로 먼저 확인하세요.');
       this.travelerPermitQuote=null;
-      return this.command(currentEndpointPrefix+'/traveler-permit-purchases',{policyVersion:currentStoredQuote.quote.policyVersion,priceP:currentStoredQuote.quote.priceP,quotedExpiresAt:currentStoredQuote.quote.expiresAt});
+      return this.command(currentEndpointPrefix+'/traveler-permit-purchases',{policyVersion:currentStoredQuote.quote.policyVersion,priceP:currentStoredQuote.quote.priceP,quotedExpiresAt:currentStoredQuote.quote.expiresAt,...(currentStoredQuote.quote.payment?{payment:currentStoredQuote.quote.payment}:{})});
     }
     if (name === 'channels') {
       arity(0);
