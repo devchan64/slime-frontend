@@ -11,7 +11,7 @@ let currentParcelClaimed=false;
 let currentParcelExpiry=100.5;
 const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoch:1,location:{id:'city-channel'},map:{id:'iseulon'},me:{id:'hero',version:4,mode:'FIELD',position:{column:1,row:1}}},
  request:async(currentRequestPath:string,currentRequestBody:any)=>{
-  if(!currentRequestPath.endsWith('/claim'))return {serverTime:100,characterVersion:4,nextCursor:null,entries:currentParcelClaimed?[]:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:currentParcelExpiry,attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
+  if(!currentRequestPath.endsWith('/claim'))return {serverTime:100,characterVersion:4,nextCursor:null,entries:currentParcelClaimed?[]:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:currentParcelExpiry,attachmentNames:[null,{ko:'기본 의상',en:'Default outfit'},{ko:'단백질 젤리',en:'Protein jelly'}],attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
   currentClaimAttempts++;
   if(currentClaimAttempts===1){currentOriginalPayload=structuredClone(currentRequestBody);throw new TypeError('response lost');}
   assertParcelBrowser(JSON.stringify(currentRequestBody)===JSON.stringify(currentOriginalPayload),'재시도 원본 요청 유지');
@@ -28,7 +28,7 @@ async function clickParcelButton(currentTranslationKey:string){
  setLocale(location.hash==='#en'?'en':'ko');
  render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
  await currentWaitRender();await clickParcelButton('parcels.refresh');
- assertParcelBrowser(document.body.textContent!.includes('7p')&&document.body.textContent!.includes('protein-jelly × 2'),'첨부물 표시');
+ assertParcelBrowser(document.body.textContent!.includes('7p')&&document.body.textContent!.includes((location.hash==='#en'?'Protein jelly':'단백질 젤리')+' × 2'),'첨부물 표시');
  await clickParcelButton('parcels.claim');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.uncertain')),'응답 유실 안내');
  assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.refresh'))?.disabled,'결과 불명 중 목록 변경 차단');

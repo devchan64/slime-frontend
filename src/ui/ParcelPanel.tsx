@@ -3,7 +3,7 @@ import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
 import {noticeText,type Notice} from '../client/notice';
 import {createPositionIdentity} from '../client/positionIdentity';
-import {validateParcelListing,validateParcelReceipt,type ParcelListing,type ParcelAttachment} from '../client/parcel-validation.mjs';
+import {validateNamedParcelListing,validateParcelReceipt,type ParcelListing,type ParcelAttachment} from '../client/parcel-validation.mjs';
 import {useTranslation} from '../i18n';
 
 const PARCEL_EXPIRATION_REFRESH_MILLISECONDS=1000;
@@ -28,7 +28,7 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
   if(actionsAreDisabled||currentPendingReference.current||currentOriginalRequest.current||!parcelContextMatches())return;
   currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentParcelNotice('');
   try{
-   const currentResponseRecord=validateParcelListing(await gameSessionClient.request(currentEndpointPrefix+(currentAfterCursor?'?after='+encodeURIComponent(currentAfterCursor):'')));
+   const currentResponseRecord=validateNamedParcelListing(await gameSessionClient.request(currentEndpointPrefix+'?includeNames=true'+(currentAfterCursor?'&after='+encodeURIComponent(currentAfterCursor):'')));
    if(parcelContextMatches()){currentListingClock.current={serverTime:currentResponseRecord.serverTime,receivedAt:performance.now()};setCurrentDisplayTime(currentResponseRecord.serverTime);setCurrentParcelListing(currentResponseRecord);}
   }catch(currentRequestError){if(parcelContextMatches())setCurrentParcelNotice(currentRequestError as Error);}
   finally{currentPendingReference.current=false;if(parcelContextMatches())setCurrentRequestPending(false);}
@@ -56,10 +56,10 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
    setCurrentParcelNotice(currentRequestError as Error);
   }}finally{currentPendingReference.current=false;if(parcelContextMatches())setCurrentRequestPending(false);}
  }
- function formatParcelAttachment(currentAttachmentRecord:ParcelAttachment){
+ function formatParcelAttachment(currentAttachmentRecord:ParcelAttachment,currentAttachmentNames:{ko:string;en:string}|null){
   if(currentAttachmentRecord.kind==='money')return translateParcelText('parcels.money',{amount:currentAttachmentRecord.amountP});
-  if(currentAttachmentRecord.kind==='costume')return translateParcelText('parcels.costume',{name:currentAttachmentRecord.costumeId});
-  return translateParcelText('parcels.item',{name:currentAttachmentRecord.itemId,quantity:currentAttachmentRecord.quantity});
+  if(currentAttachmentRecord.kind==='costume')return translateParcelText('parcels.costume',{name:currentAttachmentNames![currentParcelLocale]});
+  return translateParcelText('parcels.item',{name:currentAttachmentNames![currentParcelLocale],quantity:currentAttachmentRecord.quantity});
  }
  useEffect(()=>{
   if(!currentParcelListing)return;
@@ -72,7 +72,7 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
   <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel} onClick={()=>void loadParcelListing()}>{translateParcelText('parcels.refresh')}</button>
   {currentParcelListing?.entries.length===0&&<p>{translateParcelText('parcels.empty')}</p>}
   {currentParcelListing?.entries.map(currentParcelEntry=><article key={currentParcelEntry.parcelId}>
-   <ul>{currentParcelEntry.attachments.map((currentAttachmentRecord,currentAttachmentIndex)=><li key={currentAttachmentIndex}>{formatParcelAttachment(currentAttachmentRecord)}</li>)}</ul>
+   <ul>{currentParcelEntry.attachments.map((currentAttachmentRecord,currentAttachmentIndex)=><li key={currentAttachmentIndex}>{formatParcelAttachment(currentAttachmentRecord,currentParcelEntry.attachmentNames![currentAttachmentIndex])}</li>)}</ul>
    <p>{translateParcelText('parcels.expires',{time:new Date(currentParcelEntry.expiresAt*1000).toLocaleString(currentParcelLocale)})}</p>
    {currentParcelEntry.expiresAt<=currentDisplayTime&&<p>{translateParcelText('parcels.expired')}</p>}
    <button class="compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||currentParcelEntry.expiresAt<=currentDisplayTime} onClick={()=>void claimParcelEntry(currentParcelEntry.parcelId)}>{translateParcelText('parcels.claim')}</button>

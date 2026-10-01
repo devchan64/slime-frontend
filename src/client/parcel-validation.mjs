@@ -39,3 +39,16 @@ export function validateParcelReceipt(currentReceiptRecord,currentParcelIdentifi
  validateParcelAttachments(currentReceiptRecord.attachments);
  return currentReceiptRecord;
 }
+
+
+export function validateNamedParcelListing(currentListingRecord){
+ validateParcelListing(currentListingRecord);
+ for(const currentParcelRecord of currentListingRecord.entries){
+  requireParcelCondition(Array.isArray(currentParcelRecord.attachmentNames)&&currentParcelRecord.attachmentNames.length===currentParcelRecord.attachments.length);
+  currentParcelRecord.attachmentNames.forEach((currentNameRecord,currentAttachmentIndex)=>{
+   if(currentParcelRecord.attachments[currentAttachmentIndex].kind==='money'){requireParcelCondition(currentNameRecord===null);return;}
+   requireParcelCondition(currentNameRecord&&Object.keys(currentNameRecord).sort().join(',')==='en,ko'&&['ko','en'].every(currentLocaleCode=>typeof currentNameRecord[currentLocaleCode]==='string'&&currentNameRecord[currentLocaleCode].trim().length>0));
+  });
+ }
+ return currentListingRecord;
+}
