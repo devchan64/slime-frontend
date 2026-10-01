@@ -1488,3 +1488,6 @@ body.battle-preview-shell .preview-hud { display: contents; }
   }
   .character-settings .growth-categories button { word-break: keep-all; }
 }
+
+.traveler-barter-toggle { display: flex; align-items: center; gap: 8px; }
+.traveler-barter-toggle input { width: auto; margin: 0; }

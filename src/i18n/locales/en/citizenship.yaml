@@ -27,3 +27,13 @@ permitPurchaseHelp: 'Pay {price}p to receive a traveler certificate valid for se
 permitRetry: Check the same issuance request again
 permitPurchase: Confirm traveler certificate issuance
 permitUncertain: The issuance outcome is unknown. Check again using the same request.
+
+barterEnable: Pay with materials and coins
+barterCash: Coin payment (p)
+barterEmpty: No materials available for payment.
+barterInvalid: Check the coin amount and quantities, and select at least one material.
+barterCashValue: 'Coins: {cash}p'
+barterMaterialValue: '{name} × {quantity} · standard value {value}p each'
+barterTotal: 'Payment value {total}p · excess {excess}p (no change)'
+barterPurchaseHelp: 'Pay the {price}p fee with the confirmed coins and materials. Excess value is not returned.'
+barterStateChanged: Your inventory state changed. Request a new quote.
