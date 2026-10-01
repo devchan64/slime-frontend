@@ -1,6 +1,7 @@
 import {MAP_DEFAULT_ZOOM, WORLD_UNIT_MIGRATION, resolveMapTileSize} from "../terrain/renderMetrics";
 import { FieldIdleAction } from "../animation/fieldIdleAction";
-import { calculateFieldIdleDuration } from "../animation/idleActors";
+import { FieldRestAnimation } from "../animation/fieldRestAnimation";
+import { calculateRestExitDuration, updateActorRestPlayback, calculateFieldIdleDuration } from "../animation/idleActors";
 import type {Notice} from '../../client/notice';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
 import { screenFacing, shouldMirrorActorSprite, type WorldFacing } from "../animation/facing";
@@ -110,6 +111,7 @@ export class MainScene extends Phaser.Scene {
     if (!s.battle && this.fieldMotion.isMovementActive(`member:${s.me.id}`, performance.now()))
       this.fieldCameraFollowPending = true;
   }
+  private fieldRestAnimation = new FieldRestAnimation();
   private fieldIdleAction = new FieldIdleAction();
   private animateFieldActors() {
     const now=performance.now();
@@ -121,16 +123,18 @@ export class MainScene extends Phaser.Scene {
       if (characterRestingFacing) {
         const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : undefined;
         const selectedScreenFacing = currentMovementFacing ? screenFacing(currentMovementFacing, this.rotation) : characterRestingFacing;
+        const actorRestPlayback = this.fieldRestAnimation.sampleRestAnimation(item.key, now, calculateRestExitDuration());
         let idleActionElapsedTime: number | null = null;
         if (item.key === `member:${this.state?.me.id}`) {
           const idleActionAllowedFlag = this.state?.location.kind === "FIELD" && !this.state.battle && !document.hidden &&
-            item.object.getData("actorIdleKind") === "human" && offset.x === 0 && offset.y === 0;
+            item.object.getData("actorIdleKind") === "human" && !actorRestPlayback && offset.x === 0 && offset.y === 0;
           idleActionElapsedTime = this.fieldIdleAction.sampleIdleAction(now, calculateFieldIdleDuration(selectedScreenFacing), idleActionAllowedFlag);
           item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "idle" : "stretch-placeholder");
         }
         const selectedWorldFacing = currentMovementFacing ?? item.object.getData("actorWorldFacing");
         if (selectedWorldFacing) item.object.setFlipX(shouldMirrorActorSprite(selectedWorldFacing, this.rotation));
-        updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementActive);
+        if (!updateActorRestPlayback(item.object, selectedScreenFacing, actorRestPlayback))
+          updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementActive);
         if (item.object.flipX) item.object.setOrigin(1 - item.object.originX, item.object.originY);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
@@ -201,6 +205,7 @@ export class MainScene extends Phaser.Scene {
       this.actorCache?.clear();
       this.actorCache=null;
       this.actorEntries=[];
+      this.fieldRestAnimation.resetRestAnimations();
       this.fieldMotion.clear();
       this.battleMotion.clear();
       this.movingObjects=[];
@@ -335,6 +340,12 @@ export class MainScene extends Phaser.Scene {
     }
   }
   setState(s: State) {
+    if (!this.state || this.state.location.id !== s.location.id || this.state.generation !== s.generation || this.state.epoch !== s.epoch || Boolean(this.state.battle) !== Boolean(s.battle))
+      this.fieldRestAnimation.resetRestAnimations();
+    this.fieldRestAnimation.syncRestAnimations(s.battle ? [] : s.members.filter(currentMemberRecord => currentMemberRecord.mode === 'FIELD').map(currentMemberRecord => ({
+      actorStableIdentifier: `member:${currentMemberRecord.id}`,
+      restingActiveFlag: currentMemberRecord.id === s.me.id ? !!s.me.fieldRest?.active : !!currentMemberRecord.fieldRestActive,
+    })), performance.now());
     if (!this.state || this.state.location.id !== s.location.id || this.state.generation !== s.generation || this.state.epoch !== s.epoch ||
         Boolean(this.state.battle) !== Boolean(s.battle) || this.state.me.position.column !== s.me.position.column || this.state.me.position.row !== s.me.position.row)
       this.fieldIdleAction.resetIdleAction(performance.now());

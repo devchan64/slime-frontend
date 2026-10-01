@@ -6,12 +6,13 @@ import { ACTOR_IDLE_TEXTURES, ACTOR_IDLE_ASSETS, createActorIdleImage, type Idle
 import { TILE_W, TILE_H } from "./meadow";
 
 export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
+// 앉은 높이는 시트 포즈로 표현하고 입식 기준 배율은 유지한다.
+const HUMAN_REST_HEIGHT_RATIO = 1;
 export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
 const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
 const SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.54, height: 0.24, coreAlpha: 0.24, coreScale: 0.65 };
-const HUMAN_REST_HEIGHT_RATIO = 0.55;
 const HUMAN_CONTACT_SHADOW = { width: 0.32, height: 0.12 };
 const MONSTER_RING = { alpha: 0.45, width: 1 };
 const SPRITE_DEPTH_OFFSET = 0.01;

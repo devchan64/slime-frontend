@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {build} from 'esbuild';
 const idleModulePath = pathToFileURL(resolve('src/game/animation/idleActors.ts')).href;
 const idleBundleOutput = await build({entryPoints:['src/game/animation/idleActors.ts'],bundle:true,write:false,format:'esm',platform:'node',define:{'import.meta.url':JSON.stringify(idleModulePath)}});
-const {ACTOR_IDLE_ASSETS,ACTOR_IDLE_TEXTURES,DEFAULT_IDLE_DIRECTION_ASSETS,resolveActorIdleAsset,updateActorIdleFrame} = await import(`data:text/javascript;base64,${Buffer.from(idleBundleOutput.outputFiles[0].text).toString('base64')}`);
+const {ACTOR_IDLE_ASSETS,ACTOR_IDLE_TEXTURES,DEFAULT_IDLE_DIRECTION_ASSETS,resolveActorIdleAsset,updateActorIdleFrame,updateActorRestPlayback,calculateRestExitDuration} = await import(`data:text/javascript;base64,${Buffer.from(idleBundleOutput.outputFiles[0].text).toString('base64')}`);
 
 test('캐릭터 대기·휴식과 몬스터 15종의 등록 파일·관리 ID가 중복되지 않는다',()=>{
  const registeredIdleAssets=Object.values(ACTOR_IDLE_ASSETS);
@@ -15,7 +15,7 @@ test('캐릭터 대기·휴식과 몬스터 15종의 등록 파일·관리 ID가
  assert.equal(new Set(registeredIdleAssets.map(idleAssetRecord=>idleAssetRecord.animation.data.animationId)).size,17);
  for(const idleAssetRecord of registeredIdleAssets) assert.ok(existsSync(new URL(idleAssetRecord.url)));
 });
-test('등록된 모든 방향은 지정된 시간 경계에서 프레임을 전환하고 반복한다',()=>{
+test('등록된 모든 방향은 지정된 시간 경계와 반복·정지 정책을 따른다',()=>{
  for(const idleAssetRecord of Object.values(ACTOR_IDLE_ASSETS)) {
   for(const idleClipRecord of idleAssetRecord.animation.data.clips) {
    let accumulatedFrameTime=0;
@@ -23,8 +23,7 @@ test('등록된 모든 방향은 지정된 시간 경계에서 프레임을 전�
     assert.equal(idleAssetRecord.animation.sample(idleClipRecord.clipId,accumulatedFrameTime).frame.frameId,idleFrameRecord.frameId);
     accumulatedFrameTime+=idleFrameRecord.durationMs;
    }
-   assert.equal(idleClipRecord.loop,true);
-   assert.equal(idleAssetRecord.animation.sample(idleClipRecord.clipId,accumulatedFrameTime).frame.frameId,idleClipRecord.frames[0].frameId);
+   assert.equal(idleAssetRecord.animation.sample(idleClipRecord.clipId,accumulatedFrameTime).frame.frameId, idleClipRecord.loop ? idleClipRecord.frames[0].frameId : idleClipRecord.frames.at(-1).frameId);
   }
  }
 });
@@ -71,4 +70,38 @@ test('정면왼쪽 대기 8프레임은 4열2행과 384px 셀 크기를 유지�
   assert.equal(currentFrameRecord.frameId,`down_left.${frameColumnIndex}`);
   assert.deepEqual(currentFrameRecord.rect,{x:(frameColumnIndex%4)*384,y:Math.floor(frameColumnIndex/4)*384,width:384,height:384});
  });
+});
+
+test('휴식은 진입 13프레임 뒤 고정되고 해제 8프레임은 반복하지 않는다',()=>{
+ const restAssetAnimation = ACTOR_IDLE_ASSETS['human-rest'].animation;
+ const entryClipIdentifier = restAssetAnimation.clip('rest-entry','down_left');
+ const exitClipIdentifier = restAssetAnimation.clip('rest-exit','down_left');
+ assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===entryClipIdentifier).frames.length,13);
+ assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===exitClipIdentifier).frames.length,8);
+ for(const currentClipRecord of restAssetAnimation.data.clips) assert.equal(currentClipRecord.loop,false);
+ for(const currentTimeValue of [1625,10000,3600000]) assert.equal(restAssetAnimation.sample(entryClipIdentifier,currentTimeValue).frame.frameId,'down_left.12');
+ assert.equal(restAssetAnimation.sample(exitClipIdentifier,999).frame.frameId,'down_left.20');
+ assert.equal(restAssetAnimation.sample(exitClipIdentifier,1000).frame.frameId,'down_left.20');
+});
+
+test('휴식 해제 완료 시 이미지의 대기 텍스처와 입식 배율을 복구한다',()=>{
+ const restAssetAnimation = ACTOR_IDLE_ASSETS['human-rest'].animation;
+ const spriteTextureRecord = {getSourceImage:()=>restAssetAnimation.data.sheet,has:()=>false,add:()=>true};
+ const renderedCharacterData = new Map([['actorDisplayHeight',80],['actorIdleKind','human-rest'],['idlePhaseOffset',0]]);
+ const renderedCharacterImage = {scene:{textures:{exists:()=>true,get:()=>spriteTextureRecord},time:{now:0}},frame:{name:''},
+  getData(currentDataName){return renderedCharacterData.get(currentDataName);},
+  setData(currentDataName,currentDataValue){renderedCharacterData.set(currentDataName,currentDataValue);return this;},
+  setTexture(currentTextureKey,currentFrameName){this.textureKey=currentTextureKey;this.frame.name=currentFrameName;return this;},
+  setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
+  setScale(currentScaleValue){this.scaleValue=currentScaleValue;return this;}};
+ assert.equal(calculateRestExitDuration(),1000);
+ assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-entry',elapsedTimeValue:10000}),true);
+ assert.match(renderedCharacterImage.frame.name,/down_left\.12$/);
+ assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-exit',elapsedTimeValue:999}),true);
+ assert.match(renderedCharacterImage.frame.name,/down_left\.20$/);
+ assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',null),false);
+ updateActorIdleFrame(renderedCharacterImage,'down_left');
+ assert.equal(renderedCharacterImage.textureKey,ACTOR_IDLE_ASSETS.human.key);
+ assert.equal(renderedCharacterImage.getData('actorIdleKind'),'human');
+ assert.equal(renderedCharacterImage.scaleValue,80/365.5);
 });

@@ -8,7 +8,9 @@ import { calculateIdlePhase } from "./idlePhase";
 import type Phaser from "phaser";
 import { type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
-import restingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-v1/rest-v2.animation.json";
+import restingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/rest-v2.animation.json";
+import characterRestSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/source.json";
+import type { RestPlaybackSample } from "./fieldRestAnimation";
 import characterIdleSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v1/source.json";
 import actorIdleMetadata0 from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v1/idle-v6.animation.json";
 import actorIdleMetadata1 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json";
@@ -32,7 +34,7 @@ export const DEFAULT_IDLE_DIRECTION_ASSETS = {
 } as const;
 
 export const ACTOR_IDLE_ASSETS = {
-  "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-v1/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
+  "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
   "human": DEFAULT_IDLE_DIRECTION_ASSETS.down_left,
   "moss-turtle": { key: "idle-moss-turtle", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata0) },
   "mist-frog": { key: "idle-mist-frog", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata1) },
@@ -52,6 +54,7 @@ export const ACTOR_IDLE_ASSETS = {
 } as const;
 export type IdleActorKind = keyof typeof ACTOR_IDLE_ASSETS;
 const IDLE_BODY_HEIGHT_RATIO = 0.75;
+const REST_REFERENCE_BODY_HEIGHT = characterRestSourceMetadata.referenceBodyHeight;
 const DEFAULT_IDLE_BODY_HEIGHT = characterIdleSourceMetadata.referenceBodyHeight;
 if (!Number.isFinite(DEFAULT_IDLE_BODY_HEIGHT) || DEFAULT_IDLE_BODY_HEIGHT <= 0) throw new Error("기본 캐릭터 기준 높이가 올바르지 않습니다.");
 export const ACTOR_IDLE_TEXTURES = Object.values(ACTOR_IDLE_ASSETS);
@@ -87,7 +90,7 @@ export function createActorIdleImage(actorRenderScene: Phaser.Scene, actorIdleKi
   const idlePhaseOffset = calculateIdlePhase(actorStableIdentifier, idleCycleDuration);
   const initialIdleFrame = actorIdleAsset.animation.data.frames[0];
   const actorRenderImage = actorRenderScene.add.image(actorWorldPosition.x, actorWorldPosition.y, actorIdleAsset.key)
-    .setScale(actorDisplayHeight / (actorIdleKind === "human" ? DEFAULT_IDLE_BODY_HEIGHT : initialIdleFrame.rect.height * IDLE_BODY_HEIGHT_RATIO))
+    .setScale(actorDisplayHeight / (actorIdleKind === "human" ? DEFAULT_IDLE_BODY_HEIGHT : actorIdleKind === "human-rest" ? REST_REFERENCE_BODY_HEIGHT : initialIdleFrame.rect.height * IDLE_BODY_HEIGHT_RATIO))
     .setData("actorDisplayHeight", actorDisplayHeight).setData("idlePhaseOffset", idlePhaseOffset).setData("actorIdleKind", actorIdleKind).setData("characterRestingFacing", actorScreenDirection);
   updateActorIdleFrame(actorRenderImage, actorScreenDirection);
   return actorRenderImage;
@@ -97,4 +100,30 @@ export function createActorIdleImage(actorRenderScene: Phaser.Scene, actorIdleKi
 export function calculateFieldIdleDuration(actorScreenDirection: Direction): number {
   const selectedIdleClip = DEFAULT_IDLE_ANIMATION.data.clips.find(clipRecordValue => clipRecordValue.action === "idle" && clipRecordValue.direction === actorScreenDirection)!;
   return selectedIdleClip.frames.reduce((totalDurationValue, frameRecordValue) => totalDurationValue + frameRecordValue.durationMs, 0);
+}
+
+/** 비반복 해제 클립의 실제 재생 시간. */
+export function calculateRestExitDuration(): number {
+  return ACTOR_IDLE_ASSETS['human-rest'].animation.data.clips.find(currentClipRecord => currentClipRecord.action === 'rest-exit')!
+    .frames.reduce((totalDurationValue, currentFrameRecord) => totalDurationValue + currentFrameRecord.durationMs, 0);
+}
+
+/** 앉은 마지막 프레임을 고정하고, 해제 종료 뒤에는 기존 대기 재생으로 돌린다. */
+export function updateActorRestPlayback(actorRenderImage: Phaser.GameObjects.Image, actorScreenDirection: Direction, restPlaybackSample: RestPlaybackSample | null): boolean {
+  if (!restPlaybackSample) {
+    if (actorRenderImage.getData('restPlaybackActive')) {
+      actorRenderImage.setData('restPlaybackActive', false).setData('actorIdleKind', 'human');
+      actorRenderImage.setScale(actorRenderImage.getData('actorDisplayHeight') / DEFAULT_IDLE_BODY_HEIGHT);
+    }
+    return false;
+  }
+  const restingActorAsset = ACTOR_IDLE_ASSETS['human-rest'];
+  bindCellTexture(actorRenderImage.scene, restingActorAsset.key, restingActorAsset.animation);
+  const sampledRestFrame = restingActorAsset.animation.sample(
+    restingActorAsset.animation.clip(restPlaybackSample.actionNameValue, actorScreenDirection), restPlaybackSample.elapsedTimeValue).frame;
+  actorRenderImage.setData('restPlaybackActive', true).setData('walkingIdleScale', undefined);
+  actorRenderImage.setTexture(restingActorAsset.key, `cell:${restingActorAsset.animation.data.animationId}@${restingActorAsset.animation.data.version}:${sampledRestFrame.frameId}`)
+    .setOrigin(sampledRestFrame.anchor.x / sampledRestFrame.rect.width, sampledRestFrame.anchor.y / sampledRestFrame.rect.height)
+    .setScale(actorRenderImage.getData('actorDisplayHeight') / REST_REFERENCE_BODY_HEIGHT);
+  return true;
 }

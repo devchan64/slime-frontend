@@ -45,7 +45,7 @@ data:
   - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
     path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png
   - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v2.rest-v2.png
-    path: ../slime-assets/assets/characters/default/animations/rest-v2/down-left-v1/rest-v2.png
+    path: ../slime-assets/assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/rest-v2.png
   - managementId: image.frontend.src.assets.terrain.extension-v1.ash-128.webp
     path: ../slime-assets/assets/tiles/terrain/non-road/ash-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.boulder-128.webp
