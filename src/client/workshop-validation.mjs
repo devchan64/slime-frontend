@@ -61,6 +61,15 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind){
       seenMaterialIdentifiers.add(currentMaterialRecord.materialId);
     }
   }
+  if(currentResponseValue.quote.materialAllocation!==undefined){
+    const currentQuotedAllocations=currentResponseValue.quote.materialAllocation;
+    requireWorkshopCondition(currentResponseValue.materials.length===currentQuotedAllocations.length);
+    const currentAllocationLookup=new Map(currentQuotedAllocations.map(currentMaterialEntry=>[currentMaterialEntry.materialId,currentMaterialEntry]));
+    for(const currentDisplayedMaterial of currentResponseValue.materials){
+      const currentQuotedMaterial=currentAllocationLookup.get(currentDisplayedMaterial.materialId);
+      requireWorkshopCondition(currentQuotedMaterial&&['quantity','ownedQuantity','consumedQuantity','missingQuantity'].every(currentFieldName=>currentDisplayedMaterial[currentFieldName]===currentQuotedMaterial[currentFieldName]));
+    }
+  }
   return currentResponseValue;
 }
 export function parseWorkshopContracts(currentResponseValue,currentContractKind){

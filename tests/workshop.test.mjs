@@ -76,7 +76,16 @@ test('부족 재료를 포함한 소모품 총액과 과거 계약을 모두 검
    materialPricing:{version:1,guildPriceVersion:1,priceSource:'guild_purchase',numerator:3,denominator:2,rounding:'ceil'},
    materialAllocation:[{materialId:'reed-fiber',quantity:6,ownedQuantity:0,consumedQuantity:0,missingQuantity:6,unitPriceP:2},
      {materialId:'clean-water',quantity:3,ownedQuantity:0,consumedQuantity:0,missingQuantity:3,unitPriceP:1}]}};
+ currentPricedQuote.materials=currentPricedQuote.quote.materialAllocation.map(currentMaterialEntry=>({...currentMaterialEntry,nameTranslations:{ko:currentMaterialEntry.materialId,en:currentMaterialEntry.materialId}}));
  assert.equal(parseWorkshopQuote(currentPricedQuote,'consumable').quote.costP,26);
+ assert.doesNotThrow(()=>parseWorkshopQuote({...currentPricedQuote,materials:[...currentPricedQuote.materials].reverse()},'consumable'));
+ for(const currentChangedMaterials of [[],currentPricedQuote.materials.slice(1),
+   [{...currentPricedQuote.materials[0],materialId:'other-material'},currentPricedQuote.materials[1]],
+   [{...currentPricedQuote.materials[0],quantity:7,missingQuantity:7},currentPricedQuote.materials[1]],
+   [{...currentPricedQuote.materials[0],ownedQuantity:1,consumedQuantity:1,missingQuantity:5},currentPricedQuote.materials[1]]]){
+   assert.throws(()=>parseWorkshopQuote({...currentPricedQuote,materials:currentChangedMaterials},'consumable'));
+ }
+
  const currentSavedContract={...currentContractFixture,entries:[{...currentContractFixture.entries[0],kind:'consumable',quote:currentPricedQuote.quote}]};
  assert.equal(parseWorkshopContracts(currentSavedContract,'consumable').entries[0].quote.missingMaterialCostP,23);
  for(const currentInvalidPatch of [{costP:25},{missingMaterialCostP:22},{baseCostP:4},{missingMaterialValueP:14},{materialPricing:undefined},{materialAllocation:[]}])
