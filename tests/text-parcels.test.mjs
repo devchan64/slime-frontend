@@ -56,3 +56,26 @@ test('확인한 소포와 다른 금액·수량·종류·누락 영수증을 거
   [currentExpectedAttachments[0]],
  ])assert.throws(()=>validateParcelReceipt({...currentReceiptRecord,attachments:currentChangedAttachments},CURRENT_PARCEL_IDENTIFIER,'character',currentExpectedAttachments));
 });
+
+test('조회한 첨부물은 수령 응답 검증과 재시도에 고정한다',async()=>{
+ const currentListingRecord={characterVersion:4,serverTime:100,nextCursor:null,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null],attachments:[{kind:'money',amountP:7}]}]};
+ const currentWrongReceipt={state:{...createParcelState(),cursor:2},receipt:{...createParcelReceipt(),attachments:[{kind:'money',amountP:70}]}};
+ const {currentTextClient,currentRequestEntries}=createParcelClient([currentListingRecord,currentWrongReceipt,currentWrongReceipt,{state:{...createParcelState(),cursor:2},receipt:createParcelReceipt()}]);
+ await currentTextClient.execute('parcels list iseulon-guild');
+ await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
+ assert.equal(currentTextClient.state.cursor,1);
+ assert.ok(currentTextClient.pendingCommandRequest);
+ assert.match(await currentTextClient.execute('retry'),/수령 완료.*7p/);
+ assert.deepEqual(currentRequestEntries.slice(1).map(currentRequestEntry=>currentRequestEntry.body),Array(3).fill({expectedVersion:4}));
+});
+
+test('조회 도중 세션이 바뀌면 이전 소포 목록을 표시하거나 캐시하지 않는다',async()=>{
+ let completeListingResponse;
+ const currentTextClient=new TextClient('http://localhost:18080',{fetcher:()=>new Promise(currentResolveCallback=>{completeListingResponse=currentResolveCallback;})});
+ currentTextClient.accept(createParcelState());
+ const currentPendingListing=currentTextClient.execute('parcels list iseulon-guild');
+ currentTextClient.accept({...createParcelState(),generation:2});
+ completeListingResponse(new Response(JSON.stringify({characterVersion:4,serverTime:100,nextCursor:null,entries:[]})));
+ await assert.rejects(()=>currentPendingListing,/세션·위치/);
+ assert.equal(currentTextClient.parcelListingReceiptContext,null);
+});
