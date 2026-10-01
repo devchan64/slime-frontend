@@ -1,3 +1,4 @@
+import {executeEquipmentCommand} from './text-equipment-commands.mjs';
 import {executeWorkshopCommand} from './text-workshop-commands.mjs';
 import {executeConsumableCommand} from './text-consumable-commands.mjs';
 import {executeSkillbookCommand} from './text-skillbook-commands.mjs';
@@ -88,7 +89,7 @@ export class TextClient {
     if(this.pendingCommandRequest)throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const expectedVersion = path === BATTLE_PATH ? this.state.battle?.version : this.state.me.version;
     if (!Number.isSafeInteger(expectedVersion)) throw new Error('명령에 필요한 상태 버전이 없습니다.');
-    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,validateCommandResponse:currentCommandOptions.validateCommandResponse,fetchStateAfterReceipt:currentCommandOptions.fetchStateAfterReceipt,
+    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,validateCommandResponse:currentCommandOptions.validateCommandResponse,fetchStateAfterReceipt:currentCommandOptions.fetchStateAfterReceipt,readReceiptCharacterVersion:currentCommandOptions.readReceiptCharacterVersion,
       characterId:this.state.me.id,generation:this.state.generation,ownerId:this.tokens?.user_id};
     return this.submitPendingCommand();
   }
@@ -113,14 +114,16 @@ export class TextClient {
           this.requirePendingCommandOwnership(currentPendingCommand);
           currentPendingCommand.validateCommandResponse?.(currentCommandResult,currentPendingCommand.payload);
           if(currentPendingCommand.fetchStateAfterReceipt){
+            const currentReceiptVersion=currentPendingCommand.readReceiptCharacterVersion(currentCommandResult);
+            if(!Number.isSafeInteger(currentReceiptVersion)||currentReceiptVersion<0)throw new Error('명령 영수증의 상태 버전이 올바르지 않습니다.');
             currentPendingCommand.confirmedCommandResult=currentCommandResult;
             const currentFetchedState=await this.request('/v1/game/state');
             this.requirePendingCommandOwnership(currentPendingCommand);
             if(this.state?.me.id!==currentPendingCommand.characterId||this.state.generation!==currentPendingCommand.generation
               ||this.tokens?.user_id!==currentPendingCommand.ownerId||currentFetchedState.me?.id!==currentPendingCommand.characterId
               ||currentFetchedState.generation!==currentPendingCommand.generation
-              ||currentFetchedState.me.version<currentCommandResult.substituteHunt.characterVersion)
-              throw new Error('대체 사냥 이후 상태가 현재 캐릭터·세션과 일치하지 않습니다.');
+              ||!Number.isSafeInteger(currentFetchedState.me.version)||currentFetchedState.me.version<currentReceiptVersion)
+              throw new Error('명령 이후 상태가 현재 캐릭터·세션과 일치하지 않습니다.');
             this.accept(currentFetchedState);
           }else this.accept(currentCommandResult.state);
         }catch(currentRequestError){
@@ -155,6 +158,7 @@ export class TextClient {
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
       &&!(name==='npc'&&['list','talk'].includes(args[0]))
       &&!(name==='substitute'&&args[0]==='list')
+      &&!(name==='equipment'&&args[0]==='list')
       &&!(name==='workshop'&&['catalog','contracts'].includes(args[1]))
       &&!(name==='consumables'&&['catalog','contracts'].includes(args[0]))
       &&!(name==='books'&&['list','shop'].includes(args[0]))
@@ -163,6 +167,7 @@ export class TextClient {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'equipment') return executeEquipmentCommand(this,args);
     if (name === 'workshop') return executeWorkshopCommand(this,args);
     if (name === 'consumables') return executeConsumableCommand(this,args);
     if (name === 'books') return executeSkillbookCommand(this,args);

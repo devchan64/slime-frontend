@@ -15,6 +15,6 @@ export async function executeSubstituteHuntCommand(currentTextClient,currentComm
   const currentHuntResult=currentCommandResult.substituteHunt;
   return `대체 사냥 완료 · 소비 FP ${currentHuntResult.fpConsumed} · 잔여 FP ${currentHuntResult.fpRemaining}\n`+
     (currentHuntResult.materials.length?currentHuntResult.materials.map(currentMaterialEntry=>`${currentMaterialEntry.materialId} × ${currentMaterialEntry.quantity}`).join('\n'):'획득한 수집품이 없습니다.');
- },{fetchStateAfterReceipt:true,validateCommandResponse:(currentCommandResult,currentRequestBody)=>
+ },{fetchStateAfterReceipt:true,readReceiptCharacterVersion:currentCommandResult=>currentCommandResult.substituteHunt.characterVersion,validateCommandResponse:(currentCommandResult,currentRequestBody)=>
    parseSubstituteHuntReceipt(currentCommandResult,currentRequestBody.requestId,currentRequestBody.encounterId)});
 }
