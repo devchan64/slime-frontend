@@ -42,3 +42,34 @@ export function validateTravelerQuoteResponse(currentQuoteResponse,currentGuardE
 export function captureTravelerQuoteContext(currentGameState) {
   return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position]);
 }
+
+const TRAVELER_PERMIT_PUBLIC_KEYS = 'characterId,cityId,cityName,expiresAt,instanceId,issuedAt,issuerId,itemId,nameTranslations,quantity,status,weightG';
+const TRAVELER_STATUS_DISPLAY_NAMES = {PENDING:'발급 전',VALID:'유효',EXPIRED:'만료'};
+
+export function formatTravelerPermitSummary(currentPermitSummary,currentServerTimestamp,currentCharacterIdentifier) {
+  if(currentPermitSummary===undefined)return '현재 서버 응답에 여행자증명서 정보가 없습니다.';
+  const invalidPermitResponseMessage='여행자증명서 응답이 올바르지 않습니다.';
+  if(!currentPermitSummary || Object.keys(currentPermitSummary).join(',')!=='records' || !Array.isArray(currentPermitSummary.records)
+    || !Number.isFinite(currentServerTimestamp) || currentServerTimestamp<0)throw new Error(invalidPermitResponseMessage);
+  const seenPermitIdentifiers=new Set();
+  const renderedPermitLines=[];
+  const sanitizePermitText=currentTextValue=>currentTextValue.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');
+  for(const currentPermitRecord of currentPermitSummary.records){
+    if(!currentPermitRecord || Object.keys(currentPermitRecord).sort().join(',')!==TRAVELER_PERMIT_PUBLIC_KEYS
+      || !['instanceId','characterId','cityId','cityName','issuerId'].every(currentFieldName=>typeof currentPermitRecord[currentFieldName]==='string'&&!!currentPermitRecord[currentFieldName].trim())
+      || currentPermitRecord.characterId!==currentCharacterIdentifier || seenPermitIdentifiers.has(currentPermitRecord.instanceId)
+      || currentPermitRecord.itemId!=='city-traveler-permit' || currentPermitRecord.quantity!==1 || currentPermitRecord.weightG!==null
+      || !currentPermitRecord.nameTranslations || Object.keys(currentPermitRecord.nameTranslations).sort().join(',')!=='en,ko'
+      || !['ko','en'].every(currentLocaleCode=>typeof currentPermitRecord.nameTranslations[currentLocaleCode]==='string'&&!!currentPermitRecord.nameTranslations[currentLocaleCode].trim())
+      || !Number.isFinite(currentPermitRecord.issuedAt) || currentPermitRecord.issuedAt<0
+      || currentPermitRecord.expiresAt!==currentPermitRecord.issuedAt+TRAVELER_VALIDITY_DURATION_SECONDS
+      || currentPermitRecord.status!==(currentServerTimestamp<currentPermitRecord.issuedAt?'PENDING':currentServerTimestamp>=currentPermitRecord.expiresAt?'EXPIRED':'VALID'))throw new Error(invalidPermitResponseMessage);
+    const currentIssuedDate=new Date(currentPermitRecord.issuedAt*1000),currentExpiryDate=new Date(currentPermitRecord.expiresAt*1000);
+    if(!Number.isFinite(currentIssuedDate.getTime())||!Number.isFinite(currentExpiryDate.getTime()))throw new Error(invalidPermitResponseMessage);
+    seenPermitIdentifiers.add(currentPermitRecord.instanceId);
+    renderedPermitLines.push('여행자증명서 · '+sanitizePermitText(currentPermitRecord.cityName)+' ['+TRAVELER_STATUS_DISPLAY_NAMES[currentPermitRecord.status]+']'
+      +' | 증서 '+sanitizePermitText(currentPermitRecord.instanceId)+' | 발급처 '+sanitizePermitText(currentPermitRecord.issuerId)
+      +' | 발급 '+currentIssuedDate.toISOString()+' | 만료 '+currentExpiryDate.toISOString());
+  }
+  return renderedPermitLines.join('\n') || '보유한 여행자증명서가 없습니다.';
+}

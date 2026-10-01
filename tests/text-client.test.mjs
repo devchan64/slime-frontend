@@ -699,3 +699,33 @@ test('텍스트 증서 견적의 요금·도시·기간·알 수 없는 필드�
  const {currentGuardEntry,currentQuoteResponse}=createTravelerCommandFixture();
  for(const currentQuotePatch of [{priceP:6},{cityId:'reedhaven'},{validitySeconds:1},{expiresAt:100},{policyVersion:true},{extra:1}])assert.throws(()=>validateTravelerQuoteResponse({...currentQuoteResponse,...currentQuotePatch},currentGuardEntry));
 });
+
+function createTravelerSummaryFixture(){
+ return {records:[{instanceId:'permit-one',itemId:'city-traveler-permit',characterId:'hero',cityId:'iseulon',cityName:'이슬온',issuerId:'gate-north-guard-center',issuedAt:100,expiresAt:604900,status:'VALID',quantity:1,weightG:null,nameTranslations:{ko:'여행자증명서',en:'Traveler Certificate'}}]};
+}
+
+test('텍스트 증서 조회는 개별 식별자·도시·발급처·UTC 기간과 만료 정각을 표시한다',async()=>{
+ const {formatTravelerPermitSummary}=await import('../scripts/text-traveler-permits.mjs');
+ const currentPermitSummary=createTravelerSummaryFixture();
+ assert.match(formatTravelerPermitSummary(currentPermitSummary,100,'hero'),/이슬온 \[유효\].*permit-one.*gate-north.*1970-01-01T00:01:40.000Z/);
+ currentPermitSummary.records[0].status='EXPIRED';
+ assert.match(formatTravelerPermitSummary(currentPermitSummary,604900,'hero'),/만료/);
+ assert.equal(currentPermitSummary.records.length,1);
+ assert.match(formatTravelerPermitSummary({records:[]},100,'hero'),/보유한.*없습니다/);
+ assert.match(formatTravelerPermitSummary(undefined,100,'hero'),/서버 응답에.*없습니다/);
+});
+
+test('텍스트 증서는 타인 소유·기간·상태·중복 오류를 거절하고 제어 문자를 제거한다',async()=>{
+ const {formatTravelerPermitSummary}=await import('../scripts/text-traveler-permits.mjs');
+ const currentPermitSummary=createTravelerSummaryFixture();
+ for(const currentRecordPatch of [{characterId:'other'},{expiresAt:101},{status:'EXPIRED'},{quantity:2},{weightG:0},{extra:1}])assert.throws(()=>formatTravelerPermitSummary({records:[{...currentPermitSummary.records[0],...currentRecordPatch}]},100,'hero'));
+ assert.throws(()=>formatTravelerPermitSummary({records:[...currentPermitSummary.records,...currentPermitSummary.records]},100,'hero'));
+ currentPermitSummary.records[0].cityName='이슬온\u001b[2J';assert.doesNotMatch(formatTravelerPermitSummary(currentPermitSummary,100,'hero'),/\u001b/);
+});
+
+test('텍스트 가방과 상태에 본인 여행자증명서가 함께 표시된다',async()=>{
+ const currentGameSnapshot=state({serverTime:100});currentGameSnapshot.me.id='hero';currentGameSnapshot.me.travelerPermitSummary=createTravelerSummaryFixture();
+ const {client:currentTextClient}=setup([currentGameSnapshot]);currentTextClient.accept(currentGameSnapshot);
+ assert.match(await currentTextClient.execute('bag'),/여행자증명서 · 이슬온 \[유효\]/);
+ assert.match(formatState(currentTextClient.state),/여행자증명서 · 이슬온 \[유효\]/);
+});

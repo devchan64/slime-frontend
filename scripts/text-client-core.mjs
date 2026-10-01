@@ -1,4 +1,4 @@
-import {readTravelerGuardCenters,requireTravelerGuardPresence,validateTravelerQuoteResponse,captureTravelerQuoteContext} from './text-traveler-permits.mjs';
+import {formatTravelerPermitSummary,readTravelerGuardCenters,requireTravelerGuardPresence,validateTravelerQuoteResponse,captureTravelerQuoteContext} from './text-traveler-permits.mjs';
 import {normalizeChannelAddressInput,validateChannelIdentifierInput,formatChannelListingOutput} from './text-channel-commands.mjs';
 import { randomUUID } from 'node:crypto';
 
@@ -165,7 +165,7 @@ export class TextClient {
     if (name === 'bag') {
       arity(0);
       await this.snapshot();
-      return formatCharacterBag(this.state.me.bag);
+      return formatCharacterBag(this.state.me.bag)+'\n'+formatTravelerPermitSummary(this.state.me.travelerPermitSummary,this.state.serverTime,this.state.me.id);
     }
     if (name === 'first-aid' || name === 'use-item') {
       arity(name === 'first-aid' ? 0 : 1);
@@ -241,6 +241,7 @@ export class TextClient {
 export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
+  if(state.me.travelerPermitSummary!==undefined)lines.push(formatTravelerPermitSummary(state.me.travelerPermitSummary,state.serverTime,state.me.id));
   if(state.channel)lines.push('채널 '+normalizeChannelAddressInput(state.channel.address)+' ['+validateChannelIdentifierInput(state.channel.id)+']');
   if (Number.isInteger(state.me.hp) && Number.isInteger(state.me.maxHp)) lines.push('HP ' + state.me.hp + '/' + state.me.maxHp);
   if (state.me.healthRecoveryPending) lines.push('전투불능 회복 대기 | 최대 HP 50% 이상 회복 전 이동 불가');
