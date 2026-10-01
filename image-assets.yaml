@@ -85,7 +85,7 @@ data:
   - managementId: image.world.isloon.marble-roof-v2
     path: ../slime-assets/assets/tiles/buildings/marble/marble-roof-v2.png
   - managementId: image.character.default.idle-v6.sheet
-    path: ../slime-assets/assets/characters/default/animations/idle-v6/down-left-v1/idle-v6.png
+    path: ../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v1/idle-v6.png
   - managementId: image.world.stonewarm.stone-roof-v1
     path: ../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png
   - managementId: image.character.default.walk.imagegen-v2

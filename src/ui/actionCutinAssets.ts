@@ -6,7 +6,7 @@ import crabCutinMetadata from '../../../slime-assets/assets/sprites/monsters/sta
 import crawlerCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/reed-crawler-idle-v1.animation.json';
 import mothCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/lantern-moth-idle-v1.animation.json';
 import rabbitCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.animation.json';
-import characterIdleMetadata from '../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-v1/idle-v6.animation.json';
+import characterIdleMetadata from '../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v1/idle-v6.animation.json';
 import type { ActionCutinEvent } from './actionCutins';
 import { parseDocument } from 'yaml';
 import actionCutinCatalogSource from '../../../slime-assets/assets/ui/cutins.yaml?raw';
@@ -24,7 +24,7 @@ const REGISTERED_ACTION_CUTIN_IMAGES: Record<string, string> = {
   beast: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png', import.meta.url).href,
   giant: new URL('../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png', import.meta.url).href,
 };
-const DEFAULT_CHARACTER_IDLE_IMAGE = new URL('../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-v1/idle-v6.png', import.meta.url).href;
+const DEFAULT_CHARACTER_IDLE_IMAGE = new URL('../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v1/idle-v6.png', import.meta.url).href;
 type ActionCutinActorRole = 'attacker' | 'target';
 export function parseActionCutinCatalog(actionCutinYamlSource: string): Map<string, string> {
   const parsedCatalogDocument = parseDocument(actionCutinYamlSource, { uniqueKeys: true });
