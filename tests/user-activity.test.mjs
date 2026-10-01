@@ -529,3 +529,62 @@ test('서버 시계는 HTTP 왕복 시간을 반영하고 오래된 상태로 �
  currentGameClient.state=null;
  assert.throws(()=>currentGameClient.readServerTimestamp());
 });
+
+
+test('서버 재시작 종료 1012는 세션과 cursor를 유지해 새 티켓으로 자동 복구한다',async(currentTestContext)=>{
+ const currentCreatedSockets=[];
+ const currentScheduledRetries=[];
+ const currentUserListeners=new Map();
+ class RestartTestSocket {
+  static OPEN=1;
+  readyState=1;
+  sent=[];
+  constructor(){currentCreatedSockets.push(this);}
+  send(currentFrameText){this.sent.push(JSON.parse(currentFrameText));}
+  close(){this.readyState=3;this.onclose?.({code:1000});}
+ }
+ const currentOriginalGlobals=Object.fromEntries(['WebSocket','document','location'].map(currentGlobalName=>[currentGlobalName,globalThis[currentGlobalName]]));
+ Object.assign(globalThis,{WebSocket:RestartTestSocket,location:{href:'http://localhost/'},document:{
+  addEventListener:(currentEventName,currentEventHandler)=>currentUserListeners.set(currentEventName,currentEventHandler),
+  removeEventListener:currentEventName=>currentUserListeners.delete(currentEventName)}});
+ currentTestContext.mock.method(globalThis,'setInterval',()=>1);
+ currentTestContext.mock.method(globalThis,'clearInterval',()=>{});
+ currentTestContext.mock.method(globalThis,'setTimeout',(currentCallbackFunction,currentDelayMilliseconds)=>{
+  currentScheduledRetries.push({callback:currentCallbackFunction,delay:currentDelayMilliseconds});return currentScheduledRetries.length;
+ });
+ currentTestContext.mock.method(globalThis,'clearTimeout',()=>{});
+ const currentGameClient=new Client();
+ try {
+  currentGameClient.stopped=false;
+  currentGameClient.tokens={user_id:'hero',access_token:'original-session'};
+  currentGameClient.state={protocolVersion:1,generation:3,epoch:4,cursor:8,serverTime:100,me:{id:'hero'},location:{id:'meadow'}};
+  let currentTicketCount=0;
+  currentGameClient.request=async currentRequestPath=>{
+   assert.equal(currentRequestPath,'/v1/realtime/tickets');
+   return {ticket:'ticket-'+(++currentTicketCount),resumeSupported:true};
+  };
+  await currentGameClient.connect();
+  const currentPreviousSocket=currentCreatedSockets[0];
+  currentPreviousSocket.onopen();
+  currentPreviousSocket.onmessage({data:JSON.stringify({type:'resumed',generation:3,epoch:4,cursor:8})});
+  currentPreviousSocket.onclose({code:1012});
+  assert.equal(currentScheduledRetries.length,1);
+  assert.ok(currentScheduledRetries[0].delay>=500&&currentScheduledRetries[0].delay<800);
+  currentScheduledRetries[0].callback();
+  await Promise.resolve();
+  assert.equal(currentCreatedSockets.length,2);
+  const currentReplacementSocket=currentCreatedSockets[1];
+  currentReplacementSocket.onopen();
+  assert.deepEqual(currentReplacementSocket.sent[0],{ticket:'ticket-2',protocolVersion:1,resume:{generation:3,epoch:4,cursor:8}});
+  currentReplacementSocket.onmessage({data:JSON.stringify({type:'resumed',generation:3,epoch:4,cursor:8})});
+  currentPreviousSocket.onmessage({data:JSON.stringify({type:'state',state:{...currentGameClient.state,cursor:99}})});
+  assert.equal(currentGameClient.state.cursor,8);
+  assert.equal(currentGameClient.tokens.access_token,'original-session');
+  assert.equal(currentGameClient.stopped,false);
+ }finally{
+  currentGameClient.disconnect();
+  for(const [currentGlobalName,currentOriginalValue] of Object.entries(currentOriginalGlobals)){
+   if(currentOriginalValue===undefined)delete globalThis[currentGlobalName];else globalThis[currentGlobalName]=currentOriginalValue;
+  }
+ }
+});
