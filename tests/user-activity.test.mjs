@@ -588,3 +588,40 @@ test('서버 재시작 종료 1012는 세션과 cursor를 유지해 새 티켓�
   }
  }
 });
+
+
+for(const currentTransitionKind of ['channel','session','disconnect']){
+ test(`채팅 연결 대기 중 ${currentTransitionKind} 변경 뒤 늦은 open은 이전 티켓을 보내지 않는다`,async()=>{
+  const currentOriginalSocket=globalThis.WebSocket,currentOriginalLocation=globalThis.location;
+  const currentSocketEntries=[];
+  class PendingChatSocket {
+   static OPEN=1;
+   readyState=0;
+   sent=[];
+   constructor(){currentSocketEntries.push(this);}
+   send(currentFrameText){this.sent.push(JSON.parse(currentFrameText));}
+   close(){this.readyState=3;this.onclose?.();}
+  }
+  const currentGameClient=new Client();
+  const currentInitialState={protocolVersion:1,generation:1,epoch:2,cursor:0,me:{id:'hero',version:1},location:{id:'first',chatRoomId:'first'}};
+  try{
+   globalThis.WebSocket=PendingChatSocket;globalThis.location={href:'http://localhost/'};
+   currentGameClient.stopped=false;currentGameClient.accept(currentInitialState);
+   currentGameClient.request=async()=>({ticket:'previous-ticket'});
+   const currentPendingConnection=currentGameClient.connectChat();
+   const currentExpectedRejection=assert.rejects(currentPendingConnection);
+   await Promise.resolve();
+   const currentPreviousSocket=currentSocketEntries[0];
+   assert.ok(currentPreviousSocket);
+   if(currentTransitionKind==='channel')currentGameClient.accept({...currentInitialState,epoch:3,location:{id:'second',chatRoomId:'second'}});
+   else if(currentTransitionKind==='session')currentGameClient.accept({...currentInitialState,generation:2});
+   else currentGameClient.disconnect();
+   await currentExpectedRejection;
+   currentPreviousSocket.onopen();
+   assert.deepEqual(currentPreviousSocket.sent,[]);
+   assert.equal(currentPreviousSocket.readyState,3);
+  }finally{
+   currentGameClient.disconnect();globalThis.WebSocket=currentOriginalSocket;globalThis.location=currentOriginalLocation;
+  }
+ });
+}

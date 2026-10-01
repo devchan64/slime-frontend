@@ -345,7 +345,15 @@ export class Client {
     await new Promise<void>((resolve, reject) => {
       let ready = false;
       const timeout = setTimeout(() => socket.close(), 10000);
-      socket.onopen = () => socket.send(JSON.stringify({ ticket, protocolVersion: 1 }));
+      socket.onopen = () => {
+        if (this.chatSocket !== socket || this.stopped || currentChatRevision !== this.chatConnectionRevision
+            || this.state?.generation !== state.generation || this.state?.epoch !== state.epoch
+            || this.state?.location.id !== state.location.id) {
+          socket.close();
+          return;
+        }
+        socket.send(JSON.stringify({ ticket, protocolVersion: 1 }));
+      };
       socket.onmessage = event => {
         if (this.chatSocket !== socket) return;
         try {
