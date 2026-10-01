@@ -625,3 +625,49 @@ for(const currentTransitionKind of ['channel','session','disconnect']){
   }
  });
 }
+
+
+for(const currentFailureKind of ['timeout','error','invalid-frame']){
+ test(`채팅 ${currentFailureKind} 이후 close 이벤트가 없어도 대기와 소켓을 즉시 정리한다`,async(currentTestContext)=>{
+  const currentOriginalSocket=globalThis.WebSocket,currentOriginalLocation=globalThis.location;
+  const currentSocketEntries=[],currentTimeoutCallbacks=[],currentMessages=[];
+  class SilentCloseSocket {
+   static OPEN=1;
+   readyState=1;
+   constructor(){currentSocketEntries.push(this);}
+   send(){}
+   close(){this.readyState=3;}
+  }
+  currentTestContext.mock.method(globalThis,'setTimeout',currentCallbackFunction=>{currentTimeoutCallbacks.push(currentCallbackFunction);return currentTimeoutCallbacks.length;});
+  currentTestContext.mock.method(globalThis,'clearTimeout',()=>{});
+  const currentGameClient=new Client();
+  try{
+   globalThis.WebSocket=SilentCloseSocket;globalThis.location={href:'http://localhost/'};
+   currentGameClient.stopped=false;
+   currentGameClient.state={generation:1,epoch:2,location:{id:'room',chatRoomId:'room'}};
+   currentGameClient.request=async()=>({ticket:'ticket'});
+   currentGameClient.onChat=currentChatMessages=>currentMessages.push(currentChatMessages);
+   const currentPendingConnection=currentGameClient.connectChat();
+   const currentRejectedConnection=assert.rejects(currentPendingConnection);
+   await Promise.resolve();
+   const currentFailedSocket=currentSocketEntries[0];
+   if(currentFailureKind==='timeout')currentTimeoutCallbacks[0]();
+   else if(currentFailureKind==='error')currentFailedSocket.onerror();
+   else currentFailedSocket.onmessage({data:'invalid-json'});
+   await currentRejectedConnection;
+   assert.equal(currentGameClient.chatSocket,null);
+   assert.equal(currentGameClient.chatConnectionRequest,null);
+   const currentMessageCount=currentMessages.length;
+   currentFailedSocket.onmessage({data:JSON.stringify({type:'chat',generation:1,epoch:2,room:'room',messages:[{text:'late'}]})});
+   assert.equal(currentMessages.length,currentMessageCount);
+   const currentRetryConnection=currentGameClient.connectChat();
+   const currentRejectedRetry=assert.rejects(currentRetryConnection);
+   await Promise.resolve();
+   assert.equal(currentSocketEntries.length,2);
+   currentSocketEntries[1].onerror();
+   await currentRejectedRetry;
+  }finally{
+   currentGameClient.disconnect();globalThis.WebSocket=currentOriginalSocket;globalThis.location=currentOriginalLocation;
+  }
+ });
+}

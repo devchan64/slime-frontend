@@ -344,7 +344,13 @@ export class Client {
     this.chatSocket = socket;
     await new Promise<void>((resolve, reject) => {
       let ready = false;
-      const timeout = setTimeout(() => socket.close(), 10000);
+      const rejectChatConnection = (currentConnectionError: unknown) => {
+        clearTimeout(timeout);
+        if (this.chatSocket === socket) this.disconnectChat();
+        else socket.close();
+        reject(currentConnectionError);
+      };
+      const timeout = setTimeout(() => rejectChatConnection(new LocalizedError('network.chatVerificationExpired')), 10000);
       socket.onopen = () => {
         if (this.chatSocket !== socket || this.stopped || currentChatRevision !== this.chatConnectionRevision
             || this.state?.generation !== state.generation || this.state?.epoch !== state.epoch
@@ -372,14 +378,14 @@ export class Client {
             }, HEARTBEAT_MS);
             this.onChatStatus(true); resolve();
           }
-        } catch (error) { reject(error); socket.close(); }
+        } catch (error) { rejectChatConnection(error); }
       };
       socket.onclose = () => {
         clearTimeout(timeout);
         if (this.chatSocket === socket) this.disconnectChat();
         if (!ready) reject(new LocalizedError('network.chatVerificationExpired'));
       };
-      socket.onerror = () => socket.close();
+      socket.onerror = () => rejectChatConnection(new LocalizedError('network.chatVerificationExpired'));
     });
   }
   private disconnectChat() {
