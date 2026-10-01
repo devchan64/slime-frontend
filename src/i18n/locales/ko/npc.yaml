@@ -15,10 +15,11 @@ receiverrequired: 전달 담당 NPC를 방문하세요.
 prerequisiterequired: 선행 의뢰를 먼저 완료하세요.
 questlimitreached: 수령 한도에 도달했습니다. 진행 중인 의뢰를 완료하세요.
 materialsrequired: 전달할 재료가 부족합니다.
-citizenshiprequired: 이 도시의 유효한 시민권이 필요합니다.
+citizenshiprequired: 이 도시의 유효한 시민권이 필요합니다. 현지 모험가 길드에서 발급받으세요. 시민권이 없어도 길드에 재료를 팔아 발급 비용을 마련할 수 있습니다.
 deliveryReview: 전달 내용 확인
 deliveryCharacter: '선택한 캐릭터: {name}'
 deliveryMaterial: '{name} {quantity}개 차감'
 deliveryConfirm: 전달하기
 deliveryCancel: 돌아가기
 destination: '전달처: {city} · {name}'
+destinationCitizenship: '완료하려면 {city}의 유효한 시민권이 필요합니다. 현지 모험가 길드에서 시민권을 발급받을 수 있으며, 시민권이 없어도 재료를 팔아 발급 비용을 마련할 수 있습니다.'

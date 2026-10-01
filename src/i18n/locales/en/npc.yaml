@@ -15,10 +15,11 @@ receiverrequired: Visit the delivery NPC.
 prerequisiterequired: Complete the prerequisite quest first.
 questlimitreached: Quest limit reached. Complete an active quest first.
 materialsrequired: You do not have enough delivery materials.
-citizenshiprequired: Valid citizenship in this town is required.
+citizenshiprequired: Valid citizenship in this town is required. Obtain it at the local Adventurers Guild. You can sell materials there to cover the fee even without citizenship.
 deliveryReview: Review delivery
 deliveryCharacter: 'Selected character: {name}'
 deliveryMaterial: 'Consume {quantity} × {name}'
 deliveryConfirm: Deliver
 deliveryCancel: Go back
 destination: 'Deliver to: {city} · {name}'
+destinationCitizenship: 'Completing this quest requires valid citizenship in {city}. Obtain it at the local Adventurers Guild. You can sell materials there to cover the fee even without citizenship.'

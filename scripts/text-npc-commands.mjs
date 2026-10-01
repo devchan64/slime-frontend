@@ -1,6 +1,6 @@
 import {parseNpcDialogue} from '../src/client/npc-dialogue-validation.mjs';
 const NPC_IDENTIFIER_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
-const NPC_REASON_LABELS={GIVER_REQUIRED:'수령 NPC를 방문하세요',RECEIVER_REQUIRED:'전달 NPC를 방문하세요',PREREQUISITE_REQUIRED:'선행 의뢰가 필요합니다',QUEST_LIMIT_REACHED:'동시 수령 한도입니다',MATERIALS_REQUIRED:'재료가 부족합니다',CITIZENSHIP_REQUIRED:'해당 도시 시민권이 필요합니다'};
+const NPC_REASON_LABELS={GIVER_REQUIRED:'수령 NPC를 방문하세요',RECEIVER_REQUIRED:'전달 NPC를 방문하세요',PREREQUISITE_REQUIRED:'선행 의뢰가 필요합니다',QUEST_LIMIT_REACHED:'동시 수령 한도입니다',MATERIALS_REQUIRED:'재료가 부족합니다',CITIZENSHIP_REQUIRED:'해당 도시의 유효한 시민권이 필요합니다. 현지 모험가 길드에서 발급받으세요. 시민권이 없어도 길드에 재료를 팔아 발급 비용을 마련할 수 있습니다.'};
 function sanitizeDialogueText(currentTextValue){return currentTextValue.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');}
 function captureDialogueContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position?.column,currentGameState.me.position?.row,currentGameState.me.version]);}
 export async function executeNpcCommand(currentTextClient,currentCommandName,currentCommandArguments){
@@ -27,6 +27,7 @@ export async function executeNpcCommand(currentTextClient,currentCommandName,cur
   return sanitizeDialogueText(currentDialoguePage.npc.name)+' · 수령 '+currentDialoguePage.acceptedCount+'/'+currentDialoguePage.maximumAcceptedCount+'\n'+currentDialoguePage.entries.map(currentQuestEntry=>[
    sanitizeDialogueText(currentQuestEntry.title)+' ['+sanitizeDialogueText(currentQuestEntry.eventId)+']',sanitizeDialogueText(currentQuestEntry.dialogue),
    ...(currentQuestEntry.destination?['전달처: '+sanitizeDialogueText(currentQuestEntry.destination.cityNameTranslations.ko)+' · '+sanitizeDialogueText(currentQuestEntry.destination.name)+' ['+sanitizeDialogueText(currentQuestEntry.destination.npcId)+']']:[]),
+   ...(currentQuestEntry.destination&&currentQuestEntry.status!=='COMPLETED'?['완료하려면 '+sanitizeDialogueText(currentQuestEntry.destination.cityNameTranslations.ko)+'의 유효한 시민권이 필요합니다. 현지 모험가 길드에서 시민권을 발급받을 수 있으며, 시민권이 없어도 재료를 팔아 발급 비용을 마련할 수 있습니다.']:[]),
    ...currentQuestEntry.items.map(currentMaterialEntry=>sanitizeDialogueText(currentMaterialEntry.nameTranslations.ko)+': '+currentMaterialEntry.owned+'/'+currentMaterialEntry.required),
    (currentQuestEntry.status==='COMPLETED'?'완료 보상 ':'완료 시 재료 차감 · 보상 ')+currentQuestEntry.moneyP+'p',
    ...currentQuestEntry.blockedReasons.map(currentReasonCode=>NPC_REASON_LABELS[currentReasonCode]),

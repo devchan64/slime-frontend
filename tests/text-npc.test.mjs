@@ -29,7 +29,7 @@ test('실행 불가·다른 화자·상태 변경·미확인 의뢰는 전송하
   if(currentInvalidCase==='blocked'){currentDialoguePage.entries[0].status='LOCKED';currentDialoguePage.entries[0].blockedReasons=['CITIZENSHIP_REQUIRED'];currentDialoguePage.entries[0].canExecute=false;}
   const {currentTextClient,currentRequestCalls}=setupNpcClient([currentDialoguePage]);
   const currentDialogueText=await currentTextClient.execute('npc talk helper');
-  if(currentInvalidCase==='blocked')assert.match(currentDialogueText,/시민권/);
+  if(currentInvalidCase==='blocked')assert.match(currentDialogueText,/모험가 길드.*재료를 팔아/);
   if(currentInvalidCase==='version')currentTextClient.state.me.version++;
   await assert.rejects(currentTextClient.execute('quest '+(currentInvalidCase==='action'?'complete':'accept')+' '+(currentInvalidCase==='npc'?'other':'helper')+' first-delivery'));
   assert.equal(currentRequestCalls.length,1);
@@ -71,4 +71,5 @@ test('수령 전 전달 도시·NPC와 명령 ID를 표시하고 제어 문자�
  assert.ok(currentRequestCalls[0].url.endsWith('language=ko&includeDestination=true'));
  assert.equal(currentRequestCalls[0].body,undefined);
  assert.match(currentDialogueText,/확정: quest accept helper first-delivery/);
+ assert.match(currentDialogueText,/완료하려면 갈대나루의 유효한 시민권.*재료를 팔아/);
 });

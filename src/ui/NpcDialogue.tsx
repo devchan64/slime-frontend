@@ -88,6 +88,7 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
         <strong>{currentQuestEntry.title}</strong><small>{translateDialogueText(`npc.${currentQuestEntry.status.toLowerCase()}`)}</small>
         <p>{currentQuestEntry.dialogue}</p>
         {currentQuestEntry.destination&&<p>{translateDialogueText('npc.destination',{city:currentQuestEntry.destination.cityNameTranslations[currentDialogueLocale],name:currentQuestEntry.destination.name})}</p>}
+        {currentQuestEntry.destination&&currentQuestEntry.status!=='COMPLETED'&&<p>{translateDialogueText('npc.destinationCitizenship',{city:currentQuestEntry.destination.cityNameTranslations[currentDialogueLocale]})}</p>}
         {currentQuestEntry.items.map(currentMaterialItem=><p key={currentMaterialItem.itemId}>{translateDialogueText('journal.material',{
           name:currentMaterialItem.nameTranslations[currentDialogueLocale],owned:currentMaterialItem.owned,required:currentMaterialItem.required})}</p>)}
         <p>{translateDialogueText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>

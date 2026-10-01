@@ -27,6 +27,7 @@ async function clickDeliveryButton(currentTranslationKey:string){const currentBu
  setLocale(location.hash==='#en'?'en':'ko');renderDeliveryPanel();await waitRenderCycle();await waitRenderCycle();
  findNamedButton(t('npc.talk',{name:'모라'}))!.click();await waitRenderCycle();await waitRenderCycle();
  verifyDeliveryCondition(document.body.textContent?.includes(t('npc.destination',{city:getLocale()==='ko'?'이슬온':'Iseulon',name:'모라'})),'전달 도시와 NPC 표시');
+ verifyDeliveryCondition(document.body.textContent?.includes(t('npc.destinationCitizenship',{city:getLocale()==='ko'?'이슬온':'Iseulon'})),'완료 도시 시민권과 길드 발급·재료 판매 안내');
  await clickDeliveryButton('npc.complete');
  const currentReviewSection=document.querySelector('[aria-label="'+t('npc.deliveryReview')+'"]')!;
  verifyDeliveryCondition(currentReviewSection?.textContent?.includes(t('npc.deliveryCharacter',{name:'여행자'})),'선택한 캐릭터 표시');
@@ -49,5 +50,6 @@ async function clickDeliveryButton(currentTranslationKey:string){const currentBu
  verifyDeliveryCondition(JSON.stringify(currentMutationRequests[1])===JSON.stringify({path:'/v1/game/main-events/first/complete',body:{npcId:'npc',expectedVersion:4}}),'확인한 버전과 NPC로 전달');
  verifyDeliveryCondition(!findNamedButton(t('npc.deliveryConfirm'))&&!findNamedButton(t('npc.complete')),'완료 후 전달 버튼 제거');
  verifyDeliveryCondition(document.querySelector('li')?.textContent?.includes(t('npc.completed')),'완료 상태 갱신');
+ verifyDeliveryCondition(!document.body.textContent?.includes(t('npc.destinationCitizenship',{city:getLocale()==='ko'?'이슬온':'Iseulon'})),'완료된 의뢰에는 발급 안내 숨김');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionLabels});
 }catch(currentFailureError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailureError),stack:(currentFailureError as Error).stack,assertions:currentAssertionLabels});}})();
