@@ -65,3 +65,6 @@ actionGeneralRequirement: "전투 슬롯 등록이 필요합니다. 본인 턴·
 actionRange: "사거리 {minimum}~{maximum}칸"
 actionFeedingRequirement: "포식에 적합한 신체가 필요합니다."
 actionDrainRate: "실제 HP 피해의 {percent}%를 자신 HP로 회복합니다."
+
+costumeLoading: 코스튬 설명을 불러오는 중입니다.
+costumeUnsupported: 현재 미리보기와 일치하는 디자인이 아닙니다.

@@ -1,3 +1,4 @@
+import {CostumeDescription} from './CostumeDescription';
 import {HuntLedgerPanel} from './HuntLedgerPanel';
 import {SkillActionProgression} from './SkillActionProgression';
 import {CharacterCitizenships} from "./CharacterCitizenships";
@@ -49,11 +50,11 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
       <span class="character-kicker">{t("character.adventurer")}</span>
       <h2>{me.name}</h2>
       <div class="portrait-stage"><CharacterPortrait playIdleAnimation /></div>
-      <details class="costume-description">
+      {gameSessionClient?<CostumeDescription key={`${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}:${me.id}`} gameSessionClient={gameSessionClient}/>:<details class="costume-description">
         <summary><span class="costume-label">{t("character.costume")}</span><span>{t("character.costumeDetails")}</span></summary>
         <p>{t("character.costumeDescription")}</p>
         <p class="costume-effect-note">{t("character.costumeAppearanceOnly")}</p>
-      </details>
+      </details>}
       <dl class="character-resources">
         <div><dt>{t("character.coins")}</dt><dd>{me.coins}</dd></div>
       </dl>
