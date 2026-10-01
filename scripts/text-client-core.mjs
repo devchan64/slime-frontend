@@ -1,3 +1,4 @@
+import {executeCitizenshipCommand} from './text-citizenship-commands.mjs';
 import {executeProcessingCommand} from './text-processing-commands.mjs';
 import {formatTravelerPermitSummary,readTravelerGuardCenters,requireTravelerGuardPresence,validateTravelerQuoteResponse,captureTravelerQuoteContext} from './text-traveler-permits.mjs';
 import {normalizeChannelAddressInput,validateChannelIdentifierInput,formatChannelListingOutput} from './text-channel-commands.mjs';
@@ -104,6 +105,7 @@ export class TextClient {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'citizenship') return executeCitizenshipCommand(this,args);
     if (name === 'processing') return executeProcessingCommand(this,args);
     if (name === 'guards') {
       arity(0);

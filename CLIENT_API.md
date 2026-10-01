@@ -198,3 +198,9 @@ GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공
 가공 GUI 브라우저 회귀는 `node --test tests/refining-panel-browser.test.mjs`로 실행합니다. `CHROME_BIN` 또는 `/usr/bin/google-chrome`이 필요합니다. 실제 Preact 패널·언어팩·스타일을 사용하며 HTTP 경계는 테스트 응답으로 대체합니다. 한국어·영어에서 수량 선택, 견적, 계약·수령 실패 후 재시도, 생성 후 목록 갱신, 수령 버튼 제거, 다른 시설 목록 거절을 검사합니다. 결과 DOM·스크린샷·로그는 `.tmp/test/refining-ui-browser/<한국시간>/`에 저장합니다. 실제 API 연결과 게임 전체 화면 검증은 별도입니다.
 
 실제 API 연결용 GUI 번들은 `node scripts/build-refining-browser-test.mjs /tmp/slime-refining-live-browser.js`로 준비합니다. 테스트 서버가 같은 출처에서 `/test-context`(테스트 토큰), `/test-bundle.js`, `/test-result`를 제공하고, `/test-complete-contract`는 전용 테스트 DB의 해당 가공 계약만 완료 상태로 준비합니다. 이 경로는 제품 API에 추가하지 않습니다. 번들은 실제 `Client`·가공 패널·언어팩을 사용하며 `fetch` 응답을 대체하지 않습니다. 백엔드의 별도 통합 검사에 `SLIME_PROCESSING_BROWSER_BUNDLE`로 명시적으로 전달하고 `slime_test`에서만 실행합니다. 게임 전체 App·이동·로그인 화면과 시각적 배치 검증은 이 검사에 포함하지 않습니다.
+
+### 텍스트 시민권 발급
+
+`citizenship guilds`로 현재 맵의 길드 ID와 입구를 찾습니다. 입구에서 `citizenship quote 길드ID`로 해당 도시의 100p 견적을 확인하고 `citizenship buy 길드ID`로 발급합니다. 기존 `/v1/game/guilds/{id}/citizenship-quote`·`citizenship-purchases` API를 사용합니다. 발급 기간은 서버가 계산하는 현실 1년이며 유효 시민권 중복 발급·잔고·현장 접근은 서버가 판정합니다. 조기 갱신 기능은 제공하지 않습니다.
+
+견적 조회만으로 결제하지 않습니다. 단조 시각을 기준으로 왕복 지연을 포함해 견적을 만료시키며, 캐릭터·세션·채널·위치·상태 버전이 달라지면 새 견적을 요구합니다. 발급 전송 실패는 공용 명령 처리에서 동일 요청 ID·본문으로 한 번 재시도합니다. 폐지된 100~300p 추가금 응답은 사용하지 않습니다.
