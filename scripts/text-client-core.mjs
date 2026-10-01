@@ -1,3 +1,4 @@
+import {executeGuildRecruitment} from './text-guild-recruitment.mjs';
 import {executePartyCandidateCommand} from './text-party-candidates.mjs';
 import {readBorrowedParticipation,removeBorrowedParticipant} from './text-borrowed-participation.mjs';
 import {executeEquipmentCommand} from './text-equipment-commands.mjs';
@@ -191,6 +192,7 @@ export class TextClient {
     const arity = n => { if (args.length !== n) throw new Error('명령 인수를 확인하세요. help로 사용법을 볼 수 있습니다.'); };
     if(name==='retry'){arity(0);return this.submitPendingCommand();}
     if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','costumes'].includes(name)
+      &&!(name==='recruitment'&&args[0]==='list')
       &&!(name==='loans'&&!['remove','add'].includes(args[0]))
       &&!(name==='citizenship'&&['list','guilds'].includes(args[0]))
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
@@ -318,6 +320,7 @@ export class TextClient {
       arity(0);
       return formatMainEventJournal(await this.request('/v1/game/main-events'));
     }
+    if(name==='recruitment')return executeGuildRecruitment(this,args);
     if (name === 'loans') {
       if(['candidates','add'].includes(args[0]))return executePartyCandidateCommand(this,args);
       if(args[0]==='remove'){arity(2);return removeBorrowedParticipant(this,args[1]);}

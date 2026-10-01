@@ -65,6 +65,9 @@ rewards [다음커서]      계정 보관함 조회 (claim-all: 전체 수령)
 substitute list        대체 사냥 대상·비용 조회
 substitute run 조우ID   대체 사냥 실행
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
+recruitment list         본인 모집 등록 도시 조회
+recruitment register 길드ID  현지 모집 등록
+recruitment unregister 도시ID 길드ID  모집 해제
 loans [다음커서]        대여 파티원 목록
 loans participation     대여 전투 참가 예상·제외 사유
 loans remove 대여ID      편성 해제(계약 유지)
