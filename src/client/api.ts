@@ -16,7 +16,16 @@ type StreamMark = Pick<State, "generation" | "epoch" | "cursor">;
 export class Client {
   tokens: Tokens | null = null;
   state: State | null = null;
+  private stateRequestStarted=new WeakMap<object,number>();
   private serverClockAnchor: {timestamp:number; receivedAt:number} | null = null;
+  private acceptServerTimestamp(currentAcceptedState:State):void {
+    const currentReceivedTime=performance.now();
+    const currentRequestStarted=this.stateRequestStarted.get(currentAcceptedState);
+    const currentTimestampBound=currentAcceptedState.serverTime+(currentRequestStarted===undefined?0:(currentReceivedTime-currentRequestStarted)/1000);
+    const currentPreviousBound=this.serverClockAnchor&&this.state?.generation===currentAcceptedState.generation&&this.state?.me.id===currentAcceptedState.me.id
+      ?this.serverClockAnchor.timestamp+(currentReceivedTime-this.serverClockAnchor.receivedAt)/1000:0;
+    this.serverClockAnchor={timestamp:Math.max(currentTimestampBound,currentPreviousBound),receivedAt:currentReceivedTime};
+  }
   readServerTimestamp(): number {
     if (!this.state || !this.serverClockAnchor) throw new LocalizedError('network.stateRequired');
     return this.serverClockAnchor.timestamp + (performance.now()-this.serverClockAnchor.receivedAt)/1000;
@@ -45,6 +54,7 @@ export class Client {
   onState: (state: State) => void = () => {};
   onStatus: (ready: boolean, message: Notice) => void = () => {};
   async request(path: string, body?: unknown): Promise<any> {
+    const currentRequestStarted=performance.now();
     const sessionRevision=this.sessionRevision;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -61,7 +71,10 @@ export class Client {
         cache: "no-store",
         signal: controller.signal,
       });
-      return await readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
+      const currentResponseValue=await readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");
+      const currentResponseState=path==='/v1/game/state'?currentResponseValue:currentResponseValue?.state;
+      if(currentResponseState&&typeof currentResponseState==='object')this.stateRequestStarted.set(currentResponseState,currentRequestStarted);
+      return currentResponseValue;
     } catch (error) {
       // 전송 취소는 서버의 명령 취소·실패 확정을 뜻하지 않는다.
       if (controller.signal.aborted) throw new LocalizedError('network.requestTimeout');
@@ -85,7 +98,7 @@ export class Client {
       this.tokens=tokens;
       const state=await this.request("/v1/game/state");
       if (revision!==this.sessionRevision) return false;
-      this.serverClockAnchor={timestamp:state.serverTime,receivedAt:performance.now()};
+      this.acceptServerTimestamp(state);
       this.state=state;
       this.onState(state);
       this.stopped=false;
@@ -167,7 +180,7 @@ export class Client {
       return;
     if (this.state && (state.generation !== this.state.generation || state.epoch !== this.state.epoch
         || state.location.id !== this.state.location.id)) this.disconnectChat();
-    this.serverClockAnchor={timestamp:state.serverTime,receivedAt:performance.now()};
+    this.acceptServerTimestamp(state);
     this.state = state;
     if (!this.isBehindHead()) this.clearProgress();
     this.onState(state);
