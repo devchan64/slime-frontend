@@ -118,9 +118,9 @@ files:
 - path: assets/world/common/buildings/wood-crossbar-wall-v1.png
   source_path: assets/tiles/buildings/wood/wood-crossbar-wall-v1.png
   sha256: 433d77a7c419182eae11282546b793c757af995c1ab5702d294bc7a5f16a0e4b
-- path: assets/world/common/buildings/wood-roof-v3.png
-  source_path: assets/tiles/buildings/wood/wood-roof-v3.png
-  sha256: 681ce79c9df5a69f7b826d33beb939a25dbf06e89b93d3d45365c0bf17011034
+- path: assets/world/common/buildings/wood-roof-v4.png
+  source_path: assets/tiles/buildings/wood/wood-roof-v4.png
+  sha256: 2b9351fff8a262cd9479ccffd5c98a393286c8642ad5d21a6ee60120cad919a2
 - path: assets/terrain/roads/packed-dirt-road-v1.png
   source_path: assets/tiles/terrain/road/packed-dirt-road-v1.png
   sha256: 64ccb96f5c19eb1215563559992aab8814170b068fc59ae4a72e5ce9205bb230

@@ -4,7 +4,7 @@ import shallowWaterTileSource from "../../../../slime-assets/assets/tiles/terrai
 import cactusTileImageSource from "../../../../slime-assets/assets/tiles/terrain/blocked/cactus-v1.png";
 import stoneSlabRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/stone-slab-road-v1.png";
 import packedDirtRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/packed-dirt-road-v1.png";
-import unifiedWoodRoofSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-roof-v3.png";
+import unifiedWoodRoofSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-roof-v4.png";
 import woodCrossbarWallSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-crossbar-wall-v1.png";
 import woodDoorWallSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-door-wall-v1.png";
 import woodWindowWallSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-window-wall-v1.png";
@@ -34,7 +34,7 @@ import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { validateTerrainSourceDimensions } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
-export const UNIFIED_WOOD_ROOF_TEXTURE = "wood-roof-v3";
+export const UNIFIED_WOOD_ROOF_TEXTURE = "wood-roof-v4";
 export const WOOD_CROSSBAR_WALL_TEXTURE = "wood-crossbar-wall-v1";
 export const WOOD_DOOR_WALL_TEXTURE = "wood-door-wall-v1";
 export const WOOD_WINDOW_WALL_TEXTURE = "wood-window-wall-v1";
