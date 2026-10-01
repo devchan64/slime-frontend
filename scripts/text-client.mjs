@@ -6,6 +6,12 @@ const HELP = `state                  최신 상태 조회
 guards                 현재 필드 경비센터 ID·좌표 조회
 permit quote 경비센터ID 5p 여행자증명서 견적 조회
 permit buy 경비센터ID   확인한 견적으로 발급 확정
+processing facilities  현재 맵 작업장 ID·입구 조회
+processing catalog 시설ID 가공 목록 조회
+processing quote 시설ID 재료ID 등급 수량 가공 견적 (low/medium/high)
+processing create 시설ID 확인한 견적으로 계약
+processing contracts 시설ID [다음커서] 계약 조회
+processing claim 시설ID 계약ID 완성 가공재 수령
 channels               현재 맵의 채널 목록·접속 인원 조회
 channel address 주소   주소로 같은 맵 채널 이동 (예: AA22)
 channel id 채널ID      ID로 같은 맵 채널 이동

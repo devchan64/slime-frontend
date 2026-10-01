@@ -180,3 +180,17 @@ node scripts/text-client.mjs --help
 `src/client/refining.ts`는 가공 목록·견적·저장 계약을 같은 규칙으로 검증한다. `processingMethod`가 있으면 `refining` 또는 `smelting`이어야 한다. 결과 재료의 `materialKind`와 `essenceAttribute`는 함께 제공하며 일반 재료는 `material`/`null`, 정수는 `essence`/영문 속성 ID 조합이다. 속성 ID는 `[a-z][a-z0-9-]*` 형식이며 정수의 한국어 이름은 `정수`로 끝난다. 알 수 없는 결과 재료 필드와 잘못된 조합은 거절한다.
 
 이전 v1 응답·저장 계약에서 위 메타데이터가 모두 빠진 경우는 지원하며 값은 추측하거나 채우지 않는다. `ProcessingDetails`는 서버가 제공한 방식·종류만 목록 선택·견적·계약 내역에 표시한다. 이 표시는 정련/정제 비용·수량·수령 조건을 변경하지 않는다.
+
+### 텍스트 클라이언트 가공 명령
+
+`processing facilities`로 현재 맵의 작업장 ID·입구 좌표를 확인하고 입구로 이동합니다. 이후 다음 명령을 사용합니다.
+
+- `processing catalog 시설ID`: 가공 목록·등급·원재료 수량·비용·소요 시간 조회
+- `processing quote 시설ID 재료ID 등급 수량`: `low`·`medium`·`high`와 1~1000개로 견적 조회
+- `processing create 시설ID`: 직전에 확인한 해당 시설의 견적으로 계약 확정
+- `processing contracts 시설ID [다음커서]`: 계약 상태와 다음 페이지 조회
+- `processing claim 시설ID 계약ID`: 완성 가공재 수령
+
+조회는 상태·재료·돈을 변경하지 않습니다. 견적 이후 캐릭터 버전·세션·채널·위치가 바뀌면 새 견적이 필요합니다. 작업장 접근과 실제 잔고·재료·완료 시각은 서버가 최종 검증합니다. 생성은 기존 명령의 요청 ID·기대 버전·동일 본문 재시도를 사용합니다. 수령 API는 계약 ID로 멱등 처리하므로 `expectedVersion`만 보내며 전송 오류 시 동일 본문으로 한 번 재시도합니다. HTTP 오류는 자동 재실행하지 않습니다.
+
+GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공유합니다. 정련·정제 및 일반 가공재·속성 정수 구분은 서버 메타데이터가 있을 때 표시합니다. 이전 응답에 없는 분류를 추측하지 않습니다. 기존 v1 API 연결이며 서버·배포 자원 추가는 없습니다.
