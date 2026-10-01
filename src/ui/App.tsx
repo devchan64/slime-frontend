@@ -1,9 +1,10 @@
+import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCutinSettings';
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
 import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
 import {MainEventJournal} from './MainEventJournal';
 import { ActionCutinOverlay } from './ActionCutin';
-import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, loadActionCutinPreference, saveActionCutinPreference, ACTION_CUTIN_DEFAULT_SECONDS, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
+import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, loadActionCutinPreference, saveActionCutinPreference, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
 import { FieldFirstAid } from './FieldFirstAid';
 import { BorrowedLoansPanel } from './BorrowedLoansPanel';
@@ -452,10 +453,7 @@ export function App() {
             {t('common.logout')}</button>
         )}
       </header>
-      {actionCutinSettingState.errorKind && <section class="notice" role="alert">
-        <p>{t(actionCutinSettingState.errorKind === 'read' ? 'cutins.settingReadFailed' : 'cutins.settingWriteFailed')}</p>
-        <button class="secondary" onClick={() => updateActionCutinSetting(ACTION_CUTIN_DEFAULT_SECONDS)}>{t('cutins.restoreDefault')}</button>
-      </section>}
+      <ActionCutinSettingNotice currentSettingState={actionCutinSettingState} updateSettingDuration={updateActionCutinSetting}/>
       {!loading && <FieldInterruptionNotice interruption={state?.me.lastFieldInterruption} battleId={battle?.id} />}
       {!state ? (
         <main class="welcome">
@@ -601,16 +599,7 @@ export function App() {
         <main class="lobby field-menu-page"><section class="card">
           <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
-          <label class="action-cutin-setting">{t('cutins.show')}
-            <select value={actionCutinSettingState.durationSeconds ?? ""}
-              onChange={settingChangeEvent => updateActionCutinSetting(parseActionCutinDuration(settingChangeEvent.currentTarget.value))}>
-              {actionCutinSettingState.durationSeconds === null && <option value="" disabled>{t('cutins.settingUnavailable')}</option>}
-              {ACTION_CUTIN_DURATION_OPTIONS.map(actionCutinOptionSeconds => <option key={actionCutinOptionSeconds} value={actionCutinOptionSeconds}>
-                {actionCutinOptionSeconds === 0 ? t('cutins.off') : t('cutins.seconds', { seconds: actionCutinOptionSeconds })}
-              </option>)}
-            </select>
-          </label>
-          <p>{t('cutins.help')}</p>
+          <ActionCutinSettingsControl currentSettingState={actionCutinSettingState} updateSettingDuration={updateActionCutinSetting}/>
         </section></main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">
