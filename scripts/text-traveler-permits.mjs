@@ -40,7 +40,7 @@ export function validateTravelerQuoteResponse(currentQuoteResponse,currentGuardE
 }
 
 export function captureTravelerQuoteContext(currentGameState) {
-  return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position]);
+  return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position?.column,currentGameState.me.position?.row]);
 }
 
 const TRAVELER_PERMIT_PUBLIC_KEYS = 'characterId,cityId,cityName,expiresAt,instanceId,issuedAt,issuerId,itemId,nameTranslations,quantity,status,weightG';

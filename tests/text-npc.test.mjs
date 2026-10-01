@@ -49,3 +49,13 @@ test('대화 대상 불일치와 잘못된 입력을 거절한다',async()=>{
  for(const currentCommandText of ['npc','npc talk','quest accept helper','quest cancel helper first-delivery','npc talk ../wrong'])await assert.rejects(currentTextClient.execute(currentCommandText));
  assert.equal(currentRequestCalls.length,1);
 });
+
+test('상태 재조회에서 좌표 필드 순서만 바뀌어도 확인한 대화는 유효하다',async()=>{
+ const currentReloadedState=createNpcState();currentReloadedState.me.position={row:2,column:1};
+ const {currentTextClient,currentRequestCalls}=setupNpcClient([createNpcDialogue(),currentReloadedState,{state:createNpcState()}]);
+ await currentTextClient.execute('npc talk helper');
+ await currentTextClient.execute('state');
+ await currentTextClient.execute('quest accept helper first-delivery');
+ assert.equal(currentRequestCalls.length,3);
+ assert.deepEqual(currentRequestCalls[2].body,{npcId:'helper',expectedVersion:1});
+});

@@ -2,7 +2,7 @@ import {validateCitizenshipSummary} from '../src/client/citizenship-summary-vali
 // 시민권 발급은 길드 현장 견적을 확인한 뒤 기존 명령 계약으로 확정한다.
 const CITIZENSHIP_IDENTIFIER_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
 const CITIZENSHIP_QUOTE_FIELDS='cityId,expiresAt,policyVersion,priceP,serverTime';
-function captureCitizenshipContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position,currentGameState.me.version]);}
+function captureCitizenshipContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map.id,currentGameState.me.position?.column,currentGameState.me.position?.row,currentGameState.me.version]);}
 function readCitizenshipGuilds(currentGameState){
  const currentBuildingEntries=currentGameState?.map?.buildings;
  if(!Array.isArray(currentBuildingEntries))throw new Error('건물 목록이 없습니다. state로 최신 상태를 확인하세요.');

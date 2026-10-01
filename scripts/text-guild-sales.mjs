@@ -1,6 +1,6 @@
 import {parseGuildMaterialCatalog,parseGuildMaterialQuote} from '../src/client/guild-trade-validation.mjs';
 const GUILD_SALE_IDENTIFIER_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
-function captureGuildSaleContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position,currentGameState.me.version]);}
+function captureGuildSaleContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position?.column,currentGameState.me.position?.row,currentGameState.me.version]);}
 export async function executeGuildSaleCommand(currentTextClient,currentCommandArguments){
  const [currentActionName,currentFacilityIdentifier,...currentSaleArguments]=currentCommandArguments;
  if(!['list','quote','sell'].includes(currentActionName)||typeof currentFacilityIdentifier!=='string'||!GUILD_SALE_IDENTIFIER_PATTERN.test(currentFacilityIdentifier)

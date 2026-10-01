@@ -2,7 +2,7 @@ import {parseNpcDialogue} from '../src/client/npc-dialogue-validation.mjs';
 const NPC_IDENTIFIER_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
 const NPC_REASON_LABELS={GIVER_REQUIRED:'수령 NPC를 방문하세요',RECEIVER_REQUIRED:'전달 NPC를 방문하세요',PREREQUISITE_REQUIRED:'선행 의뢰가 필요합니다',QUEST_LIMIT_REACHED:'동시 수령 한도입니다',MATERIALS_REQUIRED:'재료가 부족합니다',CITIZENSHIP_REQUIRED:'해당 도시 시민권이 필요합니다'};
 function sanitizeDialogueText(currentTextValue){return currentTextValue.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');}
-function captureDialogueContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position,currentGameState.me.version]);}
+function captureDialogueContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position?.column,currentGameState.me.position?.row,currentGameState.me.version]);}
 export async function executeNpcCommand(currentTextClient,currentCommandName,currentCommandArguments){
  if(currentCommandName==='npc'&&currentCommandArguments.length===1&&currentCommandArguments[0]==='list'){
   const currentBuildingEntries=currentTextClient.state?.map?.buildings;

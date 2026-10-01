@@ -5,7 +5,7 @@ const PROCESSING_CONTRACT_PATTERN=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$
 const PROCESSING_STATUS_LABELS={IN_PROGRESS:'가공 중',READY:'수령 가능',CLAIMED:'수령 완료'};
 const PROCESSING_HELP_MESSAGE='processing catalog 시설ID / quote 시설ID 재료ID 등급 수량 / create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID';
 function sanitizeProcessingText(currentDisplayText){return currentDisplayText.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');}
-function captureProcessingContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position,currentGameState.me.version]);}
+function captureProcessingContext(currentGameState){return JSON.stringify([currentGameState.me.id,currentGameState.generation,currentGameState.epoch,currentGameState.location?.id,currentGameState.map?.id,currentGameState.me.position?.column,currentGameState.me.position?.row,currentGameState.me.version]);}
 function formatProcessingRecipe(currentRecipeEntry){
   const currentMethodLabel=currentRecipeEntry.processingMethod==='smelting'?'정련':currentRecipeEntry.processingMethod==='refining'?'정제':'가공';
   const currentKindLabel=currentRecipeEntry.outputMaterial.materialKind==='essence'?' · 속성 정수':currentRecipeEntry.outputMaterial.materialKind==='material'?' · 일반 가공재':'';
