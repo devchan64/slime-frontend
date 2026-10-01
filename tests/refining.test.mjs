@@ -33,3 +33,44 @@ test('정제 선택 목록과 견적은 등급·중복·잔고·토큰을 검증
  assert.throws(()=>parseRefiningQuote({...currentQuoteData,ownedCoins:-1}));
  assert.throws(()=>parseRefiningQuote({...currentQuoteData,quoteToken:'missing'}));
 });
+
+function validateProcessingResponses(currentRecipeValue,currentExpectRejection=false) {
+ const currentContractPage=createRefiningPage();
+ currentContractPage.entries[0].quote=currentRecipeValue;
+ const currentParserCalls=[()=>parseRefiningContracts(currentContractPage)];
+ const currentCatalogEntry={...currentRecipeValue,collectionId:'hide'};
+ currentParserCalls.push(()=>parseRefiningCatalog({facilityId:'workshop',available:true,unavailableReason:null,grades:['low'],entries:[currentCatalogEntry]}));
+ currentParserCalls.push(()=>parseRefiningQuote({quote:{...currentCatalogEntry,ownedQuantity:2},quoteToken:'a'.repeat(64),characterVersion:1,ownedCoins:10}));
+ for(const currentParserCall of currentParserCalls) {if(currentExpectRejection) assert.throws(currentParserCall); else currentParserCall();}
+}
+
+test('정련·정제와 일반 가공재·정수를 세 응답에서 보존한다',()=>{
+ for(const currentProcessingMethod of ['refining','smelting']) {
+  for(const currentMaterialFields of [{materialKind:'material',essenceAttribute:null},{materialKind:'essence',essenceAttribute:'water',name:'하급 물의 정수'}]) {
+   const currentRecipeValue=createRefiningPage().entries[0].quote;
+   currentRecipeValue.processingMethod=currentProcessingMethod;
+   Object.assign(currentRecipeValue.outputMaterial,currentMaterialFields);
+   const currentOriginalValue=structuredClone(currentRecipeValue);
+   validateProcessingResponses(currentRecipeValue);
+   assert.deepEqual(currentRecipeValue,currentOriginalValue);
+  }
+ }
+});
+
+test('잘못된 가공 방식과 모순·누락·미등록 메타데이터를 거절한다',()=>{
+ for(const currentInvalidFields of [
+  {materialKind:'missing',essenceAttribute:null}, {materialKind:'material',essenceAttribute:'water'},
+  {materialKind:'essence',essenceAttribute:null}, {materialKind:'essence',essenceAttribute:true},
+  {materialKind:'essence',essenceAttribute:'bad value',name:'물의 정수'},
+  {materialKind:'essence',essenceAttribute:'water'}, {materialKind:'material'}, {essenceAttribute:null}, {extra:true},
+ ]) {
+  const currentRecipeValue=createRefiningPage().entries[0].quote;
+  Object.assign(currentRecipeValue.outputMaterial,currentInvalidFields);
+  validateProcessingResponses(currentRecipeValue,true);
+ }
+ for(const currentInvalidMethod of [null,undefined,true,'unknown',[],{}]) {
+  const currentRecipeValue=createRefiningPage().entries[0].quote;
+  currentRecipeValue.processingMethod=currentInvalidMethod;
+  validateProcessingResponses(currentRecipeValue,true);
+ }
+});
