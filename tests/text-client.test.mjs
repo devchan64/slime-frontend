@@ -620,3 +620,40 @@ test('전체 수령의 잘못된 건수·수량·중복 재료를 거절한다',
     assert.equal(observedRequestCalls.length,1);
   }
 });
+
+test('텍스트 채널 조회는 현재 맵 목록과 좌석을 표시하고 게임 상태를 보존한다',async()=>{
+ const currentChannelEntry={id:'instance-one',address:'aa22',mapDefinitionId:'meadow',status:'OPEN',onlineUsers:2,reservedSeats:3,capacity:30};
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([[currentChannelEntry,{...currentChannelEntry,id:'elsewhere',address:'b1',mapDefinitionId:'city'}]]);
+ currentTextClient.accept(state({map:{id:'meadow'},channel:{id:'meadow',address:'a1',mapDefinitionId:'meadow'}}));
+ const originalGameSnapshot=currentTextClient.state;
+ const renderedChannelOutput=await currentTextClient.execute('channels');
+ assert.match(renderedChannelOutput,/aa22 \[instance-one\].*예약 좌석 3\/30.*접속 2명/);
+ assert.doesNotMatch(renderedChannelOutput,/elsewhere/);
+ assert.equal(currentRequestCalls[0].body,undefined);assert.ok(currentRequestCalls[0].url.endsWith('/v1/channels'));
+ assert.equal(currentTextClient.state,originalGameSnapshot);assert.match(formatState(currentTextClient.state),/채널 a1 \[meadow\]/);
+});
+
+test('텍스트 주소 이동은 정규화하고 전송 실패 시 동일 요청 ID로 재시도한다',async()=>{
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([new TypeError('network'),{state:state({epoch:2,channel:{id:'instance',address:'aa22',mapDefinitionId:'meadow'}})},{state:state({epoch:3})}]);
+ currentTextClient.accept(state());
+ await currentTextClient.execute('channel address AA0022');
+ assert.ok(currentRequestCalls[0].url.endsWith('/v1/channels/joins'));assert.equal(currentRequestCalls[0].body.address,'aa22');
+ assert.equal(currentRequestCalls[0].body.expectedVersion,4);assert.ok(currentRequestCalls[0].body.requestId);
+ assert.deepEqual(currentRequestCalls[0].body,currentRequestCalls[1].body);assert.equal(currentTextClient.state.epoch,2);
+ await currentTextClient.execute('channel id meadow');assert.equal(currentRequestCalls[2].body.channelId,'meadow');
+});
+
+test('텍스트 채널은 잘못된 입력·파티·전투를 전송 전에 거절한다',async()=>{
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([]);currentTextClient.accept(state());
+ for(const currentCommandText of ['channel','channel aa22','channel address a0','channel address a-1','channel id bad/id','channel unknown a1','channels extra'])await assert.rejects(currentTextClient.execute(currentCommandText));
+ currentTextClient.state.me.partyId='party';await assert.rejects(currentTextClient.execute('channel address a1'),/파티/);
+ currentTextClient.state.me.partyId=null;currentTextClient.state.battle={id:'battle'};await assert.rejects(currentTextClient.execute('channel address a1'),/필드/);
+ assert.equal(currentRequestCalls.length,0);
+});
+
+test('텍스트 채널 목록은 인원 미제공을 구분하고 중복·잘못된 응답을 거절한다',async()=>{
+ const {formatChannelListingOutput}=await import('../scripts/text-channel-commands.mjs');
+ const currentChannelEntry={id:'one',address:'a1',mapDefinitionId:'meadow',status:'OPEN'};
+ assert.match(formatChannelListingOutput([currentChannelEntry],'meadow'),/인원 정보 미제공/);
+ for(const currentInvalidResponse of [null,[currentChannelEntry,currentChannelEntry],[{...currentChannelEntry,address:'A1'}],[{...currentChannelEntry,id:'one\x1b'}],[{...currentChannelEntry,capacity:30}],[{...currentChannelEntry,onlineUsers:3,reservedSeats:2,capacity:30}],[{...currentChannelEntry,extra:true}]])assert.throws(()=>formatChannelListingOutput(currentInvalidResponse,'meadow'));
+});

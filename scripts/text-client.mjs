@@ -3,6 +3,9 @@ import { Writable } from 'node:stream';
 import { TextClient, formatState } from './text-client-core.mjs';
 
 const HELP = `state                  최신 상태 조회
+channels               현재 맵의 채널 목록·접속 인원 조회
+channel address 주소   주소로 같은 맵 채널 이동 (예: AA22)
+channel id 채널ID      ID로 같은 맵 채널 이동
 create 이름            캐릭터 생성
 skill 스킬ID           스킬 성장 (SP 소비)
 skills                 보유 스킬·전투 슬롯 조회

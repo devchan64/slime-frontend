@@ -1,3 +1,4 @@
+import {normalizeChannelAddressInput,validateChannelIdentifierInput,formatChannelListingOutput} from './text-channel-commands.mjs';
 import { randomUUID } from 'node:crypto';
 
 const BATTLE_PATH = '/v1/game/battle/commands';
@@ -101,6 +102,19 @@ export class TextClient {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'channels') {
+      arity(0);
+      if(!this.state?.map?.id)throw new Error('현재 맵 상태가 필요합니다. state로 먼저 조회하세요.');
+      return formatChannelListingOutput(await this.request('/v1/channels'),this.state.map.id);
+    }
+    if (name === 'channel') {
+      arity(2);
+      if(!['address','id'].includes(args[0]))throw new Error('channel address 주소 또는 channel id 채널ID로 입력하세요.');
+      if(this.state?.me.mode!=='FIELD' || this.state.battle || this.state.reservation)throw new Error('전투·조우가 없는 필드에서만 채널을 이동할 수 있습니다.');
+      if(this.state.me.partyId)throw new Error('파티를 탈퇴한 뒤 채널을 이동하세요.');
+      const requestedChannelTarget=args[0]==='address' ? {address:normalizeChannelAddressInput(args[1])} : {channelId:validateChannelIdentifierInput(args[1])};
+      return this.command('/v1/channels/joins',requestedChannelTarget);
+    }
     if (name === 'state') { arity(0); return this.snapshot(); }
     if (name === 'rest') {
       arity(1);
@@ -202,6 +216,7 @@ export class TextClient {
 export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
+  if(state.channel)lines.push('채널 '+normalizeChannelAddressInput(state.channel.address)+' ['+validateChannelIdentifierInput(state.channel.id)+']');
   if (Number.isInteger(state.me.hp) && Number.isInteger(state.me.maxHp)) lines.push('HP ' + state.me.hp + '/' + state.me.maxHp);
   if (state.me.healthRecoveryPending) lines.push('전투불능 회복 대기 | 최대 HP 50% 이상 회복 전 이동 불가');
   if (state.me.fieldRest?.active) lines.push('휴식 중 | 분당 HP ' + state.me.fieldRest.recoveryPerMinute + ' 회복 | 중단: rest stop');
