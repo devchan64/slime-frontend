@@ -11,3 +11,10 @@ expires: 만료
 checked: 마지막 서버 동기화 기준
 help: 의뢰와 시설 이용에는 해당 도시의 유효한 시민권이 필요합니다.
 validCount: '유효 {count}개'
+
+permitTitle: 여행자증명서
+permitUnavailable: 서버에서 여행자증명서 정보를 제공하지 않습니다.
+permitEmpty: 보유한 여행자증명서가 없습니다.
+permitOwner: 소유자
+permitIssuer: 발급 경비센터
+permitIssued: 발급일

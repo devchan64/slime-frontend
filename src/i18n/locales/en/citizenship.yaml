@@ -11,3 +11,10 @@ expires: Expires
 checked: Based on the latest server update
 help: Quests and facilities require valid citizenship in that town.
 validCount: '{count} valid'
+
+permitTitle: Traveler certificates
+permitUnavailable: Traveler certificate information is unavailable from this server.
+permitEmpty: No traveler certificates owned.
+permitOwner: Owner
+permitIssuer: Issuing guard center
+permitIssued: Issued

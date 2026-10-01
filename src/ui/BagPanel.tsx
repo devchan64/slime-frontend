@@ -1,3 +1,4 @@
+import {TravelerPermitList} from './TravelerPermitList';
 import {SkillbookPanel} from './SkillbookPanel';
 import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
@@ -43,8 +44,8 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       && gameSessionClient.tokens?.user_id === currentAccountIdentifier;
     setCurrentRequestPending(true); setCurrentRequestNotice('');
     try {
-      const receivedInventoryPage = parseBagInventory(await gameSessionClient.request('/v1/game/equipment?includeSkillbooks=true&includeRefining=true'
-        + (afterInstanceIdentifier ? `&after=${encodeURIComponent(afterInstanceIdentifier)}` : '')));
+      const receivedInventoryPage = parseBagInventory(await gameSessionClient.request('/v1/game/equipment?includeSkillbooks=true&includeRefining=true&includeTravelerPermits=true'
+        + (afterInstanceIdentifier ? `&after=${encodeURIComponent(afterInstanceIdentifier)}` : '')), currentCharacterIdentifier);
       if (!matchesCurrentRequest()) return;
       const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
       if (afterInstanceIdentifier && receivedInventoryPage.characterVersion !== currentInventoryPage?.characterVersion) {
@@ -77,7 +78,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
     {currentBagSummary && currentInventoryPage && <>
       <p class="bag-weight">{translateBagText('app.bagWeight',{weight:currentBagSummary.knownWeightG.toLocaleString(currentLocaleCode),capacity:currentBagSummary.capacityG.toLocaleString(currentLocaleCode)})}</p>
       {currentBagSummary.unknownWeightQuantity > 0 && <p>{translateBagText('app.bagUnknownWeight',{count:currentBagSummary.unknownWeightQuantity})}</p>}
-      {!currentBagSummary.items.length && !currentInventoryPage.items.length && !currentInventoryPage.nextCursor && <p>{translateBagText('app.emptyBag')}</p>}
+      {!currentBagSummary.items.length && !currentInventoryPage.items.length && !currentInventoryPage.nextCursor && currentInventoryPage.travelerPermitSummary?.records.length === 0 && <p>{translateBagText('app.emptyBag')}</p>}
       {currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagSupplies')}</h3><ul class="bag-items">
         {currentBagSummary.items.filter(currentItemEntry => currentItemEntry.kind !== 'skillbook').map(currentMaterialEntry => <li key={currentMaterialEntry.id}>
           <div><strong>{currentMaterialEntry.nameTranslations[currentLocaleCode]}</strong><span>×{currentMaterialEntry.quantity}</span></div>
@@ -105,6 +106,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           {currentEquipmentEntry.currentDurability === 0 && <p>{translateBagText('equipment.broken')}</p>}
         </li>)}
       </ul></>}
+      <TravelerPermitList currentPermitSummary={currentInventoryPage.travelerPermitSummary} currentCharacterName={me.name ?? me.id}/>
       {currentInventoryPage.nextCursor && <button class="secondary" disabled={currentRequestPending} onClick={() => void loadBagInventory(currentInventoryPage.nextCursor!)}>{translateBagText('equipment.more')}</button>}
     </>}
     <SkillbookPanel key={`${me.id}:${gameSessionClient.state?.generation}`} gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled}/>

@@ -1,8 +1,9 @@
+import {validateTravelerPermitSummary, type TravelerPermitSummary} from './travelerPermits';
 import type { State } from './types';
 import { parseEquipmentInventory, type EquipmentInventoryPage } from './equipment';
 
-export type BagInventoryPage = EquipmentInventoryPage & {bag: NonNullable<State['me']['bag']>};
-export function parseBagInventory(currentResponseValue: unknown): BagInventoryPage {
+export type BagInventoryPage = EquipmentInventoryPage & {bag: NonNullable<State['me']['bag']>; travelerPermitSummary?: TravelerPermitSummary};
+export function parseBagInventory(currentResponseValue: unknown, currentCharacterIdentifier?: string): BagInventoryPage {
   const currentInventoryPage = parseEquipmentInventory(currentResponseValue) as BagInventoryPage;
   const currentBagSummary = currentInventoryPage.bag;
   if (!currentBagSummary || !Array.isArray(currentBagSummary.items)
@@ -13,6 +14,10 @@ export function parseBagInventory(currentResponseValue: unknown): BagInventoryPa
   const currentMaterialIdentifiers = new Set<string>();
   let calculatedKnownWeight = currentInventoryPage.knownEquipmentWeightG;
   let calculatedUnknownQuantity = 0;
+  if (currentInventoryPage.travelerPermitSummary !== undefined) {
+    calculatedUnknownQuantity += validateTravelerPermitSummary(currentInventoryPage.travelerPermitSummary,
+      currentInventoryPage.serverTime, currentCharacterIdentifier).records.length;
+  }
   for (const currentMaterialEntry of currentBagSummary.items) {
     if (!currentMaterialEntry || !['material','consumable','skillbook','collection','refined_material'].includes(currentMaterialEntry.kind) || typeof currentMaterialEntry.id !== 'string'
         || !currentMaterialEntry.id || currentMaterialIdentifiers.has(currentMaterialEntry.id)

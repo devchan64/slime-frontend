@@ -80,3 +80,31 @@ test('수집품과 등급 재료를 구분하고 잘못된 등급을 거절한�
   currentBagResponse.bag.items[0].grade='low';
   assert.throws(()=>parseBagInventory(currentBagResponse),/등급/);
 });
+
+function createPermitBagResponse() {
+  const currentBagResponse = createBagResponse();
+  currentBagResponse.travelerPermitSummary = {records:[{instanceId:'permit-one',itemId:'city-traveler-permit',
+    characterId:'owner',cityId:'iseulon',cityName:'이슬온',issuerId:'moss-clearing-guard-center',issuedAt:100,expiresAt:604900,
+    status:'VALID',quantity:1,weightG:null,nameTranslations:{ko:'여행자증명서',en:'Traveler Certificate'}}]};
+  currentBagResponse.bag.unknownWeightQuantity++;
+  return currentBagResponse;
+}
+test('여행자증명서는 개별 목록과 미정 무게 합계에 포함하며 만료 정각을 검증한다',()=>{
+  const currentBagResponse = createPermitBagResponse();
+  assert.equal(parseBagInventory(currentBagResponse,'owner').bag.unknownWeightQuantity,4);
+  currentBagResponse.serverTime = 604900;
+  assert.throws(()=>parseBagInventory(currentBagResponse,'owner'),/여행자증명서/);
+  currentBagResponse.travelerPermitSummary.records[0].status = 'EXPIRED';
+  assert.equal(parseBagInventory(currentBagResponse,'owner').travelerPermitSummary.records[0].status,'EXPIRED');
+});
+test('여행자증명서의 소유자·중복·기간·필드·무게 위조를 거절한다',()=>{
+  for(const currentPermitPatch of [{characterId:'other'},{expiresAt:1000},{quantity:2},{weightG:0},{unknown:1},{issuedAt:true},{issuerId:''}]) {
+    const currentBagResponse = createPermitBagResponse();
+    Object.assign(currentBagResponse.travelerPermitSummary.records[0],currentPermitPatch);
+    assert.throws(()=>parseBagInventory(currentBagResponse,'owner'),/여행자증명서/);
+  }
+  const currentBagResponse = createPermitBagResponse();
+  currentBagResponse.travelerPermitSummary.records.push(currentBagResponse.travelerPermitSummary.records[0]);
+  currentBagResponse.bag.unknownWeightQuantity++;
+  assert.throws(()=>parseBagInventory(currentBagResponse,'owner'),/여행자증명서/);
+});

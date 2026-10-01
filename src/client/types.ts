@@ -73,6 +73,7 @@ export type State = {
   epoch: number;
   cursor: number;
   me: {
+    travelerPermitSummary?: import("./travelerPermits").TravelerPermitSummary;
     citizenshipSummary?: import("./citizenshipSummary").CitizenshipSummary;
     id: string;
     name: string | null;
