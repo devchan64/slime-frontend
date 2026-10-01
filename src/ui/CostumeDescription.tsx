@@ -27,7 +27,7 @@ export function CostumeDescription({gameSessionClient}:{gameSessionClient:Client
   if(pendingCostumeReference.current||!costumeSessionMatches())return;
   pendingCostumeReference.current=true;setCostumeRequestPending(true);setCurrentCostumeNotice('');
   try{
-   const currentCatalogPage=parseCostumeCatalog(await gameSessionClient.request('/v1/costumes'));
+   const currentCatalogPage=parseCostumeCatalog(await gameSessionClient.request('/v2/costumes'));
    const selectedCostumeEntry=currentCatalogPage.entries.find(currentCatalogEntry=>currentCatalogEntry.costumeId===currentCatalogPage.defaultCostumeId)!;
    // 현재 기본 미리보기와 같은 전체 디자인 정의만 연결한다.
    if(selectedCostumeEntry.costumeId!==DEFAULT_PREVIEW_COSTUME_ID||selectedCostumeEntry.designId!==DEFAULT_PREVIEW_DESIGN_ID||selectedCostumeEntry.designVersion!==DEFAULT_PREVIEW_DESIGN_VERSION)throw new LocalizedError('character.costumeUnsupported');
@@ -62,6 +62,7 @@ export function CostumeDescription({gameSessionClient}:{gameSessionClient:Client
   {costumeRequestPending&&<p role="status">{translateCostumeText('character.costumeLoading')}</p>}
   {currentCostumeNotice&&<div role="alert"><p>{noticeText(currentCostumeNotice,currentCostumeLocale,translateCostumeText)}</p><button class="secondary" disabled={costumeRequestPending} onClick={()=>void loadCostumeDescription()}>{translateCostumeText('journal.refresh')}</button></div>}
   {currentCostumeEntry&&<p>{currentCostumeEntry.descriptionTranslations[currentCostumeLocale]}</p>}
+  {currentCostumeEntry&&<p>{translateCostumeText('wardrobe.value',{value:currentCostumeEntry.valueP})}</p>}
   <div ref={sponsorContainerReference} class="costume-sponsorship"/>
   {currentSponsorFailed&&<p role="status">{translateCostumeText('character.costumeSponsorUnavailable')}</p>}
   <p class="costume-effect-note">{translateCostumeText('character.costumeAppearanceOnly')}</p>

@@ -10,13 +10,13 @@ function requireCostumeTranslations(currentTranslationValue) {
 }
 export function parseCostumeCatalog(currentResponseValue) {
     requireCostumeRecord(currentResponseValue, ['version', 'defaultCostumeId', 'entries']);
-    if (currentResponseValue.version !== 1 || typeof currentResponseValue.defaultCostumeId !== 'string' || !Array.isArray(currentResponseValue.entries) || !currentResponseValue.entries.length)
+    if (currentResponseValue.version !== 2 || typeof currentResponseValue.defaultCostumeId !== 'string' || !Array.isArray(currentResponseValue.entries) || !currentResponseValue.entries.length)
         throw new Error('코스튬 카탈로그가 올바르지 않습니다.');
     const currentCostumeIdentifiers = new Set();
     for (const currentCostumeEntry of currentResponseValue.entries) {
-        requireCostumeRecord(currentCostumeEntry, ['costumeId', 'version', 'designId', 'designVersion', 'nameTranslations', 'descriptionTranslations']);
+        requireCostumeRecord(currentCostumeEntry, ['costumeId', 'version', 'designId', 'designVersion', 'nameTranslations', 'descriptionTranslations', 'valueP']);
         if ([currentCostumeEntry.costumeId, currentCostumeEntry.designId].some(currentIdentifierValue => typeof currentIdentifierValue !== 'string' || !COSTUME_IDENTIFIER_PATTERN.test(currentIdentifierValue))
-            || [currentCostumeEntry.version, currentCostumeEntry.designVersion].some(currentVersionValue => !Number.isSafeInteger(currentVersionValue) || currentVersionValue < 1)
+            || [currentCostumeEntry.version, currentCostumeEntry.designVersion, currentCostumeEntry.valueP].some(currentVersionValue => !Number.isSafeInteger(currentVersionValue) || currentVersionValue < 1)
             || currentCostumeIdentifiers.has(currentCostumeEntry.costumeId))
             throw new Error('코스튬 ID·버전이 올바르지 않습니다.');
         requireCostumeTranslations(currentCostumeEntry.nameTranslations);

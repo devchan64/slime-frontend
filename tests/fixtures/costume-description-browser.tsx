@@ -7,9 +7,9 @@ let currentSponsorRequests=0,currentSponsorFails=false;
 let currentRequestCount=0,currentDesignVersion=1,currentRequestFails=true;
 const currentFixtureClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,location:{chatRoomId:'map:iseulon'},me:{id:'hero'}},readServerTimestamp:()=>100,async request(currentRequestPath:string,currentRequestBody?:unknown){
  if(currentRequestPath.endsWith('/sponsorship-sessions')){currentSponsorRequests++;if(currentSponsorFails)throw new Error('광고 조회 실패');return {serverTime:100,session:null};}
- if(currentRequestPath!=='/v1/costumes'||currentRequestBody)throw new Error('잘못된 요청');
+ if(currentRequestPath!=='/v2/costumes'||currentRequestBody)throw new Error('잘못된 요청');
  currentRequestCount++;if(currentRequestFails){currentRequestFails=false;throw new Error('조회 실패');}
- return {version:1,defaultCostumeId:'default',entries:[{costumeId:'default',version:1,designId:'default',designVersion:currentDesignVersion,nameTranslations:{ko:'서버 기본 의상',en:'Server default outfit'},descriptionTranslations:{ko:'서버 설명 <img src=x onerror=alert(1)>',en:'Server details <img src=x onerror=alert(1)>'}}]};
+ return {version:2,defaultCostumeId:'default',entries:[{costumeId:'default',valueP:25,version:1,designId:'default',designVersion:currentDesignVersion,nameTranslations:{ko:'서버 기본 의상',en:'Server default outfit'},descriptionTranslations:{ko:'서버 설명 <img src=x onerror=alert(1)>',en:'Server details <img src=x onerror=alert(1)>'}}]};
 }};
 const waitRenderCycle=()=>new Promise(currentWaitResolver=>setTimeout(currentWaitResolver,120));
 function verifyCostumeCondition(currentConditionValue:unknown,currentAssertionLabel:string){if(!currentConditionValue)throw new Error(currentAssertionLabel);currentAssertionLabels.push(currentAssertionLabel);}
@@ -21,6 +21,7 @@ function renderCostumeDescription(){render(<CostumeDescription gameSessionClient
  verifyCostumeCondition(document.querySelector('[role="alert"]')?.textContent?.includes('조회 실패'),'조회 실패 표시');
  document.querySelector<HTMLButtonElement>('button')!.click();await waitRenderCycle();
  verifyCostumeCondition(document.body.textContent?.includes(getLocale()==='ko'?'서버 기본 의상':'Server default outfit'),'서버 이름 표시');
+ verifyCostumeCondition(document.body.textContent?.includes(t('wardrobe.value',{value:25})),'표준 가치 표시');
  verifyCostumeCondition(document.body.textContent?.includes('<img src=x onerror=alert(1)>')&&!document.querySelector('img'),'설명 HTML을 텍스트로 표시');
  setLocale(getLocale()==='ko'?'en':'ko');await waitRenderCycle();
  verifyCostumeCondition(document.body.textContent?.includes(getLocale()==='ko'?'서버 설명':'Server details'),'현재 언어의 서버 설명 표시');

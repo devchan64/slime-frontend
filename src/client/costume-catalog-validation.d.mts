@@ -1,5 +1,6 @@
 export type CostumeCatalogEntry = {
     costumeId: string;
+    valueP: number;
     version: number;
     designId: string;
     designVersion: number;
@@ -7,7 +8,7 @@ export type CostumeCatalogEntry = {
     descriptionTranslations: Record<'ko' | 'en', string>;
 };
 export type CostumeCatalogPage = {
-    version: 1;
+    version: 2;
     defaultCostumeId: string;
     entries: CostumeCatalogEntry[];
 };
