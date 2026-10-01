@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+const currentModuleBuild=await build({entryPoints:['src/client/substituteHunt.ts'],bundle:true,write:false,format:'esm',platform:'node'});
+const {parseSubstituteHuntCatalog,parseSubstituteHuntReceipt}=await import(`data:text/javascript;base64,${Buffer.from(currentModuleBuild.outputFiles[0].text).toString('base64')}`);
+const currentQuoteRecord={policyVersion:1,encounterId:'passive',encounterCatalogVersion:1,speciesId:'slime',monsterReferenceVersion:2,csp:8,enemyCount:2,fpCost:16};
+const currentCatalogRecord={characterVersion:3,fp:50,encounters:[{...currentQuoteRecord,skillVariantId:null,nameTranslations:{ko:'슬라임',en:'Slime'},eligible:true,available:true,unavailableReason:null}]};
+const currentReceiptRecord={ok:true,kind:'substitute_hunt',requestId:'request',substituteHunt:{...currentQuoteRecord,dropCatalogVersion:2,dissectionPolicyVersion:1,materials:[],fpConsumed:16,fpRemaining:34,characterVersion:4}};
+test('비용·번역·빈 드롭 영수증을 검증한다',()=>{assert.deepEqual(parseSubstituteHuntCatalog(currentCatalogRecord),currentCatalogRecord);assert.deepEqual(parseSubstituteHuntReceipt(currentReceiptRecord,'request','passive'),currentReceiptRecord);});
+test('중복 조우·비용 불일치·잘못된 실행 자격을 거절한다',()=>{for(const currentEntryPatch of [{fpCost:1},{eligible:false},{nameTranslations:{ko:'슬라임'}},{available:true,unavailableReason:'FIRST_HUNT_REQUIRED'}])assert.throws(()=>parseSubstituteHuntCatalog({...currentCatalogRecord,encounters:[{...currentCatalogRecord.encounters[0],...currentEntryPatch}]}));assert.throws(()=>parseSubstituteHuntCatalog({...currentCatalogRecord,encounters:[...currentCatalogRecord.encounters,...currentCatalogRecord.encounters]}));});
+test('다른 요청·대상 및 잘못된 차감·재료 응답을 거절한다',()=>{assert.throws(()=>parseSubstituteHuntReceipt(currentReceiptRecord,'other','passive'));assert.throws(()=>parseSubstituteHuntReceipt(currentReceiptRecord,'request','aggro'));for(const currentResultPatch of [{fpConsumed:0},{fpRemaining:-1},{materials:[{materialId:'jelly',quantity:0}]}])assert.throws(()=>parseSubstituteHuntReceipt({...currentReceiptRecord,substituteHunt:{...currentReceiptRecord.substituteHunt,...currentResultPatch}},'request','passive'));});
