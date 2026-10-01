@@ -265,3 +265,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 ### 실제 서점 GUI 연동 검사
 
 `node scripts/build-skillbook-browser-test.mjs <출력.js>`로 실제 `SkillbookPanel`·`Client`를 사용하는 검사 번들을 만든다. 백엔드 자동화 회귀 실행 시 `SLIME_SKILLBOOK_BROWSER_BUNDLE`에 이 파일의 절대 경로를 전달하고 `tests/test_skillbook_live_browser.py`를 선택한다. 검사 서버가 인증 문맥을 제공하며 Chrome에서 구매·열람의 첫 성공 응답을 각각 유실시키고 같은 버튼으로 재시도한다. 요청 본문 유지, 완료 표시, 재열람 무변경을 확인하고 서버 검사가 DB의 단일 결제·소유 기록을 확인한다. 번들은 검사용 산출물이며 제품 런타임 의존성이 아니다.
+
+전투 상태의 선택적 `apRecoveryPolicyVersion`은 자기 턴 AP 회복의 반올림 방식을 고정한다. `2`는 최대 AP의 절반을 내림하고 `1` 또는 필드가 없는 저장 전투는 기존 반올림을 유지한다. AP 패널의 회복량과 규칙 설명은 이 값을 함께 사용한다. 새 필드를 이해하는 클라이언트를 먼저 배포해야 신규 전투의 안내가 서버 판정과 일치한다.

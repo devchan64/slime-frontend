@@ -233,7 +233,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
         </span>;
       })}
     </div>
-    {apBattle ? <p>{t('battle.apRules')}</p> : <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>}
+    {apBattle ? <p>{t(battle.apRecoveryPolicyVersion===2?'battle.apRulesFloor':'battle.apRules')}</p> : <p>{t('battle.actionUsage',{move:t(battle.moved ? 'battle.used' : 'battle.once'),action:t(battle.acted ? 'battle.used' : 'battle.once')})}<br />{t('battle.legacyActionHelp')}</p>}
 
     </div>
     </section>

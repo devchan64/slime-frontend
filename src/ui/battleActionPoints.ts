@@ -20,3 +20,11 @@ export function actionPointSubject(battle: Battle, selected: Position | null) {
   const current = battle.units.find(unit => unit.id === battle.order[battle.index] && unit.side === 'ally');
   return current ? { unit: current, labelKey: 'battle.activeCharacter' } : null;
 }
+
+export function calculateTurnApRecovery(currentBattleRecord: Battle,currentMaximumPoints: number): number {
+  const currentRecoveryPolicy=currentBattleRecord.apRecoveryPolicyVersion===undefined?1:currentBattleRecord.apRecoveryPolicyVersion;
+  if (![1,2].includes(currentRecoveryPolicy)||!Number.isSafeInteger(currentMaximumPoints)||currentMaximumPoints<=0) {
+    throw new Error('AP 회복 정책 또는 최대 AP가 올바르지 않습니다.');
+  }
+  return Math.floor((currentMaximumPoints+(currentRecoveryPolicy===1?1:0))/2);
+}

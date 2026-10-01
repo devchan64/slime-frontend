@@ -161,3 +161,5 @@ dissectionRecoveryHint: "몬스터별 난이도가 반영됩니다. 해부가 �
 
 expectedHealing: "예상 HP 회복 {healing}"
 expectedDrain: "자신 HP 회복 {healing}"
+
+apRulesFloor: "이동 1칸당 1 AP · 일반 공격 3 AP · 자기 턴마다 최대 AP의 50% 내림 회복 · 잔여 AP 이월"

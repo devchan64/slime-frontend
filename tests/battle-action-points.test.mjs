@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const {outputFiles}=await build({entryPoints:['src/ui/battleActionPoints.ts'],bundle:true,write:false,format:'esm',platform:'node'});
-const {actionPoints,actionPointSubject}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {actionPoints,actionPointSubject,calculateTurnApRecovery}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 const unit=(id,side,column,ap)=>({id,side,position:{column,row:0},ap,maxAp:6});
 const battle={units:[unit('me','ally',0,4),unit('friend','ally',1,0),unit('monster','enemy',2,5)],order:['me','monster'],index:0};
 test('선택한 아군의 AP를 우선하며 0도 유효한 잔고다',()=>{
@@ -30,4 +30,12 @@ test('서버 갱신값을 읽으며 미지원 응답에서 잔고를 만들지 �
 test('지형 비용으로 음수가 된 AP도 실제 잔고 그대로 표시한다',()=>{
  assert.deepEqual(actionPoints({...battle.units[0],ap:-1}),{value:-1,maximum:6});
  assert.deepEqual(actionPoints({...battle.units[0],ap:-3}),{value:-3,maximum:6});
+});
+
+test('새 전투는 홀수 최대 AP의 절반을 내림하고 과거 전투는 반올림한다',()=>{
+ assert.equal(calculateTurnApRecovery({},5),3);
+ assert.equal(calculateTurnApRecovery({apRecoveryPolicyVersion:1},5),3);
+ assert.equal(calculateTurnApRecovery({apRecoveryPolicyVersion:2},5),2);
+ assert.equal(calculateTurnApRecovery({apRecoveryPolicyVersion:2},4),2);
+ for(const currentPolicyValue of [null,true,0,3,'2'])assert.throws(()=>calculateTurnApRecovery({apRecoveryPolicyVersion:currentPolicyValue},5));
 });

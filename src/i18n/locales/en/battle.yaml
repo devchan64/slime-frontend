@@ -161,3 +161,5 @@ dissectionRecoveryHint: "Difficulty varies by monster. Low dissection proficienc
 
 expectedHealing: "Expected HP healing {healing}"
 expectedDrain: "Self HP healing {healing}"
+
+apRulesFloor: "Move: 1 AP per tile · Basic attack: 3 AP · Recover 50% of maximum AP rounded down each turn · Unused AP carries over"

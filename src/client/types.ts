@@ -40,6 +40,7 @@ export type Battle = {
   excludedBorrowedParticipants?: import('./borrowedParticipation').BorrowedExclusion[];
   visualVersion?: 1;
   rulesVersion?: string;
+  apRecoveryPolicyVersion?: 1 | 2;
   ready?: string[];
   participants: string[];
   preparationDeadline?: number;
