@@ -40,6 +40,7 @@ rest start / rest stop 휴식 시작 / 중단
 bag                    최신 가방 목록
 first-aid              응급처치 (붕대 소비)
 use-item 소모품ID      회복·개인 표식 소모품 사용
+costumes               전체 디자인 코스튬 카탈로그·설명 조회
 npc list               현재 맵 NPC ID·입구 조회
 npc talk NPC_ID        현장 NPC 대화·의뢰 조건 조회
 quest accept NPC_ID 의뢰ID 확인한 의뢰 수령
