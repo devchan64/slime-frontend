@@ -42,11 +42,18 @@ function validateWorkshopQuote(currentQuoteValue,currentContractKind){
     requireWorkshopCondition(currentDurabilitySnapshot&&isWorkshopWholeNumber(currentDurabilitySnapshot.currentDurability)&&isWorkshopWholeNumber(currentDurabilitySnapshot.maxDurability)
       &&currentDurabilitySnapshot.currentDurability<=currentDurabilitySnapshot.maxDurability);
 }
-export function parseWorkshopQuote(currentResponseValue,currentContractKind){
+export function parseWorkshopQuote(currentResponseValue,currentContractKind,currentRequestedSelection){
   requireWorkshopCondition(currentResponseValue&&isWorkshopWholeNumber(currentResponseValue.characterVersion)&&typeof currentResponseValue.quoteToken==='string'&&/^[0-9a-f]{64}$/.test(currentResponseValue.quoteToken));
   if(currentResponseValue.ownedCoins!==undefined)requireWorkshopCondition(isWorkshopWholeNumber(currentResponseValue.ownedCoins));
   validateWorkshopQuote(currentResponseValue.quote,currentContractKind);
   if(currentContractKind==='repair')requireWorkshopCondition(isWorkshopWholeNumber(currentResponseValue.quote.instanceVersion)&&currentResponseValue.quote.instanceVersion>0);
+  if(currentRequestedSelection!==undefined){
+    requireWorkshopCondition(typeof currentRequestedSelection.targetId==='string'&&currentRequestedSelection.targetId.length>0
+      &&(currentContractKind==='repair'?currentResponseValue.quote.instanceId:currentResponseValue.quote.definitionId)===currentRequestedSelection.targetId);
+    if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
+      &&currentRequestedSelection.quantity<=1000&&currentResponseValue.quote.quantity===currentRequestedSelection.quantity);
+  }
+
   requireWorkshopCondition(Array.isArray(currentResponseValue.materials));
   const seenMaterialIdentifiers=new Set();
   for(const currentMaterialRecord of currentResponseValue.materials){requireWorkshopCondition(currentMaterialRecord&&isWorkshopWholeNumber(currentMaterialRecord.quantity)&&currentMaterialRecord.quantity>0

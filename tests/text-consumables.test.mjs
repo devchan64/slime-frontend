@@ -42,7 +42,7 @@ test('잘못된 품목·수량·원격 이용·변경된 견적은 계약하지 
 test('다른 품목이나 수량의 견적은 저장하지 않는다',async()=>{
  for(const currentChangedQuote of [{...createConsumableQuote().quote,definitionId:'other'},{...createConsumableQuote().quote,quantity:1,costP:1,durationSeconds:30}]){
   const {currentTextClient}=createConsumableClient([{...createConsumableQuote(),quote:currentChangedQuote}]);
-  await assert.rejects(currentTextClient.execute('consumables quote iseulon-workshop clean-bandage 2'),/조건/);
+  await assert.rejects(currentTextClient.execute('consumables quote iseulon-workshop clean-bandage 2'),/형식/);
   await assert.rejects(currentTextClient.execute('consumables create iseulon-workshop'),/견적/);
  }
 });

@@ -92,3 +92,16 @@ test('부족 재료를 포함한 소모품 총액과 과거 계약을 모두 검
    assert.throws(()=>parseWorkshopQuote({...currentPricedQuote,quote:{...currentPricedQuote.quote,...currentInvalidPatch}},'consumable'));
  assert.equal(parseWorkshopContracts(currentContractFixture,'craft').entries.length,1);
 });
+
+
+test('품목·수량·수리 개체가 선택과 다른 견적을 거절한다',()=>{
+ const currentCraftQuote={...currentQuoteFixture,quote:{...currentQuoteFixture.quote,definitionId:'iron-sword'}};
+ assert.doesNotThrow(()=>parseWorkshopQuote(currentCraftQuote,'craft',{targetId:'iron-sword'}));
+ assert.throws(()=>parseWorkshopQuote(currentCraftQuote,'craft',{targetId:'leather-vest'}));
+ const currentConsumableQuote={...currentCraftQuote,quote:{...currentCraftQuote.quote,definitionId:'clean-bandage',quantity:2,unitDurationSeconds:30,unitCostP:1,durationSeconds:60,costP:2}};
+ assert.doesNotThrow(()=>parseWorkshopQuote(currentConsumableQuote,'consumable',{targetId:'clean-bandage',quantity:2}));
+ for(const currentRequestedQuantity of [1,3,0,1001,true])assert.throws(()=>parseWorkshopQuote(currentConsumableQuote,'consumable',{targetId:'clean-bandage',quantity:currentRequestedQuantity}));
+ const currentRepairQuote={...currentQuoteFixture,quote:{costP:1,durationSeconds:10,instanceId:'11111111-1111-4111-8111-111111111111',instanceVersion:2,before:{currentDurability:20,maxDurability:80},after:{currentDurability:72,maxDurability:72}}};
+ assert.doesNotThrow(()=>parseWorkshopQuote(currentRepairQuote,'repair',{targetId:currentRepairQuote.quote.instanceId}));
+ assert.throws(()=>parseWorkshopQuote(currentRepairQuote,'repair',{targetId:'22222222-2222-4222-8222-222222222222'}));
+});

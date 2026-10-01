@@ -69,7 +69,8 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     });
   }
   async function requestWorkshopQuote(){await runWorkshopRequest(async()=>{
-    const receivedQuoteResponse=parseWorkshopQuote(await gameSessionClient.request(`${workshopRequestBase}/quote?kind=${currentContractKind}&targetId=${encodeURIComponent(currentTargetIdentifier)}${currentContractKind==='consumable'?'&quantity='+currentRequestedQuantity:''}`),currentContractKind);
+    setCurrentQuoteResponse(null);quotedRequestReference.current=null;
+    const receivedQuoteResponse=parseWorkshopQuote(await gameSessionClient.request(`${workshopRequestBase}/quote?kind=${currentContractKind}&targetId=${encodeURIComponent(currentTargetIdentifier)}${currentContractKind==='consumable'?'&quantity='+currentRequestedQuantity:''}`),currentContractKind,{targetId:currentTargetIdentifier,...(currentContractKind==='consumable'?{quantity:currentRequestedQuantity}:{})});
     if(workshopSessionMatches()){setCurrentQuoteResponse(receivedQuoteResponse);quotedRequestReference.current={kind:currentContractKind,targetId:currentTargetIdentifier,
       ...(currentContractKind==='consumable'?{quantity:receivedQuoteResponse.quote.quantity}:{}),
       quoteToken:receivedQuoteResponse.quoteToken,expectedVersion:receivedQuoteResponse.characterVersion,requestId:crypto.randomUUID(),
