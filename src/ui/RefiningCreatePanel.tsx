@@ -1,3 +1,4 @@
+import {ProcessingDetails} from './ProcessingDetails';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseRefiningCatalog,parseRefiningQuote,type RefiningCatalogData,type RefiningQuoteData} from '../client/refining';
@@ -58,10 +59,12 @@ export function RefiningCreatePanel({gameSessionClient,currentFacilityIdentifier
    <label>{translateRefiningText('workshop.refiningRecipe')}<select disabled={currentControlsDisabled} value={selectedRecipeIndex} onChange={currentInputEvent=>{setSelectedRecipeIndex(Number(currentInputEvent.currentTarget.value));clearRefiningQuote();}}>
     {currentCatalogData.entries.map((currentRecipeEntry,currentRecipeIndex)=><option value={currentRecipeIndex}>{currentRecipeEntry.outputMaterial[currentRefiningLocale==='ko'?'name':'englishName']}</option>)}
    </select></label>
+   <ProcessingDetails currentProcessingQuote={currentCatalogData.entries[selectedRecipeIndex]}/>
    <label>{translateRefiningText('workshop.refiningQuantity')}<input type="number" min={1} max={REFINING_MAXIMUM_QUANTITY} step={1} value={requestedOutputQuantity} disabled={currentControlsDisabled} onInput={currentInputEvent=>{setRequestedOutputQuantity(Number(currentInputEvent.currentTarget.value));clearRefiningQuote();}}/></label>
    <button class="compact" disabled={currentControlsDisabled||!Number.isSafeInteger(requestedOutputQuantity)||requestedOutputQuantity<1||requestedOutputQuantity>REFINING_MAXIMUM_QUANTITY} onClick={()=>void executeRefiningRequest('quote')}>{translateRefiningText('workshop.refiningQuote')}</button>
   </>}
   {currentQuoteData&&<div>
+   <ProcessingDetails currentProcessingQuote={currentQuoteData.quote}/>
    <p>{translateRefiningText('workshop.refiningSummary',{input:currentQuoteData.quote.inputQuantity,owned:currentQuoteData.quote.ownedQuantity,cost:currentQuoteData.quote.costP,seconds:currentQuoteData.quote.durationSeconds})}</p>
    <button class="compact" disabled={currentControlsDisabled||currentQuoteData.ownedCoins<currentQuoteData.quote.costP||currentQuoteData.quote.ownedQuantity<currentQuoteData.quote.inputQuantity} onClick={()=>void executeRefiningRequest('create')}>{translateRefiningText('workshop.refiningSubmit')}</button>
   </div>}

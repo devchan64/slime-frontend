@@ -1,3 +1,4 @@
+import {ProcessingDetails} from './ProcessingDetails';
 import {RefiningCreatePanel} from './RefiningCreatePanel';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
@@ -47,6 +48,7 @@ export function RefiningContractsPanel({gameSessionClient,currentFacilityIdentif
     {currentContractPage&&!currentContractPage.entries.length&&<p>{translateRefiningText('workshop.empty')}</p>}
     <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
       <strong>{currentContractEntry.quote.outputMaterial[currentRefiningLocale==='ko'?'name':'englishName']} × {currentContractEntry.quote.outputQuantity}</strong>
+      <ProcessingDetails currentProcessingQuote={currentContractEntry.quote}/>
       <p>{translateRefiningText(`workshop.${currentContractEntry.status.toLowerCase().replaceAll('_','')}`)}</p>
       <p>{translateRefiningText('workshop.paidTotal',{cost:currentContractEntry.quote.costP})}</p>
       <p>{translateRefiningText('workshop.readyAt',{time:new Date(currentContractEntry.readyAt*1000).toLocaleString(currentRefiningLocale)})}</p>

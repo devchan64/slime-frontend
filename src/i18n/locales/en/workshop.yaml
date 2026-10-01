@@ -32,13 +32,18 @@ costBreakdown: 'Crafting fee {base} P + missing materials {missing} P'
 substitutionRule: 'Owned materials are used first. Missing quantities are valued at guild buying prices; their total is multiplied by 1.5 and rounded up for payment. Missing materials are not added to your bag.'
 paidTotal: 'Total paid at contract creation: {cost} P'
 
-refiningContracts: Refining contracts & collection
-refiningCreate: Request refining
-refiningBrowse: Browse refining recipes
-refiningUnavailable: Refining is not available in this city yet.
+refiningContracts: Processing contracts & collection
+refiningCreate: Request processing
+refiningBrowse: Browse processing recipes
+refiningUnavailable: Processing is not available in this city yet.
 refiningRecipe: Output material and grade
 refiningQuantity: Output quantity
 refiningQuote: Get quote
 refiningSummary: 'Requires {input} collectibles ({owned} owned) · {cost} P · {seconds} seconds'
-refiningSubmit: Pay and request refining
-refiningCreated: Refining requested. Refresh the contract list and collect when ready.
+refiningSubmit: Pay and request processing
+refiningCreated: Processing requested. Refresh the contract list and collect when ready.
+
+processingMethodRefining: Refining
+processingMethodSmelting: Smelting
+processingKindMaterial: Processed material
+processingKindEssence: Elemental essence
