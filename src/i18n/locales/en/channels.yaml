@@ -1,0 +1,29 @@
+open: Change channel
+title: Channels
+current: 'Current channel: {address}'
+help: Move to another channel on this map. Your position stays the same and chat reconnects for the new channel.
+refresh: Refresh list
+checkState: Check current state
+address: Destination channel address
+addressHelp: Use a1, aa22, or ba234. Addresses are case-insensitive.
+joinAddress: Join address
+join: Join
+sameMap: Channels on this map
+population: 'Seats {used}/{capacity} · {online} online'
+populationHelp: Seats include battle return reservations. Joining may fail if occupancy changes after this list is loaded.
+populationUnavailable: This server does not provide channel occupancy. Capacity is checked when you join.
+identifier: 'ID: {id}'
+pending: Checking channel information…
+uncertain: The transfer result is unknown. Check your current state before trying another transfer.
+invalidAddress: Enter letters followed by a number greater than zero. Spaces and symbols are not allowed.
+invalidList: The channel list has an invalid format. Please refresh it.
+stateRequired: Please check your current channel information again.
+fieldRequired: Finish battle or encounter preparation before changing channels in the field.
+leaveParty: Leave your party before changing channels.
+recoveryRequired: Recover at least 50% of your maximum HP after being incapacitated before moving.
+fpRequired: FP is negative. Wait for it to recharge before moving.
+differentMap: This channel is on another map. Travel there using a waypoint first.
+alreadyHere: You are in this channel.
+closed: This channel is closed to new arrivals.
+full: This channel is full. Choose another channel or refresh the list.
+waitAction: Finish the current movement or loading before changing channels.

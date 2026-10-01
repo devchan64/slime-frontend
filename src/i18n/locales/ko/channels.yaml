@@ -1,0 +1,29 @@
+open: 채널 이동
+title: 채널 목록·이동
+current: '현재 채널: {address}'
+help: 같은 맵의 다른 채널로 이동합니다. 위치는 유지되며 새 채널의 채팅에 다시 접속합니다.
+refresh: 목록 새로고침
+checkState: 현재 상태 다시 확인
+address: 이동할 채널 주소
+addressHelp: a1, aa22, ba234 형식입니다. 대소문자는 구분하지 않습니다.
+joinAddress: 주소로 이동
+join: 이동
+sameMap: 같은 맵의 채널
+population: '사용 좌석 {used}/{capacity} · 접속 {online}명'
+populationHelp: 사용 좌석에는 전투 복귀 예약이 포함됩니다. 조회 후 인원이 바뀌면 이동이 실패할 수 있습니다.
+populationUnavailable: 이 서버는 채널 인원을 제공하지 않습니다. 이동할 때 정원을 확인합니다.
+identifier: 'ID: {id}'
+pending: 채널 정보를 확인하고 있습니다…
+uncertain: 이동 결과를 확인하지 못했습니다. 현재 상태를 다시 확인한 뒤 이동하세요.
+invalidAddress: 알파벳 뒤에 1 이상의 숫자를 입력하세요. 공백과 기호는 사용할 수 없습니다.
+invalidList: 채널 목록의 형식이 올바르지 않습니다. 다시 조회해 주세요.
+stateRequired: 현재 채널 정보를 다시 확인해 주세요.
+fieldRequired: 전투·조우 준비를 마치고 필드에서 이동하세요.
+leaveParty: 파티에서 탈퇴한 뒤 채널을 이동하세요.
+recoveryRequired: 전투불능 후 최대 HP의 50% 이상을 회복해야 이동할 수 있습니다.
+fpRequired: FP가 음수입니다. 충전을 기다린 뒤 이동하세요.
+differentMap: 다른 맵의 채널입니다. 웨이포인트로 해당 맵에 먼저 이동하세요.
+alreadyHere: 현재 채널입니다.
+closed: 입장이 중지된 채널입니다.
+full: 만석입니다. 다른 채널을 선택하거나 목록을 다시 확인하세요.
+waitAction: 진행 중인 이동·로딩을 마친 뒤 채널을 이동하세요.

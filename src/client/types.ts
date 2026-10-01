@@ -66,6 +66,7 @@ export type Battle = {
   blocked: Position[];
 };
 export type State = {
+  channel?: import("./channels").ChannelIdentity;
   location: { id: string; kind: "FIELD" | "BATTLE"; mapId: string; chatRoomId: string; roomReady: boolean };
   protocolVersion: number;
   serverTime: number;

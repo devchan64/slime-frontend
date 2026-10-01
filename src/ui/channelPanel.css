@@ -1,0 +1,12 @@
+.channel-panel{min-width:0;display:grid;gap:10px}
+.channel-panel p,.channel-panel h3{margin:0;overflow-wrap:anywhere}
+.channel-panel>.compact{justify-self:start}
+.channel-panel form{display:grid;gap:8px;min-width:0}
+.channel-address-controls{display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.channel-address-controls input{flex:1 1 120px;min-width:0;width:100%}
+.channel-address-controls button{flex:0 0 auto}
+.channel-list{list-style:none;margin:0;padding:0;display:grid;gap:12px;min-width:0}
+.channel-list-entry{display:flex;align-items:center;gap:12px;min-width:0}
+.channel-list-entry>div{display:grid;gap:4px;flex:1;min-width:0;overflow-wrap:anywhere}
+.channel-list-entry>button{flex:0 0 auto}
+.current-channel-address{display:block;overflow-wrap:anywhere}
