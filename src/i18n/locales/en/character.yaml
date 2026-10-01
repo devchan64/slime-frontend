@@ -68,3 +68,5 @@ actionDrainRate: "Restore {percent}% of actual HP damage as self HP."
 
 costumeLoading: Loading costume details.
 costumeUnsupported: This design does not match the current preview.
+
+costumeSponsorUnavailable: The sponsor advertisement could not load. Close and reopen the details to retry.

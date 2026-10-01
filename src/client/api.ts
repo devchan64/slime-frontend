@@ -16,6 +16,11 @@ type StreamMark = Pick<State, "generation" | "epoch" | "cursor">;
 export class Client {
   tokens: Tokens | null = null;
   state: State | null = null;
+  private serverClockAnchor: {timestamp:number; receivedAt:number} | null = null;
+  readServerTimestamp(): number {
+    if (!this.state || !this.serverClockAnchor) throw new LocalizedError('network.stateRequired');
+    return this.serverClockAnchor.timestamp + (performance.now()-this.serverClockAnchor.receivedAt)/1000;
+  }
   private socket: WebSocket | null = null;
   private connectionAttempt = 0;
   private sessionRevision = 0;
@@ -80,6 +85,7 @@ export class Client {
       this.tokens=tokens;
       const state=await this.request("/v1/game/state");
       if (revision!==this.sessionRevision) return false;
+      this.serverClockAnchor={timestamp:state.serverTime,receivedAt:performance.now()};
       this.state=state;
       this.onState(state);
       this.stopped=false;
@@ -161,6 +167,7 @@ export class Client {
       return;
     if (this.state && (state.generation !== this.state.generation || state.epoch !== this.state.epoch
         || state.location.id !== this.state.location.id)) this.disconnectChat();
+    this.serverClockAnchor={timestamp:state.serverTime,receivedAt:performance.now()};
     this.state = state;
     if (!this.isBehindHead()) this.clearProgress();
     this.onState(state);

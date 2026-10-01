@@ -15,7 +15,7 @@ test('Chrome에서 코스튬 설명 조회·재시도·언어 전환을 검증�
  try {
   const currentLocaleSources={};
   for(const currentLocaleName of ['ko','en'])for(const currentFileName of await readdir(`src/i18n/locales/${currentLocaleName}`))currentLocaleSources[`./locales/${currentLocaleName}/${currentFileName}`]=await readFile(`src/i18n/locales/${currentLocaleName}/${currentFileName}`,'utf8');
-  await build({entryPoints:['tests/fixtures/costume-description-browser.tsx'],bundle:true,platform:'browser',format:'iife',jsx:'automatic',jsxImportSource:'preact',outfile:`${CURRENT_OUTPUT_ROOT}/test.js`,plugins:[{
+  await build({entryPoints:['tests/fixtures/costume-description-browser.tsx'],bundle:true,define:{'import.meta.env.VITE_SPONSOR_PUBLIC_KEY':'""'},platform:'browser',format:'iife',jsx:'automatic',jsxImportSource:'preact',outfile:`${CURRENT_OUTPUT_ROOT}/test.js`,plugins:[{
    name:'real-npc-locales',setup(currentBuildContext){currentBuildContext.onLoad({filter:/\/i18n\/index\.ts$/},async({path:currentModulePath})=>({contents:(await readFile(currentModulePath,'utf8')).replace("import.meta.glob('./locales/*/*.yaml', { query: '?raw', import: 'default', eager: true })",JSON.stringify(currentLocaleSources)),loader:'ts'}));}
   }]});
   const currentStylesText=(await readFile('src/styles.css','utf8')).replace('@import "./ui/design-system/tokens.css";',await readFile('src/ui/design-system/tokens.css','utf8'));

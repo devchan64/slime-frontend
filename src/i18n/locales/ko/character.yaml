@@ -68,3 +68,5 @@ actionDrainRate: "실제 HP 피해의 {percent}%를 자신 HP로 회복합니다
 
 costumeLoading: 코스튬 설명을 불러오는 중입니다.
 costumeUnsupported: 현재 미리보기와 일치하는 디자인이 아닙니다.
+
+costumeSponsorUnavailable: 스폰서 광고를 불러오지 못했습니다. 설명을 닫았다 다시 열면 재시도합니다.
