@@ -107,3 +107,5 @@ bagRefinedMaterial: "정제 재료"
 refiningGradeLow: "하급"
 refiningGradeMedium: "중급"
 refiningGradeHigh: "상급"
+
+partyListedMembers: "목록 인원 {count}명"

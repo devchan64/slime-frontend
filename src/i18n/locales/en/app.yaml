@@ -107,3 +107,5 @@ bagRefinedMaterial: "Refined material"
 refiningGradeLow: "Low grade"
 refiningGradeMedium: "Mid grade"
 refiningGradeHigh: "High grade"
+
+partyListedMembers: "{count} listed characters"

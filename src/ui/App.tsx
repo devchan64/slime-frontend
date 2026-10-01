@@ -736,7 +736,7 @@ export function App() {
             {drawer === "party" && !battle && (
               <section class="card">
                 <h3>
-                  {t('app.partyHeading')} <small>{state.members.length}/32</small>
+                  {t('app.partyHeading')} <small>{t('app.partyListedMembers',{count:state.members.length})}</small>
                 </h3>
                 {state.party ? (
                   <>
