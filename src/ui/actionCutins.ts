@@ -99,3 +99,32 @@ export function watchActionCutinVisibility(
   handle_visibility_change();
   return () => current_document_source.removeEventListener('visibilitychange', handle_visibility_change);
 }
+
+
+export type ActionCutinSettingState = {
+  durationSeconds: ActionCutinDuration | null;
+  errorKind: 'read' | 'write' | null;
+};
+export function loadActionCutinPreference(
+  get_setting_storage: () => Pick<Storage, 'getItem'>,
+): ActionCutinSettingState {
+  try {
+    return {durationSeconds: readActionCutinSetting(get_setting_storage()), errorKind: null};
+  } catch {
+    // 오류는 화면에 표시하고 명시적으로 복구할 때까지 연출만 중지한다.
+    return {durationSeconds: null, errorKind: 'read'};
+  }
+}
+export function saveActionCutinPreference(
+  get_setting_storage: () => Pick<Storage, 'setItem'>,
+  previous_setting_state: ActionCutinSettingState,
+  requested_duration_seconds: ActionCutinDuration,
+): ActionCutinSettingState {
+  const validated_duration_seconds = parseActionCutinDuration(String(requested_duration_seconds));
+  try {
+    get_setting_storage().setItem(ACTION_CUTIN_SETTING_KEY, String(validated_duration_seconds));
+    return {durationSeconds: validated_duration_seconds, errorKind: null};
+  } catch {
+    return {...previous_setting_state, errorKind: 'write'};
+  }
+}

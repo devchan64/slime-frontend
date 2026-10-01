@@ -3,7 +3,7 @@ import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
 import {MainEventJournal} from './MainEventJournal';
 import { ActionCutinOverlay } from './ActionCutin';
-import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, readActionCutinSetting, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
+import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, loadActionCutinPreference, saveActionCutinPreference, ACTION_CUTIN_DEFAULT_SECONDS, ACTION_CUTIN_DURATION_OPTIONS, parseActionCutinDuration, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
 import { FieldFirstAid } from './FieldFirstAid';
 import { BorrowedLoansPanel } from './BorrowedLoansPanel';
@@ -49,17 +49,18 @@ const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
 export function App() {
   const { t, locale } = useTranslation();
-  const [actionCutinDurationSeconds, setActionCutinDurationSeconds] = useState(() => readActionCutinSetting(localStorage));
+  const [actionCutinSettingState, setActionCutinSettingState] = useState(() => loadActionCutinPreference(() => localStorage));
+  const actionCutinDurationSeconds = actionCutinSettingState.durationSeconds ?? 0;
   const actionCutinEnabledReference = useRef(actionCutinDurationSeconds > 0);
   actionCutinEnabledReference.current = actionCutinDurationSeconds > 0;
   const actionCutinEventTracker = useRef(new ActionCutinTracker());
   const [pendingActionCutinEvents, setPendingActionCutinEvents] = useState<ActionCutinEvent[]>([]);
   useEffect(() => watchActionCutinVisibility(document, () => setPendingActionCutinEvents([])), []);
   const updateActionCutinSetting = (nextDurationSeconds: ActionCutinDuration) => {
-    localStorage.setItem(ACTION_CUTIN_SETTING_KEY, String(nextDurationSeconds));
-    actionCutinEnabledReference.current = nextDurationSeconds > 0;
-    setActionCutinDurationSeconds(nextDurationSeconds);
-    if (!nextDurationSeconds) setPendingActionCutinEvents([]);
+    const currentSaveResult = saveActionCutinPreference(() => localStorage, actionCutinSettingState, nextDurationSeconds);
+    setActionCutinSettingState(currentSaveResult);
+    actionCutinEnabledReference.current = (currentSaveResult.durationSeconds ?? 0) > 0;
+    if (!currentSaveResult.durationSeconds) setPendingActionCutinEvents([]);
   };
   const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
   const battleReportSceneSnapshot = useRef<State | null>(null);
@@ -451,6 +452,10 @@ export function App() {
             {t('common.logout')}</button>
         )}
       </header>
+      {actionCutinSettingState.errorKind && <section class="notice" role="alert">
+        <p>{t(actionCutinSettingState.errorKind === 'read' ? 'cutins.settingReadFailed' : 'cutins.settingWriteFailed')}</p>
+        <button class="secondary" onClick={() => updateActionCutinSetting(ACTION_CUTIN_DEFAULT_SECONDS)}>{t('cutins.restoreDefault')}</button>
+      </section>}
       {!loading && <FieldInterruptionNotice interruption={state?.me.lastFieldInterruption} battleId={battle?.id} />}
       {!state ? (
         <main class="welcome">
@@ -597,8 +602,9 @@ export function App() {
           <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
           <label class="action-cutin-setting">{t('cutins.show')}
-            <select value={actionCutinDurationSeconds}
+            <select value={actionCutinSettingState.durationSeconds ?? ""}
               onChange={settingChangeEvent => updateActionCutinSetting(parseActionCutinDuration(settingChangeEvent.currentTarget.value))}>
+              {actionCutinSettingState.durationSeconds === null && <option value="" disabled>{t('cutins.settingUnavailable')}</option>}
               {ACTION_CUTIN_DURATION_OPTIONS.map(actionCutinOptionSeconds => <option key={actionCutinOptionSeconds} value={actionCutinOptionSeconds}>
                 {actionCutinOptionSeconds === 0 ? t('cutins.off') : t('cutins.seconds', { seconds: actionCutinOptionSeconds })}
               </option>)}

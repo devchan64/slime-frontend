@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 
 const { outputFiles: actionCutinBuildOutputs } = await build({ entryPoints: ['src/ui/actionCutins.ts'], bundle: true, write: false, format: 'esm', platform: 'node' });
-const { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, readActionCutinSetting, findActionCutinPresentation, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_LEGACY_KEY, ACTION_CUTIN_ACTION_PRESENTATIONS } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinBuildOutputs[0].text).toString('base64')}`);
+const { loadActionCutinPreference, saveActionCutinPreference, ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, readActionCutinSetting, findActionCutinPresentation, ACTION_CUTIN_SETTING_KEY, ACTION_CUTIN_LEGACY_KEY, ACTION_CUTIN_ACTION_PRESENTATIONS } = await import(`data:text/javascript;base64,${Buffer.from(actionCutinBuildOutputs[0].text).toString('base64')}`);
 function createActionCutinEvent(actionSequenceValue, actionTypeValue = 'ATTACK') {
   return { battleId: 'battle-one', actionId: `battle-one:${actionSequenceValue}`, sequence: actionSequenceValue, actionType: actionTypeValue, unitId:'actor-one', actorName:'모험가', skillId:actionTypeValue==='SKILL'?'physical':null, appearance:{kind:'monster',group:'slime'} };
 }
@@ -168,4 +168,25 @@ test('탭 숨김은 현재·대기 컷인을 비우고 복귀 및 해제 후에�
   const dispose_hidden_watch = watchActionCutinVisibility(current_document_source, () => { current_clear_count += 1; });
   assert.equal(current_clear_count, 2);
   dispose_hidden_watch();
+});
+
+
+test('손상·접근 거절 설정은 명시적 오류이며 성공한 저장만 화면 설정을 변경한다', () => {
+  const current_storage_values = new Map([[ACTION_CUTIN_SETTING_KEY, 'broken']]);
+  const current_storage_provider = () => ({
+    getItem: current_storage_key => current_storage_values.get(current_storage_key) ?? null,
+    setItem: (current_storage_key, current_storage_value) => current_storage_values.set(current_storage_key, current_storage_value),
+  });
+  const current_broken_state = loadActionCutinPreference(current_storage_provider);
+  assert.deepEqual(current_broken_state, {durationSeconds:null, errorKind:'read'});
+  assert.equal(current_storage_values.get(ACTION_CUTIN_SETTING_KEY), 'broken');
+  const denied_storage_provider = () => { throw new Error('storage denied'); };
+  assert.deepEqual(loadActionCutinPreference(denied_storage_provider), current_broken_state);
+  assert.deepEqual(saveActionCutinPreference(denied_storage_provider, current_broken_state, 3), {durationSeconds:null, errorKind:'write'});
+  const current_restored_state = saveActionCutinPreference(current_storage_provider, current_broken_state, 3);
+  assert.deepEqual(current_restored_state, {durationSeconds:3, errorKind:null});
+  assert.deepEqual(loadActionCutinPreference(current_storage_provider), current_restored_state);
+  assert.deepEqual(saveActionCutinPreference(() => ({setItem() {throw new Error('quota');}}), current_restored_state, 0), {durationSeconds:3, errorKind:'write'});
+  assert.equal(current_storage_values.get(ACTION_CUTIN_SETTING_KEY), '3');
+  assert.throws(() => saveActionCutinPreference(current_storage_provider, current_restored_state, 9), /설정/);
 });

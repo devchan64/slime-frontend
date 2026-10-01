@@ -6,3 +6,8 @@ attack: Basic attack
 imageFailed: Failed to load the Action Cut-in image.
 seconds: "{seconds} seconds"
 off: Off
+
+settingReadFailed: Cut-ins are suspended because the setting could not be read. Restore the default or choose a duration in Game settings.
+settingWriteFailed: Could not save the cut-in setting. The previous setting is unchanged. Allow browser storage access and try again.
+restoreDefault: Restore default (3 seconds)
+settingUnavailable: Setting needs attention
