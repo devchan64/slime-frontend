@@ -68,6 +68,8 @@ hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
 loans [다음커서]        대여 파티원 목록
 loans participation     대여 전투 참가 예상·제외 사유
 loans remove 대여ID      편성 해제(계약 유지)
+loans candidates 길드ID [다음커서]  모집 후보 조회
+loans add 길드ID 캐릭터ID  조회한 후보를 대여 편성
 retry                  결과 불명 명령을 같은 요청 ID로 재확인
 help / quit            도움말 / 로그아웃 후 종료`;
 
