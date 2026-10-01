@@ -6,12 +6,17 @@ import {createPositionIdentity} from '../client/positionIdentity';
 import {validateParcelListing,validateParcelReceipt,type ParcelListing,type ParcelAttachment} from '../client/parcel-validation.mjs';
 import {useTranslation} from '../i18n';
 
+const PARCEL_EXPIRATION_REFRESH_MILLISECONDS=1000;
+
 export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
  const {t:translateParcelText,locale:currentParcelLocale}=useTranslation();
  const [currentParcelListing,setCurrentParcelListing]=useState<ParcelListing|null>(null);
  const [currentParcelNotice,setCurrentParcelNotice]=useState<Notice>('');
  const [currentRequestPending,setCurrentRequestPending]=useState(false);
  const [currentUncertainParcel,setCurrentUncertainParcel]=useState<string|null>(null);
+ const currentListingClock=useRef<{serverTime:number;receivedAt:number}|null>(null);
+ const [currentDisplayTime,setCurrentDisplayTime]=useState(0);
+ function readParcelServerTime(){return currentListingClock.current?currentListingClock.current.serverTime+(performance.now()-currentListingClock.current.receivedAt)/1000:0;}
  const currentActiveReference=useRef(false);
  const currentPendingReference=useRef(false);
  const currentOriginalRequest=useRef<{parcelId:string;expectedVersion:number}|null>(null);
@@ -24,12 +29,16 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
   currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentParcelNotice('');
   try{
    const currentResponseRecord=validateParcelListing(await gameSessionClient.request(currentEndpointPrefix+(currentAfterCursor?'?after='+encodeURIComponent(currentAfterCursor):'')));
-   if(parcelContextMatches())setCurrentParcelListing(currentResponseRecord);
+   if(parcelContextMatches()){currentListingClock.current={serverTime:currentResponseRecord.serverTime,receivedAt:performance.now()};setCurrentDisplayTime(currentResponseRecord.serverTime);setCurrentParcelListing(currentResponseRecord);}
   }catch(currentRequestError){if(parcelContextMatches())setCurrentParcelNotice(currentRequestError as Error);}
   finally{currentPendingReference.current=false;if(parcelContextMatches())setCurrentRequestPending(false);}
  }
  async function claimParcelEntry(currentParcelIdentifier:string){
   if(actionsAreDisabled||currentPendingReference.current||!parcelContextMatches()||(!currentOriginalRequest.current&&!currentParcelListing))return;
+  if(!currentOriginalRequest.current){
+   const currentSelectedParcel=currentParcelListing!.entries.find(currentParcelEntry=>currentParcelEntry.parcelId===currentParcelIdentifier);
+   if(!currentSelectedParcel||currentSelectedParcel.expiresAt<=readParcelServerTime()){setCurrentDisplayTime(readParcelServerTime());setCurrentParcelNotice({key:'parcels.expired'});return;}
+  }
   const currentRequestRecord=currentOriginalRequest.current??{parcelId:currentParcelIdentifier,expectedVersion:currentParcelListing!.characterVersion};
   if(currentRequestRecord.parcelId!==currentParcelIdentifier)return;
   currentOriginalRequest.current=currentRequestRecord;currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentParcelNotice('');
@@ -52,6 +61,11 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
   if(currentAttachmentRecord.kind==='costume')return translateParcelText('parcels.costume',{name:currentAttachmentRecord.costumeId});
   return translateParcelText('parcels.item',{name:currentAttachmentRecord.itemId,quantity:currentAttachmentRecord.quantity});
  }
+ useEffect(()=>{
+  if(!currentParcelListing)return;
+  const currentExpirationTimer=window.setInterval(()=>setCurrentDisplayTime(readParcelServerTime()),PARCEL_EXPIRATION_REFRESH_MILLISECONDS);
+  return()=>window.clearInterval(currentExpirationTimer);
+ },[currentParcelListing]);
  useEffect(()=>{currentActiveReference.current=true;return()=>{currentActiveReference.current=false;};},[]);
  return <section class="guild-trade-panel" aria-label={translateParcelText('parcels.title')}>
   <h3>{translateParcelText('parcels.title')}</h3><p>{translateParcelText('parcels.help')}</p>
@@ -60,7 +74,8 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
   {currentParcelListing?.entries.map(currentParcelEntry=><article key={currentParcelEntry.parcelId}>
    <ul>{currentParcelEntry.attachments.map((currentAttachmentRecord,currentAttachmentIndex)=><li key={currentAttachmentIndex}>{formatParcelAttachment(currentAttachmentRecord)}</li>)}</ul>
    <p>{translateParcelText('parcels.expires',{time:new Date(currentParcelEntry.expiresAt*1000).toLocaleString(currentParcelLocale)})}</p>
-   <button class="compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel} onClick={()=>void claimParcelEntry(currentParcelEntry.parcelId)}>{translateParcelText('parcels.claim')}</button>
+   {currentParcelEntry.expiresAt<=currentDisplayTime&&<p>{translateParcelText('parcels.expired')}</p>}
+   <button class="compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||currentParcelEntry.expiresAt<=currentDisplayTime} onClick={()=>void claimParcelEntry(currentParcelEntry.parcelId)}>{translateParcelText('parcels.claim')}</button>
   </article>)}
   {currentParcelListing?.nextCursor&&<button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel} onClick={()=>void loadParcelListing(currentParcelListing.nextCursor)}>{translateParcelText('parcels.next')}</button>}
   {currentUncertainParcel&&<><p>{translateParcelText('parcels.uncertain')}</p><button disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void claimParcelEntry(currentUncertainParcel)}>{translateParcelText('parcels.retry')}</button></>}

@@ -8,9 +8,10 @@ function assertParcelBrowser(currentConditionValue:unknown,currentMessageText:st
 let currentClaimAttempts=0;
 let currentOriginalPayload:unknown;
 let currentParcelClaimed=false;
+let currentParcelExpiry=100.5;
 const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoch:1,location:{id:'city-channel'},map:{id:'iseulon'},me:{id:'hero',version:4,mode:'FIELD',position:{column:1,row:1}}},
  request:async(currentRequestPath:string,currentRequestBody:any)=>{
-  if(!currentRequestPath.endsWith('/claim'))return {serverTime:100,characterVersion:4,nextCursor:null,entries:currentParcelClaimed?[]:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
+  if(!currentRequestPath.endsWith('/claim'))return {serverTime:100,characterVersion:4,nextCursor:null,entries:currentParcelClaimed?[]:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:currentParcelExpiry,attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
   currentClaimAttempts++;
   if(currentClaimAttempts===1){currentOriginalPayload=structuredClone(currentRequestBody);throw new TypeError('response lost');}
   assertParcelBrowser(JSON.stringify(currentRequestBody)===JSON.stringify(currentOriginalPayload),'재시도 원본 요청 유지');
@@ -31,11 +32,20 @@ async function clickParcelButton(currentTranslationKey:string){
  await clickParcelButton('parcels.claim');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.uncertain')),'응답 유실 안내');
  assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.refresh'))?.disabled,'결과 불명 중 목록 변경 차단');
+ await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1200));
+ assertParcelBrowser(document.body.textContent!.includes(t('parcels.expired')),'응답 유실 후 만료 도달');
  await clickParcelButton('parcels.retry');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.received')),'수령 완료 표시');
  assertParcelBrowser(currentClientStub.state.me.version===5,'수령 상태 반영');
  await clickParcelButton('parcels.refresh');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.empty')),'수령 후 빈 목록');
+ render(null,document.getElementById('root')!);currentParcelClaimed=false;currentParcelExpiry=100.5;
+ render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
+ await currentWaitRender();await clickParcelButton('parcels.refresh');
+ await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1200));
+ assertParcelBrowser(document.body.textContent!.includes(t('parcels.expired')),'열린 목록의 만료 안내');
+ assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.claim'))?.disabled,'만료 소포 신규 수령 차단');
+ assertParcelBrowser(currentClaimAttempts===2,'만료 표시가 수령 요청을 만들지 않음');
  assertParcelBrowser(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

@@ -12,3 +12,4 @@ money: "{amount}p"
 costume: "코스튬 {name}"
 item: "{name} × {quantity}"
 expires: "만료: {time}"
+expired: 보관기간이 끝났습니다. 목록을 새로고침하세요.
