@@ -1,3 +1,4 @@
+import {createPositionIdentity} from '../client/positionIdentity';
 import {ProcessingDetails} from './ProcessingDetails';
 import {RefiningCreatePanel} from './RefiningCreatePanel';
 import {useEffect,useRef,useState} from 'preact/hooks';
@@ -14,14 +15,14 @@ export function RefiningContractsPanel({gameSessionClient,currentFacilityIdentif
   const activePanelReference=useRef(false);
   const pendingRequestReference=useRef(false);
   const initialSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
-    character:gameSessionClient.state?.me.id,location:gameSessionClient.state?.location.id,position:JSON.stringify(gameSessionClient.state?.me.position)});
+    character:gameSessionClient.state?.me.id,location:gameSessionClient.state?.location.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   const currentRequestBase=`/v1/game/workshops/${encodeURIComponent(currentFacilityIdentifier)}/refining-contracts`;
   function matchesRefiningSession() {
     const currentClientState=gameSessionClient.state;
     return activePanelReference.current && gameSessionClient.tokens?.user_id===initialSessionReference.current.owner
       && currentClientState?.generation===initialSessionReference.current.generation && currentClientState?.me.id===initialSessionReference.current.character
       && currentClientState?.location.id===initialSessionReference.current.location && currentClientState?.me.mode==='FIELD'&&!currentClientState.me.battleId
-      && JSON.stringify(currentClientState.me.position)===initialSessionReference.current.position;
+      && createPositionIdentity(currentClientState.me.position)===initialSessionReference.current.position;
   }
   async function loadRefiningContracts(currentPageCursor:string|null=null,currentContractIdentifier?:string) {
     if(actionsAreDisabled || pendingRequestReference.current || !matchesRefiningSession()) return;

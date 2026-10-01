@@ -1,3 +1,4 @@
+import {createPositionIdentity} from '../client/positionIdentity';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
@@ -14,11 +15,11 @@ export function GuildRecruitmentPanel({gameSessionClient,currentFacilityIdentifi
   const activePanelReference=useRef(false);
   const pendingRequestReference=useRef(false);
   const initialSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
-    character:gameSessionClient.state?.me.id,map:gameSessionClient.state?.map.id,position:JSON.stringify(gameSessionClient.state?.me.position)});
+    character:gameSessionClient.state?.me.id,map:gameSessionClient.state?.map.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   function recruitmentSessionMatches(){return activePanelReference.current&&gameSessionClient.tokens?.user_id===initialSessionReference.current.owner
     &&gameSessionClient.state?.generation===initialSessionReference.current.generation&&gameSessionClient.state?.me.id===initialSessionReference.current.character
     &&gameSessionClient.state?.map.id===initialSessionReference.current.map&&gameSessionClient.state?.me.mode==='FIELD'
-    &&JSON.stringify(gameSessionClient.state?.me.position)===initialSessionReference.current.position;}
+    &&createPositionIdentity(gameSessionClient.state?.me.position)===initialSessionReference.current.position;}
   async function runRecruitmentRequest(currentRequestAction:()=>Promise<void>){
     if(actionsAreDisabled||pendingRequestReference.current||!recruitmentSessionMatches())return;
     pendingRequestReference.current=true;setCurrentRequestPending(true);setCurrentRecruitmentNotice('');

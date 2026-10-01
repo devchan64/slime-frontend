@@ -1,3 +1,4 @@
+import {createPositionIdentity} from '../client/positionIdentity';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
@@ -18,11 +19,11 @@ export function CitizenshipPricePanel({gameSessionClient,currentFacilityIdentifi
   const pendingRequestReference=useRef(false);
   const originalPurchaseReference=useRef<Record<string,unknown>|null>(null);
   const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
-    character:gameSessionClient.state?.me.id,position:JSON.stringify(gameSessionClient.state?.me.position),map:gameSessionClient.state?.map.id});
+    character:gameSessionClient.state?.me.id,position:createPositionIdentity(gameSessionClient.state?.me.position),map:gameSessionClient.state?.map.id});
   function citizenshipSessionMatches(){return activePanelReference.current&&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
     &&gameSessionClient.state?.generation===originalSessionReference.current.generation&&gameSessionClient.state?.me.id===originalSessionReference.current.character
     &&gameSessionClient.state?.map.id===originalSessionReference.current.map&&gameSessionClient.state?.me.mode==='FIELD'
-    &&JSON.stringify(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
+    &&createPositionIdentity(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
   async function requestCitizenshipPrice(){
     if(actionsAreDisabled||pendingRequestReference.current||!citizenshipSessionMatches())return;
     pendingRequestReference.current=true;setCurrentRequestPending(true);setCurrentPriceNotice('');setCurrentPriceQuote(null);

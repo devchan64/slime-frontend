@@ -38,6 +38,8 @@ for(const currentFirstSubmissionFails of [false,true])test('가공 의뢰 완료
   findRefiningButton(currentPanelTree,'workshop.refiningBrowse').props.onClick();await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
   currentPanelTree=renderRefiningPanel();findRefiningButton(currentPanelTree,'workshop.refiningQuote').props.onClick();await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
   currentPanelTree=renderRefiningPanel();const currentSubmitButton=findRefiningButton(currentPanelTree,'workshop.refiningSubmit');assert.ok(currentSubmitButton);
+  // 실제 이동 응답 뒤 상태 재조회는 좌표 객체의 필드 순서를 바꿀 수 있다.
+  currentClientMock.state.me.position={row:1,column:1};
   currentSubmitButton.props.onClick();currentSubmitButton.props.onClick();await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
   if(currentFirstSubmissionFails){
    assert.equal(currentCreatedNotifications,0);assert.equal(currentAcceptedCount,0);

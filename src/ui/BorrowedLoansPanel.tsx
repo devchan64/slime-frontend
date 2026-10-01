@@ -1,3 +1,4 @@
+import {createPositionIdentity} from '../client/positionIdentity';
 import { PartyFormationPanel } from './PartyFormationPanel';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
@@ -40,7 +41,7 @@ export function BorrowedLoansPanel({gameSessionClient, actionsAreDisabled}: {gam
   }, []);
   return <section aria-label={translateLoanText('loans.title')}>
     {gameSessionClient.state?.me.mode==='FIELD'&&<PartyFormationPanel
-      key={`${gameSessionClient.state.generation}:${gameSessionClient.state.map.id}:${JSON.stringify(gameSessionClient.state.me.position)}`}
+      key={`${gameSessionClient.state.generation}:${gameSessionClient.state.map.id}:${createPositionIdentity(gameSessionClient.state.me.position)}`}
       gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled} />}
     <p>{translateLoanText('loans.help')}</p>
     <p>{translateLoanText('loans.cpHelp')}</p>

@@ -1,3 +1,4 @@
+import {createPositionIdentity} from '../client/positionIdentity';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
@@ -20,11 +21,11 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
   const activePanelReference=useRef(false),pendingRequestReference=useRef(false);
   const originalCommandReference=useRef<PendingFormationRequest|null>(null);
   const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id,
-    map:gameSessionClient.state?.map.id,position:JSON.stringify(gameSessionClient.state?.me.position)});
+    map:gameSessionClient.state?.map.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   function formationSessionMatches(){return activePanelReference.current&&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
     &&gameSessionClient.state?.generation===originalSessionReference.current.generation&&gameSessionClient.state?.me.id===originalSessionReference.current.character
     &&gameSessionClient.state?.map.id===originalSessionReference.current.map&&gameSessionClient.state?.me.mode==='FIELD'
-    &&JSON.stringify(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
+    &&createPositionIdentity(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
   async function runFormationRequest(currentRequestAction:()=>Promise<void>){
     if(actionsAreDisabled||pendingRequestReference.current||!formationSessionMatches())return;
     pendingRequestReference.current=true;setCurrentRequestPending(true);setCurrentFormationNotice('');

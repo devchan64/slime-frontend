@@ -1,3 +1,4 @@
+import {createPositionIdentity} from '../client/positionIdentity';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseNpcDialogue,type NpcDialoguePage,type NpcQuestEntry} from '../client/npcDialogue';
@@ -14,12 +15,12 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   const activeDialogueReference=useRef(false);
   const pendingDialogueReference=useRef(false);
   const initialSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
-    character:gameSessionClient.state?.me.id,location:gameSessionClient.state?.location.id,position:JSON.stringify(gameSessionClient.state?.me.position)});
+    character:gameSessionClient.state?.me.id,location:gameSessionClient.state?.location.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   function dialogueSessionMatches(){
     return activeDialogueReference.current&&gameSessionClient.tokens?.user_id===initialSessionReference.current.owner
       &&gameSessionClient.state?.generation===initialSessionReference.current.generation&&gameSessionClient.state?.me.id===initialSessionReference.current.character
       &&gameSessionClient.state?.location.id===initialSessionReference.current.location&&gameSessionClient.state?.me.mode==='FIELD'
-      &&JSON.stringify(gameSessionClient.state?.me.position)===initialSessionReference.current.position;
+      &&createPositionIdentity(gameSessionClient.state?.me.position)===initialSessionReference.current.position;
   }
   async function loadNpcDialogue(){
     if(pendingDialogueReference.current||!dialogueSessionMatches())return;
