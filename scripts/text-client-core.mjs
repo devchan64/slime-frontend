@@ -249,7 +249,14 @@ export class TextClient {
     if (name === 'channels') {
       arity(0);
       if(!this.state?.map?.id)throw new Error('현재 맵 상태가 필요합니다. state로 먼저 조회하세요.');
-      return formatChannelListingOutput(await this.request('/v1/channels'),this.state.map.id);
+      const currentRequestTokens=this.tokens;
+      const currentChannelContext=JSON.stringify([this.state.me.id,this.state.generation,this.state.epoch,this.state.map.id]);
+      const currentRequestedMap=this.state.map.id;
+      const currentListingResponse=await this.request('/v1/channels');
+      if(this.tokens!==currentRequestTokens||!this.state
+        ||currentChannelContext!==JSON.stringify([this.state.me.id,this.state.generation,this.state.epoch,this.state.map?.id]))
+        throw new Error('채널 조회 중 맵·캐릭터·세션이 변경되었습니다. 다시 조회하세요.');
+      return formatChannelListingOutput(currentListingResponse,currentRequestedMap);
     }
     if (name === 'channel') {
       arity(2);

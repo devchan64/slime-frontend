@@ -787,3 +787,43 @@ for(const currentMismatchKind of ['character','generation']){
   assert.deepEqual(currentRequestCalls[0].body,currentRequestCalls[2].body);
  });
 }
+
+
+test('채널 조회 중 맵·캐릭터·세션 전환 시 이전 목록을 표시하지 않는다',async()=>{
+ for(const currentContextChange of [
+  currentTextClient=>{currentTextClient.state.map.id='city';},
+  currentTextClient=>{currentTextClient.state.me.id='another';},
+  currentTextClient=>{currentTextClient.state.generation+=1;},
+  currentTextClient=>{currentTextClient.state.epoch+=1;},
+  currentTextClient=>{currentTextClient.tokens={user_id:'hero',access_token:'new'};},
+  currentTextClient=>{currentTextClient.state=null;},
+ ]){
+  let releaseChannelResponse;
+  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async()=>{
+   await new Promise(currentResponseResolver=>{releaseChannelResponse=currentResponseResolver;});
+   return new Response(JSON.stringify([{id:'one',address:'a1',mapDefinitionId:'meadow',status:'OPEN'}]));
+  }});
+  currentTextClient.accept(state({map:{id:'meadow'}}));currentTextClient.state.me.id='hero';
+  currentTextClient.tokens={user_id:'hero',access_token:'old'};
+  const currentPendingListing=currentTextClient.execute('channels');
+  currentContextChange(currentTextClient);
+  const currentPreservedState=currentTextClient.state;
+  releaseChannelResponse();
+  await assert.rejects(currentPendingListing,/조회 중/);
+  assert.equal(currentTextClient.state,currentPreservedState);
+ }
+});
+
+test('같은 맵에서 일반 상태 버전만 갱신되면 채널 목록을 표시한다',async()=>{
+ let releaseChannelResponse;
+ const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async()=>{
+  await new Promise(currentResponseResolver=>{releaseChannelResponse=currentResponseResolver;});
+  return new Response(JSON.stringify([{id:'one',address:'a1',mapDefinitionId:'meadow',status:'OPEN'}]));
+ }});
+ currentTextClient.accept(state({map:{id:'meadow'}}));
+ const currentPendingListing=currentTextClient.execute('channels');
+ currentTextClient.state.me.version+=1;currentTextClient.state.cursor+=1;
+ releaseChannelResponse();
+ assert.match(await currentPendingListing,/a1 \[one\]/);
+ assert.equal(currentTextClient.state.me.version,5);
+});
