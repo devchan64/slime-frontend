@@ -668,7 +668,7 @@ function createTravelerCommandFixture(){
 
 test('텍스트 경비센터 조회·견적·발급은 확인한 5p와 요청 ID를 사용한다',async()=>{
  const {currentGameSnapshot,currentGuardEntry,currentQuoteResponse}=createTravelerCommandFixture();
- const {client:currentTextClient,calls:currentRequestCalls}=setup([currentQuoteResponse,new TypeError('network'),{state:state({cursor:2})}]);
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([currentQuoteResponse,new TypeError('network'),{state:{...currentGameSnapshot,cursor:2}}]);
  currentTextClient.accept(currentGameSnapshot);
  assert.match(await currentTextClient.execute('guards'),/이슬온 경비센터.*\(0,0\)/);assert.equal(currentRequestCalls.length,0);
  assert.match(await currentTextClient.execute('permit quote '+currentGuardEntry.id),/5p.*7일.*60초/);
@@ -759,3 +759,31 @@ test('자동 재시도의 확정 거절은 대기 명령을 해제한다',async(
  await assert.rejects(currentTextClient.execute('enter'),/거절/);
  await currentTextClient.execute('away');
 });
+
+
+for(const currentMismatchKind of ['character','generation']){
+ test(`명령 응답의 ${currentMismatchKind} 불일치는 상태를 보존하고 같은 요청으로 복구한다`,async()=>{
+  const currentInitialState=state();
+  currentInitialState.me.id='current-owner';
+  const currentForeignState=structuredClone(currentInitialState);
+  currentForeignState.cursor=2;
+  if(currentMismatchKind==='character')currentForeignState.me.id='other-owner';
+  else currentForeignState.generation=2;
+  const currentValidState=structuredClone(currentInitialState);
+  currentValidState.cursor=2;
+  currentValidState.me.version=5;
+  const {client:currentTextClient,calls:currentRequestCalls}=setup([
+   {state:currentForeignState},{state:currentForeignState},{state:currentValidState},
+  ]);
+  currentTextClient.accept(currentInitialState);
+  await assert.rejects(currentTextClient.execute('move 1 2'),/retry/);
+  assert.deepEqual(currentTextClient.state,currentInitialState);
+  assert.ok(currentTextClient.pendingCommandRequest);
+  await currentTextClient.execute('retry');
+  assert.deepEqual(currentTextClient.state,currentValidState);
+  assert.equal(currentTextClient.pendingCommandRequest,null);
+  assert.equal(currentRequestCalls.length,3);
+  assert.deepEqual(currentRequestCalls[0].body,currentRequestCalls[1].body);
+  assert.deepEqual(currentRequestCalls[0].body,currentRequestCalls[2].body);
+ });
+}

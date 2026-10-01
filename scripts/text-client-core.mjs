@@ -125,7 +125,13 @@ export class TextClient {
               ||!Number.isSafeInteger(currentFetchedState.me.version)||currentFetchedState.me.version<currentReceiptVersion)
               throw new Error('명령 이후 상태가 현재 캐릭터·세션과 일치하지 않습니다.');
             this.accept(currentFetchedState);
-          }else this.accept(currentCommandResult.state);
+          }else{
+            const currentResponseState=currentCommandResult.state;
+            if(currentResponseState?.me?.id!==currentPendingCommand.characterId
+              ||currentResponseState?.generation!==currentPendingCommand.generation)
+              throw new ApiFailure('INVALID_API_RESPONSE','명령 응답의 캐릭터·세션이 요청 대상과 일치하지 않습니다.');
+            this.accept(currentResponseState);
+          }
         }catch(currentRequestError){
           this.requirePendingCommandOwnership(currentPendingCommand);
           const currentOutcomeUncertain=!!currentPendingCommand.confirmedCommandResult||!(currentRequestError instanceof ApiFailure)||currentRequestError.status>=500||currentRequestError.code==='INVALID_API_RESPONSE';
