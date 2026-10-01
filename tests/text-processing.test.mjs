@@ -69,3 +69,19 @@ test('다른 시설의 목록·계약을 표시하지 않고 HTTP 거절을 재�
  await assert.rejects(currentTextClient.execute('processing claim city-workshop '+PROCESSING_TEST_CONTRACT),/상태 변경/);
  assert.equal(currentRequestEntries.length,2);
 });
+
+
+test('가공 수령 응답을 연속 유실해도 원래 버전으로 결과를 재확인한다',async()=>{
+ const {currentTextClient,currentRequestEntries}=setupProcessingClient([new TypeError('첫 응답 유실'),new TypeError('재전송 응답 유실'),{state:createProcessingState(5)}]);
+ await assert.rejects(currentTextClient.execute('processing claim city-workshop '+PROCESSING_TEST_CONTRACT),/retry/);
+ assert.ok(currentTextClient.pendingCommandRequest);
+ currentTextClient.accept(createProcessingState(5));
+ await assert.rejects(currentTextClient.execute('processing claim city-workshop '+PROCESSING_TEST_CONTRACT),/retry/);
+ await currentTextClient.execute('retry');
+ assert.equal(currentTextClient.pendingCommandRequest,null);
+ assert.equal(currentRequestEntries.length,3);
+ for(const currentRequestEntry of currentRequestEntries){
+  assert.deepEqual(currentRequestEntry,currentRequestEntries[0]);
+  assert.deepEqual(currentRequestEntry.body,{expectedVersion:4});
+ }
+});

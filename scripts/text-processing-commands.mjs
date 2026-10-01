@@ -66,13 +66,5 @@ export async function executeProcessingCommand(currentTextClient,currentCommandA
   if(!PROCESSING_CONTRACT_PATTERN.test(currentActionArguments[0]))throw new Error('목록에 표시된 계약 UUID를 입력하세요.');
   // 수령 API는 계약 ID 자체로 멱등 처리하며 requestId 필드를 받지 않는다.
   const currentClaimPath=currentRequestPrefix+'contracts/'+encodeURIComponent(currentActionArguments[0])+'/claim';
-  const currentClaimPayload={expectedVersion:currentGameState.me.version};
-  let currentClaimResponse;
-  try{currentClaimResponse=await currentTextClient.request(currentClaimPath,currentClaimPayload);}
-  catch(currentRequestError){
-    if(currentRequestError.code){if(currentRequestError.code==='VERSION_CONFLICT')await currentTextClient.snapshot();throw currentRequestError;}
-    currentClaimResponse=await currentTextClient.request(currentClaimPath,currentClaimPayload);
-  }
-  currentTextClient.accept(currentClaimResponse.state);
-  return currentTextClient.state;
+  return currentTextClient.command(currentClaimPath,{},undefined,{includeRequestIdentifier:false});
 }

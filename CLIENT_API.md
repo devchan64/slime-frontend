@@ -189,7 +189,7 @@ node scripts/text-client.mjs --help
 - `processing quote 시설ID 재료ID 등급 수량`: `low`·`medium`·`high`와 1~1000개로 견적 조회
 - `processing create 시설ID`: 직전에 확인한 해당 시설의 견적으로 계약 확정
 - `processing contracts 시설ID [다음커서]`: 계약 상태와 다음 페이지 조회
-- `processing claim 시설ID 계약ID`: 완성 가공재 수령
+- `processing claim 시설ID 계약ID`: 완성 가공재 수령. 연속 응답 유실 시 공용 `retry`로 원래 계약·상태 버전의 결과를 재확인한다. 결과 확인 전에는 다른 변경 명령을 보내지 않는다.
 
 조회는 상태·재료·돈을 변경하지 않습니다. 견적 이후 캐릭터 버전·세션·채널·위치가 바뀌면 새 견적이 필요합니다. 작업장 접근과 실제 잔고·재료·완료 시각은 서버가 최종 검증합니다. 생성은 기존 명령의 요청 ID·기대 버전·동일 본문 재시도를 사용합니다. 수령 API는 계약 ID로 멱등 처리하므로 `expectedVersion`만 보내며 전송 오류 시 동일 본문으로 한 번 재시도합니다. HTTP 오류는 자동 재실행하지 않습니다.
 
