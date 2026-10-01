@@ -454,3 +454,57 @@ test('연결 취소 이후 늦게 도착한 채팅 티켓으로 소켓을 만들
   assert.equal(createdSocketCount,0);
  } finally {activeGameClient.disconnect();globalThis.WebSocket=originalSocketClass;globalThis.location=originalLocationValue;}
 });
+
+test('주소 이동 명령 뒤 이전 채널 메시지를 버리고 새 채널에 연결한다', async()=>{
+ const originalSocketClass=globalThis.WebSocket, originalLocationValue=globalThis.location;
+ const createdSocketEntries=[],receivedChatEntries=[],issuedCommandEntries=[];
+ class ChannelSocketDouble {static OPEN=1;readyState=1;closed=false;constructor(){createdSocketEntries.push(this);}send(){}close(){this.closed=true;this.onclose?.();}}
+ const activeGameClient=new Client();
+ const initialChannelState={protocolVersion:1,generation:1,epoch:2,cursor:8,me:{version:7},map:{id:'meadow'},channel:{id:'channel-one',address:'a1',mapDefinitionId:'meadow'},location:{id:'channel-one',chatRoomId:'channel-one'}};
+ const movedChannelState={...initialChannelState,epoch:3,cursor:1,me:{version:8},channel:{id:'channel-two',address:'aa22',mapDefinitionId:'meadow'},location:{id:'channel-two',chatRoomId:'channel-two'}};
+ const deliverChannelMessages=(currentSocketEntry,currentGameSnapshot,currentMessageText)=>currentSocketEntry.onmessage({data:JSON.stringify({type:'chat',generation:currentGameSnapshot.generation,epoch:currentGameSnapshot.epoch,room:currentGameSnapshot.location.chatRoomId,messages:[{text:currentMessageText}]})});
+ try {
+  globalThis.WebSocket=ChannelSocketDouble;globalThis.location={href:'http://localhost/'};
+  activeGameClient.stopped=false;activeGameClient.accept(initialChannelState);
+  activeGameClient.onChat=currentChatMessages=>receivedChatEntries.push(currentChatMessages);
+  activeGameClient.request=async(currentRequestPath,currentRequestBody)=>{
+   if(currentRequestPath==='/v1/chat/tickets')return {ticket:'test-ticket'};
+   assert.equal(currentRequestPath,'/v1/channels/joins');issuedCommandEntries.push(currentRequestBody);
+   return {state:movedChannelState};
+  };
+  const initialChatConnection=activeGameClient.connectChat();await Promise.resolve();
+  deliverChannelMessages(createdSocketEntries[0],initialChannelState,'이전 방');await initialChatConnection;
+  await activeGameClient.command('/v1/channels/joins',{address:'aa22'});
+  assert.equal(issuedCommandEntries[0].address,'aa22');assert.equal(issuedCommandEntries[0].expectedVersion,7);assert.ok(issuedCommandEntries[0].requestId);
+  assert.equal(createdSocketEntries[0].closed,true);assert.deepEqual(receivedChatEntries.at(-1),[]);
+  const currentChatEntryCount=receivedChatEntries.length;
+  deliverChannelMessages(createdSocketEntries[0],initialChannelState,'늦은 이전 방 메시지');
+  assert.equal(receivedChatEntries.length,currentChatEntryCount);
+  activeGameClient.accept({...initialChannelState,cursor:999});
+  assert.equal(activeGameClient.state.channel.id,'channel-two');
+  const movedChatConnection=activeGameClient.connectChat();await Promise.resolve();
+  deliverChannelMessages(createdSocketEntries[1],movedChannelState,'새 방');await movedChatConnection;
+  assert.deepEqual(receivedChatEntries.at(-1),[{text:'새 방'}]);
+  createdSocketEntries[0].onclose();
+  assert.equal(createdSocketEntries[1].closed,false);
+  assert.equal(activeGameClient.state.map.id,'meadow');
+ } finally {activeGameClient.disconnect();globalThis.WebSocket=originalSocketClass;globalThis.location=originalLocationValue;}
+});
+
+test('채널 이동 전에 발급 중이던 채팅 티켓은 이동 후 사용할 수 없다', async()=>{
+ const originalSocketClass=globalThis.WebSocket, originalLocationValue=globalThis.location;
+ let finishTicketRequest,createdSocketCount=0;
+ class ChannelSocketDouble {static OPEN=1;constructor(){createdSocketCount++;}close(){}}
+ const activeGameClient=new Client();
+ const initialChannelState={protocolVersion:1,generation:1,epoch:2,cursor:8,me:{version:7},location:{id:'channel-one',chatRoomId:'channel-one'}};
+ try {
+  globalThis.WebSocket=ChannelSocketDouble;globalThis.location={href:'http://localhost/'};
+  activeGameClient.stopped=false;activeGameClient.accept(initialChannelState);
+  activeGameClient.request=()=>new Promise(resolveTicketRequest=>finishTicketRequest=resolveTicketRequest);
+  const pendingChatConnection=activeGameClient.connectChat();
+  const rejectedChatConnection=assert.rejects(pendingChatConnection,/맵이 변경/);
+  activeGameClient.accept({...initialChannelState,epoch:3,cursor:1,location:{id:'channel-two',chatRoomId:'channel-two'}});
+  finishTicketRequest({ticket:'previous-channel-ticket'});await rejectedChatConnection;
+  assert.equal(createdSocketCount,0);assert.equal(activeGameClient.state.location.id,'channel-two');
+ } finally {activeGameClient.disconnect();globalThis.WebSocket=originalSocketClass;globalThis.location=originalLocationValue;}
+});
