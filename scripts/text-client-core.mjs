@@ -1,4 +1,4 @@
-import {readBorrowedParticipation} from './text-borrowed-participation.mjs';
+import {readBorrowedParticipation,removeBorrowedParticipant} from './text-borrowed-participation.mjs';
 import {executeEquipmentCommand} from './text-equipment-commands.mjs';
 import {executeWorkshopCommand} from './text-workshop-commands.mjs';
 import {executeConsumableCommand} from './text-consumable-commands.mjs';
@@ -189,7 +189,8 @@ export class TextClient {
     const [name, ...args] = line.trim().split(/\s+/);
     const arity = n => { if (args.length !== n) throw new Error('명령 인수를 확인하세요. help로 사용법을 볼 수 있습니다.'); };
     if(name==='retry'){arity(0);return this.submitPendingCommand();}
-    if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','loans','costumes'].includes(name)
+    if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','costumes'].includes(name)
+      &&!(name==='loans'&&args[0]!=='remove')
       &&!(name==='citizenship'&&['list','guilds'].includes(args[0]))
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
       &&!(name==='npc'&&['list','talk'].includes(args[0]))
@@ -317,6 +318,7 @@ export class TextClient {
       return formatMainEventJournal(await this.request('/v1/game/main-events'));
     }
     if (name === 'loans') {
+      if(args[0]==='remove'){arity(2);return removeBorrowedParticipant(this,args[1]);}
       if(args[0]==='participation'){arity(1);return readBorrowedParticipation(this);}
       if (args.length > 1) throw new Error('loans 또는 loans 다음커서로 입력하세요.');
       return formatBorrowedLoanPage(await this.request('/v1/game/loans' + (args.length ? '?after=' + encodeURIComponent(args[0]) : '')));

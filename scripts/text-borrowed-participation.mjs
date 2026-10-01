@@ -1,3 +1,4 @@
+import {validatePartyFormationReceipt} from '../src/client/party-formation-receipt.mjs';
 import {parseBorrowedParticipation} from '../src/client/borrowed-participation-validation.mjs';
 
 const BORROWED_PARTICIPATION_REASONS=Object.freeze({
@@ -26,4 +27,20 @@ export async function readBorrowedParticipation(currentTextClient){
  if(!currentParticipationRecord.participants.length&&!currentParticipationRecord.excluded.length)currentOutputLines.push('편성된 대여 파티원이 없습니다.');
  currentOutputLines.push('실제 전투 시작 시 서버가 참가 조건을 다시 확인합니다.');
  return currentOutputLines.join('\n');
+}
+
+
+export async function removeBorrowedParticipant(currentTextClient,currentLoanIdentifier){
+ if(typeof currentLoanIdentifier!=='string'||!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(currentLoanIdentifier))
+  throw new Error('loans remove 대여ID(UUID)로 입력하세요.');
+ const currentGameState=currentTextClient.state;
+ if(currentGameState?.me.mode!=='FIELD'||currentGameState.battle||currentGameState.reservation)
+  throw new Error('전투·조우를 종료한 뒤 대여 편성을 변경하세요.');
+ const currentSelectedLoan=currentLoanIdentifier.toLowerCase();
+ return currentTextClient.command('/v1/game/borrowed-party/'+currentSelectedLoan+'/remove',{},
+  ()=>`편성 해제: ${currentSelectedLoan} · 기존 대여 계약은 유지됩니다.`,{
+   validateCommandResponse:(currentResponseRecord,currentRequestPayload)=>{
+    validatePartyFormationReceipt(currentResponseRecord.receipt,currentRequestPayload.requestId,'REMOVE',currentSelectedLoan);
+   },
+  });
 }

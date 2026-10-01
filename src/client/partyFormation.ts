@@ -18,11 +18,4 @@ export function parsePartyCandidatePage(currentResponseValue:any,currentCityIden
   }
   return {...currentResponseValue,entries:currentCombinedEntries};
 }
-export function validatePartyFormationReceipt(currentReceiptValue:any,currentRequestIdentifier:string,currentActionName:'ADD'|'REMOVE',currentRemovedLoan?:string){
-  if(!currentReceiptValue||currentReceiptValue.requestId!==currentRequestIdentifier||currentReceiptValue.action!==currentActionName
-    ||typeof currentReceiptValue.loanId!=='string'||!currentReceiptValue.loanId||!Array.isArray(currentReceiptValue.loanIds)
-    ||currentReceiptValue.loanIds.length>3||currentReceiptValue.loanIds.some((currentLoanIdentifier:unknown)=>typeof currentLoanIdentifier!=='string'||!currentLoanIdentifier)
-    ||new Set(currentReceiptValue.loanIds).size!==currentReceiptValue.loanIds.length||!Number.isFinite(currentReceiptValue.completedAt)
-    ||(currentActionName==='REMOVE'&&(currentReceiptValue.loanId!==currentRemovedLoan||currentReceiptValue.loanIds.includes(currentRemovedLoan)))
-    ||(currentActionName==='ADD'&&!currentReceiptValue.loanIds.includes(currentReceiptValue.loanId)))throw new Error('파티 편성 결과가 요청과 다릅니다.');
-}
+export {validatePartyFormationReceipt} from './party-formation-receipt.mjs';
