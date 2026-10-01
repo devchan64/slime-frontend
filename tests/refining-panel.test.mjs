@@ -34,3 +34,26 @@ test('정제 수령은 원래 세션에서 한 번 요청하고 상태·목록�
   }finally{currentCleanupCallbacks.forEach(currentCleanup=>currentCleanup?.());globalThis.refiningHarness=previousTestHarness;}
  }
 });
+
+test('가공 생성 완료 알림은 첫 계약 페이지를 갱신하고 떠난 세션에서는 조회하지 않는다',async()=>{
+ for(const changeSessionBeforeNotification of [false,true]){
+  const currentRequestCalls=[],currentStoredPages=[];
+  let currentStateIndex=0;
+  const currentContractPage={serverTime:150,characterVersion:2,nextCursor:null,entries:[]};
+  const currentClientMock={tokens:{user_id:'owner'},state:{generation:1,location:{id:'city'},me:{id:'character',mode:'FIELD',battleId:null,position:{column:1,row:1},version:2}},request:async(currentRequestPath)=>{currentRequestCalls.push(currentRequestPath);return currentContractPage;}};
+  const previousTestHarness=globalThis.refiningHarness;
+  globalThis.refiningHarness={effects:[],useState:currentInitialValue=>{const currentSlotIndex=currentStateIndex++;return [currentInitialValue,currentNextValue=>{if(currentSlotIndex===0)currentStoredPages.push(currentNextValue);}];}};
+  let currentCleanupCallbacks=[];
+  try{
+   const currentPanelTree=RefiningContractsPanel({gameSessionClient:currentClientMock,currentFacilityIdentifier:'workshop',actionsAreDisabled:false});
+   currentCleanupCallbacks=globalThis.refiningHarness.effects.map(currentEffect=>currentEffect());
+   const currentCreatePanel=currentPanelTree.props.children[0];
+   assert.equal(typeof currentCreatePanel.props.onRefiningCreated,'function');
+   if(changeSessionBeforeNotification)currentClientMock.state.generation++;
+   currentCreatePanel.props.onRefiningCreated();
+   await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
+   assert.deepEqual(currentRequestCalls,changeSessionBeforeNotification?[]:['/v1/game/workshops/workshop/refining-contracts']);
+   assert.deepEqual(currentStoredPages,changeSessionBeforeNotification?[]:[currentContractPage]);
+  }finally{currentCleanupCallbacks.forEach(currentCleanup=>currentCleanup?.());globalThis.refiningHarness=previousTestHarness;}
+ }
+});

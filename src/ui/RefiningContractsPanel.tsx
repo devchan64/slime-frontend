@@ -40,7 +40,7 @@ export function RefiningContractsPanel({gameSessionClient,currentFacilityIdentif
   }
   useEffect(()=>{activePanelReference.current=true;return ()=>{activePanelReference.current=false;};},[]);
   return <section class="workshop-panel">
-    <RefiningCreatePanel gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={actionsAreDisabled||currentRequestPending}/>
+    <RefiningCreatePanel gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={actionsAreDisabled||currentRequestPending} onRefiningCreated={()=>void loadRefiningContracts()}/>
     <h3>{translateRefiningText('workshop.refiningContracts')}</h3>
     <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void loadRefiningContracts()}>{translateRefiningText('journal.refresh')}</button>
     {currentRequestPending&&<p role="status">{translateRefiningText('workshop.pending')}</p>}

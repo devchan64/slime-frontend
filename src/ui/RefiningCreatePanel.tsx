@@ -6,7 +6,7 @@ import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
 const REFINING_MAXIMUM_QUANTITY=1000;
-export function RefiningCreatePanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function RefiningCreatePanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled,onRefiningCreated}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean;onRefiningCreated?:()=>void}){
  const {t:translateRefiningText,locale:currentRefiningLocale}=useTranslation();
  const [currentCatalogData,setCurrentCatalogData]=useState<RefiningCatalogData|null>(null);
  const [selectedRecipeIndex,setSelectedRecipeIndex]=useState(0);
@@ -43,7 +43,7 @@ export function RefiningCreatePanel({gameSessionClient,currentFacilityIdentifier
     const currentSavedQuote=currentSavedCommand.quote;
     const currentResponseData=await gameSessionClient.request(currentRequestBase+'contracts',{requestId:currentSavedCommand.requestId,expectedVersion:currentSavedQuote.characterVersion,
      collectionId:currentSavedQuote.quote.collectionId,grade:currentSavedQuote.quote.grade,quantity:currentSavedQuote.quote.outputQuantity,quoteToken:currentSavedQuote.quoteToken});
-    if(matchesRefiningSession()){gameSessionClient.accept(currentResponseData.state);if(matchesRefiningSession()){currentCommandReference.current=null;setCurrentQuoteData(null);setCurrentRequestNotice(translateRefiningText('workshop.refiningCreated'));}}
+    if(matchesRefiningSession()){gameSessionClient.accept(currentResponseData.state);if(matchesRefiningSession()){currentCommandReference.current=null;setCurrentQuoteData(null);setCurrentRequestNotice(translateRefiningText('workshop.refiningCreated'));onRefiningCreated?.();}}
    }
   }catch(currentRequestError){if(matchesRefiningSession())setCurrentRequestNotice(currentRequestError as Error);}
   finally{pendingRequestReference.current=false;if(matchesRefiningSession())setCurrentRequestPending(false);}
