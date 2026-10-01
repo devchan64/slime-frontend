@@ -17,11 +17,16 @@ export async function executeParcelCommand(currentTextClient,currentCommandArgum
  const currentEndpointPrefix='/v1/game/guilds/'+currentFacilityIdentifier+'/parcels';
  const currentListingContext=captureParcelListingContext(currentTextClient);
  if(currentActionName==='list'){
+  const currentPreviousListing=currentTextClient.parcelListingReceiptContext;
+  const currentRetainedEntries=currentParcelIdentifier&&currentPreviousListing?.context===currentListingContext&&currentPreviousListing.nextCursor===currentParcelIdentifier
+   ?currentPreviousListing.entries:[];
   currentTextClient.parcelListingReceiptContext=null;
   const currentListingRecord=await currentTextClient.request(currentEndpointPrefix+'?includeNames=true'+(currentParcelIdentifier?'&after='+currentParcelIdentifier:''));
   const currentListingText=formatParcelListing(currentListingRecord,'ko');
   if(captureParcelListingContext(currentTextClient)!==currentListingContext)throw new Error('소포 조회 중 캐릭터·세션·위치가 바뀌었습니다. 다시 조회하세요.');
-  currentTextClient.parcelListingReceiptContext={context:currentListingContext,entries:structuredClone(currentListingRecord.entries)};
+  const currentCombinedEntries=new Map(currentRetainedEntries.map(currentParcelEntry=>[currentParcelEntry.parcelId,currentParcelEntry]));
+  for(const currentParcelEntry of currentListingRecord.entries)currentCombinedEntries.set(currentParcelEntry.parcelId,currentParcelEntry);
+  currentTextClient.parcelListingReceiptContext={context:currentListingContext,nextCursor:currentListingRecord.nextCursor,entries:structuredClone([...currentCombinedEntries.values()])};
   return currentListingText;
  }
  const currentExpectedAttachments=currentTextClient.parcelListingReceiptContext?.context===currentListingContext

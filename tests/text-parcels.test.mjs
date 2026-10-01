@@ -79,3 +79,27 @@ test('조회 도중 세션이 바뀌면 이전 소포 목록을 표시하거나 
  await assert.rejects(()=>currentPendingListing,/세션·위치/);
  assert.equal(currentTextClient.parcelListingReceiptContext,null);
 });
+
+
+test('다음 페이지 조회 후에도 앞 페이지 소포의 첨부물을 대조한다',async()=>{
+ const currentNextParcelIdentifier='22222222-2222-4222-8222-222222222222';
+ const currentFirstListing={characterVersion:4,serverTime:100,nextCursor:CURRENT_PARCEL_IDENTIFIER,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null],attachments:[{kind:'money',amountP:7}]}]};
+ currentFirstListing.entries.unshift(...Array.from({length:99},(currentUnusedValue,currentParcelIndex)=>({...currentFirstListing.entries[0],parcelId:String(currentParcelIndex+3).padStart(8,'0')+'-1111-4111-8111-111111111111'})));
+ const currentSecondListing={...currentFirstListing,nextCursor:null,entries:[{...currentFirstListing.entries[0],parcelId:currentNextParcelIdentifier}]};
+ const currentWrongReceipt={state:{...createParcelState(),cursor:2},receipt:{...createParcelReceipt(),attachments:[{kind:'money',amountP:70}]}};
+ const {currentTextClient}=createParcelClient([currentFirstListing,currentSecondListing,currentWrongReceipt,currentWrongReceipt,{state:{...createParcelState(),cursor:2},receipt:createParcelReceipt()}]);
+ await currentTextClient.execute('parcels list iseulon-guild');
+ await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER);
+ await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
+ assert.equal(currentTextClient.state.cursor,1);
+ assert.match(await currentTextClient.execute('retry'),/수령 완료.*7p/);
+});
+
+test('목록을 처음부터 다시 조회하면 이전 페이지 검증 기준을 비운다',async()=>{
+ const currentFirstListing={characterVersion:4,serverTime:100,nextCursor:CURRENT_PARCEL_IDENTIFIER,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null],attachments:[{kind:'money',amountP:7}]}]};
+ currentFirstListing.entries.unshift(...Array.from({length:99},(currentUnusedValue,currentParcelIndex)=>({...currentFirstListing.entries[0],parcelId:String(currentParcelIndex+3).padStart(8,'0')+'-1111-4111-8111-111111111111'})));
+ const {currentTextClient}=createParcelClient([currentFirstListing,{...currentFirstListing,nextCursor:null,entries:[]}]);
+ await currentTextClient.execute('parcels list iseulon-guild');
+ await currentTextClient.execute('parcels list iseulon-guild');
+ assert.deepEqual(currentTextClient.parcelListingReceiptContext.entries,[]);
+});
