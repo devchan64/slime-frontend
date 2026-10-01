@@ -119,6 +119,7 @@ export type State = {
   map: Surface & {
     safeTown?: boolean;
     buildings?: CityBuilding[];
+    guardCenters?: import("./travelerIssuance").GuardCenterRecord[];
     id: string;
     name: string;
     nameTranslations?: Record<'ko' | 'en', string>;

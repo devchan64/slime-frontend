@@ -18,3 +18,12 @@ permitEmpty: No traveler certificates owned.
 permitOwner: Owner
 permitIssuer: Issuing guard center
 permitIssued: Issued
+
+permitPurchased: Traveler certificate issued. You can view it in your bag.
+permitPrice: Check traveler certificate fee
+permitQuote: 'Fee {price}p · Quote expires in {seconds}s'
+permitExpired: Quote expired. Check the fee again.
+permitPurchaseHelp: 'Pay {price}p to receive a traveler certificate valid for seven days from now.'
+permitRetry: Check the same issuance request again
+permitPurchase: Confirm traveler certificate issuance
+permitUncertain: The issuance outcome is unknown. Check again using the same request.

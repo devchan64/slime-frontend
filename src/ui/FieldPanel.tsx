@@ -3,6 +3,8 @@ import {FieldScouting} from './FieldScouting';
 import {MapKindIcon} from './MapKindIcon';
 import {PartyFormationPanel} from './PartyFormationPanel';
 import {GuildRecruitmentPanel} from './GuildRecruitmentPanel';
+import {TravelerPermitPanel} from './TravelerPermitPanel';
+import {findFieldGuardCenter} from '../client/travelerIssuance';
 import {CitizenshipPricePanel} from './CitizenshipPricePanel';
 import {GuildTradePanel} from './GuildTradePanel';
 import {SkillbookPanel} from './SkillbookPanel';
@@ -89,6 +91,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const here = sameCell(state.me.position, selected);
   const monsters = state.monsters.filter(m => m.state !== "COOLDOWN" && sameCell(m.position, selected));
   const gate = state.map.connections.find(g => sameCell(g, selected));
+  const selectedGuardCenter = gate ? findFieldGuardCenter(state.map,gate.id) : undefined;
   const safe = state.map.safeTown || fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
@@ -124,6 +127,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <GuildRecruitmentPanel
         key={`recruitment:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
+      {selectedGuardCenter && here && field && gameSessionClient && <TravelerPermitPanel
+        key={`permit:${state.generation}:${state.me.id}:${state.location.id}:${selectedGuardCenter.id}`}
+        gameSessionClient={gameSessionClient} currentGuardDefinition={selectedGuardCenter} actionsAreDisabled={disabled}/>}
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <CitizenshipPricePanel
         key={`price:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
