@@ -15,7 +15,14 @@ export function parseNpcDialogue(currentResponseValue) {
         || !Array.isArray(currentResponseValue.entries))
         throw new Error(INVALID_DIALOGUE_MESSAGE);
     for (const currentQuestEntry of currentResponseValue.entries) {
-        requireDialogueRecord(currentQuestEntry, ['eventId', 'title', 'status', 'dialogue', 'items', 'moneyP', 'action', 'canExecute', 'blockedReasons', 'giverNpcId', 'receiverNpcId']);
+        requireDialogueRecord(currentQuestEntry, ['eventId', 'title', 'status', 'dialogue', 'items', 'moneyP', 'action', 'canExecute', 'blockedReasons', 'giverNpcId', 'receiverNpcId', ...(Object.hasOwn(currentQuestEntry,'destination')?['destination']:[])]);
+        if(Object.hasOwn(currentQuestEntry,'destination')){
+            const currentDestinationData=currentQuestEntry.destination;
+            requireDialogueRecord(currentDestinationData,['npcId','name','cityId','facilityId','cityNameTranslations']);
+            requireDialogueRecord(currentDestinationData.cityNameTranslations,['ko','en']);
+            if(currentDestinationData.npcId!==currentQuestEntry.receiverNpcId
+                ||[currentDestinationData.npcId,currentDestinationData.name,currentDestinationData.cityId,currentDestinationData.facilityId,...Object.values(currentDestinationData.cityNameTranslations)].some(currentTextValue=>typeof currentTextValue!=='string'||!currentTextValue.trim()))throw new Error(INVALID_DIALOGUE_MESSAGE);
+        }
         if (!['AVAILABLE', 'LOCKED', 'ACCEPTED', 'COMPLETED'].includes(currentQuestEntry.status)
             || ![currentQuestEntry.dialogue, currentQuestEntry.giverNpcId, currentQuestEntry.receiverNpcId].every(currentTextValue => typeof currentTextValue === 'string' && !!currentTextValue.trim())
             || !Array.isArray(currentQuestEntry.blockedReasons) || new Set(currentQuestEntry.blockedReasons).size !== currentQuestEntry.blockedReasons.length

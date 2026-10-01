@@ -38,7 +38,7 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
         gameSessionClient.accept(refreshedCharacterState);
         if(!dialogueSessionMatches())return;
       }
-      const receivedDialoguePage=parseNpcDialogue(await gameSessionClient.request(`/v1/game/npcs/${encodeURIComponent(currentNpcIdentifier)}/main-events?language=${requestedDialogueLocale}`));
+      const receivedDialoguePage=parseNpcDialogue(await gameSessionClient.request(`/v1/game/npcs/${encodeURIComponent(currentNpcIdentifier)}/main-events?language=${requestedDialogueLocale}&includeDestination=true`));
       if(receivedDialoguePage.npc.id!==currentNpcIdentifier)throw new Error('대화 NPC가 요청과 다릅니다.');
       if(dialogueSessionMatches()&&requestedDialogueLocale===getLocale())setCurrentDialoguePage(receivedDialoguePage);
     }catch(currentRequestError){if(dialogueSessionMatches())setCurrentDialogueNotice(currentRequestError as Error);}
@@ -87,6 +87,7 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
       <ul class="npc-quest-list">{currentDialoguePage?.entries.map(currentQuestEntry=><li key={currentQuestEntry.eventId}>
         <strong>{currentQuestEntry.title}</strong><small>{translateDialogueText(`npc.${currentQuestEntry.status.toLowerCase()}`)}</small>
         <p>{currentQuestEntry.dialogue}</p>
+        {currentQuestEntry.destination&&<p>{translateDialogueText('npc.destination',{city:currentQuestEntry.destination.cityNameTranslations[currentDialogueLocale],name:currentQuestEntry.destination.name})}</p>}
         {currentQuestEntry.items.map(currentMaterialItem=><p key={currentMaterialItem.itemId}>{translateDialogueText('journal.material',{
           name:currentMaterialItem.nameTranslations[currentDialogueLocale],owned:currentMaterialItem.owned,required:currentMaterialItem.required})}</p>)}
         <p>{translateDialogueText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>

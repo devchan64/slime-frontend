@@ -26,3 +26,12 @@ test('알 수 없는 조건·중복 항목·실행 가능 불일치·잘못된 �
   currentFixture=>currentFixture.npc.expiresAt=42,
  ]){const currentInvalidFixture=structuredClone(currentDialogueFixture);mutateDialogueFixture(currentInvalidFixture);assert.throws(()=>parseNpcDialogue(currentInvalidFixture));}
 });
+
+test('선택 전달처는 수신 NPC와 일치하고 두 언어 도시명이 있어야 한다',()=>{
+ const currentDetailedFixture=structuredClone(currentDialogueFixture);
+ currentDetailedFixture.entries[0].destination={npcId:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market',cityNameTranslations:{ko:'이슬온',en:'Iseulon'}};
+ assert.deepEqual(parseNpcDialogue(currentDetailedFixture),currentDetailedFixture);
+ for(const mutateDestinationData of [currentDestinationData=>{currentDestinationData.npcId='other';},currentDestinationData=>{delete currentDestinationData.cityNameTranslations.en;},currentDestinationData=>{currentDestinationData.name=' ';},currentDestinationData=>{currentDestinationData.extra=true;}]){
+  const currentInvalidFixture=structuredClone(currentDetailedFixture);mutateDestinationData(currentInvalidFixture.entries[0].destination);assert.throws(()=>parseNpcDialogue(currentInvalidFixture));
+ }
+});

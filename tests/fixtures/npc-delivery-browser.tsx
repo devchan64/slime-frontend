@@ -15,7 +15,7 @@ const currentFixtureClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1
    if(currentDeliveryFailure==='response'){this.state.me.version++;throw new TypeError('테스트 응답 유실');}
    return {state:{...this.state,me:{...this.state.me,version:3}}};}
   if(currentRequestPath==='/v1/game/state')return structuredClone(this.state);
-  return {serverTime:30,characterVersion:this.state.me.version,npc:{id:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market'},acceptedCount:currentQuestCompleted?0:1,maximumAcceptedCount:5,entries:[{eventId:'first',title:'첫 납품',status:currentQuestCompleted?'COMPLETED':'ACCEPTED',dialogue:currentQuestCompleted?'고맙습니다.':'전달해 주세요.',items:[{itemId:'protein-jelly',required:2,owned:currentQuestCompleted||currentMaterialsMissing?1:3,nameTranslations:{ko:'단백질젤리',en:'Protein jelly'}}],moneyP:4,action:currentQuestCompleted?null:'complete',canExecute:!currentQuestCompleted&&!currentMaterialsMissing,blockedReasons:currentMaterialsMissing?['MATERIALS_REQUIRED']:[],giverNpcId:'npc',receiverNpcId:'npc'}]};
+  return {serverTime:30,characterVersion:this.state.me.version,npc:{id:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market'},acceptedCount:currentQuestCompleted?0:1,maximumAcceptedCount:5,entries:[{destination:{npcId:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market',cityNameTranslations:{ko:'이슬온',en:'Iseulon'}},eventId:'first',title:'첫 납품',status:currentQuestCompleted?'COMPLETED':'ACCEPTED',dialogue:currentQuestCompleted?'고맙습니다.':'전달해 주세요.',items:[{itemId:'protein-jelly',required:2,owned:currentQuestCompleted||currentMaterialsMissing?1:3,nameTranslations:{ko:'단백질젤리',en:'Protein jelly'}}],moneyP:4,action:currentQuestCompleted?null:'complete',canExecute:!currentQuestCompleted&&!currentMaterialsMissing,blockedReasons:currentMaterialsMissing?['MATERIALS_REQUIRED']:[],giverNpcId:'npc',receiverNpcId:'npc'}]};
  },accept(currentReceivedState:any){this.state=currentReceivedState;renderDeliveryPanel();},
 };
 function renderDeliveryPanel(){render(<NpcDialogue gameSessionClient={currentFixtureClient as unknown as Client} currentNpcIdentifier="npc" currentNpcName="모라" actionsAreDisabled={false} currentCharacterVersion={currentFixtureClient.state.me.version}/>,document.getElementById('root')!);}
@@ -26,6 +26,7 @@ async function clickDeliveryButton(currentTranslationKey:string){const currentBu
 (async()=>{try{
  setLocale(location.hash==='#en'?'en':'ko');renderDeliveryPanel();await waitRenderCycle();await waitRenderCycle();
  findNamedButton(t('npc.talk',{name:'모라'}))!.click();await waitRenderCycle();await waitRenderCycle();
+ verifyDeliveryCondition(document.body.textContent?.includes(t('npc.destination',{city:getLocale()==='ko'?'이슬온':'Iseulon',name:'모라'})),'전달 도시와 NPC 표시');
  await clickDeliveryButton('npc.complete');
  const currentReviewSection=document.querySelector('[aria-label="'+t('npc.deliveryReview')+'"]')!;
  verifyDeliveryCondition(currentReviewSection?.textContent?.includes(t('npc.deliveryCharacter',{name:'여행자'})),'선택한 캐릭터 표시');

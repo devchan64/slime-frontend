@@ -21,3 +21,4 @@ deliveryCharacter: 'Selected character: {name}'
 deliveryMaterial: 'Consume {quantity} × {name}'
 deliveryConfirm: Deliver
 deliveryCancel: Go back
+destination: 'Deliver to: {city} · {name}'

@@ -26,6 +26,7 @@ async function verifySavedInventory(currentMaterialQuantity:number,currentCoinQu
  currentGameClient.accept(await currentGameClient.request('/v1/game/state'));await waitRenderCycle();await waitRenderCycle();
  await clickDeliveryButton(t('npc.talk',{name:'모라'}));
  await clickDeliveryButton(t('npc.complete'));
+ assertBrowserCondition(document.body.textContent?.includes(t('npc.destination',{city:'이슬온',name:'모라'})),'실제 서버 전달처 표시');
  const currentReviewSection=document.querySelector('[aria-label="'+t('npc.deliveryReview')+'"]');
  assertBrowserCondition(currentReviewSection?.textContent?.includes(t('npc.deliveryCharacter',{name:currentGameClient.state!.me.name})),'실제 캐릭터 이름');
  assertBrowserCondition(currentReviewSection?.textContent?.includes(t('npc.deliveryMaterial',{name:'단백질젤리',quantity:2})),'실제 차감 재료');

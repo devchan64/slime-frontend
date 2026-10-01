@@ -1,6 +1,7 @@
 import { type JournalMaterialItem, type JournalNpcIdentity } from './mainEventJournal';
 export declare const NPC_BLOCK_REASON_CODES: readonly ["GIVER_REQUIRED", "RECEIVER_REQUIRED", "PREREQUISITE_REQUIRED", "QUEST_LIMIT_REACHED", "MATERIALS_REQUIRED", "CITIZENSHIP_REQUIRED"];
 export type NpcQuestEntry = {
+    destination?: {npcId:string;name:string;cityId:string;facilityId:string;cityNameTranslations:{ko:string;en:string}};
     eventId: string;
     title: string;
     status: 'AVAILABLE' | 'LOCKED' | 'ACCEPTED' | 'COMPLETED';

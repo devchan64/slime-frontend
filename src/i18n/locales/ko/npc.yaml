@@ -21,3 +21,4 @@ deliveryCharacter: '선택한 캐릭터: {name}'
 deliveryMaterial: '{name} {quantity}개 차감'
 deliveryConfirm: 전달하기
 deliveryCancel: 돌아가기
+destination: '전달처: {city} · {name}'
