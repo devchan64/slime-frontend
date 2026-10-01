@@ -1,3 +1,4 @@
+import {CostumeInventoryPanel} from './CostumeInventoryPanel';
 import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
 import {MainEventJournal} from './MainEventJournal';
@@ -565,6 +566,7 @@ export function App() {
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
             </nav>
           </section>
+          <CostumeInventoryPanel key={`wardrobe:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
         </main>
       ) : userTermsPage ? (
         <main class="lobby field-menu-page"><article class="card" aria-labelledby="user-terms-title">

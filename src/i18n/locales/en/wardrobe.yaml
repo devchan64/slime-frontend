@@ -1,0 +1,7 @@
+title: Owned costumes
+help: View costumes acquired through parcels or shops. Costumes affect appearance only.
+refresh: Load owned costumes
+loading: Loading costumes…
+empty: No acquired costumes. The default design is available.
+value: "Standard value: {value}p"
+received: "Received by parcel: {time}"
