@@ -3,6 +3,9 @@ import { Writable } from 'node:stream';
 import { TextClient, formatState } from './text-client-core.mjs';
 
 const HELP = `state                  최신 상태 조회
+guards                 현재 필드 경비센터 ID·좌표 조회
+permit quote 경비센터ID 5p 여행자증명서 견적 조회
+permit buy 경비센터ID   확인한 견적으로 발급 확정
 channels               현재 맵의 채널 목록·접속 인원 조회
 channel address 주소   주소로 같은 맵 채널 이동 (예: AA22)
 channel id 채널ID      ID로 같은 맵 채널 이동

@@ -657,3 +657,45 @@ test('텍스트 채널 목록은 인원 미제공을 구분하고 중복·잘못
  assert.match(formatChannelListingOutput([currentChannelEntry],'meadow'),/인원 정보 미제공/);
  for(const currentInvalidResponse of [null,[currentChannelEntry,currentChannelEntry],[{...currentChannelEntry,address:'A1'}],[{...currentChannelEntry,id:'one\x1b'}],[{...currentChannelEntry,capacity:30}],[{...currentChannelEntry,onlineUsers:3,reservedSeats:2,capacity:30}],[{...currentChannelEntry,extra:true}]])assert.throws(()=>formatChannelListingOutput(currentInvalidResponse,'meadow'));
 });
+
+function createTravelerCommandFixture(){
+ const currentGuardEntry={id:'gate-north-guard-center',cityId:'iseulon',mapId:'meadow',connectionId:'gate-north',name:'이슬온 경비센터',position:{column:0,row:0}};
+ const currentGameSnapshot=state({map:{id:'meadow',guardCenters:[currentGuardEntry]},location:{id:'meadow'}});
+ currentGameSnapshot.me.id='hero';
+ const currentQuoteResponse={guardCenterId:currentGuardEntry.id,cityId:'iseulon',policyVersion:1,priceP:5,validitySeconds:604800,serverTime:100,expiresAt:160};
+ return {currentGameSnapshot,currentGuardEntry,currentQuoteResponse};
+}
+
+test('텍스트 경비센터 조회·견적·발급은 확인한 5p와 요청 ID를 사용한다',async()=>{
+ const {currentGameSnapshot,currentGuardEntry,currentQuoteResponse}=createTravelerCommandFixture();
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([currentQuoteResponse,new TypeError('network'),{state:state({cursor:2})}]);
+ currentTextClient.accept(currentGameSnapshot);
+ assert.match(await currentTextClient.execute('guards'),/이슬온 경비센터.*\(0,0\)/);assert.equal(currentRequestCalls.length,0);
+ assert.match(await currentTextClient.execute('permit quote '+currentGuardEntry.id),/5p.*7일.*60초/);
+ assert.equal(currentTextClient.state,currentGameSnapshot);assert.equal(currentRequestCalls[0].body,undefined);
+ await currentTextClient.execute('permit buy '+currentGuardEntry.id);
+ assert.ok(currentRequestCalls[1].url.endsWith('/traveler-permit-purchases'));
+ assert.equal(currentRequestCalls[1].body.priceP,5);assert.equal(currentRequestCalls[1].body.policyVersion,1);assert.equal(currentRequestCalls[1].body.quotedExpiresAt,160);
+ assert.equal(currentRequestCalls[1].body.expectedVersion,4);assert.ok(currentRequestCalls[1].body.requestId);
+ assert.deepEqual(currentRequestCalls[1].body,currentRequestCalls[2].body);assert.equal(currentTextClient.travelerPermitQuote,null);
+});
+
+test('텍스트 증서 발급은 무견적·원격·전투·변경된 채널과 만료 견적을 거절한다',async()=>{
+ const {currentGameSnapshot,currentGuardEntry,currentQuoteResponse}=createTravelerCommandFixture();
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([currentQuoteResponse,currentQuoteResponse]);
+ currentTextClient.accept(currentGameSnapshot);
+ await assert.rejects(currentTextClient.execute('permit buy '+currentGuardEntry.id),/견적/);
+ await assert.rejects(currentTextClient.execute('permit quote other'),/경비센터/);
+ currentTextClient.state.battle={id:'battle'};await assert.rejects(currentTextClient.execute('permit quote '+currentGuardEntry.id),/전투/);currentTextClient.state.battle=null;
+ await currentTextClient.execute('permit quote '+currentGuardEntry.id);
+ currentTextClient.state.epoch++;await assert.rejects(currentTextClient.execute('permit buy '+currentGuardEntry.id),/견적/);
+ await currentTextClient.execute('permit quote '+currentGuardEntry.id);currentTextClient.travelerPermitQuote.receivedAt-=61000;
+ await assert.rejects(currentTextClient.execute('permit buy '+currentGuardEntry.id),/견적/);
+ assert.equal(currentRequestCalls.length,2);
+});
+
+test('텍스트 증서 견적의 요금·도시·기간·알 수 없는 필드를 검증한다',async()=>{
+ const {validateTravelerQuoteResponse}=await import('../scripts/text-traveler-permits.mjs');
+ const {currentGuardEntry,currentQuoteResponse}=createTravelerCommandFixture();
+ for(const currentQuotePatch of [{priceP:6},{cityId:'reedhaven'},{validitySeconds:1},{expiresAt:100},{policyVersion:true},{extra:1}])assert.throws(()=>validateTravelerQuoteResponse({...currentQuoteResponse,...currentQuotePatch},currentGuardEntry));
+});
