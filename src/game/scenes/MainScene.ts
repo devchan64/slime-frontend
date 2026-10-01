@@ -3,7 +3,7 @@ import { FieldIdleAction } from "../animation/fieldIdleAction";
 import { calculateFieldIdleDuration } from "../animation/idleActors";
 import type {Notice} from '../../client/notice';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
-import { screenFacing, type WorldFacing } from "../animation/facing";
+import { screenFacing, shouldMirrorActorSprite, type WorldFacing } from "../animation/facing";
 import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
 import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
@@ -128,7 +128,10 @@ export class MainScene extends Phaser.Scene {
           idleActionElapsedTime = this.fieldIdleAction.sampleIdleAction(now, calculateFieldIdleDuration(selectedScreenFacing), idleActionAllowedFlag);
           item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "idle" : "stretch-placeholder");
         }
+        const selectedWorldFacing = currentMovementFacing ?? item.object.getData("actorWorldFacing");
+        if (selectedWorldFacing) item.object.setFlipX(shouldMirrorActorSprite(selectedWorldFacing, this.rotation));
         updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementActive);
+        if (item.object.flipX) item.object.setOrigin(1 - item.object.originX, item.object.originY);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
       const currentActorDepth = item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0);
@@ -755,6 +758,13 @@ export class MainScene extends Phaser.Scene {
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
       size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, 0, actorRestIsActive);
+    for (const createdActorImage of this.children.list.slice(firstChild)) {
+      if (createdActorImage instanceof Phaser.GameObjects.Image && createdActorImage.getData("actorIdleKind")) {
+        createdActorImage.setData("actorWorldFacing", actorWorldFacing ?? "row_positive");
+        createdActorImage.setFlipX(shouldMirrorActorSprite(actorWorldFacing ?? "row_positive", this.rotation));
+        if (createdActorImage.flipX) createdActorImage.setOrigin(1 - createdActorImage.originX, createdActorImage.originY);
+      }
+    }
     if (actorRestIsActive && !appearance && !this.state?.battle) {
       const recoveryEffectGraphics = this.add.graphics().setDepth(depth + ACTOR_DEPTH.labelOffset);
       this.restRecoveryEffects.push({graphics:recoveryEffectGraphics,x:p.x,y:p.y,height,depth:depth + ACTOR_DEPTH.labelOffset});

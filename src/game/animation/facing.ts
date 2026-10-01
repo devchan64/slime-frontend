@@ -11,3 +11,11 @@ export function screenFacing(actorWorldFacing: WorldFacing, currentMapRotation: 
   if (!Number.isInteger(currentMapRotation) || currentMapRotation < 0 || currentMapRotation > 3) throw new Error('지원하지 않는 맵 회전입니다.');
   return BOARD_ACTOR_SCREEN_DIRECTION;
 }
+
+/** 정면왼쪽 원본을 화면의 오른쪽 이동 방향에 맞춰 반전한다. */
+export function shouldMirrorActorSprite(actorWorldFacing: WorldFacing, currentMapRotation: MapRotation): boolean {
+  screenFacing(actorWorldFacing, currentMapRotation);
+  const clockwiseWorldDirections: readonly WorldFacing[] = ['column_positive', 'row_positive', 'column_negative', 'row_negative'];
+  const rotatedDirectionIndex = (clockwiseWorldDirections.indexOf(actorWorldFacing) + currentMapRotation) % clockwiseWorldDirections.length;
+  return rotatedDirectionIndex === 0 || rotatedDirectionIndex === 3;
+}
