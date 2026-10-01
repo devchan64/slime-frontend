@@ -11,7 +11,7 @@ materials quote 길드ID 재료ID 수량 판매 견적
 materials sell 길드ID  확인한 견적으로 판매 확정
 citizenship list        보유 시민권·상태·기간 최신 조회
 citizenship guilds      현재 맵 길드 ID·입구 조회
-citizenship quote 길드ID 시민권 100p 발급 견적
+citizenship quote 길드ID 시민권 발급 견적
 citizenship buy 길드ID  확인한 견적으로 시민권 발급
 processing facilities  현재 맵 작업장 ID·입구 조회
 processing catalog 시설ID 가공 목록 조회

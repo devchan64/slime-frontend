@@ -31,12 +31,12 @@ export async function executeCitizenshipCommand(currentTextClient,currentCommand
   const currentRequestStarted=performance.now();
   const currentQuoteData=await currentTextClient.request(currentRequestPrefix+'quote');
   if(!currentQuoteData||Object.keys(currentQuoteData).sort().join(',')!==CITIZENSHIP_QUOTE_FIELDS
-   ||currentQuoteData.cityId!==currentGameState.map.id||currentQuoteData.priceP!==100
+   ||currentQuoteData.cityId!==currentGameState.map.id||(!Number.isSafeInteger(currentQuoteData.priceP)||currentQuoteData.priceP<100||currentQuoteData.priceP>300)
    ||!Number.isSafeInteger(currentQuoteData.policyVersion)||currentQuoteData.policyVersion<1
    ||!Number.isFinite(currentQuoteData.serverTime)||currentQuoteData.serverTime<0||!Number.isFinite(currentQuoteData.expiresAt)||currentQuoteData.expiresAt<=currentQuoteData.serverTime)throw new Error('시민권 견적 응답이 올바르지 않습니다.');
   if(captureCitizenshipContext(currentTextClient.state)!==currentQuoteContext)throw new Error('견적 조회 중 상태가 변경되었습니다. 다시 확인하세요.');
   currentTextClient.citizenshipQuote={context:currentQuoteContext,facilityId:currentFacilityIdentifier,data:currentQuoteData,deadline:currentRequestStarted+(currentQuoteData.expiresAt-currentQuoteData.serverTime)*1000};
-  return '시민권 100p · 발급일부터 현실 1년 · 도시 '+currentQuoteData.cityId+'\n발급 확정: citizenship buy '+currentFacilityIdentifier;
+  return '시민권 '+currentQuoteData.priceP+'p · 발급일부터 현실 1년 · 도시 '+currentQuoteData.cityId+'\n발급 확정: citizenship buy '+currentFacilityIdentifier;
  }
  const currentSavedQuote=currentTextClient.citizenshipQuote;
  if(!currentSavedQuote||currentSavedQuote.context!==currentQuoteContext||currentSavedQuote.facilityId!==currentFacilityIdentifier||performance.now()>=currentSavedQuote.deadline)throw new Error('유효한 견적이 없습니다. citizenship quote 길드ID로 먼저 확인하세요.');

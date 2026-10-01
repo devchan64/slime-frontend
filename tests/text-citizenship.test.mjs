@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TextClient} from '../scripts/text-client-core.mjs';
 function createCitizenshipState(){return {protocolVersion:1,generation:1,epoch:1,cursor:1,location:{id:'city-channel'},me:{id:'hero',version:1,mode:'FIELD',position:{column:2,row:3}},map:{id:'iseulon',buildings:[{facilityId:'iseulon-guild',facilityKind:'guild',name:'모험가 길드',entrance:{column:2,row:3}}]}};}
-function createCitizenshipQuote(){return {cityId:'iseulon',policyVersion:2,priceP:100,serverTime:100,expiresAt:160};}
+function createCitizenshipQuote(){return {cityId:'iseulon',policyVersion:3,priceP:200,serverTime:100,expiresAt:160};}
 function setupCitizenshipClient(currentResponseEntries){
  const currentRequestCalls=[];
  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
@@ -13,14 +13,14 @@ function setupCitizenshipClient(currentResponseEntries){
  }});
  currentTextClient.accept(createCitizenshipState());return {currentTextClient,currentRequestCalls};
 }
-test('길드 발견·100p 견적·발급 재시도는 같은 요청으로 처리한다',async()=>{
+test('길드 발견·200p 견적·발급 재시도는 같은 요청으로 처리한다',async()=>{
  const {currentTextClient,currentRequestCalls}=setupCitizenshipClient([createCitizenshipQuote(),new TypeError('network'),{state:createCitizenshipState()}]);
  assert.match(await currentTextClient.execute('citizenship guilds'),/iseulon-guild.*2,3/);
- assert.match(await currentTextClient.execute('citizenship quote iseulon-guild'),/100p.*1년/);
+ assert.match(await currentTextClient.execute('citizenship quote iseulon-guild'),/200p.*1년/);
  await currentTextClient.execute('citizenship buy iseulon-guild');
  assert.deepEqual(currentRequestCalls[1],currentRequestCalls[2]);
  assert.equal(currentRequestCalls[1].body.expectedVersion,1);
- assert.equal(currentRequestCalls[1].body.priceP,100);
+ assert.equal(currentRequestCalls[1].body.priceP,200);
  assert.equal(currentRequestCalls[1].body.quotedExpiresAt,160);
  await assert.rejects(currentTextClient.execute('citizenship buy iseulon-guild'),/견적/);
 });
@@ -31,8 +31,8 @@ test('잘못된 인수·다른 시설·길드 밖·전투 중에는 요청하지
  currentTextClient.state=createCitizenshipState();currentTextClient.state.battle={};await assert.rejects(currentTextClient.execute('citizenship quote iseulon-guild'),/전투/);
  assert.equal(currentRequestCalls.length,0);
 });
-test('다른 도시·과거 추가금·잘못된 기간·누락 견적을 거절한다',async()=>{
- for(const currentQuoteChange of [currentQuoteData=>currentQuoteData.cityId='other',currentQuoteData=>currentQuoteData.priceP=300,currentQuoteData=>currentQuoteData.expiresAt=100,currentQuoteData=>delete currentQuoteData.policyVersion]){
+test('다른 도시·범위 밖 금액·잘못된 기간·누락 견적을 거절한다',async()=>{
+ for(const currentQuoteChange of [currentQuoteData=>currentQuoteData.cityId='other',currentQuoteData=>currentQuoteData.priceP=301,currentQuoteData=>currentQuoteData.expiresAt=100,currentQuoteData=>delete currentQuoteData.policyVersion]){
   const currentQuoteData=createCitizenshipQuote();currentQuoteChange(currentQuoteData);
   const {currentTextClient}=setupCitizenshipClient([currentQuoteData]);
   await assert.rejects(currentTextClient.execute('citizenship quote iseulon-guild'),/응답/);
@@ -64,4 +64,11 @@ test('시민권 최신 목록·상태 출력은 유효·만료 경계와 UTC 기
  assert.match(formatCitizenshipSummary({records:[]},200),/보유 시민권이 없습니다/);
  assert.throws(()=>formatCitizenshipSummary(currentSummaryData,NaN),/서버 시각/);
  assert.throws(()=>formatCitizenshipSummary({records:[{...currentCitizenRecord,extra:true}]},150));
+});
+
+for(const currentPriceAmount of [100,300])test('시민권 물가 경계 금액 '+currentPriceAmount+'p를 표시하고 전송한다',async()=>{
+ const {currentTextClient,currentRequestCalls}=setupCitizenshipClient([{...createCitizenshipQuote(),priceP:currentPriceAmount},{state:createCitizenshipState()}]);
+ assert.ok((await currentTextClient.execute('citizenship quote iseulon-guild')).includes(currentPriceAmount+'p'));
+ await currentTextClient.execute('citizenship buy iseulon-guild');
+ assert.equal(currentRequestCalls[1].body.priceP,currentPriceAmount);
 });
