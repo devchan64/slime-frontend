@@ -89,22 +89,30 @@ export class TextClient {
       characterId:this.state.me.id,generation:this.state.generation,ownerId:this.tokens?.user_id};
     return this.submitPendingCommand();
   }
+  requirePendingCommandOwnership(currentPendingCommand){
+    if(this.pendingCommandRequest!==currentPendingCommand||!this.state
+      ||this.state.me.id!==currentPendingCommand.characterId||this.state.generation!==currentPendingCommand.generation
+      ||this.tokens?.user_id!==currentPendingCommand.ownerId)
+      throw new Error('계정·캐릭터·세션이 변경되어 이전 명령을 처리할 수 없습니다.');
+  }
   async submitPendingCommand(){
     const currentPendingCommand=this.pendingCommandRequest;
     if(!currentPendingCommand)throw new Error('재시도할 명령이 없습니다.');
     if(this.pendingCommandInFlight)throw new Error('명령 응답을 기다리는 중입니다.');
-    if(!this.state||this.state.me.id!==currentPendingCommand.characterId||this.state.generation!==currentPendingCommand.generation
-      ||this.tokens?.user_id!==currentPendingCommand.ownerId)throw new Error('계정·캐릭터·세션이 변경되어 이전 명령을 재전송할 수 없습니다.');
+    this.requirePendingCommandOwnership(currentPendingCommand);
     this.pendingCommandInFlight=true;
     try{
       for(let currentAttemptCount=0;currentAttemptCount<2;currentAttemptCount++){
+        this.requirePendingCommandOwnership(currentPendingCommand);
         let currentCommandResult;
         try{
           currentCommandResult=currentPendingCommand.confirmedCommandResult??await this.request(currentPendingCommand.path,currentPendingCommand.payload);
+          this.requirePendingCommandOwnership(currentPendingCommand);
           currentPendingCommand.validateCommandResponse?.(currentCommandResult,currentPendingCommand.payload);
           if(currentPendingCommand.fetchStateAfterReceipt){
             currentPendingCommand.confirmedCommandResult=currentCommandResult;
             const currentFetchedState=await this.request('/v1/game/state');
+            this.requirePendingCommandOwnership(currentPendingCommand);
             if(this.state?.me.id!==currentPendingCommand.characterId||this.state.generation!==currentPendingCommand.generation
               ||this.tokens?.user_id!==currentPendingCommand.ownerId||currentFetchedState.me?.id!==currentPendingCommand.characterId
               ||currentFetchedState.generation!==currentPendingCommand.generation
@@ -113,6 +121,7 @@ export class TextClient {
             this.accept(currentFetchedState);
           }else this.accept(currentCommandResult.state);
         }catch(currentRequestError){
+          this.requirePendingCommandOwnership(currentPendingCommand);
           const currentOutcomeUncertain=!!currentPendingCommand.confirmedCommandResult||!(currentRequestError instanceof ApiFailure)||currentRequestError.status>=500||currentRequestError.code==='INVALID_API_RESPONSE';
           if(!currentOutcomeUncertain){
             this.pendingCommandRequest=null;
