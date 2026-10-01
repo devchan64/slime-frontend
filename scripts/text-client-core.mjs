@@ -73,9 +73,20 @@ export class TextClient {
   async login(user_id, password) {
     this.setTokens(await this.resolve(await this.request('/v1/auth/login', { user_id, password })));
     this.pendingCommandRequest=null;
+    this.state=null;
     await this.snapshot();
   }
-  async snapshot() { this.accept(await this.request('/v1/game/state')); return this.state; }
+  async snapshot() {
+    const currentRequestTokens=this.tokens;
+    const currentResponseState=await this.request('/v1/game/state');
+    if(this.tokens!==currentRequestTokens)
+      throw new Error('상태 조회 중 로그인 정보가 변경되었습니다. 현재 세션에서 다시 조회하세요.');
+    if((currentRequestTokens?.user_id!==undefined&&currentResponseState?.me?.id!==currentRequestTokens.user_id)
+      ||(this.state?.me?.id!==undefined&&currentResponseState?.me?.id!==this.state.me.id))
+      throw new ApiFailure('INVALID_API_RESPONSE','상태 응답의 캐릭터가 현재 로그인 대상과 일치하지 않습니다.');
+    this.accept(currentResponseState);
+    return this.state;
+  }
   async refresh() { this.setTokens(await this.request('/v1/auth/refresh', { refresh_token: this.tokens.refresh_token })); }
   async heartbeat() { await this.request('/v1/sessions/heartbeat', {}); }
   async logout() {

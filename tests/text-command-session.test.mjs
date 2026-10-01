@@ -30,3 +30,41 @@ for(const currentResponseMode of ['success','network','rejection']){
   assert.equal(currentTextClient.pendingCommandRequest,currentNewPending);
  });
 }
+
+
+test('다른 계정으로 로그인하면 이전 계정의 높은 세대와 상태를 비교하지 않는다',async()=>{
+ const currentResponses=[{user_id:'second',access_token:'second-token',refresh_token:'second-refresh'},
+  createSessionState('second',1)];
+ const currentTextClient=new TextClient('http://localhost',{fetcher:async()=>Response.json(currentResponses.shift())});
+ currentTextClient.tokens={user_id:'first',access_token:'first-token',refresh_token:'first-refresh'};
+ currentTextClient.accept(createSessionState('first',99));
+ await currentTextClient.login('second','test-password');
+ assert.equal(currentTextClient.state.me.id,'second');
+ assert.equal(currentTextClient.state.generation,1);
+});
+
+for(const currentSessionChange of ['login','logout']){
+ test(`이전 상태 조회 응답은 ${currentSessionChange} 이후 상태를 덮어쓰지 않는다`,async()=>{
+  let resolveSnapshotResponse;
+  const currentDelayedResponse=new Promise(currentResolveCallback=>{resolveSnapshotResponse=currentResolveCallback;});
+  const currentTextClient=new TextClient('http://localhost',{fetcher:async()=>currentDelayedResponse});
+  currentTextClient.tokens={user_id:'first',access_token:'first-token'};
+  currentTextClient.accept(createSessionState('first',1));
+  const currentPendingSnapshot=currentTextClient.snapshot();
+  currentTextClient.tokens=currentSessionChange==='login'?{user_id:'second',access_token:'second-token'}:null;
+  currentTextClient.state=currentSessionChange==='login'?createSessionState('second',1):null;
+  const currentExpectedState=currentTextClient.state;
+  resolveSnapshotResponse(Response.json(createSessionState('first',99)));
+  await assert.rejects(currentPendingSnapshot,/로그인 정보가 변경/);
+  assert.equal(currentTextClient.state,currentExpectedState);
+ });
+}
+
+test('다른 캐릭터의 상태 조회 응답은 현재 상태를 보존한다',async()=>{
+ const currentTextClient=new TextClient('http://localhost',{fetcher:async()=>Response.json(createSessionState('other',99))});
+ currentTextClient.tokens={user_id:'first',access_token:'first-token'};
+ const currentExpectedState=createSessionState('first',1);
+ currentTextClient.accept(currentExpectedState);
+ await assert.rejects(currentTextClient.snapshot(),/캐릭터/);
+ assert.equal(currentTextClient.state,currentExpectedState);
+});
