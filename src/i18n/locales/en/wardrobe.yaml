@@ -12,3 +12,5 @@ uncertain: The result is unknown. Check the same equip request again.
 equipped: Costume changed.
 unavailable: Finish combat and change your costume from the menu.
 invalidResponse: The equip response does not match the request, character, or design.
+
+purchased: "Purchased from shop: {time}"

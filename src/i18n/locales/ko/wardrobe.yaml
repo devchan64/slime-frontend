@@ -12,3 +12,5 @@ uncertain: 결과를 확인하지 못했습니다. 같은 착용 요청의 결�
 equipped: 코스튬을 변경했습니다.
 unavailable: 전투를 종료하고 메뉴에서 코스튬을 변경하세요.
 invalidResponse: 착용 응답의 요청·캐릭터·디자인 정보가 일치하지 않습니다.
+
+purchased: "상점에서 획득: {time}"
