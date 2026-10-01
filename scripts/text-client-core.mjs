@@ -1,3 +1,4 @@
+import {executeParcelCommand} from './text-parcel-commands.mjs';
 import {readCostumeCatalog} from './text-costume-catalog.mjs';
 import {executeNpcCommand} from './text-npc-commands.mjs';
 import {executeGuildSaleCommand} from './text-guild-sales.mjs';
@@ -78,12 +79,12 @@ export class TextClient {
     this.state = null;
     this.pendingCommandRequest=null;
   }
-  async command(path, body = {}, projectCommandResponse = null) {
+  async command(path, body = {}, projectCommandResponse = null, currentCommandOptions = {}) {
     if (!this.state) throw new Error('먼저 로그인하세요.');
     if(this.pendingCommandRequest)throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const expectedVersion = path === BATTLE_PATH ? this.state.battle?.version : this.state.me.version;
     if (!Number.isSafeInteger(expectedVersion)) throw new Error('명령에 필요한 상태 버전이 없습니다.');
-    this.pendingCommandRequest={path,payload:{...body,requestId:randomUUID(),expectedVersion},projectCommandResponse,
+    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,validateCommandResponse:currentCommandOptions.validateCommandResponse,
       characterId:this.state.me.id,generation:this.state.generation,ownerId:this.tokens?.user_id};
     return this.submitPendingCommand();
   }
@@ -99,6 +100,7 @@ export class TextClient {
         let currentCommandResult;
         try{
           currentCommandResult=await this.request(currentPendingCommand.path,currentPendingCommand.payload);
+          currentPendingCommand.validateCommandResponse?.(currentCommandResult);
           this.accept(currentCommandResult.state);
         }catch(currentRequestError){
           const currentOutcomeUncertain=!(currentRequestError instanceof ApiFailure)||currentRequestError.status>=500||currentRequestError.code==='INVALID_API_RESPONSE';
@@ -108,7 +110,7 @@ export class TextClient {
             throw currentRequestError;
           }
           if(currentAttemptCount===0)continue;
-          throw new Error('명령 결과를 확인하지 못했습니다. retry로 같은 요청을 다시 확인하세요. 요청 ID: '+currentPendingCommand.payload.requestId,{cause:currentRequestError});
+          throw new Error('명령 결과를 확인하지 못했습니다. retry로 같은 요청을 다시 확인하세요. 요청 ID: '+(currentPendingCommand.payload.requestId??currentPendingCommand.path),{cause:currentRequestError});
         }
         this.pendingCommandRequest=null;
         return currentPendingCommand.projectCommandResponse?currentPendingCommand.projectCommandResponse(currentCommandResult):this.state;
@@ -135,6 +137,7 @@ export class TextClient {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'parcels') return executeParcelCommand(this,args);
     if (name === 'costumes') return readCostumeCatalog(this,args);
     if (name === 'npc'||name === 'quest') return executeNpcCommand(this,name,args);
     if (name === 'materials') return executeGuildSaleCommand(this,args);

@@ -228,3 +228,8 @@ GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공
 ### 여행자증명서 혼합 납부
 
 경비센터 현장에서 `permit barter 경비센터ID 2 protein-jelly=4`처럼 현금 p와 재료별 수량을 지정합니다. 표준 가치·합계·반환하지 않는 초과액을 확인한 뒤 `permit buy 경비센터ID`로 발급합니다. 현금 0도 가능하며 재료는 하나 이상 필요합니다. 기존 `permit quote`는 현금 전용 견적입니다. 위치·상태 변경 또는 만료 후에는 견적을 다시 받습니다.
+
+
+### 길드 소포
+
+`citizenship guilds`로 길드를 확인하고 입구에서 `parcels list 길드ID [다음커서]`로 소포 ID·첨부물·UTC 만료 시각을 조회한다. `parcels claim 길드ID 소포ID`로 전체 첨부물을 수령한다. 기존 길드 이용 조건이 적용된다. 결과가 불명확하면 `retry`로 같은 소포와 상태 버전을 재전송한다. 수령 API는 소포 ID로 중복 지급을 방지하므로 별도 요청 ID를 보내지 않는다.
