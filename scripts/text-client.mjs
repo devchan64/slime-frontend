@@ -44,6 +44,7 @@ journal                메인 의뢰 기록 조회
 rewards [다음커서]      계정 보관함 조회 (claim-all: 전체 수령)
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
 loans [다음커서]        대여 파티원 목록
+retry                  결과 불명 명령을 같은 요청 ID로 재확인
 help / quit            도움말 / 로그아웃 후 종료`;
 
 const args = process.argv.slice(2);

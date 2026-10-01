@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto';
 const BATTLE_PATH = '/v1/game/battle/commands';
 const SCOUTING_RISK_NAMES = Object.freeze({ LOW: '낮음', EVEN: '대등', HIGH: '높음', VERY_HIGH: '매우 높음', UNKNOWN: '알 수 없음' });
 export class ApiFailure extends Error {
-  constructor(code, message) { super(message); this.code = code; }
+  constructor(code, message, status) { super(message); this.code = code; this.status = status; }
 }
 
 // 브라우저·자산·비공개 서버 모듈에 의존하지 않는 HTTP 클라이언트다.
@@ -33,7 +33,7 @@ export class TextClient {
     let result;
     try { result = await response.json(); }
     catch { throw new ApiFailure('INVALID_API_RESPONSE', '서버가 올바른 JSON을 반환하지 않았습니다.'); }
-    if (!response.ok) throw new ApiFailure(result.code, result.messages?.ko ?? result.message ?? `HTTP ${response.status}`);
+    if (!response.ok) throw new ApiFailure(result.code, result.messages?.ko ?? result.message ?? `HTTP ${response.status}`, response.status);
     return result;
   }
   async resolve(result) {
@@ -64,6 +64,7 @@ export class TextClient {
   }
   async login(user_id, password) {
     this.setTokens(await this.resolve(await this.request('/v1/auth/login', { user_id, password })));
+    this.pendingCommandRequest=null;
     await this.snapshot();
   }
   async snapshot() { this.accept(await this.request('/v1/game/state')); return this.state; }
@@ -73,24 +74,44 @@ export class TextClient {
     await this.resolve(await this.request('/v1/auth/logout', {}));
     this.tokens = null;
     this.state = null;
+    this.pendingCommandRequest=null;
   }
   async command(path, body = {}, projectCommandResponse = null) {
     if (!this.state) throw new Error('먼저 로그인하세요.');
+    if(this.pendingCommandRequest)throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const expectedVersion = path === BATTLE_PATH ? this.state.battle?.version : this.state.me.version;
     if (!Number.isSafeInteger(expectedVersion)) throw new Error('명령에 필요한 상태 버전이 없습니다.');
-    const payload = { ...body, requestId: randomUUID(), expectedVersion };
-    let result;
-    try { result = await this.request(path, payload); }
-    catch (error) {
-      if (error instanceof ApiFailure) {
-        if (error.code === 'VERSION_CONFLICT') await this.snapshot();
-        throw error;
+    this.pendingCommandRequest={path,payload:{...body,requestId:randomUUID(),expectedVersion},projectCommandResponse,
+      characterId:this.state.me.id,generation:this.state.generation,ownerId:this.tokens?.user_id};
+    return this.submitPendingCommand();
+  }
+  async submitPendingCommand(){
+    const currentPendingCommand=this.pendingCommandRequest;
+    if(!currentPendingCommand)throw new Error('재시도할 명령이 없습니다.');
+    if(this.pendingCommandInFlight)throw new Error('명령 응답을 기다리는 중입니다.');
+    if(!this.state||this.state.me.id!==currentPendingCommand.characterId||this.state.generation!==currentPendingCommand.generation
+      ||this.tokens?.user_id!==currentPendingCommand.ownerId)throw new Error('계정·캐릭터·세션이 변경되어 이전 명령을 재전송할 수 없습니다.');
+    this.pendingCommandInFlight=true;
+    try{
+      for(let currentAttemptCount=0;currentAttemptCount<2;currentAttemptCount++){
+        let currentCommandResult;
+        try{
+          currentCommandResult=await this.request(currentPendingCommand.path,currentPendingCommand.payload);
+          this.accept(currentCommandResult.state);
+        }catch(currentRequestError){
+          const currentOutcomeUncertain=!(currentRequestError instanceof ApiFailure)||currentRequestError.status>=500||currentRequestError.code==='INVALID_API_RESPONSE';
+          if(!currentOutcomeUncertain){
+            this.pendingCommandRequest=null;
+            if(currentRequestError.code==='VERSION_CONFLICT')await this.snapshot();
+            throw currentRequestError;
+          }
+          if(currentAttemptCount===0)continue;
+          throw new Error('명령 결과를 확인하지 못했습니다. retry로 같은 요청을 다시 확인하세요. 요청 ID: '+currentPendingCommand.payload.requestId,{cause:currentRequestError});
+        }
+        this.pendingCommandRequest=null;
+        return currentPendingCommand.projectCommandResponse?currentPendingCommand.projectCommandResponse(currentCommandResult):this.state;
       }
-      // 전송 결과 불명: 서버 중복 방지를 위해 같은 ID·본문으로 한 번 재시도한다.
-      result = await this.request(path, payload);
-    }
-    this.accept(result.state);
-    return projectCommandResponse ? projectCommandResponse(result) : this.state;
+    }finally{this.pendingCommandInFlight=false;}
   }
   async interact(line) {
     const input = line.trim();
@@ -102,6 +123,11 @@ export class TextClient {
   async execute(line) {
     const [name, ...args] = line.trim().split(/\s+/);
     const arity = n => { if (args.length !== n) throw new Error('명령 인수를 확인하세요. help로 사용법을 볼 수 있습니다.'); };
+    if(name==='retry'){arity(0);return this.submitPendingCommand();}
+    if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','loans'].includes(name)
+      &&!(name==='citizenship'&&['list','guilds'].includes(args[0]))
+      &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
+      &&!(name==='materials'&&args[0]==='list'))throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const battle = (type, extra = {}) => {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });

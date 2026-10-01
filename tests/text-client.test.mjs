@@ -729,3 +729,33 @@ test('텍스트 가방과 상태에 본인 여행자증명서가 함께 표시�
  assert.match(await currentTextClient.execute('bag'),/여행자증명서 · 이슬온 \[유효\]/);
  assert.match(formatState(currentTextClient.state),/여행자증명서 · 이슬온 \[유효\]/);
 });
+
+test('연속 응답 유실 뒤 조회·명시적 retry는 원래 요청을 보존하며 다른 변경을 차단한다',async()=>{
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([new TypeError('lost'),new TypeError('lost again'),state({cursor:2}),{state:state({cursor:3})},{state:state({cursor:4})}]);
+ currentTextClient.accept(state());
+ await assert.rejects(currentTextClient.execute('move 1 2'),/retry/);
+ await assert.rejects(currentTextClient.execute('move 2 2'),/retry/);
+ await assert.rejects(currentTextClient.execute('rewards claim-all'),/retry/);
+ await currentTextClient.execute('state');
+ await currentTextClient.execute('retry');
+ assert.deepEqual(currentRequestCalls[0],currentRequestCalls[1]);
+ assert.deepEqual(currentRequestCalls[0],currentRequestCalls[3]);
+ await assert.rejects(currentTextClient.execute('retry'),/없습니다/);
+ await currentTextClient.execute('move 2 2');
+ assert.notEqual(currentRequestCalls[4].body.requestId,currentRequestCalls[0].body.requestId);
+});
+test('서버 5xx도 같은 요청으로 재시도하고 세션 교체 뒤 재전송하지 않는다',async()=>{
+ const {client:currentTextClient,calls:currentRequestCalls}=setup([{status:503,body:{code:'UNAVAILABLE'}},{status:503,body:{code:'UNAVAILABLE'}}]);
+ currentTextClient.accept(state());
+ await assert.rejects(currentTextClient.execute('enter'),/retry/);
+ assert.deepEqual(currentRequestCalls[0],currentRequestCalls[1]);
+ currentTextClient.accept(state({generation:2}));
+ await assert.rejects(currentTextClient.execute('retry'),/세션/);
+ assert.equal(currentRequestCalls.length,2);
+});
+test('자동 재시도의 확정 거절은 대기 명령을 해제한다',async()=>{
+ const {client:currentTextClient}=setup([new TypeError('lost'),{status:409,body:{code:'INVALID_STATE',message:'거절'}},{state:state({cursor:2})}]);
+ currentTextClient.accept(state());
+ await assert.rejects(currentTextClient.execute('enter'),/거절/);
+ await currentTextClient.execute('away');
+});
