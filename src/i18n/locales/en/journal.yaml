@@ -16,3 +16,6 @@ materialsReady: Materials are ready. NPC location, citizenship and other require
 capacity: 'Accepted quests: {count} / {limit}'
 capacityHelp: Main, seasonal, and random quests share this limit. Completed quests do not count.
 capacityFull: The acceptance limit is full. Complete an active quest to accept another.
+
+showDestination: Show delivery town
+destinationUnavailable: The delivery town is not available on the current world map.

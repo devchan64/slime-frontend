@@ -14,13 +14,13 @@ const WORLD_MAP_ZOOM_MAXIMUM=1.8;
 const WORLD_MAP_ZOOM_STEP=0.2;
 const WORLD_MAP_WHEEL_ZOOM_FACTOR=0.001;
 type WorldMapDragState={pointerId:number;startClientX:number;startClientY:number;startScrollLeft:number;startScrollTop:number;dragged:boolean};
-export function WorldMapPanel({gameSessionClient,currentMapIdentifier}:{gameSessionClient:Client;currentMapIdentifier:string}) {
+export function WorldMapPanel({gameSessionClient,currentMapIdentifier,initialSelectedMapIdentifier=currentMapIdentifier}:{gameSessionClient:Client;currentMapIdentifier:string;initialSelectedMapIdentifier?:string}) {
   const {t:translateWorldText,locale:currentWorldLocale}=useTranslation();
   const worldScrollContainer=useRef<HTMLDivElement>(null);
   const worldMapDragState=useRef<WorldMapDragState|null>(null);
   const dragSelectionSuppressed=useRef(false);
   const [worldMapNodes,setWorldMapNodes]=useState<WorldMapNode[]>([]);
-  const [selectedMapIdentifier,setSelectedMapIdentifier]=useState(currentMapIdentifier);
+  const [selectedMapIdentifier,setSelectedMapIdentifier]=useState(initialSelectedMapIdentifier);
   const [worldMapZoom,setWorldMapZoom]=useState(1);
   const [worldRequestNotice,setWorldRequestNotice]=useState<Notice>('');
   const [worldRequestAttempt,setWorldRequestAttempt]=useState(0);
@@ -47,7 +47,7 @@ export function WorldMapPanel({gameSessionClient,currentMapIdentifier}:{gameSess
     currentScrollContainer.scrollTo({left:Math.max(0,targetNodeCenter.x*worldMapZoom-currentScrollContainer.clientWidth/2),
       top:Math.max(0,targetNodeCenter.y*worldMapZoom-currentScrollContainer.clientHeight/2),behavior:'auto'});
   };
-  useEffect(()=>setSelectedMapIdentifier(currentMapIdentifier),[currentMapIdentifier]);
+  useEffect(()=>setSelectedMapIdentifier(initialSelectedMapIdentifier),[initialSelectedMapIdentifier]);
   useEffect(()=>focusWorldMapRegion(selectedMapIdentifier),[worldMapNodes,selectedMapIdentifier]);
   useEffect(()=>{
     const currentScrollContainer=worldScrollContainer.current;
@@ -116,6 +116,7 @@ export function WorldMapPanel({gameSessionClient,currentMapIdentifier}:{gameSess
           </div>
         </div>
       </div>
+      {worldMapNodes.length>0&&!selectedWorldNode&&<p role="status">{translateWorldText('journal.destinationUnavailable')}</p>}
       {selectedWorldNode && <div aria-live="polite"><h3>{selectedWorldNode.nameTranslations[currentWorldLocale]}</h3><p>{translateWorldText('app.worldMapConnections')}</p><div class="world-map-connections">{selectedWorldNode.connections.map(currentMapLink=>{const targetWorldNode=worldMapNodes.find(currentWorldNode=>currentWorldNode.id===currentMapLink.target)!;return <button class="secondary" key={currentMapLink.target} onClick={()=>selectWorldMapRegion(currentMapLink.target)}><MapKindIcon targetMapSafeTown={targetWorldNode.safeTown}/>{targetWorldNode.nameTranslations[currentWorldLocale]}</button>;})}</div></div>}
     </>}
   </section>;

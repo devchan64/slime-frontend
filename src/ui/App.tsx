@@ -148,6 +148,7 @@ export function App() {
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
   const [drawer, setDrawer] = useState<"channels" | "worldMap" | "nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | "journal" | null>(null);
+  const [selectedWorldDestination,setSelectedWorldDestination]=useState<string|undefined>(undefined);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
@@ -697,7 +698,7 @@ export function App() {
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("channels")}>{t('channels.open')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
-                <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("worldMap")}>{t('app.worldMap')}</button>
+                <button class="secondary" aria-haspopup="dialog" onClick={() => {setSelectedWorldDestination(undefined);setDrawer("worldMap");}}>{t('app.worldMap')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               <FieldRestControls currentPlayerState={state.me} currentServerTime={(clock + serverOffset.current) / 1000}
                 actionsAreDisabled={disabled || !!walking} submitRestCommand={commandPathValue => command(commandPathValue)} />
@@ -726,10 +727,10 @@ export function App() {
           {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "channels" ? t("channels.title") : drawer === "worldMap" ? t("app.worldMap") : drawer === "journal" ? t("journal.title") : drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
             {drawer === "channels" && <ChannelPanel key={`${state.me.id}:${state.generation}:${state.epoch}:${state.location.id}`} gameSessionClient={client}
               currentGameState={state} actionsAreDisabled={disabled || !!walking} onChannelTransferChange={setTransferPending} />}
-            {drawer === "worldMap" && <WorldMapPanel key={`${state.me.id}:${state.generation}`} gameSessionClient={client} currentMapIdentifier={state.map.id} />}
+            {drawer === "worldMap" && <WorldMapPanel key={`${state.me.id}:${state.generation}`} gameSessionClient={client} currentMapIdentifier={state.map.id} initialSelectedMapIdentifier={selectedWorldDestination} />}
             {drawer === "bag" && <BagPanel key={`${state.me.id}:${state.generation}`} me={state.me} gameSessionClient={client}
               actionsAreDisabled={disabled || !!walking} submitConsumableUse={currentItemIdentifier => command('/v1/game/consumables/use',{itemId:currentItemIdentifier})} />}
-            {drawer === "journal" && <MainEventJournal key={`${client.tokens?.user_id}:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
+            {drawer === "journal" && <MainEventJournal key={`${client.tokens?.user_id}:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} onShowDestinationCity={currentCityIdentifier=>{setSelectedWorldDestination(currentCityIdentifier);setDrawer("worldMap");}} />}
             {drawer === "loans" && <BorrowedLoansPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "rewards" && <AccountRewardsPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}

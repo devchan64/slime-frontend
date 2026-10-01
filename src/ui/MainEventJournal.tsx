@@ -4,7 +4,7 @@ import {parseMainEventJournal,type MainJournalPage} from '../client/mainEventJou
 import {noticeText,type Notice} from '../client/notice';
 import {getLocale,useTranslation} from '../i18n';
 
-export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}) {
+export function MainEventJournal({gameSessionClient,actionsAreDisabled,onShowDestinationCity}:{gameSessionClient:Client;actionsAreDisabled:boolean;onShowDestinationCity?:(currentCityIdentifier:string)=>void}) {
   const {t:translateJournalText,locale:currentJournalLocale}=useTranslation();
   const [currentJournalPage,setCurrentJournalPage]=useState<MainJournalPage|null>(null);
   const [currentJournalNotice,setCurrentJournalNotice]=useState<Notice>('');
@@ -47,6 +47,7 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled}:{gameSes
       <strong>{currentJournalEntry.title}</strong>
       <p>{translateJournalText(currentJournalEntry.status==='COMPLETED'?'journal.completed':'journal.accepted')}</p>
       <p>{translateJournalText('journal.receiver',{name:currentJournalEntry.receiver.name})}</p>
+      {currentJournalEntry.status==='ACCEPTED'&&onShowDestinationCity&&<button class="secondary compact" disabled={actionsAreDisabled} onClick={()=>onShowDestinationCity(currentJournalEntry.receiver.cityId)}>{translateJournalText('journal.showDestination')}</button>}
       {currentJournalEntry.items.map(currentMaterialItem=><p key={currentMaterialItem.itemId}>
         {translateJournalText('journal.material',{name:currentMaterialItem.nameTranslations[currentJournalLocale],owned:currentMaterialItem.owned,required:currentMaterialItem.required})}
       </p>)}
