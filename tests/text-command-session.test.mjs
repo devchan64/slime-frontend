@@ -68,3 +68,42 @@ test('다른 캐릭터의 상태 조회 응답은 현재 상태를 보존한다'
  await assert.rejects(currentTextClient.snapshot(),/캐릭터/);
  assert.equal(currentTextClient.state,currentExpectedState);
 });
+
+
+for(const currentAuthenticationAction of ['login','refresh','logout']){
+ test(`늦은 ${currentAuthenticationAction} 응답은 새 로그인·상태·대기 명령을 보존한다`,async()=>{
+  let resolveAuthenticationResponse;
+  const currentDelayedResponse=new Promise(currentResolveCallback=>{resolveAuthenticationResponse=currentResolveCallback;});
+  let currentRequestCount=0;
+  const currentTextClient=new TextClient('http://localhost',{fetcher:async()=>{currentRequestCount++;return currentDelayedResponse;}});
+  currentTextClient.tokens={user_id:'first',access_token:'first-token',refresh_token:'first-refresh'};
+  currentTextClient.accept(createSessionState('first',1));
+  const currentPendingAuthentication=currentTextClient[currentAuthenticationAction]('first','test-password');
+  const currentNewTokens={user_id:'second',access_token:'second-token',refresh_token:'second-refresh'};
+  const currentNewState=createSessionState('second',1);
+  const currentNewCommand={path:'/new-request'};
+  currentTextClient.tokens=currentNewTokens;
+  currentTextClient.state=currentNewState;
+  currentTextClient.pendingCommandRequest=currentNewCommand;
+  resolveAuthenticationResponse(Response.json(currentAuthenticationAction==='logout'?{}:
+   {user_id:'first',access_token:'old-renewed',refresh_token:'old-refresh'}));
+  await assert.rejects(currentPendingAuthentication,/로그인 정보가 변경/);
+  assert.equal(currentTextClient.tokens,currentNewTokens);
+  assert.equal(currentTextClient.state,currentNewState);
+  assert.equal(currentTextClient.pendingCommandRequest,currentNewCommand);
+  assert.equal(currentRequestCount,1);
+ });
+}
+
+test('세션 전환 대기 중 계정이 바뀌면 새 토큰으로 이전 작업을 조회하지 않는다',async()=>{
+ let resolveTransitionSleep;
+ const currentTextClient=new TextClient('http://localhost',{
+  sleep:()=>new Promise(currentResolveCallback=>{resolveTransitionSleep=currentResolveCallback;}),
+  fetcher:async()=>{throw new Error('이전 작업을 전송하면 안 됩니다.');},
+ });
+ currentTextClient.tokens={user_id:'first',access_token:'first-token'};
+ const currentPendingTransition=currentTextClient.resolve({pending:true,operationId:'old-operation',receipt:'old-receipt'});
+ currentTextClient.tokens={user_id:'second',access_token:'second-token'};
+ resolveTransitionSleep();
+ await assert.rejects(currentPendingTransition,/로그인 정보가 변경/);
+});

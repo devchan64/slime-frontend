@@ -44,12 +44,19 @@ export class TextClient {
     if (!response.ok) throw new ApiFailure(result.code, result.messages?.ko ?? result.message ?? `HTTP ${response.status}`, response.status);
     return result;
   }
-  async resolve(result) {
+  requireAuthenticationContext(currentRequestTokens) {
+    if(this.tokens!==currentRequestTokens)
+      throw new Error('인증 요청 중 로그인 정보가 변경되어 이전 응답을 처리할 수 없습니다.');
+  }
+  async resolve(result, currentRequestTokens=this.tokens) {
+    this.requireAuthenticationContext(currentRequestTokens);
     for (let attempt = 0; result.pending && attempt < 60; attempt++) {
       if (typeof result.operationId !== 'string' || typeof result.receipt !== 'string')
         throw new ApiFailure('INVALID_API_RESPONSE', '세션 전환 정보가 누락되었습니다.');
       await this.sleep(1000);
+      this.requireAuthenticationContext(currentRequestTokens);
       result = await this.request(`/v1/auth/operations/${encodeURIComponent(result.operationId)}/resolve`, { receipt: result.receipt });
+      this.requireAuthenticationContext(currentRequestTokens);
     }
     if (result.pending) throw new ApiFailure('TRANSITION_TIMEOUT', '세션 전환이 지연되고 있습니다. 다시 로그인하세요.');
     return result;
@@ -71,7 +78,10 @@ export class TextClient {
     this.tokens = tokens;
   }
   async login(user_id, password) {
-    this.setTokens(await this.resolve(await this.request('/v1/auth/login', { user_id, password })));
+    const currentRequestTokens=this.tokens;
+    const currentResponseTokens=await this.resolve(await this.request('/v1/auth/login', { user_id, password }),currentRequestTokens);
+    this.requireAuthenticationContext(currentRequestTokens);
+    this.setTokens(currentResponseTokens);
     this.pendingCommandRequest=null;
     this.state=null;
     await this.snapshot();
@@ -87,10 +97,18 @@ export class TextClient {
     this.accept(currentResponseState);
     return this.state;
   }
-  async refresh() { this.setTokens(await this.request('/v1/auth/refresh', { refresh_token: this.tokens.refresh_token })); }
+  async refresh() {
+    const currentRequestTokens=this.tokens;
+    if(!currentRequestTokens)throw new Error('먼저 로그인하세요.');
+    const currentResponseTokens=await this.request('/v1/auth/refresh', { refresh_token: currentRequestTokens.refresh_token });
+    this.requireAuthenticationContext(currentRequestTokens);
+    this.setTokens(currentResponseTokens);
+  }
   async heartbeat() { await this.request('/v1/sessions/heartbeat', {}); }
   async logout() {
-    await this.resolve(await this.request('/v1/auth/logout', {}));
+    const currentRequestTokens=this.tokens;
+    await this.resolve(await this.request('/v1/auth/logout', {}),currentRequestTokens);
+    this.requireAuthenticationContext(currentRequestTokens);
     this.tokens = null;
     this.state = null;
     this.pendingCommandRequest=null;
