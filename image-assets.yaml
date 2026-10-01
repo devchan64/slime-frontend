@@ -58,8 +58,6 @@ data:
     path: ../slime-assets/assets/tiles/terrain/non-road/moss-128.webp
   - managementId: image.frontend.src.assets.terrain.extension-v1.mud-128.webp
     path: ../slime-assets/assets/tiles/terrain/non-road/mud-128.webp
-  - managementId: image.frontend.src.assets.world.isloon.terrain.paving-v1.png
-    path: assets/world/isloon/terrain/paving-v1.png
   - managementId: image.world.reedhaven.dirt-road-v1
     path: ../slime-assets/assets/tiles/terrain/road/dirt-road-v1.png
   - managementId: image.world.stonewarm.gravel-paving-v1
