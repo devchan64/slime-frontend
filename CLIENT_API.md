@@ -196,3 +196,5 @@ node scripts/text-client.mjs --help
 GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공유합니다. 정련·정제 및 일반 가공재·속성 정수 구분은 서버 메타데이터가 있을 때 표시합니다. 이전 응답에 없는 분류를 추측하지 않습니다. 기존 v1 API 연결이며 서버·배포 자원 추가는 없습니다.
 
 가공 GUI 브라우저 회귀는 `node --test tests/refining-panel-browser.test.mjs`로 실행합니다. `CHROME_BIN` 또는 `/usr/bin/google-chrome`이 필요합니다. 실제 Preact 패널·언어팩·스타일을 사용하며 HTTP 경계는 테스트 응답으로 대체합니다. 한국어·영어에서 수량 선택, 견적, 계약·수령 실패 후 재시도, 생성 후 목록 갱신, 수령 버튼 제거, 다른 시설 목록 거절을 검사합니다. 결과 DOM·스크린샷·로그는 `.tmp/test/refining-ui-browser/<한국시간>/`에 저장합니다. 실제 API 연결과 게임 전체 화면 검증은 별도입니다.
+
+실제 API 연결용 GUI 번들은 `node scripts/build-refining-browser-test.mjs /tmp/slime-refining-live-browser.js`로 준비합니다. 테스트 서버가 같은 출처에서 `/test-context`(테스트 토큰), `/test-bundle.js`, `/test-result`를 제공하고, `/test-complete-contract`는 전용 테스트 DB의 해당 가공 계약만 완료 상태로 준비합니다. 이 경로는 제품 API에 추가하지 않습니다. 번들은 실제 `Client`·가공 패널·언어팩을 사용하며 `fetch` 응답을 대체하지 않습니다. 백엔드의 별도 통합 검사에 `SLIME_PROCESSING_BROWSER_BUNDLE`로 명시적으로 전달하고 `slime_test`에서만 실행합니다. 게임 전체 App·이동·로그인 화면과 시각적 배치 검증은 이 검사에 포함하지 않습니다.
