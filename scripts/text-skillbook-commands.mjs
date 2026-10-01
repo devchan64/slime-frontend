@@ -1,3 +1,4 @@
+import {validateSkillbookCommandResponse} from '../src/client/skillbook-command-validation.mjs';
 import {parseSkillbookInventory} from '../src/client/skillbook-validation.mjs';
 const SKILLBOOK_COMMAND_IDENTIFIER_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
 function sanitizeSkillbookDisplayText(currentDisplayText){return currentDisplayText.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');}
@@ -44,18 +45,9 @@ export async function executeSkillbookCommand(currentTextClient,currentCommandAr
   sanitizeSkillbookDisplayText(`스킬북 ${currentPurchaseQuote?'구매':'열람'} 완료 · ${currentCommandResult.book.nameTranslations.ko}`)+
    (currentPurchaseQuote?' · '+currentCommandResult.book.priceP+'p':''),{
   includeRequestIdentifier:!!currentPurchaseQuote,
-  validateCommandResponse:(currentCommandResult,currentRequestBody)=>{
-   const currentReturnedState=currentCommandResult?.state;
-   if(currentReturnedState?.me?.id!==currentGameState.me.id||currentReturnedState.generation!==currentGameState.generation
-    ||!Number.isSafeInteger(currentReturnedState.me.version)||currentReturnedState.me.version<currentRequestBody.expectedVersion)
-    throw new Error('스킬북 응답의 캐릭터·세션·상태 버전이 다릅니다.');
-   const currentReturnedBook=parseSkillbookInventory({characterVersion:currentReturnedState.me.version,books:[currentCommandResult.book]}).books[0];
-   if(currentReturnedBook.definitionId!==currentTargetIdentifier)throw new Error('요청한 스킬북과 응답이 다릅니다.');
-   if(currentPurchaseQuote){
-    if(currentReturnedBook.requestId!==currentRequestBody.requestId||currentReturnedBook.facilityId!==currentPurchaseQuote.facilityId
-     ||currentReturnedBook.definitionVersion!==currentRequestBody.definitionVersion||currentReturnedBook.priceP!==currentRequestBody.priceP)
-     throw new Error('스킬북 구매 영수증이 요청과 다릅니다.');
-   }else if(currentReturnedBook.firstReadAt===null)throw new Error('스킬북 열람 완료 기록이 없습니다.');
-  },
+  validateCommandResponse:(currentCommandResult,currentRequestBody)=>validateSkillbookCommandResponse(currentCommandResult,{
+   characterId:currentGameState.me.id,generation:currentGameState.generation,expectedVersion:currentRequestBody.expectedVersion,definitionId:currentTargetIdentifier,
+   ...(currentPurchaseQuote?{purchase:{...currentRequestBody,facilityId:currentPurchaseQuote.facilityId}}:{}),
+  }),
  });
 }

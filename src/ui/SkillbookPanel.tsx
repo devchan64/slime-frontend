@@ -1,3 +1,4 @@
+import {validateSkillbookCommandResponse,type SkillbookPurchaseRequest} from '../client/skillbook-command-validation.mjs';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseSkillbookInventory,type SkillbookInventoryResponse,type SkillbookCatalogEntry} from '../client/skillbooks';
@@ -11,7 +12,7 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
   const [currentRequestPending,setCurrentRequestPending]=useState(false);
   const activePanelReference=useRef(false);
   const pendingRequestReference=useRef(false);
-  const originalPurchaseRequests=useRef<Record<string,Record<string,unknown>>>({});
+  const originalPurchaseRequests=useRef<Record<string,SkillbookPurchaseRequest>>({});
   const originalSessionReference=useRef({character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation});
   const currentCatalogPath=currentFacilityIdentifier?`/v1/game/bookshops/${encodeURIComponent(currentFacilityIdentifier)}/catalog`:'/v1/game/skillbooks';
   function currentBookSessionMatches(){return activePanelReference.current&&gameSessionClient.state?.me.id===originalSessionReference.current.character
@@ -30,21 +31,33 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
   async function purchaseCurrentBook(currentBookEntry:Omit<SkillbookCatalogEntry,'owned'>){
     if(actionsAreDisabled||!currentBookInventory||!currentFacilityIdentifier)return;
     await runCurrentBookRequest(async()=>{
+      const currentRequestState=gameSessionClient.state;
+      if(!currentRequestState)return;
       const currentOriginalRequest=originalPurchaseRequests.current[currentBookEntry.definitionId]??={
         requestId:crypto.randomUUID(),expectedVersion:currentBookInventory.characterVersion,definitionId:currentBookEntry.definitionId,
         definitionVersion:currentBookEntry.definitionVersion,priceP:currentBookEntry.priceP};
       const currentPurchaseResponse=await gameSessionClient.request(`/v1/game/bookshops/${encodeURIComponent(currentFacilityIdentifier)}/purchases`,currentOriginalRequest);
       if(!currentBookSessionMatches())return;
+      validateSkillbookCommandResponse(currentPurchaseResponse,{
+        characterId:currentRequestState.me.id,generation:currentRequestState.generation,
+        expectedVersion:currentOriginalRequest.expectedVersion,definitionId:currentOriginalRequest.definitionId,
+        purchase:{...currentOriginalRequest,facilityId:currentFacilityIdentifier},
+      });
       gameSessionClient.accept(currentPurchaseResponse.state);
       await loadCurrentBooks();
     });
   }
   async function readCurrentBook(currentBookIdentifier:string){
     if(actionsAreDisabled||!currentBookInventory||!gameSessionClient.state)return;
-    const currentCharacterVersion=gameSessionClient.state.me.version;
+    const currentRequestState=gameSessionClient.state;
+    const currentCharacterVersion=currentRequestState.me.version;
     await runCurrentBookRequest(async()=>{
       const currentReadResponse=await gameSessionClient.request(`/v1/game/skillbooks/${encodeURIComponent(currentBookIdentifier)}/read`,{expectedVersion:currentCharacterVersion});
       if(!currentBookSessionMatches())return;
+      validateSkillbookCommandResponse(currentReadResponse,{
+        characterId:currentRequestState.me.id,generation:currentRequestState.generation,
+        expectedVersion:currentCharacterVersion,definitionId:currentBookIdentifier,
+      });
       gameSessionClient.accept(currentReadResponse.state);
       await loadCurrentBooks();
       if(currentBookSessionMatches())setCurrentBookNotice({key:'books.readComplete'});
