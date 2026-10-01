@@ -19,7 +19,8 @@ export function validateParcelAttachments(currentAttachmentEntries){
   return currentAttachmentRecord.itemId+' × '+currentAttachmentRecord.quantity;
  });
 }
-export function formatParcelListing(currentListingRecord){
+export function formatParcelListing(currentListingRecord,currentNameLocale=null){
+ if(currentNameLocale!==null){requireParcelCondition(['ko','en'].includes(currentNameLocale));validateNamedParcelListing(currentListingRecord);}
  requireParcelCondition(currentListingRecord&&Number.isSafeInteger(currentListingRecord.characterVersion)&&currentListingRecord.characterVersion>=0&&Number.isFinite(currentListingRecord.serverTime)&&currentListingRecord.serverTime>=0&&Array.isArray(currentListingRecord.entries)&&currentListingRecord.entries.length<=100&&(currentListingRecord.nextCursor===null||PARCEL_IDENTIFIER_PATTERN.test(currentListingRecord.nextCursor)));
  const currentSeenIdentifiers=new Set();
  const currentOutputLines=currentListingRecord.entries.map(currentParcelRecord=>{
@@ -27,7 +28,14 @@ export function formatParcelListing(currentListingRecord){
   currentSeenIdentifiers.add(currentParcelRecord.parcelId);
   const currentExpiryDate=new Date(currentParcelRecord.expiresAt*1000);
   requireParcelCondition(Number.isFinite(currentExpiryDate.getTime()));
-  return currentParcelRecord.parcelId+' · '+validateParcelAttachments(currentParcelRecord.attachments).join(', ')+' · 만료 '+currentExpiryDate.toISOString();
+  const currentAttachmentLabels=validateParcelAttachments(currentParcelRecord.attachments).map((currentOriginalLabel,currentAttachmentIndex)=>{
+   if(currentNameLocale===null)return currentOriginalLabel;
+   const currentAttachmentRecord=currentParcelRecord.attachments[currentAttachmentIndex];
+   if(currentAttachmentRecord.kind==='money')return currentOriginalLabel;
+   const currentDisplayName=currentParcelRecord.attachmentNames[currentAttachmentIndex][currentNameLocale];
+   return currentAttachmentRecord.kind==='costume'?'코스튬 '+currentDisplayName:currentDisplayName+' × '+currentAttachmentRecord.quantity;
+  });
+  return currentParcelRecord.parcelId+' · '+currentAttachmentLabels.join(', ')+' · 만료 '+currentExpiryDate.toISOString();
  });
  requireParcelCondition(currentListingRecord.nextCursor===null||(currentListingRecord.entries.length===100&&currentListingRecord.nextCursor===currentListingRecord.entries.at(-1).parcelId));
  return (currentOutputLines.join('\n')||'수령 가능한 소포가 없습니다.')+(currentListingRecord.nextCursor?'\n다음 커서: '+currentListingRecord.nextCursor:'');

@@ -18,10 +18,12 @@ function createParcelClient(currentResponseEntries){
  return {currentTextClient,currentRequestEntries};
 }
 test('소포 첨부와 만료를 표시하고 목록 커서를 전송한다',async()=>{
- const currentListingRecord={characterVersion:4,serverTime:100,nextCursor:null,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
+ const currentListingRecord={characterVersion:4,serverTime:100,nextCursor:null,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null,{ko:'기본 의상',en:'Default outfit'},{ko:'단백질 젤리',en:'Protein jelly'}],attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
  const {currentTextClient,currentRequestEntries}=createParcelClient([currentListingRecord]);
- assert.match(await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/7p.*코스튬 default.*protein-jelly × 2.*만료/);
- assert.ok(currentRequestEntries[0].url.endsWith('?after='+CURRENT_PARCEL_IDENTIFIER));
+ assert.match(await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/7p.*코스튬 기본 의상.*단백질 젤리 × 2.*만료/);
+ assert.ok(currentRequestEntries[0].url.endsWith('?includeNames=true&after='+CURRENT_PARCEL_IDENTIFIER));
+ assert.match(formatParcelListing(currentListingRecord,'en'),/Default outfit.*Protein jelly/);
+ for(const currentAttachmentNames of [[],[null,null,null],[null,{ko:'기본 의상'}, {ko:'젤리',en:'Jelly'}]])assert.throws(()=>formatParcelListing({...currentListingRecord,entries:[{...currentListingRecord.entries[0],attachmentNames:currentAttachmentNames}]},'ko'));
  for(const currentInvalidPatch of [{serverTime:200},{nextCursor:CURRENT_PARCEL_IDENTIFIER},{entries:[...currentListingRecord.entries,...currentListingRecord.entries]}])assert.throws(()=>formatParcelListing({...currentListingRecord,...currentInvalidPatch}));
 });
 test('응답 유실과 잘못된 영수증은 같은 소포·버전으로 retry한다',async()=>{
