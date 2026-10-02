@@ -402,3 +402,8 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 공방 공통 응답 검증기의 읽기 종류 `WorkshopReadKind`는 `material`을 포함한다. `parseWorkshopQuote(response, 'material', selection)`는 주문 수량과 입력 선택의 일치, `usage: material`, 품질 분수에 따른 레벨, 양의 정수 `material_strength_percent` 하나로 구성된 고정 성능을 검사한다. 중간재는 `productionResult` 누락을 허용하지 않는다. `parseWorkshopContracts(response, 'material')`도 같은 검증을 사용하며 과거 계약의 저장 성능 버전을 현재 표로 바꾸지 않는다. 명령 종류 `WorkshopContractKind`도 material을 지원하며 GUI·텍스트 명령에서 같은 응답 검증기를 사용한다.
 
 중간재 서버 명령 API는 기존 공방 경로의 `kind: material`을 사용한다. `POST /v1/game/workshops/{facilityId}/contracts`에 `targetId`·`quantity`·선택 견적과 같은 `materialInputs`·`quoteToken`·`expectedVersion`·`requestId`를 전달한다. 수령은 `POST /v1/game/workshops/{facilityId}/contracts/{contractId}/claim`에 `{kind: 'material', expectedVersion}`를 보낸다. 생성 재시도는 최초 요청 ID와 입력을 유지한다. 새 계약에는 유효한 현지 시민권이 필요하며 기존 계약은 만료 후에도 계약한 공방에서 수령한다. GUI 공방의 중간재 제작 메뉴에서 슬롯별 재료와 주문량을 선택하고 견적·생성·계약 목록·수령을 실행한다. 텍스트는 `workshop material catalog 시설ID`, `workshop material quote 시설ID 품목ID 주문수량 [재료ID=총수량 ...]`, `workshop material create 시설ID`, `workshop material contracts 시설ID`, `workshop material claim 시설ID 계약ID`를 사용한다. GUI의 응답 유실 복구는 원래 요청의 종류·품목·수량·재료가 원장과 일치할 때만 성공으로 처리한다.
+
+
+장비 카탈로그의 `batchSlots`는 중간재 품목·필요량·한영 이름과 보유 배치의 `batchId`·`ownedQuantity`·`itemLevel`을 제공한다. `materialSlots`는 정제 재료 선택이다. GUI는 배치별 수량을 직접 선택하며 슬롯 합계와 보유량을 검증한다. 빈 배치 목록도 유효한 미보유 상태이며 임의 배치를 만들거나 부족분을 구매하지 않는다.
+
+배치 사용 장비의 `production-quote` 및 계약 생성 본문에는 동일한 `batchInputs: [{batchId, quantity}]`를 전달한다. 견적의 `requestedBatches`와 원장 복구의 `batches`가 원래 선택과 다르면 클라이언트는 성공으로 처리하지 않는다. 텍스트 명령은 `workshop craft quote 시설ID 품목ID 재료ID=수량 [batch:배치ID=수량 ...]`이며 카탈로그가 제공한 정제 재료와 배치를 함께 지정한다. 견적 확인 후 기존 `workshop craft create 시설ID`로 확정한다.

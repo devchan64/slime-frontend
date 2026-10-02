@@ -89,5 +89,25 @@ function findProductionButton(currentLocaleKey:string){const currentButton=[...d
  assertProductionCondition(currentQuotedRequests.at(-1).kind==='material'&&currentQuotedRequests.at(-1).quantity===4,'중간재 혼합 견적 전송');
  findProductionButton('workshop.confirm').click();await settleProductionRender();
  assertProductionCondition(currentCreatedRequests.at(-1).kind==='material'&&currentCreatedRequests.at(-1).quantity===4&&JSON.stringify(currentCreatedRequests.at(-1).materialInputs)===JSON.stringify(currentQuotedRequests.at(-1).materialInputs),'중간재 견적과 같은 수량·재료 계약');
+ const currentBeforeBatchRequest=currentGameClient.request;
+ currentGameClient.request=async(currentPath:string,currentBody?:any)=>{
+  if(currentPath.includes('/catalog?kind=craft'))return {items:[{id:'round-shield',name:'원방패',englishName:'Shield',materialSlots:[{slotId:'wood',requiredQuantity:4,defaultMaterialId:'processed-lumber-low',choices:[{materialId:'processed-lumber-low',grade:'low',ownedQuantity:4,nameTranslations:{ko:'목재',en:'Wood'}}]}],batchSlots:[{materialId:'leather-cord',requiredQuantity:1,nameTranslations:{ko:'가죽끈',en:'Leather Cord'},choices:[{batchId:'selected-batch',ownedQuantity:1,itemLevel:1}]}]}]};
+  if(currentPath.endsWith('/production-quote')&&currentBody.batchInputs){
+   currentQuotedRequests.push(currentBody);
+   return {characterVersion:5,ownedCoins:100,quoteToken:'d'.repeat(64),quote:{definitionId:'round-shield',definitionSnapshot:{name:'원방패',englishName:'Shield'},costP:12,durationSeconds:600,selectedMaterials:currentBody.materialInputs,requestedBatches:currentBody.batchInputs},materials:currentBody.materialInputs.map((currentInputRecord:any)=>({...currentInputRecord,ownedQuantity:4,consumedQuantity:4,missingQuantity:0,nameTranslations:{ko:'목재',en:'Wood'}}))};
+  }
+  return currentBeforeBatchRequest(currentPath,currentBody);
+ };
+ findProductionButton('workshop.craft').click();await settleProductionRender();
+ const currentShieldSelect=document.querySelector('select')!;currentShieldSelect.value='round-shield';currentShieldSelect.dispatchEvent(new Event('change',{bubbles:true}));await settleProductionRender();
+ assertProductionCondition(findProductionButton('workshop.quote').disabled,'장비 배치 미선택은 견적 차단');
+ const currentBatchInput=document.querySelectorAll('fieldset')[1].querySelector('input')!;
+ currentBatchInput.value='2';currentBatchInput.dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();
+ assertProductionCondition(findProductionButton('workshop.quote').disabled,'보유 배치 수량 초과는 견적 차단');
+ currentBatchInput.value='1';currentBatchInput.dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();
+ findProductionButton('workshop.quote').click();await settleProductionRender();
+ assertProductionCondition(currentQuotedRequests.at(-1).batchInputs[0].batchId==='selected-batch','장비 견적에 보유 배치 선택 전송');
+ findProductionButton('workshop.confirm').click();await settleProductionRender();
+ assertProductionCondition(JSON.stringify(currentCreatedRequests.at(-1).batchInputs)===JSON.stringify(currentQuotedRequests.at(-1).batchInputs),'장비 계약에 견적 배치 선택 보존');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertions});
 }catch(currentFailure){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailure),assertions:currentAssertions});}})();

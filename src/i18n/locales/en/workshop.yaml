@@ -54,3 +54,6 @@ materialTotal: 'Selected {selected} / required {required}'
 materialTotalInvalid: Select grade quantities that add up to the required total.
 
 material: Material crafting
+
+batchSelection: Material batches
+batchRequired: Select the required quantity from owned batches. Missing batches cannot be purchased.

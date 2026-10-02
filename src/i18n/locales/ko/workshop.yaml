@@ -54,3 +54,6 @@ materialTotal: '선택 {selected} / 필요 {required}'
 materialTotalInvalid: 필요한 총수량에 맞게 등급별 수량을 선택하세요.
 
 material: 중간재 제작
+
+batchSelection: 중간재 배치
+batchRequired: 보유한 중간재 배치를 필요 수량만큼 선택하세요. 부족분은 대체 구매하지 않습니다.

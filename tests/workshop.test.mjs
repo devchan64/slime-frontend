@@ -226,3 +226,21 @@ test('중간재 과거 계약의 고정 성능은 현재 표를 추측하여 덮
  currentReceiptFixture.quantity=3;
  await assert.rejects(()=>recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'));
  });
+
+test('장비 배치 견적·복구는 선택 수량을 검증하고 카탈로그의 중복 배치를 거절한다',async()=>{
+ const currentBatchInputs=[{batchId:'batch-one',quantity:1}];
+ const currentQuoteResponse={...currentQuoteFixture,quote:{...currentQuoteFixture.quote,definitionId:'round-shield',requestedBatches:currentBatchInputs}};
+ assert.equal(parseWorkshopQuote(currentQuoteResponse,'craft',{targetId:'round-shield',batchInputs:currentBatchInputs}),currentQuoteResponse);
+ assert.throws(()=>parseWorkshopQuote(currentQuoteResponse,'craft',{targetId:'round-shield',batchInputs:[{batchId:'batch-one',quantity:2}]}));
+ const currentCatalogResponse={items:[{id:'round-shield',name:'방패',englishName:'Shield',materialSlots:[{slotId:'wood',requiredQuantity:4,defaultMaterialId:'wood-low',choices:[{materialId:'wood-low',grade:'low',ownedQuantity:4,nameTranslations:{ko:'목재',en:'Wood'}}]}],batchSlots:[{materialId:'leather-cord',requiredQuantity:1,nameTranslations:{ko:'가죽끈',en:'Leather Cord'},choices:[{batchId:'batch-one',ownedQuantity:2,itemLevel:1}]}]}]};
+ assert.equal(parseWorkshopCatalog(currentCatalogResponse)[0].batchSlots[0].choices.length,1);
+ const currentDuplicateCatalog=structuredClone(currentCatalogResponse);currentDuplicateCatalog.items[0].batchSlots[0].choices.push(currentDuplicateCatalog.items[0].batchSlots[0].choices[0]);
+ assert.throws(()=>parseWorkshopCatalog(currentDuplicateCatalog));
+ const {recoverWorkshopCreationResult}=await import(`data:text/javascript;base64,${Buffer.from(currentCompiledBundle.outputFiles[0].text).toString('base64')}`);
+ const currentOriginalRequest={requestId:'22222222-2222-4222-8222-222222222222',kind:'craft',targetId:'round-shield',batchInputs:currentBatchInputs};
+ const currentReceiptResponse={...currentOriginalRequest,facilityId:'iseulon-workshop',expectedInstanceVersion:null,contractId:currentContractFixture.entries[0].contractId,costP:12,batches:currentBatchInputs};
+ const currentRequestClient={async request(){return currentReceiptResponse;}};
+ assert.equal(await recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'),true);
+ currentReceiptResponse.batches=[{batchId:'batch-other',quantity:1}];
+ await assert.rejects(()=>recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'));
+});

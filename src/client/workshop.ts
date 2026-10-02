@@ -1,10 +1,12 @@
-import {matchesWorkshopMaterials} from './workshop-validation.mjs';
+import {matchesWorkshopMaterials,matchesWorkshopBatches} from './workshop-validation.mjs';
 import {ApiError} from './response';
+export type WorkshopBatchInput={batchId:string;quantity:number};
+export type WorkshopBatchSlot={materialId:string;requiredQuantity:number;nameTranslations:{ko:string;en:string};choices:{batchId:string;ownedQuantity:number;itemLevel:number}[]};
 export type WorkshopMaterialInput={materialId:string;quantity:number};
 export type WorkshopMaterialSelection={requiredQuantity:number;defaultMaterialId:string;choices:{materialId:string;grade:'low'|'medium'|'high';ownedQuantity:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractKind='craft'|'repair'|'consumable'|'material';
 export type WorkshopReadKind=WorkshopContractKind;
-export type WorkshopPriceQuote={productionResult?:{itemLevel:number;performanceVersion:number};baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
+export type WorkshopPriceQuote={requestedBatches?:WorkshopBatchInput[];productionResult?:{itemLevel:number;performanceVersion:number};baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
 export type WorkshopQuoteResponse={characterVersion:number;ownedCoins?:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;ownedQuantity?:number;materialId?:string;consumedQuantity?:number;missingQuantity?:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractPage<CurrentWorkshopKind extends WorkshopReadKind=WorkshopContractKind>={characterVersion:number;serverTime:number;nextCursor:string|null;entries:{contractId:string;kind:CurrentWorkshopKind;
@@ -28,6 +30,7 @@ export async function recoverWorkshopCreationResult(currentRequestClient:{reques
     &&currentReceiptResponse.kind===currentOriginalRequest.kind&&currentReceiptResponse.facilityId===currentFacilityIdentifier
     &&currentReceiptResponse.targetId===currentOriginalRequest.targetId
     &&(!['consumable','material'].includes(String(currentOriginalRequest.kind))||currentReceiptResponse.quantity===(currentOriginalRequest.quantity??1))
+    &&(currentOriginalRequest.batchInputs===undefined||matchesWorkshopBatches(currentOriginalRequest.batchInputs,currentReceiptResponse.batches))
     &&(currentOriginalRequest.materialInputs===undefined||matchesWorkshopMaterials(currentOriginalRequest.materialInputs,currentReceiptResponse.materials))
     &&currentReceiptResponse.expectedInstanceVersion===(currentOriginalRequest.expectedInstanceVersion??null)
     &&typeof currentReceiptResponse.contractId==='string'&&WORKSHOP_UUID_PATTERN.test(currentReceiptResponse.contractId)

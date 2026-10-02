@@ -69,6 +69,7 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind,curr
   if(currentRequestedSelection!==undefined){
     requireWorkshopCondition(typeof currentRequestedSelection.targetId==='string'&&currentRequestedSelection.targetId.length>0
       &&(currentContractKind==='repair'?currentResponseValue.quote.instanceId:currentResponseValue.quote.definitionId)===currentRequestedSelection.targetId);
+    if(currentRequestedSelection.batchInputs!==undefined)requireWorkshopCondition(currentContractKind==='craft'&&matchesWorkshopBatches(currentRequestedSelection.batchInputs,currentResponseValue.quote.requestedBatches));
     if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(['craft','consumable','material'].includes(currentContractKind)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentContractKind==='craft'?currentResponseValue.quote.selectedMaterials:currentResponseValue.quote.requiredMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
     if(['consumable','material'].includes(currentContractKind))requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
       &&currentRequestedSelection.quantity<=1000&&currentResponseValue.quote.quantity===currentRequestedSelection.quantity);
@@ -144,6 +145,21 @@ export function parseWorkshopCatalog(currentResponseValue){
       }
       requireWorkshopCondition(currentSeenMaterials.has(currentMaterialSelection.defaultMaterialId));
     }
+    if(currentCatalogItem.batchSlots!==undefined){
+      requireWorkshopCondition(Array.isArray(currentCatalogItem.batchSlots)&&currentCatalogItem.batchSlots.length>0&&currentCatalogItem.materialSlots!==undefined);
+      const currentSeenBatchSlots=new Set(),currentSeenBatchIdentifiers=new Set();
+      for(const currentBatchSlot of currentCatalogItem.batchSlots){
+        requireWorkshopCondition(currentBatchSlot&&typeof currentBatchSlot.materialId==='string'&&!!currentBatchSlot.materialId.trim()&&!currentSeenBatchSlots.has(currentBatchSlot.materialId)
+          &&isWorkshopWholeNumber(currentBatchSlot.requiredQuantity)&&currentBatchSlot.requiredQuantity>0&&Array.isArray(currentBatchSlot.choices)
+          &&['ko','en'].every(currentLanguageCode=>typeof currentBatchSlot.nameTranslations?.[currentLanguageCode]==='string'&&!!currentBatchSlot.nameTranslations[currentLanguageCode].trim()));
+        currentSeenBatchSlots.add(currentBatchSlot.materialId);
+        for(const currentBatchChoice of currentBatchSlot.choices){
+          requireWorkshopCondition(currentBatchChoice&&typeof currentBatchChoice.batchId==='string'&&!!currentBatchChoice.batchId.trim()&&!currentSeenBatchIdentifiers.has(currentBatchChoice.batchId)
+            &&isWorkshopWholeNumber(currentBatchChoice.ownedQuantity)&&currentBatchChoice.ownedQuantity>0&&[1,2].includes(currentBatchChoice.itemLevel));
+          currentSeenBatchIdentifiers.add(currentBatchChoice.batchId);
+        }
+      }
+    }
     currentCatalogIdentifiers.add(currentCatalogItem.id);
   }
   return currentResponseValue.items;
@@ -162,4 +178,11 @@ export function matchesWorkshopMaterials(currentExpectedMaterials,currentActualM
   if(!currentMaterialEntry||currentSeenIdentifiers.has(currentMaterialEntry.materialId)||currentExpectedMap.get(currentMaterialEntry.materialId)!==currentMaterialEntry.quantity)return false;
   currentSeenIdentifiers.add(currentMaterialEntry.materialId);return true;
  });
+}
+
+
+export function matchesWorkshopBatches(currentExpectedBatches,currentActualBatches){
+ if(!Array.isArray(currentExpectedBatches)||!Array.isArray(currentActualBatches))return false;
+ const convertBatchMaterials=currentBatchEntries=>currentBatchEntries.map(currentBatchEntry=>({materialId:currentBatchEntry?.batchId,quantity:currentBatchEntry?.quantity}));
+ return matchesWorkshopMaterials(convertBatchMaterials(currentExpectedBatches),convertBatchMaterials(currentActualBatches));
 }

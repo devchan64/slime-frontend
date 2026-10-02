@@ -72,3 +72,15 @@ test('중간재 선택 재료 견적은 주문량·종류·총 재료량을 계�
  for(const currentInvalidInput of ['tanned-leather-low=0','tanned-leather-low=4 tanned-leather-low=4','tanned-leather-low=1.5'])await assert.rejects(currentTextClient.execute('workshop material quote iseulon-workshop leather-cord 2 '+currentInvalidInput));
  assert.equal(currentRequestEntries.length,2);
 });
+
+test('장비 텍스트 명령은 중간재 배치와 정제 재료 선택을 견적부터 계약까지 보존한다',async()=>{
+ const currentMaterialInputs=[{materialId:'processed-lumber-low',quantity:4}];
+ const currentBatchInputs=[{batchId:CURRENT_INSTANCE_IDENTIFIER,quantity:1}];
+ const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:'round-shield',definitionSnapshot:{name:'목제 원방패',englishName:'Shield'},costP:12,durationSeconds:600,selectedMaterials:currentMaterialInputs,requestedBatches:currentBatchInputs},materials:currentMaterialInputs.map(currentMaterialEntry=>({...currentMaterialEntry,nameTranslations:{ko:'목재',en:'Wood'},ownedQuantity:4,consumedQuantity:4,missingQuantity:0}))};
+ const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentQuoteData,{state:createWorkshopState()}]);
+ await currentTextClient.execute('workshop craft quote iseulon-workshop round-shield processed-lumber-low=4 batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1');
+ await currentTextClient.execute('workshop craft create iseulon-workshop');
+ for(const currentRequestEntry of currentRequestEntries){assert.deepEqual(currentRequestEntry.body.materialInputs,currentMaterialInputs);assert.deepEqual(currentRequestEntry.body.batchInputs,currentBatchInputs);}
+ for(const currentInvalidBatch of ['=0','=1.5','=1 batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1'])await assert.rejects(currentTextClient.execute('workshop craft quote iseulon-workshop round-shield processed-lumber-low=4 batch:'+CURRENT_INSTANCE_IDENTIFIER+currentInvalidBatch));
+ assert.equal(currentRequestEntries.length,2);
+});
