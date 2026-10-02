@@ -1,3 +1,4 @@
+import {isHealthFull} from '../client/health-state.mjs';
 import type { State } from '../client/types';
 import { useTranslation } from '../i18n';
 
@@ -15,7 +16,7 @@ export function FieldFirstAid({ currentGameState, actionsAreDisabled, submitFirs
   const currentActionDisabled = actionsAreDisabled || currentPlayerState.mode !== 'FIELD' || !!currentPlayerState.battleId
     || currentSafeDistance <= currentGameState.map.safeRadius || (currentPlayerState.fp ?? 0) < 0
     || currentPlayerState.hp === undefined || currentPlayerState.maxHp === undefined
-    || currentPlayerState.hp >= currentPlayerState.maxHp || currentBandageCount < currentFirstAidPolicy.consumedOnSuccess
+    || isHealthFull(currentPlayerState) || currentBandageCount < currentFirstAidPolicy.consumedOnSuccess
     || (currentPlayerState.skills.first_aid ?? 0) < currentFirstAidPolicy.minimumUseLevel
     || (currentPlayerState.skills.literacy ?? 0) < currentFirstAidPolicy.literacyRequired
     || !!currentPlayerState.skillUseLocks?.first_aid;

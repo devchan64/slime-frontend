@@ -13,7 +13,7 @@ const currentModuleBuild = await build({entryPoints:['src/ui/BagPanel.tsx'],bund
 }]});
 const {BagPanel} = await import(`data:text/javascript;base64,${Buffer.from(currentModuleBuild.outputFiles[0].text).toString('base64')}`);
 
-async function inspectDelayedBagResponse(changeCurrentSession, rejectedRequestValue, invokePreviousRefresh = false) {
+async function inspectDelayedBagResponse(changeCurrentSession, rejectedRequestValue, invokePreviousRefresh = false, currentCharacterPatch = {}, currentInspectDisabled = false) {
   const savedHookValues=[];const queuedEffectCalls=[];const effectCleanupCalls=[];
   let currentConsumableCalls=0;let currentRequestCount=0;let currentHookIndex=0;let currentStateWrites=0;let completeCurrentRequest;let rejectCurrentRequest;
   const previousTestHarness=globalThis.bagSessionHarness;
@@ -22,7 +22,7 @@ async function inspectDelayedBagResponse(changeCurrentSession, rejectedRequestVa
     useRef(initialHookValue){const currentHookSlot=currentHookIndex++;return savedHookValues[currentHookSlot]={current:initialHookValue};},
     useEffect(currentEffectCallback){queuedEffectCalls.push(currentEffectCallback);}
   };
-  const currentCharacterState={id:'character-one',version:1,mode:'FIELD',hp:1,maxHp:10,fp:1};
+  const currentCharacterState={id:'character-one',version:1,mode:'FIELD',hp:1,maxHp:10,fp:1,...currentCharacterPatch};
   const currentSessionClient={tokens:{user_id:'owner-one'},state:{generation:1,me:currentCharacterState},
     request:()=>{currentRequestCount++;return new Promise((resolveCurrentRequest,rejectPendingRequest)=>{completeCurrentRequest=resolveCurrentRequest;rejectCurrentRequest=rejectPendingRequest;});}};
   try {
@@ -41,6 +41,7 @@ async function inspectDelayedBagResponse(changeCurrentSession, rejectedRequestVa
           }
           return null;
         }
+        if(currentInspectDisabled)return findConsumableButton(currentPanelTree).props.disabled;
         findConsumableButton(currentPanelTree).props.onClick();
         return currentConsumableCalls;
       }
@@ -92,4 +93,10 @@ test('소모품 사용은 화면을 연 세션에서만 실행한다',async()=>{
   assert.equal(await inspectDelayedBagResponse(()=>{},false,'consume'),1);
   assert.equal(await inspectDelayedBagResponse(currentSessionClient=>{currentSessionClient.state.generation++;},false,'consume'),0);
   assert.equal(await inspectDelayedBagResponse(currentSessionClient=>{currentSessionClient.tokens={user_id:'other'};},false,'consume'),0);
+});
+
+
+test('올림 표시 10/10에서도 실제 완충 전에는 가방 회복약을 사용할 수 있다',async()=>{
+ assert.equal(await inspectDelayedBagResponse(()=>{},false,'consume',{hp:10,maxHp:10,healthFull:false},true),false);
+ assert.equal(await inspectDelayedBagResponse(()=>{},false,'consume',{hp:10,maxHp:10,healthFull:true},true),true);
 });

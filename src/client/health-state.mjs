@@ -6,3 +6,13 @@ export function isHealthDepleted(currentHealthRecord) {
   }
   return typeof currentHealthRecord.hp === 'number' && currentHealthRecord.hp <= 0;
 }
+
+// 표시 HP가 최대치로 올림되어도 실제로 덜 회복된 상태를 구분한다.
+export function isHealthFull(currentHealthRecord) {
+  if (currentHealthRecord.healthFull !== undefined) {
+    if (typeof currentHealthRecord.healthFull !== 'boolean') throw new Error('HP 완충 상태는 참/거짓이어야 합니다.');
+    return currentHealthRecord.healthFull;
+  }
+  return typeof currentHealthRecord.hp === 'number' && typeof currentHealthRecord.maxHp === 'number'
+    && currentHealthRecord.hp >= currentHealthRecord.maxHp;
+}

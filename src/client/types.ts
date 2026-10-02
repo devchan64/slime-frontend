@@ -21,7 +21,7 @@ export type Unit = Appearance & {
   facing?: WorldFacing;
   /** 적은 서버가 제한한 표시 스케일이며 실제 HP가 아니다. */
   hp: number;
-  healthDepleted?: boolean;
+  healthDepleted?: boolean; healthFull?: boolean;
   healthRecoveryPending?: boolean;
   maxHp: number;
   healthVisibility?: "HIDDEN" | "BANDED";
@@ -104,7 +104,7 @@ export type State = {
     fpMax?: number;
     fieldRest?: { active: boolean; startedAt: number | null; recoveryPerMinute: number; nextRecoveryAt: number | null };
     hp?: number;
-    healthDepleted?: boolean;
+    healthDepleted?: boolean; healthFull?: boolean;
     healthRecoveryPending?: boolean;
     maxHp?: number;
     fpNextChargeAt?: number | null;

@@ -1,3 +1,4 @@
+import {isHealthFull} from '../client/health-state.mjs';
 import {TravelerPermitList} from './TravelerPermitList';
 import {SkillbookPanel} from './SkillbookPanel';
 import { EquipmentHistory } from './EquipmentHistory';
@@ -88,7 +89,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           {currentMaterialEntry.weightG !== null && <p>{translateBagText('app.itemWeight',{weight:currentMaterialEntry.weightG})}</p>}
           {currentMaterialEntry.useAction && submitConsumableUse && <button class="secondary compact"
             disabled={actionsAreDisabled || currentRequestPending || me.mode !== 'FIELD' || !!me.battleId || (me.fp ?? 0) < 0
-              || (currentMaterialEntry.useAction.type === 'RESTORE_HP' && (me.hp === undefined || me.maxHp === undefined || me.hp >= me.maxHp))
+              || (currentMaterialEntry.useAction.type === 'RESTORE_HP' && (me.hp === undefined || me.maxHp === undefined || isHealthFull(me)))
               || currentMaterialEntry.quantity < currentMaterialEntry.useAction.consumedOnSuccess}
             onClick={() => useBagConsumable(currentMaterialEntry.id)}>
             {currentMaterialEntry.useAction.type === 'RESTORE_HP'
