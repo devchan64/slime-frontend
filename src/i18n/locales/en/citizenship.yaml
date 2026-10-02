@@ -33,7 +33,7 @@ barterCash: Coin payment (p)
 barterEmpty: No materials available for payment.
 barterInvalid: Check the coin amount and quantities, and select at least one material.
 barterCashValue: 'Coins: {cash}p'
-barterMaterialValue: '{name} × {quantity} · standard value {value}p each'
-barterTotal: 'Payment value {total}p · excess {excess}p (no change)'
+barterMaterialQuantity: '{name} × {quantity}'
+barterNoChange: 'All selected PON and materials will be paid. No change is given.'
 barterPurchaseHelp: 'Pay the {price}p fee with the confirmed coins and materials. Excess value is not returned.'
 barterStateChanged: Your inventory state changed. Request a new quote.

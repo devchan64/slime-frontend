@@ -102,8 +102,8 @@ export function TravelerPermitPanel({gameSessionClient,currentGuardDefinition,ac
     <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||currentPurchaseUncertain} onClick={()=>void requestTravelerPrice()}>{translateTravelerText('citizenship.permitPrice')}</button>
     {currentPriceQuote?.payment&&<div>
       <p>{translateTravelerText('citizenship.barterCashValue',{cash:currentPriceQuote.payment.cashP})}</p>
-      {Object.entries(currentPriceQuote.payment.materials).map(([currentMaterialIdentifier,currentMaterialQuantity])=><p key={currentMaterialIdentifier}>{translateTravelerText('citizenship.barterMaterialValue',{name:currentMaterialEntries.find(currentMaterialEntry=>currentMaterialEntry.id===currentMaterialIdentifier)?.nameTranslations[currentTravelerLocale]??currentMaterialIdentifier,quantity:currentMaterialQuantity,value:currentPriceQuote.payment!.materialValues[currentMaterialIdentifier]})}</p>)}
-      <p>{translateTravelerText('citizenship.barterTotal',{total:currentPriceQuote.payment.totalValueP,excess:currentPriceQuote.payment.excessValueP})}</p>
+      {Object.entries(currentPriceQuote.payment.materials).map(([currentMaterialIdentifier,currentMaterialQuantity])=><p key={currentMaterialIdentifier}>{translateTravelerText('citizenship.barterMaterialQuantity',{name:currentMaterialEntries.find(currentMaterialEntry=>currentMaterialEntry.id===currentMaterialIdentifier)?.nameTranslations[currentTravelerLocale]??currentMaterialIdentifier,quantity:currentMaterialQuantity})}</p>)}
+      <p>{translateTravelerText('citizenship.barterNoChange')}</p>
     </div>}
     {currentPriceQuote&&<div>{currentRemainingSeconds>0?<p>{translateTravelerText('citizenship.permitQuote',{price:currentPriceQuote.price,seconds:currentRemainingSeconds})}</p>
       :<p role="status">{translateTravelerText('citizenship.permitExpired')}</p>}

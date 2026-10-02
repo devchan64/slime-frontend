@@ -94,6 +94,6 @@ export function validateTravelerBarterQuote(currentQuoteResponse,currentGuardEnt
 
 export function formatTravelerBarterPayment(currentPaymentRecord) {
   return '현금 '+currentPaymentRecord.cashP+'p\n'+Object.entries(currentPaymentRecord.materials).map(([currentMaterialIdentifier,currentMaterialQuantity])=>
-    currentMaterialIdentifier+' × '+currentMaterialQuantity+' · 표준 가치 '+currentPaymentRecord.materialValues[currentMaterialIdentifier]+'p/개').join('\n')
-    +'\n납부 가치 '+currentPaymentRecord.totalValueP+'p · 초과 '+currentPaymentRecord.excessValueP+'p (거스름돈 없음)';
+    currentMaterialIdentifier+' × '+currentMaterialQuantity).join('\n')
+    +'\n선택한 폰과 재료를 모두 납부합니다. 거스름돈 없음';
 }

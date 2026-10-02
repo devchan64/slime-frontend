@@ -41,7 +41,6 @@ export function validateTravelerPurchaseReceipt(currentReceiptValue: any, curren
   if(currentOriginalRequest.payment){
     const currentExpectedPayment=currentOriginalRequest.payment as TravelerBarterPayment;
     validateTravelerBarterQuote({priceP:currentReceiptValue.priceP,payment:currentReceiptValue.payment},currentGuardDefinition,currentExpectedPayment,()=>{});
-    for(const currentMaterialIdentifier of Object.keys(currentExpectedPayment.materialValues))if(currentReceiptValue.payment.materialValues[currentMaterialIdentifier]!==currentExpectedPayment.materialValues[currentMaterialIdentifier])throw new Error('납부 영수증의 재료 가치가 견적과 다릅니다.');
   }
   const currentPermitRecord = currentReceiptValue.permit;
   if (!currentPermitRecord || Object.keys(currentPermitRecord).sort().join(',') !== 'characterId,cityId,expiresAt,instanceId,issuedAt,issuerId,itemId'

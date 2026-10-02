@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {TextClient} from '../scripts/text-client-core.mjs';
 import {parseTravelerBarterSelection,validateTravelerBarterQuote} from '../scripts/text-traveler-permits.mjs';
 const CURRENT_GUARD_RECORD={id:'test-guard',cityId:'iseulon',mapId:'field',name:'경비센터',position:{column:1,row:1}};
-function createBarterQuoteRecord(){return {guardCenterId:'test-guard',cityId:'iseulon',priceP:5,policyVersion:1,validitySeconds:604800,serverTime:100,expiresAt:160,payment:{cashP:2,materials:{'protein-jelly':4},materialValues:{'protein-jelly':1},totalValueP:6,excessValueP:1}};}
+function createBarterQuoteRecord(){return {guardCenterId:'test-guard',cityId:'iseulon',priceP:5,policyVersion:1,validitySeconds:604800,serverTime:100,expiresAt:160,payment:{cashP:2,materials:{'protein-jelly':4}}};}
 function createBarterClientState(){return {protocolVersion:1,generation:1,epoch:1,cursor:1,location:{id:'field-channel'},me:{id:'hero',version:1,mode:'FIELD',position:{column:1,row:1}},map:{id:'field',guardCenters:[CURRENT_GUARD_RECORD]}};}
 test('혼합 납부를 표시하고 응답 유실 시 동일 선택으로 재전송한다',async()=>{
  const currentRequestCalls=[];
@@ -15,7 +15,7 @@ test('혼합 납부를 표시하고 응답 유실 시 동일 선택으로 재전
  }});
  currentTextClient.accept(createBarterClientState());
  const currentQuoteOutput=await currentTextClient.execute('permit barter test-guard 2 protein-jelly=4');
- assert.match(currentQuoteOutput,/현금 2p/);assert.match(currentQuoteOutput,/protein-jelly × 4/);assert.match(currentQuoteOutput,/초과 1p \(거스름돈 없음\)/);
+ assert.match(currentQuoteOutput,/현금 2p/);assert.match(currentQuoteOutput,/protein-jelly × 4/);assert.match(currentQuoteOutput,/거스름돈 없음/);
  assert.deepEqual(currentRequestCalls[0].body,{cashP:2,materials:{'protein-jelly':4}});
  await currentTextClient.execute('permit buy test-guard');
  assert.deepEqual(currentRequestCalls[1],currentRequestCalls[2]);

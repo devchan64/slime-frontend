@@ -14,7 +14,7 @@ const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoc
  request:async(currentRequestPath:string,currentRequestBody:any)=>{
   if(currentRequestPath.endsWith('barter-quote')){
    assertBarterBrowser(currentRequestBody.cashP===2&&currentRequestBody.materials['protein-jelly']===4,'선택한 현금과 재료 전송');
-   currentPaymentRecord={...currentRequestBody,materialValues:{'protein-jelly':1},totalValueP:6,excessValueP:1};
+   currentPaymentRecord={...currentRequestBody};
    return {guardCenterId:'guard-one',cityId:'iseulon',policyVersion:1,priceP:5,validitySeconds:604800,serverTime:100,expiresAt:100+currentQuoteDuration,payment:currentPaymentRecord};
   }
   currentPurchaseAttempts++;
@@ -31,7 +31,7 @@ async function clickBarterButton(currentTranslationKey:string){const currentButt
  const currentNumberInputs=[...document.querySelectorAll<HTMLInputElement>('input[type=number]')];
  for(const [currentInputIndex,currentInputValue] of ['2','4'].entries()){currentNumberInputs[currentInputIndex].value=currentInputValue;currentNumberInputs[currentInputIndex].dispatchEvent(new Event('input',{bubbles:true}));await currentWaitRender();}
  await clickBarterButton('citizenship.permitPrice');
- assertBarterBrowser(document.body.textContent!.includes(t('citizenship.barterTotal',{total:6,excess:1})),'총액과 반환하지 않는 초과액 표시');
+ assertBarterBrowser(document.body.textContent!.includes(t('citizenship.barterNoChange')),'선택한 납부 내용과 거스름돈 없음 표시');
  currentClientStub.state.me.version++;renderBarterPanel();await currentWaitRender();
  assertBarterBrowser([...document.querySelectorAll('button')].find(currentButton=>currentButton.textContent===t('citizenship.permitPurchase'))?.disabled,'상태 변경 후 기존 견적 결제 차단');
  currentQuoteDuration=1;
