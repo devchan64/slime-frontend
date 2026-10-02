@@ -67,3 +67,20 @@ npm run build:review
 `VITE_SPONSOR_PUBLIC_KEY`는 서버 서명 키와 대응하는 Ed25519 raw 공개키 32바이트의 표준 Base64 빌드 설정이다. 배포 관리자가 별도로 확인한 공개키만 주입한다. API 응답의 공개키를 설정에 복사하거나 개인키를 프론트에 넣지 않는다. 공개키 변경 시 정적 클라이언트를 다시 빌드·배포한다. 미설정 상태에서도 광고가 없는 코스튬 설명은 표시되며, 광고가 있으면 검증 실패 안내를 표시한다.
 
 SDK의 `/v1/sponsorship/sdk/…/costume.js` 경로는 페이지와 같은 origin에서 제공해야 한다. 개발 Vite 및 배포 프록시/CDN 라우팅에서 해당 경로를 API 서버로 연결하고 JS 바이트를 변경하지 않는다. SDK는 검증된 SHA-256 SRI로 로드한다. 별도 API origin을 사용하더라도 SDK 경로의 동일 origin 라우팅은 필요하다. 운영 CSP는 해당 스크립트 로드를 허용해야 한다. 설정 변경은 기존 설명 조회 API나 DB 마이그레이션을 요구하지 않는다.
+
+## 자동 회귀검사
+
+전체 검사 파일을 명시하여 실행한다. 실행기는 번역 검사, TypeScript 검사, 테스트를 순서대로 실행하고 로그·heartbeat·종료 코드·최종 결과를 `.tmp/test/frontend-regression/<실행 시각>/`에 보존한다.
+
+```sh
+node scripts/run-regression.mjs tests/*.test.mjs
+```
+
+실제 코스튬 SDK Chrome 검사에는 서버가 배포하는 SDK 원본 파일을 절대 경로로 지정한다. 이 파일을 지정하지 않으면 해당 검사는 건너뛰며, 전체 테스트 성공을 SDK 검증 성공으로 해석하면 안 된다. 테스트는 지정 파일의 SHA-256/SRI와 임시 서명 키를 사용한다. 운영 개인키는 필요하지 않다.
+
+```sh
+SLIME_SPONSOR_SDK_FILE=/absolute/path/to/costume.js \
+  node scripts/run-regression.mjs tests/costume-sponsor-browser.test.mjs
+```
+
+전체 검사에도 같은 환경 변수를 지정할 수 있다. SDK 소스를 프론트에 복제하거나 형제 저장소 경로를 실행 기본값으로 고정하지 않는다. 테스트 결과와 운영 광고 소재·계약·측정 검증은 구분한다.
