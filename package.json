@@ -16,7 +16,8 @@
     "prebuild": "npm run prepare:map-assets && npm run prepare:sprite-assets && npm run check:ui-assets",
     "prepare:sprite-assets": "node scripts/prepare-map-assets.mjs --sprites",
     "check:sprite-assets": "node scripts/prepare-map-assets.mjs --sprites --check && node scripts/check-map-assets.mjs --sprites",
-    "check:ui-assets": "node scripts/prepare-map-assets.mjs --ui --check && node scripts/check-map-assets.mjs --ui"
+    "check:ui-assets": "node scripts/prepare-map-assets.mjs --ui --check && node scripts/check-map-assets.mjs --ui",
+    "build:verified": "bash scripts/verify_production_build.sh"
   },
   "dependencies": {
     "phaser": "^3.90.0",

@@ -68,6 +68,12 @@ npm run build:review
 
 SDK의 `/v1/sponsorship/sdk/…/costume.js` 경로는 페이지와 같은 origin에서 제공해야 한다. 개발 Vite 및 배포 프록시/CDN 라우팅에서 해당 경로를 API 서버로 연결하고 JS 바이트를 변경하지 않는다. SDK는 검증된 SHA-256 SRI로 로드한다. 별도 API origin을 사용하더라도 SDK 경로의 동일 origin 라우팅은 필요하다. 운영 CSP는 해당 스크립트 로드를 허용해야 한다. 설정 변경은 기존 설명 조회 API나 DB 마이그레이션을 요구하지 않는다.
 
+## 배포 빌드 검증
+
+`npm run build:verified`는 에셋 원본·해시·이미지·번역·TypeScript 검사 후 Vite 배포 번들을 생성한다. 기존 `npm run build`를 공용 실행 로그로 감싸며 `.local/logs/verify_production_build-*.log`에 단계 출력·5초 heartbeat·최종 종료 코드를 저장하고 실패 시 마지막 로그를 출력한다.
+
+산출물은 Git 제외 대상인 `dist/`에 생성한다. 이 명령은 S3 업로드·CDN 무효화·운영 배포를 실행하지 않는다. 배포용 공개키 등 설정은 별도로 준비해야 하며, 빌드 성공과 실제 환경 수용 검증은 구분한다.
+
 ## 자동 회귀검사
 
 전체 검사 파일을 명시하여 실행한다. 실행기는 번역 검사, TypeScript 검사, 테스트를 순서대로 실행하고 로그·heartbeat·종료 코드·최종 결과를 `.tmp/test/frontend-regression/<실행 시각>/`에 보존한다.
