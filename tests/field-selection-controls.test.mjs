@@ -7,6 +7,7 @@ import { build } from 'esbuild';
 import { parsePack } from '../src/i18n/catalog.mjs';
 
 const fieldMessageCatalog = parsePack(await readFile('src/i18n/locales/ko/field.yaml', 'utf8'), 'field.yaml');
+const cityMessageCatalog = parsePack(await readFile('src/i18n/locales/ko/city.yaml', 'utf8'), 'city.yaml');
 const { outputFiles: fieldBundleOutputs } = await build({
   loader: {'.css':'empty'},
   entryPoints: ['src/ui/FieldPanel.tsx'], bundle: true, write: false, platform: 'node', format: 'esm',
@@ -18,7 +19,8 @@ const { outputFiles: fieldBundleOutputs } = await build({
       pluginBuildContext.onLoad({ filter: /.*/, namespace: 'field-test' }, () => ({
         contents: `import {formatMessage} from ${JSON.stringify(pathToFileURL(resolve('src/i18n/catalog.mjs')).href)};
           const fieldMessageCatalog = ${JSON.stringify(fieldMessageCatalog)};
-          export const t = (messageKey, messageValues) => formatMessage(fieldMessageCatalog[messageKey.replace('field.', '')], messageValues);
+          const cityMessageCatalog = ${JSON.stringify(cityMessageCatalog)};
+          export const t = (messageKey, messageValues) => formatMessage(messageKey.startsWith('city.')?cityMessageCatalog[messageKey.slice(5)]:fieldMessageCatalog[messageKey.replace('field.', '')], messageValues);
           export const getLocale = () => 'ko';
           export const useTranslation = () => ({t, locale:getLocale()});`,
         loader: 'js', resolveDir: process.cwd(),
@@ -93,4 +95,26 @@ test('경비센터는 조우 중 닫히고 종료 후 재생성되며 epoch 변�
   currentGameState.reservation=null;assert.equal(renderCurrentFacility().length,1);
   currentGameState.epoch++;assert.notEqual(renderCurrentFacility()[0].key,currentInitialPanels[0].key);
   currentGameState.battle={id:'battle'};assert.equal(renderCurrentFacility().length,0);
+});
+
+function collectParcelPanels(currentRenderedNode){
+  if(!currentRenderedNode||typeof currentRenderedNode!=='object')return [];
+  if(Array.isArray(currentRenderedNode))return currentRenderedNode.flatMap(collectParcelPanels);
+  return [...(currentRenderedNode.type?.name==='ParcelPanel'?[currentRenderedNode]:[]),...collectParcelPanels(currentRenderedNode.props?.children)];
+}
+test('길드 소포 창구는 조우 중 닫히고 epoch·맵 변경 시 새 인스턴스로 열린다',()=>{
+  const currentGameState=createSelectionFixture();
+  Object.assign(currentGameState,{generation:1,epoch:1,location:{id:'city-channel'}});
+  Object.assign(currentGameState.me,{id:'hero'});
+  Object.assign(currentGameState.map,{id:'city',safeTown:true,buildings:[{facilityId:'city-guild',facilityKind:'guild',
+    origin:{column:0,row:1},width:1,height:1,entrance:{column:0,row:0}}]});
+  function renderCurrentParcels(){return collectParcelPanels(FieldSelection({state:currentGameState,selected:{column:0,row:0},disabled:false,now:0,
+    select(){},command(){},walking:null,walk(){},stop(){},gameSessionClient:{state:currentGameState}}));}
+  const currentInitialPanels=renderCurrentParcels();assert.equal(currentInitialPanels.length,1);
+  currentGameState.reservation={id:'reservation'};assert.equal(renderCurrentParcels().length,0);
+  currentGameState.reservation=null;assert.equal(renderCurrentParcels().length,1);
+  currentGameState.epoch++;assert.notEqual(renderCurrentParcels()[0].key,currentInitialPanels[0].key);
+  const currentEpochKey=renderCurrentParcels()[0].key;
+  currentGameState.map.id='other-city';assert.notEqual(renderCurrentParcels()[0].key,currentEpochKey);
+  currentGameState.battle={id:'battle'};assert.equal(renderCurrentParcels().length,0);
 });

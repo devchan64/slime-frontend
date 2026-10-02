@@ -50,5 +50,34 @@ async function clickParcelButton(currentTranslationKey:string){
  assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.claim'))?.disabled,'만료 소포 신규 수령 차단');
  assertParcelBrowser(currentClaimAttempts===3,'만료 표시가 수령 요청을 만들지 않음');
  assertParcelBrowser(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
+
+ const currentOriginalRequestHandler=currentClientStub.request;
+ const currentOriginalAcceptHandler=currentClientStub.accept;
+ for(const currentContextChange of ['reservation','battle','epoch']){
+  render(null,document.getElementById('root')!);
+  delete currentClientStub.state.reservation;delete currentClientStub.state.battle;
+  currentParcelClaimed=false;currentParcelExpiry=1000;
+  let currentDeferredClaimResolve:((currentResponseRecord:unknown)=>void)|null=null;
+  let currentDeferredClaimCount=0;let currentAcceptedStateCount=0;
+  const currentPreClaimState=structuredClone(currentClientStub.state);
+  currentClientStub.request=(currentRequestPath:string,currentRequestBody:unknown)=>{
+   if(!currentRequestPath.endsWith('/claim'))return currentOriginalRequestHandler(currentRequestPath,currentRequestBody);
+   currentDeferredClaimCount++;
+   return new Promise(currentResolveCallback=>{currentDeferredClaimResolve=currentResolveCallback;});
+  };
+  currentClientStub.accept=()=>{currentAcceptedStateCount++;};
+  render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
+  await currentWaitRender();await clickParcelButton('parcels.refresh');await clickParcelButton('parcels.claim');
+  if(currentContextChange==='epoch')currentClientStub.state.epoch++;
+  else currentClientStub.state[currentContextChange]={id:'new-context'};
+  currentDeferredClaimResolve!({receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',facilityId:'iseulon-guild',claimedAt:110,
+   attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]},
+   state:{...currentPreClaimState,me:{...currentPreClaimState.me,version:currentPreClaimState.me.version+1}}});
+  await currentWaitRender();
+  assertParcelBrowser(currentAcceptedStateCount===0,currentContextChange+' 변경 후 늦은 수령 상태 폐기');
+  assertParcelBrowser(!document.body.textContent!.includes(t('parcels.received')),currentContextChange+' 변경 후 수령 완료 안내 폐기');
+  assertParcelBrowser(currentDeferredClaimCount===1,currentContextChange+' 변경 중 수령 요청 중복 없음');
+ }
+ currentClientStub.request=currentOriginalRequestHandler;currentClientStub.accept=currentOriginalAcceptHandler;
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

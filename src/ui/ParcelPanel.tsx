@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
 import {noticeText,type Notice} from '../client/notice';
-import {createPositionIdentity} from '../client/positionIdentity';
+import {captureFacilitySessionContext,matchesFacilitySessionContext} from '../client/facilitySessionContext';
 import {validateNamedParcelListing,validateParcelReceipt,type ParcelListing,type ParcelAttachment} from '../client/parcel-validation.mjs';
 import {useTranslation} from '../i18n';
 
@@ -20,9 +20,8 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
  const currentActiveReference=useRef(false);
  const currentPendingReference=useRef(false);
  const currentOriginalRequest=useRef<{parcelId:string;expectedVersion:number;attachments:ParcelAttachment[]}|null>(null);
- function captureParcelContext(){return JSON.stringify([gameSessionClient.tokens?.user_id,gameSessionClient.state?.generation,gameSessionClient.state?.epoch,gameSessionClient.state?.me.id,gameSessionClient.state?.location?.id,gameSessionClient.state?.map.id,createPositionIdentity(gameSessionClient.state?.me.position)]);}
- const currentInitialContext=useRef(captureParcelContext());
- function parcelContextMatches(){return currentActiveReference.current&&captureParcelContext()===currentInitialContext.current&&gameSessionClient.state?.me.mode==='FIELD'&&!gameSessionClient.state?.me.battleId;}
+ const currentInitialContext=useRef(captureFacilitySessionContext(gameSessionClient));
+ function parcelContextMatches(){return currentActiveReference.current&&matchesFacilitySessionContext(gameSessionClient,currentInitialContext.current);}
  const currentEndpointPrefix='/v1/game/guilds/'+encodeURIComponent(currentFacilityIdentifier)+'/parcels';
  async function loadParcelListing(currentAfterCursor:string|null=null){
   if(actionsAreDisabled||currentPendingReference.current||currentOriginalRequest.current||!parcelContextMatches())return;
