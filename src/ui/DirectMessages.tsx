@@ -100,15 +100,18 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     finally{if(currentComponentAlive.current){setCurrentRequestBusy(false);try{setCurrentPendingSend(currentMessageClient.readPendingDirectMessage());}catch{setCurrentPendingSend(null);}}}
   }
   async function loadDirectMessageHistory(currentPeerIdentifier:string,currentBeforeSequence:string|null=null){
+    const currentCapturedRevision=currentHistoryRevision.current;
+    const isCurrentHistoryRequest=()=>currentComponentAlive.current&&currentHistoryRevision.current===currentCapturedRevision;
     const currentReceivedHistory=await currentMessageClient.readDirectMessageHistory(currentPeerIdentifier,currentBeforeSequence);
-    if(!currentComponentAlive.current)return;
+    if(!isCurrentHistoryRequest())return;
     setCurrentHistoryPage(currentReceivedHistory);setCurrentPeerInput(currentPeerIdentifier);setCurrentHistoryCursor(currentBeforeSequence);setCurrentHistoryRefreshFailed(false);
     currentAcknowledgedIdentifiers.current=new Set();
     const currentReceivedIdentifiers=currentReceivedHistory.entries.filter(currentMessageEntry=>currentMessageEntry.recipientId===currentGameState.me.id).map(currentMessageEntry=>currentMessageEntry.messageId);
     if(currentReceivedIdentifiers.length)await currentMessageClient.acknowledgeDirectMessages(currentReceivedIdentifiers);
+    if(!isCurrentHistoryRequest())return;
     currentAcknowledgedIdentifiers.current=new Set(currentReceivedIdentifiers);
     const currentNoticeResponse=await currentMessageClient.readDirectMessageNotice();
-    if(currentComponentAlive.current){setCurrentNoticeCount(currentNoticeResponse.count);setCurrentNoticeFailed(false);}
+    if(isCurrentHistoryRequest()){setCurrentNoticeCount(currentNoticeResponse.count);setCurrentNoticeFailed(false);}
   }
   async function loadDirectMessageConversations(currentBeforeSequence:string|null=null){
     const currentReceivedPage=await currentMessageClient.listDirectMessageConversations(currentBeforeSequence);
@@ -119,6 +122,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     if(currentComponentAlive.current)setCurrentBlockPage(currentReceivedPage);
   }
   async function submitDirectMessageDraft(currentRetryRequested:boolean){
+    const currentCapturedRevision=currentHistoryRevision.current;
     const currentSendTarget=currentRetryRequested?currentPendingSend?.payload.recipientId:currentSelectedPeer;
     if(!currentSendTarget)return;
     if(currentRetryRequested)await currentMessageClient.retryPendingDirectMessage();
@@ -126,7 +130,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     if(!currentComponentAlive.current)return;
     setCurrentPeerDrafts(currentStoredDrafts=>({...currentStoredDrafts,[currentSendTarget]:''}));
     setCurrentPendingSend(null);setCurrentSendConfirmed(true);
-    if(currentSendTarget===currentSelectedPeer)await loadDirectMessageHistory(currentSendTarget);
+    if(currentHistoryRevision.current===currentCapturedRevision&&currentSendTarget===currentSelectedPeer)await loadDirectMessageHistory(currentSendTarget);
   }
   return <>
     <button class="secondary compact" aria-label={translateMessageText('directmessages.open')} title={translateMessageText(currentNoticeFailed?'directmessages.noticeFailed':'directmessages.open')} onClick={()=>{setCurrentPanelOpen(true);void runDirectMessageAction(()=>loadDirectMessageConversations());}}>
@@ -158,7 +162,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
         <h3>{currentHistoryPage.peer.name} [{currentSelectedPeer}]</h3>
         <p class="muted" role="status">{translateMessageText(currentHistoryRefreshFailed?'directmessages.refreshFailed':currentHistoryCursor===null?'directmessages.autoRefresh':'directmessages.historyPaused')}</p>
         <button disabled={currentRequestBusy} onClick={()=>void runDirectMessageAction(()=>loadDirectMessageHistory(currentSelectedPeer!))}>{translateMessageText('directmessages.refresh')}</button>
-        <button disabled={currentRequestBusy} onClick={()=>void runDirectMessageAction(async()=>{await currentMessageClient.setDirectMessageBlock(currentSelectedPeer!,!currentHistoryPage.blocked);await loadDirectMessageHistory(currentSelectedPeer!);})}>{translateMessageText(currentHistoryPage.blocked?'directmessages.unblock':'directmessages.block')}</button>
+        <button disabled={currentRequestBusy} onClick={()=>void runDirectMessageAction(async()=>{const currentCapturedRevision=currentHistoryRevision.current;await currentMessageClient.setDirectMessageBlock(currentSelectedPeer!,!currentHistoryPage.blocked);if(currentHistoryRevision.current===currentCapturedRevision)await loadDirectMessageHistory(currentSelectedPeer!);})}>{translateMessageText(currentHistoryPage.blocked?'directmessages.unblock':'directmessages.block')}</button>
         <ol class="direct-message-history">{currentHistoryPage.entries.map(currentMessageEntry=><li key={currentMessageEntry.messageId}>
           <strong>{currentMessageEntry.senderId===currentGameState.me.id?translateMessageText('directmessages.self'):currentHistoryPage.peer.name}</strong>
           <time dateTime={new Date(currentMessageEntry.sentAt*1000).toISOString()}> {new Date(currentMessageEntry.sentAt*1000).toLocaleString(currentDisplayLocale)}</time>

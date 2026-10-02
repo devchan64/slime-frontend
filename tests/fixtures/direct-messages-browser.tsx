@@ -90,6 +90,16 @@ async function selectDirectMessagePeer(currentPeerIdentifier:string){
  currentDelayedResponse.entries[0].text='폐기해야 할 늦은 응답';
  (currentDeferredHistory as unknown as (currentResult:unknown)=>void)(currentDelayedResponse);await waitDirectMessageRender();
  assertDirectMessageBrowser(!document.body.textContent!.includes('폐기해야 할 늦은 응답')&&document.querySelector('h3')!.textContent!.includes('other'),'상대 변경 이후 늦은 자동 조회 폐기');
+ currentDelayHistory=true;currentLatestSequence='4';
+ clickDirectMessageButton(t('directmessages.refresh'));await waitDirectMessageRender();
+ clickDirectMessageButton(t('common.close'));await waitDirectMessageRender();
+ currentDelayedResponse.entries[0].text='닫은 창의 늦은 수동 응답';
+ (currentDeferredHistory as unknown as (currentResult:unknown)=>void)(currentDelayedResponse);await waitDirectMessageRender();
+ assertDirectMessageBrowser(!currentAcknowledgedMessages.includes('4'),'닫은 뒤 도착한 내역은 수신 확인하지 않음');
+ (document.querySelector('button[aria-label]') as HTMLButtonElement).click();await waitDirectMessageRender();
+ assertDirectMessageBrowser(!document.querySelector('.direct-message-history'),'다시 열어도 닫은 창의 늦은 내역을 복원하지 않음');
+ await selectDirectMessagePeer('other');
+ assertDirectMessageBrowser(currentAcknowledgedMessages.includes('4')&&!!document.querySelector('.direct-message-history'),'다시 선택한 대화는 정상 표시하고 수신 확인');
  render(null,currentRootElement);await waitDirectMessageRender();
  assertDirectMessageBrowser(!document.querySelector('dialog'),'로그아웃 시 개인 화면 제거');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionMessages});
