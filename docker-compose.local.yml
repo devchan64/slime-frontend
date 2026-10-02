@@ -1,7 +1,13 @@
 name: slime-frontend
 services:
   web:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        slime-assets: ../slime-assets
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+        VITE_IDENTITY_API_BASE_URL: ${VITE_IDENTITY_API_BASE_URL:-}
     ports: ["127.0.0.1:8080:8080"]
     networks: [backend]
     restart: unless-stopped

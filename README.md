@@ -104,3 +104,12 @@ SLIME_SPONSOR_SDK_FILE=/absolute/path/to/costume.js \
 게임과 인증 API를 서로 다른 주소로 제공할 때 브라우저 빌드 설정에 `VITE_API_BASE_URL`(게임)과 `VITE_IDENTITY_API_BASE_URL`(인증)을 지정한다. 인증 주소는 인증 정보·쿼리·프래그먼트 없는 절대 HTTP(S) 주소이며 원격 배포에서는 HTTPS를 사용한다. 이 설정은 공개 서비스 주소이고 비밀값을 포함하지 않는다. 각 서버에 웹 origin의 CORS 허용이 필요하다.
 
 `/v1/auth/*` 요청은 인증 주소로, 게임 HTTP·heartbeat·게임/채팅 WebSocket은 게임 주소로 보낸다. 인증 주소를 생략하면 기존 단일 API 주소를 사용한다. 잘못된 명시 주소는 즉시 거절하며 인증 서버 오류 시 게임 서버로 재전송하지 않는다. 브라우저 HTTP 리다이렉트도 거절한다. 변경한 주소는 새 프론트 빌드에 반영해야 하며 서버 서비스 분리·TLS·라우팅 배포를 자동 수행하지 않는다.
+
+
+### Docker 빌드의 공용 에셋과 API 주소
+
+Compose는 `slime-assets`를 별도 BuildKit context로 전달한다. 빌드 단계에서만 `/slime-assets`에 읽기 전용으로 연결해 등록부·잠금 해시를 검사하고 Vite로 번들링한다. 최종 nginx 이미지에는 `dist`만 전달하며 에셋 저장소·제작 산출물을 런타임에 참조하지 않는다. 인접 `../slime-assets` 원본이 없으면 빌드는 실패한다.
+
+`VITE_API_BASE_URL`·`VITE_IDENTITY_API_BASE_URL`은 Compose 빌드 인수로 전달한다. 인증 주소가 비어 있으면 기존 단일 API 설정을 유지한다. 컨테이너 실행 후 환경변수만 바꿔서는 이미 생성된 정적 번들의 주소가 바뀌지 않는다. Docker build를 직접 사용할 경우 `--build-context slime-assets=../slime-assets`와 필요한 `--build-arg`를 지정한다.
+
+`npm run build:docker:verified`는 Compose 설정 검사·별도 검증 이미지 빌드·네트워크 없는 일회 컨테이너의 `nginx -t`와 최종 이미지의 공용 원본 부재·지정 API 주소의 JS 포함 여부를 검사한다. 실행 로그는 `.local/logs/`, 이미지 ID와 성공 표식은 `.tmp/test/frontend-docker-build/<한국 시각>/`에 저장한다. 기존 웹 컨테이너를 재시작하거나 운영 이미지를 배포하지 않는다. 검증 이미지는 `slime-frontend-validation:<한국 시각>`으로 보존하며 삭제는 별도 수동 작업이다. 이는 브라우저 기능·CORS·실제 API 연결 검사를 대신하지 않는다.
