@@ -35,3 +35,17 @@ test('선택 전달처는 수신 NPC와 일치하고 두 언어 도시명이 있
   const currentInvalidFixture=structuredClone(currentDetailedFixture);mutateDestinationData(currentInvalidFixture.entries[0].destination);assert.throws(()=>parseNpcDialogue(currentInvalidFixture));
  }
 });
+
+test('기간 의뢰는 동일 콘텐츠의 날짜별 원장과 만료 상태를 구분한다',async()=>{
+ const {parseTimedEventPage}=await import('../src/client/timed-event-validation.mjs');
+ const currentTimedPage={...structuredClone(currentDialogueFixture),nextOffset:null};
+ Object.assign(currentTimedPage.entries[0],{offerId:'random:2026-10-03:first',type:'random',periodId:'2026-10-03',acceptanceEndsAt:100,
+  deliveryDeadline:86430,acceptedAt:null,completedAt:null,destination:{npcId:'npc',name:'모라',cityId:'iseulon',facilityId:'iseulon-market',cityNameTranslations:{ko:'이슬온',en:'Iseulon'}}});
+ assert.deepEqual(parseTimedEventPage(currentTimedPage),currentTimedPage);
+ const currentExpiredPage=structuredClone(currentTimedPage);currentExpiredPage.serverTime=86440;
+ Object.assign(currentExpiredPage.entries[0],{acceptedAt:20,deliveryDeadline:86420,status:'EXPIRED',canExecute:false,action:null});
+ assert.equal(parseTimedEventPage(currentExpiredPage).entries[0].status,'EXPIRED');
+ for(const currentMutatePage of [currentPage=>currentPage.entries.push(structuredClone(currentPage.entries[0])),currentPage=>currentPage.entries[0].offerId='random:another:first',currentPage=>currentPage.entries[0].deliveryDeadline++,currentPage=>currentPage.entries[0].canExecute=true,currentPage=>currentPage.entries[0].completedAt=86421]){
+  const currentInvalidPage=structuredClone(currentExpiredPage);currentMutatePage(currentInvalidPage);assert.throws(()=>parseTimedEventPage(currentInvalidPage));
+ }
+});

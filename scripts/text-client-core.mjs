@@ -16,7 +16,7 @@ import {executeSkillbookCommand} from './text-skillbook-commands.mjs';
 import {executeSubstituteHuntCommand} from './text-substitute-hunts.mjs';
 import {executeParcelCommand} from './text-parcel-commands.mjs';
 import {executeCostumeReadCommand} from './text-costume-catalog.mjs';
-import {executeNpcCommand} from './text-npc-commands.mjs';
+import {executeNpcCommand,executeTimedEventJournal} from './text-npc-commands.mjs';
 import {executeGuildSaleCommand} from './text-guild-sales.mjs';
 import {executeCitizenshipCommand,formatCitizenshipSummary} from './text-citizenship-commands.mjs';
 import {executeProcessingCommand} from './text-processing-commands.mjs';
@@ -358,6 +358,7 @@ export class TextClient {
       return formatHuntLedger(await this.request('/v1/characters/me/hunts?after=' + requestedHuntCursor + '&limit=50'), requestedHuntCursor);
     }
     if (name === 'journal') {
+      if(args[0]==='timed')return executeTimedEventJournal(this,args.slice(1));
       arity(0);
       return formatMainEventJournal(await this.request('/v1/game/main-events'));
     }

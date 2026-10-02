@@ -1,0 +1,10 @@
+talk: '{name}의 시즌·랜덤 의뢰'
+title: 시즌·랜덤 의뢰 기록
+empty: 표시할 기간 의뢰가 없습니다. 당일 랜덤 의뢰가 없는 것은 정상입니다.
+expired: 기한 만료 · 보상 없음
+destination: '전달처: {name}'
+acceptBefore: '수령 마감: {time}'
+deliverBefore: '전달 마감: {time}'
+randomDeadline: 수령 확정 후 24시간 이내에 전달해야 합니다.
+seasonDeadline: '수령 후 전달 기한: {time}'
+next: 다음 기록

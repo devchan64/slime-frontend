@@ -1,0 +1,10 @@
+talk: '{name}: seasonal and random quests'
+title: Seasonal and random quest journal
+empty: No timed quests to show. Having no random quest today is normal.
+expired: Expired · no reward
+destination: 'Deliver to: {name}'
+acceptBefore: 'Accept before: {time}'
+deliverBefore: 'Deliver before: {time}'
+randomDeadline: Deliver within 24 hours after accepting.
+seasonDeadline: 'Delivery deadline after acceptance: {time}'
+next: Next records

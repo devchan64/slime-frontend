@@ -1,3 +1,4 @@
+import {TimedEventJournal} from './TimedEventJournal';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {parseMainEventJournal,type MainJournalPage} from '../client/mainEventJournal';
@@ -56,5 +57,6 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled,onShowDes
         {time:new Date((currentJournalEntry.completedAt??currentJournalEntry.acceptedAt)*1000).toLocaleString(currentJournalLocale)})}</small>
       {currentJournalEntry.materialsSufficient && <p>{translateJournalText('journal.materialsReady')}</p>}
     </li>)}</ul>
+    <TimedEventJournal gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled}/>
   </section>;
 }

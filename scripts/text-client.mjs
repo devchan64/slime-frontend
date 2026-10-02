@@ -68,6 +68,8 @@ costumes               전체 디자인 코스튬 카탈로그·설명 조회
 costumes owned         본인 보유 코스튬·획득 출처 조회 (교체는 게임 메뉴)
 npc list               현재 맵 NPC ID·입구 조회
 npc talk NPC_ID        현장 NPC 대화·의뢰 조건 조회
+npc timed NPC_ID [다음 위치] 현장 시즌·랜덤 의뢰 조회 (표시된 기간별 ID로 quest 명령)
+journal timed [다음 위치] 시즌·랜덤 의뢰 기록 조회
 quest accept NPC_ID 의뢰ID 확인한 의뢰 수령
 quest complete NPC_ID 의뢰ID 확인한 재료 전달·완료
 journal                메인 의뢰 기록 조회

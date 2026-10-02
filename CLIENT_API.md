@@ -417,3 +417,11 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 회귀는 기존 `tests/text-client.test.mjs`와 `tests/parcel-notice-browser.test.mjs`로 실행한다. 후자는 소포 알림과 개인 메시지 fixture를 같은 Chrome 실행기로 검증한다. 새 독립 검사 실행기는 추가하지 않았다. 실제 HTTP 여정용 텍스트 번들은 기존 `node scripts/build-backend-acceptance.mjs`에서 생성한다.
 
 소포의 정식 경로는 `GET /v1/accounts/me/parcels?includeNames=true&after=...`, `POST /v1/accounts/me/parcels/{parcelId}/claim`와 `GET /v1/accounts/me/parcels/notice`다. 기존 목록·영수증 계약과 원본 소포 ID·기한·첨부물을 유지한다. 새 수령 영수증의 `storage`는 `ACCOUNT`이며 `facilityId: account-storage`는 기존 문자열 계약을 유지하는 출처 표식으로 실제 길드 ID가 아니다. 과거 길드 영수증의 값은 그대로 반환한다. 이전 `/v1/game/guilds/{facilityId}/parcels` 주소도 위치 검사 없이 같은 계정 보관함 처리에 연결한다. 서버를 먼저 적용한 뒤 새 클라이언트를 적용한다.
+
+## 시즌·랜덤 의뢰 클라이언트
+
+`npc timed NPC_ID [다음 위치]`는 현장 NPC의 기간 의뢰를 조회한다. 표시된 기간별 의뢰 ID로 `quest accept NPC_ID 의뢰ID` 또는 `quest complete NPC_ID 의뢰ID`를 실행한다. 동일 콘텐츠라도 날짜·시즌이 다르면 ID가 다르므로 원래 표시한 ID를 유지한다. `journal timed [다음 위치]`는 수령·완료·만료 기록을 조회한다. 결과 불명 시 NPC 대화나 기록을 다시 확인하고 새 명령을 자동 전송하지 않는다.
+
+웹은 기존 NPC 대화 안의 시즌·랜덤 의뢰와 개인 의뢰 기록을 사용한다. 수령·전달 마감을 표시하고 전달 전에 차감 재료를 확인한다. 명령 응답의 기간 ID·재료·보상·세션·완료 상태를 공통 검증기로 확인한 뒤 상태를 반영한다.
+
+서버 경로는 `GET /v1/game/npcs/{npcId}/timed-events`, `GET /v1/game/timed-events`, `POST /v1/game/timed-events/{offerId}/{accept|complete}`다. 목록은 `language=ko|en`, `offset`과 응답의 `nextOffset`을 사용한다. 명령은 `{npcId, expectedVersion}`을 보내며 의뢰 ID는 URL 인코딩한다. 기존 메인 의뢰 API는 유지한다. 새 서버를 먼저 적용해야 한다.

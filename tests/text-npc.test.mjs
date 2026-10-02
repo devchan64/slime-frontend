@@ -73,3 +73,18 @@ test('수령 전 전달 도시·NPC와 명령 ID를 표시하고 제어 문자�
  assert.match(currentDialogueText,/확정: quest accept helper first-delivery/);
  assert.match(currentDialogueText,/완료하려면 갈대나루의 유효한 시민권.*재료를 팔아/);
 });
+
+test('기간별 노출 ID와 마감을 확인하고 같은 NPC 명령으로 수령한다',async()=>{
+ const currentTimedPage={...createNpcDialogue(),nextOffset:null};
+ const currentOfferIdentifier='random:2026-10-03:first-delivery';
+ Object.assign(currentTimedPage.entries[0],{offerId:currentOfferIdentifier,type:'random',periodId:'2026-10-03',acceptanceEndsAt:1000,
+  deliveryDeadline:86550,acceptedAt:null,completedAt:null,destination:{npcId:'helper',name:'안내인',cityId:'city',facilityId:'guild',cityNameTranslations:{ko:'도시',en:'City'}}});
+ const currentAcceptedEntry={...structuredClone(currentTimedPage.entries[0]),status:'ACCEPTED',action:'complete',acceptedAt:160,deliveryDeadline:86560};
+ const currentUpdatedState=createNpcState();currentUpdatedState.serverTime=160;currentUpdatedState.me.version=2;
+ const {currentTextClient,currentRequestCalls}=setupNpcClient([currentTimedPage,{entry:currentAcceptedEntry,state:currentUpdatedState}]);
+ assert.match(await currentTextClient.execute('npc timed helper'),/24시간/);
+ await currentTextClient.execute('quest accept helper '+currentOfferIdentifier);
+ assert.match(currentRequestCalls[1].url,/timed-events\/random%3A2026-10-03%3Afirst-delivery\/accept$/);
+ assert.deepEqual(currentRequestCalls[1].body,{npcId:'helper',expectedVersion:1});
+ assert.equal(currentTextClient.state.me.version,2);
+});
