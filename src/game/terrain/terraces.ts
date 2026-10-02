@@ -1,3 +1,5 @@
+import {resolveCliffTextureScale} from "../../../packages/field-surface/field-surface.mjs";
+import {resolveMapTileSize, MAP_ELEVATION_HEIGHT} from "./renderMetrics";
 import Phaser from 'phaser';
 import type {Position} from '../../client/types';
 import {cliffFaces, elevationTileFaces, type ElevationTile, type Surface} from './elevation';
@@ -17,13 +19,16 @@ export function drawCliffs(g:Phaser.GameObjects.Graphics,cell:Position,map:Surfa
   }
 }
 
-// 고도 차로 생기는 절벽 면에 128px 재질 타일을 반복 적용하고 면 밖은 마스크로 자른다.
+// 벽 한 칸 너비·한 단계 층고에 맞춘 재질을 반복하고 면 밖은 마스크로 자른다.
 export function addCliffWallPatterns(scene:Phaser.Scene,rememberTerrainObject:<T extends Phaser.GameObjects.GameObject>(object:T)=>T,cell:Position,map:Surface,currentDepth:number){
+  const currentTextureImage=scene.textures.get(CLIFF_WALL_TEXTURE).getSourceImage();
+  const currentTextureScale=resolveCliffTextureScale({tileWidth:resolveMapTileSize(map).width,tileHeight:resolveMapTileSize(map).height,elevationHeight:MAP_ELEVATION_HEIGHT,baseThickness:0},currentTextureImage.width,currentTextureImage.height);
   for(const face of cliffFaces(cell,map)){
     const minimumX=Math.min(...face.map(point=>point.x)),maximumX=Math.max(...face.map(point=>point.x));
     const minimumY=Math.min(...face.map(point=>point.y)),maximumY=Math.max(...face.map(point=>point.y));
     const faceWidth=Math.max(1,Math.ceil(maximumX-minimumX)),faceHeight=Math.max(1,Math.ceil(maximumY-minimumY));
     const textureSprite=rememberTerrainObject(scene.add.tileSprite(minimumX,minimumY,faceWidth,faceHeight,CLIFF_WALL_TEXTURE).setOrigin(0).setDepth(currentDepth+.1));
+    textureSprite.setTileScale(currentTextureScale.scaleX,currentTextureScale.scaleY);
     const maskGraphic=rememberTerrainObject(scene.add.graphics());
     maskGraphic.fillPoints(face.map(point=>new Phaser.Geom.Point(point.x,point.y)),true).setVisible(false);
     textureSprite.setMask(maskGraphic.createGeometryMask());

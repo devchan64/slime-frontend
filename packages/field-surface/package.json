@@ -1,0 +1,10 @@
+{
+  "name": "@slime/field-surface",
+  "version": "1.0.2",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "types": "./field-surface.d.mts",
+    "import": "./field-surface.mjs"
+  }
+}

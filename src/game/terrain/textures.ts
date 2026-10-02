@@ -1,3 +1,7 @@
+import battleRockTypeASource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png";
+import battleRockTypeBSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-b-v1.png";
+import battleRockTypeCSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-c-v1.png";
+import battleTreeStumpSource from "../../../../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png";
 import meadowFlowerTileSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-b-v1.png";
 import meadowRoadTileSource from "../../../../slime-assets/assets/tiles/terrain/road/dry-soil-pebble-road-v1.png";
 import drySoilBranchesSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png";
@@ -26,7 +30,7 @@ import stonewarmMarblePavingSource from "../../../../slime-assets/assets/tiles/t
 import extendedReedBedSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png";
 import extendedStoneSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png";
 import extendedTreeBaseSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png";
-import cliffWallPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png";
+import cliffWallPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png";
 import Phaser from "phaser";
 import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png";
 import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png";
@@ -54,6 +58,10 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "battle-rock-a", source: battleRockTypeASource },
+  { frame: "battle-rock-b", source: battleRockTypeBSource },
+  { frame: "battle-rock-c", source: battleRockTypeCSource },
+  { frame: "battle-thicket", source: battleTreeStumpSource },
   { frame: "meadow-flowers", source: meadowFlowerTileSource },
   { frame: "meadow-road", source: meadowRoadTileSource },
   { frame: ISEULON_GRASS_FRAME, source: grassTileImageSource },

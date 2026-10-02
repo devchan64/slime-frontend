@@ -2,8 +2,8 @@ schema_version: 1
 repository: slime-assets
 files:
 - path: assets/terrain/cliffs/dew-meadow-cliff-face-v1.png
-  source_path: assets/tiles/terrain/blocked/boulder-type-a-v1.png
-  sha256: ee0749bbe52c112a8dd8e68195481802603b3000c728e5388acf9e301c6d56d2
+  source_path: assets/tiles/terrain/blocked/cliff-rock-face-v1.png
+  sha256: eb1328182be97db1d4a2fff140903574ca332e4c07675be8de799504eeeefd93
 - path: assets/terrain/dew-v3.webp
   source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
   sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
@@ -154,3 +154,6 @@ files:
 - path: assets/terrain/meadow-dry-soil-road-v1.png
   source_path: assets/tiles/terrain/road/dry-soil-pebble-road-v1.png
   sha256: a39cde643774e814d4ed224021290ac11d81c25de928e0215167b27d6a8129e9
+- path: assets/terrain/dry-ground-tree-stump-v1.png
+  source_path: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
+  sha256: 5fb1da73cf457863f3886c35c5b87a7fb7db712600762010247dd16c58e92e6c

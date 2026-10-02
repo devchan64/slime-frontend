@@ -1,3 +1,4 @@
+import {projectSurfaceCell, buildSurfaceCliffs, buildSurfaceStairs} from "../../../packages/field-surface/field-surface.mjs";
 import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT, MAP_ELEVATION_HEIGHT, MAP_BASE_THICKNESS, resolveMapTileSize} from "./renderMetrics";
 import type { Position } from '../../client/types';
 
@@ -28,10 +29,11 @@ export const mapAnnotationDepth = (map: Surface) => Math.max(TERRAIN_DEPTH.annot
 export const elevationTileAt = (p: Position, map: Surface): ElevationTile | undefined =>
   map.elevationTileIndex ? map.elevationTileIndex.get(`${p.column},${p.row}`)
     : map.elevationTiles?.find(tile => same(tile.cell,p));
-export const project = (p: Position, map: Surface) => ({
-  x: MAP_ORIGIN.x + (p.column-p.row) * resolveMapTileSize(map).width/2,
-  y: MAP_ORIGIN.y + (p.column+p.row) * resolveMapTileSize(map).height/2 - (heightAt(p,map) - (elevationTileAt(p,map) ? 0.5 : 0))*ELEVATION_STEP,
-});
+function resolveSurfaceRenderOptions(currentMapSurface:Surface){
+  const currentTileDimensions=resolveMapTileSize(currentMapSurface);
+  return {tileWidth:currentTileDimensions.width,tileHeight:currentTileDimensions.height,elevationHeight:ELEVATION_STEP,baseThickness:BASE_THICKNESS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
+}
+export const project = (currentCellPosition:Position,currentMapSurface:Surface) => projectSurfaceCell(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
 // 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
 export function surfaceElevationTiles(map: Surface): ElevationTile[] {
   const tiles=map.elevationTiles ?? [];
@@ -41,42 +43,17 @@ export function surfaceElevationTiles(map: Surface): ElevationTile[] {
     return {id:link.id ?? `legacy-link-${index}`,kind:'stairs' as const,asset:'stone-step-tile' as const,cell,lower};
   })];
 }
-const STEP_COUNT = 6;
 export type TileFace = { points:{x:number;y:number}[]; top:boolean };
-export function elevationTileFaces(tile: ElevationTile, map: Surface): TileFace[] {
-  const dc=tile.cell.column-tile.lower.column,dr=tile.cell.row-tile.lower.row;
-  const low=heightAt(tile.cell,map)-1;
-  const point=(u:number,v:number,z:number)=>{
-    const c=tile.cell.column+dc*u-dr*v,r=tile.cell.row+dr*u+dc*v;
-    return {x:MAP_ORIGIN.x+(c-r)*resolveMapTileSize(map).width/2,y:MAP_ORIGIN.y+(c+r)*resolveMapTileSize(map).height/2-z*ELEVATION_STEP};
-  };
-  const blocks=Array.from({length:STEP_COUNT},(_,i)=>{
-    const u=i/STEP_COUNT-.5,w=(i+1)/STEP_COUNT-.5,z=low+(i+1)/STEP_COUNT;
-    const top=[point(u,-.5,z),point(w,-.5,z),point(w,.5,z),point(u,.5,z)];
-    const sides=top.map((a,j)=>{
-      const b=top[(j+1)%4];
-      return {points:[a,b,{x:b.x,y:b.y+(z-low)*ELEVATION_STEP+BASE_THICKNESS},{x:a.x,y:a.y+(z-low)*ELEVATION_STEP+BASE_THICKNESS}],top:false};
-    });
-    return {order:(dc+dr)*(u+w)/2,faces:[...sides,{points:top,top:true}]};
-  }).sort((a,b)=>a.order-b.order);
-  return blocks.flatMap(b=>b.faces);
+export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSurface:Surface):TileFace[]{
+  return buildSurfaceStairs(currentStairRecord,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
 }
 export function canStep(start: Position, end: Position, map: Surface) {
   if (!inBounds(start,map) || !inBounds(end,map) || Math.abs(start.column-end.column)+Math.abs(start.row-end.row) !== 1) return false;
   return heightAt(start,map) === heightAt(end,map) || !!map.ramps?.some(e =>
     (same(e.start,start) && same(e.end,end)) || (same(e.start,end) && same(e.end,start)));
 }
-export function cliffFaces(p: Position, map: Surface) {
-  if (!map.elevations && !map.heightSource) return [];
-  const center=project(p,map), h=heightAt(p,map);
-  return [{ neighbor:{column:p.column+1,row:p.row}, edge:[[0,resolveMapTileSize(map).height/2],[resolveMapTileSize(map).width/2,0]] },
-    { neighbor:{column:p.column,row:p.row+1}, edge:[[-resolveMapTileSize(map).width/2,0],[0,resolveMapTileSize(map).height/2]] }]
-    .flatMap(({neighbor,edge}) => {
-      const drop=inBounds(neighbor,map) ? (h-heightAt(neighbor,map))*ELEVATION_STEP : h*ELEVATION_STEP+BASE_THICKNESS;
-      if (drop<=0) return [];
-      const [a,b]=edge.map(([x,y])=>({x:center.x+x,y:center.y+y}));
-      return [[a,b,{x:b.x,y:b.y+drop},{x:a.x,y:a.y+drop}]];
-    });
+export function cliffFaces(currentCellPosition:Position,currentMapSurface:Surface){
+  return buildSurfaceCliffs(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
 }
 const contains = (x:number,y:number,polygon:{x:number;y:number}[]) => {
   let inside=false;
