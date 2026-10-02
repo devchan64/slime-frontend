@@ -113,7 +113,7 @@ test('생산 배치의 레벨과 고유 ID를 검증하며 구형 품목과 분�
  const currentBatchItem={id:'production-batch:one',batchId:'one',definitionId:'gel-ration',kind:'consumable',itemLevel:2,performanceVersion:1,quantity:2,name:'젤 곡물식',nameTranslations:{ko:'젤 곡물식',en:'Gel Ration'},description:'식량',weightG:null};
  currentBagResponse.bag.items.push(currentBatchItem);currentBagResponse.bag.unknownWeightQuantity+=2;
  assert.equal(parseBagInventory(currentBagResponse).bag.items.at(-1).itemLevel,2);
- for(const currentInvalidPatch of [{itemLevel:3},{itemLevel:true},{performanceVersion:0},{batchId:'different'},{definitionId:undefined},{kind:'material'}]){
+ for(const currentInvalidPatch of [{itemLevel:3},{itemLevel:true},{performanceVersion:0},{batchId:'different'},{definitionId:undefined},{kind:'collection'}]){
   const currentInvalidResponse=structuredClone(currentBagResponse);Object.assign(currentInvalidResponse.bag.items.at(-1),currentInvalidPatch);
   assert.throws(()=>parseBagInventory(currentInvalidResponse),/생산 배치/);
  }
@@ -131,4 +131,24 @@ test('생산 회복 배치도 고정 회복량과 배치 ID 사용 명령을 표
  currentBagResponse.bag.items.push(currentBatchItem);currentBagResponse.bag.unknownWeightQuantity+=2;
  assert.equal(parseBagInventory(currentBagResponse).bag.items.at(-1).useAction.restorationHp,4);
  assert.match(formatCharacterBag({items:[currentBatchItem]}),/HP 회복 4.*use-item production-batch:chosen/);
+});
+
+
+test('중간재 생산 배치는 레벨·개별 식별자를 표시하며 사용 명령을 허용하지 않는다',async()=>{
+ const {formatCharacterBag}=await import('../scripts/text-client-core.mjs');
+ const currentMaterialBatch={id:'production-batch:material-one',batchId:'material-one',definitionId:'leather-cord',kind:'material',itemLevel:1,performanceVersion:1,quantity:4,name:'표준 가죽끈',nameTranslations:{ko:'표준 가죽끈',en:'Leather Cord'},description:'제작 재료',weightG:null};
+ const currentBagResponse=createBagResponse();
+ currentBagResponse.bag.items.push(currentMaterialBatch);
+ currentBagResponse.bag.unknownWeightQuantity+=4;
+ assert.equal(parseBagInventory(currentBagResponse).bag.items.at(-1).batchId,'material-one');
+ const currentTextResult=formatCharacterBag({items:[currentMaterialBatch]});
+ assert.match(currentTextResult,/Lv\.1/);
+ assert.match(currentTextResult,/production-batch:material-one/);
+ assert.doesNotMatch(currentTextResult,/use-item|first-aid/);
+ for(const currentInvalidFields of [{useAction:{type:'RESTORE_HP',restorationHp:3,consumedOnSuccess:1}},{itemLevel:3},{batchId:'other'},{performanceVersion:0},{kind:'refined_material'}]){
+  const currentInvalidResponse=structuredClone(currentBagResponse);
+  Object.assign(currentInvalidResponse.bag.items.at(-1),currentInvalidFields);
+  assert.throws(()=>parseBagInventory(currentInvalidResponse));
+  assert.throws(()=>formatCharacterBag({items:[{...currentMaterialBatch,...currentInvalidFields}]}));
+ }
 });

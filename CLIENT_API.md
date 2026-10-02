@@ -396,3 +396,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 표식 소모품의 생산 결과도 지원한다. 정의 효과가 `place_route_marker` 또는 `place_light_marker`일 때 `performance.effect_duration_seconds`의 양수 정수 하나를 검증한다. 회복 소모품에는 `restoration_hp_value`만 허용해 효과 종류와 맞지 않는 성능 응답을 거절한다.
 
 텍스트 응급처치는 `first-aid <batchId>`와 `first-aid production-batch:<batchId>`를 모두 허용한다. 후자는 가방에 표시된 항목 ID를 그대로 복사하는 형식이며 API에는 접두사를 제거한 batchId만 보낸다. 생산 붕대 가방 항목은 해당 응급처치 명령을 안내한다. 빈 ID·중복 접두사·잘못된 문자는 전송 전에 거절하며 붕대를 일반 회복 use-item으로 안내하지 않는다.
+
+생산 중간재 가방 응답도 `kind: material`과 `production-batch:<batchId>` 식별자, `definitionId`·`itemLevel`·`performanceVersion`을 사용한다. GUI·텍스트 가방은 같은 검증기로 레벨을 표시하며 중간재에 `useAction`이 붙으면 거절한다. 품질 분수·원료 출처·평가가치는 가방 공개 데이터에 포함하지 않는다. 이는 응답 지원 준비이며 중간재 공방 메뉴·명령이나 서버 가방 투영의 연결 완료를 의미하지 않는다. 검증: `node scripts/run-regression.mjs tests/bag.test.mjs`.

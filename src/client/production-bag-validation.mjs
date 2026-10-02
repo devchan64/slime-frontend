@@ -2,7 +2,8 @@
 export function validateProductionBagItem(currentItemEntry){
   const currentBatchFields=['batchId','definitionId','itemLevel','performanceVersion'];
   if(!currentBatchFields.some(currentFieldName=>currentItemEntry[currentFieldName]!==undefined))return;
-  if(currentItemEntry.kind!=='consumable'||typeof currentItemEntry.batchId!=='string'||!currentItemEntry.batchId.trim()
+  if(!['consumable','material'].includes(currentItemEntry.kind)
+      ||(currentItemEntry.kind==='material'&&currentItemEntry.useAction!==undefined)||typeof currentItemEntry.batchId!=='string'||!currentItemEntry.batchId.trim()
       ||currentItemEntry.id!=='production-batch:'+currentItemEntry.batchId
       ||typeof currentItemEntry.definitionId!=='string'||!currentItemEntry.definitionId.trim()
       ||![1,2].includes(currentItemEntry.itemLevel)||!Number.isSafeInteger(currentItemEntry.performanceVersion)||currentItemEntry.performanceVersion<1)
