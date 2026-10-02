@@ -22,6 +22,11 @@ async function clickTravelerButton(currentTranslationKey:string){
 }
 window.fetch=async(currentInput,currentOptions)=>{
  const currentResponse=await currentOriginalFetch(currentInput,currentOptions);
+ if(currentResponse.ok&&(String(currentInput).endsWith('/traveler-permit-barter-quote')||String(currentInput).endsWith('/traveler-permit-purchases'))){
+  const currentResponseRecord=await currentResponse.clone().json();
+  const currentPaymentRecord=currentResponseRecord.payment??currentResponseRecord.receipt?.payment;
+  assertBrowserCondition(JSON.stringify(currentPaymentRecord)===JSON.stringify({cashP:2,materials:{'protein-jelly':4}}),'공개 응답에 폰과 재료 수량만 포함');
+ }
  if(String(currentInput).endsWith('/traveler-permit-purchases')){
   currentRecordedPurchases.push(String(currentOptions?.body));
   if(currentResponse.ok&&!currentResponseDiscarded){currentResponseDiscarded=true;await currentResponse.arrayBuffer();throw new TypeError('실제 발급 응답 유실 검사');}
@@ -41,7 +46,8 @@ window.fetch=async(currentInput,currentOptions)=>{
   currentNumberInputs[currentInputIndex].value=currentInputValue;currentNumberInputs[currentInputIndex].dispatchEvent(new Event('input',{bubbles:true}));await currentWaitRender();
  }
  await clickTravelerButton('citizenship.permitPrice');
- await waitTravelerCondition(()=>document.body.textContent!.includes(t('citizenship.barterTotal',{total:6,excess:1})),'실제 견적 합계·초과액 표시');
+ await waitTravelerCondition(()=>document.body.textContent!.includes(t('citizenship.barterNoChange')),'실제 납부 선택과 무거스름 조건 표시');
+ assertBrowserCondition(!document.body.textContent!.includes('표준 가치')&&!document.body.textContent!.includes('납부 가치'),'내부 평가가치 화면 비공개');
  await clickTravelerButton('citizenship.permitPurchase');
  await waitTravelerCondition(()=>document.body.textContent!.includes(t('citizenship.permitUncertain')),'응답 유실 후 미확정 안내');
  assertBrowserCondition(document.querySelector('fieldset')!.disabled,'재시도 전 납부 선택 잠금');
@@ -49,7 +55,7 @@ window.fetch=async(currentInput,currentOptions)=>{
  await waitTravelerCondition(()=>document.body.textContent!.includes(t('citizenship.permitPurchased')),'실제 발급 완료 표시');
  assertBrowserCondition(currentRecordedPurchases.length===2&&currentRecordedPurchases[0]===currentRecordedPurchases[1],'동일 요청으로 재시도');
  currentGameClient.accept(await currentGameClient.request('/v1/game/state'));
- assertBrowserCondition(currentGameClient.state!.me.coins===0,'현금 2p 단일 차감과 거스름돈 없음');
+ assertBrowserCondition(currentGameClient.state!.me.coins===0,'폰 2P 단일 차감과 거스름돈 없음');
  assertBrowserCondition(!currentGameClient.state!.me.bag!.items.some(currentItem=>currentItem.id==='protein-jelly'),'재료 4개 단일 차감');
  assertBrowserCondition(currentGameClient.state!.me.travelerPermitSummary!.records.length===1,'증서 한 개 발급');
  await fetch('/test-result',{method:'POST',body:'PASS: 실제 GUI 혼합 견적·응답 유실·동일 요청 재시도·단일 발급'});
