@@ -17,8 +17,8 @@ function validateWorkshopQuote(currentQuoteValue,currentContractKind){
       &&(currentContractKind==='craft'
         ? isWorkshopWholeNumber(currentProductionResult.performance?.attack_flat_bonus)&&isWorkshopWholeNumber(currentProductionResult.performance?.defense_flat_bonus)
           &&isWorkshopWholeNumber(currentProductionResult.performance?.maximum_durability_value)&&currentProductionResult.performance.maximum_durability_value>0
-        : currentQuoteValue.definitionSnapshot?.effect==='restore_hp'&&isWorkshopWholeNumber(currentProductionResult.performance?.restoration_hp_value)
-          &&currentProductionResult.performance.restoration_hp_value>0&&Object.keys(currentProductionResult.performance).length===1));
+        : ((currentQuoteValue.definitionSnapshot?.effect==='restore_hp'&&isWorkshopWholeNumber(currentProductionResult.performance?.restoration_hp_value)&&currentProductionResult.performance.restoration_hp_value>0)
+          ||(['place_route_marker','place_light_marker'].includes(currentQuoteValue.definitionSnapshot?.effect)&&isWorkshopWholeNumber(currentProductionResult.performance?.effect_duration_seconds)&&currentProductionResult.performance.effect_duration_seconds>0))&&Object.keys(currentProductionResult.performance).length===1));
   }
   if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentQuoteValue.quantity)&&currentQuoteValue.quantity>0&&currentQuoteValue.quantity<=1000
     &&Number.isSafeInteger(currentQuoteValue.unitDurationSeconds)&&currentQuoteValue.unitDurationSeconds>0

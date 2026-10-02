@@ -153,3 +153,10 @@ test('소모품 카탈로그의 다중 슬롯과 슬롯 간 중복을 검증한�
  const currentDuplicateChoice={...currentSlotItem('gelatin-low'),slotId:'different'};
  assert.throws(()=>parseWorkshopCatalog({items:[{...currentCatalogResponse.items[0],materialSlots:[currentSlotItem('gelatin-low'),currentDuplicateChoice]}]}));
 });
+test('표식 생산 견적은 고정 유지 시간과 효과 종류를 검증한다',()=>{
+ const currentMarkerQuote={...currentQuoteFixture,quote:{definitionId:'moth-lamp',definitionSnapshot:{name:'등불',englishName:'Lamp',effect:'place_light_marker'},quantity:1,unitDurationSeconds:60,unitCostP:3,costP:3,durationSeconds:60,productionResult:{productId:'moth-lamp',usage:'consumable',itemLevel:2,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:3,denominator:2},performance:{effect_duration_seconds:72}}}};
+ assert.equal(parseWorkshopQuote(currentMarkerQuote,'consumable').quote.productionResult.itemLevel,2);
+ for(const currentPerformance of [{effect_duration_seconds:0},{restoration_hp_value:3},{effect_duration_seconds:72,restoration_hp_value:3}]){
+  const currentInvalidQuote=structuredClone(currentMarkerQuote);currentInvalidQuote.quote.productionResult.performance=currentPerformance;assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'consumable'));
+ }
+});

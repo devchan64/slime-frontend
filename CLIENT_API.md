@@ -392,3 +392,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 소모품 카탈로그의 선택 가능한 품목은 `materialSlots`를 제공한다. 각 슬롯은 `slotId`와 장비 `materialSelection`과 같은 `requiredQuantity`·`defaultMaterialId`·`choices` 구조를 가진다. 필요량은 제품 한 개 기준이며 주문량을 곱해 각 슬롯을 충족해야 한다. 동일 품목의 슬롯 사이에 선택 재료 ID가 중복되거나 빈 슬롯 목록이면 응답을 거절한다. 서버가 제공하지 않은 등급을 생성하지 않는다. GUI는 각 슬롯을 별도 입력란으로 표시하고 주문량을 곱한 슬롯별 합계를 검증한다. 주문량·선택 변경 시 기존 견적을 폐기하며 확인한 견적의 선택 재료와 수량을 그대로 계약에 보낸다. 텍스트는 `workshop consumable quote 시설ID 품목ID 주문수량 [재료ID=총수량 ...]`으로 선택한다. 재료 목록 생략은 기존 지정 재료 견적을 사용하고, catalog는 각 슬롯의 개당 필요량·허용 ID·보유량을 안내한다.
 
 실제 생산 브라우저 번들은 장비 검사 뒤 소모품 공방의 슬롯 선택·견적·생성·수령과 `BagPanel`의 레벨 표시·회복 사용까지 검사한다. 전용 `/test-complete-consumable`은 시험 캐릭터의 미수령 소모품 계약 완료 시각만 조정하며 제품 API가 아니다. 실제 사용 버튼은 기존 Client의 소모품 사용 명령을 실행한다. 서버 검사는 최종 비용·계약 수·회복 HP·소진 배치 제거를 확인한다.
+
+표식 소모품의 생산 결과도 지원한다. 정의 효과가 `place_route_marker` 또는 `place_light_marker`일 때 `performance.effect_duration_seconds`의 양수 정수 하나를 검증한다. 회복 소모품에는 `restoration_hp_value`만 허용해 효과 종류와 맞지 않는 성능 응답을 거절한다.
