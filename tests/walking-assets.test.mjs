@@ -25,9 +25,10 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
 }
 test('정면왼쪽 걷기는 8프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
+  renderedCharacterImage.scene.time.now=2371;
   for(const currentDirectionName of ['down_left']) {
     for(let frameColumnIndex=0;frameColumnIndex<=8;frameColumnIndex++) {
-      renderedCharacterImage.scene.time.now=frameColumnIndex*125;
+      renderedCharacterImage.scene.time.now=2371+frameColumnIndex*125;
       updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,true);
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
       assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%8}`));
@@ -40,13 +41,13 @@ test('정면왼쪽 걷기는 8프레임을 125ms 간격으로 반복하고 정�
     assert.equal(renderedCharacterImage.scaleX,80/367.5);
   }
 });
-test('짧은 이동을 반복해도 걷기를 첫 프레임으로 재시작하지 않고 몬스터·휴식은 대기를 유지한다',()=>{
+test('이동 재시작은 첫 프레임부터 재생하고 몬스터·휴식은 대기를 유지한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
   updateCharacterAnimationFrame(renderedCharacterImage,'down_left',undefined,true);
   updateCharacterAnimationFrame(renderedCharacterImage,'down_left',undefined,false);
   renderedCharacterImage.scene.time.now=375;
   updateCharacterAnimationFrame(renderedCharacterImage,'down_left',undefined,true);
-  assert.ok(renderedCharacterImage.frame.name.endsWith('down_left.3'));
+  assert.ok(renderedCharacterImage.frame.name.endsWith('down_left.0'));
   for(const actorIdleKindValue of ['slime','human-rest']) {
     const otherCharacterImage=createCharacterTestImage(actorIdleKindValue);
     updateCharacterAnimationFrame(otherCharacterImage,'down_left',undefined,true);

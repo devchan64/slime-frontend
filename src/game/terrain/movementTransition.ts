@@ -1,5 +1,5 @@
-/** 한 칸의 이동·탄성 복귀을 식별할 수 있는 공통 이동 시간이다. */
-export const TILE_MOVEMENT_DURATION_MS = 360;
+/** 8fps 걷기 8프레임 한 주기를 모두 재생하는 한 칸 이동 시간이다. */
+export const TILE_MOVEMENT_DURATION_MS = 1000;
 /** 다음 서버 이동 요청은 한 칸 전환과 도착 여유 시간 뒤에 보낸다. */
 export const FIELD_MOVEMENT_INTERVAL_MS = TILE_MOVEMENT_DURATION_MS + 90;
 

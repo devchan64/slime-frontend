@@ -12,9 +12,9 @@ test('확정 경로를 꺾이는 칸까지 순서대로 재생하고 중복 스�
  const m=new BattleMotion();m.sync('a',state(start),point,0);
  m.sync('a',state(end,[move]),point,10);
  assert.deepEqual(m.offset('hero',10),{x:-10,y:-10,depth:-2});
- assert.deepEqual(m.offset('hero',370),{x:0,y:-10,depth:-1});
- m.sync('a',state(end,[move]),point,380);
- assert.deepEqual(m.offset('hero',730),{x:0,y:0,depth:0});
+ assert.deepEqual(m.offset('hero',1010),{x:0,y:-10,depth:-1});
+ m.sync('a',state(end,[move]),point,1020);
+ assert.deepEqual(m.offset('hero',2010),{x:0,y:0,depth:0});
 });
 test('접속과 회전·전장 변경은 과거 경로를 재생하지 않는다',()=>{
  const m=new BattleMotion();m.sync('a',state(end,[move]),point,0);
@@ -26,8 +26,8 @@ test('접속과 회전·전장 변경은 과거 경로를 재생하지 않는다
 test('한 스냅샷의 연속 이동은 앞 경로 뒤에 이어 붙인다',()=>{
  const m=new BattleMotion();m.sync('a',state(start),point,0);
  m.sync('a',state(end,[{...move,path:[corner]},{...move,path:[end]}]),point,10);
- assert.deepEqual(m.offset('hero',370),{x:0,y:-10,depth:-1});
- assert.deepEqual(m.offset('hero',730),{x:0,y:0,depth:0});
+ assert.deepEqual(m.offset('hero',1010),{x:0,y:-10,depth:-1});
+ assert.deepEqual(m.offset('hero',2010),{x:0,y:0,depth:0});
 });
 
 test('서버 구간 방향은 위치 보간과 같은 경계에서 전환하고 완료 후 해제한다',()=>{
@@ -35,18 +35,18 @@ test('서버 구간 방향은 위치 보간과 같은 경계에서 전환하고 
  battleMotionTracker.sync('a',state(start),point,0);
  const directedMoveRecord={...move,pathFacings:['column_positive','row_positive']};
  battleMotionTracker.sync('a',state(end,[directedMoveRecord]),point,10);
- assert.equal(battleMotionTracker.currentWorldFacing('hero',369),'column_positive');
- assert.equal(battleMotionTracker.currentWorldFacing('hero',370),'row_positive');
- battleMotionTracker.sync('a',state(end,[directedMoveRecord]),point,380);
- assert.equal(battleMotionTracker.currentWorldFacing('hero',729),'row_positive');
- assert.equal(battleMotionTracker.currentWorldFacing('hero',730),undefined);
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',1009),'column_positive');
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',1010),'row_positive');
+ battleMotionTracker.sync('a',state(end,[directedMoveRecord]),point,1020);
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',2009),'row_positive');
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',2010),undefined);
 });
 test('연속 경로의 방향을 이어 붙이고 구버전 무방향 로그는 방향을 추측하지 않는다',()=>{
  const battleMotionTracker=new BattleMotion();
  battleMotionTracker.sync('a',state(start),point,0);
  battleMotionTracker.sync('a',state(end,[{...move,path:[corner],pathFacings:['column_positive']},{...move,path:[end],pathFacings:['row_positive']}]),point,10);
  assert.equal(battleMotionTracker.currentWorldFacing('hero',10),'column_positive');
- assert.equal(battleMotionTracker.currentWorldFacing('hero',370),'row_positive');
+ assert.equal(battleMotionTracker.currentWorldFacing('hero',1010),'row_positive');
  battleMotionTracker.sync('b',state(start),point,0);
  battleMotionTracker.sync('b',state(end,[move]),point,10);
  assert.equal(battleMotionTracker.currentWorldFacing('hero',10),undefined);
@@ -77,20 +77,20 @@ test('공격 돌진은 걷기로 처리하지 않고 이동 경로의 종료 경
  battleMotionTracker.sync('a',state(start,[attack]),point,10);
  assert.equal(battleMotionTracker.isMovementActive('hero',10),false);
  battleMotionTracker.sync('a',state(end,[attack,move]),point,20);
- assert.equal(battleMotionTracker.isMovementActive('hero',739),true);
- assert.equal(battleMotionTracker.isMovementActive('hero',740),false);
+ assert.equal(battleMotionTracker.isMovementActive('hero',2019),true);
+ assert.equal(battleMotionTracker.isMovementActive('hero',2020),false);
 });
 
 test('각 타일 구간은 약한 탄성 후 끝에서 정확히 도착한다',()=>{
  const battleMotionTracker=new BattleMotion();
  battleMotionTracker.sync('a',state(start),point,0);
  battleMotionTracker.sync('a',state(end,[move]),point,10);
- assert.deepEqual(battleMotionTracker.offset('hero',190),{x:0,y:-10,depth:-1});
- assert.deepEqual(battleMotionTracker.offset('hero',550),{x:0,y:0,depth:0});
- const currentOvershootOffset=battleMotionTracker.offset('hero',610);
+ assert.deepEqual(battleMotionTracker.offset('hero',510),{x:0,y:-10,depth:-1});
+ assert.deepEqual(battleMotionTracker.offset('hero',1510),{x:0,y:0,depth:0});
+ const currentOvershootOffset=battleMotionTracker.offset('hero',(10+1000*5/3));
  assert.ok(currentOvershootOffset.y>0 && currentOvershootOffset.y<.4);
- assert.equal(battleMotionTracker.isMovementActive('hero',729),true);
- assert.equal(battleMotionTracker.isMovementActive('hero',730),false);
+ assert.equal(battleMotionTracker.isMovementActive('hero',2009),true);
+ assert.equal(battleMotionTracker.isMovementActive('hero',2010),false);
 });
 
 test('표시 HP 0의 생존 유닛은 이동을 이어가고 실제 전투불능 갱신에서만 멈춘다',()=>{

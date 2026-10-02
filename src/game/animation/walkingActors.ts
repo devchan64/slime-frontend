@@ -17,6 +17,7 @@ export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjec
   actorScreenDirection: Direction, actionElapsedMilliseconds?: number, characterMovementActive = false) {
   const characterWalkingActive = characterMovementActive && actorRenderImage.getData("actorIdleKind") === "human";
   if (!characterWalkingActive) {
+    actorRenderImage.setData("walkingStartedAt", undefined);
     const savedIdleScaleValue = actorRenderImage.getData("walkingIdleScale");
     if (savedIdleScaleValue !== undefined) {
       actorRenderImage.setScale(savedIdleScaleValue).setData("walkingIdleScale", undefined);
@@ -29,8 +30,10 @@ export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjec
     bindCellTexture(actorRenderImage.scene, characterWalkAsset.key, characterWalkAsset.animation);
     actorRenderImage.setData("walkingIdleScale", actorRenderImage.scaleX);
   }
-  // 타일별 이동마다 첫 프레임으로 되돌아가지 않는다.
-  const walkingElapsedMilliseconds = actorRenderImage.scene.time.now + actorRenderImage.getData("idlePhaseOffset");
+  if (actorRenderImage.getData("walkingStartedAt") === undefined) {
+    actorRenderImage.setData("walkingStartedAt", actorRenderImage.scene.time.now);
+  }
+  const walkingElapsedMilliseconds = actorRenderImage.scene.time.now - actorRenderImage.getData("walkingStartedAt");
   const sampledWalkingFrame = characterWalkAsset.animation.sample(
     characterWalkAsset.animation.clip("walk", actorScreenDirection), walkingElapsedMilliseconds).frame;
   actorRenderImage.setTexture(characterWalkAsset.key,
