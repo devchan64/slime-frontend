@@ -13,3 +13,5 @@ costume: "Costume {name}"
 item: "{name} × {quantity}"
 expires: "Expires: {time}"
 expired: The storage period has ended. Refresh the parcel list.
+arrived: "You have {count} parcels. Collect them at any city guild hall."
+noticeFailed: Could not check for parcels. Retrying shortly.

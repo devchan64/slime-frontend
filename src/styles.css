@@ -1491,3 +1491,6 @@ body.battle-preview-shell .preview-hud { display: contents; }
 
 .traveler-barter-toggle { display: flex; align-items: center; gap: 8px; }
 .traveler-barter-toggle input { width: auto; margin: 0; }
+
+.parcel-arrival-notice:empty { display: none; }
+.parcel-arrival-notice { padding: 6px 12px; flex-shrink: 0; font-size: 0.85rem; }

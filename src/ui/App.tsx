@@ -1,3 +1,4 @@
+import {ParcelArrivalNotice} from './ParcelArrivalNotice';
 import {readPartyCreationIssue} from './partyCreationAccess.mjs';
 import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCutinSettings';
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
@@ -411,6 +412,8 @@ export function App() {
           {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>{t('app.reconnect')}</button></> : null}
         </section>
       </div>}
+      {state?.me.name && <ParcelArrivalNotice key={`${state.me.id}:${state.generation}`}
+        currentGameClient={client} currentCharacterIdentifier={state.me.id} />}
       <header>
         <LanguageSelect />
         <a class="brand" href="/">

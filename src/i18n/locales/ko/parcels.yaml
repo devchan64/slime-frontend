@@ -13,3 +13,5 @@ costume: "코스튬 {name}"
 item: "{name} × {quantity}"
 expires: "만료: {time}"
 expired: 보관기간이 끝났습니다. 목록을 새로고침하세요.
+arrived: "소포 {count}개가 도착했습니다. 어느 도시의 길드회관에서든 수령할 수 있습니다."
+noticeFailed: 소포 도착 여부를 확인하지 못했습니다. 잠시 후 다시 확인합니다.

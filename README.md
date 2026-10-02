@@ -146,3 +146,7 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 `manifest.json`은 원본 Git 리비전·작업트리 상태, 검사 입력 환경변수 이름과 산출물 절대 경로, 각 파일 SHA-256을 제공한다. 검사 실행 측은 파일 해시를 검증한 뒤 `environment`의 값들을 해당 실행 프로세스에 전달한다. 비밀번호·토큰은 이 파일에 넣지 않는다. 리비전·작업트리 상태 기록은 변경 중인 소스의 원자적 스냅샷 보장이 아니다.
 
 단계 로그와 5초 heartbeat는 `build.log`, 최종 상태는 `result.json`에 보존한다. 하나라도 실패하면 종료 코드 1로 끝내고 완성 manifest를 쓰지 않으며 실패 단계·로그 끝부분을 출력한다. 재실행은 새 경로를 사용한다. 번들 준비 성공과 서버 연결·게임 여정 검사 통과는 구분한다.
+
+### 소포 알림 클라이언트
+
+로그인한 캐릭터의 전역 알림 컴포넌트는 `GET /v1/game/parcels/notice`를 최초 렌더와 응답 완료 후 15초 간격으로 조회한다. 백엔드 해당 API를 먼저 배포한다. 텍스트 클라이언트는 `parcels notice`로 같은 조회를 제공한다. 검증은 `node scripts/run-regression.mjs tests/parcel-notice.test.mjs tests/parcel-notice-browser.test.mjs tests/parcel-panel-browser.test.mjs`로 실행한다.
