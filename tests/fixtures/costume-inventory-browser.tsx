@@ -10,7 +10,7 @@ let currentResponseData:any={characterVersion:4,defaultCostumeId:'default',entri
 let currentDelayedResolve:((currentValue:any)=>void)|null=null;
 let currentEquipAttempts=0;
 let currentOriginalEquipBody:any;
-const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,me:{id:'hero',mode:'FIELD',version:4}},request:async(currentRequestPath:string,currentRequestBody:any)=>{
+const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoch:1,me:{id:'hero',mode:'FIELD',version:4}},request:async(currentRequestPath:string,currentRequestBody:any)=>{
  if(currentRequestPath==='/v1/characters/me/costume'){
   currentEquipAttempts++;
   if(currentEquipAttempts===1){currentOriginalEquipBody=structuredClone(currentRequestBody);throw new TypeError('response lost');}
@@ -47,5 +47,35 @@ async function clickCostumeRefresh(){const currentRefreshButton=document.querySe
  currentClientStub.state.me.mode='IN_BATTLE';render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);await currentWaitRender();
  assertCostumeInventory([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('wardrobe.default'))?.disabled,'전투 중 기본 디자인 변경 차단');
  assertCostumeInventory(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
+
+ const currentOriginalRequestHandler=currentClientStub.request;
+ const currentOriginalAcceptHandler=currentClientStub.accept;
+ for(const currentContextChange of ['epoch','mode','battle']){
+  render(null,document.getElementById('root')!);
+  currentClientStub.state.me.mode='FIELD';delete currentClientStub.state.battle;
+  let currentDeferredEquipResolve:((currentResponseRecord:any)=>void)|null=null;
+  let currentAcceptedStateCount=0;
+  let currentPendingEquipBody:any;
+  const currentPreEquipState=structuredClone(currentClientStub.state);
+  currentClientStub.request=(currentRequestPath:string,currentRequestBody:any)=>{
+   if(currentRequestPath!=='/v1/characters/me/costume')return currentOriginalRequestHandler(currentRequestPath,currentRequestBody);
+   currentPendingEquipBody=currentRequestBody;
+   return new Promise(currentResolveCallback=>{currentDeferredEquipResolve=currentResolveCallback;});
+  };
+  currentClientStub.accept=()=>{currentAcceptedStateCount++;};
+  render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
+  await currentWaitRender();await clickCostumeRefresh();
+  const currentDeferredEquipButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('wardrobe.equip'))!;
+  currentDeferredEquipButton.click();await currentWaitRender();
+  if(currentContextChange==='epoch')currentClientStub.state.epoch++;
+  else if(currentContextChange==='mode')currentClientStub.state.me.mode='IN_BATTLE';
+  else currentClientStub.state.battle={id:'battle'};
+  currentDeferredEquipResolve!({requestId:currentPendingEquipBody.requestId,state:{...currentPreEquipState,me:{...currentPreEquipState.me,
+   version:currentPreEquipState.me.version+1,costumeAppearance:{costumeId:'default',costumeVersion:1,designId:'default',designVersion:1}}}});
+  await currentWaitRender();
+  assertCostumeInventory(currentAcceptedStateCount===0,currentContextChange+' 변경 후 늦은 교체 상태 폐기');
+  assertCostumeInventory(!document.body.textContent!.includes(t('wardrobe.equipped')),currentContextChange+' 변경 후 이전 교체 완료 안내 폐기');
+ }
+ currentClientStub.request=currentOriginalRequestHandler;currentClientStub.accept=currentOriginalAcceptHandler;
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

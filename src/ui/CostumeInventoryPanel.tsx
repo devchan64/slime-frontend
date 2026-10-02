@@ -14,8 +14,8 @@ export function CostumeInventoryPanel({gameSessionClient,actionsAreDisabled}:{ga
  const [currentEquipUncertain,setCurrentEquipUncertain]=useState(false);
  const currentEquipRequest=useRef<{requestId:string;expectedVersion:number;costumeId:string}|null>(null);
  const currentActiveReference=useRef(false),currentPendingReference=useRef(false);
- const currentSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation});
- function costumeInventorySessionMatches(){return currentActiveReference.current&&gameSessionClient.tokens?.user_id===currentSessionReference.current.owner&&gameSessionClient.state?.me.id===currentSessionReference.current.character&&gameSessionClient.state?.generation===currentSessionReference.current.generation;}
+ const currentSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch,mode:gameSessionClient.state?.me.mode});
+ function costumeInventorySessionMatches(){return currentActiveReference.current&&gameSessionClient.tokens?.user_id===currentSessionReference.current.owner&&gameSessionClient.state?.me.id===currentSessionReference.current.character&&gameSessionClient.state?.generation===currentSessionReference.current.generation&&gameSessionClient.state?.epoch===currentSessionReference.current.epoch&&gameSessionClient.state?.me.mode===currentSessionReference.current.mode;}
  async function loadCostumeInventory(){
   if(actionsAreDisabled||currentPendingReference.current||currentEquipRequest.current||!costumeInventorySessionMatches())return;
   currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentInventoryNotice('');setCurrentInventoryPage(null);
@@ -35,7 +35,7 @@ export function CostumeInventoryPanel({gameSessionClient,actionsAreDisabled}:{ga
    const currentResponseRecord=await gameSessionClient.request('/v1/characters/me/costume',currentRequestRecord);
    if(currentResponseRecord.requestId!==currentRequestRecord.requestId||currentResponseRecord.state?.me?.id!==currentSessionReference.current.character||currentResponseRecord.state?.generation!==currentSessionReference.current.generation||currentResponseRecord.state?.me?.costumeAppearance?.costumeId!==currentCostumeIdentifier)throw new Error(translateCostumeText('wardrobe.invalidResponse'));
    resolveCostumeActorKind(currentResponseRecord.state.me.costumeAppearance);
-   if(!costumeInventorySessionMatches())return;
+   if(!costumeInventorySessionMatches()||!costumeChangeAvailable())return;
    gameSessionClient.accept(currentResponseRecord.state);
    currentEquipRequest.current=null;setCurrentEquipUncertain(false);setCurrentInventoryNotice({key:'wardrobe.equipped'});
   }catch(currentRequestError){if(costumeInventorySessionMatches()){
