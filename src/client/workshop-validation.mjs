@@ -115,14 +115,26 @@ export function parseWorkshopCatalog(currentResponseValue){
   const currentCatalogIdentifiers=new Set();
   for(const currentCatalogItem of currentResponseValue.items){
     requireWorkshopCondition(currentCatalogItem&&[currentCatalogItem.id,currentCatalogItem.name,currentCatalogItem.englishName].every(currentTextValue=>typeof currentTextValue==='string'&&!!currentTextValue.trim())&&!currentCatalogIdentifiers.has(currentCatalogItem.id));
-    if(currentCatalogItem.materialSelection!==undefined){
-      const currentMaterialSelection=currentCatalogItem.materialSelection;
+    const currentMaterialSelections=[];
+    if(currentCatalogItem.materialSelection!==undefined)currentMaterialSelections.push(currentCatalogItem.materialSelection);
+    if(currentCatalogItem.materialSlots!==undefined){
+      requireWorkshopCondition(currentCatalogItem.materialSelection===undefined&&Array.isArray(currentCatalogItem.materialSlots)&&currentCatalogItem.materialSlots.length>0);
+      const currentSeenSlots=new Set();
+      for(const currentMaterialSlot of currentCatalogItem.materialSlots){
+        requireWorkshopCondition(currentMaterialSlot&&typeof currentMaterialSlot.slotId==='string'&&!!currentMaterialSlot.slotId.trim()&&!currentSeenSlots.has(currentMaterialSlot.slotId));
+        currentSeenSlots.add(currentMaterialSlot.slotId);currentMaterialSelections.push(currentMaterialSlot);
+      }
+    }
+    const currentAllSlotMaterials=new Set();
+    for(const currentMaterialSelection of currentMaterialSelections){
       requireWorkshopCondition(currentMaterialSelection&&isWorkshopWholeNumber(currentMaterialSelection.requiredQuantity)&&currentMaterialSelection.requiredQuantity>0&&Array.isArray(currentMaterialSelection.choices)&&currentMaterialSelection.choices.length>0);
       const currentSeenMaterials=new Set();
       for(const currentMaterialChoice of currentMaterialSelection.choices){
         requireWorkshopCondition(currentMaterialChoice&&typeof currentMaterialChoice.materialId==='string'&&!!currentMaterialChoice.materialId.trim()&&!currentSeenMaterials.has(currentMaterialChoice.materialId)
           &&['low','medium','high'].includes(currentMaterialChoice.grade)&&isWorkshopWholeNumber(currentMaterialChoice.ownedQuantity)
           &&['ko','en'].every(currentLanguageCode=>typeof currentMaterialChoice.nameTranslations?.[currentLanguageCode]==='string'&&!!currentMaterialChoice.nameTranslations[currentLanguageCode].trim()));
+        requireWorkshopCondition(!currentAllSlotMaterials.has(currentMaterialChoice.materialId));
+        currentAllSlotMaterials.add(currentMaterialChoice.materialId);
         currentSeenMaterials.add(currentMaterialChoice.materialId);
       }
       requireWorkshopCondition(currentSeenMaterials.has(currentMaterialSelection.defaultMaterialId));

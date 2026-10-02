@@ -143,3 +143,13 @@ test('신규 회복 소모품 생산 견적과 고정 성능을 검증한다',()
   assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'consumable'));
  }
 });
+test('소모품 카탈로그의 다중 슬롯과 슬롯 간 중복을 검증한다',()=>{
+ const currentSlotItem=currentIdentifier=>({slotId:currentIdentifier,requiredQuantity:1,defaultMaterialId:currentIdentifier,choices:[{materialId:currentIdentifier,grade:'low',ownedQuantity:2,nameTranslations:{ko:'재료',en:'Material'}}]});
+ const currentCatalogResponse={items:[{id:'gel-ration',name:'식량',englishName:'Ration',materialSlots:[currentSlotItem('gelatin-low'),currentSlotItem('grain-flour-low')]}]};
+ assert.equal(parseWorkshopCatalog(currentCatalogResponse)[0].materialSlots.length,2);
+ for(const currentSlotList of [[],[currentSlotItem('same'),currentSlotItem('same')],[{...currentSlotItem('gelatin-low'),requiredQuantity:0}]]){
+  assert.throws(()=>parseWorkshopCatalog({items:[{...currentCatalogResponse.items[0],materialSlots:currentSlotList}]}));
+ }
+ const currentDuplicateChoice={...currentSlotItem('gelatin-low'),slotId:'different'};
+ assert.throws(()=>parseWorkshopCatalog({items:[{...currentCatalogResponse.items[0],materialSlots:[currentSlotItem('gelatin-low'),currentDuplicateChoice]}]}));
+});
