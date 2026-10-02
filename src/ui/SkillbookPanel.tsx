@@ -1,3 +1,4 @@
+import {captureFacilitySessionContext,matchesFacilitySessionContext} from '../client/facilitySessionContext';
 import {validateSkillbookCommandResponse,type SkillbookPurchaseRequest} from '../client/skillbook-command-validation.mjs';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
@@ -13,10 +14,18 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
   const activePanelReference=useRef(false);
   const pendingRequestReference=useRef(false);
   const originalPurchaseRequests=useRef<Record<string,SkillbookPurchaseRequest>>({});
-  const originalSessionReference=useRef({character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation});
+  const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,
+    generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch});
+  const originalFacilityReference=useRef(currentFacilityIdentifier?captureFacilitySessionContext(gameSessionClient):null);
   const currentCatalogPath=currentFacilityIdentifier?`/v1/game/bookshops/${encodeURIComponent(currentFacilityIdentifier)}/catalog`:'/v1/game/skillbooks';
   function currentBookSessionMatches(){return activePanelReference.current&&gameSessionClient.state?.me.id===originalSessionReference.current.character
-    &&gameSessionClient.state?.generation===originalSessionReference.current.generation;}
+    &&gameSessionClient.state?.generation===originalSessionReference.current.generation
+    &&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
+    &&gameSessionClient.state?.epoch===originalSessionReference.current.epoch
+    &&(!currentFacilityIdentifier||(originalFacilityReference.current!==null&&matchesFacilitySessionContext(gameSessionClient,originalFacilityReference.current)));}
+  function currentBookActionAllowed(){const currentGameState=gameSessionClient.state;return !actionsAreDisabled
+    &&currentBookSessionMatches()&&currentGameState?.me.mode==='FIELD'&&!currentGameState.me.battleId
+    &&!currentGameState.battle&&!currentGameState.reservation;}
   async function loadCurrentBooks(){
     const receivedBookInventory=parseSkillbookInventory(await gameSessionClient.request(currentCatalogPath));
     if(currentBookSessionMatches()){setCurrentBookInventory(receivedBookInventory);originalPurchaseRequests.current={};}
@@ -29,7 +38,7 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
   }
   useEffect(()=>{activePanelReference.current=true;void runCurrentBookRequest(loadCurrentBooks);return()=>{activePanelReference.current=false;};},[gameSessionClient,currentFacilityIdentifier]);
   async function purchaseCurrentBook(currentBookEntry:Omit<SkillbookCatalogEntry,'owned'>){
-    if(actionsAreDisabled||!currentBookInventory||!currentFacilityIdentifier)return;
+    if(!currentBookActionAllowed()||!currentBookInventory||!currentFacilityIdentifier)return;
     await runCurrentBookRequest(async()=>{
       const currentRequestState=gameSessionClient.state;
       if(!currentRequestState)return;
@@ -48,7 +57,7 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
     });
   }
   async function readCurrentBook(currentBookIdentifier:string){
-    if(actionsAreDisabled||!currentBookInventory||!gameSessionClient.state)return;
+    if(!currentBookActionAllowed()||!currentBookInventory||!gameSessionClient.state)return;
     const currentRequestState=gameSessionClient.state;
     const currentCharacterVersion=currentRequestState.me.version;
     await runCurrentBookRequest(async()=>{
@@ -64,7 +73,7 @@ export function SkillbookPanel({gameSessionClient,currentFacilityIdentifier,acti
     });
   }
   const currentPlayerRecord=gameSessionClient.state?.me;
-  const currentActionsDisabled=actionsAreDisabled||currentRequestPending||currentPlayerRecord?.mode!=='FIELD'||!!currentPlayerRecord.battleId;
+  const currentActionsDisabled=actionsAreDisabled||currentRequestPending||currentPlayerRecord?.mode!=='FIELD'||!!currentPlayerRecord.battleId||!!gameSessionClient.state?.battle||!!gameSessionClient.state?.reservation;
   return <section class="bag-panel" aria-label={translateBookText(currentFacilityIdentifier?'books.shop':'books.library')}>
     <h3>{translateBookText(currentFacilityIdentifier?'books.shop':'books.library')}</h3>
     <p>{translateBookText('books.policy')}</p>

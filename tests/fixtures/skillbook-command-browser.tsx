@@ -15,7 +15,8 @@ let currentOriginalPurchase:any=null;
 const currentPurchaseRequests:any[]=[];
 const currentReadRequests:any[]=[];
 const currentClientStub:any={
- state:{protocolVersion:1,generation:1,epoch:1,cursor:1,me:{id:'hero',mode:'FIELD',version:2,coins:500,skills:{literacy:3},battleId:null}},
+ tokens:{user_id:'owner'},
+ state:{protocolVersion:1,generation:1,epoch:1,cursor:1,map:{id:'iseulon'},location:{id:'city-channel'},me:{id:'hero',position:{column:1,row:1},mode:'FIELD',version:2,coins:500,skills:{literacy:3},battleId:null}},
  request:async(currentRequestPath:string,currentRequestBody:any)=>{
   if(currentRequestPath.endsWith('/catalog'))return {characterVersion:currentClientStub.state.me.version,books:currentOwnedBook?[currentOwnedBook]:[],catalog:[{...currentBookDefinition,owned:!!currentOwnedBook}]};
   const currentReturnedState=structuredClone(currentClientStub.state);
