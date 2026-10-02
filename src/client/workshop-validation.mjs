@@ -65,7 +65,7 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind,curr
   if(currentRequestedSelection!==undefined){
     requireWorkshopCondition(typeof currentRequestedSelection.targetId==='string'&&currentRequestedSelection.targetId.length>0
       &&(currentContractKind==='repair'?currentResponseValue.quote.instanceId:currentResponseValue.quote.definitionId)===currentRequestedSelection.targetId);
-    if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(currentContractKind==='craft'&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.quote.selectedMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
+    if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(['craft','consumable'].includes(currentContractKind)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentContractKind==='craft'?currentResponseValue.quote.selectedMaterials:currentResponseValue.quote.requiredMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
     if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
       &&currentRequestedSelection.quantity<=1000&&currentResponseValue.quote.quantity===currentRequestedSelection.quantity);
   }

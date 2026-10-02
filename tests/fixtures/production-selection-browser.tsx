@@ -44,5 +44,31 @@ function findProductionButton(currentLocaleKey:string){const currentButton=[...d
  findProductionButton('workshop.confirm').click();await settleProductionRender();
  assertProductionCondition(currentCreatedRequests.length===2&&JSON.stringify(currentCreatedRequests[0])===JSON.stringify(currentCreatedRequests[1]),'같은 재료·요청 ID·견적으로 재시도');
  assertProductionCondition(currentGameClient.state.me.version===5,'성공 상태 반영');
+ const currentOriginalRequest=currentGameClient.request.bind(currentGameClient);
+ currentGameClient.request=async(currentPath:string,currentBody:any)=>{
+  if(currentPath.includes('/catalog?kind=consumable'))return {items:[{id:'gel-ration',name:'젤 곡물식',englishName:'Gel Ration',materialSlots:[
+   {slotId:'gelatin',requiredQuantity:2,defaultMaterialId:'gelatin-low',choices:[{materialId:'gelatin-low',grade:'low',ownedQuantity:10,nameTranslations:{ko:'젤라틴',en:'Gelatin'}}]},
+   {slotId:'flour',requiredQuantity:1,defaultMaterialId:'grain-flour-low',choices:[{materialId:'grain-flour-low',grade:'low',ownedQuantity:10,nameTranslations:{ko:'곡물가루',en:'Flour'}}]}]}]};
+  if(currentPath.endsWith('/production-quote')){
+   currentQuotedRequests.push(structuredClone(currentBody));
+   return {characterVersion:5,quoteToken:'b'.repeat(64),quote:{definitionId:'gel-ration',definitionSnapshot:{name:'젤 곡물식',englishName:'Gel Ration',effect:'restore_hp'},quantity:2,unitCostP:1,costP:2,unitDurationSeconds:90,durationSeconds:180,requiredMaterials:currentBody.materialInputs,
+    productionResult:{productId:'gel-ration',usage:'consumable',itemLevel:1,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:1,denominator:1},performance:{restoration_hp_value:3}}},materials:currentBody.materialInputs.map((currentEntry:any)=>({...currentEntry,ownedQuantity:10,consumedQuantity:currentEntry.quantity,missingQuantity:0,nameTranslations:{ko:'재료',en:'Material'}}))};
+  }
+  return currentOriginalRequest(currentPath,currentBody);
+ };
+ findProductionButton('workshop.consumable').click();await settleProductionRender();
+ const currentConsumableSelect=document.querySelector('select')!;currentConsumableSelect.value='gel-ration';currentConsumableSelect.dispatchEvent(new Event('change',{bubbles:true}));await settleProductionRender();
+ assertProductionCondition(document.querySelectorAll('fieldset').length===2,'소모품 슬롯별 입력 표시');
+ const currentOrderQuantity=document.querySelector<HTMLInputElement>('input[max="1000"]')!;
+ currentOrderQuantity.value='2';currentOrderQuantity.dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();
+ assertProductionCondition(findProductionButton('workshop.quote').disabled,'주문 수량 변경 후 슬롯 부족 차단');
+ currentMaterialInputs=[...document.querySelectorAll<HTMLInputElement>('fieldset input')];
+ for(const [currentInputIndex,currentInputQuantity] of [[0,5],[1,1]]){currentMaterialInputs[currentInputIndex].value=String(currentInputQuantity);currentMaterialInputs[currentInputIndex].dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();}
+ assertProductionCondition(findProductionButton('workshop.quote').disabled,'총합이 같아도 슬롯별 초과·부족 차단');
+ for(const [currentInputIndex,currentInputQuantity] of [[0,4],[1,2]]){currentMaterialInputs[currentInputIndex].value=String(currentInputQuantity);currentMaterialInputs[currentInputIndex].dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();}
+ findProductionButton('workshop.quote').click();await settleProductionRender();
+ assertProductionCondition(currentQuotedRequests.at(-1).kind==='consumable'&&currentQuotedRequests.at(-1).quantity===2,'소모품 종류와 주문량 전송');
+ findProductionButton('workshop.confirm').click();await settleProductionRender();
+ assertProductionCondition(currentCreatedRequests.at(-1).quantity===2&&JSON.stringify(currentCreatedRequests.at(-1).materialInputs)===JSON.stringify(currentQuotedRequests.at(-1).materialInputs),'견적 재료와 주문량 그대로 계약 생성');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertions});
 }catch(currentFailure){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailure),assertions:currentAssertions});}})();
