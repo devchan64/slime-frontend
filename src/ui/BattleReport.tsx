@@ -41,7 +41,7 @@ export function BattleReport({ result, onReturn }: {
     <p class="battle-report-result">{RESULT_LABELS[result.result] ? t(RESULT_LABELS[result.result]) : result.result}</p>
     <dl>{result.coins > 0 && <div><dt>{t('battle.earnedCurrency')}</dt><dd>+{result.coins}p</dd></div>}
       {!result.rewardDistribution && (result.materials ?? []).map(material => <div key={material.materialId}><dt>{material.nameTranslations[locale]}</dt>
-        <dd>×{material.quantity}{material.valueP !== null && <small> · {t('battle.materialValue', {value: material.valueP})}</small>}</dd></div>)}
+        <dd>×{material.quantity}</dd></div>)}
     </dl>
     {result.dissection && result.result !== 'PREPARATION_FAILED' && <p>{t('battle.dissectionApplied',{level:result.dissection.usableLevel})}<br />{t('battle.dissectionRecoveryHint')}</p>}
     {result.rewardDistribution && <PartyRewardReport rewardReportData={result.rewardDistribution} />}

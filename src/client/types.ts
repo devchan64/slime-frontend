@@ -93,7 +93,7 @@ export type State = {
     borrowedPartyLoanIds?: string[];
     lastPartyDisband?: {reason: "LEADER_OFFLINE"; at: number; processedAt: number; leaderId: string; partyId: string | null};
     skillUseLocks?: Record<string, {reason: "book_sold"; bookId: string; sourceId: string}>;
-    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable" | "skillbook" | "collection" | "refined_material"; grade?: "low" | "medium" | "high"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; valueP: number | null; useAction?: ConsumableUseAction}>};
+    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable" | "skillbook" | "collection" | "refined_material"; grade?: "low" | "medium" | "high"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; useAction?: ConsumableUseAction}>};
     personalMarkers?: PersonalFieldMarker[];
     scouting?: {minimumUseLevel:number;literacyRequired:number;fpCost:number;ranges:{minimumLevel:number;tiles:number}[]};
     firstAid?: {version: number; minimumUseLevel: number; literacyRequired: number; restorationHp: number; consumableId: string; consumedOnSuccess: number};
@@ -119,7 +119,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { dissection?: {operatorId:string;usableLevel:number}; rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; valueP: number | null; useAction?: ConsumableUseAction}> } | null;
+    lastResult: { dissection?: {operatorId:string;usableLevel:number}; rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}> } | null;
   };
   map: Surface & {
     safeTown?: boolean;

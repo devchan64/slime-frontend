@@ -24,11 +24,10 @@ export function parseBagInventory(currentResponseValue: unknown, currentCharacte
         || !Number.isSafeInteger(currentMaterialEntry.quantity) || currentMaterialEntry.quantity < 1
         || typeof currentMaterialEntry.nameTranslations?.ko !== 'string' || typeof currentMaterialEntry.nameTranslations?.en !== 'string'
         || typeof currentMaterialEntry.description !== 'string'
-        || !(currentMaterialEntry.weightG === null || Number.isSafeInteger(currentMaterialEntry.weightG) && currentMaterialEntry.weightG >= 0)
-        || !(currentMaterialEntry.valueP === null || Number.isSafeInteger(currentMaterialEntry.valueP) && currentMaterialEntry.valueP > 0)) {
+        || !(currentMaterialEntry.weightG === null || Number.isSafeInteger(currentMaterialEntry.weightG) && currentMaterialEntry.weightG >= 0)) {
       throw new Error('가방 재료 응답이 올바르지 않습니다.');
     }
-    if(currentMaterialEntry.kind === 'skillbook' && (currentMaterialEntry.quantity !== 1 || currentMaterialEntry.valueP !== null)) throw new Error('스킬북은 한 권만 소유하며 판매할 수 없습니다.');
+    if(currentMaterialEntry.kind === 'skillbook' && currentMaterialEntry.quantity !== 1) throw new Error('스킬북은 한 권만 소유하며 판매할 수 없습니다.');
     if (currentMaterialEntry.kind === 'refined_material' ? !['low','medium','high'].includes(currentMaterialEntry.grade ?? '') : currentMaterialEntry.grade !== undefined) throw new Error('정제 재료 등급이 올바르지 않습니다.');
     currentMaterialIdentifiers.add(currentMaterialEntry.id);
     if (currentMaterialEntry.useAction !== undefined && (currentMaterialEntry.kind !== 'consumable'

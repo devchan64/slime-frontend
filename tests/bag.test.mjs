@@ -5,13 +5,13 @@ const currentModuleBuild = await build({entryPoints:['src/client/bag.ts'],bundle
 const {parseBagInventory} = await import(`data:text/javascript;base64,${Buffer.from(currentModuleBuild.outputFiles[0].text).toString('base64')}`);
 function createBagResponse() {
   return {serverTime:100,characterVersion:2,knownEquipmentWeightG:1400,nextCursor:null,slots:{},items:[],bag:{capacityG:20000,knownWeightG:1600,unknownWeightQuantity:3,items:[
-    {id:'protein-jelly',kind:'material',quantity:2,nameTranslations:{ko:'젤리',en:'Jelly'},description:'재료',weightG:100,valueP:1},
-    {id:'iron-ore',kind:'material',quantity:3,nameTranslations:{ko:'철광석',en:'Iron ore'},description:'재료',weightG:null,valueP:null},
+    {id:'protein-jelly',kind:'material',quantity:2,nameTranslations:{ko:'젤리',en:'Jelly'},description:'재료',weightG:100},
+    {id:'iron-ore',kind:'material',quantity:3,nameTranslations:{ko:'철광석',en:'Iron ore'},description:'재료',weightG:null},
   ]}};
 }
 test('붕대 소모품의 수량과 미정 무게도 가방 합계에 포함한다',()=>{
   const currentBagResponse=createBagResponse();
-  currentBagResponse.bag.items.push({id:'clean-bandage',kind:'consumable',quantity:2,nameTranslations:{ko:'깨끗한 붕대',en:'Clean Bandage'},description:'응급처치 재료',weightG:null,valueP:10});
+  currentBagResponse.bag.items.push({id:'clean-bandage',kind:'consumable',quantity:2,nameTranslations:{ko:'깨끗한 붕대',en:'Clean Bandage'},description:'응급처치 재료',weightG:null});
   currentBagResponse.bag.unknownWeightQuantity+=2;
   assert.equal(parseBagInventory(currentBagResponse).bag.unknownWeightQuantity,5);
 });
@@ -50,7 +50,7 @@ test('불완전하거나 불일치하는 합계를 거절한다',()=>{
   assert.throws(()=>parseBagInventory({...createBagResponse(),bag:undefined}),/가방/);
 });
 test('중복 재료와 잘못된 수량·무게를 거절한다',()=>{
-  for(const currentMaterialPatch of [{quantity:0},{quantity:true},{weightG:-1},{kind:'equipment'},{valueP:0}]) {
+  for(const currentMaterialPatch of [{quantity:0},{quantity:true},{weightG:-1},{kind:'equipment'}]) {
     const currentBagResponse=createBagResponse();Object.assign(currentBagResponse.bag.items[0],currentMaterialPatch);
     assert.throws(()=>parseBagInventory(currentBagResponse),/가방/);
   }
@@ -59,7 +59,7 @@ test('중복 재료와 잘못된 수량·무게를 거절한다',()=>{
 });
 test('판매 불가 스킬북 한 권의 무게를 합산한다',()=>{
   const currentBagResponse=createBagResponse();
-  currentBagResponse.bag.items.push({id:'monster-lore-book',kind:'skillbook',quantity:1,nameTranslations:{ko:'몬스터학',en:'Monster Lore'},description:'책',weightG:450,valueP:null});
+  currentBagResponse.bag.items.push({id:'monster-lore-book',kind:'skillbook',quantity:1,nameTranslations:{ko:'몬스터학',en:'Monster Lore'},description:'책',weightG:450});
   currentBagResponse.bag.knownWeightG+=450;
   assert.equal(parseBagInventory(currentBagResponse).bag.knownWeightG,2050);
   currentBagResponse.bag.items.at(-1).quantity=2;

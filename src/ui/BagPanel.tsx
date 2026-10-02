@@ -86,7 +86,6 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           {currentMaterialEntry.kind === 'refined_material' && currentMaterialEntry.grade && <small>{translateBagText('app.bagRefinedMaterial')} · {translateBagText(BAG_REFINING_GRADE_KEYS[currentMaterialEntry.grade])}</small>}
           {currentLocaleCode === 'ko' && <p>{currentMaterialEntry.description}</p>}
           {currentMaterialEntry.weightG !== null && <p>{translateBagText('app.itemWeight',{weight:currentMaterialEntry.weightG})}</p>}
-          {currentMaterialEntry.valueP !== null && <small>{translateBagText('battle.materialValue',{value:currentMaterialEntry.valueP})}</small>}
           {currentMaterialEntry.useAction && submitConsumableUse && <button class="secondary compact"
             disabled={actionsAreDisabled || currentRequestPending || me.mode !== 'FIELD' || !!me.battleId || (me.fp ?? 0) < 0
               || (currentMaterialEntry.useAction.type === 'RESTORE_HP' && (me.hp === undefined || me.maxHp === undefined || me.hp >= me.maxHp))
