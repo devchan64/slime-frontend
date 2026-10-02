@@ -1,6 +1,5 @@
 import {FieldExploration} from './FieldExploration';
 import {isHealthDepleted} from '../client/health-state.mjs';
-import {ParcelPanel} from './ParcelPanel';
 import {BorrowedParticipationPreview} from './BorrowedParticipation';
 import {FieldScouting} from './FieldScouting';
 import {MapKindIcon} from './MapKindIcon';
@@ -137,9 +136,6 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         gameSessionClient={gameSessionClient} currentGuardDefinition={selectedGuardCenter} actionsAreDisabled={disabled}/>}
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <CitizenshipPricePanel
         key={`price:${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
-        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <ParcelPanel
-        key={`parcels:${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <GuildTradePanel
         key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}

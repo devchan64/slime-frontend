@@ -21,10 +21,10 @@ test('알림 조회는 겹치지 않고 정리 후 늦은 응답을 폐기한다
  currentResolveRequest({...currentValidNotice,pendingCount:3});await new Promise(setImmediate);
  assert.deepEqual(currentReceivedCounts,[2]);assert.equal(currentScheduledTasks.length,1);
 });
-test('전투에서도 텍스트 알림만 조회하며 수령 장소 검사는 유지한다',async()=>{
- const currentTextClient={state:{me:{id:'owner',mode:'IN_BATTLE'},generation:1},request:async currentRequestPath=>{assert.equal(currentRequestPath,'/v1/game/parcels/notice');return currentValidNotice;}};
- assert.match(await executeParcelCommand(currentTextClient,['notice']),/2개.*길드회관/);
- await assert.rejects(()=>executeParcelCommand(currentTextClient,['list','iseulon-guild']),/길드회관/);
+test('전투에서도 계정 보관함 알림을 조회하고 이전 길드 명령은 거절한다',async()=>{
+ const currentTextClient={state:{me:{id:'owner',mode:'IN_BATTLE'},generation:1},request:async currentRequestPath=>{assert.equal(currentRequestPath,'/v1/accounts/me/parcels/notice');return currentValidNotice;}};
+ assert.match(await executeParcelCommand(currentTextClient,['notice']),/2개.*계정 보관함/);
+ await assert.rejects(()=>executeParcelCommand(currentTextClient,['list','iseulon-guild']),/rewards parcels/);
 });
 test('텍스트 알림은 요청 중 세션 변경을 거절한다',async()=>{
  const currentTextClient={state:{me:{id:'owner'},generation:1},request:async()=>{currentTextClient.state.generation=2;return currentValidNotice;}};

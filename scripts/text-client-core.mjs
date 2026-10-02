@@ -231,6 +231,7 @@ export class TextClient {
     if (name === 'books') return executeSkillbookCommand(this,args);
     if (name === 'substitute') return executeSubstituteHuntCommand(this,args);
     if (name === 'parcels') return executeParcelCommand(this,args);
+    if(name==='rewards'&&args[0]==='parcels')return executeParcelCommand(this,args.slice(1));
     if (name === 'costumes') return executeCostumeReadCommand(this,args);
     if (name === 'npc'||name === 'quest') return executeNpcCommand(this,name,args);
     if (name === 'materials') return executeGuildSaleCommand(this,args);

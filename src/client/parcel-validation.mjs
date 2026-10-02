@@ -1,4 +1,4 @@
-// 소포는 길드 현장에서 조회하며 소포 ID 자체를 수령 재시도 키로 사용한다.
+// 소포는 계정 보관함에서 조회하며 소포 ID 자체를 수령 재시도 키로 사용한다.
 const PARCEL_IDENTIFIER_PATTERN=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const PARCEL_FACILITY_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
 const PARCEL_ITEM_CATEGORIES=new Set(['material','collection','refined_material','consumable','equipment','skillbook']);

@@ -9,7 +9,7 @@ function assertParcelBrowser(currentCondition:unknown,currentMessage:string){if(
  setLocale(location.hash==='#en'?'en':'ko');
  let currentRequestCount=0;
  const currentClientStub:any={request:async(currentRequestPath:string)=>{
-  assertParcelBrowser(currentRequestPath==='/v1/game/parcels/notice','알림 전용 API');currentRequestCount++;
+  assertParcelBrowser(currentRequestPath==='/v1/accounts/me/parcels/notice','알림 전용 API');currentRequestCount++;
   return {characterId:'hero',pendingCount:2,serverTime:100};
  }};
  render(<div class="app-shell world-shell"><ParcelArrivalNotice currentGameClient={currentClientStub} currentCharacterIdentifier="hero"/><header>SLIME</header><main>Battle</main></div>,currentRootElement);

@@ -1,8 +1,8 @@
 title: Mail and parcels
-help: Collect all parcel attachments at a guildhall. Expired parcels are discarded.
+help: Collect all parcel attachments from account storage. Expired parcels are discarded.
 refresh: Refresh parcels
 empty: No parcels available to collect.
-claim: Collect all
+claim: Collect this parcel
 next: Next page
 retry: Check collection result
 uncertain: The result is unknown. Check the same parcel again.
@@ -13,5 +13,5 @@ costume: "Costume {name}"
 item: "{name} × {quantity}"
 expires: "Expires: {time}"
 expired: The storage period has ended. Refresh the parcel list.
-arrived: "You have {count} parcels. Collect them at any city guild hall."
+arrived: "You have {count} parcels. Collect them from account storage."
 noticeFailed: Could not check for parcels. Retrying shortly.

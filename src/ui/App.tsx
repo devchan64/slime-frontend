@@ -413,7 +413,7 @@ export function App() {
         </section>
       </div>}
       {state?.me.name && <ParcelArrivalNotice key={`${state.me.id}:${state.generation}`}
-        currentGameClient={client} currentCharacterIdentifier={state.me.id} />}
+        currentGameClient={client} currentCharacterIdentifier={state.me.id} openAccountStorage={()=>setDrawer("rewards")} />}
       <header>
         <LanguageSelect />
         {state?.me.name && <DirectMessages key={`direct:${state.me.id}:${state.generation}`} currentGameClient={client} currentGameState={state} />}

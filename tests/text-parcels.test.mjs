@@ -20,7 +20,7 @@ function createParcelClient(currentResponseEntries){
 test('소포 첨부와 만료를 표시하고 목록 커서를 전송한다',async()=>{
  const currentListingRecord={characterVersion:4,serverTime:100,nextCursor:null,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null,{ko:'기본 의상',en:'Default outfit'},{ko:'단백질 젤리',en:'Protein jelly'}],attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
  const {currentTextClient,currentRequestEntries}=createParcelClient([currentListingRecord]);
- assert.match(await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/7P.*코스튬 기본 의상.*단백질 젤리 × 2.*만료/);
+ assert.match(await currentTextClient.execute('rewards parcels list '+CURRENT_PARCEL_IDENTIFIER),/7P.*코스튬 기본 의상.*단백질 젤리 × 2.*만료/);
  assert.ok(currentRequestEntries[0].url.endsWith('?includeNames=true&after='+CURRENT_PARCEL_IDENTIFIER));
  assert.match(formatParcelListing(currentListingRecord,'en'),/Default outfit.*Protein jelly/);
  for(const currentAttachmentNames of [[],[null,null,null],[null,{ko:'기본 의상'}, {ko:'젤리',en:'Jelly'}]])assert.throws(()=>formatParcelListing({...currentListingRecord,entries:[{...currentListingRecord.entries[0],attachmentNames:currentAttachmentNames}]},'ko'));
@@ -28,7 +28,7 @@ test('소포 첨부와 만료를 표시하고 목록 커서를 전송한다',asy
 });
 test('응답 유실과 잘못된 영수증은 같은 소포·버전으로 retry한다',async()=>{
  const {currentTextClient,currentRequestEntries}=createParcelClient([new TypeError('응답 유실'),{state:createParcelState(),receipt:{...createParcelReceipt(),characterId:'other'}},{state:{...createParcelState(),cursor:2},receipt:createParcelReceipt()}]);
- await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
+ await assert.rejects(()=>currentTextClient.execute('rewards parcels claim '+CURRENT_PARCEL_IDENTIFIER),/retry/);
  assert.ok(currentTextClient.pendingCommandRequest);
  assert.equal(currentTextClient.state.cursor,1);
  assert.match(await currentTextClient.execute('retry'),/수령 완료.*7P/);
@@ -36,11 +36,9 @@ test('응답 유실과 잘못된 영수증은 같은 소포·버전으로 retry�
  assert.equal(new Set(currentRequestEntries.map(currentRequestEntry=>currentRequestEntry.url)).size,1);
  assert.equal(currentTextClient.pendingCommandRequest,null);
 });
-test('길드 외부·잘못된 명령·소포 ID는 요청 전에 거절한다',async()=>{
+test('잘못된 계정 보관함 명령과 소포 ID는 요청 전에 거절한다',async()=>{
  const {currentTextClient,currentRequestEntries}=createParcelClient([]);
- for(const currentInvalidCommand of ['parcels claim iseulon-guild','parcels list ../guild','parcels claim iseulon-guild invalid','parcels send iseulon-guild'])await assert.rejects(()=>currentTextClient.execute(currentInvalidCommand));
- currentTextClient.state.me.position.column=0;
- await assert.rejects(()=>currentTextClient.execute('parcels list iseulon-guild'),/입구/);
+ for(const currentInvalidCommand of ['parcels claim iseulon-guild','parcels list ../guild','rewards parcels claim invalid','parcels send iseulon-guild'])await assert.rejects(()=>currentTextClient.execute(currentInvalidCommand));
  assert.equal(currentRequestEntries.length,0);
 });
 
@@ -61,8 +59,8 @@ test('조회한 첨부물은 수령 응답 검증과 재시도에 고정한다',
  const currentListingRecord={characterVersion:4,serverTime:100,nextCursor:null,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null],attachments:[{kind:'money',amountP:7}]}]};
  const currentWrongReceipt={state:{...createParcelState(),cursor:2},receipt:{...createParcelReceipt(),attachments:[{kind:'money',amountP:70}]}};
  const {currentTextClient,currentRequestEntries}=createParcelClient([currentListingRecord,currentWrongReceipt,currentWrongReceipt,{state:{...createParcelState(),cursor:2},receipt:createParcelReceipt()}]);
- await currentTextClient.execute('parcels list iseulon-guild');
- await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
+ await currentTextClient.execute('rewards parcels list');
+ await assert.rejects(()=>currentTextClient.execute('rewards parcels claim '+CURRENT_PARCEL_IDENTIFIER),/retry/);
  assert.equal(currentTextClient.state.cursor,1);
  assert.ok(currentTextClient.pendingCommandRequest);
  assert.match(await currentTextClient.execute('retry'),/수령 완료.*7P/);
@@ -73,10 +71,10 @@ test('조회 도중 세션이 바뀌면 이전 소포 목록을 표시하거나 
  let completeListingResponse;
  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:()=>new Promise(currentResolveCallback=>{completeListingResponse=currentResolveCallback;})});
  currentTextClient.accept(createParcelState());
- const currentPendingListing=currentTextClient.execute('parcels list iseulon-guild');
+ const currentPendingListing=currentTextClient.execute('rewards parcels list');
  currentTextClient.accept({...createParcelState(),generation:2});
  completeListingResponse(new Response(JSON.stringify({characterVersion:4,serverTime:100,nextCursor:null,entries:[]})));
- await assert.rejects(()=>currentPendingListing,/세션·위치/);
+ await assert.rejects(()=>currentPendingListing,/세션/);
  assert.equal(currentTextClient.parcelListingReceiptContext,null);
 });
 
@@ -88,9 +86,9 @@ test('다음 페이지 조회 후에도 앞 페이지 소포의 첨부물을 대
  const currentSecondListing={...currentFirstListing,nextCursor:null,entries:[{...currentFirstListing.entries[0],parcelId:currentNextParcelIdentifier}]};
  const currentWrongReceipt={state:{...createParcelState(),cursor:2},receipt:{...createParcelReceipt(),attachments:[{kind:'money',amountP:70}]}};
  const {currentTextClient}=createParcelClient([currentFirstListing,currentSecondListing,currentWrongReceipt,currentWrongReceipt,{state:{...createParcelState(),cursor:2},receipt:createParcelReceipt()}]);
- await currentTextClient.execute('parcels list iseulon-guild');
- await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER);
- await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
+ await currentTextClient.execute('rewards parcels list');
+ await currentTextClient.execute('rewards parcels list '+CURRENT_PARCEL_IDENTIFIER);
+ await assert.rejects(()=>currentTextClient.execute('rewards parcels claim '+CURRENT_PARCEL_IDENTIFIER),/retry/);
  assert.equal(currentTextClient.state.cursor,1);
  assert.match(await currentTextClient.execute('retry'),/수령 완료.*7P/);
 });
@@ -99,7 +97,17 @@ test('목록을 처음부터 다시 조회하면 이전 페이지 검증 기준�
  const currentFirstListing={characterVersion:4,serverTime:100,nextCursor:CURRENT_PARCEL_IDENTIFIER,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null],attachments:[{kind:'money',amountP:7}]}]};
  currentFirstListing.entries.unshift(...Array.from({length:99},(currentUnusedValue,currentParcelIndex)=>({...currentFirstListing.entries[0],parcelId:String(currentParcelIndex+3).padStart(8,'0')+'-1111-4111-8111-111111111111'})));
  const {currentTextClient}=createParcelClient([currentFirstListing,{...currentFirstListing,nextCursor:null,entries:[]}]);
- await currentTextClient.execute('parcels list iseulon-guild');
- await currentTextClient.execute('parcels list iseulon-guild');
+ await currentTextClient.execute('rewards parcels list');
+ await currentTextClient.execute('rewards parcels list');
  assert.deepEqual(currentTextClient.parcelListingReceiptContext.entries,[]);
+});
+
+
+test('계정 소포는 메뉴·전투·길드 밖에서도 동일 API로 조회한다',async()=>{
+ for(const currentCharacterMode of ['MENU','FIELD','IN_BATTLE']){
+  const {currentTextClient,currentRequestEntries}=createParcelClient([{characterVersion:4,serverTime:100,nextCursor:null,entries:[]}]);
+  currentTextClient.state.me.mode=currentCharacterMode;currentTextClient.state.map.buildings=[];
+  assert.equal(await currentTextClient.execute('rewards parcels list'),'수령 가능한 소포가 없습니다.');
+  assert.equal(currentRequestEntries[0].url,'http://localhost:18080/v1/accounts/me/parcels?includeNames=true');
+ }
 });

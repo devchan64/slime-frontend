@@ -1,3 +1,4 @@
+import {ParcelPanel} from './ParcelPanel';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { noticeText, type Notice } from '../client/notice';
@@ -72,6 +73,8 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
   const rewardActionPending = isRewardLoading || claimedRewardIdentifier !== null;
   return <section aria-label={translateRewardText('rewards.title')}>
     <p>{translateRewardText('rewards.help')}</p>
+    <ParcelPanel gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled || isRewardLoading || claimedRewardIdentifier!==null}/>
+    <h3>{translateRewardText('rewards.loanRewards')}</h3>
     <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage()}>{translateRewardText('rewards.refresh')}</button>
     <button disabled={actionsAreDisabled || rewardActionPending || !(storedRewardPage?.nextCursor || storedRewardPage?.entries.some(storedRewardEntry => rewardRemainingSeconds(storedRewardEntry.expiresAt, storedRewardPage.serverTime, rewardClockValue - rewardClockAnchor.current) > 0))} onClick={() => void claimAllStoredRewards()}>{translateRewardText(claimedRewardIdentifier === 'all' ? 'rewards.claiming' : 'rewards.claimAll')}</button>
     <p>{translateRewardText('rewards.claimAllHelp')}</p>

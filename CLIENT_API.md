@@ -244,9 +244,9 @@ GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공
 경비센터 현장에서 `permit barter 경비센터ID 2 protein-jelly=4`처럼 현금 p와 재료별 수량을 지정합니다. 표준 가치·합계·반환하지 않는 초과액을 확인한 뒤 `permit buy 경비센터ID`로 발급합니다. 현금 0도 가능하며 재료는 하나 이상 필요합니다. 기존 `permit quote`는 현금 전용 견적입니다. 위치·상태 변경 또는 만료 후에는 견적을 다시 받습니다.
 
 
-### 길드 소포
+### 계정 보관함의 시스템 소포
 
-`citizenship guilds`로 길드를 확인하고 입구에서 `parcels list 길드ID [다음커서]`로 소포 ID·첨부물·UTC 만료 시각을 조회한다. `parcels claim 길드ID 소포ID`로 전체 첨부물을 수령한다. 기존 길드 이용 조건이 적용된다. 결과가 불명확하면 `retry`로 같은 소포와 상태 버전을 재전송한다. 수령 API는 소포 ID로 중복 지급을 방지하므로 별도 요청 ID를 보내지 않는다.
+계정 보관함에서 대여 보상과 시스템 소포를 함께 확인한다. `rewards parcels list [다음커서]`로 소포 ID·첨부물·UTC 만료 시각을 조회하고 `rewards parcels claim 소포ID`로 해당 소포의 첨부물을 수령한다. 장소·시민권·길드 방문 조건은 없다. 대여 보상 모두 수령은 대여 보상 항목에만 적용하며 소포는 각각 명시적으로 수령한다. 결과가 불명확하면 `retry`로 같은 소포와 상태 버전을 재전송한다. 수령 API는 소포 ID로 중복 지급을 방지하므로 별도 요청 ID를 보내지 않는다.
 
 목록을 조회한 캐릭터·세션·위치가 유지되면 수령 영수증의 첨부물을 조회 당시 내용과 대조한다. 금액·수량·종류·누락이 다르면 성공 상태를 적용하지 않고 재시도 대상으로 유지하며, 재시도에도 최초 요청의 첨부물 기준을 사용한다. 조회 도중 캐릭터·세션·위치가 바뀌면 해당 목록을 표시하거나 저장하지 않는다. 연속된 다음 페이지 조회에서는 앞 페이지의 첨부물 기준도 보존한다. 첫 페이지를 다시 조회하거나 다른 커서로 조회하면 이전 페이지 기준을 초기화한다. 목록 조회 없이 ID로 직접 수령하면 기존 영수증 형식·소유자 검증을 적용한다.
 
@@ -415,3 +415,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 텍스트 명령은 `dm list [커서]`, `dm read 캐릭터ID [이전커서]`, `dm send 캐릭터ID 메시지`, `dm retry`, `dm notice`, `dm block 캐릭터ID`, `dm unblock 캐릭터ID`, `dm blocks [커서]`다. 개인 메시지의 결과 불명 복구는 게임 명령의 `retry`와 구분되는 `dm retry`를 사용한다. 터미널 명령 이력을 저장하지 않으며 개인 대화 화면은 가장 이른 표시 기한·다음 입력·종료 때 지운다. 터미널 제어 문자를 본문 명령으로 실행하지 않는다.
 
 회귀는 기존 `tests/text-client.test.mjs`와 `tests/parcel-notice-browser.test.mjs`로 실행한다. 후자는 소포 알림과 개인 메시지 fixture를 같은 Chrome 실행기로 검증한다. 새 독립 검사 실행기는 추가하지 않았다. 실제 HTTP 여정용 텍스트 번들은 기존 `node scripts/build-backend-acceptance.mjs`에서 생성한다.
+
+소포의 정식 경로는 `GET /v1/accounts/me/parcels?includeNames=true&after=...`, `POST /v1/accounts/me/parcels/{parcelId}/claim`와 `GET /v1/accounts/me/parcels/notice`다. 기존 목록·영수증 계약과 원본 소포 ID·기한·첨부물을 유지한다. 새 수령 영수증의 `storage`는 `ACCOUNT`이며 `facilityId: account-storage`는 기존 문자열 계약을 유지하는 출처 표식으로 실제 길드 ID가 아니다. 과거 길드 영수증의 값은 그대로 반환한다. 이전 `/v1/game/guilds/{facilityId}/parcels` 주소도 위치 검사 없이 같은 계정 보관함 처리에 연결한다. 서버를 먼저 적용한 뒤 새 클라이언트를 적용한다.

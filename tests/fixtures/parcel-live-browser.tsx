@@ -1,15 +1,14 @@
 import {render} from 'preact';
-import {ParcelPanel} from '../../src/ui/ParcelPanel';
+import {AccountRewardsPanel} from '../../src/ui/AccountRewardsPanel';
 import {Client} from '../../src/client/api';
 import {t,setLocale} from '../../src/i18n';
 const currentGameClient=new Client();
 const currentWaitRender=()=>new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,80));
 const currentOriginalFetch=window.fetch.bind(window);
 const currentRecordedPurchases:string[]=[];
-let currentFacilityIdentifier:any;
 let currentResponseDiscarded=false;
 function assertBrowserCondition(currentCondition:unknown,currentMessage:string){if(!currentCondition)throw new Error(currentMessage);}
-function renderParcelPanel(){render(<ParcelPanel gameSessionClient={currentGameClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={false}/>,document.getElementById('root')!);}
+function renderParcelPanel(){render(<AccountRewardsPanel gameSessionClient={currentGameClient} actionsAreDisabled={false}/>,document.getElementById('root')!);}
 async function waitParcelCondition(currentPredicate:()=>boolean,currentDescription:string){
  const currentDeadlineTime=performance.now()+10000;
  while(performance.now()<currentDeadlineTime){if(currentPredicate())return;await currentWaitRender();}
@@ -30,7 +29,7 @@ window.fetch=async(currentInput,currentOptions)=>{
 };
 (async()=>{try{
  const currentTestContext=await (await fetch('/test-context')).json();
- setLocale(currentTestContext.locale);currentGameClient.tokens=currentTestContext.tokens;currentFacilityIdentifier=currentTestContext.facilityId;
+ setLocale(currentTestContext.locale);currentGameClient.tokens=currentTestContext.tokens;
  currentGameClient.onState=()=>renderParcelPanel();
  currentGameClient.accept(await currentGameClient.request('/v1/game/state'));
  const currentOriginalVersion=currentGameClient.state!.me.version;

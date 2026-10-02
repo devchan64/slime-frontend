@@ -9,15 +9,16 @@ let currentClaimAttempts=0;
 let currentOriginalPayload:unknown;
 let currentParcelClaimed=false;
 let currentParcelExpiry=100.5;
-const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoch:1,location:{id:'city-channel'},map:{id:'iseulon'},me:{id:'hero',version:4,mode:'FIELD',position:{column:1,row:1}}},
+const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoch:1,location:{id:'city-channel'},map:{id:'meadow'},me:{id:'hero',version:4,mode:'MENU',position:{column:1,row:1}}},
  request:async(currentRequestPath:string,currentRequestBody:any)=>{
+  assertParcelBrowser(currentRequestPath.startsWith('/v1/accounts/me/parcels'),'계정 보관함 API 사용');
   if(!currentRequestPath.endsWith('/claim'))return {serverTime:100,characterVersion:4,nextCursor:null,entries:currentParcelClaimed?[]:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:currentParcelExpiry,attachmentNames:[null,{ko:'기본 의상',en:'Default outfit'},{ko:'단백질 젤리',en:'Protein jelly'}],attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
   currentClaimAttempts++;
   if(currentClaimAttempts===1){currentOriginalPayload=structuredClone(currentRequestBody);throw new TypeError('response lost');}
   assertParcelBrowser(JSON.stringify(currentRequestBody)===JSON.stringify(currentOriginalPayload),'재시도 원본 요청 유지');
   assertParcelBrowser(Object.keys(currentRequestBody).join(',')==='expectedVersion'&&currentRequestBody.expectedVersion===4,'소포 ID 기반 수령 계약');
   currentParcelClaimed=currentClaimAttempts>=3;
-  return {receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',facilityId:'iseulon-guild',claimedAt:110,attachments:currentClaimAttempts===2?[{kind:'money',amountP:7}]:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]},state:{...currentClientStub.state,me:{...currentClientStub.state.me,version:5}}};
+  return {receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',storage:'ACCOUNT',facilityId:'account-storage',claimedAt:110,attachments:currentClaimAttempts===2?[{kind:'money',amountP:7}]:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]},state:{...currentClientStub.state,me:{...currentClientStub.state.me,version:5}}};
  },accept:(currentGameState:any)=>{currentClientStub.state=currentGameState;}};
 async function clickParcelButton(currentTranslationKey:string){
  const currentButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t(currentTranslationKey));
@@ -26,7 +27,7 @@ async function clickParcelButton(currentTranslationKey:string){
 }
 (async()=>{try{
  setLocale(location.hash==='#en'?'en':'ko');
- render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
+ render(<ParcelPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
  await currentWaitRender();await clickParcelButton('parcels.refresh');
  assertParcelBrowser(document.body.textContent!.includes('7P')&&document.body.textContent!.includes((location.hash==='#en'?'Protein jelly':'단백질 젤리')+' × 2'),'첨부물 표시');
  await clickParcelButton('parcels.claim');
@@ -43,7 +44,7 @@ async function clickParcelButton(currentTranslationKey:string){
  await clickParcelButton('parcels.refresh');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.empty')),'수령 후 빈 목록');
  render(null,document.getElementById('root')!);currentParcelClaimed=false;currentParcelExpiry=100.5;
- render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
+ render(<ParcelPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
  await currentWaitRender();await clickParcelButton('parcels.refresh');
  await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1200));
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.expired')),'열린 목록의 만료 안내');
@@ -61,21 +62,22 @@ async function clickParcelButton(currentTranslationKey:string){
   let currentDeferredClaimCount=0;let currentAcceptedStateCount=0;
   const currentPreClaimState=structuredClone(currentClientStub.state);
   currentClientStub.request=(currentRequestPath:string,currentRequestBody:unknown)=>{
-   if(!currentRequestPath.endsWith('/claim'))return currentOriginalRequestHandler(currentRequestPath,currentRequestBody);
+   assertParcelBrowser(currentRequestPath.startsWith('/v1/accounts/me/parcels'),'계정 보관함 API 사용');
+  if(!currentRequestPath.endsWith('/claim'))return currentOriginalRequestHandler(currentRequestPath,currentRequestBody);
    currentDeferredClaimCount++;
    return new Promise(currentResolveCallback=>{currentDeferredClaimResolve=currentResolveCallback;});
   };
   currentClientStub.accept=()=>{currentAcceptedStateCount++;};
-  render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
+  render(<ParcelPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
   await currentWaitRender();await clickParcelButton('parcels.refresh');await clickParcelButton('parcels.claim');
   if(currentContextChange==='epoch')currentClientStub.state.epoch++;
   else currentClientStub.state[currentContextChange]={id:'new-context'};
-  currentDeferredClaimResolve!({receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',facilityId:'iseulon-guild',claimedAt:110,
+  currentDeferredClaimResolve!({receipt:{parcelId:CURRENT_PARCEL_IDENTIFIER,characterId:'hero',storage:'ACCOUNT',facilityId:'account-storage',claimedAt:110,
    attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]},
    state:{...currentPreClaimState,me:{...currentPreClaimState.me,version:currentPreClaimState.me.version+1}}});
   await currentWaitRender();
-  assertParcelBrowser(currentAcceptedStateCount===0,currentContextChange+' 변경 후 늦은 수령 상태 폐기');
-  assertParcelBrowser(!document.body.textContent!.includes(t('parcels.received')),currentContextChange+' 변경 후 수령 완료 안내 폐기');
+  assertParcelBrowser(currentAcceptedStateCount===1,currentContextChange+' 변경 후에도 같은 계정 수령 상태 전달');
+  assertParcelBrowser(document.body.textContent!.includes(t('parcels.received')),currentContextChange+' 변경 후에도 수령 완료 안내 유지');
   assertParcelBrowser(currentDeferredClaimCount===1,currentContextChange+' 변경 중 수령 요청 중복 없음');
  }
  currentClientStub.request=currentOriginalRequestHandler;currentClientStub.accept=currentOriginalAcceptHandler;

@@ -2,13 +2,12 @@ import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
 import {noticeText,type Notice} from '../client/notice';
-import {captureFacilitySessionContext,matchesFacilitySessionContext} from '../client/facilitySessionContext';
 import {validateNamedParcelListing,validateParcelReceipt,type ParcelListing,type ParcelAttachment} from '../client/parcel-validation.mjs';
 import {useTranslation} from '../i18n';
 
 const PARCEL_EXPIRATION_REFRESH_MILLISECONDS=1000;
 
-export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function ParcelPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
  const {t:translateParcelText,locale:currentParcelLocale}=useTranslation();
  const [currentParcelListing,setCurrentParcelListing]=useState<ParcelListing|null>(null);
  const [currentParcelNotice,setCurrentParcelNotice]=useState<Notice>('');
@@ -20,9 +19,9 @@ export function ParcelPanel({gameSessionClient,currentFacilityIdentifier,actions
  const currentActiveReference=useRef(false);
  const currentPendingReference=useRef(false);
  const currentOriginalRequest=useRef<{parcelId:string;expectedVersion:number;attachments:ParcelAttachment[]}|null>(null);
- const currentInitialContext=useRef(captureFacilitySessionContext(gameSessionClient));
- function parcelContextMatches(){return currentActiveReference.current&&matchesFacilitySessionContext(gameSessionClient,currentInitialContext.current);}
- const currentEndpointPrefix='/v1/game/guilds/'+encodeURIComponent(currentFacilityIdentifier)+'/parcels';
+ const currentInitialContext=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation});
+ function parcelContextMatches(){return currentActiveReference.current&&!!gameSessionClient.state&&gameSessionClient.tokens?.user_id===currentInitialContext.current.owner&&gameSessionClient.state.me.id===currentInitialContext.current.character&&gameSessionClient.state.generation===currentInitialContext.current.generation;}
+ const currentEndpointPrefix='/v1/accounts/me/parcels';
  async function loadParcelListing(currentAfterCursor:string|null=null){
   if(actionsAreDisabled||currentPendingReference.current||currentOriginalRequest.current||!parcelContextMatches())return;
   currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentParcelNotice('');
