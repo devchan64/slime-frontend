@@ -713,7 +713,7 @@ export class MainScene extends Phaser.Scene {
       const isWater = waterCells.has(`${column},${row}`);
       const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
         : kind === 'road' ? selectFieldRoadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation), cell, Boolean(s.map.safeTown), s.map.id)
-          : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
+          : kind === 'flowers' && s.map.id === 'meadow' ? 'meadow-flowers' : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
       if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p,this.currentTileDimensions);

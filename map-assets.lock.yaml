@@ -151,3 +151,6 @@ files:
 - path: assets/terrain/boulder-type-c-v1.png
   source_path: assets/tiles/terrain/blocked/boulder-type-c-v1.png
   sha256: d4fbc06ee951f76a7e255c30aed479309dc3fd90f4886cef10d68d5217401fd3
+- path: assets/terrain/meadow-dry-soil-road-v1.png
+  source_path: assets/tiles/terrain/road/dry-soil-pebble-road-v1.png
+  sha256: a39cde643774e814d4ed224021290ac11d81c25de928e0215167b27d6a8129e9

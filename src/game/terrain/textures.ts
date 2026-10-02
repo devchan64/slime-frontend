@@ -1,3 +1,5 @@
+import meadowFlowerTileSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-b-v1.png";
+import meadowRoadTileSource from "../../../../slime-assets/assets/tiles/terrain/road/dry-soil-pebble-road-v1.png";
 import drySoilBranchesSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png";
 import deepWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png";
 import shallowWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v1.png";
@@ -52,6 +54,8 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneFloorTypeASource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "meadow-flowers", source: meadowFlowerTileSource },
+  { frame: "meadow-road", source: meadowRoadTileSource },
   { frame: ISEULON_GRASS_FRAME, source: grassTileImageSource },
   { frame: REEDHAVEN_DIRT_ROAD_FRAME, source: reedhavenDirtRoadSource },
   { frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource },

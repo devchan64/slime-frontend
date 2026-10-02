@@ -36,6 +36,7 @@ export function roadConnections(cell: Position, map: Surface, road: Set<string>)
 const DIRT_ROAD_VARIANT_PERIOD = 3;
 const STONE_SLAB_ROAD_MAPS = new Set(["broken-quarry", "crystal-cut"]);
 export function selectFieldRoadFrame(connectionMaskValue:number,currentCellPosition:Position,currentMapIsTown:boolean,currentMapIdentifier:string=""):string {
+  if(currentMapIdentifier === "meadow") return "meadow-road";
   if(!currentMapIsTown&&STONE_SLAB_ROAD_MAPS.has(currentMapIdentifier))return `stone-road-${connectionMaskValue}`;
   const roadVariantIndex=((currentCellPosition.column+currentCellPosition.row)%DIRT_ROAD_VARIANT_PERIOD+DIRT_ROAD_VARIANT_PERIOD)%DIRT_ROAD_VARIANT_PERIOD;
   return !currentMapIsTown&&roadVariantIndex===0?`dirt-road-${connectionMaskValue}`:roadFrame(connectionMaskValue);
