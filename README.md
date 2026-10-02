@@ -133,3 +133,7 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 `node scripts/build-split-service-browser-test.mjs <출력 JS 절대 경로>`는 공개 `Client`를 포함한 브라우저 검사 번들을 만든다. 출력은 `.tmp/test/split-service-browser/<한국 시각>/client.js`에 보관하고 서버 검증 측으로 명시적으로 전달한다. 실행 측은 HTML에서 번들보다 먼저 `globalThis.__SLIME_SPLIT_CONTEXT__`에 `gameOrigin`, `identityOrigin`, `password`(일회 테스트 계정용), `rejectOrigin`을 주입하고 `/test-result` POST 결과를 수집한다. 비밀번호·토큰을 번들·실행 로그·Git에 저장하지 않는다.
 
 실제 Chrome의 별도 origin에서 인증·게임 HTTP와 게임 WebSocket을 사용한다. 정상 경로는 가입·로그인·생성·입장·토큰 갱신·로그아웃·기존 토큰 401·재로그인 후 캐릭터 보존을 검사한다. `rejectOrigin`은 CORS 미허용 origin의 JSON 가입 요청 차단 검사다. fetch는 목적지 origin/path만 기록하고 실제 요청·응답을 대체하지 않는다. 실제 UI 버튼·전체 WebGL 플레이·운영 TLS 수용을 대신하지 않는다. 번들의 출처와 SHA-256은 실행 측에서 기록한다.
+
+### 자동 회귀검사 종료 기록
+
+`node scripts/run-regression.mjs tests/<대상>.test.mjs`는 각 단계의 종료 코드·종료 신호를 `result.json`의 `steps`에 저장한다. 실행기가 SIGTERM·SIGINT를 받으면 활성 검사에 전달하고 다음 단계는 시작하지 않는다. POSIX에서는 독립 검사 프로세스 그룹에 전달하며 Windows에서는 직접 자식 프로세스에 전달한다. 10초 유예를 넘으면 SIGKILL로 종료한다. 최종 상태는 FAILED, `exitCode`는 128+수신 신호 번호, `terminationSignal`은 수신 신호 이름이다. 결과는 임시 파일 작성 후 이름을 바꿔 확정한다. 실행기 자체의 SIGKILL·호스트 중단·파일시스템 장애에서는 최종 기록을 보장하지 않는다.
