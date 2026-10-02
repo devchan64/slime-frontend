@@ -157,8 +157,9 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         </div>
         <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
         {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={()=>walk()}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path && !state.map.safeTown ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
-        {gate && here && <button disabled={disabled || !field || healthMovementLocked} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
+        {gate && here && <button disabled={disabled || !field || healthMovementLocked || !!state.me.partyId} title={state.me.partyId ? t('field.partyTravelBlocked') : undefined} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
       </div>}
+      {gate && here && state.me.partyId && <p class="field-unavailable" role="status">{t('field.partyTravelBlocked')}</p>}
       {gameSessionClient && !state.map.safeTown && !blocked && !safe && <FieldExploration
         key={`${state.generation}:${state.epoch}:${state.me.id}:${state.location.id}:${selected.column}:${selected.row}`}
         currentGameState={state} currentTargetPosition={selected} currentGameClient={gameSessionClient}

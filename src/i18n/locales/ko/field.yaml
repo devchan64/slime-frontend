@@ -139,3 +139,5 @@ exploreSafe: 안전지대 밖으로 이동한 뒤 탐색하세요.
 exploreSkill: 해당 탐색 스킬 1레벨과 사용 가능한 문해 2레벨이 필요합니다.
 exploreRange: "선택한 장소에서 {range}칸 이내로 이동하세요."
 exploreFp: "FP를 {cost} 이상 회복한 뒤 탐색하세요."
+
+partyTravelBlocked: 온라인 파티 소속인 동안에는 맵을 이동할 수 없습니다. 파티 메뉴에서 탈퇴한 뒤 이동하세요.

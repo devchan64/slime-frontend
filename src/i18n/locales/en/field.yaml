@@ -139,3 +139,5 @@ exploreSafe: Move outside the safe zone before exploring.
 exploreSkill: Exploration level 1 and usable Literacy level 2 are required.
 exploreRange: "Move within {range} tiles of the selected spot."
 exploreFp: "Recover to at least {cost} FP before exploring."
+
+partyTravelBlocked: You cannot travel between maps while in an online party. Leave the party from the party menu before travelling.

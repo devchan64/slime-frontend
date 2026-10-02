@@ -118,3 +118,18 @@ test('길드 소포 창구는 조우 중 닫히고 epoch·맵 변경 시 새 인
   currentGameState.map.id='other-city';assert.notEqual(renderCurrentParcels()[0].key,currentEpochKey);
   currentGameState.battle={id:'battle'};assert.equal(renderCurrentParcels().length,0);
 });
+
+
+test('관문은 온라인 파티 이동만 막고 대여 편성의 이동은 유지한다',()=>{
+  const currentGameState=createSelectionFixture();
+  currentGameState.map.connections=[{id:'exit',column:0,row:0,target:'forest',targetName:'숲'}];
+  for(const currentPartyIdentifier of ['online-party',null]){
+    Object.assign(currentGameState.me,{partyId:currentPartyIdentifier,borrowedPartyLoanIds:['loan']});
+    const currentSelectionTree=FieldSelection({state:currentGameState,selected:{column:0,row:0},disabled:false,now:0,
+      select(){},command(){},walking:null,walk(){},stop(){}});
+    const currentTravelButton=collectActionButtons(currentSelectionTree).find(currentButtonNode=>String(currentButtonNode.props.children).includes('↗'));
+    assert.ok(currentTravelButton);
+    assert.equal(currentTravelButton.props.disabled,Boolean(currentPartyIdentifier));
+    assert.equal(currentTravelButton.props.title,currentPartyIdentifier?fieldMessageCatalog.partyTravelBlocked:undefined);
+  }
+});
