@@ -7,7 +7,6 @@ export async function executeCostumeReadCommand(currentTextClient,currentCommand
  const currentCatalogPage=parseCostumeCatalog(await currentTextClient.request('/v2/costumes'));
  return '코스튬 카탈로그 · 전체 디자인 · 외형 전용\n'+currentCatalogPage.entries.map(currentCostumeEntry=>[
   sanitizeCostumeText(currentCostumeEntry.nameTranslations.ko)+' ['+currentCostumeEntry.costumeId+'] · 정의 v'+currentCostumeEntry.version+(currentCostumeEntry.costumeId===currentCatalogPage.defaultCostumeId?' · 기본 디자인':''),
-  '표준 가치 '+currentCostumeEntry.valueP+'p',
   '디자인 '+currentCostumeEntry.designId+' v'+currentCostumeEntry.designVersion,
   sanitizeCostumeText(currentCostumeEntry.descriptionTranslations.ko),
  ].join('\n')).join('\n\n');
@@ -24,7 +23,7 @@ async function readOwnedCostumeInventory(currentTextClient){
  return '보유 코스튬 · 교체는 게임 메뉴에서 진행하세요.\n'+currentInventoryPage.entries.map(currentOwnedEntry=>[
   sanitizeCostumeText(currentOwnedEntry.nameTranslations.ko)+' ['+currentOwnedEntry.costumeId+'] · 정의 v'+currentOwnedEntry.version,
   '획득 '+(currentOwnedEntry.source==='parcel'?'소포':'상점')+' · '+new Date(currentOwnedEntry.acquiredAt*1000).toISOString(),
-  '표준 가치 '+currentOwnedEntry.valueP+'p · 디자인 '+currentOwnedEntry.designId+' v'+currentOwnedEntry.designVersion,
+  '디자인 '+currentOwnedEntry.designId+' v'+currentOwnedEntry.designVersion,
   sanitizeCostumeText(currentOwnedEntry.descriptionTranslations.ko),
  ].join('\n')).join('\n\n');
 }

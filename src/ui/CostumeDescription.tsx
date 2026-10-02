@@ -62,7 +62,6 @@ export function CostumeDescription({gameSessionClient}:{gameSessionClient:Client
   {costumeRequestPending&&<p role="status">{translateCostumeText('character.costumeLoading')}</p>}
   {currentCostumeNotice&&<div role="alert"><p>{noticeText(currentCostumeNotice,currentCostumeLocale,translateCostumeText)}</p><button class="secondary" disabled={costumeRequestPending} onClick={()=>void loadCostumeDescription()}>{translateCostumeText('journal.refresh')}</button></div>}
   {currentCostumeEntry&&<p>{currentCostumeEntry.descriptionTranslations[currentCostumeLocale]}</p>}
-  {currentCostumeEntry&&<p>{translateCostumeText('wardrobe.value',{value:currentCostumeEntry.valueP})}</p>}
   <div ref={sponsorContainerReference} class="costume-sponsorship"/>
   {currentSponsorFailed&&<p role="status">{translateCostumeText('character.costumeSponsorUnavailable')}</p>}
   <p class="costume-effect-note">{translateCostumeText('character.costumeAppearanceOnly')}</p>

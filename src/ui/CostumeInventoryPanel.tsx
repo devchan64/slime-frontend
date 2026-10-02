@@ -58,7 +58,6 @@ export function CostumeInventoryPanel({gameSessionClient,actionsAreDisabled}:{ga
   {currentInventoryPage?.entries.map(currentOwnedEntry=><article key={currentOwnedEntry.costumeId}>
    <h3>{currentOwnedEntry.nameTranslations[currentCostumeLocale]}</h3>
    <p>{currentOwnedEntry.descriptionTranslations[currentCostumeLocale]}</p>
-   <p>{translateCostumeText('wardrobe.value',{value:currentOwnedEntry.valueP})}</p>
    <button disabled={actionsAreDisabled||currentRequestPending||currentEquipUncertain||!costumeChangeAvailable()} onClick={()=>void equipSelectedCostume(currentOwnedEntry.costumeId)}>{translateCostumeText('wardrobe.equip')}</button>
    <p>{translateCostumeText(currentOwnedEntry.source==='shop'?'wardrobe.purchased':'wardrobe.received',{time:new Date(currentOwnedEntry.acquiredAt*1000).toLocaleString(currentCostumeLocale)})}</p>
   </article>)}

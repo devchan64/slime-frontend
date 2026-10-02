@@ -14,9 +14,9 @@ export function parseCostumeCatalog(currentResponseValue) {
         throw new Error('코스튬 카탈로그가 올바르지 않습니다.');
     const currentCostumeIdentifiers = new Set();
     for (const currentCostumeEntry of currentResponseValue.entries) {
-        requireCostumeRecord(currentCostumeEntry, ['costumeId', 'version', 'designId', 'designVersion', 'nameTranslations', 'descriptionTranslations', 'valueP']);
+        requireCostumeRecord(currentCostumeEntry, ['costumeId', 'version', 'designId', 'designVersion', 'nameTranslations', 'descriptionTranslations']);
         if ([currentCostumeEntry.costumeId, currentCostumeEntry.designId].some(currentIdentifierValue => typeof currentIdentifierValue !== 'string' || !COSTUME_IDENTIFIER_PATTERN.test(currentIdentifierValue))
-            || [currentCostumeEntry.version, currentCostumeEntry.designVersion, currentCostumeEntry.valueP].some(currentVersionValue => !Number.isSafeInteger(currentVersionValue) || currentVersionValue < 1)
+            || [currentCostumeEntry.version, currentCostumeEntry.designVersion].some(currentVersionValue => !Number.isSafeInteger(currentVersionValue) || currentVersionValue < 1)
             || currentCostumeIdentifiers.has(currentCostumeEntry.costumeId))
             throw new Error('코스튬 ID·버전이 올바르지 않습니다.');
         requireCostumeTranslations(currentCostumeEntry.nameTranslations);

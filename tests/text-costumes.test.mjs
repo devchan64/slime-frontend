@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TextClient} from '../scripts/text-client-core.mjs';
-const currentCatalogFixture={version:2,defaultCostumeId:'default',entries:[{costumeId:'default',valueP:25,version:1,designId:'default',designVersion:1,nameTranslations:{ko:'기본 의상',en:'Default'},descriptionTranslations:{ko:'전체 디자인\n설명',en:'Details'}}]};
+const currentCatalogFixture={version:2,defaultCostumeId:'default',entries:[{costumeId:'default',version:1,designId:'default',designVersion:1,nameTranslations:{ko:'기본 의상',en:'Default'},descriptionTranslations:{ko:'전체 디자인\n설명',en:'Details'}}]};
 test('코스튬 조회는 명령 복구 대기 중에도 읽기만 수행하고 상태를 보존한다',async()=>{
  const currentRequestCalls=[];
  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{currentRequestCalls.push({url:currentRequestUrl,options:currentRequestOptions});return new Response(JSON.stringify(currentCatalogFixture));}});
@@ -9,7 +9,7 @@ test('코스튬 조회는 명령 복구 대기 중에도 읽기만 수행하고 
  const currentOriginalState=structuredClone(currentTextClient.state);
  const currentCatalogText=await currentTextClient.execute('costumes');
  assert.match(currentCatalogText,/기본 의상 \[default\]/);assert.match(currentCatalogText,/디자인 default v1/);assert.match(currentCatalogText,/전체 디자인 설명/);
- assert.match(currentCatalogText,/표준 가치 25p/);
+ assert.doesNotMatch(currentCatalogText,/표준 가치/);
  assert.deepEqual(currentTextClient.state,currentOriginalState);assert.deepEqual(currentTextClient.pendingCommandRequest,{path:'pending'});
  assert.equal(currentRequestCalls.length,1);assert.ok(currentRequestCalls[0].url.endsWith('/v2/costumes'));assert.equal(currentRequestCalls[0].options.method,'GET');assert.equal(currentRequestCalls[0].options.body,undefined);
  await assert.rejects(currentTextClient.execute('costumes equip default'),/조회하세요/);assert.equal(currentRequestCalls.length,1);
@@ -36,7 +36,7 @@ for(const currentSourceKind of ['parcel','shop'])test(`보유 코스튬 ${curren
  const currentOwnedOutput=await currentTextClient.execute('costumes owned');
  assert.match(currentOwnedOutput,currentSourceKind==='parcel'?/획득 소포/:/획득 상점/);
  assert.match(currentOwnedOutput,/1970-01-01T00:01:40.000Z/);
- assert.match(currentOwnedOutput,/표준 가치 25p/);
+ assert.doesNotMatch(currentOwnedOutput,/표준 가치/);
  assert.match(currentOwnedOutput,/전체 디자인 설명/);
  assert.doesNotMatch(currentOwnedOutput,/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/);
  assert.deepEqual(currentTextClient.state,currentOriginalState);

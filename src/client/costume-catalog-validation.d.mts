@@ -1,6 +1,5 @@
 export type CostumeCatalogEntry = {
     costumeId: string;
-    valueP: number;
     version: number;
     designId: string;
     designVersion: number;

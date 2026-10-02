@@ -5,7 +5,7 @@ import {t,setLocale} from '../../src/i18n';
 const currentAssertionsList:string[]=[];
 const currentWaitRender=()=>new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,120));
 function assertCostumeInventory(currentConditionValue:unknown,currentMessageText:string){if(!currentConditionValue)throw new Error(currentMessageText);currentAssertionsList.push(currentMessageText);}
-const currentOwnedEntry={costumeId:'default',version:1,designId:'default',designVersion:1,valueP:25,source:'parcel',acquiredAt:100,nameTranslations:{ko:'기본 의상',en:'Default outfit'},descriptionTranslations:{ko:'획득 당시 설명',en:'Description at acquisition'}};
+const currentOwnedEntry={costumeId:'default',version:1,designId:'default',designVersion:1,source:'parcel',acquiredAt:100,nameTranslations:{ko:'기본 의상',en:'Default outfit'},descriptionTranslations:{ko:'획득 당시 설명',en:'Description at acquisition'}};
 let currentResponseData:any={characterVersion:4,defaultCostumeId:'default',entries:[]};
 let currentDelayedResolve:((currentValue:any)=>void)|null=null;
 let currentEquipAttempts=0;
@@ -26,7 +26,7 @@ async function clickCostumeRefresh(){const currentRefreshButton=document.querySe
  await currentWaitRender();await clickCostumeRefresh();
  assertCostumeInventory(document.body.textContent!.includes(t('wardrobe.empty')),'빈 소유 목록 안내');
  currentResponseData.entries=[currentOwnedEntry];await clickCostumeRefresh();
- assertCostumeInventory(document.body.textContent!.includes(t('wardrobe.value',{value:25})),'표준 가치 표시');
+ assertCostumeInventory(!document.body.textContent!.includes(t('wardrobe.value',{value:25})),'표준 가치 비공개');
  assertCostumeInventory(document.body.textContent!.includes(currentOwnedEntry.nameTranslations[location.hash==='#en'?'en':'ko']),'언어별 코스튬 이름');
  for(const currentInvalidPatch of [{source:'drop'},{acquiredAt:-1},{valueP:0},{extra:1}]){
   let currentRejectedFlag=false;try{parseCostumeInventory({...currentResponseData,entries:[{...currentOwnedEntry,...currentInvalidPatch}]});}catch{currentRejectedFlag=true;}
@@ -35,7 +35,7 @@ async function clickCostumeRefresh(){const currentRefreshButton=document.querySe
  const currentSavedResponse=structuredClone(currentResponseData);currentResponseData='delay';await clickCostumeRefresh();
  assertCostumeInventory(document.querySelector('button')!.disabled,'진행 중 중복 조회 차단');
  currentClientStub.state.generation=2;currentDelayedResolve!(currentSavedResponse);await currentWaitRender();
- assertCostumeInventory(!document.body.textContent!.includes(t('wardrobe.value',{value:25})),'이전 세션의 지연 응답 무시');
+ assertCostumeInventory(!document.body.textContent!.includes(currentOwnedEntry.nameTranslations[location.hash==='#en'?'en':'ko']),'이전 세션의 지연 응답 무시');
  render(null,document.getElementById('root')!);currentResponseData=currentSavedResponse;
  render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);await currentWaitRender();await clickCostumeRefresh();
  const currentEquipButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('wardrobe.equip'))!;
