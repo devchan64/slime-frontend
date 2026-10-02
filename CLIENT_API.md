@@ -395,3 +395,19 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 장비 카탈로그의 `batchSlots`는 중간재 품목·필요량·한영 이름과 보유 배치의 `batchId`·`ownedQuantity`·`itemLevel`을 제공한다. `materialSlots`는 정제 재료 선택이다. GUI는 배치별 수량을 직접 선택하며 슬롯 합계와 보유량을 검증한다. 빈 배치 목록도 유효한 미보유 상태이며 임의 배치를 만들거나 부족분을 구매하지 않는다.
 
 배치 사용 장비의 `production-quote` 및 계약 생성 본문에는 동일한 `batchInputs: [{batchId, quantity}]`를 전달한다. 견적의 `requestedBatches`와 원장 복구의 `batches`가 원래 선택과 다르면 클라이언트는 성공으로 처리하지 않는다. 텍스트 명령은 `workshop craft quote 시설ID 품목ID 재료ID=수량 [batch:배치ID=수량 ...]`이며 카탈로그가 제공한 정제 재료와 배치를 함께 지정한다. 견적 확인 후 기존 `workshop craft create 시설ID`로 확정한다.
+
+
+### 개인 메시지 HTTP API
+
+개인 메시지는 게임 상태 응답·맵 채팅과 분리된 `/v1/direct-messages` 경로를 사용한다. Bearer 인증과 유효한 캐릭터 세션이 필요하며 정상 응답은 `Cache-Control: no-store`다. 별도 광고 승인은 요구하지 않는다.
+
+- `GET /request-id`: 서버가 만든 UUIDv7 `requestId`, `characterId`, `firstSendBefore`, `expiresAt` 반환. 새 발송은 `firstSendBefore` 전에 시작한다. 확정 여부가 불명확한 경우 새 ID로 자동 재발송하지 않고 원래 ID·상대·본문을 유지한다.
+- `POST /messages`: `{requestId, recipientId, text}`. 성공은 `{messageId, sentAt}`이며 서버 저장 완료를 뜻한다. 동일 입력 재시도는 같은 영수증이다. 본문이 보관에서 제거된 뒤에도 영수증만 반환하고 본문을 복원하지 않는다. `messageId`는 문자열로 다뤄 정밀도 손실을 피한다.
+- `GET /conversations?before=순번`: `{serverTime, entries:[{characterId,name,latestMessageId,sentAt}], nextCursor}`. 최신 대화부터 최대 50개. 본문 미리보기는 제공하지 않는다.
+- `GET /conversations/{상대ID}/messages?before=순번`: `{serverTime,peer:{characterId,name},blocked,entries:[{messageId,senderId,recipientId,text,sentAt,expiresAt}],nextCursor}`. 최신 50개를 페이지 안에서는 오래된 순서로 반환한다. `nextCursor`는 더 오래된 페이지 조회용이다. `blocked`는 본인이 상대를 차단했는지이며 상대의 차단 목록은 노출하지 않는다.
+- `PUT /blocks/{상대ID}`: `{blocked:true|false}`. `{characterId,blocked}` 반환. 같은 값을 재전송해도 동일한 상태다.
+- `GET /blocks?after=캐릭터ID`: 본인의 차단 목록 `{entries:[{characterId,name}],nextCursor}`, 최대 50개.
+- `GET /notifications`: `{serverTime,count,latestMessageId}`. 유효한 미확인 수신 메시지만 센다. 본문은 포함하지 않는다.
+- `POST /acknowledgements`: `{messageIds:[문자열순번]}` 최대 100개. 실제로 확인 처리한 본인 수신 메시지의 `{messageIds}`를 반환한다. 타인의 수신 메시지·만료·폐기된 메시지는 갱신하거나 복원하지 않는다. 이 처리는 상대에게 읽음 표시를 보내는 계약이 아니다.
+
+본문은 일반 텍스트로 렌더링하고 브라우저 영구 저장소에 보관하지 않는다. 상대 변경 시 초안을 다른 상대에게 자동 전송하지 않는다. 만료 시각에 도달한 본문은 화면에서도 제거한다. 자동 알림 조회만으로 활동 기한을 연장하지 않는다. 웹 화면·텍스트 명령 연결은 후속이다.
