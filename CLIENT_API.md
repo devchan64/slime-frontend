@@ -378,3 +378,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 `node scripts/run-regression.mjs tests/workshop.test.mjs tests/text-workshop.test.mjs tests/production-selection-browser.test.mjs`는 계약 검증과 한국어·영어 실제 패널의 수량 합계 차단·혼합 선택·레벨 표시·동일 요청 재시도를 검사한다. 브라우저 검사의 HTTP 경계는 대역이며 실제 API 연결 검증과 구분한다.
 
 텍스트 혼합 제작: `workshop craft quote 시설ID 품목ID 재료ID=수량 [재료ID=수량 ...]`. 예: `workshop craft quote iseulon-workshop leather-vest tanned-leather-low=2 tanned-leather-medium=2`. 견적을 확인한 뒤 `workshop craft create iseulon-workshop`로 확정한다. `catalog`는 등록 재료 ID·보유량·필요 총수량을 표시한다. 혼합 인자를 생략하면 기존 지정 재료 경로를 유지한다.
+
+실제 혼합 제작 GUI 검사용 번들은 `node scripts/build-production-browser-test.mjs /tmp/slime-production-live-browser.js`로 생성한다. 백엔드 자동화 검사에 `SLIME_PRODUCTION_BROWSER_BUNDLE`로 절대 경로를 전달하고 `tests/test_production_live_browser.py`를 실행한다. 실제 Client·공방·장비 패널과 API를 연결하며 첫 제작 성공 응답 유실 후 저장 영수증 복구, 재료·비용 단일 차감, 수령 후 한국어·영어 레벨 표시를 확인한다. 시민권·재료는 테스트 캐릭터에 준비하며 제작 대기는 테스트 전용 경로로 완료시킨다. 전용 `slime_test` DB에서만 실행하며 전체 App·재료 획득·실제 대기 시간·시각 배치 검증은 포함하지 않는다. 검사 번들은 명시적으로 전달하는 산출물이며 다른 저장소 소스는 런타임 의존성이 아니다.
