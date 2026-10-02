@@ -1,3 +1,4 @@
+import {validateProductionBagItem} from './production-bag-validation.mjs';
 import {validateTravelerPermitSummary, type TravelerPermitSummary} from './travelerPermits';
 import type { State } from './types';
 import { parseEquipmentInventory, type EquipmentInventoryPage } from './equipment';
@@ -29,6 +30,7 @@ export function parseBagInventory(currentResponseValue: unknown, currentCharacte
     }
     if(currentMaterialEntry.kind === 'skillbook' && currentMaterialEntry.quantity !== 1) throw new Error('스킬북은 한 권만 소유하며 판매할 수 없습니다.');
     if (currentMaterialEntry.kind === 'refined_material' ? !['low','medium','high'].includes(currentMaterialEntry.grade ?? '') : currentMaterialEntry.grade !== undefined) throw new Error('정제 재료 등급이 올바르지 않습니다.');
+    validateProductionBagItem(currentMaterialEntry);
     currentMaterialIdentifiers.add(currentMaterialEntry.id);
     if (currentMaterialEntry.useAction !== undefined && (currentMaterialEntry.kind !== 'consumable'
         || !currentMaterialEntry.useAction || !['RESTORE_HP','PLACE_MARKER'].includes(currentMaterialEntry.useAction.type)

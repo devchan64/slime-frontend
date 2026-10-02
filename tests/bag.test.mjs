@@ -108,3 +108,19 @@ test('여행자증명서의 소유자·중복·기간·필드·무게 위조를 
   currentBagResponse.bag.unknownWeightQuantity++;
   assert.throws(()=>parseBagInventory(currentBagResponse,'owner'),/여행자증명서/);
 });
+test('생산 배치의 레벨과 고유 ID를 검증하며 구형 품목과 분리한다',()=>{
+ const currentBagResponse=createBagResponse();
+ const currentBatchItem={id:'production-batch:one',batchId:'one',definitionId:'gel-ration',kind:'consumable',itemLevel:2,performanceVersion:1,quantity:2,name:'젤 곡물식',nameTranslations:{ko:'젤 곡물식',en:'Gel Ration'},description:'식량',weightG:null};
+ currentBagResponse.bag.items.push(currentBatchItem);currentBagResponse.bag.unknownWeightQuantity+=2;
+ assert.equal(parseBagInventory(currentBagResponse).bag.items.at(-1).itemLevel,2);
+ for(const currentInvalidPatch of [{itemLevel:3},{itemLevel:true},{performanceVersion:0},{batchId:'different'},{definitionId:undefined},{kind:'material'}]){
+  const currentInvalidResponse=structuredClone(currentBagResponse);Object.assign(currentInvalidResponse.bag.items.at(-1),currentInvalidPatch);
+  assert.throws(()=>parseBagInventory(currentInvalidResponse),/생산 배치/);
+ }
+});
+test('텍스트 가방도 생산 레벨을 표시하고 잘못된 배치를 거절한다',async()=>{
+ const {formatCharacterBag}=await import('../scripts/text-client-core.mjs');
+ const currentBatchItem={id:'production-batch:one',batchId:'one',definitionId:'gel-ration',kind:'consumable',itemLevel:2,performanceVersion:1,quantity:2,name:'젤 곡물식'};
+ assert.match(formatCharacterBag({items:[currentBatchItem]}),/젤 곡물식 · Lv.2/);
+ assert.throws(()=>formatCharacterBag({items:[{...currentBatchItem,itemLevel:3}]}),/생산 배치/);
+});

@@ -83,7 +83,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       {!currentBagSummary.items.length && !currentInventoryPage.items.length && !currentInventoryPage.nextCursor && currentInventoryPage.travelerPermitSummary?.records.length === 0 && <p>{translateBagText('app.emptyBag')}</p>}
       {currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagSupplies')}</h3><ul class="bag-items">
         {currentBagSummary.items.filter(currentItemEntry => currentItemEntry.kind !== 'skillbook').map(currentMaterialEntry => <li key={currentMaterialEntry.id}>
-          <div><strong>{currentMaterialEntry.nameTranslations[currentLocaleCode]}</strong><span>×{currentMaterialEntry.quantity}</span></div>
+          <div><strong>{currentMaterialEntry.nameTranslations[currentLocaleCode]}{currentMaterialEntry.itemLevel !== undefined ? ` · Lv.${currentMaterialEntry.itemLevel}` : ''}</strong><span>×{currentMaterialEntry.quantity}</span></div>
           {currentMaterialEntry.kind === 'collection' && <small>{translateBagText('app.bagCollection')}</small>}
           {currentMaterialEntry.kind === 'refined_material' && currentMaterialEntry.grade && <small>{translateBagText('app.bagRefinedMaterial')} · {translateBagText(BAG_REFINING_GRADE_KEYS[currentMaterialEntry.grade])}</small>}
           {currentLocaleCode === 'ko' && <p>{currentMaterialEntry.description}</p>}

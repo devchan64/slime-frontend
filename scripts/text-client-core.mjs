@@ -1,3 +1,4 @@
+import {validateProductionBagItem} from '../src/client/production-bag-validation.mjs';
 import {executeRefiningMissionCommand} from './text-refining-missions.mjs';
 import {validateExplorationResult,describeExplorationReward} from '../src/client/exploration-result.mjs';
 import {isHealthDepleted} from '../src/client/health-state.mjs';
@@ -578,6 +579,7 @@ export function formatCharacterBag(receivedCharacterBag) {
         || !['material', 'consumable', 'skillbook'].includes(receivedBagItem.kind)
         || !Number.isSafeInteger(receivedBagItem.quantity) || receivedBagItem.quantity < 1
         || seenBagIdentifiers.has(receivedBagItem.id)) throw new Error(invalidBagMessage);
+    validateProductionBagItem(receivedBagItem);
     seenBagIdentifiers.add(receivedBagItem.id);
     let renderedUseCommand = '';
     if (receivedBagItem.useAction !== undefined) {
@@ -598,7 +600,7 @@ export function formatCharacterBag(receivedCharacterBag) {
       renderedUseCommand = ' | ' + renderedItemEffect + ' · 소비 ' + receivedUseAction.consumedOnSuccess
         + '개 | 사용: use-item ' + renderBagText(receivedBagItem.id);
     }
-    return renderBagText(receivedBagItem.name) + ' [' + renderBagText(receivedBagItem.id) + '] × ' + receivedBagItem.quantity + renderedUseCommand;
+    return renderBagText(receivedBagItem.name) + (receivedBagItem.itemLevel === undefined ? '' : ' · Lv.'+receivedBagItem.itemLevel) + ' [' + renderBagText(receivedBagItem.id) + '] × ' + receivedBagItem.quantity + renderedUseCommand;
   });
   return renderedBagLines.length ? renderedBagLines.join('\n') : '가방이 비어 있습니다.';
 }

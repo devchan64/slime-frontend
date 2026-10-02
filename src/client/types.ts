@@ -96,7 +96,7 @@ export type State = {
     lastPartyDisband?: {reason: "LEADER_OFFLINE"; at: number; processedAt: number; leaderId: string; partyId: string | null};
     skillUseLocks?: Record<string, {reason: "book_sold"; bookId: string; sourceId: string}>;
     guildMembership?: GuildMembershipSummary | null;
-    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable" | "skillbook" | "collection" | "refined_material"; grade?: "low" | "medium" | "high"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; useAction?: ConsumableUseAction}>};
+    bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; batchId?: string; definitionId?: string; itemLevel?: 1 | 2; performanceVersion?: number; kind: "material" | "consumable" | "skillbook" | "collection" | "refined_material"; grade?: "low" | "medium" | "high"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; useAction?: ConsumableUseAction}>};
     personalMarkers?: PersonalFieldMarker[];
     exploration?: {fpCost:number;literacyRequired:number;options:Record<"mineral"|"treasure",{skillId:string;range:number;successPercent:number}>};
     scouting?: {minimumUseLevel:number;literacyRequired:number;fpCost:number;ranges:{minimumLevel:number;tiles:number}[]};
