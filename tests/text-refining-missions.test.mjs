@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {TextClient} from '../scripts/text-client-core.mjs';
 const MISSION_TEST_IDENTIFIER='11111111-1111-4111-8111-111111111111';
 function createMissionState(currentCharacterVersion=4){return {protocolVersion:1,generation:1,epoch:1,cursor:currentCharacterVersion,me:{id:'hero',version:currentCharacterVersion,mode:'FIELD'}};}
-function createMissionRecord(){return {characterId:'hero',requestId:MISSION_TEST_IDENTIFIER,status:'ACTIVE',acceptedAt:100,quote:{definitionSnapshot:{missionId:'refine-hide',cityId:'iseulon',receiverNpcId:'merchant',collectionId:'hide',grade:'low',quantity:2,rewardP:10},deposit:{depositP:96},rewardP:10,refining:{collectionId:'hide',inputQuantity:6,outputQuantity:2,grade:'low',costP:12,durationSeconds:60,outputMaterial:{name:'가죽'}}}};}
+function createMissionRecord(){return {characterId:'hero',requestId:MISSION_TEST_IDENTIFIER,status:'ACTIVE',acceptedAt:100,quote:{definitionSnapshot:{missionId:'refine-hide',cityId:'iseulon',receiverNpcId:'merchant',collectionId:'hide',grade:'low',quantity:2,rewardP:10},deposit:{depositP:96},rewardP:10,refining:{collectionId:'hide',inputQuantity:6,outputQuantity:2,grade:'low',costP:12,durationSeconds:60,outputMaterial:{name:'가죽',englishName:'Leather'}}}};}
 function createMissionPage(){return {characterVersion:4,serverTime:110,nextOffset:null,entries:[createMissionRecord()]};}
 function createMissionClient(currentResponseQueue){
  const currentRequestRecords=[];
@@ -69,4 +69,13 @@ test('잘못된 인수와 조우 중 취소는 서버에 보내지 않는다',as
  await currentTextClient.execute('missions list');currentTextClient.state.reservation={id:'encounter'};
  await assert.rejects(currentTextClient.execute('missions cancel '+MISSION_TEST_IDENTIFIER),/조우/);
  assert.equal(currentRequestRecords.length,1);
+});
+
+test('취소 영수증의 견적 변경은 상태 반영 전에 거절한다',async()=>{
+ const currentReceiptRecord={...createMissionRecord(),status:'CANCELLED',cancelledAt:111};
+ currentReceiptRecord.quote.deposit.depositP=97;
+ const {currentTextClient}=createMissionClient([createMissionPage(),{receipt:currentReceiptRecord,state:createMissionState(5)}]);
+ await currentTextClient.execute('missions list');
+ await assert.rejects(currentTextClient.execute('missions cancel '+MISSION_TEST_IDENTIFIER),/영수증|retry/);
+ assert.equal(currentTextClient.state.me.version,4);
 });

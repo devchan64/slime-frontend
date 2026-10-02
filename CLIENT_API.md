@@ -360,3 +360,7 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 목록의 무환불 안내를 확인한 뒤 `missions cancel 임무ID`로 진행 중 임무를 취소한다. 담보와 보수는 지급되지 않고 위탁 물품은 자동 회수되지 않는다. 조우·전투 중 취소는 차단한다. 취소 API는 임무 ID로 멱등 처리하므로 본문에는 `expectedVersion`만 보내며, 응답 유실은 공용 `retry`로 같은 요청을 복구한다. 소유자·임무 ID·취소 상태·수락 시각·저장 견적을 검증한 후 반환 상태를 적용한다.
 
 연결 범위는 기존 기록 조회·취소다. 새 임무 발생·수락·완료 명령은 제공하지 않는다.
+
+의뢰 기록 메뉴의 `RefiningMissionPanel`은 같은 조회·취소 API를 사용한다. 결과 재료·등급·수량, 위탁 수량, 정제 시간·비용, 담보·보수를 표시하고 무환불 취소 확인을 받는다. 조회와 취소 응답은 `src/client/refining-mission-validation.mjs`로 검증하며 텍스트 클라이언트와 공유한다. 취소 영수증의 원래 견적 전체가 조회 기록과 일치해야 상태를 반영한다. 오래된 목록의 취소와 연속 클릭을 차단하고, 결과 불명 시 같은 임무 ID·버전으로만 재시도한다.
+
+자동 검사는 `node scripts/run-regression.mjs tests/text-refining-missions.test.mjs tests/refining-missions-browser.test.mjs`로 실행한다. Chrome 검사에서는 실제 패널·언어팩을 사용하며 HTTP 응답은 테스트 대역이다. 신규 임무 수락·완료 UI는 이 변경에 포함하지 않는다. 기존 v1 API를 사용하므로 인프라·배포·운영 비용 변경은 없다.

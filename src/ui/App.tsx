@@ -4,6 +4,7 @@ import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCuti
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
 import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
+import {RefiningMissionPanel} from './RefiningMissionPanel';
 import {MainEventJournal} from './MainEventJournal';
 import { ActionCutinOverlay } from './ActionCutin';
 import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, loadActionCutinPreference, saveActionCutinPreference, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
@@ -733,7 +734,7 @@ export function App() {
             {drawer === "worldMap" && <WorldMapPanel key={`${state.me.id}:${state.generation}`} gameSessionClient={client} currentMapIdentifier={state.map.id} initialSelectedMapIdentifier={selectedWorldDestination} />}
             {drawer === "bag" && <BagPanel key={`${state.me.id}:${state.generation}`} me={state.me} gameSessionClient={client}
               actionsAreDisabled={disabled || !!walking} submitConsumableUse={currentItemIdentifier => command('/v1/game/consumables/use',{itemId:currentItemIdentifier})} />}
-            {drawer === "journal" && <MainEventJournal key={`${client.tokens?.user_id}:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} onShowDestinationCity={currentCityIdentifier=>{setSelectedWorldDestination(currentCityIdentifier);setDrawer("worldMap");}} />}
+            {drawer === "journal" && <div key={`${client.tokens?.user_id}:${state.generation}:${state.epoch}:${state.me.id}`}><MainEventJournal gameSessionClient={client} actionsAreDisabled={busy || !connected} onShowDestinationCity={currentCityIdentifier=>{setSelectedWorldDestination(currentCityIdentifier);setDrawer("worldMap");}} /><RefiningMissionPanel gameSessionClient={client} actionsAreDisabled={busy || !connected} characterStateVersion={state.me.version}/></div>}
             {drawer === "loans" && <BorrowedLoansPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "rewards" && <AccountRewardsPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}

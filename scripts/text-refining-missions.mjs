@@ -1,30 +1,8 @@
-import {isDeepStrictEqual} from 'node:util';
-const MISSION_REQUEST_ID_PATTERN=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+import {MISSION_REQUEST_ID_PATTERN,validateMissionCancellation,validateMissionPage} from '../src/client/refining-mission-validation.mjs';
 const MISSION_STATUS_LABELS={ACTIVE:'진행 중',CANCELLED:'취소',COMPLETED:'완료'};
 const MISSION_GUIDANCE_TEXT='취소하면 담보금은 반환되지 않으며 완료 보수도 지급되지 않습니다. 위탁 물품은 자동 회수되지 않습니다.';
 function captureMissionContext(currentTextClient){return JSON.stringify([currentTextClient.tokens?.user_id,currentTextClient.state?.me.id,currentTextClient.state?.generation,currentTextClient.state?.epoch,currentTextClient.state?.me.version]);}
-function isMissionPositiveInteger(currentNumberValue){return Number.isSafeInteger(currentNumberValue)&&currentNumberValue>0;}
 function sanitizeMissionDisplay(currentTextValue){return currentTextValue.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');}
-export function validateMissionRecord(currentMissionRecord,currentCharacterIdentifier){
- const currentMissionQuote=currentMissionRecord?.quote;
- const currentMissionDefinition=currentMissionQuote?.definitionSnapshot;
- const currentRefiningQuote=currentMissionQuote?.refining;
- if(!currentMissionRecord||currentMissionRecord.characterId!==currentCharacterIdentifier||!MISSION_REQUEST_ID_PATTERN.test(currentMissionRecord.requestId)
-  ||!Object.hasOwn(MISSION_STATUS_LABELS,currentMissionRecord.status)||!Number.isFinite(currentMissionRecord.acceptedAt)||currentMissionRecord.acceptedAt<0
-  ||!currentMissionDefinition||!['missionId','cityId','receiverNpcId','collectionId'].every(currentFieldName=>typeof currentMissionDefinition[currentFieldName]==='string'&&currentMissionDefinition[currentFieldName].trim())
-  ||!isMissionPositiveInteger(currentMissionQuote.deposit?.depositP)||!isMissionPositiveInteger(currentMissionQuote.rewardP)
-  ||!currentRefiningQuote||!isMissionPositiveInteger(currentRefiningQuote.inputQuantity)||!isMissionPositiveInteger(currentRefiningQuote.outputQuantity)
-  ||!isMissionPositiveInteger(currentRefiningQuote.costP)||!isMissionPositiveInteger(currentRefiningQuote.durationSeconds)
-  ||!['low','medium','high'].includes(currentRefiningQuote.grade)||typeof currentRefiningQuote.outputMaterial?.name!=='string'||!currentRefiningQuote.outputMaterial.name.trim()
-  ||currentMissionDefinition.collectionId!==currentRefiningQuote.collectionId||currentMissionDefinition.grade!==currentRefiningQuote.grade
-  ||currentMissionDefinition.quantity!==currentRefiningQuote.outputQuantity||currentMissionDefinition.rewardP!==currentMissionQuote.rewardP)throw new Error('정제 임무 기록이 올바르지 않습니다.');
- const currentTerminalField=currentMissionRecord.status==='CANCELLED'?'cancelledAt':currentMissionRecord.status==='COMPLETED'?'completedAt':null;
- for(const currentFieldName of ['cancelledAt','completedAt']){
-  const currentTimestampValue=currentMissionRecord[currentFieldName];
-  if(currentFieldName===currentTerminalField?(!Number.isFinite(currentTimestampValue)||currentTimestampValue<currentMissionRecord.acceptedAt):currentTimestampValue!=null)throw new Error('정제 임무 종료 시각이 올바르지 않습니다.');
- }
- return currentMissionRecord;
-}
 export async function executeRefiningMissionCommand(currentTextClient,currentCommandArguments){
  const [currentActionName,currentTargetArgument]=currentCommandArguments;
  const currentGameState=currentTextClient.state;
@@ -36,14 +14,7 @@ export async function executeRefiningMissionCommand(currentTextClient,currentCom
   const currentRequestContext=captureMissionContext(currentTextClient);
   const currentResponsePage=await currentTextClient.request('/v1/game/refining-missions?offset='+currentPageOffset);
   if(captureMissionContext(currentTextClient)!==currentRequestContext||currentResponsePage?.characterVersion!==currentGameState.me.version)throw new Error('임무 조회 중 상태가 바뀌었습니다. state 후 다시 조회하세요.');
-  if(!Array.isArray(currentResponsePage.entries)||currentResponsePage.entries.length>50||!Number.isFinite(currentResponsePage.serverTime)
-   ||!(currentResponsePage.nextOffset===null||Number.isSafeInteger(currentResponsePage.nextOffset)&&currentResponsePage.nextOffset===currentPageOffset+50&&currentResponsePage.entries.length===50))throw new Error('정제 임무 목록 응답이 올바르지 않습니다.');
-  const currentSeenIdentifiers=new Set();
-  for(const currentMissionRecord of currentResponsePage.entries){
-   validateMissionRecord(currentMissionRecord,currentGameState.me.id);
-   if(currentSeenIdentifiers.has(currentMissionRecord.requestId))throw new Error('정제 임무가 중복되었습니다.');
-   currentSeenIdentifiers.add(currentMissionRecord.requestId);
-  }
+  validateMissionPage(currentResponsePage,currentGameState.me.id,currentPageOffset);
   currentTextClient.refiningMissionContext={context:currentRequestContext,records:structuredClone(currentResponsePage.entries)};
   const currentDisplayLines=currentResponsePage.entries.map(currentMissionRecord=>{
    const currentMissionQuote=currentMissionRecord.quote,currentRefiningQuote=currentMissionQuote.refining,currentMissionDefinition=currentMissionQuote.definitionSnapshot;
@@ -64,9 +35,7 @@ export async function executeRefiningMissionCommand(currentTextClient,currentCom
  return currentTextClient.command('/v1/game/refining-missions/'+currentTargetArgument+'/cancel',{},()=> '정제 임무를 취소했습니다. '+MISSION_GUIDANCE_TEXT,{
   includeRequestIdentifier:false,
   validateCommandResponse(currentCommandResult){
-   const currentReceiptRecord=validateMissionRecord(currentCommandResult?.receipt,currentGameState.me.id);
-   if(currentReceiptRecord.requestId!==currentTargetArgument||currentReceiptRecord.status!=='CANCELLED'||currentReceiptRecord.acceptedAt!==currentSelectedMission.acceptedAt
-    ||!isDeepStrictEqual(currentReceiptRecord.quote,currentSelectedMission.quote))throw new Error('정제 임무 취소 영수증이 요청과 다릅니다.');
+   validateMissionCancellation(currentCommandResult?.receipt,currentSelectedMission,currentGameState.me.id);
   }
  });
 }
