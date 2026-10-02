@@ -2,38 +2,38 @@ schema_version: 1
 repository: slime-assets
 files:
 - path: assets/terrain/cliffs/dew-meadow-cliff-face-v1.png
-  source_path: assets/tiles/terrain/blocked/dew-meadow-cliff-face-v1.png
-  sha256: c3067751642888ccfb8fe8c7ce014107b6ea9fe29f7226a64f4ed1c34b610fb5
+  source_path: assets/tiles/terrain/blocked/boulder-type-a-v1.png
+  sha256: ee0749bbe52c112a8dd8e68195481802603b3000c728e5388acf9e301c6d56d2
 - path: assets/terrain/dew-v3.webp
-  source_path: assets/tiles/terrain/non-road/dew-v3.webp
-  sha256: c42b470ce3952cc8315bce3838244c0bc16698b5d9269377e373e226eff2ad8d
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/ash-128.webp
-  source_path: assets/tiles/terrain/non-road/ash-128.webp
-  sha256: 74822b6dd6afaf2868848a97942480a50e1c3e6d82ca3864c779986ff5048014
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/boulder-128.webp
   source_path: assets/tiles/terrain/blocked/boulder-type-a-v1.png
   sha256: ee0749bbe52c112a8dd8e68195481802603b3000c728e5388acf9e301c6d56d2
 - path: assets/terrain/extension-v1/gravel-128.webp
-  source_path: assets/tiles/terrain/non-road/gravel-128.webp
-  sha256: 3c824aa396055e32e3c68d38229c7958503e0e74fbee2bd7e11c1253a4002e67
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/leaf-litter-128.webp
   source_path: assets/tiles/terrain/non-road/leaf-litter-v1.png
   sha256: 40f61b5d00e473628cbd9e672ef68e671c034ee4574b0798284174ff276ac631
 - path: assets/terrain/extension-v1/moss-128.webp
-  source_path: assets/tiles/terrain/non-road/moss-128.webp
-  sha256: a263a08cdb2b04da4afff93653253a6f9e3b7df4be15924d7a940800c6c3b9ec
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/mud-128.webp
-  source_path: assets/tiles/terrain/non-road/mud-128.webp
-  sha256: af9d22e904510854a8a598213067bf69fddf7d98254843973c81b5f173a12aed
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/reed-bed-128.webp
-  source_path: assets/tiles/terrain/non-road/reed-bed-128.webp
-  sha256: e3403694372c352877c21d1f240d3b31e0c785179959a5168665513f7f944cd4
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/stone-128.webp
-  source_path: assets/tiles/terrain/non-road/stone-128.webp
-  sha256: 99636cb984decb0f25952676cd0a7f5f19f460f1715d8256c0c70c83d761760b
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/extension-v1/tree-base-128.webp
-  source_path: assets/tiles/terrain/blocked/tree-base-128.webp
-  sha256: bc87125e869290fa2cdb035431a62860faa5e203721d228babc589dfa91897d0
+  source_path: assets/tiles/terrain/blocked/boulder-type-a-v1.png
+  sha256: ee0749bbe52c112a8dd8e68195481802603b3000c728e5388acf9e301c6d56d2
 - path: assets/backgrounds/meadow-backdrop-v2.webp
   source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
@@ -128,8 +128,8 @@ files:
   source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
   sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/cactus-v1.png
-  source_path: assets/tiles/terrain/blocked/cactus-v1.png
-  sha256: 547b2062e4bff7e4203b3cb9964a9c98b7b23ad208e63699f94c6641a4507eb5
+  source_path: assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
+  sha256: f82e5a9da5a48472e8a6d5084403cf4d9a19fd5760fd6cd352cf2d817b9c1b4a
 - path: assets/terrain/shallow-water-v1.png
   source_path: assets/tiles/terrain/blocked/transparent-shallow-water-v1.png
   sha256: f9ba967e446bd64dcdea6c6b50dcc5cf0ce1b56a686f9dcdf38e92abd32fe74e
@@ -137,11 +137,11 @@ files:
   source_path: assets/tiles/terrain/blocked/transparent-deep-water-v1.png
   sha256: bf6258940791e5fc10040497ecd108614305719fce3f72edd5fa72ac774420b8
 - path: assets/terrain/wildflowers-v1.png
-  source_path: assets/tiles/terrain/non-road/wildflowers-v2.png
-  sha256: a1f7da5feb922013aa8ffe893415c8eaf0e42ff6945ce7fbb22acae463d6a6c8
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/dry-soil-branches-v1.png
-  source_path: assets/tiles/terrain/non-road/dry-soil-branches-v1.png
-  sha256: f6c70b2f3cc1c47cd2d0301733874c091e7ba88c3c7bfa7d8b5c9ba63ff1d2c3
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/grass-type-b-v1.png
   source_path: assets/tiles/terrain/non-road/grass-type-b-v1.png
   sha256: cdb5ade64e1ab031ab30b8718422afb6218d8caa26ccba85108f33a80b70bb01
