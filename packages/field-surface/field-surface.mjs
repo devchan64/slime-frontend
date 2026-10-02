@@ -1,5 +1,5 @@
 /** 게임과 검수가 함께 사용하는 고도·투영 계약. 엔진과 DOM에 의존하지 않는다. */
-export const FIELD_SURFACE_VERSION = '1.0.2';
+export const FIELD_SURFACE_VERSION = '1.0.3';
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:80,tileHeight:40,elevationHeight:32,baseThickness:16});
 const TERRAIN_STAIR_COUNT = 6;
 export function readSurfaceHeight(currentCellPosition,currentMapSurface){
@@ -64,4 +64,4 @@ export function resolveCliffTextureScale(currentRenderOptions,currentTextureWidt
 }
 
 /** 맵 캐릭터 외곽 강조의 공용 색상·두께. */
-export const CHARACTER_OUTLINE_STYLE = Object.freeze({color:0xfff3c4,cssColor:'#fff3c4',width:2,outerStrength:4,quality:0.1});
+export const CHARACTER_OUTLINE_STYLE = Object.freeze({color:0xfff3c4,cssColor:'#fff3c4',width:12,outerStrength:4,quality:0.1});
