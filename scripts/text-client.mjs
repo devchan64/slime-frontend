@@ -4,6 +4,7 @@ import { TextClient, formatState } from './text-client-core.mjs';
 
 const HELP = `state                  최신 상태 조회
 guards                 현재 필드 경비센터 ID·좌표 조회
+explore mineral|treasure 열 행 광물·보물 탐색
 parcels notice 어디서나 소포 도착 여부 확인
 parcels list 길드ID [다음커서] 소포 목록 조회
 parcels claim 길드ID 소포ID 소포 수령 (결과 불명 시 retry)

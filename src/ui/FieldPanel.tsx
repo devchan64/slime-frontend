@@ -1,3 +1,4 @@
+import {FieldExploration} from './FieldExploration';
 import {isHealthDepleted} from '../client/health-state.mjs';
 import {ParcelPanel} from './ParcelPanel';
 import {BorrowedParticipationPreview} from './BorrowedParticipation';
@@ -158,6 +159,10 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         {!(gate && here) && <button disabled={disabled || blocked || here || !field || !path?.length || !canStep} onClick={()=>walk()}>{gate ? t('field.moveToGate') : t('field.moveHere')}{path && !state.map.safeTown ? state.map.movementCosts ? t('field.terrainFpButton',{count:path.length}) : t('field.moveCost',{count:path.length}) : ""}</button>}
         {gate && here && <button disabled={disabled || !field || healthMovementLocked} onClick={() => command("/v1/maps/transitions", { connectionId: gate.id })}>{t('field.travelTo',{name:gate.targetName ?? gate.target})} ↗</button>}
       </div>}
+      {gameSessionClient && !state.map.safeTown && !blocked && !safe && <FieldExploration
+        key={`${state.generation}:${state.epoch}:${state.me.id}:${state.location.id}:${selected.column}:${selected.row}`}
+        currentGameState={state} currentTargetPosition={selected} currentGameClient={gameSessionClient}
+        currentActionsDisabled={disabled || healthMovementLocked} submitExplorationCommand={command} />}
       {!canStep && !healthMovementLocked && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {healthMovementLocked && <p class="field-unavailable" role="status">{t("field.recoveryPending")}</p>}
       {monsters.length > 0 && isHealthDepleted(state.me) && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}

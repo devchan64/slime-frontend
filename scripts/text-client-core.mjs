@@ -1,3 +1,4 @@
+import {validateExplorationResult} from '../src/client/exploration-result.mjs';
 import {isHealthDepleted} from '../src/client/health-state.mjs';
 import {createServiceRequestResolver} from "../src/client/service-request-url.mjs";
 import {validateGuildMembership} from '../src/client/guild-membership-validation.mjs';
@@ -306,6 +307,17 @@ export class TextClient {
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 응급처치·소모품을 사용할 수 있습니다.');
       return name === 'first-aid' ? this.command('/v1/game/skills/first-aid')
         : this.command('/v1/game/consumables/use', { itemId: args[0] });
+    }
+    if (name === 'explore') {
+      arity(3);
+      const currentResourceKind=args[0];
+      const currentTargetPosition={column:Number(args[1]),row:Number(args[2])};
+      if(!['mineral','treasure'].includes(currentResourceKind)||![currentTargetPosition.column,currentTargetPosition.row].every(currentValue=>Number.isSafeInteger(currentValue)&&currentValue>=0))throw new Error('explore mineral|treasure 열 행으로 입력하세요.');
+      const currentMapIdentifier=this.state.map.id;
+      return this.command('/v1/game/skills/explore',{resourceKind:currentResourceKind,position:currentTargetPosition},currentCommandResult=>{
+        const currentExplorationResult=validateExplorationResult(currentCommandResult.exploration,currentMapIdentifier,currentResourceKind,currentTargetPosition);
+        return (currentExplorationResult.succeeded?'탐색 성공: 자원을 수집했습니다.':'탐색 실패: 발견하지 못했습니다.')+' 재탐색 가능: '+new Date(currentExplorationResult.nextAttemptAt*1000).toISOString();
+      });
     }
     if (name === 'scout') {
       arity(1);

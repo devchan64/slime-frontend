@@ -127,3 +127,9 @@ scoutRiskVeryHigh: Very high risk
 scoutRiskUnknown: Risk unknown
 scoutRiskHelp: Compares combat growth with eligible party members. This is not a win probability and does not account for current health, terrain, or tactics.
 guardCenterHelp: A guard center serves this city entrance. Without local citizenship, obtain a traveler permit here to enter. The permit desk opens when you reach the entrance.
+exploreHelp: "Exploration costs {cost} FP. Discoveries are collected automatically."
+exploreRequirements: "Exploration level 1 and Literacy 2 required. Range {range} · Success {chance}%"
+exploreMineral: Search for minerals
+exploreTreasure: Search for treasure
+exploreSuccess: Discovery collected. Search this spot again after 24 hours.
+exploreFailure: Nothing found. Search this spot again after 30 seconds.

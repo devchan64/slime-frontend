@@ -127,3 +127,9 @@ scoutRiskVeryHigh: 매우 위험
 scoutRiskUnknown: 위험도 판단 불가
 scoutRiskHelp: 참가 가능한 파티의 전투 성장 수준과 비교합니다. 현재 체력·지형·전술을 반영한 승률이 아닙니다.
 guardCenterHelp: 이 도시 입구에는 경비센터가 있습니다. 현지 시민권이 없으면 이곳에서 여행자증명서를 발급받아 입장할 수 있습니다. 발급 창구는 입구에 도착하면 열립니다.
+exploreHelp: "탐색은 FP {cost}를 소비합니다. 성공 시 자동으로 수집합니다."
+exploreRequirements: "탐색 스킬 1·문해 2 필요. 거리 {range}칸 · 성공률 {chance}%"
+exploreMineral: 광물탐색
+exploreTreasure: 보물탐색
+exploreSuccess: 발견한 자원을 수집했습니다. 같은 장소는 24시간 뒤 재탐색할 수 있습니다.
+exploreFailure: 발견하지 못했습니다. 같은 장소는 30초 뒤 재탐색할 수 있습니다.

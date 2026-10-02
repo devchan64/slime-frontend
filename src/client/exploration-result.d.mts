@@ -1,0 +1,1 @@
+export function validateExplorationResult(currentResultRecord: unknown,currentMapIdentifier:string,currentResourceKind:string,currentTargetPosition:{column:number;row:number}): {succeeded:boolean;fpCost:number;nextAttemptAt:number;reward:null|{kind:string;quantity?:number;amountP?:number}};

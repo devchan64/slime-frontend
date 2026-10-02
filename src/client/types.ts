@@ -98,6 +98,7 @@ export type State = {
     guildMembership?: GuildMembershipSummary | null;
     bag?: {capacityG: number; knownWeightG: number; unknownWeightQuantity: number; items: Array<{id: string; kind: "material" | "consumable" | "skillbook" | "collection" | "refined_material"; grade?: "low" | "medium" | "high"; name: string; nameTranslations: Record<"ko" | "en", string>; description: string; quantity: number; weightG: number | null; useAction?: ConsumableUseAction}>};
     personalMarkers?: PersonalFieldMarker[];
+    exploration?: {fpCost:number;literacyRequired:number;options:Record<"mineral"|"treasure",{skillId:string;range:number;successPercent:number}>};
     scouting?: {minimumUseLevel:number;literacyRequired:number;fpCost:number;ranges:{minimumLevel:number;tiles:number}[]};
     firstAid?: {version: number; minimumUseLevel: number; literacyRequired: number; restorationHp: number; consumableId: string; consumedOnSuccess: number};
     fp?: number;
