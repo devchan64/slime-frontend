@@ -12,9 +12,9 @@ import unifiedWoodWallSource from "../../../../slime-assets/assets/tiles/buildin
 import stonewarmRoofImageSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png";
 import stonewarmGuildRoofSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v2.png";
 import extendedAshSource from "../../../../slime-assets/assets/tiles/terrain/non-road/ash-128.webp";
-import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-128.webp";
+import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png";
 import extendedGravelSource from "../../../../slime-assets/assets/tiles/terrain/non-road/gravel-128.webp";
-import extendedLeafLitterSource from "../../../../slime-assets/assets/tiles/terrain/non-road/leaf-litter-128.webp";
+import extendedLeafLitterSource from "../../../../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v1.png";
 import extendedMossSource from "../../../../slime-assets/assets/tiles/terrain/non-road/moss-128.webp";
 import extendedMudSource from "../../../../slime-assets/assets/tiles/terrain/non-road/mud-128.webp";
 import iseulonLimestoneFloorTypeASource from "../../../../slime-assets/assets/tiles/terrain/road/stone-road-v1.png";

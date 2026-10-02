@@ -11,14 +11,14 @@ files:
   source_path: assets/tiles/terrain/non-road/ash-128.webp
   sha256: 74822b6dd6afaf2868848a97942480a50e1c3e6d82ca3864c779986ff5048014
 - path: assets/terrain/extension-v1/boulder-128.webp
-  source_path: assets/tiles/terrain/blocked/boulder-128.webp
-  sha256: 65f74c4a6786f7fab068b4ba6980a9d0cedde987ccd149ec36d92a8fc4c44922
+  source_path: assets/tiles/terrain/blocked/boulder-type-a-v1.png
+  sha256: ee0749bbe52c112a8dd8e68195481802603b3000c728e5388acf9e301c6d56d2
 - path: assets/terrain/extension-v1/gravel-128.webp
   source_path: assets/tiles/terrain/non-road/gravel-128.webp
   sha256: 3c824aa396055e32e3c68d38229c7958503e0e74fbee2bd7e11c1253a4002e67
 - path: assets/terrain/extension-v1/leaf-litter-128.webp
-  source_path: assets/tiles/terrain/non-road/leaf-litter-128.webp
-  sha256: a913de242e99c33cd02bf98d4475cd5945af89cdd78ce305f55369f5fadb9e29
+  source_path: assets/tiles/terrain/non-road/leaf-litter-v1.png
+  sha256: 40f61b5d00e473628cbd9e672ef68e671c034ee4574b0798284174ff276ac631
 - path: assets/terrain/extension-v1/moss-128.webp
   source_path: assets/tiles/terrain/non-road/moss-128.webp
   sha256: a263a08cdb2b04da4afff93653253a6f9e3b7df4be15924d7a940800c6c3b9ec
@@ -145,3 +145,9 @@ files:
 - path: assets/terrain/grass-type-b-v1.png
   source_path: assets/tiles/terrain/non-road/grass-type-b-v1.png
   sha256: cdb5ade64e1ab031ab30b8718422afb6218d8caa26ccba85108f33a80b70bb01
+- path: assets/terrain/boulder-type-b-v1.png
+  source_path: assets/tiles/terrain/blocked/boulder-type-b-v1.png
+  sha256: 55126075abbd6c149df61755f9eeef285e838f55c5299b78ccf79df8c8a756dd
+- path: assets/terrain/boulder-type-c-v1.png
+  source_path: assets/tiles/terrain/blocked/boulder-type-c-v1.png
+  sha256: d4fbc06ee951f76a7e255c30aed479309dc3fd90f4886cef10d68d5217401fd3
