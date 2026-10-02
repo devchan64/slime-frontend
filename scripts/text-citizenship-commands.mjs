@@ -41,7 +41,7 @@ export async function executeCitizenshipCommand(currentTextClient,currentCommand
  const currentSavedQuote=currentTextClient.citizenshipQuote;
  if(!currentSavedQuote||currentSavedQuote.context!==currentQuoteContext||currentSavedQuote.facilityId!==currentFacilityIdentifier||performance.now()>=currentSavedQuote.deadline)throw new Error('유효한 견적이 없습니다. citizenship quote 길드ID로 먼저 확인하세요.');
  currentTextClient.citizenshipQuote=null;
- return currentTextClient.command(currentRequestPrefix+'Purchases',{policyVersion:currentSavedQuote.data.policyVersion,priceP:currentSavedQuote.data.priceP,quotedExpiresAt:currentSavedQuote.data.expiresAt});
+ return currentTextClient.command(currentRequestPrefix+'purchases',{policyVersion:currentSavedQuote.data.policyVersion,priceP:currentSavedQuote.data.priceP,quotedExpiresAt:currentSavedQuote.data.expiresAt});
 }
 
 const CITIZENSHIP_STATUS_LABELS={PENDING:'발급 전',VALID:'유효',EXPIRED:'만료'};

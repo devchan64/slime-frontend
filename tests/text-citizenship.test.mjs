@@ -18,6 +18,8 @@ test('길드 발견·200P 견적·발급 재시도는 같은 요청으로 처리
  assert.match(await currentTextClient.execute('citizenship guilds'),/iseulon-guild.*2,3/);
  assert.match(await currentTextClient.execute('citizenship quote iseulon-guild'),/200P.*1년/);
  await currentTextClient.execute('citizenship buy iseulon-guild');
+ assert.equal(currentRequestCalls[0].url,'http://localhost:18080/v1/game/guilds/iseulon-guild/citizenship-quote');
+ assert.equal(currentRequestCalls[1].url,'http://localhost:18080/v1/game/guilds/iseulon-guild/citizenship-purchases');
  assert.deepEqual(currentRequestCalls[1],currentRequestCalls[2]);
  assert.equal(currentRequestCalls[1].body.expectedVersion,1);
  assert.equal(currentRequestCalls[1].body.priceP,200);
