@@ -14,7 +14,7 @@ function assertExplorationBrowser(currentCondition:unknown,currentMessage:string
   assertExplorationBrowser(currentCommandPath==='/v1/game/skills/explore','탐색 API');
   assertExplorationBrowser(currentCommandBody.resourceKind==='mineral'&&currentCommandBody.position.column===6,'종류·좌표');
   currentCommandCount++;
-  currentResultHandler({exploration:{mapId:'meadow',resourceKind:'mineral',position:{column:6,row:3},succeeded:true,fpCost:2,nextAttemptAt:86401,reward:{kind:'material',itemId:'iron-ore',quantity:1}}});
+  currentResultHandler({state:{me:{bag:{items:[{kind:'material',id:'iron-ore',nameTranslations:{ko:'철광석',en:'Iron Ore'}}]}}},exploration:{mapId:'meadow',resourceKind:'mineral',position:{column:6,row:3},succeeded:true,fpCost:2,nextAttemptAt:86401,reward:{kind:'material',itemId:'iron-ore',quantity:1}}});
  };
  const renderExplorationPanel=()=>render(<FieldExploration currentGameState={currentGameState} currentTargetPosition={{column:6,row:3}} currentGameClient={currentGameClient} currentActionsDisabled={false} submitExplorationCommand={submitExplorationCommand}/>,currentRootElement);
  renderExplorationPanel();await currentWaitRender();
@@ -24,6 +24,7 @@ function assertExplorationBrowser(currentCondition:unknown,currentMessage:string
  currentButtons[0].click();await currentWaitRender();
  assertExplorationBrowser(currentCommandCount===1,'단일 명령');
  assertExplorationBrowser(document.body.textContent!.includes(t('field.exploreSuccess')),'보상 수집 안내');
+ assertExplorationBrowser(document.body.textContent!.includes((location.hash==='#en'?'Iron Ore':'철광석')+' × 1'),'실제 보상 이름과 수량');
  currentGameState.me.fp=1;renderExplorationPanel();await currentWaitRender();
  assertExplorationBrowser([...document.querySelectorAll('button')].every(currentButton=>currentButton.disabled),'FP 부족 차단');
  currentGameState.me.fp=10;currentGameState.reservation={id:'encounter'};renderExplorationPanel();await currentWaitRender();

@@ -1,1 +1,2 @@
-export function validateExplorationResult(currentResultRecord: unknown,currentMapIdentifier:string,currentResourceKind:string,currentTargetPosition:{column:number;row:number}): {succeeded:boolean;fpCost:number;nextAttemptAt:number;reward:null|{kind:string;quantity?:number;amountP?:number}};
+export function validateExplorationResult(currentResultRecord: unknown,currentMapIdentifier:string,currentResourceKind:string,currentTargetPosition:{column:number;row:number}): {succeeded:boolean;fpCost:number;nextAttemptAt:number;reward:null|{kind:string;itemId?:string;quantity?:number;amountP?:number}};
+export function describeExplorationReward(currentResultRecord:ReturnType<typeof validateExplorationResult>,currentBagItems:unknown,currentLocaleCode?:string):string;

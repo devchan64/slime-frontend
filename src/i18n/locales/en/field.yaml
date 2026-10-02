@@ -133,3 +133,4 @@ exploreMineral: Search for minerals
 exploreTreasure: Search for treasure
 exploreSuccess: Discovery collected. Search this spot again after 24 hours.
 exploreFailure: Nothing found. Search this spot again after 30 seconds.
+exploreReward: "Received: {reward}"

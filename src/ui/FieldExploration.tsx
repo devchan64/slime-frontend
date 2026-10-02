@@ -3,12 +3,12 @@ import type {State,Position} from '../client/types';
 import type {Client} from '../client/api';
 import {useTranslation} from '../i18n';
 import {fieldActionContext,canContinueFieldAction} from './fieldActionContext';
-import {validateExplorationResult} from '../client/exploration-result.mjs';
+import {validateExplorationResult,describeExplorationReward} from '../client/exploration-result.mjs';
 export function FieldExploration({currentGameState,currentTargetPosition,currentGameClient,currentActionsDisabled,submitExplorationCommand}:{
  currentGameState:State;currentTargetPosition:Position;currentGameClient:Client;currentActionsDisabled:boolean;
  submitExplorationCommand:(currentPath:string,currentBody:Record<string,unknown>,currentResultHandler:(currentResult:any)=>void)=>unknown;
 }){
- const {t:translateExplorationText}=useTranslation();
+ const {t:translateExplorationText,locale:currentLocaleCode}=useTranslation();
  const [currentResultMessage,setCurrentResultMessage]=useState('');
  const currentPendingReference=useRef(false),currentMountedReference=useRef(true);
  useEffect(()=>()=>{currentMountedReference.current=false;},[]);
@@ -27,7 +27,7 @@ export function FieldExploration({currentGameState,currentTargetPosition,current
    const currentCommandPromise=submitExplorationCommand('/v1/game/skills/explore',{position:currentTargetPosition,resourceKind:currentResourceKind},currentCommandResult=>{
     if(!currentMountedReference.current||!canContinueFieldAction(currentCommandContext,currentGameClient.state))return;
     const currentExplorationResult=validateExplorationResult(currentCommandResult.exploration,currentGameState.map.id,currentResourceKind,currentTargetPosition);
-    setCurrentResultMessage(translateExplorationText(currentExplorationResult.succeeded?'field.exploreSuccess':'field.exploreFailure'));
+    setCurrentResultMessage((currentExplorationResult.succeeded?translateExplorationText('field.exploreReward',{reward:describeExplorationReward(currentExplorationResult,currentCommandResult.state?.me.bag?.items,currentLocaleCode)})+' ':'')+translateExplorationText(currentExplorationResult.succeeded?'field.exploreSuccess':'field.exploreFailure'));
    });
    void Promise.resolve(currentCommandPromise).finally(()=>{currentPendingReference.current=false;});
   }}>{translateExplorationText('field.explore'+(currentResourceKind==='mineral'?'Mineral':'Treasure'))}</button>;
