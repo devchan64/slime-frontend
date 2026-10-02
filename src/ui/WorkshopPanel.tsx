@@ -129,6 +129,8 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       &&currentMaterialSlot.choices.every(currentChoice=>{const currentSelectedQuantity=currentMaterialQuantities[currentChoice.materialId]??0;return Number.isSafeInteger(currentSelectedQuantity)&&currentSelectedQuantity>=0&&currentSelectedQuantity<=currentRequiredQuantity;});
   });
   const currentControlsDisabled=actionsAreDisabled||workshopRequestPending||workshopCreationUncertain;
+  const currentQuoteBalanceInsufficient=currentQuoteResponse?.ownedCoins!==undefined
+    &&currentQuoteResponse.ownedCoins<currentQuoteResponse.quote.costP;
   return <section class="workshop-panel">
     <button class="secondary compact" aria-expanded={workshopPanelOpened} disabled={currentControlsDisabled}
       onClick={()=>{setWorkshopPanelOpened(!workshopPanelOpened);if(!workshopPanelOpened)void loadWorkshopContents(currentContractKind);}}>{translateWorkshopText('workshop.title')}</button>
@@ -173,7 +175,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
           before:currentQuoteResponse.quote.before.currentDurability,beforeMax:currentQuoteResponse.quote.before.maxDurability,
           after:currentQuoteResponse.quote.after.currentDurability,afterMax:currentQuoteResponse.quote.after.maxDurability})}</p>}
         <p>{translateWorkshopText('workshop.noCancel')}</p>
-        <button class="compact" disabled={actionsAreDisabled||workshopRequestPending} onClick={()=>void submitWorkshopContract()}>{translateWorkshopText('workshop.confirm')}</button>
+        <button class="compact" disabled={actionsAreDisabled||workshopRequestPending||(!workshopCreationUncertain&&currentQuoteBalanceInsufficient)} onClick={()=>void submitWorkshopContract()}>{translateWorkshopText('workshop.confirm')}</button>
     </div>}
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
