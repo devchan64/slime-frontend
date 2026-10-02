@@ -1,3 +1,4 @@
+import {executeDirectMessageCommand} from './text-direct-messages.mjs';
 import {validateProductionBagItem} from '../src/client/production-bag-validation.mjs';
 import {executeRefiningMissionCommand} from './text-refining-missions.mjs';
 import {validateExplorationResult,describeExplorationReward} from '../src/client/exploration-result.mjs';
@@ -41,10 +42,11 @@ export class TextClient {
     this.sleep = sleep;
     this.tokens = null;
     this.state = null;
+    this.directMessageClient=null;
   }
-  async request(path, body) {
+  async request(path, body, currentRequestMethod) {
     const response = await this.fetcher(this.resolveServiceRequest(path), {
-      method: body === undefined ? 'GET' : 'POST',
+      method: currentRequestMethod ?? (body === undefined ? 'GET' : 'POST'),
       headers: { 'Content-Type': 'application/json', ...(this.tokens ? { Authorization: `Bearer ${this.tokens.access_token}` } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(10000), redirect: 'error',
@@ -81,6 +83,7 @@ export class TextClient {
     if (old && (state.generation < old.generation ||
         (state.generation === old.generation && (state.epoch < old.epoch ||
         (state.epoch === old.epoch && state.cursor < old.cursor))))) return;
+    if(old&&(old.me.id!==state.me.id||old.generation!==state.generation)){this.directMessageClient?.disposeDirectMessages();this.directMessageClient=null;}
     this.state = state;
   }
   setTokens(tokens) {
@@ -89,6 +92,7 @@ export class TextClient {
     this.tokens = tokens;
   }
   async login(user_id, password) {
+    this.directMessageClient?.disposeDirectMessages();this.directMessageClient=null;
     const currentRequestTokens=this.tokens;
     const currentResponseTokens=await this.resolve(await this.request('/v1/auth/login', { user_id, password }),currentRequestTokens);
     this.requireAuthenticationContext(currentRequestTokens);
@@ -122,6 +126,7 @@ export class TextClient {
     this.requireAuthenticationContext(currentRequestTokens);
     this.tokens = null;
     this.state = null;
+    this.directMessageClient?.disposeDirectMessages();this.directMessageClient=null;
     this.pendingCommandRequest=null;
   }
   async command(path, body = {}, projectCommandResponse = null, currentCommandOptions = {}) {
@@ -199,6 +204,7 @@ export class TextClient {
     const [name, ...args] = line.trim().split(/\s+/);
     const arity = n => { if (args.length !== n) throw new Error('명령 인수를 확인하세요. help로 사용법을 볼 수 있습니다.'); };
     if(name==='retry'){arity(0);return this.submitPendingCommand();}
+    if(name==='dm')return executeDirectMessageCommand(this,line);
     if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','costumes'].includes(name)
       &&!(name==='party'&&args[0]==='list')
       &&!(name==='recruitment'&&args[0]==='list')

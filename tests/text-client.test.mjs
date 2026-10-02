@@ -10,7 +10,7 @@ function state(extra = {}) {
 function setup(responses) {
   const calls = [];
   const client = new TextClient('http://localhost:18080', { sleep: async () => {}, fetcher: async (url, options) => {
-    calls.push({ url, body: options.body ? JSON.parse(options.body) : undefined, headers: options.headers });
+    calls.push({ url, body: options.body ? JSON.parse(options.body) : undefined, headers: options.headers, method:options.method });
     assert.ok(responses.length, '예상하지 않은 요청');
     const result = responses.shift();
     if (result instanceof Error) throw result;
@@ -863,4 +863,48 @@ test('가방의 붕대 배치 식별자를 그대로 응급처치 명령에 사�
  const currentBagText=formatCharacterBag({items:[{id:'production-batch:bandage-1',batchId:'bandage-1',definitionId:'clean-bandage',kind:'consumable',itemLevel:2,performanceVersion:1,quantity:1,name:'붕대'}]});
  assert.match(currentBagText,/응급처치: first-aid production-batch:bandage-1/);
  assert.doesNotMatch(currentBagText,/use-item/);
+});
+
+test('개인 메시지의 응답 유실은 상대·본문·ID를 보존하고 PUT 차단과 확인을 별도 API로 전송한다',async()=>{
+  const currentIssuedTimestamp=Date.now();
+  const currentRequestIdentifier=currentIssuedTimestamp.toString(16).padStart(12,'0').replace(/^(.{8})(.{4})$/,'$1-$2')+'-7000-8000-000000000001';
+  const currentTicketResponse={requestId:currentRequestIdentifier,characterId:'hero',firstSendBefore:currentIssuedTimestamp/1000+60,expiresAt:currentIssuedTimestamp/1000+30*86400};
+  const {client:currentTextClient,calls:currentRequestCalls}=setup([currentTicketResponse,new TypeError('network'),{messageId:'100',sentAt:currentIssuedTimestamp/1000},{characterId:'friend',blocked:true},
+    {serverTime:currentIssuedTimestamp/1000,peer:{characterId:'friend',name:'친구'},blocked:true,entries:[{messageId:'101',senderId:'friend',recipientId:'hero',text:'비공개\u001b[31m본문',sentAt:currentIssuedTimestamp/1000-10,expiresAt:currentIssuedTimestamp/1000+30}],nextCursor:null},{messageIds:['101']}]);
+  currentTextClient.tokens={user_id:'hero',access_token:'test'};
+  currentTextClient.accept(state({me:{id:'hero',name:'주인공',version:1}}));
+  await assert.rejects(currentTextClient.execute('dm send friend 공백  유지'),/dm retry/);
+  await assert.rejects(currentTextClient.execute('dm send outsider 다른 메시지'),/먼저 확인/);
+  assert.equal(currentRequestCalls.length,2);
+  assert.match(await currentTextClient.execute('dm retry'),/100/);
+  assert.deepEqual(currentRequestCalls[1].body,currentRequestCalls[2].body);
+  assert.equal(currentRequestCalls[1].body.text,'공백  유지');
+  assert.equal(currentRequestCalls[1].body.expectedVersion,undefined);
+  await currentTextClient.execute('dm block friend');
+  assert.equal(currentRequestCalls[3].method,'PUT');
+  const currentHistoryText=await currentTextClient.execute('dm read friend');
+  assert.ok(!currentHistoryText.includes('\u001b'));
+  assert.deepEqual(currentRequestCalls[5].body,{messageIds:['101']});
+  assert.ok(currentTextClient.directMessageDisplayExpiresAt>performance.now());
+  assert.equal(JSON.stringify(currentTextClient.state).includes('비공개'),false);
+});
+
+test('개인 메시지 만료·세션 변경은 본문을 폐기하고 위조 수신자 이력을 거절한다',async()=>{
+  const {DirectMessageClient}=await import('../src/client/direct-messages.mjs');
+  let currentSessionIdentity={characterId:'hero',generation:1};
+  let currentClockElapsed=0;
+  let currentDeferredResolve;
+  const currentMessageClient=new DirectMessageClient(()=>new Promise(currentResolveCallback=>{currentDeferredResolve=currentResolveCallback;}),()=>currentSessionIdentity,()=>currentClockElapsed);
+  const currentHistoryRequest=currentMessageClient.readDirectMessageHistory('friend');
+  currentClockElapsed=2000;
+  currentDeferredResolve({serverTime:100,peer:{characterId:'friend',name:'친구'},blocked:false,entries:[{messageId:'1',senderId:'friend',recipientId:'hero',text:'만료',sentAt:90,expiresAt:101}],nextCursor:null});
+  assert.deepEqual((await currentHistoryRequest).entries,[]);
+  const currentWrongRequest=currentMessageClient.readDirectMessageHistory('friend');
+  currentDeferredResolve({serverTime:102,peer:{characterId:'friend',name:'친구'},blocked:false,entries:[{messageId:'2',senderId:'outsider',recipientId:'hero',text:'위조',sentAt:100,expiresAt:200}],nextCursor:null});
+  await assert.rejects(currentWrongRequest,/invalidResponse/);
+  const currentStaleRequest=currentMessageClient.listDirectMessageConversations();
+  currentSessionIdentity={characterId:'other',generation:2};
+  currentDeferredResolve({serverTime:102,entries:[],nextCursor:null});
+  await assert.rejects(currentStaleRequest,/sessionChanged/);
+  assert.throws(()=>currentMessageClient.readPendingDirectMessage(),/sessionChanged/);
 });

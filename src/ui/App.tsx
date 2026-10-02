@@ -1,3 +1,4 @@
+import {DirectMessages} from './DirectMessages';
 import {ParcelArrivalNotice} from './ParcelArrivalNotice';
 import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCutinSettings';
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
@@ -415,6 +416,7 @@ export function App() {
         currentGameClient={client} currentCharacterIdentifier={state.me.id} />}
       <header>
         <LanguageSelect />
+        {state?.me.name && <DirectMessages key={`direct:${state.me.id}:${state.generation}`} currentGameClient={client} currentGameState={state} />}
         <a class="brand" href="/">
           SLIME<span>{t('common.brand')}</span>
         </a>

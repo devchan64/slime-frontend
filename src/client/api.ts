@@ -55,14 +55,14 @@ export class Client {
   onChatStatus: (ready: boolean) => void = () => {};
   onState: (state: State) => void = () => {};
   onStatus: (ready: boolean, message: Notice) => void = () => {};
-  async request(path: string, body?: unknown): Promise<any> {
+  async request(path: string, body?: unknown, currentRequestMethod?: "GET" | "POST" | "PUT"): Promise<any> {
     const currentRequestStarted=performance.now();
     const sessionRevision=this.sessionRevision;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch(resolveHttpRequestUrl(path), {
-        method: body === undefined ? "GET" : "POST",
+        method: currentRequestMethod ?? (body === undefined ? "GET" : "POST"),
         headers: {
           "Content-Type": "application/json",
           ...(this.tokens

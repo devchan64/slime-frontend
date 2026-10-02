@@ -2,7 +2,12 @@ import { createInterface } from 'node:readline/promises';
 import { Writable } from 'node:stream';
 import { TextClient, formatState } from './text-client-core.mjs';
 
-const HELP = `state                  최신 상태 조회
+const TERMINAL_TIMEOUT_LIMIT_MS=2147483647;
+const HELP = `dm list [다음커서] / blocks [다음커서] 개인 대화·수신 차단 목록
+dm read 캐릭터ID [이전커서] 개인 대화 조회 (만료·다음 입력 시 화면 지움)
+dm send 캐릭터ID 메시지 / retry 개인 발송·동일 요청 재확인
+dm notice / block 캐릭터ID / unblock 캐릭터ID 알림·수신 차단·해제
+state                  최신 상태 조회
 guards                 현재 필드 경비센터 ID·좌표 조회
 explore mineral|treasure 열 행 광물·보물 탐색
 parcels notice 어디서나 소포 도착 여부 확인
@@ -103,6 +108,20 @@ if ((args.length !== 1 && args.length !== 2) || args[0] === '--help') {
   let stopped = false;
   let logoutOnExit = true;
   let lastRefresh = Date.now();
+  let currentPrivateDisplayTimer;
+  let currentPrivateDisplayActive=false;
+  function clearPrivateMessageDisplay(){
+    clearTimeout(currentPrivateDisplayTimer);
+    if(currentPrivateDisplayActive)process.stdout.write('\x1b[2J\x1b[3J\x1b[H');
+    currentPrivateDisplayActive=false;
+    if(client)client.directMessageDisplayExpiresAt=null;
+  }
+  function expirePrivateMessageDisplay(){
+    const currentRemainingTime=(client.directMessageDisplayExpiresAt??0)-performance.now();
+    if(currentRemainingTime>0){currentPrivateDisplayTimer=setTimeout(expirePrivateMessageDisplay,Math.min(currentRemainingTime,TERMINAL_TIMEOUT_LIMIT_MS));return;}
+    clearPrivateMessageDisplay();
+    process.stdout.write('개인 메시지 표시 기한이 지나 화면을 지웠습니다.\nslime> '+terminal.line);
+  }
   // 토큰 갱신·명령·종료를 직렬화해 사용 중인 세션 토큰이 교체되는 경합을 막는다.
   const serialize = task => { const result = queue.then(task); queue = result.catch(() => {}); return result; };
   terminal.on('SIGINT', () => { stopped = true; terminal.close(); });
@@ -139,10 +158,18 @@ if ((args.length !== 1 && args.length !== 2) || args[0] === '--help') {
     }, 10000);
     while (!stopped) {
       const line = (await terminal.question('slime> ', { signal: inputClosed.signal })).trim();
+      terminal.history=[];
+      clearPrivateMessageDisplay();
       if (!line) continue;
       if (line === 'quit') break;
+      if(/^dm\s+(send|read)\b/.test(line)){process.stdout.write('\x1b[2J\x1b[3J\x1b[H');currentPrivateDisplayActive=true;}
       try {
         const result = await serialize(() => client.interact(line));
+        if(client.directMessageDisplayExpiresAt){
+          process.stdout.write('\x1b[2J\x1b[3J\x1b[H');currentPrivateDisplayActive=true;
+          if(client.directMessageDisplayExpiresAt<=performance.now()){clearPrivateMessageDisplay();continue;}
+          expirePrivateMessageDisplay();
+        }
         console.log(typeof result === 'string' ? result : result ? formatState(result) : HELP);
       } catch (error) {
         console.error(`명령 실패: ${error.message}`);
@@ -156,6 +183,7 @@ if ((args.length !== 1 && args.length !== 2) || args[0] === '--help') {
   } finally {
     stopped = true;
     clearInterval(timer);
+    clearPrivateMessageDisplay();
     terminal.close();
     if (client?.tokens && logoutOnExit) {
       try { await serialize(() => client.logout()); }
