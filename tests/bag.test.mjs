@@ -124,3 +124,11 @@ test('텍스트 가방도 생산 레벨을 표시하고 잘못된 배치를 거�
  assert.match(formatCharacterBag({items:[currentBatchItem]}),/젤 곡물식 · Lv.2/);
  assert.throws(()=>formatCharacterBag({items:[{...currentBatchItem,itemLevel:3}]}),/생산 배치/);
 });
+test('생산 회복 배치도 고정 회복량과 배치 ID 사용 명령을 표시한다',async()=>{
+ const {formatCharacterBag}=await import('../scripts/text-client-core.mjs');
+ const currentBagResponse=createBagResponse();
+ const currentBatchItem={id:'production-batch:chosen',batchId:'chosen',definitionId:'gel-ration',kind:'consumable',itemLevel:2,performanceVersion:1,quantity:2,name:'젤 곡물식',nameTranslations:{ko:'젤 곡물식',en:'Gel Ration'},description:'식량',weightG:null,useAction:{type:'RESTORE_HP',restorationHp:4,consumedOnSuccess:1}};
+ currentBagResponse.bag.items.push(currentBatchItem);currentBagResponse.bag.unknownWeightQuantity+=2;
+ assert.equal(parseBagInventory(currentBagResponse).bag.items.at(-1).useAction.restorationHp,4);
+ assert.match(formatCharacterBag({items:[currentBatchItem]}),/HP 회복 4.*use-item production-batch:chosen/);
+});
