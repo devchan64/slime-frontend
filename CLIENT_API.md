@@ -386,3 +386,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 `POST /v1/game/skills/first-aid`는 선택적 `batchId`로 생산 붕대를 지정할 수 있다. 가방 항목의 `batchId`를 전달하며 `production-batch:` 접두사가 붙은 항목 ID와 구분한다. 생략하면 기존 붕대 총수량을 소비하며 구형 명령 영수증 해시를 유지한다. 선택 배치가 없거나 붕대가 아니면 다른 재고를 대신 소비하지 않는다. 저장된 `first_aid_bonus_hp`를 기존 응급처치 회복량에 더하고 스킬·필드·안전지대·HP 조건을 유지한다. GUI는 구형 붕대 버튼과 생산 배치별 레벨·보유량 버튼을 분리한다. 생산 배치 버튼은 해당 batchId만 전송하며 소진되면 표시하지 않는다. 텍스트 명령은 `first-aid [배치ID]`이며 요청 재시도 시 선택 배치를 유지한다.
 
 회복 소모품 제작 견적·계약에도 `productionResult`가 있을 수 있다. `usage: consumable`과 고정 `restoration_hp_value`를 검증하고 기존 품목명 뒤에 생산 레벨을 표시한다. 결과가 없는 구형 계약은 계속 허용한다. 서버가 생산 결과를 제공하기 전에 이 응답을 지원하는 클라이언트를 적용해야 한다. 검증: `node scripts/run-regression.mjs tests/workshop.test.mjs tests/text-workshop.test.mjs tests/bag.test.mjs`.
+
+선택 재료 소모품 견적은 기존 `POST /v1/game/workshops/{facility}/production-quote`에 `kind: consumable`, `quantity`, `targetId`, `materialInputs`를 전달한다. 재료 수량은 주문 전체분이다. 기존 장비 요청은 kind 생략 시 craft·quantity 1로 유지된다. 생성 계약에도 동일한 kind·quantity·materialInputs·quoteToken을 전달해야 한다. 재료 목록 순서는 정규화하지만 동일 요청 ID의 수량·재료 구성 변경은 거절한다. 현재 소모품 재료 선택 GUI·텍스트 입력은 별도 연결 전이다.
