@@ -21,11 +21,13 @@ export function GuildTradePanel({gameSessionClient,currentFacilityIdentifier,act
   const pendingGuildReference=useRef(false);
   const originalSaleReference=useRef<Record<string,unknown>|null>(null);
   const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id,
-    location:gameSessionClient.state?.location.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
+    epoch:gameSessionClient.state?.epoch,map:gameSessionClient.state?.map.id,location:gameSessionClient.state?.location.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
   const currentRequestBase=`/v1/game/guilds/${encodeURIComponent(currentFacilityIdentifier)}`;
   function guildSessionMatches(){return activeGuildReference.current&&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
     &&gameSessionClient.state?.generation===originalSessionReference.current.generation&&gameSessionClient.state?.me.id===originalSessionReference.current.character
+    &&gameSessionClient.state?.epoch===originalSessionReference.current.epoch&&gameSessionClient.state?.map.id===originalSessionReference.current.map
     &&gameSessionClient.state?.location.id===originalSessionReference.current.location&&gameSessionClient.state?.me.mode==='FIELD'
+    &&!gameSessionClient.state?.me.battleId&&!gameSessionClient.state?.battle&&!gameSessionClient.state?.reservation
     &&createPositionIdentity(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
   async function runGuildRequest(currentRequestAction:()=>Promise<void>){
     if(actionsAreDisabled||pendingGuildReference.current||!guildSessionMatches())return;

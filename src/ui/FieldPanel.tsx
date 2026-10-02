@@ -139,7 +139,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         key={`parcels:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <GuildTradePanel
-        key={`${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
+        key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedCityBuilding?.facilityKind==='bookshop' && atBuildingEntrance && field && gameSessionClient && <SkillbookPanel key={`${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled}/> }
       {selectedCityBuilding?.facilityKind==='workshop' && atBuildingEntrance && field && gameSessionClient && <WorkshopPanel
