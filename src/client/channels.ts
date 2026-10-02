@@ -1,3 +1,4 @@
+import {isHealthDepleted} from './health-state.mjs';
 import type {State} from './types';
 import {LocalizedError} from './notice';
 
@@ -62,7 +63,7 @@ export function channelMovementRestriction(currentGameState:State|null):string|n
   if(!currentGameState?.channel)return 'channels.stateRequired';
   if(currentGameState.me.mode!=='FIELD' || currentGameState.me.battleId || currentGameState.battle || currentGameState.reservation)return 'channels.fieldRequired';
   if(currentGameState.me.partyId)return 'channels.leaveParty';
-  if(currentGameState.me.healthRecoveryPending || currentGameState.me.hp===0)return 'channels.recoveryRequired';
+  if(currentGameState.me.healthRecoveryPending || isHealthDepleted(currentGameState.me))return 'channels.recoveryRequired';
   if((currentGameState.me.fp??0)<0)return 'channels.fpRequired';
   return null;
 }

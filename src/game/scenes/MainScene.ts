@@ -1,3 +1,4 @@
+import {isHealthDepleted} from '../../client/health-state.mjs';
 import {bindMapGestureCancellation} from '../mapGestureCancellation';
 import {updateMapPointerGesture,type MapPointerGesture} from '../mapPointerGesture';
 import {validateSceneCostumeReferences} from '../../client/costumeAppearance';
@@ -415,7 +416,7 @@ export class MainScene extends Phaser.Scene {
         this.state.battle ? { column: (this.state.battle.field.columns - 1) / 2, row: (this.state.battle.field.rows - 1) / 2 } : this.state.me.position,
       );
       if(battle) {
-        const bounds=battle.units.filter(unit=>unit.hp>0).map(unit=>{
+        const bounds=battle.units.filter(unit=>!isHealthDepleted(unit)).map(unit=>{
           const p=this.calculateActorPlacement(unit.position,unit.side==='ally'?undefined:unit),size=actorSize(unit.side==='ally'?undefined:unit);
           return {left:p.x-this.currentTileDimensions.width*size.tiles/2,right:p.x+this.currentTileDimensions.width*size.tiles/2,
             top:p.y-HUMAN_HEIGHT*size.scale-TURN_BADGE_OFFSET-TURN_BADGE_RADIUS,
@@ -562,7 +563,7 @@ export class MainScene extends Phaser.Scene {
           b.position.row -
           b.position.column,
       ))
-        if (unit.hp > 0)
+        if (!isHealthDepleted(unit))
           this.queueUnit(unit.id,
             unit.position,
             unit.side === "enemy"

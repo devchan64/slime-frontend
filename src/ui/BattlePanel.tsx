@@ -1,3 +1,4 @@
+import {isHealthDepleted} from '../client/health-state.mjs';
 import {formatSkillEffectPreview} from '../client/skillEffectText';
 import {BorrowedExclusionNotice} from './BorrowedParticipation';
 import { watchTurnIdle } from "./turnIdleNotice";
@@ -118,7 +119,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const own = battle.tactics.canAct && current?.id === actor;
   const apExhausted = own && battle.status === "ACTIVE" && !!current && (actionPoints(current)?.value ?? 1) <= 0;
   const move = battle.tactics.moves.find(m => same(m.position, selected));
-  const target = battle.units.find(u => u.hp > 0 && same(u.position, selected));
+  const target = battle.units.find(u => !isHealthDepleted(u) && same(u.position, selected));
   const attack = battle.tactics.attacks.find(a => a.targetId === target?.id);
   const valid = own && mode !== null && (mode === "MOVE" ? !!move : mode === "ATTACK" ? !!attack : true);
   const actionConfirmationVisible = !surrenderDialogOpen && confirming && valid && mode !== null;
@@ -228,8 +229,8 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     <div class="turn-order" aria-label={t('battle.turnOrder')}>
       {battle.order.map((id, index) => {
         const u = battle.units.find(unit => unit.id === id)!;
-        return <span class={index === battle.index ? "badge current" : "badge"} style={{ opacity: u.hp <= 0 || index < battle.index ? 0.4 : 1 }}>
-          {index === battle.index ? "▶ " : ""}{u.name}{u.hp <= 0 ? ` (${t('battle.healthFallen')})` : ""}
+        return <span class={index === battle.index ? "badge current" : "badge"} style={{ opacity: isHealthDepleted(u) || index < battle.index ? 0.4 : 1 }}>
+          {index === battle.index ? "▶ " : ""}{u.name}{isHealthDepleted(u) ? ` (${t('battle.healthFallen')})` : ""}
         </span>;
       })}
     </div>
@@ -241,7 +242,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     <div class="battle-secondary">
     <section class="battle-roster-details"><h4>{t('battle.unitCount',{count:battle.units.length})}</h4>
     <div class="units" aria-label={t('battle.units')}>
-      {battle.units.map(u => <button class="secondary unit-row" disabled={u.hp <= 0} onClick={() => { setConfirming(false); select(u.position); }}>
+      {battle.units.map(u => <button class="secondary unit-row" disabled={isHealthDepleted(u)} onClick={() => { setConfirming(false); select(u.position); }}>
         <span>{u.side === "ally" ? t('battle.ally') : t('battle.enemy')} · {u.name}</span>
         <span>{healthLabel(u)}{u.guard ? ` · ${t('battle.guard')}` : ""}</span>
       </button>)}

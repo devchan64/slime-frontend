@@ -1,3 +1,4 @@
+import {isHealthDepleted} from '../client/health-state.mjs';
 import { LocalizedError } from '../client/notice';
 import type {Position, State} from '../client/types';
 import {encounterRoute, fieldDistance} from './fieldNavigation';
@@ -16,7 +17,7 @@ export async function approachMonster(monsterId: string, controls: {
     const latest = controls.state();
     if (controls.stopped()) return;
     if (!canContinueFieldAction(context, latest)) return;
-    if (latest.me.hp === 0) throw new LocalizedError('field.healthDepleted');
+    if (isHealthDepleted(latest.me)) throw new LocalizedError('field.healthDepleted');
     if (latest.me.fp !== undefined && latest.me.fp < 0) throw new LocalizedError('field.approachFpDebt');
     const monster = latest.monsters.find(m => m.id === monsterId);
     if (!monster || monster.state !== 'AVAILABLE') throw new LocalizedError('field.approachTargetLost');

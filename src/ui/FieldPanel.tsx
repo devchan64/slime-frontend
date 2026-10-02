@@ -1,3 +1,4 @@
+import {isHealthDepleted} from '../client/health-state.mjs';
 import {ParcelPanel} from './ParcelPanel';
 import {BorrowedParticipationPreview} from './BorrowedParticipation';
 import {FieldScouting} from './FieldScouting';
@@ -106,7 +107,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
           <strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong>
           <small>{m.state !== "AVAILABLE" ? t('field.encounterBusy') : distance > 1 ? route ? state.map.movementCosts ? formatCompactMovementEstimate(state.map, route) : t('field.approachCost',{count:route.length}) : t('field.noApproach') : t('field.adjacentCompact')}</small></div>
           <button class="secondary compact" aria-label={t('field.clearSelection')} onClick={() => select(null)}>{t('field.clear')}</button>
-          <button class="compact" disabled={disabled || state.me.hp === 0 || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
+          <button class="compact" disabled={disabled || isHealthDepleted(state.me) || !field || m.state !== "AVAILABLE" || (distance > 1 && (!route || !encounter || !canStep))}
             onClick={() => distance > 1 ? encounter?.(m.id) : command("/v1/game/encounters/reserve", { monsterId: m.id })}>{distance > 1 ? t('field.approachEncounter') : t('field.startEncounter')}</button>
           {gameSessionClient && !!state.me.borrowedPartyLoanIds?.length && <BorrowedParticipationPreview
             currentGameClient={gameSessionClient} currentGameState={state} currentActionsDisabled={disabled}/>}
@@ -159,7 +160,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       </div>}
       {!canStep && !healthMovementLocked && !debt && !here && <p class="field-unavailable" role="status">{t('field.insufficientFp')}</p>}
       {healthMovementLocked && <p class="field-unavailable" role="status">{t("field.recoveryPending")}</p>}
-      {monsters.length > 0 && state.me.hp === 0 && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
+      {monsters.length > 0 && isHealthDepleted(state.me) && <p class="field-unavailable" role="status">{t('field.healthDepleted')}</p>}
       {unavailable && <p class="field-unavailable" role="status">{unavailable}</p>}
     </div>
   </section>;
@@ -179,7 +180,7 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
   return <section class="card field-panel">
     {reservation ? <div class="field-reservation" aria-label={t('field.preparation')}>
       <h3>{t('field.preparation')}</h3><p role="status">{t('field.readyProgress',{ready:reservation.ready.length,total:reservation.members.length,seconds:Math.max(0,Math.ceil(reservation.deadline-now))})}</p>
-      <div class="actions"><button disabled={disabled || state.me.hp === 0 || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? t('field.waitingParty') : t('field.ready')}</button>
+      <div class="actions"><button disabled={disabled || isHealthDepleted(state.me) || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? t('field.waitingParty') : t('field.ready')}</button>
       <button class="secondary" disabled={disabled} onClick={() => command("/v1/game/encounters/cancel", { reservationId: reservation.id })}>{t('field.cancelReservation')}</button></div>
     </div> : !state.map.safeTown ? <><h3>{t('field.nearby')}</h3><p class="field-subtitle">{t('field.nearbyHelp')}</p></> : <p>{t('city.safeTown')}</p>}
     {state.map.buildings?.length ? <><h3>{t('city.facilities')}</h3>{state.map.buildings.map(currentCityBuilding=><button

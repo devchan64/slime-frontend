@@ -1,3 +1,4 @@
+import {isHealthDepleted} from '../../client/health-state.mjs';
 import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './movementTransition';
 import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
@@ -51,8 +52,8 @@ export class BattleMotion {
     }
     this.logCount=battle.log.length;
     for(const unit of battle.units)this.positions.set(unit.id,{...unit.position});
-    for(const id of this.tracks.keys())if(!battle.units.some(u=>u.id===id && u.hp>0))this.tracks.delete(id);
-    for(const id of this.impactTracks.keys())if(!battle.units.some(u=>u.id===id && u.hp>0))this.impactTracks.delete(id);
+    for(const id of this.tracks.keys())if(!battle.units.some(u=>u.id===id && !isHealthDepleted(u)))this.tracks.delete(id);
+    for(const id of this.impactTracks.keys())if(!battle.units.some(u=>u.id===id && !isHealthDepleted(u)))this.impactTracks.delete(id);
   }
   currentWorldFacing(battleUnitIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
     const currentMotionTrack=this.tracks.get(battleUnitIdentifier);

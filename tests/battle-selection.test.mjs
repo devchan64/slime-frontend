@@ -58,3 +58,12 @@ test('신체활동 스킬은 서버가 허용한 자기 턴의 공격 선택에�
  assert.equal(availableSkillAction({...b,acted:true},'hero','physical_activity',1),'ATTACK');
  assert.equal(availableSkillAction({...b,rulesVersion:'1.3.0',acted:true},'hero','physical_activity',1),null);
 });
+
+test('정수 HP가 0인 소수 생존 대상을 서버 전술에 따라 선택한다',()=>{
+ const currentBattleRecord=makeBattle();
+ currentBattleRecord.units[0].hp=0;
+ currentBattleRecord.units[0].healthDepleted=false;
+ assert.deepEqual(singleAttackTarget(currentBattleRecord),{column:2,row:1});
+ currentBattleRecord.units[0].healthDepleted=true;
+ assert.equal(singleAttackTarget(currentBattleRecord),null);
+});

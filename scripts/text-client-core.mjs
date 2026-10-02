@@ -1,3 +1,4 @@
+import {isHealthDepleted} from '../src/client/health-state.mjs';
 import {createServiceRequestResolver} from "../src/client/service-request-url.mjs";
 import {validateGuildMembership} from '../src/client/guild-membership-validation.mjs';
 import {executeOnlinePartyCommand} from './text-online-party.mjs';
@@ -269,7 +270,7 @@ export class TextClient {
       if(!['address','id'].includes(args[0]))throw new Error('channel address 주소 또는 channel id 채널ID로 입력하세요.');
       if(this.state?.me.mode!=='FIELD' || this.state.me.battleId || this.state.battle || this.state.reservation)throw new Error('전투·조우가 없는 필드에서만 채널을 이동할 수 있습니다.');
       if(this.state.me.partyId)throw new Error('파티를 탈퇴한 뒤 채널을 이동하세요.');
-      if(this.state.me.healthRecoveryPending || this.state.me.hp===0)throw new Error('전투불능 후 최대 HP의 50% 이상을 회복해야 이동할 수 있습니다. state로 현재 회복 상태를 확인하세요.');
+      if(this.state.me.healthRecoveryPending || isHealthDepleted(this.state.me))throw new Error('전투불능 후 최대 HP의 50% 이상을 회복해야 이동할 수 있습니다. state로 현재 회복 상태를 확인하세요.');
       const requestedChannelTarget=args[0]==='address' ? {address:normalizeChannelAddressInput(args[1])} : {channelId:validateChannelIdentifierInput(args[1])};
       return this.command('/v1/channels/joins',requestedChannelTarget);
     }
