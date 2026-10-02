@@ -26,8 +26,8 @@ test('가격 확인 후 구매 응답 유실 시 같은 요청으로 복구한�
  });
  await assert.rejects(currentTextClient.execute('books buy monster-lore-book'),/가격을 먼저/);
  assert.equal(currentRequestRecords.length,0);
- assert.match(await currentTextClient.execute('books shop iseulon-bookshop'),/100p/);
- assert.match(await currentTextClient.execute('books buy monster-lore-book'),/구매 완료.*100p/);
+ assert.match(await currentTextClient.execute('books shop iseulon-bookshop'),/100P/);
+ assert.match(await currentTextClient.execute('books buy monster-lore-book'),/구매 완료.*100P/);
  assert.deepEqual(currentRequestRecords[1],currentRequestRecords[2]);
  assert.equal(currentRequestRecords[1].path,'/v1/game/bookshops/iseulon-bookshop/purchases');
  assert.equal(currentRequestRecords[1].body.priceP,100);

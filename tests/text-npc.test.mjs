@@ -16,7 +16,7 @@ test('NPC 발견·대화의 재료 보상 확인 후 명시적으로 수령·완
   if(currentActionName==='complete'){currentDialoguePage.entries[0].status='ACCEPTED';currentDialoguePage.entries[0].action='complete';currentDialoguePage.acceptedCount=1;}
   const {currentTextClient,currentRequestCalls}=setupNpcClient([currentDialoguePage,{state:createNpcState()}]);
   assert.match(await currentTextClient.execute('npc list'),/helper.*1,2/);
-  const currentDialogueText=await currentTextClient.execute('npc talk helper');assert.match(currentDialogueText,/젤리: 3\/2/);assert.match(currentDialogueText,/보상 4p/);
+  const currentDialogueText=await currentTextClient.execute('npc talk helper');assert.match(currentDialogueText,/젤리: 3\/2/);assert.match(currentDialogueText,/보상 4P/);
   await currentTextClient.execute('quest '+currentActionName+' helper first-delivery');
   assert.deepEqual(currentRequestCalls[1].body,{npcId:'helper',expectedVersion:1});
   assert.ok(currentRequestCalls[1].url.endsWith('/first-delivery/'+currentActionName));

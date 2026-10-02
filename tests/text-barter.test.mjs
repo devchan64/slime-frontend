@@ -15,7 +15,7 @@ test('혼합 납부를 표시하고 응답 유실 시 동일 선택으로 재전
  }});
  currentTextClient.accept(createBarterClientState());
  const currentQuoteOutput=await currentTextClient.execute('permit barter test-guard 2 protein-jelly=4');
- assert.match(currentQuoteOutput,/현금 2p/);assert.match(currentQuoteOutput,/protein-jelly × 4/);assert.match(currentQuoteOutput,/거스름돈 없음/);
+ assert.match(currentQuoteOutput,/폰 2P/);assert.match(currentQuoteOutput,/protein-jelly × 4/);assert.match(currentQuoteOutput,/거스름돈 없음/);
  assert.deepEqual(currentRequestCalls[0].body,{cashP:2,materials:{'protein-jelly':4}});
  await currentTextClient.execute('permit buy test-guard');
  assert.deepEqual(currentRequestCalls[1],currentRequestCalls[2]);

@@ -25,7 +25,7 @@ export async function executeSkillbookCommand(currentTextClient,currentCommandAr
   if(!currentInventoryPage.catalog||currentInventoryPage.characterVersion!==currentGameState.me.version)throw new Error('현재 서점 목록을 확인할 수 없습니다. state 조회 후 books shop으로 다시 확인하세요.');
   currentTextClient.bookshopCatalogQuote={context:currentRequestContext,facilityId:currentTargetIdentifier,data:currentInventoryPage};
   return currentInventoryPage.catalog.map(currentBookEntry=>sanitizeSkillbookDisplayText(
-   `${currentBookEntry.nameTranslations.ko} [${currentBookEntry.definitionId}] · ${currentBookEntry.priceP}p · 문해 ${currentBookEntry.literacyRequired} · ${currentBookEntry.owned?'보유 중':'구매 가능'}`)).join('\n')+'\n구매 확정: books buy 스킬북ID';
+   `${currentBookEntry.nameTranslations.ko} [${currentBookEntry.definitionId}] · ${currentBookEntry.priceP}P · 문해 ${currentBookEntry.literacyRequired} · ${currentBookEntry.owned?'보유 중':'구매 가능'}`)).join('\n')+'\n구매 확정: books buy 스킬북ID';
  }
  if(currentGameState.me.mode!=='FIELD'||currentGameState.battle||currentGameState.reservation)throw new Error('전투·조우를 종료하고 필드에서 스킬북을 이용하세요.');
  let currentPurchaseQuote=null;
@@ -43,7 +43,7 @@ export async function executeSkillbookCommand(currentTextClient,currentCommandAr
  const currentCommandPayload=currentPurchaseQuote?{definitionId:currentPurchaseQuote.definitionId,definitionVersion:currentPurchaseQuote.definitionVersion,priceP:currentPurchaseQuote.priceP}:{};
  return currentTextClient.command(currentCommandPath,currentCommandPayload,currentCommandResult=>
   sanitizeSkillbookDisplayText(`스킬북 ${currentPurchaseQuote?'구매':'열람'} 완료 · ${currentCommandResult.book.nameTranslations.ko}`)+
-   (currentPurchaseQuote?' · '+currentCommandResult.book.priceP+'p':''),{
+   (currentPurchaseQuote?' · '+currentCommandResult.book.priceP+'P':''),{
   includeRequestIdentifier:!!currentPurchaseQuote,
   validateCommandResponse:(currentCommandResult,currentRequestBody)=>validateSkillbookCommandResponse(currentCommandResult,{
    characterId:currentGameState.me.id,generation:currentGameState.generation,expectedVersion:currentRequestBody.expectedVersion,definitionId:currentTargetIdentifier,

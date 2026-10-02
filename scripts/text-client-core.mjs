@@ -240,7 +240,7 @@ export class TextClient {
           :validateTravelerQuoteResponse(await this.request(currentEndpointPrefix+'/traveler-permit-quote'),currentGuardEntry);
         if(captureTravelerQuoteContext(this.state)!==currentQuoteContext)throw new Error('견적 조회 중 캐릭터·위치가 변경되었습니다.');
         this.travelerPermitQuote={quote:currentQuoteResponse,context:currentQuoteContext,receivedAt:currentRequestStarted};
-        return (currentQuoteResponse.payment?formatTravelerBarterPayment(currentQuoteResponse.payment)+'\n':'')+'여행자증명서 5p · 현실 7일 · 견적 유효 '+(currentQuoteResponse.expiresAt-currentQuoteResponse.serverTime)+'초 · 발급 확정: permit buy '+currentGuardEntry.id;
+        return (currentQuoteResponse.payment?formatTravelerBarterPayment(currentQuoteResponse.payment)+'\n':'')+'여행자증명서 5P · 현실 7일 · 견적 유효 '+(currentQuoteResponse.expiresAt-currentQuoteResponse.serverTime)+'초 · 발급 확정: permit buy '+currentGuardEntry.id;
       }
       const currentStoredQuote=this.travelerPermitQuote;
       if(!currentStoredQuote || currentStoredQuote.context!==currentQuoteContext || currentStoredQuote.quote.guardCenterId!==currentGuardEntry.id
@@ -374,6 +374,7 @@ export class TextClient {
 export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
+  if(Number.isSafeInteger(state.me.coins))lines.push('폰(PON) '+state.me.coins+'P');
   if(state.me.citizenshipSummary!==undefined)lines.push(formatCitizenshipSummary(state.me.citizenshipSummary,state.serverTime));
   if(state.me.travelerPermitSummary!==undefined)lines.push(formatTravelerPermitSummary(state.me.travelerPermitSummary,state.serverTime,state.me.id));
   if(state.channel)lines.push('채널 '+normalizeChannelAddressInput(state.channel.address)+' ['+validateChannelIdentifierInput(state.channel.id)+']');
@@ -465,7 +466,7 @@ export function formatMainEventJournal(receivedJournalPage) {
       + ' / ' + renderJournalText(currentJournalEntry.receiver.facilityId) + ')');
     for (const currentMaterialEntry of currentJournalEntry.items) renderedJournalLines.push('재료: '
       + renderJournalText(currentMaterialEntry.nameTranslations.ko) + ' 현재 ' + currentMaterialEntry.owned + ' / 필요 ' + currentMaterialEntry.required);
-    renderedJournalLines.push((currentJournalEntry.status === 'COMPLETED' ? '지급 보상: ' : '완료 보상: ') + currentJournalEntry.moneyP + 'p');
+    renderedJournalLines.push((currentJournalEntry.status === 'COMPLETED' ? '지급 보상: ' : '완료 보상: ') + currentJournalEntry.moneyP + 'P');
     if (currentJournalEntry.status === 'ACCEPTED') renderedJournalLines.push(currentJournalEntry.materialsSufficient
       ? '재료 충족 · 전달 권한은 별도 확인이 필요합니다.' : '재료가 부족합니다.');
   }

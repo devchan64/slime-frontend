@@ -18,7 +18,7 @@ function createConsumableClient(currentResponseEntries){
 }
 test('소모품 견적·계약·수령은 같은 요청을 재시도하고 수령에는 요청 ID를 넣지 않는다',async()=>{
  const {currentTextClient,currentRequestEntries}=createConsumableClient([createConsumableQuote(),new TypeError('응답 유실'),new TypeError('응답 유실'),{state:createConsumableState(5)},{state:createConsumableState(6)}]);
- assert.match(await currentTextClient.execute('consumables quote iseulon-workshop clean-bandage 2'),/깨끗한 붕대 × 2 · 2p · 60초/);
+ assert.match(await currentTextClient.execute('consumables quote iseulon-workshop clean-bandage 2'),/깨끗한 붕대 × 2 · 2P · 60초/);
  await assert.rejects(currentTextClient.execute('consumables create iseulon-workshop'),/retry/);
  await currentTextClient.execute('retry');
  assert.deepEqual(currentRequestEntries[1],currentRequestEntries[2]);

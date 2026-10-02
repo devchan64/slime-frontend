@@ -173,7 +173,7 @@ test('의뢰 기록 명령은 인증 조회로 현재 재료와 목적지를 표
   assert.match(renderedJournalOutput,/첫 배달 \[진행 중\]/);
   assert.match(renderedJournalOutput,/전달: 담당자 \(city \/ guild\)/);
   assert.match(renderedJournalOutput,/현재 3 \/ 필요 2/);
-  assert.match(renderedJournalOutput,/완료 보상: 4p/);
+  assert.match(renderedJournalOutput,/완료 보상: 4P/);
   assert.match(renderedJournalOutput,/전달 권한은 별도/);
   assert.equal(currentRequestCalls[0].url,'http://localhost:18080/v1/game/main-events');
   assert.equal(currentRequestCalls[0].body,undefined);
@@ -189,7 +189,7 @@ test('의뢰 기록은 빈 목록과 완료를 구분하고 잘못된 수량·�
   assert.match(formatMainEventJournal({...currentJournalFixture,entries:[]}),/수령한 메인 의뢰가 없습니다/);
   const completedJournalFixture=structuredClone(currentJournalFixture);
   Object.assign(completedJournalFixture.entries[0],{status:'COMPLETED',completedAt:20,materialsSufficient:false});
-  assert.match(formatMainEventJournal(completedJournalFixture),/지급 보상: 4p/);
+  assert.match(formatMainEventJournal(completedJournalFixture),/지급 보상: 4P/);
   assert.doesNotMatch(formatMainEventJournal(completedJournalFixture),/재료 충족/);
   for (const corruptJournalFixture of [
     {...currentJournalFixture,entries:[...currentJournalFixture.entries,...currentJournalFixture.entries]},
@@ -671,7 +671,7 @@ test('텍스트 경비센터 조회·견적·발급은 확인한 5p와 요청 ID
  const {client:currentTextClient,calls:currentRequestCalls}=setup([currentQuoteResponse,new TypeError('network'),{state:{...currentGameSnapshot,cursor:2}}]);
  currentTextClient.accept(currentGameSnapshot);
  assert.match(await currentTextClient.execute('guards'),/이슬온 경비센터.*\(0,0\)/);assert.equal(currentRequestCalls.length,0);
- assert.match(await currentTextClient.execute('permit quote '+currentGuardEntry.id),/5p.*7일.*60초/);
+ assert.match(await currentTextClient.execute('permit quote '+currentGuardEntry.id),/5P.*7일.*60초/);
  assert.equal(currentTextClient.state,currentGameSnapshot);assert.equal(currentRequestCalls[0].body,undefined);
  await currentTextClient.execute('permit buy '+currentGuardEntry.id);
  assert.ok(currentRequestCalls[1].url.endsWith('/traveler-permit-purchases'));

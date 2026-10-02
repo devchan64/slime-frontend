@@ -13,10 +13,10 @@ function setupCitizenshipClient(currentResponseEntries){
  }});
  currentTextClient.accept(createCitizenshipState());return {currentTextClient,currentRequestCalls};
 }
-test('길드 발견·200p 견적·발급 재시도는 같은 요청으로 처리한다',async()=>{
+test('길드 발견·200P 견적·발급 재시도는 같은 요청으로 처리한다',async()=>{
  const {currentTextClient,currentRequestCalls}=setupCitizenshipClient([createCitizenshipQuote(),new TypeError('network'),{state:createCitizenshipState()}]);
  assert.match(await currentTextClient.execute('citizenship guilds'),/iseulon-guild.*2,3/);
- assert.match(await currentTextClient.execute('citizenship quote iseulon-guild'),/200p.*1년/);
+ assert.match(await currentTextClient.execute('citizenship quote iseulon-guild'),/200P.*1년/);
  await currentTextClient.execute('citizenship buy iseulon-guild');
  assert.deepEqual(currentRequestCalls[1],currentRequestCalls[2]);
  assert.equal(currentRequestCalls[1].body.expectedVersion,1);
@@ -66,9 +66,9 @@ test('시민권 최신 목록·상태 출력은 유효·만료 경계와 UTC 기
  assert.throws(()=>formatCitizenshipSummary({records:[{...currentCitizenRecord,extra:true}]},150));
 });
 
-for(const currentPriceAmount of [100,300])test('시민권 물가 경계 금액 '+currentPriceAmount+'p를 표시하고 전송한다',async()=>{
+for(const currentPriceAmount of [100,300])test('시민권 물가 경계 금액 '+currentPriceAmount+'P를 표시하고 전송한다',async()=>{
  const {currentTextClient,currentRequestCalls}=setupCitizenshipClient([{...createCitizenshipQuote(),priceP:currentPriceAmount},{state:createCitizenshipState()}]);
- assert.ok((await currentTextClient.execute('citizenship quote iseulon-guild')).includes(currentPriceAmount+'p'));
+ assert.ok((await currentTextClient.execute('citizenship quote iseulon-guild')).includes(currentPriceAmount+'P'));
  await currentTextClient.execute('citizenship buy iseulon-guild');
  assert.equal(currentRequestCalls[1].body.priceP,currentPriceAmount);
 });

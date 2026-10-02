@@ -76,9 +76,9 @@ export function formatTravelerPermitSummary(currentPermitSummary,currentServerTi
 }
 
 export function parseTravelerBarterSelection(currentCommandArguments) {
-  if(currentCommandArguments.length<4||!/^(0|[1-9][0-9]*)$/.test(currentCommandArguments[2]))throw new Error('permit barter 경비센터ID 현금p 재료ID=수량 ... 형식으로 입력하세요.');
+  if(currentCommandArguments.length<4||!/^(0|[1-9][0-9]*)$/.test(currentCommandArguments[2]))throw new Error('permit barter 경비센터ID 폰P 재료ID=수량 ... 형식으로 입력하세요.');
   const currentCashAmount=Number(currentCommandArguments[2]);
-  if(!Number.isSafeInteger(currentCashAmount))throw new Error('현금 수치가 올바르지 않습니다.');
+  if(!Number.isSafeInteger(currentCashAmount))throw new Error('폰 수치가 올바르지 않습니다.');
   const currentMaterialSelection={};
   for(const currentMaterialToken of currentCommandArguments.slice(3)){
     const currentTokenMatch=/^([a-z][a-z0-9]*(?:-[a-z0-9]+)*)=([1-9][0-9]*)$/.exec(currentMaterialToken);
@@ -93,7 +93,7 @@ export function validateTravelerBarterQuote(currentQuoteResponse,currentGuardEnt
 }
 
 export function formatTravelerBarterPayment(currentPaymentRecord) {
-  return '현금 '+currentPaymentRecord.cashP+'p\n'+Object.entries(currentPaymentRecord.materials).map(([currentMaterialIdentifier,currentMaterialQuantity])=>
+  return '폰 '+currentPaymentRecord.cashP+'P\n'+Object.entries(currentPaymentRecord.materials).map(([currentMaterialIdentifier,currentMaterialQuantity])=>
     currentMaterialIdentifier+' × '+currentMaterialQuantity).join('\n')
     +'\n선택한 폰과 재료를 모두 납부합니다. 거스름돈 없음';
 }

@@ -9,7 +9,7 @@ function captureProcessingContext(currentGameState){return JSON.stringify([curre
 function formatProcessingRecipe(currentRecipeEntry){
   const currentMethodLabel=currentRecipeEntry.processingMethod==='smelting'?'정련':currentRecipeEntry.processingMethod==='refining'?'정제':'가공';
   const currentKindLabel=currentRecipeEntry.outputMaterial.materialKind==='essence'?' · 속성 정수':currentRecipeEntry.outputMaterial.materialKind==='material'?' · 일반 가공재':'';
-  return sanitizeProcessingText(`${currentRecipeEntry.collectionId ?? ''} / ${currentRecipeEntry.grade} → ${currentRecipeEntry.outputMaterial.name} × ${currentRecipeEntry.outputQuantity} | ${currentMethodLabel}${currentKindLabel} | 원재료 ${currentRecipeEntry.inputQuantity}개 · ${currentRecipeEntry.costP}p · ${currentRecipeEntry.durationSeconds}초`);
+  return sanitizeProcessingText(`${currentRecipeEntry.collectionId ?? ''} / ${currentRecipeEntry.grade} → ${currentRecipeEntry.outputMaterial.name} × ${currentRecipeEntry.outputQuantity} | ${currentMethodLabel}${currentKindLabel} | 원재료 ${currentRecipeEntry.inputQuantity}개 · ${currentRecipeEntry.costP}P · ${currentRecipeEntry.durationSeconds}초`);
 }
 export async function executeProcessingCommand(currentTextClient,currentCommandArguments){
   const [currentActionName,currentFacilityIdentifier,...currentActionArguments]=currentCommandArguments;
@@ -53,7 +53,7 @@ export async function executeProcessingCommand(currentTextClient,currentCommandA
     if(captureProcessingContext(currentTextClient.state)!==currentQuoteContext||currentQuoteData.characterVersion!==currentGameState.me.version
       ||currentQuoteData.quote.collectionId!==currentCollectionIdentifier||currentQuoteData.quote.grade!==currentGradeValue||currentQuoteData.quote.outputQuantity!==Number(currentQuantityText))throw new Error('상태 또는 견적 조건이 변경되었습니다. state 조회 후 다시 견적을 받으세요.');
     currentTextClient.processingQuote={facilityId:currentFacilityIdentifier,context:currentQuoteContext,data:currentQuoteData};
-    return formatProcessingRecipe(currentQuoteData.quote)+`\n보유 원재료 ${currentQuoteData.quote.ownedQuantity}개 · 잔고 ${currentQuoteData.ownedCoins}p\n계약 확정: processing create ${currentFacilityIdentifier}`;
+    return formatProcessingRecipe(currentQuoteData.quote)+`\n보유 원재료 ${currentQuoteData.quote.ownedQuantity}개 · 잔고 ${currentQuoteData.ownedCoins}P\n계약 확정: processing create ${currentFacilityIdentifier}`;
   }
   if(currentActionName==='create'){
     const currentStoredQuote=currentTextClient.processingQuote;

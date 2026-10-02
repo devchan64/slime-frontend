@@ -15,7 +15,7 @@ function createWorkshopClient(currentResponseEntries){
 test('수리 견적의 전후 내구도와 개체 버전을 계약에 연결한다',async()=>{
  const currentRepairQuote={characterVersion:4,ownedCoins:10,quoteToken:'a'.repeat(64),materials:[],quote:{instanceId:CURRENT_INSTANCE_IDENTIFIER,instanceVersion:7,costP:2,durationSeconds:30,before:{currentDurability:20,maxDurability:80},after:{currentDurability:72,maxDurability:72}}};
  const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentRepairQuote,{state:createWorkshopState()}]);
- assert.match(await currentTextClient.execute('workshop repair quote iseulon-workshop '+CURRENT_INSTANCE_IDENTIFIER),/20\/80 → 72\/72.*2p.*30초[\s\S]*취소 불가/);
+ assert.match(await currentTextClient.execute('workshop repair quote iseulon-workshop '+CURRENT_INSTANCE_IDENTIFIER),/20\/80 → 72\/72.*2P.*30초[\s\S]*취소 불가/);
  await assert.rejects(currentTextClient.execute('workshop craft create iseulon-workshop'),/견적/);
  await currentTextClient.execute('workshop repair create iseulon-workshop');
  assert.equal(currentRequestEntries[1].body.expectedInstanceVersion,7);

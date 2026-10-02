@@ -9,7 +9,7 @@ export function validateParcelAttachments(currentAttachmentEntries){
   requireParcelCondition(currentAttachmentRecord&&typeof currentAttachmentRecord==='object');
   if(currentAttachmentRecord.kind==='money'){
    requireParcelCondition(Object.keys(currentAttachmentRecord).sort().join(',')==='amountP,kind'&&Number.isSafeInteger(currentAttachmentRecord.amountP)&&currentAttachmentRecord.amountP>0);
-   return currentAttachmentRecord.amountP+'p';
+   return currentAttachmentRecord.amountP+'P';
   }
   if(currentAttachmentRecord.kind==='costume'){
    requireParcelCondition(Object.keys(currentAttachmentRecord).sort().join(',')==='costumeId,kind'&&typeof currentAttachmentRecord.costumeId==='string'&&/^[a-zA-Z0-9_-]+$/.test(currentAttachmentRecord.costumeId));

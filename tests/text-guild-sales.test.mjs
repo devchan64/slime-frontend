@@ -16,7 +16,7 @@ test('원물·가공재 목록과 견적 확인 후 동일 요청으로 판매�
  const currentCatalogData={characterVersion:1,policyVersion:2,maximumQuantity:100,items:[{materialId:'iron-ingot-low',quantity:2,unitPriceP:3,nameTranslations:{ko:'철괴',en:'Iron'}},{materialId:'hide',quantity:4,unitPriceP:1,nameTranslations:{ko:'가죽',en:'Hide'}}]};
  const {currentTextClient,currentRequestCalls}=setupGuildSaleClient([currentCatalogData,createGuildSaleQuote(),new TypeError('network'),{state:createGuildSaleState()}]);
  const currentCatalogText=await currentTextClient.execute('materials list iseulon-guild');assert.match(currentCatalogText,/iron-ingot-low/);assert.match(currentCatalogText,/hide/);
- assert.match(await currentTextClient.execute('materials quote iseulon-guild iron-ingot-low 2'),/수령 6p/);
+ assert.match(await currentTextClient.execute('materials quote iseulon-guild iron-ingot-low 2'),/수령 6P/);
  await currentTextClient.execute('materials sell iseulon-guild');
  assert.deepEqual(currentRequestCalls[2],currentRequestCalls[3]);assert.equal(currentRequestCalls[2].body.unitPriceP,3);assert.equal(currentRequestCalls[2].body.expectedVersion,1);
  await assert.rejects(currentTextClient.execute('materials sell iseulon-guild'),/견적/);

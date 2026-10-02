@@ -29,7 +29,7 @@ export async function executeNpcCommand(currentTextClient,currentCommandName,cur
    ...(currentQuestEntry.destination?['전달처: '+sanitizeDialogueText(currentQuestEntry.destination.cityNameTranslations.ko)+' · '+sanitizeDialogueText(currentQuestEntry.destination.name)+' ['+sanitizeDialogueText(currentQuestEntry.destination.npcId)+']']:[]),
    ...(currentQuestEntry.destination&&currentQuestEntry.status!=='COMPLETED'?['완료하려면 '+sanitizeDialogueText(currentQuestEntry.destination.cityNameTranslations.ko)+'의 유효한 시민권이 필요합니다. 현지 모험가 길드에서 시민권을 발급받을 수 있으며, 시민권이 없어도 재료를 팔아 발급 비용을 마련할 수 있습니다.']:[]),
    ...currentQuestEntry.items.map(currentMaterialEntry=>sanitizeDialogueText(currentMaterialEntry.nameTranslations.ko)+': '+currentMaterialEntry.owned+'/'+currentMaterialEntry.required),
-   (currentQuestEntry.status==='COMPLETED'?'완료 보상 ':'완료 시 재료 차감 · 보상 ')+currentQuestEntry.moneyP+'p',
+   (currentQuestEntry.status==='COMPLETED'?'완료 보상 ':'완료 시 재료 차감 · 보상 ')+currentQuestEntry.moneyP+'P',
    ...currentQuestEntry.blockedReasons.map(currentReasonCode=>NPC_REASON_LABELS[currentReasonCode]),
    currentQuestEntry.canExecute?'확정: quest '+currentQuestEntry.action+' '+currentNpcIdentifier+' '+sanitizeDialogueText(currentQuestEntry.eventId):currentQuestEntry.status==='COMPLETED'?'완료한 의뢰':'현재 실행할 수 없습니다.',
   ].join('\n')).join('\n\n');

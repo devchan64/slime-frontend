@@ -11,7 +11,7 @@ export async function executeGuildSaleCommand(currentTextClient,currentCommandAr
  const currentSaleContext=captureGuildSaleContext(currentGameState);
  if(currentActionName==='list'){
   const currentCatalogData=parseGuildMaterialCatalog(await currentTextClient.request(currentRequestBase+'/materials'));
-  return currentCatalogData.items.map(currentMaterialEntry=>`${currentMaterialEntry.nameTranslations.ko} [${currentMaterialEntry.materialId}] × ${currentMaterialEntry.quantity} · 개당 ${currentMaterialEntry.unitPriceP}p`.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ')).join('\n')+'\n회당 판매 상한: '+currentCatalogData.maximumQuantity+'개';
+  return currentCatalogData.items.map(currentMaterialEntry=>`${currentMaterialEntry.nameTranslations.ko} [${currentMaterialEntry.materialId}] × ${currentMaterialEntry.quantity} · 개당 ${currentMaterialEntry.unitPriceP}P`.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ')).join('\n')+'\n회당 판매 상한: '+currentCatalogData.maximumQuantity+'개';
  }
  if(currentActionName==='quote'){
   currentTextClient.guildSaleQuote=null;
@@ -21,7 +21,7 @@ export async function executeGuildSaleCommand(currentTextClient,currentCommandAr
   const currentQuoteData=parseGuildMaterialQuote(await currentTextClient.request(currentRequestBase+'/material-quote?'+currentQuoteQuery),currentMaterialIdentifier,Number(currentQuantityText));
   if(captureGuildSaleContext(currentTextClient.state)!==currentSaleContext||currentQuoteData.characterVersion!==currentGameState.me.version)throw new Error('상태가 변경되었습니다. state 조회 후 견적을 다시 확인하세요.');
   currentTextClient.guildSaleQuote={context:currentSaleContext,facilityId:currentFacilityIdentifier,data:currentQuoteData};
-  return `${currentMaterialIdentifier} × ${currentQuoteData.quantity} 판매 · 개당 ${currentQuoteData.unitPriceP}p · 수령 ${currentQuoteData.totalPriceP}p\n판매 확정: materials sell ${currentFacilityIdentifier}`;
+  return `${currentMaterialIdentifier} × ${currentQuoteData.quantity} 판매 · 개당 ${currentQuoteData.unitPriceP}P · 수령 ${currentQuoteData.totalPriceP}P\n판매 확정: materials sell ${currentFacilityIdentifier}`;
  }
  const currentSavedQuote=currentTextClient.guildSaleQuote;
  if(!currentSavedQuote||currentSavedQuote.context!==currentSaleContext||currentSavedQuote.facilityId!==currentFacilityIdentifier)throw new Error('현재 상태에서 materials quote로 판매 견적을 먼저 확인하세요.');

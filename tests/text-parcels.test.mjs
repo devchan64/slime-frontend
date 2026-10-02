@@ -20,7 +20,7 @@ function createParcelClient(currentResponseEntries){
 test('소포 첨부와 만료를 표시하고 목록 커서를 전송한다',async()=>{
  const currentListingRecord={characterVersion:4,serverTime:100,nextCursor:null,entries:[{parcelId:CURRENT_PARCEL_IDENTIFIER,sentAt:90,expiresAt:200,attachmentNames:[null,{ko:'기본 의상',en:'Default outfit'},{ko:'단백질 젤리',en:'Protein jelly'}],attachments:[{kind:'money',amountP:7},{kind:'costume',costumeId:'default'},{kind:'item',category:'material',itemId:'protein-jelly',quantity:2}]}]};
  const {currentTextClient,currentRequestEntries}=createParcelClient([currentListingRecord]);
- assert.match(await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/7p.*코스튬 기본 의상.*단백질 젤리 × 2.*만료/);
+ assert.match(await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/7P.*코스튬 기본 의상.*단백질 젤리 × 2.*만료/);
  assert.ok(currentRequestEntries[0].url.endsWith('?includeNames=true&after='+CURRENT_PARCEL_IDENTIFIER));
  assert.match(formatParcelListing(currentListingRecord,'en'),/Default outfit.*Protein jelly/);
  for(const currentAttachmentNames of [[],[null,null,null],[null,{ko:'기본 의상'}, {ko:'젤리',en:'Jelly'}]])assert.throws(()=>formatParcelListing({...currentListingRecord,entries:[{...currentListingRecord.entries[0],attachmentNames:currentAttachmentNames}]},'ko'));
@@ -31,7 +31,7 @@ test('응답 유실과 잘못된 영수증은 같은 소포·버전으로 retry�
  await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
  assert.ok(currentTextClient.pendingCommandRequest);
  assert.equal(currentTextClient.state.cursor,1);
- assert.match(await currentTextClient.execute('retry'),/수령 완료.*7p/);
+ assert.match(await currentTextClient.execute('retry'),/수령 완료.*7P/);
  assert.deepEqual(currentRequestEntries.map(currentRequestEntry=>currentRequestEntry.body),Array(3).fill({expectedVersion:4}));
  assert.equal(new Set(currentRequestEntries.map(currentRequestEntry=>currentRequestEntry.url)).size,1);
  assert.equal(currentTextClient.pendingCommandRequest,null);
@@ -65,7 +65,7 @@ test('조회한 첨부물은 수령 응답 검증과 재시도에 고정한다',
  await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
  assert.equal(currentTextClient.state.cursor,1);
  assert.ok(currentTextClient.pendingCommandRequest);
- assert.match(await currentTextClient.execute('retry'),/수령 완료.*7p/);
+ assert.match(await currentTextClient.execute('retry'),/수령 완료.*7P/);
  assert.deepEqual(currentRequestEntries.slice(1).map(currentRequestEntry=>currentRequestEntry.body),Array(3).fill({expectedVersion:4}));
 });
 
@@ -92,7 +92,7 @@ test('다음 페이지 조회 후에도 앞 페이지 소포의 첨부물을 대
  await currentTextClient.execute('parcels list iseulon-guild '+CURRENT_PARCEL_IDENTIFIER);
  await assert.rejects(()=>currentTextClient.execute('parcels claim iseulon-guild '+CURRENT_PARCEL_IDENTIFIER),/retry/);
  assert.equal(currentTextClient.state.cursor,1);
- assert.match(await currentTextClient.execute('retry'),/수령 완료.*7p/);
+ assert.match(await currentTextClient.execute('retry'),/수령 완료.*7P/);
 });
 
 test('목록을 처음부터 다시 조회하면 이전 페이지 검증 기준을 비운다',async()=>{
