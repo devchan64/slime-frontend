@@ -3,7 +3,6 @@ help: View costumes acquired through parcels or shops. Costumes affect appearanc
 refresh: Load owned costumes
 loading: Loading costumes…
 empty: No acquired costumes. The default design is available.
-value: "Standard value: {value}P"
 received: "Received by parcel: {time}"
 equip: Equip
 default: Use default design

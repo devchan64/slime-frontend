@@ -26,7 +26,7 @@ async function clickCostumeRefresh(){const currentRefreshButton=document.querySe
  await currentWaitRender();await clickCostumeRefresh();
  assertCostumeInventory(document.body.textContent!.includes(t('wardrobe.empty')),'빈 소유 목록 안내');
  currentResponseData.entries=[currentOwnedEntry];await clickCostumeRefresh();
- assertCostumeInventory(!document.body.textContent!.includes(t('wardrobe.value',{value:25})),'표준 가치 비공개');
+ assertCostumeInventory(!/표준 가치|Standard value/.test(document.body.textContent??''),'표준 가치 비공개');
  assertCostumeInventory(document.body.textContent!.includes(currentOwnedEntry.nameTranslations[location.hash==='#en'?'en':'ko']),'언어별 코스튬 이름');
  for(const currentInvalidPatch of [{source:'drop'},{acquiredAt:-1},{valueP:0},{extra:1}]){
   let currentRejectedFlag=false;try{parseCostumeInventory({...currentResponseData,entries:[{...currentOwnedEntry,...currentInvalidPatch}]});}catch{currentRejectedFlag=true;}

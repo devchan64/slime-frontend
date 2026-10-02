@@ -21,7 +21,7 @@ function renderCostumeDescription(){render(<CostumeDescription gameSessionClient
  verifyCostumeCondition(document.querySelector('[role="alert"]')?.textContent?.includes('조회 실패'),'조회 실패 표시');
  document.querySelector<HTMLButtonElement>('button')!.click();await waitRenderCycle();
  verifyCostumeCondition(document.body.textContent?.includes(getLocale()==='ko'?'서버 기본 의상':'Server default outfit'),'서버 이름 표시');
- verifyCostumeCondition(!document.body.textContent?.includes(t('wardrobe.value',{value:25})),'표준 가치 비공개');
+ verifyCostumeCondition(!/표준 가치|Standard value/.test(document.body.textContent??''),'표준 가치 비공개');
  verifyCostumeCondition(document.body.textContent?.includes('<img src=x onerror=alert(1)>')&&!document.querySelector('img'),'설명 HTML을 텍스트로 표시');
  setLocale(getLocale()==='ko'?'en':'ko');await waitRenderCycle();
  verifyCostumeCondition(document.body.textContent?.includes(getLocale()==='ko'?'서버 설명':'Server details'),'현재 언어의 서버 설명 표시');
