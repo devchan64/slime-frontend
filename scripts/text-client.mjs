@@ -24,6 +24,7 @@ equipment list [다음커서] / equip 개체ID / unequip 슬롯 장비 조회·�
 workshop craft|repair|consumable catalog 시설ID [다음커서] 품목·수리 대상 조회
 workshop craft|repair|consumable quote 시설ID 품목ID [소모품 수량] 견적
 workshop craft quote 시설ID 품목ID 재료ID=수량 [재료ID=수량 ...] 혼합 등급 견적
+workshop consumable quote 시설ID 품목ID 주문수량 재료ID=총수량 [재료ID=총수량 ...]
 workshop craft|repair|consumable create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID
 consumables catalog 시설ID / quote 시설ID 품목ID 수량 소모품 제작 목록·견적
 consumables create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID 제작·조회·수령

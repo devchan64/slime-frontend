@@ -45,3 +45,19 @@ test('혼합 재료 텍스트 견적과 생성은 같은 선택을 전송한다'
  for(const currentInvalidSelection of ['tanned-leather-low=0','tanned-leather-low=1.5','tanned-leather-low=2 tanned-leather-low=2','tanned-leather-low=10001'])await assert.rejects(currentTextClient.execute('workshop craft quote iseulon-workshop leather-vest '+currentInvalidSelection),/형식/);
  assert.equal(currentRequestEntries.length,2);
 });
+test('소모품 선택 재료 견적은 주문량·종류·총 재료량을 계약에 유지한다',async()=>{
+ const currentMaterialInputs=[{materialId:'gelatin-low',quantity:4},{materialId:'grain-flour-low',quantity:2}];
+ const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:'gel-ration',definitionSnapshot:{name:'젤 곡물식',englishName:'Gel Ration'},costP:2,durationSeconds:180,unitCostP:1,unitDurationSeconds:90,quantity:2,requiredMaterials:currentMaterialInputs},materials:currentMaterialInputs.map(currentInput=>({...currentInput,nameTranslations:{ko:'재료',en:'Material'},ownedQuantity:10,consumedQuantity:currentInput.quantity,missingQuantity:0}))};
+ const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentQuoteData,{state:createWorkshopState()}]);
+ await currentTextClient.execute('workshop consumable quote iseulon-workshop gel-ration 2 gelatin-low=4 grain-flour-low=2');
+ await currentTextClient.execute('workshop consumable create iseulon-workshop');
+ for(const currentRequestEntry of currentRequestEntries){assert.equal(currentRequestEntry.body.kind,'consumable');assert.equal(currentRequestEntry.body.quantity,2);assert.deepEqual(currentRequestEntry.body.materialInputs,currentMaterialInputs);}
+ for(const currentInvalidInput of ['gelatin-low=0','gelatin-low=4 gelatin-low=4','gelatin-low=1.5'])await assert.rejects(currentTextClient.execute('workshop consumable quote iseulon-workshop gel-ration 2 '+currentInvalidInput));
+ assert.equal(currentRequestEntries.length,2);
+});
+test('소모품 카탈로그에 각 슬롯의 개당 필요량과 보유량을 안내한다',async()=>{
+ const currentSlots=['gelatin-low','grain-flour-low'].map((currentMaterialId,currentIndex)=>({slotId:currentMaterialId,requiredQuantity:2-currentIndex,defaultMaterialId:currentMaterialId,choices:[{materialId:currentMaterialId,grade:'low',ownedQuantity:7,nameTranslations:{ko:'재료',en:'Material'}}]}));
+ const {currentTextClient}=createWorkshopClient([{items:[{id:'gel-ration',name:'식량',englishName:'Ration',materialSlots:currentSlots}]}]);
+ const currentOutput=await currentTextClient.execute('workshop consumable catalog iseulon-workshop');
+ assert.match(currentOutput,/개당 필요 2.*gelatin-low.*보유 7.*개당 필요 1.*grain-flour-low/);
+});
