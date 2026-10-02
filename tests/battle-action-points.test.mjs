@@ -39,3 +39,11 @@ test('새 전투는 홀수 최대 AP의 절반을 내림하고 과거 전투는 
  assert.equal(calculateTurnApRecovery({apRecoveryPolicyVersion:2},4),2);
  for(const currentPolicyValue of [null,true,0,3,'2'])assert.throws(()=>calculateTurnApRecovery({apRecoveryPolicyVersion:currentPolicyValue},5));
 });
+
+test('과중량 최대 AP 0은 유효하며 턴 회복량도 0이다',()=>{
+ assert.deepEqual(actionPoints({...battle.units[0],ap:0,maxAp:0}),{value:0,maximum:0});
+ for(const currentRecoveryPolicy of [undefined,1,2])assert.equal(calculateTurnApRecovery({apRecoveryPolicyVersion:currentRecoveryPolicy},0),0);
+ assert.throws(()=>actionPoints({...battle.units[0],ap:1,maxAp:0}));
+ assert.throws(()=>actionPoints({...battle.units[0],ap:0,maxAp:-1}));
+ assert.throws(()=>calculateTurnApRecovery({apRecoveryPolicyVersion:2},-1));
+});

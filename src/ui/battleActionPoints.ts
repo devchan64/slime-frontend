@@ -5,7 +5,7 @@ type ActionPoints = { value: number; maximum?: number };
 export function actionPoints(unit: Unit): ActionPoints | null {
   if (unit.ap === undefined) return null;
   if (!Number.isInteger(unit.ap) || (unit.maxAp !== undefined &&
-      (!Number.isInteger(unit.maxAp) || unit.maxAp <= 0 || unit.ap > unit.maxAp))) {
+      (!Number.isInteger(unit.maxAp) || unit.maxAp < 0 || unit.ap > unit.maxAp))) {
     throw new Error('전투 AP 잔고가 올바르지 않습니다.');
   }
   // 지형 추가 비용은 잔고를 음수로 만들 수 있으며 다음 턴 회복에 반영된다.
@@ -23,7 +23,7 @@ export function actionPointSubject(battle: Battle, selected: Position | null) {
 
 export function calculateTurnApRecovery(currentBattleRecord: Battle,currentMaximumPoints: number): number {
   const currentRecoveryPolicy=currentBattleRecord.apRecoveryPolicyVersion===undefined?1:currentBattleRecord.apRecoveryPolicyVersion;
-  if (![1,2].includes(currentRecoveryPolicy)||!Number.isSafeInteger(currentMaximumPoints)||currentMaximumPoints<=0) {
+  if (![1,2].includes(currentRecoveryPolicy)||!Number.isSafeInteger(currentMaximumPoints)||currentMaximumPoints<0) {
     throw new Error('AP 회복 정책 또는 최대 AP가 올바르지 않습니다.');
   }
   return Math.floor((currentMaximumPoints+(currentRecoveryPolicy===1?1:0))/2);

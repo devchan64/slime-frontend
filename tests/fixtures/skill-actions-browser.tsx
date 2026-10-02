@@ -51,5 +51,17 @@ const refresh_review_panel=()=>render(<CurrentReviewPanel/>,document.getElementB
  await click_matching_button(t('battle.skills'));await click_matching_button('1. 회복마법 · Lv. 7');
  verify_current_condition([...document.querySelectorAll('button')].find(current_button_entry=>current_button_entry.textContent==='상처 봉합 · 7 AP')?.disabled,'대상 없는 액션 비활성');
  verify_current_condition(document.body.textContent.includes(t('battle.skillUnavailable')),'불가 사유 표시');
- document.body.dataset.result=JSON.stringify({status:'PASS',assertions:current_assertion_labels,commands:current_commands_sent});
+ current_battle_state={...current_battle_state,version:4,turnId:3,apRecoveryPolicyVersion:2,
+  units:current_battle_state.units.map(currentUnitRecord=>currentUnitRecord.side==='ally'?{...currentUnitRecord,ap:0,maxAp:0}:currentUnitRecord),
+  tactics:{canAct:true,moves:[],attacks:[],skillActions:[]}};
+ refresh_review_panel();await wait_render_cycle();
+ verify_current_condition(document.querySelector('.battle-action-points')?.textContent.includes('0 / 0'),'과중량 AP 0/0 표시');
+ verify_current_condition(document.body.textContent.includes(t('battle.apRecovery',{count:0})),'최대 AP 0의 회복량 0 안내');
+ for(const currentActionLabel of ['battle.move','battle.attack'])verify_current_condition([...document.querySelectorAll('button')].find(currentButtonElement=>currentButtonElement.textContent===t(currentActionLabel))?.disabled,'AP 0 행동 비활성: '+currentActionLabel);
+ await click_matching_button(t('battle.endTurn'));
+ verify_current_condition(document.querySelector('dialog[open]')?.textContent.includes(t('battle.guardEndDisabledDetail')),'AP 0 턴 종료 확인 가능');
+ verify_current_condition([...document.querySelectorAll('dialog[open] button')].find(currentButtonElement=>currentButtonElement.textContent.includes(t('battle.guardEndTurn')))?.disabled,'AP 1 방어 종료 비활성');
+ await click_matching_button(t('battle.cancel'));
+ verify_current_condition(current_commands_sent.length===1,'과중량 확인 취소는 명령 미전송');
+ document.body.dataset.result=JSON.stringify({status:'PASS' ,assertions:current_assertion_labels,commands:current_commands_sent});
 }catch(current_failure_error){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(current_failure_error),stack:current_failure_error.stack,assertions:current_assertion_labels});}})();
