@@ -330,21 +330,9 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 채널 목록 조회 도중 인증 정보·캐릭터·세대·공간 epoch·맵이 바뀌면 이전 응답을 표시하지 않고 재조회를 안내한다. 같은 맵에서 일반 상태 버전만 갱신된 경우에는 조회 결과를 표시한다. 조회 결과는 캐릭터 상태를 변경하지 않는다.
 
 
-### 온라인 파티 생성 장소
+### 과거 온라인 파티 기록 호환
 
-`POST /v1/game/party/commands`의 `action: "CREATE"`는 기존 `requestId`·`expectedVersion` 본문을 유지한다. 서버는 잠긴 캐릭터의 현지 길드 출입구와 유효 시민권을 검사한다. 조건 미충족은 `GUILD_CANDIDATE_ACCESS_REQUIRED`다. 기존 성공 요청 재전송은 저장된 응답을 반환한다. 기존 파티 조회·탈퇴·해산에 새 현장 조건을 적용하지 않는다.
-
-웹 파티 메뉴는 현재 맵 건물의 길드 출입구와 `me.citizenshipSummary.records`의 현지 VALID 기록을 확인하여 생성 버튼과 이동/발급 안내를 표시한다. 응답 이후 만료·이동·권한 변경은 서버가 최종 판정한다. 이전 서버의 시민권 공개 정보가 누락된 경우 버튼을 활성화하지 않는다. 서버 검증 배포 후 클라이언트를 배포한다.
-
-`me.borrowedPartyLoanIds`에 편성원이 있으면 온라인 파티 생성 버튼을 비활성화하고 편성 해제를 안내한다. 대여 계약 취소를 요구하지 않으며 서버의 `PARTY_FORMATION_CONFLICT` 규칙을 따른다.
-
-
-### 텍스트 온라인 파티 명령
-
-`party list`는 최신 상태를 조회해 소속 파티·초대 ID·주변 캐릭터 ID를 표시한다. `party create`, `party invite 캐릭터ID`, `party accept 초대ID`, `party leave`, `party kick 캐릭터ID`, `party disband`는 기존 `/v1/game/party/commands`에 연결한다. 생성은 웹과 같은 길드 현장·시민권 안내를 공유하며, 초대와 수락은 조회한 현재 후보·초대를 선택한다. 최종 CP·정원·출입 조건은 서버가 재검사한다.
-
-결과가 불명확하면 공통 `retry`로 같은 요청 ID·본문을 재전송한다. 확인 전 다른 변경 명령은 차단하고 `party list` 조회는 허용한다. 기존 온라인 파티의 맵/채널 이동에는 탈퇴가 필요하다. 이 명령은 파티 동반 이동을 구현하지 않는다.
-
+현재 온라인 파티는 제공하지 않는다. `/v1/game/party/commands`의 CREATE·INVITE·ACCEPT는 `ONLINE_PARTY_UNAVAILABLE`(409)로 거절한다. 웹에서 신규 생성·초대·수락 진입은 제거했다. 기존 저장 기록의 LEAVE·KICK·DISBAND만 정리 호환으로 유지하며 텍스트의 `party list/leave/kick/disband`도 이 용도다. 길드의 모험가 대여·편성과는 별개다.
 
 ### 장비 중량 AP 미리보기
 

@@ -1,5 +1,4 @@
 import {ParcelArrivalNotice} from './ParcelArrivalNotice';
-import {readPartyCreationIssue} from './partyCreationAccess.mjs';
 import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCutinSettings';
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
 import {ChannelPanel} from './ChannelPanel';
@@ -379,7 +378,6 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
-  const currentPartyCreationIssue = readPartyCreationIssue(state);
   const disabled = !!battleReport || busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
   const battle = (battleReport ? battleReportSceneSnapshot.current : state)?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
@@ -572,7 +570,7 @@ export function App() {
               <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("cutins.settings")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/terms")}>{t("terms.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
-              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}{state.invitations.length > 0 ? t('app.invitationCount',{count:state.invitations.length}) : ""}</button>
+              <>{state.party && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}</button>}</>
               <button class="secondary" disabled={disabled || state.me.mode !== "FIELD"} onClick={() => command("/v1/world/away")}>{t('common.achievements')}</button>
             </nav>
           </section>
@@ -772,58 +770,8 @@ export function App() {
                       </button>
                     )}
                   </>
-                ) : (
-                  <>
-                  {currentPartyCreationIssue && <p class="muted">{t(currentPartyCreationIssue)}</p>}
-                  <button
-                    class="secondary"
-                    disabled={disabled || !!currentPartyCreationIssue}
-                    onClick={() =>
-                      command("/v1/game/party/commands", { action: "CREATE" })
-                    }
-                  >
-                    {t('app.createParty')}
-                  </button>
-                  </>
-                )}
-                {state.members
-                  .filter((m) => m.id !== state.me.id)
-                  .map((m) => (
-                    <div class="monster-row">
-                      <span>{m.name}{state.party?.leader === state.me.id && !state.party.members.includes(m.id) && m.partyCpEligible === false && <small class="muted"> · {t('app.partyCpOutOfRange')}</small>}</span>
-                      <button
-                        class="compact secondary"
-                        disabled={
-                          disabled || state.party?.leader !== state.me.id
-                          || (!state.party.members.includes(m.id) && m.partyCpEligible === false)
-                        }
-                        onClick={() =>
-                          command("/v1/game/party/commands", {
-                            action: state.party?.members.includes(m.id)
-                              ? "KICK"
-                              : "INVITE",
-                            targetId: m.id,
-                          })
-                        }
-                      >
-                        {state.party?.members.includes(m.id) ? t('app.kick') : t('app.invite')}
-                      </button>
-                    </div>
-                  ))}
-                {state.invitations.map((i) => (
-                  <button
-                    disabled={disabled || i.partyCpEligible === false}
-                    onClick={() =>
-                      command("/v1/game/party/commands", {
-                        action: "ACCEPT",
-                        invitationId: i.id,
-                      })
-                    }
-                  >
-                    {t('app.acceptInvitation',{name:i.from})}
-                    {i.partyCpEligible === false && <small> · {t('app.partyCpOutOfRange')}</small>}
-                  </button>
-                ))}
+                ) : <p>{t('app.onlinePartyUnavailable')}</p>}
+
               </section>
             )}
             {drawer === "chat" && <ChatPanel title={battle ? t('common.battleChat') : t('common.channelChat')}

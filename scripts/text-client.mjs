@@ -70,10 +70,7 @@ rewards [다음커서]      계정 보관함 조회 (claim-all: 전체 수령)
 substitute list        대체 사냥 대상·비용 조회
 substitute run 조우ID   대체 사냥 실행
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
-party list              온라인 파티·초대·주변 캐릭터 조회
-party create            길드 출입구에서 온라인 파티 생성
-party invite 캐릭터ID    초대
-party accept 초대ID      초대 수락
+party list              과거 파티 기록 조회 (정리 호환)
 party leave             탈퇴
 party kick 캐릭터ID      파티원 추방
 party disband           해산

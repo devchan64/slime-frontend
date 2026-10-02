@@ -113,3 +113,5 @@ partyCreationFieldRequired: "Finish the encounter or battle and return to field 
 partyCreationGuildRequired: "Visit a city guild entrance to create a party."
 partyCreationCitizenshipRequired: "Obtain valid local citizenship, then visit the guild entrance to create a party."
 partyCreationFormationRequired: "Remove borrowed members from your formation before creating an online party. Existing loan contracts remain active."
+
+onlinePartyUnavailable: Online parties are not available. Use adventurer loans and formation at the guild.
