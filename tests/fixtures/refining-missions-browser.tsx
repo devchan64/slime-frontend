@@ -12,7 +12,7 @@ function findMissionButton(currentLocaleKey:string){const currentButtonElement=[
  const currentMissionRecord={characterId:'hero',requestId:'11111111-1111-4111-8111-111111111111',status:'ACTIVE',acceptedAt:100,quote:{definitionSnapshot:{missionId:'refine-hide',cityId:'iseulon',receiverNpcId:'merchant',collectionId:'hide',grade:'low',quantity:2,rewardP:10},deposit:{depositP:96},rewardP:10,refining:{collectionId:'hide',inputQuantity:6,outputQuantity:2,grade:'low',costP:12,durationSeconds:60,outputMaterial:{name:'가죽',englishName:'Leather'}}}};
  let currentRequestCount=0;
  const currentGameClient:any={tokens:{user_id:'owner'},state:{generation:1,me:{id:'hero',version:4,mode:'FIELD'}},accept(currentAcceptedState:any){this.state=currentAcceptedState;},async request(currentRequestPath:string,currentRequestBody:any){
-  if(!currentRequestBody)return {characterVersion:4,serverTime:110,nextOffset:null,entries:[structuredClone(currentMissionRecord)]};
+  if(!currentRequestBody)return {characterVersion:4,serverTime:110,nextOffset:null,entries:[structuredClone(currentMissionRecord)],destinations:{[currentMissionRecord.requestId]:{refiningCityNameTranslations:{ko:"이슬온",en:"Iseulon"},receiverCityNameTranslations:{ko:"돌온",en:"Stonewarm"},receiverName:"대장장이"}}};
   currentRequestRecords.push({path:currentRequestPath,body:structuredClone(currentRequestBody)});
   if(++currentRequestCount===1)throw new TypeError('응답 유실');
   return {receipt:{...structuredClone(currentMissionRecord),status:'CANCELLED',cancelledAt:120},state:{generation:1,me:{id:'hero',version:5,mode:'FIELD'}}};
@@ -23,6 +23,9 @@ function findMissionButton(currentLocaleKey:string){const currentButtonElement=[
  assertMissionBrowser(document.body.textContent!.includes(t('missions.noRefund')),'무환불 안내 표시');
  findMissionButton('missions.cancel').click();await settleMissionRender();
  assertMissionBrowser(currentRequestRecords.length===0,'취소 선택만으로 서버 변경 없음');
+ const currentConfirmationText=document.querySelector('[role="group"]')!.textContent!;
+ assertMissionBrowser(currentConfirmationText.includes(t('missions.destination',{city:location.hash==='#en'?'Iseulon':'이슬온',receiverCity:location.hash==='#en'?'Stonewarm':'돌온',npc:'대장장이'})),'선택한 임무의 정제 도시와 전달 도시 구분');
+ assertMissionBrowser(currentConfirmationText.includes(location.hash==='#en'?'Leather':'가죽'),'확인창에 선택한 결과 재료 표시');
  findMissionButton('missions.keep').click();await settleMissionRender();
  assertMissionBrowser(!document.querySelector('[role="group"]'),'임무 유지 시 확인창 닫힘');
  currentGameClient.state.me.version=5;renderMissionPanel();await settleMissionRender();

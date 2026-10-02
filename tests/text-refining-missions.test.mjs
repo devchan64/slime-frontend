@@ -79,3 +79,10 @@ test('취소 영수증의 견적 변경은 상태 반영 전에 거절한다',as
  await assert.rejects(currentTextClient.execute('missions cancel '+MISSION_TEST_IDENTIFIER),/영수증|retry/);
  assert.equal(currentTextClient.state.me.version,4);
 });
+
+test('임무 목적지 표시는 본인 페이지와 두 언어 이름을 모두 검증한다',async()=>{
+ for(const currentDestinationMap of [null,{}, {'foreign-id':{}},{[MISSION_TEST_IDENTIFIER]:{receiverName:'상인',refiningCityNameTranslations:{ko:'이슬온'},receiverCityNameTranslations:{ko:'돌온',en:'Stonewarm'}}}]){
+  const {currentTextClient}=createMissionClient([{...createMissionPage(),destinations:currentDestinationMap}]);
+  await assert.rejects(currentTextClient.execute('missions list'),/임무/);
+ }
+});

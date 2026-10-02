@@ -46,6 +46,14 @@ export function RefiningMissionPanel({gameSessionClient,actionsAreDisabled,chara
    }
   }finally{currentBusyReference.current=false;if(missionSessionMatches())setCurrentRequestPending(false);}
  }
+ function renderMissionSummary(currentMissionRecord:RefiningMissionRecord){
+  const currentDestinationEntry=currentMissionPage?.destinations?.[currentMissionRecord.requestId];
+  return <>
+   <p>{translateMissionText('missions.output',{item:currentLocaleCode==='en'?currentMissionRecord.quote.refining.outputMaterial.englishName:currentMissionRecord.quote.refining.outputMaterial.name,grade:translateMissionText('missions.'+currentMissionRecord.quote.refining.grade),count:currentMissionRecord.quote.refining.outputQuantity})}</p>
+   {currentDestinationEntry&&<p>{translateMissionText('missions.destination',{city:currentDestinationEntry.refiningCityNameTranslations[currentLocaleCode],receiverCity:currentDestinationEntry.receiverCityNameTranslations[currentLocaleCode],npc:currentDestinationEntry.receiverName})}</p>}
+   <p>{translateMissionText('missions.acceptedAt',{time:new Date(currentMissionRecord.acceptedAt*1000).toLocaleString(currentLocaleCode==='ko'?'ko-KR':'en-US')})}</p>
+  </>;
+ }
  const currentPageStale=!!currentMissionPage&&currentMissionPage.characterVersion!==characterStateVersion;
  const currentActionsLocked=actionsAreDisabled||currentRequestPending||!!currentUncertainRequest||currentPageStale||gameSessionClient.state?.me.mode!=='FIELD'||!!gameSessionClient.state?.battle||!!gameSessionClient.state?.reservation;
  return <section class="card" aria-label={translateMissionText('missions.title')}>
@@ -58,13 +66,13 @@ export function RefiningMissionPanel({gameSessionClient,actionsAreDisabled,chara
   {currentMissionPage?.entries.length===0&&<p>{translateMissionText('missions.empty')}</p>}
   <ul class="bag-items">{currentMissionPage?.entries.map(currentMissionRecord=><li key={currentMissionRecord.requestId}>
    <strong>{translateMissionText('missions.record')} · {translateMissionText('missions.status'+currentMissionRecord.status[0]+currentMissionRecord.status.slice(1).toLowerCase())}</strong>
-   <p>{translateMissionText('missions.output',{item:currentLocaleCode==='en'?currentMissionRecord.quote.refining.outputMaterial.englishName:currentMissionRecord.quote.refining.outputMaterial.name,grade:translateMissionText('missions.'+currentMissionRecord.quote.refining.grade),count:currentMissionRecord.quote.refining.outputQuantity})}</p>
+   {renderMissionSummary(currentMissionRecord)}
    <p>{translateMissionText('missions.processing',{count:currentMissionRecord.quote.refining.inputQuantity,seconds:currentMissionRecord.quote.refining.durationSeconds})}</p>
    <p>{translateMissionText('missions.payment',{deposit:currentMissionRecord.quote.deposit.depositP,cost:currentMissionRecord.quote.refining.costP,reward:currentMissionRecord.quote.rewardP})}</p>
    {currentMissionRecord.status==='ACTIVE'&&<button disabled={currentActionsLocked} onClick={()=>setCurrentSelectedMission(currentMissionRecord)}>{translateMissionText('missions.cancel')}</button>}
   </li>)}</ul>
   {currentMissionPage?.nextOffset!=null&&<button disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainRequest} onClick={()=>void loadMissionRecords(currentMissionPage.nextOffset!)}>{translateMissionText('missions.next')}</button>}
-  {currentSelectedMission&&!currentUncertainRequest&&<div role="group" aria-label={translateMissionText('missions.confirmTitle')}><p>{translateMissionText('missions.noRefund')}</p>
+  {currentSelectedMission&&!currentUncertainRequest&&<div role="group" aria-label={translateMissionText('missions.confirmTitle')}>{renderMissionSummary(currentSelectedMission)}<p>{translateMissionText('missions.noRefund')}</p>
    <button disabled={currentActionsLocked} onClick={()=>void cancelMissionRecord({record:currentSelectedMission,payload:{expectedVersion:currentMissionPage!.characterVersion}})}>{translateMissionText('missions.confirm')}</button>
    <button class="secondary" disabled={currentRequestPending} onClick={()=>setCurrentSelectedMission(null)}>{translateMissionText('missions.keep')}</button></div>}
  </section>;

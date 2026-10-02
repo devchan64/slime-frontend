@@ -30,6 +30,18 @@ export function validateMissionPage(currentResponsePage,currentCharacterIdentifi
   if(currentSeenIdentifiers.has(currentMissionRecord.requestId))throw new Error('정제 임무가 중복되었습니다.');
   currentSeenIdentifiers.add(currentMissionRecord.requestId);
  }
+ if(currentResponsePage.destinations!==undefined){
+  const currentDestinationMap=currentResponsePage.destinations;
+  if(!currentDestinationMap||typeof currentDestinationMap!=='object'||Array.isArray(currentDestinationMap)||Object.keys(currentDestinationMap).length!==currentSeenIdentifiers.size)throw new Error('정제 임무 목적지 목록이 올바르지 않습니다.');
+  for(const currentRequestIdentifier of currentSeenIdentifiers){
+   const currentDestinationEntry=currentDestinationMap[currentRequestIdentifier];
+   if(!currentDestinationEntry||Object.keys(currentDestinationEntry).sort().join()!=='receiverCityNameTranslations,receiverName,refiningCityNameTranslations'||typeof currentDestinationEntry.receiverName!=='string'||!currentDestinationEntry.receiverName.trim())throw new Error('정제 임무 전달 NPC가 올바르지 않습니다.');
+   for(const currentTranslationField of ['refiningCityNameTranslations','receiverCityNameTranslations']){
+    const currentTranslationPair=currentDestinationEntry[currentTranslationField];
+    if(!currentTranslationPair||Object.keys(currentTranslationPair).sort().join()!=='en,ko'||!['ko','en'].every(currentLanguageCode=>typeof currentTranslationPair[currentLanguageCode]==='string'&&currentTranslationPair[currentLanguageCode].trim()))throw new Error('정제 임무 도시 이름이 올바르지 않습니다.');
+   }
+  }
+ }
  return currentResponsePage;
 }
 

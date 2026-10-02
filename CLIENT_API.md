@@ -364,3 +364,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 의뢰 기록 메뉴의 `RefiningMissionPanel`은 같은 조회·취소 API를 사용한다. 결과 재료·등급·수량, 위탁 수량, 정제 시간·비용, 담보·보수를 표시하고 무환불 취소 확인을 받는다. 조회와 취소 응답은 `src/client/refining-mission-validation.mjs`로 검증하며 텍스트 클라이언트와 공유한다. 취소 영수증의 원래 견적 전체가 조회 기록과 일치해야 상태를 반영한다. 오래된 목록의 취소와 연속 클릭을 차단하고, 결과 불명 시 같은 임무 ID·버전으로만 재시도한다.
 
 자동 검사는 `node scripts/run-regression.mjs tests/text-refining-missions.test.mjs tests/refining-missions-browser.test.mjs`로 실행한다. Chrome 검사에서는 실제 패널·언어팩을 사용하며 HTTP 응답은 테스트 대역이다. 신규 임무 수락·완료 UI는 이 변경에 포함하지 않는다. 기존 v1 API를 사용하므로 인프라·배포·운영 비용 변경은 없다.
+
+정제 임무 목록 응답의 `destinations`는 해당 페이지의 임무 ID를 키로 정제 도시 번역명(`refiningCityNameTranslations`), 전달 도시 번역명(`receiverCityNameTranslations`), 전달 NPC 이름(`receiverName`)을 제공한다. 저장 견적과 분리된 현재 카탈로그 표시 정보다. 정제 도시와 전달 도시는 서로 다를 수 있다. 직전 v1 응답에 이 필드가 없으면 목적지 표시만 생략하며, 필드가 있으면 페이지 ID 집합과 두 언어 이름을 검증한다. 취소 확인창에는 선택한 임무의 결과 재료·목적지·수락 시각을 표시한다.
