@@ -134,3 +134,12 @@ test('혼합 제작의 복구 영수증이 다른 재료라면 성공으로 처�
  currentReceipt.materials=currentOriginalRequest.materialInputs;
  assert.equal(await recoverWorkshopCreationResult({async request(){return currentReceipt;}},currentOriginalRequest,'iseulon-workshop'),true);
 });
+test('신규 회복 소모품 생산 견적과 고정 성능을 검증한다',()=>{
+ const currentConsumableQuote={...currentQuoteFixture,quote:{definitionId:'gel-ration',definitionSnapshot:{name:'젤 곡물식',englishName:'Gel Ration',effect:'restore_hp'},quantity:1,unitDurationSeconds:90,unitCostP:1,costP:1,durationSeconds:90,
+ productionResult:{productId:'gel-ration',usage:'consumable',itemLevel:1,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:1,denominator:1},performance:{restoration_hp_value:3}}}};
+ assert.equal(parseWorkshopQuote(currentConsumableQuote,'consumable').quote.productionResult.itemLevel,1);
+ for(const currentResultPatch of [{usage:'equipment'},{itemLevel:2},{performance:{restoration_hp_value:0}},{performance:{restoration_hp_value:3,attack_flat_bonus:1}}]){
+  const currentInvalidQuote=structuredClone(currentConsumableQuote);Object.assign(currentInvalidQuote.quote.productionResult,currentResultPatch);
+  assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'consumable'));
+ }
+});

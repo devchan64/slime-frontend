@@ -7,15 +7,18 @@ function validateWorkshopQuote(currentQuoteValue,currentContractKind){
   requireWorkshopCondition(currentQuoteValue&&isWorkshopWholeNumber(currentQuoteValue.costP)&&isWorkshopWholeNumber(currentQuoteValue.durationSeconds)&&currentQuoteValue.durationSeconds>0);
   if(currentQuoteValue.productionResult!==undefined){
     const currentProductionResult=currentQuoteValue.productionResult;
-    requireWorkshopCondition(currentContractKind==='craft'&&currentProductionResult&&currentProductionResult.productId===currentQuoteValue.definitionId
-      &&currentProductionResult.usage==='equipment'&&[1,2].includes(currentProductionResult.itemLevel)&&currentProductionResult.levelPolicyVersion===1
+    requireWorkshopCondition(['craft','consumable'].includes(currentContractKind)&&currentProductionResult&&currentProductionResult.productId===currentQuoteValue.definitionId
+      &&currentProductionResult.usage===(currentContractKind==='craft'?'equipment':'consumable')&&[1,2].includes(currentProductionResult.itemLevel)&&currentProductionResult.levelPolicyVersion===1
       &&isWorkshopWholeNumber(currentProductionResult.performanceVersion)&&currentProductionResult.performanceVersion>0
       &&isWorkshopWholeNumber(currentProductionResult.quality?.numerator)&&isWorkshopWholeNumber(currentProductionResult.quality?.denominator)
       &&currentProductionResult.quality.denominator>0&&currentProductionResult.quality.numerator>=currentProductionResult.quality.denominator
       &&currentProductionResult.quality.numerator<=3*currentProductionResult.quality.denominator
       &&currentProductionResult.itemLevel===(BigInt(currentProductionResult.quality.numerator)*2n>=BigInt(currentProductionResult.quality.denominator)*3n?2:1)
-      &&isWorkshopWholeNumber(currentProductionResult.performance?.attack_flat_bonus)&&isWorkshopWholeNumber(currentProductionResult.performance?.defense_flat_bonus)
-      &&isWorkshopWholeNumber(currentProductionResult.performance?.maximum_durability_value)&&currentProductionResult.performance.maximum_durability_value>0);
+      &&(currentContractKind==='craft'
+        ? isWorkshopWholeNumber(currentProductionResult.performance?.attack_flat_bonus)&&isWorkshopWholeNumber(currentProductionResult.performance?.defense_flat_bonus)
+          &&isWorkshopWholeNumber(currentProductionResult.performance?.maximum_durability_value)&&currentProductionResult.performance.maximum_durability_value>0
+        : currentQuoteValue.definitionSnapshot?.effect==='restore_hp'&&isWorkshopWholeNumber(currentProductionResult.performance?.restoration_hp_value)
+          &&currentProductionResult.performance.restoration_hp_value>0&&Object.keys(currentProductionResult.performance).length===1));
   }
   if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentQuoteValue.quantity)&&currentQuoteValue.quantity>0&&currentQuoteValue.quantity<=1000
     &&Number.isSafeInteger(currentQuoteValue.unitDurationSeconds)&&currentQuoteValue.unitDurationSeconds>0
