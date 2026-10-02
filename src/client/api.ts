@@ -7,7 +7,7 @@ export { ApiError } from "./response";
 import type { State, Tokens } from "./types";
 const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) || "";
-const resolveHttpRequestUrl=createServiceRequestResolver(API_BASE,import.meta.env.VITE_IDENTITY_API_BASE_URL as string | undefined);
+const resolveHttpRequestUrl=createServiceRequestResolver(API_BASE,import.meta.env?.VITE_IDENTITY_API_BASE_URL as string | undefined);
 const HEARTBEAT_MS = 10000;
 const SOCKET_RESPONSE_TIMEOUT_MS = 30000;
 const RECONNECT_MAX_MS = 5000;

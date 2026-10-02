@@ -59,3 +59,15 @@ test('실제 두 HTTP 서버에서 GUI와 텍스트의 인증 요청을 분리�
   await Promise.all([currentGameService,currentIdentityService].map(currentServiceRecord=>new Promise(currentResolveCallback=>currentServiceRecord.server.close(currentResolveCallback))));
  }
 });
+
+test('기존 게임 API만 치환한 브라우저 번들도 별도 인증 설정 없이 초기화된다',async()=>{
+ const currentBrowserBundle=await build({entryPoints:['src/client/api.ts'],bundle:true,write:false,format:'iife',platform:'browser',globalName:'TestClientModule',
+  define:{'import.meta.env.VITE_API_BASE_URL':'""'},logLevel:'silent',plugins:[{name:'locale-test',setup(currentBuildContext){
+   currentBuildContext.onResolve({filter:/^\.\.\/i18n$/},()=>({path:'locale',namespace:'test'}));
+   currentBuildContext.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const getLocale=()=>"ko";'}));
+  }}]});
+ const {runInNewContext}=await import('node:vm');
+ const currentBrowserContext={};
+ runInNewContext(currentBrowserBundle.outputFiles[0].text,currentBrowserContext);
+ assert.equal(typeof currentBrowserContext.TestClientModule.Client,'function');
+});
