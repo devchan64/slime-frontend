@@ -41,23 +41,23 @@ files:
   source_path: assets/tiles/terrain/road/stone-road-v1.png
   sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/world/isloon/buildings/marble-large-window-wall-v1.png
-  source_path: assets/tiles/buildings/marble/marble-large-window-wall-v1.png
-  sha256: cb74be69643edf7376117cf7370b39952833995fee9c39c3f143b7cfd7b685f3
+  source_path: assets/tiles/buildings/stone/stone-large-window-wall-v1.png
+  sha256: 3393356fd9c31975e5155da5e381c8ad1c02e7bc04f2832891d84d97de4068ad
 - path: assets/world/isloon/buildings/marble-plain-wall-v1.png
-  source_path: assets/tiles/buildings/marble/marble-plain-wall-v1.png
-  sha256: f8319908753ad4ee8886478ca5c8a573e12c9102730143f164d498db40597fbe
+  source_path: assets/tiles/buildings/stone/stone-wall-v1.png
+  sha256: f4f5fb5c107bdfd3dba2c7d4242bb83a0b5adaa7452e7889922c476ba8aa4f44
 - path: assets/world/isloon/buildings/marble-roof-v2.png
-  source_path: assets/tiles/buildings/marble/marble-roof-v2.png
-  sha256: 09b4864101575829f5b417d05e4994d07283f361b79ab2719f3c8cea0e1724cd
+  source_path: assets/tiles/buildings/stone/stone-roof-v1.png
+  sha256: b9df367699d24583b0e80f29bd048f63ae57ecb6da9a77b7b47330e603f02dff
 - path: assets/world/isloon/buildings/marble-roof-v2.source.json
   source_path: assets/tiles/buildings/marble/marble-roof-v2.source.json
   sha256: a279902bf505c872a5b50500d459c270c8f6648a218a7ad64a47d42b38397bd8
 - path: assets/world/isloon/buildings/marble-small-door-v1.png
-  source_path: assets/tiles/buildings/marble/marble-small-door-v1.png
-  sha256: c2a3727f4d962eced1d0f7f35e681884328563a39ea7ccdc505a0457c98484e3
+  source_path: assets/tiles/buildings/stone/stone-door-v1.png
+  sha256: 19d3d321953e8dab7d2e8658541c5618ea36286ee71372f7f43971011b0bc09b
 - path: assets/world/isloon/buildings/marble-small-window-wall-v1.png
-  source_path: assets/tiles/buildings/marble/marble-small-window-wall-v1.png
-  sha256: 23cab9d740332678d9acb34a542705238b0122d68eb34fc5b8a04d6e3d4393da
+  source_path: assets/tiles/buildings/stone/stone-small-window-wall-v1.png
+  sha256: d334d14f30c3bfe4e64280b4568f07146912b46dfd06d327e6eead52b9226700
 - path: assets/world/isloon/terrain/limestone-floor-type-a-v1.png
   source_path: assets/tiles/terrain/road/stone-road-v1.png
   sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
