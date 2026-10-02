@@ -137,3 +137,12 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 ### 자동 회귀검사 종료 기록
 
 `node scripts/run-regression.mjs tests/<대상>.test.mjs`는 각 단계의 종료 코드·종료 신호를 `result.json`의 `steps`에 저장한다. 실행기가 SIGTERM·SIGINT를 받으면 활성 검사에 전달하고 다음 단계는 시작하지 않는다. POSIX에서는 독립 검사 프로세스 그룹에 전달하며 Windows에서는 직접 자식 프로세스에 전달한다. 10초 유예를 넘으면 SIGKILL로 종료한다. 최종 상태는 FAILED, `exitCode`는 128+수신 신호 번호, `terminationSignal`은 수신 신호 이름이다. 결과는 임시 파일 작성 후 이름을 바꿔 확정한다. 실행기 자체의 SIGKILL·호스트 중단·파일시스템 장애에서는 최종 기록을 보장하지 않는다.
+
+
+### 서버 수용 검사 번들 일괄 준비
+
+프론트 저장소 루트에서 `npm run build:backend-acceptance`를 실행한다. 기존 개별 GUI 빌드 9개와 Node용 텍스트·계정 보상·스폰서 검증 모듈 3개를 새 `.tmp/test/backend-client-acceptance/<한국 시각>/`에 생성한다. Node 번들은 esbuild JS API로 생성한다. 서버나 DB를 시작하거나 회귀검사를 실행하지 않는다.
+
+`manifest.json`은 원본 Git 리비전·작업트리 상태, 검사 입력 환경변수 이름과 산출물 절대 경로, 각 파일 SHA-256을 제공한다. 검사 실행 측은 파일 해시를 검증한 뒤 `environment`의 값들을 해당 실행 프로세스에 전달한다. 비밀번호·토큰은 이 파일에 넣지 않는다. 리비전·작업트리 상태 기록은 변경 중인 소스의 원자적 스냅샷 보장이 아니다.
+
+단계 로그와 5초 heartbeat는 `build.log`, 최종 상태는 `result.json`에 보존한다. 하나라도 실패하면 종료 코드 1로 끝내고 완성 manifest를 쓰지 않으며 실패 단계·로그 끝부분을 출력한다. 재실행은 새 경로를 사용한다. 번들 준비 성공과 서버 연결·게임 여정 검사 통과는 구분한다.
