@@ -83,10 +83,16 @@ npm run check:production-browser
 
 ## 자동 회귀검사
 
-전체 검사 파일을 명시하여 실행한다. 실행기는 번역 검사, TypeScript 검사, 테스트를 순서대로 실행하고 로그·heartbeat·종료 코드·최종 결과를 `.tmp/test/frontend-regression/<실행 시각>/`에 보존한다.
+일상 개발에서는 변경에 관련된 검사 파일만 지정한다. 기본 실행은 선택한 테스트만 수행하며 번역·전체 TypeScript 검사를 반복하지 않는다. 로그·heartbeat·종료 코드·최종 결과는 `.tmp/test/frontend-regression/<실행 시각>/`에 보존한다.
 
 ```sh
-node scripts/run-regression.mjs tests/*.test.mjs
+node scripts/run-regression.mjs tests/field-navigation.test.mjs
+```
+
+번역·타입 변경의 통합 확인이나 전체 검증 시에는 `--with-checks`를 명시한다. 번역 검사 → TypeScript 검사 → 선택 테스트 순서로 실행한다. 배포 빌드의 기존 번역·타입 검사는 그대로 유지한다.
+
+```sh
+node scripts/run-regression.mjs --with-checks tests/*.test.mjs
 ```
 
 실제 코스튬 SDK Chrome 검사에는 서버가 배포하는 SDK 원본 파일을 절대 경로로 지정한다. 이 파일을 지정하지 않으면 해당 검사는 건너뛰며, 전체 테스트 성공을 SDK 검증 성공으로 해석하면 안 된다. 테스트는 지정 파일의 SHA-256/SRI와 임시 서명 키를 사용한다. 운영 개인키는 필요하지 않다.
@@ -136,7 +142,7 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 
 ### 자동 회귀검사 종료 기록
 
-`node scripts/run-regression.mjs tests/<대상>.test.mjs`는 각 단계의 종료 코드·종료 신호를 `result.json`의 `steps`에 저장한다. 실행기가 SIGTERM·SIGINT를 받으면 활성 검사에 전달하고 다음 단계는 시작하지 않는다. POSIX에서는 독립 검사 프로세스 그룹에 전달하며 Windows에서는 직접 자식 프로세스에 전달한다. 10초 유예를 넘으면 SIGKILL로 종료한다. 최종 상태는 FAILED, `exitCode`는 128+수신 신호 번호, `terminationSignal`은 수신 신호 이름이다. 결과는 임시 파일 작성 후 이름을 바꿔 확정한다. 실행기 자체의 SIGKILL·호스트 중단·파일시스템 장애에서는 최종 기록을 보장하지 않는다.
+`node scripts/run-regression.mjs tests/<대상>.test.mjs`는 각 단계의 종료 코드·종료 신호·소요 시간(`durationMs`)을 `result.json`의 `steps`에 저장한다. `checksIncluded`는 번역·타입 검사 포함 여부다. 선택 검사 성공은 전체 검사·타입 검사 성공을 뜻하지 않는다. 실행기가 SIGTERM·SIGINT를 받으면 활성 검사에 전달하고 다음 단계는 시작하지 않는다. POSIX에서는 독립 검사 프로세스 그룹에 전달하며 Windows에서는 직접 자식 프로세스에 전달한다. 10초 유예를 넘으면 SIGKILL로 종료한다. 최종 상태는 FAILED, `exitCode`는 128+수신 신호 번호, `terminationSignal`은 수신 신호 이름이다. 결과는 임시 파일 작성 후 이름을 바꿔 확정한다. 실행기 자체의 SIGKILL·호스트 중단·파일시스템 장애에서는 최종 기록을 보장하지 않는다.
 
 
 ### 서버 수용 검사 번들 일괄 준비

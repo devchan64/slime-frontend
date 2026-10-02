@@ -5,8 +5,11 @@ import {createWriteStream} from 'node:fs';
 import {resolve} from 'node:path';
 import {constants} from 'node:os';
 const REGRESSION_TERMINATION_GRACE_MS=10000;
-const currentTestTargets=process.argv.slice(2);
-if(!currentTestTargets.length||currentTestTargets.some(currentTestPath=>!/^tests\/[a-zA-Z0-9_./-]+\.test\.mjs$/.test(currentTestPath)||currentTestPath.includes('..')))throw new Error('tests 안의 검사 파일을 지정하세요.');
+const currentRunnerArguments=process.argv.slice(2);
+const currentChecksEnabled=currentRunnerArguments[0]==='--with-checks';
+const currentTestTargets=currentChecksEnabled?currentRunnerArguments.slice(1):currentRunnerArguments;
+const currentCommandSteps=[...(currentChecksEnabled?[['scripts/check-locales.mjs'],['node_modules/typescript/bin/tsc','-b']]:[]),['--test',...currentTestTargets]];
+if(!currentTestTargets.length||currentTestTargets.some(currentTestPath=>!/^tests\/[a-zA-Z0-9_./-]+\.test\.mjs$/.test(currentTestPath)||currentTestPath.includes('..')))throw new Error('사용법: node scripts/run-regression.mjs [--with-checks] tests/<대상>.test.mjs');
 const currentStartTime=new Date();
 const currentSeoulTimestamp=new Date(currentStartTime.getTime()+9*60*60*1000).toISOString().replace('T','_').replaceAll(':','-').replace('Z','');
 const currentOutputDirectory=resolve('.tmp/test/frontend-regression',currentSeoulTimestamp);
@@ -35,14 +38,15 @@ function terminateRegressionProcess(currentSignalName){
 }
 const currentSignalHandlers=new Map(['SIGTERM','SIGINT'].map(currentSignalName=>[currentSignalName,()=>terminateRegressionProcess(currentSignalName)]));
 for(const [currentSignalName,currentSignalHandler] of currentSignalHandlers)process.on(currentSignalName,currentSignalHandler);
-for(const currentCommandArguments of [['scripts/check-locales.mjs'],['node_modules/typescript/bin/tsc','-b'],['--test',...currentTestTargets]]){
+for(const currentCommandArguments of currentCommandSteps){
  if(currentTerminationSignal)break;
+ const currentStepStarted=performance.now();
  writeRegressionTrace('start',JSON.stringify(currentCommandArguments));
  const currentTestProcess=spawn(process.execPath,currentCommandArguments,{stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  currentActiveProcess=currentTestProcess;
  currentTestProcess.stdout.pipe(currentLogStream,{end:false});currentTestProcess.stderr.pipe(currentLogStream,{end:false});
  const currentHeartbeatTimer=setInterval(()=>writeRegressionTrace('heartbeat',`경과 ${Math.round((Date.now()-currentStartTime.getTime())/1000)}초`),5000);
- currentExitCode=await new Promise(currentResolve=>{currentTestProcess.once('error',currentProcessError=>{writeRegressionTrace('error',String(currentProcessError));currentResolve(1);});currentTestProcess.once('close',(currentProcessCode,currentProcessSignal)=>{currentStepResults.push({command:currentCommandArguments,exitCode:currentProcessCode,signal:currentProcessSignal});currentResolve(currentProcessCode??(currentProcessSignal?128+constants.signals[currentProcessSignal]:1));});});
+ currentExitCode=await new Promise(currentResolve=>{currentTestProcess.once('error',currentProcessError=>{writeRegressionTrace('error',String(currentProcessError));currentResolve(1);});currentTestProcess.once('close',(currentProcessCode,currentProcessSignal)=>{currentStepResults.push({command:currentCommandArguments,exitCode:currentProcessCode,signal:currentProcessSignal,durationMs:Math.round(performance.now()-currentStepStarted)});currentResolve(currentProcessCode??(currentProcessSignal?128+constants.signals[currentProcessSignal]:1));});});
  currentActiveProcess=null;clearTimeout(currentTerminationTimer);
  if(currentTerminationSignal)currentExitCode=128+constants.signals[currentTerminationSignal];
  clearInterval(currentHeartbeatTimer);writeRegressionTrace('finish',`종료 코드 ${currentExitCode}`);
@@ -51,7 +55,7 @@ for(const currentCommandArguments of [['scripts/check-locales.mjs'],['node_modul
 if(currentTerminationSignal)currentExitCode=128+constants.signals[currentTerminationSignal];
 clearTimeout(currentTerminationTimer);
 await new Promise(currentResolve=>currentLogStream.end(currentResolve));
-await writeFile(resolve(currentOutputDirectory,'result.pending.json'),JSON.stringify({status:currentExitCode===0?'PASSED':'FAILED',exitCode:currentExitCode,terminationSignal:currentTerminationSignal,steps:currentStepResults,targets:currentTestTargets,startedAt:currentStartTime.toISOString(),finishedAt:new Date().toISOString()},null,2)+'\n');
+await writeFile(resolve(currentOutputDirectory,'result.pending.json'),JSON.stringify({status:currentExitCode===0?'PASSED':'FAILED',exitCode:currentExitCode,terminationSignal:currentTerminationSignal,steps:currentStepResults,checksIncluded:currentChecksEnabled,targets:currentTestTargets,startedAt:currentStartTime.toISOString(),finishedAt:new Date().toISOString()},null,2)+'\n');
 await rename(resolve(currentOutputDirectory,'result.pending.json'),resolve(currentOutputDirectory,'result.json'));
 for(const [currentSignalName,currentSignalHandler] of currentSignalHandlers)process.removeListener(currentSignalName,currentSignalHandler);
 console.log(`자동 회귀검사 완료: ${currentOutputDirectory} (종료 코드 ${currentExitCode})`);
