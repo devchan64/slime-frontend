@@ -38,8 +38,8 @@ files:
   source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
 - path: assets/terrain/road-v3.webp
-  source_path: assets/tiles/terrain/road/road-v3.webp
-  sha256: d3d5a4f50b68c03a767417aba89349867655069f509fb7acef6f031cfe9e125a
+  source_path: assets/tiles/terrain/road/stone-road-v1.png
+  sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/world/isloon/buildings/marble-large-window-wall-v1.png
   source_path: assets/tiles/buildings/marble/marble-large-window-wall-v1.png
   sha256: cb74be69643edf7376117cf7370b39952833995fee9c39c3f143b7cfd7b685f3
@@ -62,8 +62,8 @@ files:
   source_path: assets/tiles/terrain/road/stone-road-v1.png
   sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/world/reedhaven/terrain/dirt-road-v1.png
-  source_path: assets/tiles/terrain/road/dirt-road-v1.png
-  sha256: 2fe0b1494ec0669db50ab2269bd1d01e7ffd11a295ceb9f45db95f481a00e3cf
+  source_path: assets/tiles/terrain/road/stone-road-v1.png
+  sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/world/stonewarm/buildings/stone-door-v1.png
   source_path: assets/tiles/buildings/stone/stone-door-v1.png
   sha256: 19d3d321953e8dab7d2e8658541c5618ea36286ee71372f7f43971011b0bc09b
@@ -119,8 +119,8 @@ files:
   source_path: assets/tiles/buildings/wood/wood-roof-v4.png
   sha256: 2b9351fff8a262cd9479ccffd5c98a393286c8642ad5d21a6ee60120cad919a2
 - path: assets/terrain/roads/packed-dirt-road-v1.png
-  source_path: assets/tiles/terrain/road/packed-dirt-road-v1.png
-  sha256: 64ccb96f5c19eb1215563559992aab8814170b068fc59ae4a72e5ce9205bb230
+  source_path: assets/tiles/terrain/road/stone-road-v1.png
+  sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/terrain/roads/stone-slab-road-v1.png
   source_path: assets/tiles/terrain/road/stone-road-v1.png
   sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
