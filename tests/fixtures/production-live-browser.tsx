@@ -37,7 +37,7 @@ async function clickProductionButton(currentLocaleKey:string){
   if(currentPath.endsWith('/contracts')&&currentOptions?.method==='POST'){
    assertProductionCondition(currentResponse.ok,'실제 제작 생성 성공');
    currentCreatedRequests.push(JSON.parse(String(currentOptions.body)));
-   if(currentCreatedRequests.length===1)throw new TypeError('제작 성공 응답 유실 검사');
+   if(currentCreatedRequests.length===1||currentCreatedRequests.at(-1).kind==='material')throw new TypeError('제작 성공 응답 유실 검사');
   }
   return currentResponse;
  };
@@ -82,5 +82,23 @@ async function clickProductionButton(currentLocaleKey:string){
  while(currentGameClient.state!.me.hp===currentBeforeFoodHealth&&performance.now()<currentFoodUseDeadline)await waitProductionRender();
  assertProductionCondition(currentGameClient.state!.me.hp===currentBeforeFoodHealth+3,'실제 생산 회복량 적용');
  await waitProductionRender();assertProductionCondition(!document.body.textContent!.includes('젤 곡물식 · Lv.1'),'소진한 배치 가방에서 제거');
- await currentOriginalFetch('/test-result',{method:'POST',body:'PASS: 실제 혼합 제작 GUI·서버 견적·응답 복구·단일 소비·수령·장비 레벨 표시'});
+ currentBagVisible=false;renderProductionPanel();await waitProductionRender();
+ await clickProductionButton('workshop.title');await clickProductionButton('workshop.material');await waitProductionText('표준 가죽끈');
+ const currentMaterialSelect=document.querySelector('select')!;currentMaterialSelect.value='leather-cord';currentMaterialSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitProductionRender();
+ const currentMaterialQuantity=document.querySelector<HTMLInputElement>('input[max="1000"]')!;currentMaterialQuantity.value='4';currentMaterialQuantity.dispatchEvent(new Event('input',{bubbles:true}));await waitProductionRender();
+ const currentBatchInputs=[...document.querySelectorAll<HTMLInputElement>('fieldset input')];
+ for(const [currentInputIndex,currentInputQuantity] of [[0,3],[1,1]]){currentBatchInputs[currentInputIndex].value=String(currentInputQuantity);currentBatchInputs[currentInputIndex].dispatchEvent(new Event('input',{bubbles:true}));await waitProductionRender();}
+ const currentBeforeMaterialCoins=currentGameClient.state!.me.coins;
+ await clickProductionButton('workshop.quote');await waitProductionText('Lv.1');
+ await clickProductionButton('workshop.confirm');await waitProductionText(t('workshop.uncertain'));
+ await clickProductionButton('workshop.confirm');await waitProductionText(t('workshop.inprogress'));
+ assertProductionCondition(currentCreatedRequests.filter(currentRequestEntry=>currentRequestEntry.kind==='material').length===1,'중간재 원장 조회 복구로 중복 생성 방지');
+ assertProductionCondition(currentGameClient.state!.me.coins===currentBeforeMaterialCoins-currentQuotedCost,'중간재 비용 한 번 차감');
+ const currentMaterialCompletion=await currentOriginalFetch('/test-complete-material',{method:'POST'});assertProductionCondition(currentMaterialCompletion.ok,'테스트 중간재 완료 준비');
+ await clickProductionButton('journal.refresh');await clickProductionButton('workshop.claim');await waitProductionText(t('workshop.claimed'));
+ currentBagVisible=true;renderProductionPanel();await waitProductionText('표준 가죽끈 · Lv.1');
+ const currentMaterialInventory=await currentGameClient.request('/v1/game/equipment');
+ const currentMaterialEntry=currentMaterialInventory.bag.items.find((currentItemEntry:any)=>currentItemEntry.definitionId==='leather-cord');
+ assertProductionCondition(currentMaterialEntry?.quantity===4&&currentMaterialEntry.itemLevel===1&&!currentMaterialEntry.useAction,'중간재 4개와 레벨 표시·직접 사용 없음');
+ await currentOriginalFetch('/test-result',{method:'POST',body:'PASS: 실제 장비·소모품·중간재 GUI 생성·응답 복구·수령·가방 검증'});
 }catch(currentError){await currentOriginalFetch('/test-result',{method:'POST',body:'FAIL: '+String(currentError)});}})();
