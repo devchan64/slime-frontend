@@ -643,11 +643,17 @@ test('텍스트 주소 이동은 정규화하고 전송 실패 시 동일 요청
  await currentTextClient.execute('channel id meadow');assert.equal(currentRequestCalls[2].body.channelId,'meadow');
 });
 
-test('텍스트 채널은 잘못된 입력·파티·전투를 전송 전에 거절한다',async()=>{
+test('텍스트 채널은 잘못된 입력·파티·전투·회복 대기를 전송 전에 거절한다',async()=>{
  const {client:currentTextClient,calls:currentRequestCalls}=setup([]);currentTextClient.accept(state());
  for(const currentCommandText of ['channel','channel aa22','channel address a0','channel address a-1','channel id bad/id','channel unknown a1','channels extra'])await assert.rejects(currentTextClient.execute(currentCommandText));
  currentTextClient.state.me.partyId='party';await assert.rejects(currentTextClient.execute('channel address a1'),/파티/);
  currentTextClient.state.me.partyId=null;currentTextClient.state.battle={id:'battle'};await assert.rejects(currentTextClient.execute('channel address a1'),/필드/);
+ currentTextClient.state.battle=null;currentTextClient.state.me.battleId='returning-battle';
+ await assert.rejects(currentTextClient.execute('channel id meadow'),/필드/);
+ currentTextClient.state.me.battleId=null;currentTextClient.state.me.healthRecoveryPending=true;
+ await assert.rejects(currentTextClient.execute('channel address a1'),/50%.*state/);
+ currentTextClient.state.me.healthRecoveryPending=false;currentTextClient.state.me.hp=0;
+ await assert.rejects(currentTextClient.execute('channel id meadow'),/50%.*state/);
  assert.equal(currentRequestCalls.length,0);
 });
 
