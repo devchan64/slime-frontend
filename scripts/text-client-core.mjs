@@ -1,3 +1,4 @@
+import {executeRefiningMissionCommand} from './text-refining-missions.mjs';
 import {validateExplorationResult,describeExplorationReward} from '../src/client/exploration-result.mjs';
 import {isHealthDepleted} from '../src/client/health-state.mjs';
 import {createServiceRequestResolver} from "../src/client/service-request-url.mjs";
@@ -205,6 +206,7 @@ export class TextClient {
       &&!(name==='processing'&&['catalog','contracts','facilities'].includes(args[0]))
       &&!(name==='npc'&&['list','talk'].includes(args[0]))
       &&!(name==='substitute'&&args[0]==='list')
+      &&!(name==='missions'&&args[0]==='list')
       &&!(name==='equipment'&&['list','history'].includes(args[0]))
       &&!(name==='workshop'&&['catalog','contracts'].includes(args[1]))
       &&!(name==='consumables'&&['catalog','contracts'].includes(args[0]))
@@ -215,6 +217,7 @@ export class TextClient {
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
     if (name === 'party') return executeOnlinePartyCommand(this,args);
+    if (name === 'missions') return executeRefiningMissionCommand(this,args);
     if (name === 'equipment') return executeEquipmentCommand(this,args);
     if (name === 'workshop') return executeWorkshopCommand(this,args);
     if (name === 'consumables') return executeConsumableCommand(this,args);

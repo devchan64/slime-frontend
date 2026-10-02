@@ -19,6 +19,7 @@ citizenship guilds      현재 맵 길드 ID·입구 조회
 citizenship quote 길드ID 시민권 발급 견적
 citizenship buy 길드ID  확인한 견적으로 시민권 발급
 equipment history 개체ID [이전버전] 장비 변경 이력 조회
+missions list [조회위치] / cancel 임무ID 정제 임무 기록·무환불 취소
 equipment list [다음커서] / equip 개체ID / unequip 슬롯 장비 조회·장착·해제
 workshop craft|repair|consumable catalog 시설ID [다음커서] 품목·수리 대상 조회
 workshop craft|repair|consumable quote 시설ID 품목ID [소모품 수량] 견적
