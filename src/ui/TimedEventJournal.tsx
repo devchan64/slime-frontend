@@ -35,10 +35,10 @@ export function TimedEventJournal({gameSessionClient,actionsAreDisabled}:{gameSe
    {currentJournalPage&&!currentJournalPage.entries.length&&<p>{translateTimedText('timedquests.empty')}</p>}
    <ul>{currentJournalPage?.entries.map(currentQuestEntry=><li key={currentQuestEntry.offerId}>
     <strong>{currentQuestEntry.title}</strong><p>{translateTimedText(currentQuestEntry.status==='EXPIRED'?'timedquests.expired':currentQuestEntry.status==='COMPLETED'?'journal.completed':'journal.accepted')}</p>
-    <p>{translateTimedText('timedquests.destination',{name:currentQuestEntry.destination.name})}</p>
+    <p>{translateTimedText('npc.destination',{city:currentQuestEntry.destination.cityNameTranslations[currentDisplayLocale],name:currentQuestEntry.destination.name})}</p>
     <p>{translateTimedText('timedquests.deliverBefore',{time:new Date(currentQuestEntry.deliveryDeadline*1000).toLocaleString(currentDisplayLocale)})}</p>
     {currentQuestEntry.items.map(currentItemEntry=><p key={currentItemEntry.itemId}>{translateTimedText('journal.material',{name:currentItemEntry.nameTranslations[currentDisplayLocale],owned:currentItemEntry.owned,required:currentItemEntry.required})}</p>)}
-    <p>{translateTimedText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>
+    {currentQuestEntry.status!=='EXPIRED'&&<p>{translateTimedText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>}
    </li>)}</ul>
    {currentJournalPage?.nextOffset!==null&&currentJournalPage&&<button disabled={actionsAreDisabled||currentRequestBusy} onClick={()=>void loadTimedJournalPage(currentJournalPage.nextOffset!)}>{translateTimedText('timedquests.next')}</button>}
   </div>}

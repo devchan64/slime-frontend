@@ -84,5 +84,7 @@ async function clickDeliveryButton(currentTranslationKey:string){const currentBu
  verifyDeliveryCondition(currentMutationRequests.length===currentBeforeTimedRequests+2&&document.body.textContent?.includes(t('npc.completed')),'확인 후 기간 의뢰 한 번 전달');
  currentQuestCompleted=false;currentTimedExpired=true;await clickDeliveryButton('journal.refresh');await waitRenderCycle();
  verifyDeliveryCondition(document.body.textContent?.includes(t('timedquests.expired'))&&!findNamedButton(t('npc.complete'))&&!findNamedButton(t('npc.accept')),'만료 의뢰는 무보상과 실행 불가 표시');
+ verifyDeliveryCondition(!document.body.textContent?.includes(t('npc.destinationCitizenship',{city:createTimedFixtureEntry().destination.cityNameTranslations[getLocale()]})),'만료 후 시민권 구입 안내 제거');
+ verifyDeliveryCondition(!document.body.textContent?.includes(t('journal.reward',{amount:5})),'만료 후 예정 보상 안내 제거');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionLabels});
 }catch(currentFailureError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailureError),stack:(currentFailureError as Error).stack,assertions:currentAssertionLabels});}})();
