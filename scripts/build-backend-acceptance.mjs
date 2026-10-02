@@ -1,9 +1,9 @@
 // 서버 수용 검사에 전달하는 공개 클라이언트 산출물과 해시·입력 목록을 함께 만든다.
 import {build} from 'esbuild';
-import {spawn,execFileSync} from 'node:child_process';
-import {mkdir,readFile,writeFile,appendFile} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {mkdir,readFile,readdir,writeFile,appendFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {resolve} from 'node:path';
+import {resolve,dirname} from 'node:path';
 
 const ACCEPTANCE_BROWSER_TARGETS=[
  ['costume','SLIME_COSTUME_BROWSER_BUNDLE'],
@@ -21,6 +21,20 @@ const ACCEPTANCE_NODE_TARGETS=[
  ['src/client/accountRewards.ts','account-rewards.mjs',['SLIME_ACCOUNT_REWARD_CLIENT_BUNDLE']],
  ['src/client/sponsor-sdk-verification.mjs','sponsor-verification.mjs',['SLIME_SPONSOR_VERIFICATION_MODULE']],
 ];
+const ACCEPTANCE_BROWSER_FIXTURES=Object.fromEntries([
+ ...ACCEPTANCE_BROWSER_TARGETS.map(([currentTargetName])=>[currentTargetName,`tests/fixtures/${currentTargetName}-live-browser.${currentTargetName==='split-service'?'ts':'tsx'}`]),
+ ['production','tests/fixtures/production-live-browser.tsx'],
+ ['refining-mission','tests/fixtures/refining-mission-live-browser.tsx'],
+]);
+const ACCEPTANCE_LOCALE_EXPRESSION="import.meta.glob('./locales/*/*.yaml', { query: '?raw', import: 'default', eager: true })";
+const currentCommandArguments=process.argv.slice(2);
+if(currentCommandArguments.length!==0 && (currentCommandArguments.length!==2 || !Object.hasOwn(ACCEPTANCE_BROWSER_FIXTURES,currentCommandArguments[0]))) {
+ throw new Error(`사용법: node scripts/build-backend-acceptance.mjs [대상 출력.js]; 대상: ${Object.keys(ACCEPTANCE_BROWSER_FIXTURES).join(', ')}`);
+}
+const currentSingleTarget=currentCommandArguments[0];
+const currentBrowserTargets=currentSingleTarget?[[currentSingleTarget,ACCEPTANCE_BROWSER_TARGETS.find(([currentTargetName])=>currentTargetName===currentSingleTarget)?.[1]]]:ACCEPTANCE_BROWSER_TARGETS;
+const currentNodeTargets=currentSingleTarget?[]:ACCEPTANCE_NODE_TARGETS;
+const currentArtifactTotal=currentBrowserTargets.length+currentNodeTargets.length;
 const ACCEPTANCE_HEARTBEAT_MILLISECONDS=5000;
 const currentRunTimestamp=new Date(Date.now()+9*60*60*1000).toISOString().replace('T','_').replaceAll(':','-').replace('Z','');
 const currentOutputRoot=resolve('.tmp/test/backend-client-acceptance',currentRunTimestamp);
@@ -41,33 +55,46 @@ async function captureAcceptanceArtifact(currentArtifactPath,currentEnvironmentN
  for(const currentEnvironmentName of currentEnvironmentNames)currentManifestEnvironment[currentEnvironmentName]=currentArtifactPath;
 }
 async function executeBrowserBuilder(currentBuilderName,currentArtifactPath){
- const currentCommandArguments=[`scripts/build-${currentBuilderName}-browser-test.mjs`,currentArtifactPath];
- await writeAcceptanceTrace('command',JSON.stringify([process.execPath,...currentCommandArguments]));
- const currentBuildChunks=[];
- const currentChildProcess=spawn(process.execPath,currentCommandArguments,{stdio:['ignore','pipe','pipe']});
- currentChildProcess.stdout.on('data',currentOutputChunk=>currentBuildChunks.push(currentOutputChunk));
- currentChildProcess.stderr.on('data',currentOutputChunk=>currentBuildChunks.push(currentOutputChunk));
- const currentExitStatus=await new Promise((currentResolveExit,currentRejectExit)=>{
-  currentChildProcess.once('error',currentRejectExit);
-  currentChildProcess.once('close',(currentExitCode,currentExitSignal)=>currentResolveExit({code:currentExitCode,signal:currentExitSignal}));
+ const currentLocaleSources={};
+ for(const currentLocaleName of ['ko','en'])for(const currentFileName of await readdir(`src/i18n/locales/${currentLocaleName}`)) {
+  currentLocaleSources[`./locales/${currentLocaleName}/${currentFileName}`]=await readFile(`src/i18n/locales/${currentLocaleName}/${currentFileName}`,'utf8');
+ }
+ const currentBuildDefinitions={'import.meta.env.VITE_API_BASE_URL':'""'};
+ if(currentBuilderName==='split-service')Object.assign(currentBuildDefinitions,{
+  'import.meta.env.VITE_API_BASE_URL':'globalThis.__SLIME_SPLIT_CONTEXT__.gameOrigin',
+  'import.meta.env.VITE_IDENTITY_API_BASE_URL':'globalThis.__SLIME_SPLIT_CONTEXT__.identityOrigin',
  });
- await appendFile(currentLogPath,Buffer.concat(currentBuildChunks));
- if(currentExitStatus.code!==0)throw new Error(`검사 번들 생성 실패: ${currentBuilderName}, ${JSON.stringify(currentExitStatus)}`);
+ if(currentBuilderName==='costume-sponsor')currentBuildDefinitions['import.meta.env.VITE_SPONSOR_PUBLIC_KEY']='globalThis.__TEST_SPONSOR_PUBLIC_KEY';
+ await writeAcceptanceTrace('browser-build',`${currentBuilderName}: ${currentArtifactPath}`);
+ await mkdir(dirname(currentArtifactPath),{recursive:true});
+ await build({entryPoints:[ACCEPTANCE_BROWSER_FIXTURES[currentBuilderName]],bundle:true,platform:'browser',format:'iife',
+  jsx:'automatic',jsxImportSource:'preact',outfile:currentArtifactPath,define:currentBuildDefinitions,plugins:[{
+   name:'acceptance-browser-locales',setup(currentBuildContext){
+    if(currentBuilderName==='costume-sponsor')currentBuildContext.onLoad({filter:/CostumeDescription\.tsx$/},async({path:currentModulePath})=>({
+     contents:(await readFile(currentModulePath,'utf8')).replace('ready.catch(()=>{','ready.catch((currentDisplayError)=>{globalThis.__TEST_SPONSOR_ERROR=String(currentDisplayError);'),loader:'tsx',
+    }));
+    currentBuildContext.onLoad({filter:/\/i18n\/index\.ts$/},async({path:currentModulePath})=>{
+     const currentModuleSource=await readFile(currentModulePath,'utf8');
+     if(!currentModuleSource.includes(ACCEPTANCE_LOCALE_EXPRESSION))throw new Error(`언어팩 주입 위치가 없습니다: ${currentModulePath}`);
+     return {contents:currentModuleSource.replace(ACCEPTANCE_LOCALE_EXPRESSION,JSON.stringify(currentLocaleSources)),loader:'ts'};
+    });
+   },
+  }]});
 }
 const currentHeartbeatTimer=setInterval(()=>{
- writeAcceptanceTrace('heartbeat',`${currentBuildStage}; 완료 ${currentManifestArtifacts.length}/12`).catch(currentLogError=>{console.error(currentLogError);process.exitCode=1;});
+ writeAcceptanceTrace('heartbeat',`${currentBuildStage}; 완료 ${currentManifestArtifacts.length}/${currentArtifactTotal}`).catch(currentLogError=>{console.error(currentLogError);process.exitCode=1;});
 },ACCEPTANCE_HEARTBEAT_MILLISECONDS);
 try{
  const currentSourceRevision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
  const currentWorkingTreeStatus=execFileSync('git',['status','--porcelain'],{encoding:'utf8'});
  await writeAcceptanceTrace('start',`출력 ${currentOutputRoot}; 원본 ${currentSourceRevision}`);
- for(const [currentBuilderName,currentEnvironmentName] of ACCEPTANCE_BROWSER_TARGETS){
+ for(const [currentBuilderName,currentEnvironmentName] of currentBrowserTargets){
   currentBuildStage=currentBuilderName;
-  const currentArtifactPath=resolve(currentOutputRoot,currentBuilderName+'.js');
+  const currentArtifactPath=currentSingleTarget?resolve(currentCommandArguments[1]):resolve(currentOutputRoot,currentBuilderName+'.js');
   await executeBrowserBuilder(currentBuilderName,currentArtifactPath);
-  await captureAcceptanceArtifact(currentArtifactPath,[currentEnvironmentName]);
+  await captureAcceptanceArtifact(currentArtifactPath,currentEnvironmentName?[currentEnvironmentName]:[]);
  }
- for(const [currentSourcePath,currentOutputName,currentEnvironmentNames] of ACCEPTANCE_NODE_TARGETS){
+ for(const [currentSourcePath,currentOutputName,currentEnvironmentNames] of currentNodeTargets){
   currentBuildStage=currentSourcePath;
   const currentArtifactPath=resolve(currentOutputRoot,currentOutputName);
   await writeAcceptanceTrace('node-build',currentSourcePath);

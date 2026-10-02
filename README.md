@@ -130,7 +130,7 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 
 ### 분리 서버 브라우저 통신 검사 번들
 
-`node scripts/build-split-service-browser-test.mjs <출력 JS 절대 경로>`는 공개 `Client`를 포함한 브라우저 검사 번들을 만든다. 출력은 `.tmp/test/split-service-browser/<한국 시각>/client.js`에 보관하고 서버 검증 측으로 명시적으로 전달한다. 실행 측은 HTML에서 번들보다 먼저 `globalThis.__SLIME_SPLIT_CONTEXT__`에 `gameOrigin`, `identityOrigin`, `password`(일회 테스트 계정용), `rejectOrigin`을 주입하고 `/test-result` POST 결과를 수집한다. 비밀번호·토큰을 번들·실행 로그·Git에 저장하지 않는다.
+`node scripts/build-backend-acceptance.mjs split-service <출력 JS 절대 경로>`는 공개 `Client`를 포함한 브라우저 검사 번들을 만든다. 출력은 `.tmp/test/split-service-browser/<한국 시각>/client.js`에 보관하고 서버 검증 측으로 명시적으로 전달한다. 실행 측은 HTML에서 번들보다 먼저 `globalThis.__SLIME_SPLIT_CONTEXT__`에 `gameOrigin`, `identityOrigin`, `password`(일회 테스트 계정용), `rejectOrigin`을 주입하고 `/test-result` POST 결과를 수집한다. 비밀번호·토큰을 번들·실행 로그·Git에 저장하지 않는다.
 
 실제 Chrome의 별도 origin에서 인증·게임 HTTP와 게임 WebSocket을 사용한다. 정상 경로는 가입·로그인·생성·입장·토큰 갱신·로그아웃·기존 토큰 401·재로그인 후 캐릭터 보존을 검사한다. `rejectOrigin`은 CORS 미허용 origin의 JSON 가입 요청 차단 검사다. fetch는 목적지 origin/path만 기록하고 실제 요청·응답을 대체하지 않는다. 실제 UI 버튼·전체 WebGL 플레이·운영 TLS 수용을 대신하지 않는다. 번들의 출처와 SHA-256은 실행 측에서 기록한다.
 
@@ -141,7 +141,9 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 
 ### 서버 수용 검사 번들 일괄 준비
 
-프론트 저장소 루트에서 `npm run build:backend-acceptance`를 실행한다. 기존 개별 GUI 빌드 9개와 Node용 텍스트·계정 보상·스폰서 검증 모듈 3개를 새 `.tmp/test/backend-client-acceptance/<한국 시각>/`에 생성한다. Node 번들은 esbuild JS API로 생성한다. 서버나 DB를 시작하거나 회귀검사를 실행하지 않는다.
+프론트 저장소 루트에서 `npm run build:backend-acceptance`를 실행한다. GUI 번들 9개와 Node용 텍스트·계정 보상·스폰서 검증 모듈 3개를 새 `.tmp/test/backend-client-acceptance/<한국 시각>/`에 생성한다. 모든 번들은 공용 esbuild 구현으로 생성한다. 서버나 DB를 시작하거나 회귀검사를 실행하지 않는다.
+
+단일 GUI 번들은 `node scripts/build-backend-acceptance.mjs <대상> <출력.js>`로 생성한다. 대상은 `costume`, `costume-sponsor`, `npc`, `parcel`, `production`, `refining`, `refining-mission`, `skillbook`, `split-service`, `substitute-hunt`, `traveler-barter`다. `production`과 `refining-mission`은 단일 생성으로 준비한다. 실행 기록은 위 실행별 폴더에 저장한다. 기능별 `build-*-browser-test.mjs`는 공용 빌더로 통합하여 폐기했으며 새 기능도 이 진입점에 등록한다.
 
 `manifest.json`은 원본 Git 리비전·작업트리 상태, 검사 입력 환경변수 이름과 산출물 절대 경로, 각 파일 SHA-256을 제공한다. 검사 실행 측은 파일 해시를 검증한 뒤 `environment`의 값들을 해당 실행 프로세스에 전달한다. 비밀번호·토큰은 이 파일에 넣지 않는다. 리비전·작업트리 상태 기록은 변경 중인 소스의 원자적 스냅샷 보장이 아니다.
 

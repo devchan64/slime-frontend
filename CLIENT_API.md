@@ -211,7 +211,7 @@ GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공
 
 가공 GUI 브라우저 회귀는 `node --test tests/refining-panel-browser.test.mjs`로 실행합니다. `CHROME_BIN` 또는 `/usr/bin/google-chrome`이 필요합니다. 실제 Preact 패널·언어팩·스타일을 사용하며 HTTP 경계는 테스트 응답으로 대체합니다. 한국어·영어에서 수량 선택, 견적, 계약·수령 실패 후 재시도, 생성 후 목록 갱신, 수령 버튼 제거, 다른 시설 목록 거절을 검사합니다. 결과 DOM·스크린샷·로그는 `.tmp/test/refining-ui-browser/<한국시간>/`에 저장합니다. 실제 API 연결과 게임 전체 화면 검증은 별도입니다.
 
-실제 API 연결용 GUI 번들은 `node scripts/build-refining-browser-test.mjs /tmp/slime-refining-live-browser.js`로 준비합니다. 테스트 서버가 같은 출처에서 `/test-context`(테스트 토큰), `/test-bundle.js`, `/test-result`를 제공하고, `/test-complete-contract`는 전용 테스트 DB의 해당 가공 계약만 완료 상태로 준비합니다. 이 경로는 제품 API에 추가하지 않습니다. 번들은 실제 `Client`·가공 패널·언어팩을 사용하며 `fetch` 응답을 대체하지 않습니다. 백엔드의 별도 통합 검사에 `SLIME_PROCESSING_BROWSER_BUNDLE`로 명시적으로 전달하고 `slime_test`에서만 실행합니다. 게임 전체 App·이동·로그인 화면과 시각적 배치 검증은 이 검사에 포함하지 않습니다.
+실제 API 연결용 GUI 번들은 `node scripts/build-backend-acceptance.mjs refining /tmp/slime-refining-live-browser.js`로 준비합니다. 테스트 서버가 같은 출처에서 `/test-context`(테스트 토큰), `/test-bundle.js`, `/test-result`를 제공하고, `/test-complete-contract`는 전용 테스트 DB의 해당 가공 계약만 완료 상태로 준비합니다. 이 경로는 제품 API에 추가하지 않습니다. 번들은 실제 `Client`·가공 패널·언어팩을 사용하며 `fetch` 응답을 대체하지 않습니다. 백엔드의 별도 통합 검사에 `SLIME_PROCESSING_BROWSER_BUNDLE`로 명시적으로 전달하고 `slime_test`에서만 실행합니다. 게임 전체 App·이동·로그인 화면과 시각적 배치 검증은 이 검사에 포함하지 않습니다.
 
 ### 텍스트 시민권 발급
 
@@ -280,7 +280,7 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 
 ### 실제 서점 GUI 연동 검사
 
-`node scripts/build-skillbook-browser-test.mjs <출력.js>`로 실제 `SkillbookPanel`·`Client`를 사용하는 검사 번들을 만든다. 백엔드 자동화 회귀 실행 시 `SLIME_SKILLBOOK_BROWSER_BUNDLE`에 이 파일의 절대 경로를 전달하고 `tests/test_skillbook_live_browser.py`를 선택한다. 검사 서버가 인증 문맥을 제공하며 Chrome에서 구매·열람의 첫 성공 응답을 각각 유실시키고 같은 버튼으로 재시도한다. 요청 본문 유지, 완료 표시, 재열람 무변경을 확인하고 서버 검사가 DB의 단일 결제·소유 기록을 확인한다. 번들은 검사용 산출물이며 제품 런타임 의존성이 아니다.
+`node scripts/build-backend-acceptance.mjs skillbook <출력.js>`로 실제 `SkillbookPanel`·`Client`를 사용하는 검사 번들을 만든다. 백엔드 자동화 회귀 실행 시 `SLIME_SKILLBOOK_BROWSER_BUNDLE`에 이 파일의 절대 경로를 전달하고 `tests/test_skillbook_live_browser.py`를 선택한다. 검사 서버가 인증 문맥을 제공하며 Chrome에서 구매·열람의 첫 성공 응답을 각각 유실시키고 같은 버튼으로 재시도한다. 요청 본문 유지, 완료 표시, 재열람 무변경을 확인하고 서버 검사가 DB의 단일 결제·소유 기록을 확인한다. 번들은 검사용 산출물이며 제품 런타임 의존성이 아니다.
 
 전투 상태의 선택적 `apRecoveryPolicyVersion`은 자기 턴 AP 회복의 반올림 방식을 고정한다. `2`는 최대 AP의 절반을 내림하고 `1` 또는 필드가 없는 저장 전투는 기존 반올림을 유지한다. AP 패널의 회복량과 규칙 설명은 이 값을 함께 사용한다. 새 필드를 이해하는 클라이언트를 먼저 배포해야 신규 전투의 안내가 서버 판정과 일치한다.
 
@@ -367,7 +367,7 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 
 정제 임무 목록 응답의 `destinations`는 해당 페이지의 임무 ID를 키로 정제 도시 번역명(`refiningCityNameTranslations`), 전달 도시 번역명(`receiverCityNameTranslations`), 전달 NPC 이름(`receiverName`)을 제공한다. 저장 견적과 분리된 현재 카탈로그 표시 정보다. 정제 도시와 전달 도시는 서로 다를 수 있다. 직전 v1 응답에 이 필드가 없으면 목적지 표시만 생략하며, 필드가 있으면 페이지 ID 집합과 두 언어 이름을 검증한다. 취소 확인창에는 선택한 임무의 결과 재료·목적지·수락 시각을 표시한다.
 
-실제 서버 연결용 정제 임무 검사 번들은 `node scripts/build-refining-mission-browser-test.mjs /tmp/slime-refining-mission-live-browser.js`로 생성한다. 백엔드 전용 검사에 `SLIME_MISSION_BROWSER_BUNDLE`로 전달하며 소스 저장소를 런타임에 가져오지 않는다. 실제 Client·패널·API를 사용하고 최초 취소 성공 응답만 브라우저에서 유실시켜 동일 요청의 영수증·단일 버전 증가·무환불·재고 보존을 검사한다. `/test-context`·`/test-result` 등은 검사 서버 전용이며 제품 API가 아니다. 전체 App·신규 수락·운영 배포 검증과 구분한다.
+실제 서버 연결용 정제 임무 검사 번들은 `node scripts/build-backend-acceptance.mjs refining-mission /tmp/slime-refining-mission-live-browser.js`로 생성한다. 백엔드 전용 검사에 `SLIME_MISSION_BROWSER_BUNDLE`로 전달하며 소스 저장소를 런타임에 가져오지 않는다. 실제 Client·패널·API를 사용하고 최초 취소 성공 응답만 브라우저에서 유실시켜 동일 요청의 영수증·단일 버전 증가·무환불·재고 보존을 검사한다. `/test-context`·`/test-result` 등은 검사 서버 전용이며 제품 API가 아니다. 전체 App·신규 수락·운영 배포 검증과 구분한다.
 
 장비 생산 레벨은 장비 목록의 선택적 `itemLevel`(1 또는 2)·`performanceVersion`(양의 정수) 쌍으로 표시한다. 둘 다 없는 기존 장비에는 레벨을 추정하지 않는다. 가방·장착 화면·텍스트 장비 목록은 서버가 제공한 레벨을 이름과 함께 표시한다. 공방 견적·계약의 선택적 `productionResult`도 검증하여 레벨을 표시한다.
 
@@ -379,7 +379,7 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 
 텍스트 혼합 제작: `workshop craft quote 시설ID 품목ID 재료ID=수량 [재료ID=수량 ...]`. 예: `workshop craft quote iseulon-workshop leather-vest tanned-leather-low=2 tanned-leather-medium=2`. 견적을 확인한 뒤 `workshop craft create iseulon-workshop`로 확정한다. `catalog`는 등록 재료 ID·보유량·필요 총수량을 표시한다. 혼합 인자를 생략하면 기존 지정 재료 경로를 유지한다.
 
-실제 혼합 제작 GUI 검사용 번들은 `node scripts/build-production-browser-test.mjs /tmp/slime-production-live-browser.js`로 생성한다. 백엔드 자동화 검사에 `SLIME_PRODUCTION_BROWSER_BUNDLE`로 절대 경로를 전달하고 `tests/test_production_live_browser.py`를 실행한다. 실제 Client·공방·장비 패널과 API를 연결하며 첫 제작 성공 응답 유실 후 저장 영수증 복구, 재료·비용 단일 차감, 수령 후 한국어·영어 레벨 표시를 확인한다. 시민권·재료는 테스트 캐릭터에 준비하며 제작 대기는 테스트 전용 경로로 완료시킨다. 전용 `slime_test` DB에서만 실행하며 전체 App·재료 획득·실제 대기 시간·시각 배치 검증은 포함하지 않는다. 검사 번들은 명시적으로 전달하는 산출물이며 다른 저장소 소스는 런타임 의존성이 아니다.
+실제 혼합 제작 GUI 검사용 번들은 `node scripts/build-backend-acceptance.mjs production /tmp/slime-production-live-browser.js`로 생성한다. 백엔드 자동화 검사에 `SLIME_PRODUCTION_BROWSER_BUNDLE`로 절대 경로를 전달하고 `tests/test_production_live_browser.py`를 실행한다. 실제 Client·공방·장비 패널과 API를 연결하며 첫 제작 성공 응답 유실 후 저장 영수증 복구, 재료·비용 단일 차감, 수령 후 한국어·영어 레벨 표시를 확인한다. 시민권·재료는 테스트 캐릭터에 준비하며 제작 대기는 테스트 전용 경로로 완료시킨다. 전용 `slime_test` DB에서만 실행하며 전체 App·재료 획득·실제 대기 시간·시각 배치 검증은 포함하지 않는다. 검사 번들은 명시적으로 전달하는 산출물이며 다른 저장소 소스는 런타임 의존성이 아니다.
 
 생산 소모품 가방 항목은 `id: production-batch:<batchId>`와 `batchId`·`definitionId`·`itemLevel`(1/2)·`performanceVersion`을 함께 제공한다. 구형 품목별 항목과 ID를 분리하며 GUI·텍스트는 저장된 레벨을 이름 뒤에 표시한다. 배치 수량은 가방 무게 합계에 포함된다. 내부 원료 출처·품질·평가가치는 공개하지 않는다. 회복 배치는 고정 회복량의 `useAction`을 제공한다. 기존 `/v1/game/consumables/use`에 가방 항목 ID(`production-batch:<batchId>`)를 그대로 전달하며 텍스트는 `use-item production-batch:<batchId>`를 사용한다. 표식 배치도 같은 경로로 사용하며 `PLACE_MARKER`의 저장된 유지 시간을 적용한다. 응급처치 배치 사용은 별도 연결 전이다. 검증: `node scripts/run-regression.mjs tests/bag.test.mjs tests/bag-panel-session.test.mjs`.
 
