@@ -1,5 +1,6 @@
 import {render} from 'preact';
 import {WorkshopPanel} from '../../src/ui/WorkshopPanel';
+import {BagPanel} from '../../src/ui/BagPanel';
 import {EquipmentPanel} from '../../src/ui/EquipmentPanel';
 import {Client} from '../../src/client/api';
 import {t,setLocale} from '../../src/i18n';
@@ -8,9 +9,10 @@ const currentOriginalFetch=globalThis.fetch.bind(globalThis);
 const currentCreatedRequests:any[]=[];
 let currentQuotedCost=0;
 let currentEquipmentVisible=false;
+let currentBagVisible=false;
 const waitProductionRender=()=>new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,100));
 function assertProductionCondition(currentCondition:unknown,currentMessage:string){if(!currentCondition)throw new Error(currentMessage);}
-function renderProductionPanel(){render(currentEquipmentVisible?<EquipmentPanel gameSessionClient={currentGameClient} actionsAreDisabled={false} characterStateVersion={currentGameClient.state!.me.version}/>:<WorkshopPanel gameSessionClient={currentGameClient} currentFacilityIdentifier="iseulon-workshop" actionsAreDisabled={false}/>,document.getElementById('root')!);}
+function renderProductionPanel(){render(currentBagVisible?<BagPanel me={currentGameClient.state!.me} gameSessionClient={currentGameClient} actionsAreDisabled={false} submitConsumableUse={currentItemIdentifier=>currentGameClient.command('/v1/game/consumables/use',{itemId:currentItemIdentifier})}/>:currentEquipmentVisible?<EquipmentPanel gameSessionClient={currentGameClient} actionsAreDisabled={false} characterStateVersion={currentGameClient.state!.me.version}/>:<WorkshopPanel gameSessionClient={currentGameClient} currentFacilityIdentifier="iseulon-workshop" actionsAreDisabled={false}/>,document.getElementById('root')!);}
 async function waitProductionText(currentExpectedText:string){
  const currentDeadlineTime=performance.now()+10000;
  while(performance.now()<currentDeadlineTime){if(document.body.textContent!.includes(currentExpectedText))return;await waitProductionRender();}
@@ -62,5 +64,23 @@ async function clickProductionButton(currentLocaleKey:string){
  setLocale('en');await waitProductionRender();await waitProductionText('Leather Vest · Lv.2');
  const currentInventory=await currentGameClient.request('/v1/game/equipment');
  assertProductionCondition(currentInventory.items.length===1&&currentInventory.items[0].itemLevel===2&&currentInventory.items[0].statBonus.defenseFlat===2&&currentInventory.items[0].maxDurability===72,'실제 레벨 2 성능 개체 한 개');
+ setLocale('ko');currentEquipmentVisible=false;renderProductionPanel();await waitProductionRender();
+ await clickProductionButton('workshop.title');await clickProductionButton('workshop.consumable');await waitProductionText('젤 곡물식');
+ const currentFoodSelect=document.querySelector('select')!;currentFoodSelect.value='gel-ration';currentFoodSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitProductionRender();
+ assertProductionCondition(document.querySelectorAll('fieldset').length===2,'실제 소모품 두 슬롯 표시');
+ const currentBeforeFoodCoins=currentGameClient.state!.me.coins;
+ await clickProductionButton('workshop.quote');await waitProductionText('Lv.1');
+ await clickProductionButton('workshop.confirm');await waitProductionText(t('workshop.inprogress'));
+ assertProductionCondition(currentGameClient.state!.me.coins===currentBeforeFoodCoins-currentQuotedCost,'소모품 비용 단일 차감');
+ const currentFoodCompletion=await currentOriginalFetch('/test-complete-consumable',{method:'POST'});assertProductionCondition(currentFoodCompletion.ok,'테스트 소모품 완료 준비');
+ await clickProductionButton('journal.refresh');await clickProductionButton('workshop.claim');await waitProductionText(t('workshop.claimed'));
+ currentBagVisible=true;renderProductionPanel();await waitProductionText('젤 곡물식 · Lv.1');
+ const currentBeforeFoodHealth=currentGameClient.state!.me.hp!;
+ const currentFoodUseButton=[...document.querySelectorAll<HTMLButtonElement>('button')].find(currentButton=>currentButton.textContent?.includes('HP')&&currentButton.textContent.includes('3'));
+ assertProductionCondition(currentFoodUseButton&&!currentFoodUseButton.disabled,'생산 회복 사용 버튼 활성');currentFoodUseButton!.click();
+ const currentFoodUseDeadline=performance.now()+10000;
+ while(currentGameClient.state!.me.hp===currentBeforeFoodHealth&&performance.now()<currentFoodUseDeadline)await waitProductionRender();
+ assertProductionCondition(currentGameClient.state!.me.hp===currentBeforeFoodHealth+3,'실제 생산 회복량 적용');
+ await waitProductionRender();assertProductionCondition(!document.body.textContent!.includes('젤 곡물식 · Lv.1'),'소진한 배치 가방에서 제거');
  await currentOriginalFetch('/test-result',{method:'POST',body:'PASS: 실제 혼합 제작 GUI·서버 견적·응답 복구·단일 소비·수령·장비 레벨 표시'});
 }catch(currentError){await currentOriginalFetch('/test-result',{method:'POST',body:'FAIL: '+String(currentError)});}})();
