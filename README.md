@@ -120,3 +120,10 @@ Compose는 `slime-assets`를 별도 BuildKit context로 전달한다. 빌드 단
 Vite 개발 서버와 nginx는 `/v1/`·`/v2/`를 API로 전달한다. v2 코스튬 카탈로그를 정적 SPA로 처리하지 않으며 기존 v1 경로·쿼리·메서드·오류 응답을 유지한다. `node scripts/run-regression.mjs tests/versioned-proxy.test.mjs`는 실제 Vite와 로컬 HTTP 응답 서버로 검사한다.
 
 nginx까지 검사하려면 `SLIME_NGINX_TEST_IMAGE`에 `build:docker:verified`로 생성한 로컬 nginx 이미지 태그를 지정한다. 테스트는 현재 `nginx.conf`를 읽기 전용으로 연결한 임시 컨테이너 두 개와 전용 Docker 네트워크를 생성하고 종료 시 해당 자원만 제거한다. 운영 컨테이너는 사용하지 않는다. 이미지 미지정 시 nginx 검사는 건너뛰므로 통과 증거로 보지 않는다. 기록은 `.tmp/test/versioned-proxy/<한국 시각>/`에 저장한다. 모의 API의 실제 HTTP 전달 검사이며 게임 API·WebSocket·CORS·운영 배포 전체 수용을 대신하지 않는다.
+
+
+### 프론트 의존성 보안 갱신 (2026-10-02)
+
+Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS 8.5.28·nanoid 3.3.19를 반영했다. npm 감사의 기존 5개 취약 패키지는 갱신 후 0개다. 이는 해당 시점의 공개 감사 결과이며 알려지지 않은 문제까지 부재함을 보증하지 않는다. Node 22 개발·Docker 환경을 유지한다.
+
+수정 근거는 [Vite 공식 보안 공지](https://github.com/vitejs/vite/security/advisories/GHSA-fx2h-pf6j-xcff), [YAML 공식 보안 공지](https://github.com/eemeli/yaml/security/advisories/GHSA-48c2-rrv3-qjmp)와 [Vite 5→6 전환 가이드](https://v6.vite.dev/guide/migration)다. 이 프로젝트는 SSR·Sass·사용자 정의 `resolve.conditions`를 사용하지 않으며 기존 정적 웹 빌드·공용 에셋 해시 검사·API 계약을 유지한다.
