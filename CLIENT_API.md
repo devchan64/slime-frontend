@@ -372,3 +372,9 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 장비 생산 레벨은 장비 목록의 선택적 `itemLevel`(1 또는 2)·`performanceVersion`(양의 정수) 쌍으로 표시한다. 둘 다 없는 기존 장비에는 레벨을 추정하지 않는다. 가방·장착 화면·텍스트 장비 목록은 서버가 제공한 레벨을 이름과 함께 표시한다. 공방 견적·계약의 선택적 `productionResult`도 검증하여 레벨을 표시한다.
 
 혼합 등급 견적은 `POST /v1/game/workshops/{facilityId}/production-quote`에 `{targetId, materialInputs:[{materialId,quantity}]}`를 전송한다. 계약 생성의 기존 본문에 같은 `materialInputs`를 포함하고 반환된 quoteToken을 사용한다. 재시도는 최초 입력을 유지한다. 기존 GET 견적과 입력 생략 계약 생성은 유지한다. 서버가 소재 종류·총수량·품질·레벨·비용을 결정하며 클라이언트 레벨/성능 지정은 허용하지 않는다. 이번 UI는 레벨 표시까지 연결했으며 혼합 재료 선택 조작은 후속이다.
+
+공방 제작 카탈로그는 선택적 `materialSelection`에 `requiredQuantity`, `defaultMaterialId`, `choices`를 제공한다. 각 선택지는 materialId·grade·nameTranslations·ownedQuantity이며 상인 내부 평가가치는 포함하지 않는다. 새 공방 GUI는 이 원본으로 등급별 수량을 입력받고 총수량이 맞을 때 혼합 견적 API를 호출한다. 재료 변경은 견적을 무효화하고 결과 불명 상태에서는 입력을 잠근다. 복구 영수증도 최초 요청의 소재 ID·수량과 일치해야 성공으로 처리한다. 이전 서버의 카탈로그에 선택 정보가 없으면 기존 지정 재료 견적 경로를 유지한다.
+
+`node scripts/run-regression.mjs tests/workshop.test.mjs tests/text-workshop.test.mjs tests/production-selection-browser.test.mjs`는 계약 검증과 한국어·영어 실제 패널의 수량 합계 차단·혼합 선택·레벨 표시·동일 요청 재시도를 검사한다. 브라우저 검사의 HTTP 경계는 대역이며 실제 API 연결 검증과 구분한다.
+
+텍스트 혼합 제작: `workshop craft quote 시설ID 품목ID 재료ID=수량 [재료ID=수량 ...]`. 예: `workshop craft quote iseulon-workshop leather-vest tanned-leather-low=2 tanned-leather-medium=2`. 견적을 확인한 뒤 `workshop craft create iseulon-workshop`로 확정한다. `catalog`는 등록 재료 ID·보유량·필요 총수량을 표시한다. 혼합 인자를 생략하면 기존 지정 재료 경로를 유지한다.

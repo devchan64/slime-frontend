@@ -62,6 +62,7 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind,curr
   if(currentRequestedSelection!==undefined){
     requireWorkshopCondition(typeof currentRequestedSelection.targetId==='string'&&currentRequestedSelection.targetId.length>0
       &&(currentContractKind==='repair'?currentResponseValue.quote.instanceId:currentResponseValue.quote.definitionId)===currentRequestedSelection.targetId);
+    if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(currentContractKind==='craft'&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.quote.selectedMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
     if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
       &&currentRequestedSelection.quantity<=1000&&currentResponseValue.quote.quantity===currentRequestedSelection.quantity);
   }
@@ -111,9 +112,34 @@ export function parseWorkshopCatalog(currentResponseValue){
   const currentCatalogIdentifiers=new Set();
   for(const currentCatalogItem of currentResponseValue.items){
     requireWorkshopCondition(currentCatalogItem&&[currentCatalogItem.id,currentCatalogItem.name,currentCatalogItem.englishName].every(currentTextValue=>typeof currentTextValue==='string'&&!!currentTextValue.trim())&&!currentCatalogIdentifiers.has(currentCatalogItem.id));
+    if(currentCatalogItem.materialSelection!==undefined){
+      const currentMaterialSelection=currentCatalogItem.materialSelection;
+      requireWorkshopCondition(currentMaterialSelection&&isWorkshopWholeNumber(currentMaterialSelection.requiredQuantity)&&currentMaterialSelection.requiredQuantity>0&&Array.isArray(currentMaterialSelection.choices)&&currentMaterialSelection.choices.length>0);
+      const currentSeenMaterials=new Set();
+      for(const currentMaterialChoice of currentMaterialSelection.choices){
+        requireWorkshopCondition(currentMaterialChoice&&typeof currentMaterialChoice.materialId==='string'&&!!currentMaterialChoice.materialId.trim()&&!currentSeenMaterials.has(currentMaterialChoice.materialId)
+          &&['low','medium','high'].includes(currentMaterialChoice.grade)&&isWorkshopWholeNumber(currentMaterialChoice.ownedQuantity)
+          &&['ko','en'].every(currentLanguageCode=>typeof currentMaterialChoice.nameTranslations?.[currentLanguageCode]==='string'&&!!currentMaterialChoice.nameTranslations[currentLanguageCode].trim()));
+        currentSeenMaterials.add(currentMaterialChoice.materialId);
+      }
+      requireWorkshopCondition(currentSeenMaterials.has(currentMaterialSelection.defaultMaterialId));
+    }
     currentCatalogIdentifiers.add(currentCatalogItem.id);
   }
   return currentResponseValue.items;
 }
 
 
+
+export function matchesWorkshopMaterials(currentExpectedMaterials,currentActualMaterials){
+ if(!Array.isArray(currentExpectedMaterials)||!Array.isArray(currentActualMaterials)||!currentExpectedMaterials.length||currentExpectedMaterials.length!==currentActualMaterials.length)return false;
+ const currentExpectedMap=new Map(),currentSeenIdentifiers=new Set();
+ for(const currentMaterialEntry of currentExpectedMaterials){
+  if(!currentMaterialEntry||typeof currentMaterialEntry.materialId!=='string'||!currentMaterialEntry.materialId.trim()||!isWorkshopWholeNumber(currentMaterialEntry.quantity)||currentMaterialEntry.quantity<1||currentExpectedMap.has(currentMaterialEntry.materialId))return false;
+  currentExpectedMap.set(currentMaterialEntry.materialId,currentMaterialEntry.quantity);
+ }
+ return currentActualMaterials.every(currentMaterialEntry=>{
+  if(!currentMaterialEntry||currentSeenIdentifiers.has(currentMaterialEntry.materialId)||currentExpectedMap.get(currentMaterialEntry.materialId)!==currentMaterialEntry.quantity)return false;
+  currentSeenIdentifiers.add(currentMaterialEntry.materialId);return true;
+ });
+}

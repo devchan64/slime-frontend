@@ -115,3 +115,22 @@ test('생산 견적 레벨·품질·성능 계약을 검증한다',()=>{
   const currentInvalidFixture=structuredClone(currentFixture);Object.assign(currentInvalidFixture.quote.productionResult,currentPatch);assert.throws(()=>parseWorkshopQuote(currentInvalidFixture,'craft'));
  }
 });
+
+test('혼합 재료 카탈로그와 견적의 품목·수량 대응을 검증한다',()=>{
+ const currentCatalog={items:[{id:'leather-vest',name:'조끼',englishName:'Vest',materialSelection:{requiredQuantity:4,defaultMaterialId:'leather-low',choices:[{materialId:'leather-low',grade:'low',ownedQuantity:2,nameTranslations:{ko:'가죽',en:'Leather'}}]}}]};
+ assert.equal(parseWorkshopCatalog(currentCatalog)[0].materialSelection.requiredQuantity,4);
+ for(const currentPatch of [{requiredQuantity:0},{defaultMaterialId:'missing'},{choices:[]},{choices:[currentCatalog.items[0].materialSelection.choices[0],currentCatalog.items[0].materialSelection.choices[0]]}]){
+  const currentInvalid=structuredClone(currentCatalog);Object.assign(currentInvalid.items[0].materialSelection,currentPatch);assert.throws(()=>parseWorkshopCatalog(currentInvalid));
+ }
+ const currentQuote=structuredClone(currentQuoteFixture);currentQuote.quote.definitionId='iron-sword';currentQuote.quote.selectedMaterials=[{materialId:'iron-low',quantity:4}];
+ assert.throws(()=>parseWorkshopQuote(currentQuote,'craft',{targetId:'iron-sword',materialInputs:[{materialId:'iron-high',quantity:4}]}));
+});
+
+test('혼합 제작의 복구 영수증이 다른 재료라면 성공으로 처리하지 않는다',async()=>{
+ const {recoverWorkshopCreationResult}=await import(`data:text/javascript;base64,${Buffer.from(currentCompiledBundle.outputFiles[0].text).toString('base64')}`);
+ const currentOriginalRequest={requestId:'11111111-1111-4111-8111-111111111111',kind:'craft',targetId:'iron-sword',materialInputs:[{materialId:'iron-low',quantity:4}]};
+ const currentReceipt={...currentOriginalRequest,facilityId:'iseulon-workshop',expectedInstanceVersion:null,contractId:'22222222-2222-4222-8222-222222222222',costP:23,materials:[{materialId:'iron-high',quantity:4}]};
+ await assert.rejects(()=>recoverWorkshopCreationResult({async request(){return currentReceipt;}},currentOriginalRequest,'iseulon-workshop'));
+ currentReceipt.materials=currentOriginalRequest.materialInputs;
+ assert.equal(await recoverWorkshopCreationResult({async request(){return currentReceipt;}},currentOriginalRequest,'iseulon-workshop'),true);
+});

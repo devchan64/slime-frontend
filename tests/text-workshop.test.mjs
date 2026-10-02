@@ -32,3 +32,16 @@ test('수리 목록은 장착·예약·완전 수리 장비를 제외하고 다�
  assert.match(currentOutputText,/다음커서:/);
  assert.ok(currentRequestEntries[0].url.endsWith('?after='+CURRENT_INSTANCE_IDENTIFIER));
 });
+
+test('혼합 재료 텍스트 견적과 생성은 같은 선택을 전송한다',async()=>{
+ const currentMaterialInputs=[{materialId:'tanned-leather-low',quantity:2},{materialId:'tanned-leather-medium',quantity:2}];
+ const currentMixedQuote={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:'leather-vest',definitionSnapshot:{name:'가죽 조끼',englishName:'Leather Vest'},costP:14,durationSeconds:600,selectedMaterials:currentMaterialInputs},materials:currentMaterialInputs.map(currentInput=>({...currentInput,nameTranslations:{ko:'가죽',en:'Leather'},ownedQuantity:2,consumedQuantity:2,missingQuantity:0}))};
+ const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentMixedQuote,{state:createWorkshopState()}]);
+ await currentTextClient.execute('workshop craft quote iseulon-workshop leather-vest tanned-leather-low=2 tanned-leather-medium=2');
+ assert.ok(currentRequestEntries[0].url.endsWith('/production-quote'));
+ await currentTextClient.execute('workshop craft create iseulon-workshop');
+ assert.deepEqual(currentRequestEntries[0].body.materialInputs,currentMaterialInputs);
+ assert.deepEqual(currentRequestEntries[1].body.materialInputs,currentMaterialInputs);
+ for(const currentInvalidSelection of ['tanned-leather-low=0','tanned-leather-low=1.5','tanned-leather-low=2 tanned-leather-low=2','tanned-leather-low=10001'])await assert.rejects(currentTextClient.execute('workshop craft quote iseulon-workshop leather-vest '+currentInvalidSelection),/형식/);
+ assert.equal(currentRequestEntries.length,2);
+});

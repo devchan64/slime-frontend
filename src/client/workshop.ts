@@ -1,4 +1,7 @@
+import {matchesWorkshopMaterials} from './workshop-validation.mjs';
 import {ApiError} from './response';
+export type WorkshopMaterialInput={materialId:string;quantity:number};
+export type WorkshopMaterialSelection={requiredQuantity:number;defaultMaterialId:string;choices:{materialId:string;grade:'low'|'medium'|'high';ownedQuantity:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractKind='craft'|'repair'|'consumable';
 export type WorkshopPriceQuote={productionResult?:{itemLevel:number;performanceVersion:number};baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
@@ -24,6 +27,7 @@ export async function recoverWorkshopCreationResult(currentRequestClient:{reques
     &&currentReceiptResponse.kind===currentOriginalRequest.kind&&currentReceiptResponse.facilityId===currentFacilityIdentifier
     &&currentReceiptResponse.targetId===currentOriginalRequest.targetId
     &&(currentOriginalRequest.kind!=='consumable'||currentReceiptResponse.quantity===(currentOriginalRequest.quantity??1))
+    &&(currentOriginalRequest.materialInputs===undefined||matchesWorkshopMaterials(currentOriginalRequest.materialInputs,currentReceiptResponse.materials))
     &&currentReceiptResponse.expectedInstanceVersion===(currentOriginalRequest.expectedInstanceVersion??null)
     &&typeof currentReceiptResponse.contractId==='string'&&WORKSHOP_UUID_PATTERN.test(currentReceiptResponse.contractId)
     &&isWorkshopWholeNumber(currentReceiptResponse.costP));
