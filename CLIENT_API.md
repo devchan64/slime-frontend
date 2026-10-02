@@ -368,3 +368,7 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 정제 임무 목록 응답의 `destinations`는 해당 페이지의 임무 ID를 키로 정제 도시 번역명(`refiningCityNameTranslations`), 전달 도시 번역명(`receiverCityNameTranslations`), 전달 NPC 이름(`receiverName`)을 제공한다. 저장 견적과 분리된 현재 카탈로그 표시 정보다. 정제 도시와 전달 도시는 서로 다를 수 있다. 직전 v1 응답에 이 필드가 없으면 목적지 표시만 생략하며, 필드가 있으면 페이지 ID 집합과 두 언어 이름을 검증한다. 취소 확인창에는 선택한 임무의 결과 재료·목적지·수락 시각을 표시한다.
 
 실제 서버 연결용 정제 임무 검사 번들은 `node scripts/build-refining-mission-browser-test.mjs /tmp/slime-refining-mission-live-browser.js`로 생성한다. 백엔드 전용 검사에 `SLIME_MISSION_BROWSER_BUNDLE`로 전달하며 소스 저장소를 런타임에 가져오지 않는다. 실제 Client·패널·API를 사용하고 최초 취소 성공 응답만 브라우저에서 유실시켜 동일 요청의 영수증·단일 버전 증가·무환불·재고 보존을 검사한다. `/test-context`·`/test-result` 등은 검사 서버 전용이며 제품 API가 아니다. 전체 App·신규 수락·운영 배포 검증과 구분한다.
+
+장비 생산 레벨은 장비 목록의 선택적 `itemLevel`(1 또는 2)·`performanceVersion`(양의 정수) 쌍으로 표시한다. 둘 다 없는 기존 장비에는 레벨을 추정하지 않는다. 가방·장착 화면·텍스트 장비 목록은 서버가 제공한 레벨을 이름과 함께 표시한다. 공방 견적·계약의 선택적 `productionResult`도 검증하여 레벨을 표시한다.
+
+혼합 등급 견적은 `POST /v1/game/workshops/{facilityId}/production-quote`에 `{targetId, materialInputs:[{materialId,quantity}]}`를 전송한다. 계약 생성의 기존 본문에 같은 `materialInputs`를 포함하고 반환된 quoteToken을 사용한다. 재시도는 최초 입력을 유지한다. 기존 GET 견적과 입력 생략 계약 생성은 유지한다. 서버가 소재 종류·총수량·품질·레벨·비용을 결정하며 클라이언트 레벨/성능 지정은 허용하지 않는다. 이번 UI는 레벨 표시까지 연결했으며 혼합 재료 선택 조작은 후속이다.

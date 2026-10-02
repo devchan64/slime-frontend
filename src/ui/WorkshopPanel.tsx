@@ -135,6 +135,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       {!currentSelectionOptions.length&&<p>{translateWorkshopText('workshop.noItems')}</p>}
       <button class="secondary compact" disabled={currentControlsDisabled||!currentTargetIdentifier||(currentContractKind==='consumable'&&(!Number.isSafeInteger(currentRequestedQuantity)||currentRequestedQuantity<1||currentRequestedQuantity>1000))} onClick={()=>void requestWorkshopQuote()}>{translateWorkshopText('workshop.quote')}</button>
       {currentQuoteResponse&&<div class="workshop-quote">
+        {currentQuoteResponse.quote.productionResult&&<p>Lv.{currentQuoteResponse.quote.productionResult.itemLevel}</p>}
         {currentQuoteResponse.quote.quantity!==undefined&&<p>{translateWorkshopText('workshop.quantityTime',{quantity:currentQuoteResponse.quote.quantity,seconds:currentQuoteResponse.quote.unitDurationSeconds!})}</p>}
         <p>{translateWorkshopText('workshop.price',{cost:currentQuoteResponse.quote.costP,seconds:currentQuoteResponse.quote.durationSeconds})}</p>
         {currentQuoteResponse.quote.baseCostP!==undefined&&<>
@@ -153,7 +154,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
       <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
-        <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}{currentContractEntry.kind==='consumable'?' × '+currentContractEntry.quote.quantity:''}</strong>
+        <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}{currentContractEntry.kind==='consumable'?' × '+currentContractEntry.quote.quantity:''}{currentContractEntry.quote.productionResult?' · Lv.'+currentContractEntry.quote.productionResult.itemLevel:''}</strong>
         <p>{translateWorkshopText(`workshop.${currentContractEntry.status.toLowerCase().replaceAll('_','')}`)}</p>
         <p>{translateWorkshopText('workshop.paidTotal',{cost:currentContractEntry.quote.costP})}</p>
         {currentContractEntry.quote.baseCostP!==undefined&&<small>{translateWorkshopText('workshop.costBreakdown',{

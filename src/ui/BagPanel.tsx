@@ -1,3 +1,4 @@
+import {formatEquipmentItemName} from '../client/equipment';
 import {isHealthFull} from '../client/health-state.mjs';
 import {TravelerPermitList} from './TravelerPermitList';
 import {SkillbookPanel} from './SkillbookPanel';
@@ -100,7 +101,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       </ul></>}
       {!!currentInventoryPage.items.length && <><h3>{translateBagText('equipment.title')}</h3><ul class="bag-items">
         {currentInventoryPage.items.map(currentEquipmentEntry => <li key={currentEquipmentEntry.instanceId}>
-          <div><strong>{currentEquipmentEntry.nameTranslations[currentLocaleCode]}</strong><span>{translateBagText(currentEquipmentEntry.reserved ? 'equipment.reserved' : currentEquipmentEntry.equippedSlot ? 'equipment.equipped' : 'equipment.emptySlot')}</span></div>
+          <div><strong>{formatEquipmentItemName(currentEquipmentEntry,currentLocaleCode)}</strong><span>{translateBagText(currentEquipmentEntry.reserved ? 'equipment.reserved' : currentEquipmentEntry.equippedSlot ? 'equipment.equipped' : 'equipment.emptySlot')}</span></div>
           <p>{translateBagText('equipment.durability')} {currentEquipmentEntry.currentDurability}/{currentEquipmentEntry.maxDurability} · {currentEquipmentEntry.weightG} g</p>
           <button class="secondary compact" onClick={() => setHistoryInstanceIdentifier(currentEquipmentEntry.instanceId)}>{translateBagText('equipment.history')}</button>
           {currentEquipmentEntry.currentDurability === 0 && <p>{translateBagText('equipment.broken')}</p>}

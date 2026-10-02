@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const equipmentModuleBuild = await build({entryPoints:['src/client/equipment.ts'],bundle:true,write:false,format:'esm',platform:'node'});
-const {parseEquipmentInventory,mergeEquipmentInventoryPages} = await import(`data:text/javascript;base64,${Buffer.from(equipmentModuleBuild.outputFiles[0].text).toString('base64')}`);
+const {parseEquipmentInventory,mergeEquipmentInventoryPages,formatEquipmentItemName} = await import(`data:text/javascript;base64,${Buffer.from(equipmentModuleBuild.outputFiles[0].text).toString('base64')}`);
 function createEquipmentResponse() {
   return {serverTime:100,characterVersion:2,knownEquipmentWeightG:1400,nextCursor:null,slots:{},items:[{
     instanceId:'00000000-0000-0000-0000-000000000001',definitionId:'iron-sword',definitionVersion:1,stateVersion:1,
@@ -71,4 +71,16 @@ test('중량 AP 하한 0과 서버 미리보기를 검증하고 잘못된 응답
  for(const currentInvalidPatch of [{effectiveMaxAp:1},{penaltyAp:-1},{totalWeightG:true},{policyVersion:2}])assert.throws(()=>parseEquipmentInventory({...currentInventoryPage,actionPoints:{...currentApSummary,...currentInvalidPatch}}),/AP/);
  assert.throws(()=>parseEquipmentInventory({...currentInventoryPage,equipActionPoints:null}),/AP/);
  assert.throws(()=>parseEquipmentInventory({...currentInventoryPage,equipActionPoints:{other:currentApSummary}}),/AP/);
+});
+
+test('신규 장비 레벨과 성능 버전은 함께 검증하고 구형 이름은 보존한다',()=>{
+ const currentPage=createEquipmentResponse();
+ assert.equal(formatEquipmentItemName(currentPage.items[0],'ko'),'철검');
+ for(const currentPatch of [{itemLevel:0,performanceVersion:1},{itemLevel:3,performanceVersion:1},{itemLevel:true,performanceVersion:1},{itemLevel:2},{performanceVersion:1},{itemLevel:2,performanceVersion:0}]){
+  const currentInvalidPage=createEquipmentResponse();Object.assign(currentInvalidPage.items[0],currentPatch);assert.throws(()=>parseEquipmentInventory(currentInvalidPage),/레벨/);
+ }
+ Object.assign(currentPage.items[0],{itemLevel:2,performanceVersion:1});
+ parseEquipmentInventory(currentPage);
+ assert.equal(formatEquipmentItemName(currentPage.items[0],'ko'),'철검 · Lv.2');
+ assert.equal(formatEquipmentItemName(currentPage.items[0],'en'),'Iron Sword · Lv.2');
 });

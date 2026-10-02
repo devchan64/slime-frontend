@@ -1,3 +1,4 @@
+import {formatEquipmentItemName} from '../src/client/equipment-validation.mjs';
 import {parseEquipmentHistory} from '../src/client/equipment-history-validation.mjs';
 import {parseEquipmentInventory,EQUIPMENT_SLOT_NAMES} from '../src/client/equipment-validation.mjs';
 const EQUIPMENT_HISTORY_LABELS={ACQUIRED:'획득',EQUIPPED:'장착',UNEQUIPPED:'해제',REPAIR_RESERVED:'수리 예약',REPAIRED:'수리 완료',WORN:'전투 마모'};
@@ -36,7 +37,7 @@ export async function executeEquipmentCommand(currentTextClient,currentCommandAr
   const currentInventoryPage=parseEquipmentInventory(await currentTextClient.request('/v1/game/equipment'+(currentTargetIdentifier?'?after='+currentTargetIdentifier:'')));
   if(captureEquipmentContext(currentTextClient)!==currentEquipmentContext||currentInventoryPage.characterVersion!==currentTextClient.state?.me.version)throw new Error('장비 조회 중 상태가 바뀌었습니다. state 후 다시 조회하세요.');
   currentTextClient.equipmentInventoryContext={context:currentEquipmentContext,page:currentInventoryPage};
-  const currentEquipmentLines=currentInventoryPage.items.map(currentItemEntry=>currentItemEntry.nameTranslations.ko.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ')+' ['+currentItemEntry.instanceId+'] '+currentItemEntry.slot+' · 내구도 '+currentItemEntry.currentDurability+'/'+currentItemEntry.maxDurability+' · '+(currentItemEntry.reserved?'예약 중':currentItemEntry.equippedSlot?'장착 중':'미장착'));
+  const currentEquipmentLines=currentInventoryPage.items.map(currentItemEntry=>formatEquipmentItemName(currentItemEntry,'ko').replace(/[\u0000-\u001f\u007f-\u009f]/g,' ')+' ['+currentItemEntry.instanceId+'] '+currentItemEntry.slot+' · 내구도 '+currentItemEntry.currentDurability+'/'+currentItemEntry.maxDurability+' · '+(currentItemEntry.reserved?'예약 중':currentItemEntry.equippedSlot?'장착 중':'미장착'));
   currentEquipmentLines.push('장착 슬롯: '+EQUIPMENT_SLOT_NAMES.map(currentSlotName=>currentSlotName+'='+(currentInventoryPage.slots[currentSlotName]?.instanceId??'없음')).join(', '));
   if(currentInventoryPage.actionPoints){
    const currentApSummary=currentInventoryPage.actionPoints;

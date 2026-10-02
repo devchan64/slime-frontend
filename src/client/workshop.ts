@@ -1,6 +1,6 @@
 import {ApiError} from './response';
 export type WorkshopContractKind='craft'|'repair'|'consumable';
-export type WorkshopPriceQuote={baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
+export type WorkshopPriceQuote={productionResult?:{itemLevel:number;performanceVersion:number};baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;
   before?:{currentDurability:number;maxDurability:number};after?:{currentDurability:number;maxDurability:number}};
 export type WorkshopQuoteResponse={characterVersion:number;ownedCoins?:number;quoteToken:string;quote:WorkshopPriceQuote;materials:{quantity:number;ownedQuantity?:number;materialId?:string;consumedQuantity?:number;missingQuantity?:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractPage={characterVersion:number;serverTime:number;nextCursor:string|null;entries:{contractId:string;kind:WorkshopContractKind;

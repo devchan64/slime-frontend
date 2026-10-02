@@ -8,6 +8,7 @@ function isNonnegativeInteger(currentNumberValue) {
   return Number.isSafeInteger(currentNumberValue) && (currentNumberValue) >= 0;
 }
 function validateEquipmentInstance(currentInstanceValue) {
+  if(currentInstanceValue && (currentInstanceValue.itemLevel!==undefined||currentInstanceValue.performanceVersion!==undefined) && (![1,2].includes(currentInstanceValue.itemLevel)||!Number.isSafeInteger(currentInstanceValue.performanceVersion)||currentInstanceValue.performanceVersion<1))throw new Error('장비 생산 레벨 응답이 올바르지 않습니다.');
   if (!currentInstanceValue || !isEquipmentIdentifier(currentInstanceValue.instanceId)
       || typeof currentInstanceValue.definitionId !== 'string' || !/^[a-z][a-z0-9-]*$/.test(currentInstanceValue.definitionId)
       || !isNonnegativeInteger(currentInstanceValue.definitionVersion) || currentInstanceValue.definitionVersion < 1
@@ -64,3 +65,5 @@ function validateEquipmentActionPoints(currentApSummary){
   if(!currentApSummary||currentApSummary.policyVersion!==1||!['totalWeightG','baseMaxAp','penaltyAp','effectiveMaxAp'].every(currentFieldName=>isNonnegativeInteger(currentApSummary[currentFieldName]))
     ||currentApSummary.effectiveMaxAp!==Math.max(0,currentApSummary.baseMaxAp-currentApSummary.penaltyAp))throw new Error('장비 AP 계산 응답이 올바르지 않습니다.');
 }
+
+export function formatEquipmentItemName(currentItemEntry,currentLanguageCode){return currentItemEntry.nameTranslations[currentLanguageCode]+(currentItemEntry.itemLevel===undefined?'':' · Lv.'+currentItemEntry.itemLevel);}

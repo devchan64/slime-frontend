@@ -105,3 +105,13 @@ test('품목·수량·수리 개체가 선택과 다른 견적을 거절한다',
  assert.doesNotThrow(()=>parseWorkshopQuote(currentRepairQuote,'repair',{targetId:currentRepairQuote.quote.instanceId}));
  assert.throws(()=>parseWorkshopQuote(currentRepairQuote,'repair',{targetId:'22222222-2222-4222-8222-222222222222'}));
 });
+
+test('생산 견적 레벨·품질·성능 계약을 검증한다',()=>{
+ const currentFixture=structuredClone(currentQuoteFixture);
+ currentFixture.quote.definitionId='iron-sword';
+ currentFixture.quote.productionResult={productId:'iron-sword',usage:'equipment',itemLevel:2,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:3,denominator:2},performance:{attack_flat_bonus:3,defense_flat_bonus:0,maximum_durability_value:96}};
+ assert.equal(parseWorkshopQuote(currentFixture,'craft').quote.productionResult.itemLevel,2);
+ for(const currentPatch of [{itemLevel:1},{itemLevel:true},{performanceVersion:0},{productId:'wrong'},{quality:{numerator:3,denominator:0}}]){
+  const currentInvalidFixture=structuredClone(currentFixture);Object.assign(currentInvalidFixture.quote.productionResult,currentPatch);assert.throws(()=>parseWorkshopQuote(currentInvalidFixture,'craft'));
+ }
+});

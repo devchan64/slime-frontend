@@ -12,7 +12,7 @@ function captureWorkshopContext(currentTextClient){
 function formatWorkshopQuote(currentQuoteRecord,currentContractKind){
  return currentContractKind==='repair'
   ?'내구도 '+currentQuoteRecord.before.currentDurability+'/'+currentQuoteRecord.before.maxDurability+' → '+currentQuoteRecord.after.currentDurability+'/'+currentQuoteRecord.after.maxDurability
-  :sanitizeWorkshopText(currentQuoteRecord.definitionSnapshot.name)+' × '+(currentContractKind==='consumable'?currentQuoteRecord.quantity:1);
+  :sanitizeWorkshopText(currentQuoteRecord.definitionSnapshot.name)+(currentQuoteRecord.productionResult?' · Lv.'+currentQuoteRecord.productionResult.itemLevel:'')+' × '+(currentContractKind==='consumable'?currentQuoteRecord.quantity:1);
 }
 export async function executeWorkshopCommand(currentTextClient,currentCommandArguments){
  const [currentContractKind,currentActionName,currentFacilityIdentifier,...currentActionArguments]=currentCommandArguments;

@@ -1,12 +1,13 @@
 import {LocalizedError} from './notice';
 
 import {EQUIPMENT_SLOT_NAMES} from './equipment-validation.mjs';
-export {EQUIPMENT_SLOT_NAMES,parseEquipmentInventory} from './equipment-validation.mjs';
+export {EQUIPMENT_SLOT_NAMES,parseEquipmentInventory,formatEquipmentItemName} from './equipment-validation.mjs';
 export type EquipmentSlotName = typeof EQUIPMENT_SLOT_NAMES[number];
 export type EquipmentInstanceEntry = {
   instanceId: string; definitionId: string; definitionVersion: number; stateVersion: number;
   nameTranslations: {ko: string; en: string}; description: string; slot: EquipmentSlotName;
   equippedSlot: EquipmentSlotName | null; reserved: boolean;
+  itemLevel?:number; performanceVersion?:number;
   currentDurability: number; maxDurability: number; weightG: number;
   statBonus: {attackFlat: number; defenseFlat: number};
 };
