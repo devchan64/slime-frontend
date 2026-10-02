@@ -21,11 +21,11 @@ citizenship buy 길드ID  확인한 견적으로 시민권 발급
 equipment history 개체ID [이전버전] 장비 변경 이력 조회
 missions list [조회위치] / cancel 임무ID 정제 임무 기록·무환불 취소
 equipment list [다음커서] / equip 개체ID / unequip 슬롯 장비 조회·장착·해제
-workshop craft|repair|consumable catalog 시설ID [다음커서] 품목·수리 대상 조회
-workshop craft|repair|consumable quote 시설ID 품목ID [소모품 수량] 견적
+workshop craft|repair|consumable|material catalog 시설ID [다음커서] 품목·수리 대상 조회
+workshop craft|repair|consumable|material quote 시설ID 품목ID [소모품·중간재 수량] 견적
 workshop craft quote 시설ID 품목ID 재료ID=수량 [재료ID=수량 ...] 혼합 등급 견적
-workshop consumable quote 시설ID 품목ID 주문수량 재료ID=총수량 [재료ID=총수량 ...]
-workshop craft|repair|consumable create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID
+workshop consumable|material quote 시설ID 품목ID 주문수량 재료ID=총수량 [재료ID=총수량 ...]
+workshop craft|repair|consumable|material create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID
 consumables catalog 시설ID / quote 시설ID 품목ID 수량 소모품 제작 목록·견적
 consumables create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID 제작·조회·수령
 processing facilities  현재 맵 작업장 ID·입구 조회

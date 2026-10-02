@@ -174,7 +174,6 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
           after:currentQuoteResponse.quote.after.currentDurability,afterMax:currentQuoteResponse.quote.after.maxDurability})}</p>}
         <p>{translateWorkshopText('workshop.noCancel')}</p>
         <button class="compact" disabled={actionsAreDisabled||workshopRequestPending} onClick={()=>void submitWorkshopContract()}>{translateWorkshopText('workshop.confirm')}</button>
-        <RefiningContractsPanel key={`${currentFacilityIdentifier}:${gameSessionClient.state?.generation}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={currentControlsDisabled} />
     </div>}
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
