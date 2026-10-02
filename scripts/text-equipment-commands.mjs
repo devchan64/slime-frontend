@@ -38,6 +38,13 @@ export async function executeEquipmentCommand(currentTextClient,currentCommandAr
   currentTextClient.equipmentInventoryContext={context:currentEquipmentContext,page:currentInventoryPage};
   const currentEquipmentLines=currentInventoryPage.items.map(currentItemEntry=>currentItemEntry.nameTranslations.ko.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ')+' ['+currentItemEntry.instanceId+'] '+currentItemEntry.slot+' · 내구도 '+currentItemEntry.currentDurability+'/'+currentItemEntry.maxDurability+' · '+(currentItemEntry.reserved?'예약 중':currentItemEntry.equippedSlot?'장착 중':'미장착'));
   currentEquipmentLines.push('장착 슬롯: '+EQUIPMENT_SLOT_NAMES.map(currentSlotName=>currentSlotName+'='+(currentInventoryPage.slots[currentSlotName]?.instanceId??'없음')).join(', '));
+  if(currentInventoryPage.actionPoints){
+   const currentApSummary=currentInventoryPage.actionPoints;
+   currentEquipmentLines.push(`기본 최대 AP ${currentApSummary.baseMaxAp} · 장착 ${currentApSummary.totalWeightG} g · 중량 감소 ${currentApSummary.penaltyAp} AP · 최종 최대 AP ${currentApSummary.effectiveMaxAp}`);
+   if(currentApSummary.effectiveMaxAp===0)currentEquipmentLines.push('최대 AP가 0입니다. AP가 필요한 행동을 하려면 전투 전에 장비를 가볍게 바꾸세요.');
+   for(const [currentInstanceIdentifier,currentPreviewSummary] of Object.entries(currentInventoryPage.equipActionPoints))currentEquipmentLines.push(`장착 미리보기 ${currentInstanceIdentifier}: 최대 AP ${currentPreviewSummary.effectiveMaxAp}`);
+   for(const [currentSlotIdentifier,currentPreviewSummary] of Object.entries(currentInventoryPage.unequipActionPoints))currentEquipmentLines.push(`해제 미리보기 ${currentSlotIdentifier}: 최대 AP ${currentPreviewSummary.effectiveMaxAp}`);
+  }
   if(currentInventoryPage.nextCursor)currentEquipmentLines.push('다음커서: '+currentInventoryPage.nextCursor);
   return currentEquipmentLines.join('\n');
  }

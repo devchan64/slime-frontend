@@ -70,3 +70,14 @@ test('장비 이력의 잘못된 개체와 페이지 인수는 요청하지 않�
  for(const currentCommandText of ['equipment history','equipment history ../other','equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 0','equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 1.5','equipment history '+CURRENT_INSTANCE_IDENTIFIER+' 9007199254740992'])await assert.rejects(currentTextClient.execute(currentCommandText));
  assert.equal(currentRequestEntries.length,0);
 });
+
+test('텍스트 장비 조회에 서버 중량 AP와 과중량 안내를 표시한다',async()=>{
+ const currentInventoryPage=createEquipmentPage();
+ const currentApSummary={policyVersion:1,totalWeightG:40000,baseMaxAp:4,penaltyAp:4,effectiveMaxAp:0};
+ Object.assign(currentInventoryPage,{actionPoints:currentApSummary,equipActionPoints:{[CURRENT_INSTANCE_IDENTIFIER]:currentApSummary},unequipActionPoints:{}});
+ const {currentTextClient}=createEquipmentClient([currentInventoryPage]);
+ const currentOutputText=await currentTextClient.execute('equipment list');
+ assert.match(currentOutputText,/장착 40000 g.*최종 최대 AP 0/);
+ assert.match(currentOutputText,/전투 전에 장비를 가볍게/);
+ assert.match(currentOutputText,/장착 미리보기.*최대 AP 0/);
+});

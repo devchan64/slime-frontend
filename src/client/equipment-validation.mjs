@@ -44,6 +44,23 @@ export function parseEquipmentInventory(rawEquipmentResponse) {
       throw new Error('장착 슬롯 응답이 올바르지 않습니다.');
     }
   }
+  const currentApFields=['actionPoints','equipActionPoints','unequipActionPoints'];
+  if(currentApFields.some(currentFieldName=>currentFieldName in currentInventoryPage)){
+    validateEquipmentActionPoints(currentInventoryPage.actionPoints);
+    for(const currentPreviewName of ['equipActionPoints','unequipActionPoints']){
+      const currentPreviewRecords=currentInventoryPage[currentPreviewName];
+      if(!currentPreviewRecords||typeof currentPreviewRecords!=='object'||Array.isArray(currentPreviewRecords))throw new Error('장비 AP 미리보기가 누락되었습니다.');
+      for(const [currentPreviewIdentifier,currentPreviewSummary] of Object.entries(currentPreviewRecords)){
+        if(currentPreviewName==='equipActionPoints'?!inventoryInstanceIdentifiers.has(currentPreviewIdentifier):!Object.hasOwn(currentInventoryPage.slots,currentPreviewIdentifier))throw new Error('장비 AP 미리보기 대상이 목록과 다릅니다.');
+        validateEquipmentActionPoints(currentPreviewSummary);
+      }
+    }
+  }
   return currentInventoryPage;
 }
 
+
+function validateEquipmentActionPoints(currentApSummary){
+  if(!currentApSummary||currentApSummary.policyVersion!==1||!['totalWeightG','baseMaxAp','penaltyAp','effectiveMaxAp'].every(currentFieldName=>isNonnegativeInteger(currentApSummary[currentFieldName]))
+    ||currentApSummary.effectiveMaxAp!==Math.max(0,currentApSummary.baseMaxAp-currentApSummary.penaltyAp))throw new Error('장비 AP 계산 응답이 올바르지 않습니다.');
+}

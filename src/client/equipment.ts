@@ -10,7 +10,11 @@ export type EquipmentInstanceEntry = {
   currentDurability: number; maxDurability: number; weightG: number;
   statBonus: {attackFlat: number; defenseFlat: number};
 };
+export type EquipmentActionPointSummary = {policyVersion:1;totalWeightG:number;baseMaxAp:number;penaltyAp:number;effectiveMaxAp:number};
 export type EquipmentInventoryPage = {
+  actionPoints?:EquipmentActionPointSummary;
+  equipActionPoints?:Record<string,EquipmentActionPointSummary>;
+  unequipActionPoints?:Partial<Record<EquipmentSlotName,EquipmentActionPointSummary>>;
   serverTime: number; characterVersion: number; items: EquipmentInstanceEntry[];
   slots: Partial<Record<EquipmentSlotName, EquipmentInstanceEntry>>;
   knownEquipmentWeightG: number; nextCursor: string | null;
@@ -29,5 +33,5 @@ export function mergeEquipmentInventoryPages(previousInventoryPage: EquipmentInv
   const previousInstanceIdentifiers = new Set(previousInventoryPage.items.map(currentItemEntry => currentItemEntry.instanceId));
   if (receivedInventoryPage.items.some(currentItemEntry => previousInstanceIdentifiers.has(currentItemEntry.instanceId)))
     throw new LocalizedError('equipment.inventoryChanged');
-  return {...receivedInventoryPage, items:[...previousInventoryPage.items, ...receivedInventoryPage.items]};
+  return {...receivedInventoryPage, ...(receivedInventoryPage.equipActionPoints?{equipActionPoints:{...previousInventoryPage.equipActionPoints,...receivedInventoryPage.equipActionPoints}}:{}), items:[...previousInventoryPage.items, ...receivedInventoryPage.items]};
 }

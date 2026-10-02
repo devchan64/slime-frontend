@@ -93,6 +93,10 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
     {equipmentRequestPending && <p role="status">{translateEquipmentText('equipment.loading')}</p>}
     {currentInventoryPage && <>
       <p class="growth-help">{translateEquipmentText('equipment.weight', {weight:currentInventoryPage.knownEquipmentWeightG})}</p>
+      {currentInventoryPage.actionPoints&&<p>{translateEquipmentText('equipment.actionPoints',{
+        base:currentInventoryPage.actionPoints.baseMaxAp,weight:currentInventoryPage.actionPoints.totalWeightG,
+        penalty:currentInventoryPage.actionPoints.penaltyAp,maximum:currentInventoryPage.actionPoints.effectiveMaxAp})}</p>}
+      {currentInventoryPage.actionPoints?.effectiveMaxAp===0&&<p role="alert">{translateEquipmentText('equipment.zeroActionPoints')}</p>}
       <div class="equipment-slots" role="group" aria-label={translateEquipmentText('equipment.slots')}>
         {EQUIPMENT_SLOT_NAMES.map(currentSlotName => <button key={currentSlotName} class="secondary" aria-pressed={selectedEquipmentSlot === currentSlotName} onClick={() => setSelectedEquipmentSlot(currentSlotName)}>
           <strong>{translateEquipmentText(`equipment.${EQUIPMENT_SLOT_LABEL_KEYS[currentSlotName]}`)}</strong><span>{currentInventoryPage.slots[currentSlotName]?.nameTranslations[currentLocaleCode] ?? translateEquipmentText('equipment.emptySlot')}</span>
@@ -101,12 +105,14 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
       <div class="equipment-current"><strong>{translateEquipmentText(`equipment.${EQUIPMENT_SLOT_LABEL_KEYS[selectedEquipmentSlot]}`)} · {selectedSlotEquipment?.nameTranslations[currentLocaleCode] ?? translateEquipmentText('equipment.emptySlot')}</strong>
         {selectedSlotEquipment && <button class="secondary" disabled={equipmentActionsLocked} onClick={() => selectEquipmentInstance(null)}>{translateEquipmentText('equipment.unequip')}</button>}
       </div>
+      {currentInventoryPage.unequipActionPoints?.[selectedEquipmentSlot]&&<p>{translateEquipmentText('equipment.unequipAp',{maximum:currentInventoryPage.unequipActionPoints[selectedEquipmentSlot]!.effectiveMaxAp})}</p>}
       <ul class="equipment-inventory">{matchingEquipmentItems.map(currentItemEntry => <li key={currentItemEntry.instanceId}>
         <div><h4>{currentItemEntry.nameTranslations[currentLocaleCode]}</h4><p>{currentItemEntry.description}</p>
           <dl><div><dt>{translateEquipmentText('equipment.durability')}</dt><dd>{currentItemEntry.currentDurability}/{currentItemEntry.maxDurability}</dd></div>
           <div><dt>{translateEquipmentText('equipment.itemWeight')}</dt><dd>{currentItemEntry.weightG} g</dd></div>
           <div><dt>{translateEquipmentText('equipment.attack')}</dt><dd>+{currentItemEntry.statBonus.attackFlat}</dd></div>
           <div><dt>{translateEquipmentText('equipment.defense')}</dt><dd>+{currentItemEntry.statBonus.defenseFlat}</dd></div></dl>
+          {!currentItemEntry.equippedSlot&&currentInventoryPage.equipActionPoints?.[currentItemEntry.instanceId]&&<p>{translateEquipmentText('equipment.equipAp',{maximum:currentInventoryPage.equipActionPoints[currentItemEntry.instanceId].effectiveMaxAp})}</p>}
           {!currentItemEntry.equippedSlot && <p>{translateEquipmentText('equipment.comparison', {
             attack:formatEquipmentDifference(currentItemEntry.statBonus.attackFlat - (selectedSlotEquipment?.statBonus.attackFlat ?? 0)),
             defense:formatEquipmentDifference(currentItemEntry.statBonus.defenseFlat - (selectedSlotEquipment?.statBonus.defenseFlat ?? 0)),

@@ -38,3 +38,7 @@ historyRepaired: "수리 수령"
 historyWorn: "전투 마모"
 
 inventoryChanged: "장비 목록이 변경되었습니다. 목록을 새로고침하세요."
+actionPoints: "기본 최대 AP {base} · 장착 {weight} g · 중량 감소 {penalty} AP · 최종 최대 AP {maximum}"
+zeroActionPoints: 중량 때문에 최대 AP가 0입니다. AP가 필요한 행동을 하려면 전투 전에 장비를 가볍게 바꾸세요.
+equipAp: "장착 후 최대 AP: {maximum}"
+unequipAp: "해제 후 최대 AP: {maximum}"

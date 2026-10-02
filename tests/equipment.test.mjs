@@ -62,3 +62,13 @@ test('페이지 간 상태 변경·중복·잘못된 커서·첫 페이지 누�
   assert.throws(() => mergeEquipmentInventoryPages(previousInventoryPage, receivedInventoryPage, receivedInventoryPage.items[0].instanceId), {key:'equipment.inventoryChanged'});
   assert.throws(() => mergeEquipmentInventoryPages(null, receivedInventoryPage, requestedPageCursor), {key:'equipment.inventoryChanged'});
 });
+
+test('중량 AP 하한 0과 서버 미리보기를 검증하고 잘못된 응답을 거절한다',()=>{
+ const currentInventoryPage=createEquipmentResponse();
+ const currentApSummary={policyVersion:1,totalWeightG:40000,baseMaxAp:4,penaltyAp:4,effectiveMaxAp:0};
+ Object.assign(currentInventoryPage,{actionPoints:currentApSummary,equipActionPoints:{[currentInventoryPage.items[0].instanceId]:currentApSummary},unequipActionPoints:{}});
+ assert.equal(parseEquipmentInventory(currentInventoryPage).actionPoints.effectiveMaxAp,0);
+ for(const currentInvalidPatch of [{effectiveMaxAp:1},{penaltyAp:-1},{totalWeightG:true},{policyVersion:2}])assert.throws(()=>parseEquipmentInventory({...currentInventoryPage,actionPoints:{...currentApSummary,...currentInvalidPatch}}),/AP/);
+ assert.throws(()=>parseEquipmentInventory({...currentInventoryPage,equipActionPoints:null}),/AP/);
+ assert.throws(()=>parseEquipmentInventory({...currentInventoryPage,equipActionPoints:{other:currentApSummary}}),/AP/);
+});

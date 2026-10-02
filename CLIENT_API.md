@@ -344,3 +344,10 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 `party list`는 최신 상태를 조회해 소속 파티·초대 ID·주변 캐릭터 ID를 표시한다. `party create`, `party invite 캐릭터ID`, `party accept 초대ID`, `party leave`, `party kick 캐릭터ID`, `party disband`는 기존 `/v1/game/party/commands`에 연결한다. 생성은 웹과 같은 길드 현장·시민권 안내를 공유하며, 초대와 수락은 조회한 현재 후보·초대를 선택한다. 최종 CP·정원·출입 조건은 서버가 재검사한다.
 
 결과가 불명확하면 공통 `retry`로 같은 요청 ID·본문을 재전송한다. 확인 전 다른 변경 명령은 차단하고 `party list` 조회는 허용한다. 기존 온라인 파티의 맵/채널 이동에는 탈퇴가 필요하다. 이 명령은 파티 동반 이동을 구현하지 않는다.
+
+
+### 장비 중량 AP 미리보기
+
+`GET /v1/game/equipment`는 현재 장착 구성의 `actionPoints`와 현재 페이지의 장착 후보별 `equipActionPoints`, 슬롯별 해제 결과 `unequipActionPoints`를 반환한다. 요약 필드는 `policyVersion`, `totalWeightG`, `baseMaxAp`, `penaltyAp`, `effectiveMaxAp`다. 클라이언트는 서버 계산값을 표시하고 장착 명령에 계산값을 보내지 않는다. 기본 최대 AP·최종 최대 AP는 기존 공개 정수 계약이다.
+
+장비 메뉴와 `equipment list`에 현재 요약·장착/해제 후 최대 AP를 표시한다. 최대 AP 0에는 AP 비용 행동을 위해 장비를 가볍게 바꾸라는 안내를 제공한다. 미리보기 조회는 장비나 전투 AP를 변경하지 않는다. 예약·파손·양손 충돌로 장착할 수 없는 후보에는 장착 미리보기가 없을 수 있다. 이전 API의 세 필드 전체 부재는 이전 목록으로 표시하되 일부 누락·잘못된 계산 응답은 거절한다.

@@ -38,3 +38,7 @@ historyRepaired: "Repair claimed"
 historyWorn: "Battle wear"
 
 inventoryChanged: "The equipment list changed. Please refresh the list."
+actionPoints: "Base max AP {base} · Equipped {weight} g · Weight penalty {penalty} AP · Effective max AP {maximum}"
+zeroActionPoints: Weight has reduced your maximum AP to 0. Equip lighter gear before battle to use actions that cost AP.
+equipAp: "Maximum AP after equipping: {maximum}"
+unequipAp: "Maximum AP after removing: {maximum}"
