@@ -7,7 +7,7 @@ const currentAssertions:string[]=[];
 function assertExplorationBrowser(currentCondition:unknown,currentMessage:string){if(!currentCondition)throw new Error(currentMessage);currentAssertions.push(currentMessage);}
 (async()=>{try{
  setLocale(location.hash==='#en'?'en':'ko');
- const currentGameState:any={generation:1,epoch:1,map:{id:'meadow'},location:{id:'map:meadow'},me:{id:'hero',mode:'FIELD',fp:10,position:{column:6,row:3},skills:{literacy:2},exploration:{fpCost:2,literacyRequired:2,options:{mineral:{skillId:'mineral_exploration',range:2,successPercent:50},treasure:{skillId:'treasure_exploration',range:0,successPercent:0}}}}};
+ const currentGameState:any={generation:1,epoch:1,map:{id:'meadow',startPoint:{column:0,row:0},safeRadius:1},location:{id:'map:meadow'},me:{id:'hero',mode:'FIELD',fp:10,position:{column:6,row:3},skills:{literacy:2},exploration:{fpCost:2,literacyRequired:2,options:{mineral:{skillId:'mineral_exploration',range:2,successPercent:50},treasure:{skillId:'treasure_exploration',range:0,successPercent:0}}}}};
  const currentGameClient:any={state:currentGameState};
  let currentCommandCount=0;
  const submitExplorationCommand=async(currentCommandPath:string,currentCommandBody:any,currentResultHandler:(currentResult:any)=>void)=>{
@@ -25,7 +25,12 @@ function assertExplorationBrowser(currentCondition:unknown,currentMessage:string
  assertExplorationBrowser(currentCommandCount===1,'단일 명령');
  assertExplorationBrowser(document.body.textContent!.includes(t('field.exploreSuccess')),'보상 수집 안내');
  assertExplorationBrowser(document.body.textContent!.includes((location.hash==='#en'?'Iron Ore':'철광석')+' × 1'),'실제 보상 이름과 수량');
- currentGameState.me.fp=1;renderExplorationPanel();await currentWaitRender();
+ currentGameState.me.position={column:0,row:0};renderExplorationPanel();await currentWaitRender();
+ assertExplorationBrowser([...document.querySelectorAll('button')].every(currentButton=>currentButton.disabled),'안전지대 차단');
+ assertExplorationBrowser(document.body.textContent!.includes(t('field.exploreSafe')),'안전지대 해결 안내');
+ currentGameState.me.position={column:19,row:19};renderExplorationPanel();await currentWaitRender();
+ assertExplorationBrowser(document.body.textContent!.includes(t('field.exploreRange',{range:2})),'거리 해결 안내');
+ currentGameState.me.position={column:6,row:3};currentGameState.me.fp=1;renderExplorationPanel();await currentWaitRender();
  assertExplorationBrowser([...document.querySelectorAll('button')].every(currentButton=>currentButton.disabled),'FP 부족 차단');
  currentGameState.me.fp=10;currentGameState.reservation={id:'encounter'};renderExplorationPanel();await currentWaitRender();
  assertExplorationBrowser([...document.querySelectorAll('button')].every(currentButton=>currentButton.disabled),'조우 중 차단');

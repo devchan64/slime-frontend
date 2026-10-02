@@ -134,3 +134,8 @@ exploreTreasure: Search for treasure
 exploreSuccess: Discovery collected. Search this spot again after 24 hours.
 exploreFailure: Nothing found. Search this spot again after 30 seconds.
 exploreReward: "Received: {reward}"
+exploreBusy: Finish your current action and return to the field to explore.
+exploreSafe: Move outside the safe zone before exploring.
+exploreSkill: Exploration level 1 and usable Literacy level 2 are required.
+exploreRange: "Move within {range} tiles of the selected spot."
+exploreFp: "Recover to at least {cost} FP before exploring."
