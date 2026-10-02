@@ -15,9 +15,14 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     ()=>currentGameClient.tokens&&currentGameClient.state?{characterId:currentGameClient.state.me.id,generation:currentGameClient.state.generation}:null
   ),[currentGameClient,currentGameState.me.id,currentGameState.generation]);
   const currentComponentAlive=useRef(true);
+  const currentHistoryRevision=useRef(0);
+  const currentAcknowledgedIdentifiers=useRef(new Set<string>());
+  const currentRefreshHistory=useRef<(()=>Promise<void>)|null>(null);
   const [currentPanelOpen,setCurrentPanelOpen]=useState(false);
   const [currentRequestBusy,setCurrentRequestBusy]=useState(false);
   const [currentPeerInput,setCurrentPeerInput]=useState('');
+  const [currentHistoryCursor,setCurrentHistoryCursor]=useState<string|null>(null);
+  const [currentHistoryRefreshFailed,setCurrentHistoryRefreshFailed]=useState(false);
   const [currentHistoryPage,setCurrentHistoryPage]=useState<DirectMessageHistory|null>(null);
   const [currentConversationPage,setCurrentConversationPage]=useState<DirectMessageConversations|null>(null);
   const [currentBlockPage,setCurrentBlockPage]=useState<DirectMessageBlocks|null>(null);
@@ -35,7 +40,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     async function refreshDirectMessageNotice(){
       try{
         const currentNoticeResponse=await currentMessageClient.readDirectMessageNotice();
-        if(currentComponentAlive.current){setCurrentNoticeCount(currentNoticeResponse.count);setCurrentNoticeFailed(false);}
+        if(currentComponentAlive.current){setCurrentNoticeCount(currentNoticeResponse.count);setCurrentNoticeFailed(false);await currentRefreshHistory.current?.();}
       }catch{
         if(currentComponentAlive.current){setCurrentNoticeCount(null);setCurrentNoticeFailed(true);}
       }finally{
@@ -61,9 +66,35 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     },DIRECT_MESSAGE_EXPIRY_INTERVAL);
     return ()=>{currentComponentAlive.current=false;clearTimeout(currentNoticeTimer);clearInterval(currentExpiryTimer);currentMessageClient.disposeDirectMessages();};
   },[currentMessageClient]);
+  useEffect(()=>{
+    if(!currentPanelOpen||!currentSelectedPeer||currentHistoryCursor!==null||currentRequestBusy){currentRefreshHistory.current=null;return;}
+    let currentRefreshStopped=false;
+    const currentCapturedRevision=currentHistoryRevision.current;
+    const isCurrentHistoryRefresh=()=>currentComponentAlive.current&&!currentRefreshStopped&&currentHistoryRevision.current===currentCapturedRevision;
+    async function refreshSelectedMessageHistory(){
+      try{
+        const currentReceivedHistory=await currentMessageClient.readDirectMessageHistory(currentSelectedPeer!);
+        if(!isCurrentHistoryRefresh())return;
+        setCurrentHistoryPage(currentReceivedHistory);
+        const currentReceivedIdentifiers=currentReceivedHistory.entries.filter(currentMessageEntry=>currentMessageEntry.recipientId===currentGameState.me.id).map(currentMessageEntry=>currentMessageEntry.messageId);
+        const currentUnconfirmedIdentifiers=currentReceivedIdentifiers.filter(currentMessageIdentifier=>!currentAcknowledgedIdentifiers.current.has(currentMessageIdentifier));
+        if(currentUnconfirmedIdentifiers.length){
+          await currentMessageClient.acknowledgeDirectMessages(currentUnconfirmedIdentifiers);
+          if(!isCurrentHistoryRefresh())return;
+          const currentNoticeResponse=await currentMessageClient.readDirectMessageNotice();
+          if(!isCurrentHistoryRefresh())return;
+          setCurrentNoticeCount(currentNoticeResponse.count);setCurrentNoticeFailed(false);
+        }
+        currentAcknowledgedIdentifiers.current=new Set(currentReceivedIdentifiers);
+        setCurrentHistoryRefreshFailed(false);
+      }catch{if(isCurrentHistoryRefresh())setCurrentHistoryRefreshFailed(true);}
+    }
+    currentRefreshHistory.current=refreshSelectedMessageHistory;
+    return ()=>{currentRefreshStopped=true;currentRefreshHistory.current=null;};
+  },[currentMessageClient,currentPanelOpen,currentSelectedPeer,currentHistoryCursor,currentRequestBusy,currentHistoryRevision.current]);
   async function runDirectMessageAction(currentActionFunction:()=>Promise<void>){
     if(currentRequestBusy)return;
-    setCurrentRequestBusy(true);setCurrentErrorValue(null);setCurrentSendConfirmed(false);
+    currentHistoryRevision.current++;setCurrentRequestBusy(true);setCurrentErrorValue(null);setCurrentSendConfirmed(false);
     try{await currentActionFunction();}
     catch(currentRequestError){if(currentComponentAlive.current)setCurrentErrorValue(currentRequestError instanceof Error?currentRequestError:new Error(String(currentRequestError)));}
     finally{if(currentComponentAlive.current){setCurrentRequestBusy(false);try{setCurrentPendingSend(currentMessageClient.readPendingDirectMessage());}catch{setCurrentPendingSend(null);}}}
@@ -71,9 +102,11 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
   async function loadDirectMessageHistory(currentPeerIdentifier:string,currentBeforeSequence:string|null=null){
     const currentReceivedHistory=await currentMessageClient.readDirectMessageHistory(currentPeerIdentifier,currentBeforeSequence);
     if(!currentComponentAlive.current)return;
-    setCurrentHistoryPage(currentReceivedHistory);setCurrentPeerInput(currentPeerIdentifier);
+    setCurrentHistoryPage(currentReceivedHistory);setCurrentPeerInput(currentPeerIdentifier);setCurrentHistoryCursor(currentBeforeSequence);setCurrentHistoryRefreshFailed(false);
+    currentAcknowledgedIdentifiers.current=new Set();
     const currentReceivedIdentifiers=currentReceivedHistory.entries.filter(currentMessageEntry=>currentMessageEntry.recipientId===currentGameState.me.id).map(currentMessageEntry=>currentMessageEntry.messageId);
     if(currentReceivedIdentifiers.length)await currentMessageClient.acknowledgeDirectMessages(currentReceivedIdentifiers);
+    currentAcknowledgedIdentifiers.current=new Set(currentReceivedIdentifiers);
     const currentNoticeResponse=await currentMessageClient.readDirectMessageNotice();
     if(currentComponentAlive.current){setCurrentNoticeCount(currentNoticeResponse.count);setCurrentNoticeFailed(false);}
   }
@@ -99,7 +132,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
     <button class="secondary compact" aria-label={translateMessageText('directmessages.open')} title={translateMessageText(currentNoticeFailed?'directmessages.noticeFailed':'directmessages.open')} onClick={()=>{setCurrentPanelOpen(true);void runDirectMessageAction(()=>loadDirectMessageConversations());}}>
       <span aria-hidden="true">✉</span> {currentNoticeCount===null?'—':currentNoticeCount>99?'99+':currentNoticeCount}
     </button>
-    {currentPanelOpen&&<WorldDrawer title={translateMessageText('directmessages.open')} onClose={()=>{setCurrentPanelOpen(false);setCurrentHistoryPage(null);}}>
+    {currentPanelOpen&&<WorldDrawer title={translateMessageText('directmessages.open')} onClose={()=>{currentHistoryRevision.current++;setCurrentPanelOpen(false);setCurrentHistoryPage(null);currentAcknowledgedIdentifiers.current.clear();}}>
       <p class="muted">{translateMessageText('directmessages.retention')}</p>
       {currentNoticeFailed&&<p role="status">{translateMessageText('directmessages.noticeFailed')}</p>}
       {currentErrorValue&&<p role="alert">{currentErrorValue instanceof DirectMessageClientError?translateMessageText('directmessages.'+currentErrorValue.messageKey):noticeText(currentErrorValue,currentDisplayLocale,translateMessageText)}</p>}
@@ -123,6 +156,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
       </fieldset>
       {currentHistoryPage&&<section aria-label={translateMessageText('directmessages.history')}>
         <h3>{currentHistoryPage.peer.name} [{currentSelectedPeer}]</h3>
+        <p class="muted" role="status">{translateMessageText(currentHistoryRefreshFailed?'directmessages.refreshFailed':currentHistoryCursor===null?'directmessages.autoRefresh':'directmessages.historyPaused')}</p>
         <button disabled={currentRequestBusy} onClick={()=>void runDirectMessageAction(()=>loadDirectMessageHistory(currentSelectedPeer!))}>{translateMessageText('directmessages.refresh')}</button>
         <button disabled={currentRequestBusy} onClick={()=>void runDirectMessageAction(async()=>{await currentMessageClient.setDirectMessageBlock(currentSelectedPeer!,!currentHistoryPage.blocked);await loadDirectMessageHistory(currentSelectedPeer!);})}>{translateMessageText(currentHistoryPage.blocked?'directmessages.unblock':'directmessages.block')}</button>
         <ol class="direct-message-history">{currentHistoryPage.entries.map(currentMessageEntry=><li key={currentMessageEntry.messageId}>

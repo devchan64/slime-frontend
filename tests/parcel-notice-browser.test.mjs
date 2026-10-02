@@ -25,7 +25,7 @@ for(const currentFixtureName of ['parcel-notice','direct-messages'])test(`Chrome
   for(const currentLocaleName of ['ko','en']){
    const {stdout:currentBrowserDom,stderr:currentBrowserLog}=await promisify(execFile)(CURRENT_BROWSER_PATH,[
     '--headless','--no-sandbox','--disable-dev-shm-usage','--disable-background-networking','--no-first-run',
-    `--user-data-dir=${currentFixtureOutput}/profile-${currentLocaleName}`,'--window-size=390,844','--dump-dom','--virtual-time-budget=10000',
+    `--user-data-dir=${currentFixtureOutput}/profile-${currentLocaleName}`,'--window-size=390,844','--dump-dom',`--virtual-time-budget=${currentFixtureName==='direct-messages'?110000:10000}`,
     `--screenshot=${currentFixtureOutput}/${currentLocaleName}.png`,`file://${currentFixtureOutput}/index.html#${currentLocaleName}`
    ],{encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024});
    await writeFile(`${currentFixtureOutput}/${currentLocaleName}.html`,currentBrowserDom);

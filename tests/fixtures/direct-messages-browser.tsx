@@ -21,6 +21,14 @@ async function selectDirectMessagePeer(currentPeerIdentifier:string){
  const currentSendPayloads:any[]=[];
  let currentBlockedValue=false;
  let currentExpireHistory=false;
+ let currentHistoryPaging=false;
+ let currentLatestBody='자동 갱신 전 본문';
+ let currentLatestSequence='2';
+ const currentAcknowledgedMessages:string[]=[];
+ let currentHistoryRequests=0;
+ let currentDelayHistory=false;
+ let currentDeferredHistory:((currentResult:unknown)=>void)|null=null;
+ let currentDelayedResponse:any;
  const currentClientStub:any={tokens:{access_token:'test'},state:{me:{id:'hero',name:'주인공'},generation:1,members:[{id:'friend',name:'친구'},{id:'other',name:'다른 상대'}]},request:async(currentRequestPath:string,currentRequestBody:any,currentRequestMethod:string)=>{
    if(currentRequestPath.endsWith('/notifications'))return {serverTime:currentInitialTimestamp,count:1,latestMessageId:'1'};
    if(currentRequestPath.endsWith('/conversations'))return {serverTime:currentInitialTimestamp,entries:[{characterId:'friend',name:'친구',latestMessageId:'1',sentAt:currentInitialTimestamp}],nextCursor:null};
@@ -28,12 +36,16 @@ async function selectDirectMessagePeer(currentPeerIdentifier:string){
    if(currentRequestPath==='/v1/direct-messages/messages'){
      currentSendPayloads.push(currentRequestBody);if(currentSendPayloads.length===1)throw new TypeError('응답 유실');return {messageId:'2',sentAt:currentInitialTimestamp};
    }
-   if(currentRequestPath.endsWith('/acknowledgements'))return {messageIds:currentRequestBody.messageIds};
+   if(currentRequestPath.endsWith('/acknowledgements')){currentAcknowledgedMessages.push(...currentRequestBody.messageIds);return {messageIds:currentRequestBody.messageIds};}
    if(currentRequestPath.includes('/blocks/')){assertDirectMessageBrowser(currentRequestMethod==='PUT','차단은 PUT 전송');currentBlockedValue=currentRequestBody.blocked;return {characterId:'friend',blocked:currentBlockedValue};}
-   if(currentRequestPath.includes('/conversations/')&&currentRequestPath.endsWith('/messages')){
+   if(currentRequestPath.includes('/conversations/')&&currentRequestPath.includes('/messages')){
+     currentHistoryRequests++;
      const currentPeerIdentifier=currentRequestPath.split('/')[4];
-     return {serverTime:currentInitialTimestamp,peer:{characterId:currentPeerIdentifier,name:currentPeerIdentifier==='friend'?'친구':'다른 상대'},blocked:currentBlockedValue,
-       entries:[{messageId:'1',senderId:currentPeerIdentifier,recipientId:'hero',text:'<img src=x onerror=alert(1)> 개인 본문',sentAt:currentInitialTimestamp-10,expiresAt:currentExpireHistory?Date.now()/1000+0.6:currentInitialTimestamp+60}],nextCursor:null};
+     const currentOlderPage=currentRequestPath.includes('?before=');
+     const currentHistoryResponse={serverTime:currentInitialTimestamp,peer:{characterId:currentPeerIdentifier,name:currentPeerIdentifier==='friend'?'친구':'다른 상대'},blocked:currentBlockedValue,
+       entries:[{messageId:currentOlderPage?'1':currentLatestSequence,senderId:currentPeerIdentifier,recipientId:'hero',text:currentHistoryPaging?(currentOlderPage?'이전 대화 본문':currentLatestBody):'<img src=x onerror=alert(1)> 개인 본문',sentAt:currentInitialTimestamp-10,expiresAt:currentExpireHistory?Date.now()/1000+0.6:currentInitialTimestamp+600}],nextCursor:currentHistoryPaging&&!currentOlderPage?'2':null};
+     if(currentDelayHistory){currentDelayHistory=false;currentDelayedResponse=currentHistoryResponse;return new Promise(currentResolveCallback=>{currentDeferredHistory=currentResolveCallback;});}
+     return currentHistoryResponse;
    }
    throw new Error('예상하지 않은 API: '+currentRequestPath);
  }};
@@ -60,6 +72,24 @@ async function selectDirectMessagePeer(currentPeerIdentifier:string){
  assertDirectMessageBrowser(!document.querySelector('.direct-message-history')!.textContent!.includes('개인 본문'),'만료 본문 화면 폐기');
  assertDirectMessageBrowser(!Object.values(localStorage).join('').includes('개인 본문'),'브라우저 영구 저장소에 본문 없음');
  assertDirectMessageBrowser(document.documentElement.scrollWidth<=window.innerWidth,'모바일 대화창 가로 넘침 없음');
+ currentExpireHistory=false;currentHistoryPaging=true;clickDirectMessageButton(t('directmessages.refresh'));await waitDirectMessageRender();
+ const currentLiveDraft=document.querySelector('textarea') as HTMLTextAreaElement;currentLiveDraft.value='갱신 중에도 유지할 초안';currentLiveDraft.dispatchEvent(new Event('input',{bubbles:true}));
+ currentLatestBody='새로 도착한 자동 본문';currentLatestSequence='3';
+ await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,31000));
+ assertDirectMessageBrowser(document.querySelector('.direct-message-history')!.textContent!.includes(currentLatestBody),'버튼 조작 없이 새 본문 자동 표시');
+ assertDirectMessageBrowser((document.querySelector('textarea') as HTMLTextAreaElement).value==='갱신 중에도 유지할 초안','자동 갱신 중 작성 초안 유지');
+ assertDirectMessageBrowser(currentAcknowledgedMessages.filter(currentMessageIdentifier=>currentMessageIdentifier==='3').length===1,'새 자동 수신 메시지 확인 처리');
+ clickDirectMessageButton(t('directmessages.older'));await waitDirectMessageRender();
+ const currentPreviousRequests=currentHistoryRequests;
+ await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,31000));
+ assertDirectMessageBrowser(currentHistoryRequests===currentPreviousRequests&&document.querySelector('.direct-message-history')!.textContent!.includes('이전 대화 본문'),'이전 내역 페이지는 자동 조회와 덮어쓰기 중단');
+ clickDirectMessageButton(t('directmessages.refresh'));await waitDirectMessageRender();currentDelayHistory=true;
+ await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,31000));
+ assertDirectMessageBrowser(currentDeferredHistory!==null,'열린 최신 대화의 자동 조회 재개');
+ await selectDirectMessagePeer('other');
+ currentDelayedResponse.entries[0].text='폐기해야 할 늦은 응답';
+ (currentDeferredHistory as unknown as (currentResult:unknown)=>void)(currentDelayedResponse);await waitDirectMessageRender();
+ assertDirectMessageBrowser(!document.body.textContent!.includes('폐기해야 할 늦은 응답')&&document.querySelector('h3')!.textContent!.includes('other'),'상대 변경 이후 늦은 자동 조회 폐기');
  render(null,currentRootElement);await waitDirectMessageRender();
  assertDirectMessageBrowser(!document.querySelector('dialog'),'로그아웃 시 개인 화면 제거');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionMessages});
