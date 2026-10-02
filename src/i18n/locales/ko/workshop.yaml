@@ -52,3 +52,5 @@ materialSelection: 등급별 투입 재료
 materialOwned: '보유 {quantity}개'
 materialTotal: '선택 {selected} / 필요 {required}'
 materialTotalInvalid: 필요한 총수량에 맞게 등급별 수량을 선택하세요.
+
+material: 중간재 제작

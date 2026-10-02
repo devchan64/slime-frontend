@@ -70,5 +70,24 @@ function findProductionButton(currentLocaleKey:string){const currentButton=[...d
  assertProductionCondition(currentQuotedRequests.at(-1).kind==='consumable'&&currentQuotedRequests.at(-1).quantity===2,'소모품 종류와 주문량 전송');
  findProductionButton('workshop.confirm').click();await settleProductionRender();
  assertProductionCondition(currentCreatedRequests.at(-1).quantity===2&&JSON.stringify(currentCreatedRequests.at(-1).materialInputs)===JSON.stringify(currentQuotedRequests.at(-1).materialInputs),'견적 재료와 주문량 그대로 계약 생성');
+ const currentPreviousRequest=currentGameClient.request;
+ currentGameClient.request=async(currentPath:string,currentBody?:any)=>{
+  if(currentPath.includes('/catalog?kind=material'))return {items:[{id:'leather-cord',name:'가죽끈',englishName:'Leather Cord',materialSlots:[{slotId:'leather',requiredQuantity:1,defaultMaterialId:'tanned-leather-low',choices:['low','medium'].map(currentGradeName=>({materialId:'tanned-leather-'+currentGradeName,grade:currentGradeName,ownedQuantity:10,nameTranslations:{ko:currentGradeName,en:currentGradeName}}))}]}]};
+  if(currentPath.endsWith('/production-quote')&&currentBody.kind==='material'){
+   currentQuotedRequests.push(currentBody);
+   return {characterVersion:5,ownedCoins:100,quoteToken:'c'.repeat(64),quote:{definitionId:'leather-cord',definitionSnapshot:{name:'가죽끈',englishName:'Leather Cord'},quantity:4,unitCostP:2,unitDurationSeconds:45,costP:8,durationSeconds:180,requiredMaterials:currentBody.materialInputs,productionResult:{productId:'leather-cord',usage:'material',itemLevel:1,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:5,denominator:4},performance:{material_strength_percent:100}}},materials:currentBody.materialInputs.map((currentInputRecord:any)=>({...currentInputRecord,ownedQuantity:10,consumedQuantity:currentInputRecord.quantity,missingQuantity:0,nameTranslations:{ko:'가죽',en:'Leather'}}))};
+  }
+  return currentPreviousRequest(currentPath,currentBody);
+ };
+ findProductionButton('workshop.material').click();await settleProductionRender();
+ const currentMaterialSelect=document.querySelector('select')!;currentMaterialSelect.value='leather-cord';currentMaterialSelect.dispatchEvent(new Event('change',{bubbles:true}));await settleProductionRender();
+ const currentMaterialQuantity=document.querySelector<HTMLInputElement>('input[max="1000"]')!;currentMaterialQuantity.value='4';currentMaterialQuantity.dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();
+ assertProductionCondition(findProductionButton('workshop.quote').disabled,'중간재 주문량에 맞지 않는 재료 차단');
+ currentMaterialInputs=[...document.querySelectorAll<HTMLInputElement>('fieldset input')];
+ for(const [currentInputIndex,currentInputQuantity] of [[0,3],[1,1]]){currentMaterialInputs[currentInputIndex].value=String(currentInputQuantity);currentMaterialInputs[currentInputIndex].dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();}
+ findProductionButton('workshop.quote').click();await settleProductionRender();
+ assertProductionCondition(currentQuotedRequests.at(-1).kind==='material'&&currentQuotedRequests.at(-1).quantity===4,'중간재 혼합 견적 전송');
+ findProductionButton('workshop.confirm').click();await settleProductionRender();
+ assertProductionCondition(currentCreatedRequests.at(-1).kind==='material'&&currentCreatedRequests.at(-1).quantity===4&&JSON.stringify(currentCreatedRequests.at(-1).materialInputs)===JSON.stringify(currentQuotedRequests.at(-1).materialInputs),'중간재 견적과 같은 수량·재료 계약');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertions});
 }catch(currentFailure){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailure),assertions:currentAssertions});}})();

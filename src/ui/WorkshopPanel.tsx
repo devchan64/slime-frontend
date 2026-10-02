@@ -69,12 +69,12 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     setCurrentQuoteResponse(null);quotedRequestReference.current=null;
     const currentSelectedMaterials=(currentMaterialSlots.length?currentMaterialSlots.flatMap(currentMaterialSlot=>currentMaterialSlot.choices):undefined)?.map(currentMaterialChoice=>({materialId:currentMaterialChoice.materialId,quantity:currentMaterialQuantities[currentMaterialChoice.materialId]??0})).filter(currentMaterialEntry=>currentMaterialEntry.quantity>0);
     if(!currentMaterialSelectionValid)throw new Error(translateWorkshopText('workshop.materialTotalInvalid'));
-    const currentRawQuote=await gameSessionClient.request(currentSelectedMaterials?`${workshopRequestBase}/production-quote`:`${workshopRequestBase}/quote?kind=${currentContractKind}&targetId=${encodeURIComponent(currentTargetIdentifier)}${currentContractKind==='consumable'?'&quantity='+currentRequestedQuantity:''}`,
-      currentSelectedMaterials?{targetId:currentTargetIdentifier,materialInputs:currentSelectedMaterials,...(currentContractKind==='consumable'?{kind:currentContractKind,quantity:currentRequestedQuantity}:{})}:undefined);
-    const receivedQuoteResponse=parseWorkshopQuote(currentRawQuote,currentContractKind,{targetId:currentTargetIdentifier,...(currentSelectedMaterials?{materialInputs:currentSelectedMaterials}:{}),...(currentContractKind==='consumable'?{quantity:currentRequestedQuantity}:{})});
+    const currentRawQuote=await gameSessionClient.request(currentSelectedMaterials?`${workshopRequestBase}/production-quote`:`${workshopRequestBase}/quote?kind=${currentContractKind}&targetId=${encodeURIComponent(currentTargetIdentifier)}${(currentContractKind==='consumable'||currentContractKind==='material')?'&quantity='+currentRequestedQuantity:''}`,
+      currentSelectedMaterials?{targetId:currentTargetIdentifier,materialInputs:currentSelectedMaterials,...((currentContractKind==='consumable'||currentContractKind==='material')?{kind:currentContractKind,quantity:currentRequestedQuantity}:{})}:undefined);
+    const receivedQuoteResponse=parseWorkshopQuote(currentRawQuote,currentContractKind,{targetId:currentTargetIdentifier,...(currentSelectedMaterials?{materialInputs:currentSelectedMaterials}:{}),...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:currentRequestedQuantity}:{})});
     if(workshopSessionMatches()){setCurrentQuoteResponse(receivedQuoteResponse);quotedRequestReference.current={kind:currentContractKind,targetId:currentTargetIdentifier,
       ...(currentSelectedMaterials?{materialInputs:currentSelectedMaterials}:{}),
-      ...(currentContractKind==='consumable'?{quantity:receivedQuoteResponse.quote.quantity}:{}),
+      ...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:receivedQuoteResponse.quote.quantity}:{}),
       quoteToken:receivedQuoteResponse.quoteToken,expectedVersion:receivedQuoteResponse.characterVersion,requestId:crypto.randomUUID(),
       ...(currentContractKind==='repair'?{expectedInstanceVersion:receivedQuoteResponse.quote.instanceVersion}:{})};}
   });}
@@ -121,8 +121,8 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     return()=>window.clearTimeout(currentRefreshTimer);
   },[workshopPanelOpened,currentContractPage,currentContractKind,currentContractCursor,actionsAreDisabled,workshopRequestPending,workshopCreationUncertain]);
   const currentSelectedOption=currentSelectionOptions.find(currentSelectionOption=>currentSelectionOption.id===currentTargetIdentifier);
-  const currentMaterialSlots=currentContractKind==='craft'?(currentSelectedOption?.materialSelection?[currentSelectedOption.materialSelection]:[]):currentContractKind==='consumable'?(currentSelectedOption?.materialSlots??[]):[];
-  const currentQuantityMultiplier=currentContractKind==='consumable'?currentRequestedQuantity:1;
+  const currentMaterialSlots=currentContractKind==='craft'?(currentSelectedOption?.materialSelection?[currentSelectedOption.materialSelection]:[]):(currentContractKind==='consumable'||currentContractKind==='material')?(currentSelectedOption?.materialSlots??[]):[];
+  const currentQuantityMultiplier=(currentContractKind==='consumable'||currentContractKind==='material')?currentRequestedQuantity:1;
   const currentMaterialSelectionValid=currentMaterialSlots.every(currentMaterialSlot=>{
     const currentRequiredQuantity=currentMaterialSlot.requiredQuantity*currentQuantityMultiplier;
     return currentMaterialSlot.choices.reduce((currentTotalValue,currentChoice)=>currentTotalValue+(currentMaterialQuantities[currentChoice.materialId]??0),0)===currentRequiredQuantity
@@ -134,7 +134,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       onClick={()=>{setWorkshopPanelOpened(!workshopPanelOpened);if(!workshopPanelOpened)void loadWorkshopContents(currentContractKind);}}>{translateWorkshopText('workshop.title')}</button>
     {workshopPanelOpened&&<div>
       <p>{translateWorkshopText('workshop.citizenship')}</p>
-      <div class="workshop-controls">{(['craft','consumable','repair'] as const).map(currentKindOption=><button class="secondary compact" aria-pressed={currentContractKind===currentKindOption}
+      <div class="workshop-controls">{(['craft','consumable','material','repair'] as const).map(currentKindOption=><button class="secondary compact" aria-pressed={currentContractKind===currentKindOption}
         disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentKindOption)}>{translateWorkshopText(`workshop.${currentKindOption}`)}</button>)}
         <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentContractKind)}>{translateWorkshopText('journal.refresh')}</button></div>
       {currentWorkshopNotice&&<p role="alert">{noticeText(currentWorkshopNotice,currentWorkshopLocale,translateWorkshopText)}</p>}
@@ -143,10 +143,10 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       <label>{translateWorkshopText('workshop.item')}<select value={currentTargetIdentifier} disabled={currentControlsDisabled} onChange={currentSelectionEvent=>{
         setCurrentTargetIdentifier(currentSelectionEvent.currentTarget.value);
         const currentSelectedOption=currentSelectionOptions.find(currentSelectionOption=>currentSelectionOption.id===currentSelectionEvent.currentTarget.value);
-        setCurrentMaterialQuantities(Object.fromEntries((currentContractKind==='craft'?(currentSelectedOption?.materialSelection?[currentSelectedOption.materialSelection]:[]):(currentSelectedOption?.materialSlots??[])).map(currentSlot=>[currentSlot.defaultMaterialId,currentSlot.requiredQuantity*(currentContractKind==='consumable'?currentRequestedQuantity:1)])));setCurrentQuoteResponse(null);quotedRequestReference.current=null;}}>
+        setCurrentMaterialQuantities(Object.fromEntries((currentContractKind==='craft'?(currentSelectedOption?.materialSelection?[currentSelectedOption.materialSelection]:[]):(currentSelectedOption?.materialSlots??[])).map(currentSlot=>[currentSlot.defaultMaterialId,currentSlot.requiredQuantity*((currentContractKind==='consumable'||currentContractKind==='material')?currentRequestedQuantity:1)])));setCurrentQuoteResponse(null);quotedRequestReference.current=null;}}>
         <option value="">{translateWorkshopText('workshop.choose')}</option>{currentSelectionOptions.map(currentSelectionOption=><option value={currentSelectionOption.id}>{currentSelectionOption.nameTranslations[currentWorkshopLocale]}</option>)}
       </select></label>
-      {currentContractKind==='consumable'&&<label>{translateWorkshopText('workshop.quantity')}<input type="number" min="1" max="1000" step="1" value={currentRequestedQuantity} disabled={currentControlsDisabled}
+      {(currentContractKind==='consumable'||currentContractKind==='material')&&<label>{translateWorkshopText('workshop.quantity')}<input type="number" min="1" max="1000" step="1" value={currentRequestedQuantity} disabled={currentControlsDisabled}
         onInput={currentQuantityEvent=>{setCurrentRequestedQuantity(Number(currentQuantityEvent.currentTarget.value));setCurrentQuoteResponse(null);quotedRequestReference.current=null;}}/></label>}
       {currentMaterialSlots.map(currentMaterialSelection=><fieldset key={currentMaterialSelection.defaultMaterialId} disabled={currentControlsDisabled}>
         <legend>{translateWorkshopText('workshop.materialSelection')}</legend>
@@ -158,7 +158,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
         {!currentMaterialSelectionValid&&<p>{translateWorkshopText('workshop.materialTotalInvalid')}</p>}
       </fieldset>)}
       {!currentSelectionOptions.length&&<p>{translateWorkshopText('workshop.noItems')}</p>}
-      <button class="secondary compact" disabled={currentControlsDisabled||!currentMaterialSelectionValid||!currentTargetIdentifier||(currentContractKind==='consumable'&&(!Number.isSafeInteger(currentRequestedQuantity)||currentRequestedQuantity<1||currentRequestedQuantity>1000))} onClick={()=>void requestWorkshopQuote()}>{translateWorkshopText('workshop.quote')}</button>
+      <button class="secondary compact" disabled={currentControlsDisabled||!currentMaterialSelectionValid||!currentTargetIdentifier||((currentContractKind==='consumable'||currentContractKind==='material')&&(!Number.isSafeInteger(currentRequestedQuantity)||currentRequestedQuantity<1||currentRequestedQuantity>1000))} onClick={()=>void requestWorkshopQuote()}>{translateWorkshopText('workshop.quote')}</button>
       {currentQuoteResponse&&<div class="workshop-quote">
         {currentQuoteResponse.quote.productionResult&&<p>Lv.{currentQuoteResponse.quote.productionResult.itemLevel}</p>}
         {currentQuoteResponse.quote.quantity!==undefined&&<p>{translateWorkshopText('workshop.quantityTime',{quantity:currentQuoteResponse.quote.quantity,seconds:currentQuoteResponse.quote.unitDurationSeconds!})}</p>}
@@ -179,7 +179,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
       <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
-        <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}{currentContractEntry.kind==='consumable'?' × '+currentContractEntry.quote.quantity:''}{currentContractEntry.quote.productionResult?' · Lv.'+currentContractEntry.quote.productionResult.itemLevel:''}</strong>
+        <strong>{currentContractEntry.quote.definitionSnapshot?.[currentWorkshopLocale==='ko'?'name':'englishName']??translateWorkshopText('workshop.repair')}{(currentContractEntry.kind==='consumable'||currentContractEntry.kind==='material')?' × '+currentContractEntry.quote.quantity:''}{currentContractEntry.quote.productionResult?' · Lv.'+currentContractEntry.quote.productionResult.itemLevel:''}</strong>
         <p>{translateWorkshopText(`workshop.${currentContractEntry.status.toLowerCase().replaceAll('_','')}`)}</p>
         <p>{translateWorkshopText('workshop.paidTotal',{cost:currentContractEntry.quote.costP})}</p>
         {currentContractEntry.quote.baseCostP!==undefined&&<small>{translateWorkshopText('workshop.costBreakdown',{

@@ -52,3 +52,5 @@ materialSelection: Materials by grade
 materialOwned: 'Owned {quantity}'
 materialTotal: 'Selected {selected} / required {required}'
 materialTotalInvalid: Select grade quantities that add up to the required total.
+
+material: Material crafting

@@ -61,3 +61,14 @@ test('소모품 카탈로그에 각 슬롯의 개당 필요량과 보유량을 �
  const currentOutput=await currentTextClient.execute('workshop consumable catalog iseulon-workshop');
  assert.match(currentOutput,/개당 필요 2.*gelatin-low.*보유 7.*개당 필요 1.*grain-flour-low/);
 });
+
+test('중간재 선택 재료 견적은 주문량·종류·총 재료량을 계약에 유지한다',async()=>{
+ const currentMaterialInputs=[{materialId:'tanned-leather-low',quantity:4},{materialId:'tanned-leather-medium',quantity:2}];
+ const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:'leather-cord',definitionSnapshot:{name:'젤 곡물식',englishName:'Gel Ration'},costP:2,durationSeconds:180,unitCostP:1,unitDurationSeconds:90,quantity:2,productionResult:{productId:'leather-cord',usage:'material',itemLevel:1,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:4,denominator:3},performance:{material_strength_percent:100}},requiredMaterials:currentMaterialInputs},materials:currentMaterialInputs.map(currentInput=>({...currentInput,nameTranslations:{ko:'재료',en:'Material'},ownedQuantity:10,consumedQuantity:currentInput.quantity,missingQuantity:0}))};
+ const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentQuoteData,{state:createWorkshopState()}]);
+ await currentTextClient.execute('workshop material quote iseulon-workshop leather-cord 2 tanned-leather-low=4 tanned-leather-medium=2');
+ await currentTextClient.execute('workshop material create iseulon-workshop');
+ for(const currentRequestEntry of currentRequestEntries){assert.equal(currentRequestEntry.body.kind,'material');assert.equal(currentRequestEntry.body.quantity,2);assert.deepEqual(currentRequestEntry.body.materialInputs,currentMaterialInputs);}
+ for(const currentInvalidInput of ['tanned-leather-low=0','tanned-leather-low=4 tanned-leather-low=4','tanned-leather-low=1.5'])await assert.rejects(currentTextClient.execute('workshop material quote iseulon-workshop leather-cord 2 '+currentInvalidInput));
+ assert.equal(currentRequestEntries.length,2);
+});

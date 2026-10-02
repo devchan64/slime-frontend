@@ -216,3 +216,13 @@ test('중간재 과거 계약의 고정 성능은 현재 표를 추측하여 덮
  assert.throws(()=>parseWorkshopQuote(currentSavedQuote,'unsupported'));
  assert.throws(()=>parseWorkshopContracts({...currentContractFixture,entries:[]},'unsupported'));
 });
+
+ test('중간재 응답 유실 복구는 주문 수량과 재료까지 일치해야 한다',async()=>{
+ const {recoverWorkshopCreationResult}=await import(`data:text/javascript;base64,${Buffer.from(currentCompiledBundle.outputFiles[0].text).toString('base64')}`);
+ const currentOriginalRequest={requestId:'22222222-2222-4222-8222-222222222222',kind:'material',targetId:'leather-cord',quantity:4,materialInputs:createMaterialQuoteFixture().quote.requiredMaterials};
+ const currentReceiptFixture={...currentOriginalRequest,materials:currentOriginalRequest.materialInputs,facilityId:'iseulon-workshop',expectedInstanceVersion:null,contractId:currentContractFixture.entries[0].contractId,costP:8};
+ const currentRequestClient={async request(currentRequestPath,currentRequestBody){assert.equal(currentRequestBody,undefined);assert.match(currentRequestPath,/kind=material$/);return currentReceiptFixture;}};
+ assert.equal(await recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'),true);
+ currentReceiptFixture.quantity=3;
+ await assert.rejects(()=>recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'));
+ });

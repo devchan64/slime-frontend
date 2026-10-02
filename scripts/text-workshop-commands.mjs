@@ -3,7 +3,7 @@ import {parseEquipmentInventory} from '../src/client/equipment-validation.mjs';
 const WORKSHOP_IDENTIFIER_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
 const WORKSHOP_CONTRACT_PATTERN=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const WORKSHOP_STATUS_LABELS={IN_PROGRESS:'작업 중',READY:'수령 가능',CLAIMED:'수령 완료'};
-const WORKSHOP_COMMAND_HELP='workshop craft|repair|consumable catalog 시설ID [다음커서] / quote 시설ID 품목ID [소모품 수량] [재료ID=수량 ...] / create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID';
+const WORKSHOP_COMMAND_HELP='workshop craft|repair|consumable|material catalog 시설ID [다음커서] / quote 시설ID 품목ID [소모품·중간재 수량] [재료ID=수량 ...] / create 시설ID / contracts 시설ID [다음커서] / claim 시설ID 계약ID';
 function sanitizeWorkshopText(currentDisplayValue){return currentDisplayValue.replace(/[\u0000-\u001f\u007f-\u009f]/g,' ');}
 function captureWorkshopContext(currentTextClient){
  const currentGameState=currentTextClient.state;
@@ -12,14 +12,14 @@ function captureWorkshopContext(currentTextClient){
 function formatWorkshopQuote(currentQuoteRecord,currentContractKind){
  return currentContractKind==='repair'
   ?'내구도 '+currentQuoteRecord.before.currentDurability+'/'+currentQuoteRecord.before.maxDurability+' → '+currentQuoteRecord.after.currentDurability+'/'+currentQuoteRecord.after.maxDurability
-  :sanitizeWorkshopText(currentQuoteRecord.definitionSnapshot.name)+(currentQuoteRecord.productionResult?' · Lv.'+currentQuoteRecord.productionResult.itemLevel:'')+' × '+(currentContractKind==='consumable'?currentQuoteRecord.quantity:1);
+  :sanitizeWorkshopText(currentQuoteRecord.definitionSnapshot.name)+(currentQuoteRecord.productionResult?' · Lv.'+currentQuoteRecord.productionResult.itemLevel:'')+' × '+((currentContractKind==='consumable'||currentContractKind==='material')?currentQuoteRecord.quantity:1);
 }
 export async function executeWorkshopCommand(currentTextClient,currentCommandArguments){
  const [currentContractKind,currentActionName,currentFacilityIdentifier,...currentActionArguments]=currentCommandArguments;
- if(!['craft','repair','consumable'].includes(currentContractKind)||!['catalog','quote','create','contracts','claim'].includes(currentActionName)||!WORKSHOP_IDENTIFIER_PATTERN.test(currentFacilityIdentifier??'')
+ if(!['craft','repair','consumable','material'].includes(currentContractKind)||!['catalog','quote','create','contracts','claim'].includes(currentActionName)||!WORKSHOP_IDENTIFIER_PATTERN.test(currentFacilityIdentifier??'')
   ||(currentActionName==='catalog'&&currentActionArguments.length>(currentContractKind==='repair'?1:0))
   ||(currentActionName==='create'&&currentActionArguments.length!==0)
-  ||(currentActionName==='quote'&&(currentContractKind==='craft'?(currentActionArguments.length<1||currentActionArguments.length>51):currentContractKind==='consumable'?(currentActionArguments.length<2||currentActionArguments.length>52):currentActionArguments.length!==1))
+  ||(currentActionName==='quote'&&(currentContractKind==='craft'?(currentActionArguments.length<1||currentActionArguments.length>51):(currentContractKind==='consumable'||currentContractKind==='material')?(currentActionArguments.length<2||currentActionArguments.length>52):currentActionArguments.length!==1))
   ||(currentActionName==='contracts'&&currentActionArguments.length>1)
   ||(currentActionName==='claim'&&currentActionArguments.length!==1))throw new Error(WORKSHOP_COMMAND_HELP);
  const currentGameState=currentTextClient.state;
@@ -48,9 +48,9 @@ export async function executeWorkshopCommand(currentTextClient,currentCommandArg
   currentTextClient.workshopPriceQuote=null;
   const [currentItemIdentifier,currentQuantityText]=currentActionArguments;
   if(!(currentContractKind==='repair'?WORKSHOP_CONTRACT_PATTERN:WORKSHOP_IDENTIFIER_PATTERN).test(currentItemIdentifier)
-   ||(currentContractKind==='consumable'&&(!/^\d+$/.test(currentQuantityText)||!Number.isSafeInteger(Number(currentQuantityText))||Number(currentQuantityText)<1||Number(currentQuantityText)>1000)))throw new Error(WORKSHOP_COMMAND_HELP);
+   ||((currentContractKind==='consumable'||currentContractKind==='material')&&(!/^\d+$/.test(currentQuantityText)||!Number.isSafeInteger(Number(currentQuantityText))||Number(currentQuantityText)<1||Number(currentQuantityText)>1000)))throw new Error(WORKSHOP_COMMAND_HELP);
   let currentMaterialInputs;
-  const currentMaterialOffset=currentContractKind==='consumable'?2:1;
+  const currentMaterialOffset=(currentContractKind==='consumable'||currentContractKind==='material')?2:1;
   if(currentContractKind!=='repair'&&currentActionArguments.length>currentMaterialOffset){
    const currentSeenMaterials=new Set();
    currentMaterialInputs=currentActionArguments.slice(currentMaterialOffset).map(currentInputText=>{
@@ -59,9 +59,9 @@ export async function executeWorkshopCommand(currentTextClient,currentCommandArg
     currentSeenMaterials.add(currentInputMatch[1]);return {materialId:currentInputMatch[1],quantity:Number(currentInputMatch[2])};
    });
   }
-  const currentQuoteSelection={targetId:currentItemIdentifier,...(currentMaterialInputs?{materialInputs:currentMaterialInputs}:{}),...(currentContractKind==='consumable'?{quantity:Number(currentQuantityText)}:{})};
-  const currentQueryParameters=new URLSearchParams({kind:currentContractKind,targetId:currentItemIdentifier,...(currentContractKind==='consumable'?{quantity:currentQuantityText}:{})});
-  const currentQuoteData=parseWorkshopQuote(await currentTextClient.request(currentMaterialInputs?currentRequestPrefix+'/production-quote':currentRequestPrefix+'/quote?'+currentQueryParameters,currentMaterialInputs?{...currentQuoteSelection,...(currentContractKind==='consumable'?{kind:currentContractKind}:{})}:undefined),currentContractKind,currentQuoteSelection);
+  const currentQuoteSelection={targetId:currentItemIdentifier,...(currentMaterialInputs?{materialInputs:currentMaterialInputs}:{}),...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:Number(currentQuantityText)}:{})};
+  const currentQueryParameters=new URLSearchParams({kind:currentContractKind,targetId:currentItemIdentifier,...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:currentQuantityText}:{})});
+  const currentQuoteData=parseWorkshopQuote(await currentTextClient.request(currentMaterialInputs?currentRequestPrefix+'/production-quote':currentRequestPrefix+'/quote?'+currentQueryParameters,currentMaterialInputs?{...currentQuoteSelection,...((currentContractKind==='consumable'||currentContractKind==='material')?{kind:currentContractKind}:{})}:undefined),currentContractKind,currentQuoteSelection);
   if(captureWorkshopContext(currentTextClient)!==currentQuoteContext||currentQuoteData.characterVersion!==currentGameState.me.version)throw new Error('상태 또는 견적 조건이 바뀌었습니다. 다시 조회하세요.');
   currentTextClient.workshopPriceQuote={kind:currentContractKind,context:currentQuoteContext,facilityId:currentFacilityIdentifier,targetId:currentItemIdentifier,materialInputs:currentMaterialInputs,data:currentQuoteData};
   return formatWorkshopQuote(currentQuoteData.quote,currentContractKind)+' · '+currentQuoteData.quote.costP+'P · '+currentQuoteData.quote.durationSeconds+'초\n'+currentQuoteData.materials.map(currentMaterialEntry=>sanitizeWorkshopText(currentMaterialEntry.nameTranslations.ko)+' 필요 '+currentMaterialEntry.quantity+' · 소비 '+(currentMaterialEntry.consumedQuantity??currentMaterialEntry.quantity)+' · 대체 구매 '+(currentMaterialEntry.missingQuantity??0)).join('\n')+'\n계약 후 취소 불가\n계약 확정: '+currentCommandPrefix+' create '+currentFacilityIdentifier;
@@ -73,7 +73,7 @@ export async function executeWorkshopCommand(currentTextClient,currentCommandArg
   currentTextClient.workshopPriceQuote=null;
   return currentTextClient.command(currentRequestPrefix+'/contracts',{kind:currentContractKind,targetId:currentStoredQuote.targetId,
    ...(currentStoredQuote.materialInputs?{materialInputs:currentStoredQuote.materialInputs}:{}),
-   ...(currentContractKind==='consumable'?{quantity:currentStoredQuote.data.quote.quantity}:{}),
+   ...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:currentStoredQuote.data.quote.quantity}:{}),
    ...(currentContractKind==='repair'?{expectedInstanceVersion:currentStoredQuote.data.quote.instanceVersion}:{}),quoteToken:currentStoredQuote.data.quoteToken});
  }
  if(!WORKSHOP_CONTRACT_PATTERN.test(currentActionArguments[0]))throw new Error(WORKSHOP_COMMAND_HELP);
