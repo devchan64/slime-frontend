@@ -846,3 +846,10 @@ test('상태 조회는 본인의 길드 자격증과 단일 폰 잔액을 표시
  delete currentCharacterState.me.guildMembership;
  assert.doesNotMatch(formatState(currentCharacterState),/미가입|미발급/);
 });
+test('응급처치 배치 선택을 원래 요청에 고정해 재시도한다',async()=>{
+ const {client:currentTextClient,calls:currentRecordedCalls}=setup([new TypeError('network'),{state:state({cursor:2})}]);
+ currentTextClient.accept(state());
+ await currentTextClient.execute('first-aid bandage-1');
+ assert.equal(currentRecordedCalls[0].body.batchId,'bandage-1');
+ assert.deepEqual(currentRecordedCalls[0].body,currentRecordedCalls[1].body);
+});

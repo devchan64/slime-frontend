@@ -18,3 +18,15 @@ test('응급처치는 올림된 HP 표시가 아닌 실제 완충 상태를 사�
  currentGameState.me.healthFull=true;
  assert.equal(currentRenderButton().props.disabled,true);
 });
+test('생산 붕대 버튼은 선택 배치만 전송하고 구형 재고 부족과 분리한다',()=>{
+ const currentSentBatches=[];
+ const currentGameState={me:{mode:'FIELD',hp:1,maxHp:10,fp:1,position:{column:5,row:5},
+  firstAid:{consumableId:'clean-bandage',consumedOnSuccess:1,minimumUseLevel:1,literacyRequired:1,restorationHp:5},
+  bag:{items:[{id:'production-batch:a',batchId:'a',definitionId:'clean-bandage',kind:'consumable',quantity:1,itemLevel:2}]},skills:{first_aid:1,literacy:1}},map:{startPoint:{column:0,row:0},safeRadius:1}};
+ const currentRender=()=>FieldFirstAid({currentGameState,actionsAreDisabled:false,submitFirstAidCommand:currentBatchId=>currentSentBatches.push(currentBatchId)});
+ const currentButtons=currentRender().props.children;
+ assert.equal(currentButtons[0].props.disabled,true);
+ assert.equal(currentButtons[1][0].props.disabled,false);
+ currentButtons[1][0].props.onClick();assert.deepEqual(currentSentBatches,['a']);
+ currentGameState.me.bag.items=[];assert.equal(currentRender().props.disabled,true);
+});

@@ -307,9 +307,11 @@ export class TextClient {
       return formatCharacterBag(this.state.me.bag)+'\n'+formatTravelerPermitSummary(this.state.me.travelerPermitSummary,this.state.serverTime,this.state.me.id);
     }
     if (name === 'first-aid' || name === 'use-item') {
-      arity(name === 'first-aid' ? 0 : 1);
+      if(name==='first-aid'){
+        if(args.length>1||(args.length===1&&!/^[A-Za-z0-9_-]{1,60}$/.test(args[0])))throw new Error('first-aid [배치ID]로 입력하세요.');
+      }else arity(1);
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 응급처치·소모품을 사용할 수 있습니다.');
-      return name === 'first-aid' ? this.command('/v1/game/skills/first-aid')
+      return name === 'first-aid' ? this.command('/v1/game/skills/first-aid',args.length?{batchId:args[0]}:{})
         : this.command('/v1/game/consumables/use', { itemId: args[0] });
     }
     if (name === 'explore') {
