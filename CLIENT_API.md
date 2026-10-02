@@ -425,3 +425,6 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 웹은 기존 NPC 대화 안의 시즌·랜덤 의뢰와 개인 의뢰 기록을 사용한다. 수령·전달 마감을 표시하고 전달 전에 차감 재료를 확인한다. 명령 응답의 기간 ID·재료·보상·세션·완료 상태를 공통 검증기로 확인한 뒤 상태를 반영한다.
 
 서버 경로는 `GET /v1/game/npcs/{npcId}/timed-events`, `GET /v1/game/timed-events`, `POST /v1/game/timed-events/{offerId}/{accept|complete}`다. 목록은 `language=ko|en`, `offset`과 응답의 `nextOffset`을 사용한다. 명령은 `{npcId, expectedVersion}`을 보내며 의뢰 ID는 URL 인코딩한다. 기존 메인 의뢰 API는 유지한다. 새 서버를 먼저 적용해야 한다.
+
+
+계정 기능의 실제 브라우저 수용 번들은 기존 `parcel` 대상을 사용한다. `tests/fixtures/parcel-live-browser.tsx`는 `/test-context`의 `tokens`·`recipientTokens`·`locale`·`expectedMaterialName`을 받아 소포 수령 뒤 서로 다른 두 인증 클라이언트의 개인 메시지 발송·응답 유실 재시도·수신·차단을 확인한다. `node scripts/build-backend-acceptance.mjs parcel <출력.js>`로 생성하고 서버 검사에는 `SLIME_PARCEL_BROWSER_BUNDLE`로 전달한다. 테스트 계정 토큰은 실행 중에만 제공하며 번들·로그·저장소에 넣지 않는다.

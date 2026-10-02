@@ -1,4 +1,5 @@
 import {render} from 'preact';
+import {DirectMessages} from '../../src/ui/DirectMessages';
 import {AccountRewardsPanel} from '../../src/ui/AccountRewardsPanel';
 import {Client} from '../../src/client/api';
 import {t,setLocale} from '../../src/i18n';
@@ -7,6 +8,8 @@ const currentWaitRender=()=>new Promise(currentResolveCallback=>setTimeout(curre
 const currentOriginalFetch=window.fetch.bind(window);
 const currentRecordedPurchases:string[]=[];
 let currentResponseDiscarded=false;
+let currentMessageDiscarded=false;
+const currentMessagePayloads:string[]=[];
 function assertBrowserCondition(currentCondition:unknown,currentMessage:string){if(!currentCondition)throw new Error(currentMessage);}
 function renderParcelPanel(){render(<AccountRewardsPanel gameSessionClient={currentGameClient} actionsAreDisabled={false}/>,document.getElementById('root')!);}
 async function waitParcelCondition(currentPredicate:()=>boolean,currentDescription:string){
@@ -24,6 +27,10 @@ window.fetch=async(currentInput,currentOptions)=>{
  if(String(currentInput).endsWith('/claim')){
   currentRecordedPurchases.push(String(currentOptions?.body));
   if(currentResponse.ok&&!currentResponseDiscarded){currentResponseDiscarded=true;await currentResponse.arrayBuffer();throw new TypeError('실제 수령 응답 유실 검사');}
+ }
+ if(String(currentInput).endsWith('/v1/direct-messages/messages')&&currentOptions?.method==='POST'){
+  currentMessagePayloads.push(String(currentOptions.body));
+  if(currentResponse.ok&&!currentMessageDiscarded){currentMessageDiscarded=true;await currentResponse.arrayBuffer();throw new TypeError('실제 개인 메시지 응답 유실 검사');}
  }
  return currentResponse;
 };
@@ -49,5 +56,44 @@ window.fetch=async(currentInput,currentOptions)=>{
  assertBrowserCondition(currentGameClient.state!.me.version===currentOriginalVersion+1,'캐릭터 버전 단일 증가');
  await clickParcelButton('parcels.refresh');
  await waitParcelCondition(()=>document.body.textContent!.includes(t('parcels.empty')),'수령 후 빈 목록');
- await fetch('/test-result',{method:'POST',body:'PASS: 실제 GUI 소포 수령·응답 유실·동일 요청 재시도·단일 지급'});
+ const currentRecipientClient=new Client();currentRecipientClient.tokens=currentTestContext.recipientTokens;
+ currentRecipientClient.accept(await currentRecipientClient.request('/v1/game/state'));
+ async function openLiveMessagePanel(currentActiveClient:Client,currentPeerIdentifier:string){
+  render(null,document.getElementById('root')!);await currentWaitRender();
+  render(<DirectMessages currentGameClient={currentActiveClient} currentGameState={currentActiveClient.state!}/>,document.getElementById('root')!);
+  await currentWaitRender();
+  (document.querySelector('button[aria-label]') as HTMLButtonElement).click();
+  await waitParcelCondition(()=>!!document.querySelector('fieldset:not(:disabled) input'),'대화 상대 입력 가능');
+  const currentPeerInput=document.querySelector('fieldset input') as HTMLInputElement;
+  currentPeerInput.value=currentPeerIdentifier;currentPeerInput.dispatchEvent(new Event('input',{bubbles:true}));await currentWaitRender();
+  await clickParcelButton('directmessages.select');
+  await waitParcelCondition(()=>!!document.querySelector('textarea:not(:disabled)'),'대화 내역 조회 완료');
+ }
+ async function sendLiveMessageText(currentMessageText:string){
+  const currentMessageInput=document.querySelector('textarea') as HTMLTextAreaElement;
+  currentMessageInput.value=currentMessageText;currentMessageInput.dispatchEvent(new Event('input',{bubbles:true}));await currentWaitRender();
+  await clickParcelButton('directmessages.send');
+ }
+ const currentPrivateText='<img src=x onerror=alert(1)> 실제 비공개 본문';
+ await openLiveMessagePanel(currentGameClient,currentRecipientClient.state!.me.id);
+ await sendLiveMessageText(currentPrivateText);
+ await waitParcelCondition(()=>[...document.querySelectorAll('button')].some(currentButton=>currentButton.textContent===t('directmessages.retry')),'실제 발송 유실 후 재확인');
+ await clickParcelButton('directmessages.retry');
+ await waitParcelCondition(()=>!!document.querySelector('.direct-message-history')?.textContent?.includes(currentPrivateText),'발신자 저장 메시지 조회');
+ assertBrowserCondition(currentMessagePayloads.length===2&&currentMessagePayloads[0]===currentMessagePayloads[1],'개인 메시지 동일 ID·상대·본문 재시도');
+ await openLiveMessagePanel(currentRecipientClient,currentGameClient.state!.me.id);
+ await waitParcelCondition(()=>!!document.querySelector('.direct-message-history')?.textContent?.includes(currentPrivateText),'수신자 GUI 실제 메시지 조회');
+ assertBrowserCondition(document.querySelectorAll('.direct-message-history li').length===1,'수신 내역 단일 메시지');
+ assertBrowserCondition(!document.querySelector('.direct-message-history img'),'실제 본문 HTML 실행 없음');
+ await clickParcelButton('directmessages.block');
+ await waitParcelCondition(()=>[...document.querySelectorAll('button')].some(currentButton=>currentButton.textContent===t('directmessages.unblock')),'실제 수신 차단 저장');
+ await openLiveMessagePanel(currentGameClient,currentRecipientClient.state!.me.id);
+ await sendLiveMessageText('차단 뒤 저장되면 안 되는 본문');
+ await waitParcelCondition(()=>!!document.querySelector('[role="alert"]'),'차단 후 실제 발송 거절');
+ assertBrowserCondition(!document.querySelector('.direct-message-history')?.textContent?.includes('차단 뒤 저장되면 안 되는 본문'),'거절 메시지를 성공 내역에 추가하지 않음');
+ assertBrowserCondition(currentMessagePayloads.length===3,'차단 발송 자동 재시도 없음');
+ const currentPublicState=await currentGameClient.request('/v1/game/state');
+ assertBrowserCondition(!JSON.stringify(currentPublicState).includes(currentPrivateText),'공개 게임 상태에 개인 본문 없음');
+ render(null,document.getElementById('root')!);
+ await fetch('/test-result',{method:'POST',body:'PASS: 실제 GUI 소포 수령과 개인 메시지 발송·유실 재시도·수신·차단'});
 }catch(currentError){await fetch('/test-result',{method:'POST',body:'FAIL: '+String(currentError)});}})();
