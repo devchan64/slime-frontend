@@ -2,6 +2,19 @@ import {render} from 'preact';
 import {TravelerPermitPanel} from '../../src/ui/TravelerPermitPanel';
 import {t,setLocale} from '../../src/i18n';
 const currentAssertionsList:string[]=[];
+const TRAVELER_TEST_EXPIRY_ADVANCE_MS=2000;
+const currentNativeClock=performance.now.bind(performance);
+let currentTestClockOffset=0;
+performance.now=()=>currentNativeClock()+currentTestClockOffset;
+async function advanceQuoteExpiryDisplay(){
+ currentTestClockOffset+=TRAVELER_TEST_EXPIRY_ADVANCE_MS;
+ for(let currentWaitAttempt=0;currentWaitAttempt<20;currentWaitAttempt++){
+  await currentWaitRender();
+  if(document.body.textContent?.includes(t('citizenship.permitExpired')))return;
+ }
+ throw new Error('견적 만료 화면 갱신 대기 시간 초과');
+}
+
 window.addEventListener('error',currentErrorEvent=>{document.body.dataset.runtimeError=currentErrorEvent.message;});
 const currentWaitRender=()=>new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,150));
 function assertBarterBrowser(currentCondition:unknown,currentMessage:string){if(!currentCondition)throw new Error(currentMessage+' '+JSON.stringify(document.body.dataset)+' '+document.body.textContent);currentAssertionsList.push(currentMessage);}
@@ -38,12 +51,12 @@ async function clickBarterButton(currentTranslationKey:string){const currentButt
  await clickBarterButton('citizenship.permitPrice');
  await clickBarterButton('citizenship.permitPurchase');
  assertBarterBrowser(document.querySelector('fieldset')!.disabled,'불확정 구매 중 선택 고정');
- await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1400));
+ await advanceQuoteExpiryDisplay();
  assertBarterBrowser(document.body.textContent!.includes(t('citizenship.permitExpired')),'결과 불명 중 견적 만료 안내');
  await clickBarterButton('citizenship.permitRetry');
  assertBarterBrowser(document.body.textContent!.includes(t('citizenship.permitPurchased')),'혼합 납부 영수증 검증 후 완료 표시');
  await clickBarterButton('citizenship.permitPrice');
- await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,1400));
+ await advanceQuoteExpiryDisplay();
  assertBarterBrowser(document.body.textContent!.includes(t('citizenship.permitExpired')),'신규 견적 만료 안내');
  assertBarterBrowser(![...document.querySelectorAll('button')].some(currentButton=>currentButton.textContent===t('citizenship.permitPurchase')),'만료된 새 견적의 결제 버튼 제거');
  assertBarterBrowser(currentPurchaseAttempts===2,'만료가 자동 결제나 재시도를 만들지 않음');
