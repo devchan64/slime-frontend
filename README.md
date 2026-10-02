@@ -127,3 +127,9 @@ nginx까지 검사하려면 `SLIME_NGINX_TEST_IMAGE`에 `build:docker:verified`�
 Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS 8.5.28·nanoid 3.3.19를 반영했다. npm 감사의 기존 5개 취약 패키지는 갱신 후 0개다. 이는 해당 시점의 공개 감사 결과이며 알려지지 않은 문제까지 부재함을 보증하지 않는다. Node 22 개발·Docker 환경을 유지한다.
 
 수정 근거는 [Vite 공식 보안 공지](https://github.com/vitejs/vite/security/advisories/GHSA-fx2h-pf6j-xcff), [YAML 공식 보안 공지](https://github.com/eemeli/yaml/security/advisories/GHSA-48c2-rrv3-qjmp)와 [Vite 5→6 전환 가이드](https://v6.vite.dev/guide/migration)다. 이 프로젝트는 SSR·Sass·사용자 정의 `resolve.conditions`를 사용하지 않으며 기존 정적 웹 빌드·공용 에셋 해시 검사·API 계약을 유지한다.
+
+### 분리 서버 브라우저 통신 검사 번들
+
+`node scripts/build-split-service-browser-test.mjs <출력 JS 절대 경로>`는 공개 `Client`를 포함한 브라우저 검사 번들을 만든다. 출력은 `.tmp/test/split-service-browser/<한국 시각>/client.js`에 보관하고 서버 검증 측으로 명시적으로 전달한다. 실행 측은 HTML에서 번들보다 먼저 `globalThis.__SLIME_SPLIT_CONTEXT__`에 `gameOrigin`, `identityOrigin`, `password`(일회 테스트 계정용), `rejectOrigin`을 주입하고 `/test-result` POST 결과를 수집한다. 비밀번호·토큰을 번들·실행 로그·Git에 저장하지 않는다.
+
+실제 Chrome의 별도 origin에서 인증·게임 HTTP와 게임 WebSocket을 사용한다. 정상 경로는 가입·로그인·생성·입장·토큰 갱신·로그아웃·기존 토큰 401·재로그인 후 캐릭터 보존을 검사한다. `rejectOrigin`은 CORS 미허용 origin의 JSON 가입 요청 차단 검사다. fetch는 목적지 origin/path만 기록하고 실제 요청·응답을 대체하지 않는다. 실제 UI 버튼·전체 WebGL 플레이·운영 TLS 수용을 대신하지 않는다. 번들의 출처와 SHA-256은 실행 측에서 기록한다.
