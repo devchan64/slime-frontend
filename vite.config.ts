@@ -19,7 +19,7 @@ export default defineConfig({
       ignored: LOCAL_WATCH_IGNORED_PATHS,
     },
     proxy: {
-      "/v1": { target: "http://127.0.0.1:18080", ws: true },
+      "^/v[12]/": { target: "http://127.0.0.1:18080", ws: true },
       "/healthz": "http://127.0.0.1:18080",
       "/readyz": "http://127.0.0.1:18080",
     },

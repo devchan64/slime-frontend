@@ -11,7 +11,7 @@ bash scripts/local_frontend_setup.sh
 bash scripts/local_frontend_run.sh
 ```
 
-http://localhost:8080 으로 접속한다. 소스 저장 시 Vite가 즉시 반영하며 `npm run build`나 Docker 이미지 빌드는 필요 없다. `npm run dev`로 직접 실행해도 같다. Ctrl+C로 종료한다. 포트가 사용 중이면 다른 포트로 자동 변경하지 않고 오류를 낸다. Docker 웹이 실행 중이면 `docker compose -f docker-compose.local.yml stop web`으로 먼저 종료한다. 기본 `/v1` HTTP·WebSocket 프록시는 http://127.0.0.1:18080 의 별도 백엔드를 사용한다. 다른 API를 쓸 때는 비밀이 아닌 빌드 설정 `VITE_API_BASE_URL`을 지정하고 서버에 해당 웹 origin을 등록한다.
+http://localhost:8080 으로 접속한다. 소스 저장 시 Vite가 즉시 반영하며 `npm run build`나 Docker 이미지 빌드는 필요 없다. `npm run dev`로 직접 실행해도 같다. Ctrl+C로 종료한다. 포트가 사용 중이면 다른 포트로 자동 변경하지 않고 오류를 낸다. Docker 웹이 실행 중이면 `docker compose -f docker-compose.local.yml stop web`으로 먼저 종료한다. 기본 `/v1/`·`/v2/` HTTP·WebSocket 프록시는 http://127.0.0.1:18080 의 별도 백엔드를 사용한다. 다른 API를 쓸 때는 비밀이 아닌 빌드 설정 `VITE_API_BASE_URL`을 지정하고 서버에 해당 웹 origin을 등록한다.
 
 Linux 개발 서버는 시스템 inotify 한도(`ENOSPC: System limit for number of file watchers reached`)의 영향을 받지 않도록 폴링 감시를 사용한다. 소스는 500ms, 바이너리 에셋은 1초 간격으로 변경을 확인하며 `.local/`, `.tmp/`, `report/`는 감시하지 않는다. HMR은 유지되며 폴링에 따른 소량의 CPU·파일 조회 비용이 발생한다.
 
@@ -113,3 +113,10 @@ Compose는 `slime-assets`를 별도 BuildKit context로 전달한다. 빌드 단
 `VITE_API_BASE_URL`·`VITE_IDENTITY_API_BASE_URL`은 Compose 빌드 인수로 전달한다. 인증 주소가 비어 있으면 기존 단일 API 설정을 유지한다. 컨테이너 실행 후 환경변수만 바꿔서는 이미 생성된 정적 번들의 주소가 바뀌지 않는다. Docker build를 직접 사용할 경우 `--build-context slime-assets=../slime-assets`와 필요한 `--build-arg`를 지정한다.
 
 `npm run build:docker:verified`는 Compose 설정 검사·별도 검증 이미지 빌드·네트워크 없는 일회 컨테이너의 `nginx -t`와 최종 이미지의 공용 원본 부재·지정 API 주소의 JS 포함 여부를 검사한다. 실행 로그는 `.local/logs/`, 이미지 ID와 성공 표식은 `.tmp/test/frontend-docker-build/<한국 시각>/`에 저장한다. 기존 웹 컨테이너를 재시작하거나 운영 이미지를 배포하지 않는다. 검증 이미지는 `slime-frontend-validation:<한국 시각>`으로 보존하며 삭제는 별도 수동 작업이다. 이는 브라우저 기능·CORS·실제 API 연결 검사를 대신하지 않는다.
+
+
+### API 버전 프록시 검증
+
+Vite 개발 서버와 nginx는 `/v1/`·`/v2/`를 API로 전달한다. v2 코스튬 카탈로그를 정적 SPA로 처리하지 않으며 기존 v1 경로·쿼리·메서드·오류 응답을 유지한다. `node scripts/run-regression.mjs tests/versioned-proxy.test.mjs`는 실제 Vite와 로컬 HTTP 응답 서버로 검사한다.
+
+nginx까지 검사하려면 `SLIME_NGINX_TEST_IMAGE`에 `build:docker:verified`로 생성한 로컬 nginx 이미지 태그를 지정한다. 테스트는 현재 `nginx.conf`를 읽기 전용으로 연결한 임시 컨테이너 두 개와 전용 Docker 네트워크를 생성하고 종료 시 해당 자원만 제거한다. 운영 컨테이너는 사용하지 않는다. 이미지 미지정 시 nginx 검사는 건너뛰므로 통과 증거로 보지 않는다. 기록은 `.tmp/test/versioned-proxy/<한국 시각>/`에 저장한다. 모의 API의 실제 HTTP 전달 검사이며 게임 API·WebSocket·CORS·운영 배포 전체 수용을 대신하지 않는다.
