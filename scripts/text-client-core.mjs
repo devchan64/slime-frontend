@@ -307,11 +307,12 @@ export class TextClient {
       return formatCharacterBag(this.state.me.bag)+'\n'+formatTravelerPermitSummary(this.state.me.travelerPermitSummary,this.state.serverTime,this.state.me.id);
     }
     if (name === 'first-aid' || name === 'use-item') {
+      const currentFirstAidBatch=args[0]?.replace(/^production-batch:/,'');
       if(name==='first-aid'){
-        if(args.length>1||(args.length===1&&!/^[A-Za-z0-9_-]{1,60}$/.test(args[0])))throw new Error('first-aid [배치ID]로 입력하세요.');
+        if(args.length>1||(args.length===1&&!/^[A-Za-z0-9_-]{1,60}$/.test(currentFirstAidBatch)))throw new Error('first-aid [배치ID]로 입력하세요.');
       }else arity(1);
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 응급처치·소모품을 사용할 수 있습니다.');
-      return name === 'first-aid' ? this.command('/v1/game/skills/first-aid',args.length?{batchId:args[0]}:{})
+      return name === 'first-aid' ? this.command('/v1/game/skills/first-aid',args.length?{batchId:currentFirstAidBatch}:{})
         : this.command('/v1/game/consumables/use', { itemId: args[0] });
     }
     if (name === 'explore') {
@@ -602,6 +603,7 @@ export function formatCharacterBag(receivedCharacterBag) {
       renderedUseCommand = ' | ' + renderedItemEffect + ' · 소비 ' + receivedUseAction.consumedOnSuccess
         + '개 | 사용: use-item ' + renderBagText(receivedBagItem.id);
     }
+    if(receivedBagItem.definitionId==='clean-bandage'&&receivedBagItem.batchId&&!receivedBagItem.useAction)renderedUseCommand=' | 응급처치: first-aid '+renderBagText(receivedBagItem.id);
     return renderBagText(receivedBagItem.name) + (receivedBagItem.itemLevel === undefined ? '' : ' · Lv.'+receivedBagItem.itemLevel) + ' [' + renderBagText(receivedBagItem.id) + '] × ' + receivedBagItem.quantity + renderedUseCommand;
   });
   return renderedBagLines.length ? renderedBagLines.join('\n') : '가방이 비어 있습니다.';

@@ -853,3 +853,14 @@ test('응급처치 배치 선택을 원래 요청에 고정해 재시도한다',
  assert.equal(currentRecordedCalls[0].body.batchId,'bandage-1');
  assert.deepEqual(currentRecordedCalls[0].body,currentRecordedCalls[1].body);
 });
+test('가방의 붕대 배치 식별자를 그대로 응급처치 명령에 사용할 수 있다',async()=>{
+ const {client:currentTextClient,calls:currentRecordedCalls}=setup([{state:state({cursor:2})}]);
+ currentTextClient.accept(state());
+ await currentTextClient.execute('first-aid production-batch:bandage-1');
+ assert.equal(currentRecordedCalls[0].body.batchId,'bandage-1');
+ for(const currentInvalidIdentifier of ['production-batch:','production-batch:bad:extra'])await assert.rejects(currentTextClient.execute('first-aid '+currentInvalidIdentifier));
+ assert.equal(currentRecordedCalls.length,1);
+ const currentBagText=formatCharacterBag({items:[{id:'production-batch:bandage-1',batchId:'bandage-1',definitionId:'clean-bandage',kind:'consumable',itemLevel:2,performanceVersion:1,quantity:1,name:'붕대'}]});
+ assert.match(currentBagText,/응급처치: first-aid production-batch:bandage-1/);
+ assert.doesNotMatch(currentBagText,/use-item/);
+});

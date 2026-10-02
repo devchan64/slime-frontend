@@ -394,3 +394,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 실제 생산 브라우저 번들은 장비 검사 뒤 소모품 공방의 슬롯 선택·견적·생성·수령과 `BagPanel`의 레벨 표시·회복 사용까지 검사한다. 전용 `/test-complete-consumable`은 시험 캐릭터의 미수령 소모품 계약 완료 시각만 조정하며 제품 API가 아니다. 실제 사용 버튼은 기존 Client의 소모품 사용 명령을 실행한다. 서버 검사는 최종 비용·계약 수·회복 HP·소진 배치 제거를 확인한다.
 
 표식 소모품의 생산 결과도 지원한다. 정의 효과가 `place_route_marker` 또는 `place_light_marker`일 때 `performance.effect_duration_seconds`의 양수 정수 하나를 검증한다. 회복 소모품에는 `restoration_hp_value`만 허용해 효과 종류와 맞지 않는 성능 응답을 거절한다.
+
+텍스트 응급처치는 `first-aid <batchId>`와 `first-aid production-batch:<batchId>`를 모두 허용한다. 후자는 가방에 표시된 항목 ID를 그대로 복사하는 형식이며 API에는 접두사를 제거한 batchId만 보낸다. 생산 붕대 가방 항목은 해당 응급처치 명령을 안내한다. 빈 ID·중복 접두사·잘못된 문자는 전송 전에 거절하며 붕대를 일반 회복 use-item으로 안내하지 않는다.
