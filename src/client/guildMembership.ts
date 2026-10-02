@@ -1,11 +1,2 @@
-export type GuildMembershipSummary = {guildId:'adventurers-guild';characterId:string;certificateStatus:'ISSUED'};
-
-export function validateGuildMembership(currentMembershipValue:unknown,currentCharacterIdentifier:string):GuildMembershipSummary|null|undefined {
-  if(currentMembershipValue === null || currentMembershipValue === undefined)return currentMembershipValue;
-  if(typeof currentMembershipValue !== 'object'||Array.isArray(currentMembershipValue))throw new Error('길드 소속 정보가 올바르지 않습니다.');
-  const currentMembershipRecord=currentMembershipValue as Record<string,unknown>;
-  if(Object.keys(currentMembershipRecord).sort().join(',')!=='certificateStatus,characterId,guildId'
-    ||currentMembershipRecord.guildId!=='adventurers-guild'||currentMembershipRecord.characterId!==currentCharacterIdentifier
-    ||currentMembershipRecord.certificateStatus!=='ISSUED')throw new Error('길드 자격증 소유자 또는 상태가 올바르지 않습니다.');
-  return currentMembershipRecord as GuildMembershipSummary;
-}
+export {validateGuildMembership} from './guild-membership-validation.mjs';
+export type {GuildMembershipSummary} from './guild-membership-validation.mjs';

@@ -827,3 +827,16 @@ test('같은 맵에서 일반 상태 버전만 갱신되면 채널 목록을 표
  assert.match(await currentPendingListing,/a1 \[one\]/);
  assert.equal(currentTextClient.state.me.version,5);
 });
+
+
+test('상태 조회는 본인의 길드 자격증과 단일 폰 잔액을 표시한다',()=>{
+ const currentCharacterState=state();
+ Object.assign(currentCharacterState.me,{id:'hero',coins:27,guildMembership:{guildId:'adventurers-guild',characterId:'hero',certificateStatus:'ISSUED'}});
+ const currentRenderedState=formatState(currentCharacterState);
+ assert.match(currentRenderedState,/모험자길드 소속 · 모험자길드 자격증 발급 완료/);
+ assert.match(currentRenderedState,/폰\(PON\) 27P/);
+ currentCharacterState.me.guildMembership.characterId='other';
+ assert.throws(()=>formatState(currentCharacterState),/소유자/);
+ delete currentCharacterState.me.guildMembership;
+ assert.doesNotMatch(formatState(currentCharacterState),/미가입|미발급/);
+});

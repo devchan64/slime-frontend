@@ -1,3 +1,4 @@
+import {validateGuildMembership} from '../src/client/guild-membership-validation.mjs';
 import {executeOnlinePartyCommand} from './text-online-party.mjs';
 import {executeGuildRecruitment} from './text-guild-recruitment.mjs';
 import {executePartyCandidateCommand} from './text-party-candidates.mjs';
@@ -374,6 +375,8 @@ export class TextClient {
 export function formatState(state) {
   const lines = [`${state.me.name ?? '(캐릭터 미생성)'} | ${state.me.mode} | ${state.map?.name ?? ''}`,
     `위치 ${JSON.stringify(state.me.position)} | CP ${state.me.cp} | SP ${state.me.sp ?? '미지원'} | FP ${state.me.fp ?? '미지원'}`];
+  const currentGuildMembership=validateGuildMembership(state.me.guildMembership,state.me.id);
+  if(currentGuildMembership)lines.push('모험자길드 소속 · 모험자길드 자격증 발급 완료');
   if(Number.isSafeInteger(state.me.coins))lines.push('폰(PON) '+state.me.coins+'P');
   if(state.me.citizenshipSummary!==undefined)lines.push(formatCitizenshipSummary(state.me.citizenshipSummary,state.serverTime));
   if(state.me.travelerPermitSummary!==undefined)lines.push(formatTravelerPermitSummary(state.me.travelerPermitSummary,state.serverTime,state.me.id));
