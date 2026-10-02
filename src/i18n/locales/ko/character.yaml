@@ -11,7 +11,7 @@ proceed: 게임으로 이동
 identity: "내 캐릭터"
 adventurer: "나의 모험가"
 costume: "기본 모험가 의상"
-coins: "보유 재화"
+coins: "보유 폰(PON)"
 growth: "캐릭터 성장"
 direction: "성장의 방향"
 available: "사용 가능한 {currency}"

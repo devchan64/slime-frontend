@@ -3,7 +3,7 @@ help: 소포나 상점에서 획득한 코스튬을 확인합니다. 코스튬�
 refresh: 보유 코스튬 조회
 loading: 코스튬을 조회하고 있습니다…
 empty: 획득한 코스튬이 없습니다. 기본 디자인을 사용합니다.
-value: "표준 가치: {value}p"
+value: "표준 가치: {value}P"
 received: "소포로 획득: {time}"
 equip: 착용
 default: 기본 디자인으로 변경

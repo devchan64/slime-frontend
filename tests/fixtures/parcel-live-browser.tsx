@@ -36,7 +36,7 @@ window.fetch=async(currentInput,currentOptions)=>{
  const currentOriginalVersion=currentGameClient.state!.me.version;
  await currentWaitRender();await currentWaitRender();
  await clickParcelButton('parcels.refresh');
- await waitParcelCondition(()=>document.body.textContent!.includes('7p'),'첨부 금액 표시');
+ await waitParcelCondition(()=>document.body.textContent!.includes('7P'),'첨부 금액 표시');
  assertBrowserCondition(document.body.textContent!.includes(currentTestContext.expectedMaterialName+' × 2'),'실제 카탈로그의 언어별 재료 이름 표시');
  assertBrowserCondition(!document.body.textContent!.includes('protein-jelly'),'내부 아이템 ID 대신 이름 표시');
  await clickParcelButton('parcels.claim');
@@ -45,7 +45,7 @@ window.fetch=async(currentInput,currentOptions)=>{
  await waitParcelCondition(()=>document.body.textContent!.includes(t('parcels.received')),'실제 수령 완료 표시');
  assertBrowserCondition(currentRecordedPurchases.length===2&&currentRecordedPurchases[0]===currentRecordedPurchases[1],'동일 요청으로 재시도');
  currentGameClient.accept(await currentGameClient.request('/v1/game/state'));
- assertBrowserCondition(currentGameClient.state!.me.coins===17,'돈 7p 단일 지급');
+ assertBrowserCondition(currentGameClient.state!.me.coins===17,'돈 7P 단일 지급');
  assertBrowserCondition(currentGameClient.state!.me.bag!.items.some(currentItem=>currentItem.id==='protein-jelly'&&currentItem.quantity===2),'재료 2개 단일 지급');
  assertBrowserCondition(currentGameClient.state!.me.version===currentOriginalVersion+1,'캐릭터 버전 단일 증가');
  await clickParcelButton('parcels.refresh');

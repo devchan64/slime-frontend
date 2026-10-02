@@ -11,7 +11,7 @@ proceed: Enter game
 identity: "My character"
 adventurer: "My adventurer"
 costume: "Standard adventurer outfit"
-coins: "Coins"
+coins: "PON balance"
 growth: "Character growth"
 direction: "Choose your growth"
 available: "Available {currency}"

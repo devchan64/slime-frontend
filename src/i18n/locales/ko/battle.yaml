@@ -106,7 +106,7 @@ skillPreviewOnly: "실행 가능한 액션이 없습니다. 해금 레벨·전�
 
 idleTurnNotice: "5초 동안 입력이 없습니다. 행동을 마쳤다면 턴 종료를 눌러 주세요."
 
-materialValue: "개당 가치 {value}p"
+materialValue: "개당 가치 {value}P"
 noLoot: "획득한 전리품이 없습니다."
 
 basicAttackSkillHelp: "신체활동에 포함된 일반 공격입니다. 대상을 선택하고 확인하면 실행합니다."

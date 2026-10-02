@@ -28,7 +28,7 @@ async function clickParcelButton(currentTranslationKey:string){
  setLocale(location.hash==='#en'?'en':'ko');
  render(<ParcelPanel gameSessionClient={currentClientStub} currentFacilityIdentifier="iseulon-guild" actionsAreDisabled={false}/>,document.getElementById('root')!);
  await currentWaitRender();await clickParcelButton('parcels.refresh');
- assertParcelBrowser(document.body.textContent!.includes('7p')&&document.body.textContent!.includes((location.hash==='#en'?'Protein jelly':'단백질 젤리')+' × 2'),'첨부물 표시');
+ assertParcelBrowser(document.body.textContent!.includes('7P')&&document.body.textContent!.includes((location.hash==='#en'?'Protein jelly':'단백질 젤리')+' × 2'),'첨부물 표시');
  await clickParcelButton('parcels.claim');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.uncertain')),'응답 유실 안내');
  assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.refresh'))?.disabled,'결과 불명 중 목록 변경 차단');

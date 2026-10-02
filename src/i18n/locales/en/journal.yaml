@@ -7,8 +7,8 @@ accepted: In progress
 completed: Completed
 receiver: 'Deliver to: {name}'
 material: '{name} · Owned {owned} / Required {required}'
-reward: 'Completion reward: {amount}p'
-paid: 'Reward received: {amount}p'
+reward: 'Completion reward: {amount}P'
+paid: 'Reward received: {amount}P'
 startedAt: 'Accepted: {time}'
 finishedAt: 'Completed: {time}'
 materialsReady: Materials are ready. NPC location, citizenship and other requirements are checked again when delivering.

@@ -21,9 +21,9 @@ permitIssued: Issued
 
 permitPurchased: Traveler certificate issued. You can view it in your bag.
 permitPrice: Check traveler certificate fee
-permitQuote: 'Fee {price}p · Quote expires in {seconds}s'
+permitQuote: 'Fee {price}P · Quote expires in {seconds}s'
 permitExpired: Quote expired. Check the fee again.
-permitPurchaseHelp: 'Pay {price}p to receive a traveler certificate valid for seven days from now.'
+permitPurchaseHelp: 'Pay {price}P to receive a traveler certificate valid for seven days from now.'
 permitRetry: Check the same issuance request again
 permitPurchase: Confirm traveler certificate issuance
 permitUncertain: The issuance outcome is unknown. Check again using the same request.
@@ -32,8 +32,8 @@ barterEnable: Pay with materials and coins
 barterCash: Coin payment (p)
 barterEmpty: No materials available for payment.
 barterInvalid: Check the coin amount and quantities, and select at least one material.
-barterCashValue: 'Coins: {cash}p'
+barterCashValue: 'PON: {cash}P'
 barterMaterialQuantity: '{name} × {quantity}'
 barterNoChange: 'All selected PON and materials will be paid. No change is given.'
-barterPurchaseHelp: 'Pay the {price}p fee with the confirmed coins and materials. Excess value is not returned.'
+barterPurchaseHelp: 'Pay the {price}P fee with the confirmed coins and materials. Excess value is not returned.'
 barterStateChanged: Your inventory state changed. Request a new quote.

@@ -57,7 +57,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
         <p class="costume-effect-note">{t("character.costumeAppearanceOnly")}</p>
       </details>}
       <dl class="character-resources">
-        <div><dt>{t("character.coins")}</dt><dd>{me.coins}</dd></div>
+        <div><dt>{t("character.coins")}</dt><dd>{me.coins}P</dd></div>
       </dl>
       <CharacterCitizenships currentCitizenshipSummary={me.citizenshipSummary} />
     </section>

@@ -667,7 +667,7 @@ export function App() {
                 {!battle && state.channel && <small class="current-channel-address">{t('channels.current',{address:state.channel.address})}</small>}
               </div>
               <nav class="map-menu" aria-label={t('app.mapMenu')}>
-                <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}</span>
+                <span class="world-resources">{state.me.name} · CP {state.me.cp} · ◈ {state.me.coins}P</span>
               </nav>
               {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} hp={state.me.hp} maxHp={state.me.maxHp} healthRecoveryPending={state.me.healthRecoveryPending} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
             </div>

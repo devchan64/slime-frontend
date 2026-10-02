@@ -106,7 +106,7 @@ skillPreviewOnly: "No executable actions. Check unlock levels, battle slots, and
 
 idleTurnNotice: "No input for 5 seconds. End your turn when you have finished acting."
 
-materialValue: "Value {value}p each"
+materialValue: "Value {value}P each"
 noLoot: "No loot acquired."
 
 basicAttackSkillHelp: "Basic attack is part of Physical Activity. Select a target and confirm to attack."

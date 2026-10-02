@@ -39,7 +39,7 @@ export function BattleReport({ result, onReturn }: {
     onCancel={event => { event.preventDefault(); finish(); }}>
     <h2 id="battle-report-title">{t('battle.reportTitle')}</h2>
     <p class="battle-report-result">{RESULT_LABELS[result.result] ? t(RESULT_LABELS[result.result]) : result.result}</p>
-    <dl>{result.coins > 0 && <div><dt>{t('battle.earnedCurrency')}</dt><dd>+{result.coins}p</dd></div>}
+    <dl>{result.coins > 0 && <div><dt>{t('battle.earnedCurrency')}</dt><dd>+{result.coins}P</dd></div>}
       {!result.rewardDistribution && (result.materials ?? []).map(material => <div key={material.materialId}><dt>{material.nameTranslations[locale]}</dt>
         <dd>×{material.quantity}</dd></div>)}
     </dl>
