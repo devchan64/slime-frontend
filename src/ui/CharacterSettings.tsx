@@ -1,3 +1,4 @@
+import {validateGuildMembership} from '../client/guildMembership';
 import {CostumeDescription} from './CostumeDescription';
 import {SubstituteHuntPanel} from './SubstituteHuntPanel';
 import {HuntLedgerPanel} from './HuntLedgerPanel';
@@ -46,10 +47,12 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
   const balance = category === "skills" ? me.sp : me.cp;
   const attributeGrowth = growthCost("attributes", me.attributes, me.skills, me.skillGrowthBaselines);
   const locked = !["LOBBY", "FIELD"].includes(me.mode) || !!me.battleId;
+  const currentGuildMembership = validateGuildMembership(me.guildMembership,me.id);
   const content = <div class="character-sheet">
     <section class="character-identity" aria-label={t("character.identity")}>
       <span class="character-kicker">{t("character.adventurer")}</span>
       <h2>{me.name}</h2>
+      {currentGuildMembership && <p>{t("character.guildMembership")} · {t("character.guildCertificateIssued")}</p>}
       <div class="portrait-stage"><CharacterPortrait playIdleAnimation /></div>
       {gameSessionClient?<CostumeDescription key={`${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}:${me.id}`} gameSessionClient={gameSessionClient}/>:<details class="costume-description">
         <summary><span class="costume-label">{t("character.costume")}</span><span>{t("character.costumeDetails")}</span></summary>
