@@ -73,3 +73,24 @@ test('실제 번역 검증과 지형 비용을 사용해 원거리 몬스터 접
   encounterActionButton.props.onClick();
   assert.deepEqual(requestedMonsterIds, ['slime-test']);
 });
+
+function collectFacilityPanels(currentRenderedNode){
+  if(!currentRenderedNode||typeof currentRenderedNode!=='object')return [];
+  if(Array.isArray(currentRenderedNode))return currentRenderedNode.flatMap(collectFacilityPanels);
+  return [...(currentRenderedNode.type?.name==='TravelerPermitPanel'?[currentRenderedNode]:[]),...collectFacilityPanels(currentRenderedNode.props?.children)];
+}
+test('경비센터는 조우 중 닫히고 종료 후 재생성되며 epoch 변경에 다른 창구 키를 쓴다',()=>{
+  const currentGameState=createSelectionFixture();
+  Object.assign(currentGameState,{generation:1,epoch:1,location:{id:'channel'}});
+  Object.assign(currentGameState.me,{id:'owner',version:1});
+  Object.assign(currentGameState.map,{id:'field',safeTown:false,
+    connections:[{id:'city-gate',column:0,row:0,target:'city',targetName:'도시',targetSafeTown:true}],
+    guardCenters:[{id:'guard',cityId:'city',mapId:'field',connectionId:'city-gate',name:'경비센터',position:{column:0,row:0}}]});
+  function renderCurrentFacility(){return collectFacilityPanels(FieldSelection({state:currentGameState,selected:{column:0,row:0},disabled:false,now:0,
+    select(){},command(){},walking:null,walk(){},stop(){},gameSessionClient:{state:currentGameState}}));}
+  const currentInitialPanels=renderCurrentFacility();assert.equal(currentInitialPanels.length,1);
+  currentGameState.reservation={id:'reservation'};assert.equal(renderCurrentFacility().length,0);
+  currentGameState.reservation=null;assert.equal(renderCurrentFacility().length,1);
+  currentGameState.epoch++;assert.notEqual(renderCurrentFacility()[0].key,currentInitialPanels[0].key);
+  currentGameState.battle={id:'battle'};assert.equal(renderCurrentFacility().length,0);
+});

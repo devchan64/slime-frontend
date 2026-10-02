@@ -95,6 +95,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
   const selectedGuardCenter = gate ? findFieldGuardCenter(state.map,gate.id) : undefined;
   const safe = state.map.safeTown || fieldDistance(state.map.startPoint, selected) <= state.map.safeRadius;
   const field = state.me.mode === "FIELD";
+  const facilityInteractionAvailable=field&&!state.me.battleId&&!state.battle&&!state.reservation;
   const unavailable = !field ? t('field.finishPreparation') : disabled ? disabledReason ?? t('field.busy') : null;
   return <section class="field-selection" aria-label={t('field.selectedLocation')}>
     <div class="field-command-body">
@@ -129,21 +130,21 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         key={`recruitment:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedGuardCenter && field && <p class="field-target-summary">{t('field.guardCenterHelp')}</p>}
-      {selectedGuardCenter && here && field && gameSessionClient && <TravelerPermitPanel
-        key={`permit:${state.generation}:${state.me.id}:${state.location.id}:${selectedGuardCenter.id}`}
+      {selectedGuardCenter && here && facilityInteractionAvailable && gameSessionClient && <TravelerPermitPanel
+        key={`permit:${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedGuardCenter.id}`}
         gameSessionClient={gameSessionClient} currentGuardDefinition={selectedGuardCenter} actionsAreDisabled={disabled}/>}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <CitizenshipPricePanel
-        key={`price:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
+      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <CitizenshipPricePanel
+        key={`price:${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <ParcelPanel
         key={`parcels:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <GuildTradePanel
+      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <GuildTradePanel
         key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {selectedCityBuilding?.facilityKind==='bookshop' && atBuildingEntrance && field && gameSessionClient && <SkillbookPanel key={`${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled}/> }
-      {selectedCityBuilding?.facilityKind==='workshop' && atBuildingEntrance && field && gameSessionClient && <WorkshopPanel
-        key={`${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
+      {selectedCityBuilding?.facilityKind==='workshop' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <WorkshopPanel
+        key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {!monsters.length && !selectedCityBuilding && <div class="field-target">
         <div class="field-target-summary">

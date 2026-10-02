@@ -1,4 +1,4 @@
-import {createPositionIdentity} from '../client/positionIdentity';
+import {captureFacilitySessionContext,matchesFacilitySessionContext} from '../client/facilitySessionContext';
 import {RefiningContractsPanel} from './RefiningContractsPanel';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import {ApiError} from '../client/response';
@@ -31,13 +31,9 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
   const activeWorkshopReference=useRef(false);
   const pendingWorkshopReference=useRef(false);
   const quotedRequestReference=useRef<Record<string,unknown>|null>(null);
-  const originalSessionReference=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,
-    character:gameSessionClient.state?.me.id,location:gameSessionClient.state?.location.id,position:createPositionIdentity(gameSessionClient.state?.me.position)});
+  const originalSessionReference=useRef(captureFacilitySessionContext(gameSessionClient));
   const workshopRequestBase=`/v1/game/workshops/${encodeURIComponent(currentFacilityIdentifier)}`;
-  function workshopSessionMatches(){return activeWorkshopReference.current&&gameSessionClient.tokens?.user_id===originalSessionReference.current.owner
-    &&gameSessionClient.state?.generation===originalSessionReference.current.generation&&gameSessionClient.state?.me.id===originalSessionReference.current.character
-    &&gameSessionClient.state?.location.id===originalSessionReference.current.location&&gameSessionClient.state?.me.mode==='FIELD'
-    &&createPositionIdentity(gameSessionClient.state?.me.position)===originalSessionReference.current.position;}
+  function workshopSessionMatches(){return activeWorkshopReference.current&&matchesFacilitySessionContext(gameSessionClient,originalSessionReference.current);}
   async function runWorkshopRequest(currentRequestAction:()=>Promise<void>){
     if(actionsAreDisabled||pendingWorkshopReference.current||!workshopSessionMatches())return;
     pendingWorkshopReference.current=true;setWorkshopRequestPending(true);setCurrentWorkshopNotice('');
