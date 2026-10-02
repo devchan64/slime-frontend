@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const {outputFiles} = await build({entryPoints:['src/client/accountRewards.ts'],bundle:true,write:false,format:'esm',platform:'node'});
-const {parseAccountRewardPage,rewardRemainingSeconds,parseAccountRewardClaim} = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {parseAccountRewardPage,rewardRemainingSeconds,parseAccountRewardClaim,parseAccountRewardReceipt} = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 const validRewardPage = () => ({serverTime:100,nextCursor:null,entries:[{id:'reward-a',storedAt:50,expiresAt:604850,materials:[{materialId:'protein-jelly',quantity:3,nameTranslations:{ko:'단백질 젤리',en:'Protein Jelly'}}]}]});
 test('보관함 페이지의 물품·수량·두 언어와 기한을 보존한다',()=>{
   const storedRewardPage=validRewardPage();
@@ -40,4 +40,15 @@ test('수령 합계는 실제 건수·수량을 보존하고 빈 결과와 잘�
     {claimedCount:1,materials:[{materialId:'jelly',quantity:1},{materialId:'jelly',quantity:2}]},
     {claimedCount:1,materials:[{materialId:'jelly',quantity:Number.MAX_SAFE_INTEGER},{materialId:'herb',quantity:1}]}])
     assert.throws(()=>parseAccountRewardClaim(malformedClaimResult));
+});
+
+test('개별 수령 영수증은 요청한 보상·완료 상태·유한 시각을 확인한다',()=>{
+  const currentValidReceipt={id:'reward-a',status:'CLAIMED',claimedAt:123.5};
+  assert.deepEqual(parseAccountRewardReceipt(currentValidReceipt,'reward-a'),currentValidReceipt);
+  for(const currentInvalidReceipt of [null,[],{},
+    {...currentValidReceipt,id:'reward-b'}, {...currentValidReceipt,status:'STORED'},
+    {...currentValidReceipt,claimedAt:null}, {...currentValidReceipt,claimedAt:true},
+    {...currentValidReceipt,claimedAt:-1}, {...currentValidReceipt,claimedAt:Infinity},
+    {...currentValidReceipt,claimedAt:NaN}, {...currentValidReceipt,claimedAt:'123'},
+    {...currentValidReceipt,extra:1}])assert.throws(()=>parseAccountRewardReceipt(currentInvalidReceipt,'reward-a'));
 });

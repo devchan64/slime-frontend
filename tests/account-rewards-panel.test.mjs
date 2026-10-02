@@ -43,7 +43,7 @@ test('보관함의 연속 수령 클릭은 한 번만 요청하며 성공 후 �
     const claimRewardButton=findRewardButtons(currentPanelHarness.renderRewardPanel()).find(rewardButtonNode=>rewardButtonNode.props.children==='rewards.claim');
     claimRewardButton.props.onClick();claimRewardButton.props.onClick();
     assert.equal(observedRequestPaths.filter(requestPathValue=>requestPathValue.endsWith('/claim')).length,1);
-    finishClaimRequest({status:'CLAIMED'});await finishPendingPromises();
+    finishClaimRequest({id:'reward-one',status:'CLAIMED',claimedAt:101});await finishPendingPromises();
     assert.equal(receivedPlayerStates.length,1);
     assert.equal(findRewardButtons(currentPanelHarness.renderRewardPanel()).some(rewardButtonNode=>rewardButtonNode.props.children==='rewards.claim'),false);
   }finally{currentPanelHarness.closeRewardPanel();}
@@ -69,7 +69,7 @@ test('수령 요청 중 화면을 닫으면 늦은 응답으로 현재 세션을
   currentPanelHarness.renderRewardPanel();await finishPendingPromises();
   const claimRewardButton=findRewardButtons(currentPanelHarness.renderRewardPanel()).find(rewardButtonNode=>rewardButtonNode.props.children==='rewards.claim');
   claimRewardButton.props.onClick();currentPanelHarness.closeRewardPanel();
-  finishClaimRequest({status:'CLAIMED'});await finishPendingPromises();
+  finishClaimRequest({id:'reward-one',status:'CLAIMED',claimedAt:101});await finishPendingPromises();
   assert.equal(observedRequestPaths.includes('/v1/game/state'),false);
 });
 
@@ -114,4 +114,30 @@ test('수령 직전 만료된 0건 응답에는 지급 성공 대신 수령할 �
     assert.match(currentPanelText,/rewards.nothingClaimed/);
     assert.doesNotMatch(currentPanelText,/rewards.claimed|rewards.claimSummary/);
   }finally{currentPanelHarness.closeRewardPanel();}
+});
+
+test('잘못된 개별 영수증은 목록·상태를 보존하고 같은 보상으로 다시 확인한다',async()=>{
+  for(const currentInvalidReceipt of [{id:'other',status:'CLAIMED',claimedAt:101},{id:'reward-one',status:'STORED',claimedAt:101},{id:'reward-one',status:'CLAIMED',claimedAt:null}]){
+    const currentRequestedPaths=[];let currentClaimAttempts=0;let currentAcceptedStates=0;
+    const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async currentRequestPath=>{
+      currentRequestedPaths.push(currentRequestPath);
+      if(currentRequestPath.endsWith('/claim'))return ++currentClaimAttempts===1?currentInvalidReceipt:{id:'reward-one',status:'CLAIMED',claimedAt:101};
+      return currentRequestPath==='/v1/game/state'?{generation:1}:sampleRewardPage();
+    },accept:()=>{currentAcceptedStates++;}};
+    const currentPanelHarness=createPanelHarness(currentSessionClient);
+    try{
+      currentPanelHarness.renderRewardPanel();await finishPendingPromises();
+      findRewardButtons(currentPanelHarness.renderRewardPanel()).find(currentButtonNode=>currentButtonNode.props.children==='rewards.claim').props.onClick();
+      await finishPendingPromises();
+      assert.equal(currentAcceptedStates,0);
+      assert.equal(currentRequestedPaths.includes('/v1/game/state'),false);
+      const currentRetryButton=findRewardButtons(currentPanelHarness.renderRewardPanel()).find(currentButtonNode=>currentButtonNode.props.children==='rewards.claim');
+      assert.ok(currentRetryButton);assert.equal(currentRetryButton.props.disabled,false);
+      currentRetryButton.props.onClick();await finishPendingPromises();
+      assert.equal(currentAcceptedStates,1);
+      assert.deepEqual(currentRequestedPaths.filter(currentRequestPath=>currentRequestPath.endsWith('/claim')),
+        ['/v1/accounts/me/rewards/reward-one/claim','/v1/accounts/me/rewards/reward-one/claim']);
+      assert.equal(findRewardButtons(currentPanelHarness.renderRewardPanel()).some(currentButtonNode=>currentButtonNode.props.children==='rewards.claim'),false);
+    }finally{currentPanelHarness.closeRewardPanel();}
+  }
 });

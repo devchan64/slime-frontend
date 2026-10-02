@@ -50,3 +50,17 @@ export function parseAccountRewardClaim(rawResponseValue: unknown): AccountRewar
   if ((receivedClaimResult.claimedCount === 0) !== (claimedMaterialQuantity === 0)) throw new Error('보상 수령 건수와 재료가 일치하지 않습니다.');
   return {claimedCount: receivedClaimResult.claimedCount, materialQuantity: claimedMaterialQuantity};
 }
+
+
+export type AccountRewardReceipt = {id:string;status:'CLAIMED';claimedAt:number};
+export function parseAccountRewardReceipt(currentResponseValue:unknown,currentRequestedIdentifier:string):AccountRewardReceipt {
+  if(!currentResponseValue||typeof currentResponseValue!=='object'||Array.isArray(currentResponseValue))
+    throw new Error('개별 보상 수령 결과가 올바르지 않습니다.');
+  const currentReceiptRecord=currentResponseValue as Record<string,unknown>;
+  if(Object.keys(currentReceiptRecord).sort().join(',')!=='claimedAt,id,status'
+    ||!currentRequestedIdentifier.trim()||currentReceiptRecord.id!==currentRequestedIdentifier
+    ||currentReceiptRecord.status!=='CLAIMED'||typeof currentReceiptRecord.claimedAt!=='number'
+    ||!Number.isFinite(currentReceiptRecord.claimedAt)||currentReceiptRecord.claimedAt<0)
+    throw new Error('개별 보상 수령 ID·상태·시각이 올바르지 않습니다.');
+  return currentReceiptRecord as AccountRewardReceipt;
+}

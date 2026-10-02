@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { noticeText, type Notice } from '../client/notice';
-import { parseAccountRewardPage, parseAccountRewardClaim, type AccountRewardClaimSummary, rewardRemainingSeconds, REWARD_CLOCK_INTERVAL_MS, type AccountRewardPage } from '../client/accountRewards';
+import { parseAccountRewardPage, parseAccountRewardClaim, parseAccountRewardReceipt, type AccountRewardClaimSummary, rewardRemainingSeconds, REWARD_CLOCK_INTERVAL_MS, type AccountRewardPage } from '../client/accountRewards';
 import { useTranslation } from '../i18n';
 
 export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {gameSessionClient: Client; actionsAreDisabled: boolean}) {
@@ -41,8 +41,9 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
     if (pendingRewardRequest.current || actionsAreDisabled || !panelSessionMatches()) return;
     pendingRewardRequest.current = true; setClaimedRewardIdentifier(accountRewardIdentifier); setCurrentRewardNotice(''); setLatestClaimSummary(null);
     try {
-      await gameSessionClient.request(`/v1/accounts/me/rewards/${encodeURIComponent(accountRewardIdentifier)}/claim`, {});
+      const currentClaimResponse = await gameSessionClient.request(`/v1/accounts/me/rewards/${encodeURIComponent(accountRewardIdentifier)}/claim`, {});
       if (!panelSessionMatches()) return;
+      parseAccountRewardReceipt(currentClaimResponse,accountRewardIdentifier);
       setStoredRewardPage(previousRewardPage => previousRewardPage && ({...previousRewardPage, entries: previousRewardPage.entries.filter(storedRewardEntry => storedRewardEntry.id !== accountRewardIdentifier)}));
       setCurrentRewardNotice({key:'rewards.claimed'});
       const currentCharacterState = await gameSessionClient.request('/v1/game/state');
