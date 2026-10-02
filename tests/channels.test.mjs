@@ -33,3 +33,10 @@ test('파티·전투·회복·FP 조건과 대상 만석·다른 맵·입장 중
   for(const [currentEntryPatch,currentExpectedReason] of [[{reservedSeats:30},'channels.full'],[{status:'DRAINING'},'channels.closed'],[{mapDefinitionId:'iseulon'},'channels.differentMap'],[{id:'meadow'},'channels.alreadyHere']])assert.equal(channelTargetRestriction(currentGameState,{...currentChannelRecord,...currentEntryPatch}),currentExpectedReason);
   assert.equal(channelTargetRestriction(currentGameState,{id:'legacy',address:'z1',mapDefinitionId:'meadow',status:'OPEN'}),null);
 });
+
+test('소수 HP 생존 상태는 채널 이동을 허용하되 회복 대기 잠금은 유지한다',()=>{
+ const currentFractionalState={...currentGameState,me:{...currentGameState.me,hp:0,healthDepleted:false,healthRecoveryPending:false}};
+ assert.equal(channelMovementRestriction(currentFractionalState),null);
+ assert.equal(channelMovementRestriction({...currentFractionalState,me:{...currentFractionalState.me,healthRecoveryPending:true}}),'channels.recoveryRequired');
+ assert.equal(channelMovementRestriction({...currentFractionalState,me:{...currentFractionalState.me,healthDepleted:true}}),'channels.recoveryRequired');
+});

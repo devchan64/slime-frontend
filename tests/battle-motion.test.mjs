@@ -92,3 +92,31 @@ test('각 타일 구간은 약한 탄성 후 끝에서 정확히 도착한다',(
  assert.equal(battleMotionTracker.isMovementActive('hero',729),true);
  assert.equal(battleMotionTracker.isMovementActive('hero',730),false);
 });
+
+test('표시 HP 0의 생존 유닛은 이동을 이어가고 실제 전투불능 갱신에서만 멈춘다',()=>{
+ const currentMotionTracker=new BattleMotion();
+ const currentAliveBattle=state(start);
+ currentAliveBattle.units[0]={...currentAliveBattle.units[0],hp:0,healthDepleted:false};
+ currentMotionTracker.sync('fractional',currentAliveBattle,point,0);
+ const currentMovingBattle={units:[{...currentAliveBattle.units[0],position:end}],log:[move]};
+ currentMotionTracker.sync('fractional',currentMovingBattle,point,10);
+ assert.equal(currentMotionTracker.isMovementActive('hero',100),true);
+ assert.notDeepEqual(currentMotionTracker.offset('hero',100),{x:0,y:0,depth:0});
+ currentMotionTracker.sync('fractional',currentMovingBattle,point,110);
+ assert.equal(currentMotionTracker.isMovementActive('hero',120),true);
+ const currentDefeatedBattle={...currentMovingBattle,units:[{...currentMovingBattle.units[0],healthDepleted:true}]};
+ currentMotionTracker.sync('fractional',currentDefeatedBattle,point,130);
+ assert.equal(currentMotionTracker.isMovementActive('hero',140),false);
+ assert.deepEqual(currentMotionTracker.offset('hero',140),{x:0,y:0,depth:0});
+});
+
+test('공격 로그의 정수 HP 0은 생존 대상의 반동을 제거하지 않는다',()=>{
+ const currentMotionTracker=new BattleMotion();
+ const currentInitialBattle={units:[{id:'hero',hp:10,position:start},{id:'enemy',hp:1,position:corner}],log:[]};
+ currentMotionTracker.sync('fractional-impact',currentInitialBattle,point,0);
+ const currentImpactBattle={units:[currentInitialBattle.units[0],{...currentInitialBattle.units[1],hp:0,healthDepleted:false}],log:[{...attack,targetHp:0}]};
+ currentMotionTracker.sync('fractional-impact',currentImpactBattle,point,10);
+ assert.ok(currentMotionTracker.offset('enemy',145).x<0);
+ currentMotionTracker.sync('fractional-impact',{...currentImpactBattle,units:[currentImpactBattle.units[0],{...currentImpactBattle.units[1],healthDepleted:true}]},point,150);
+ assert.deepEqual(currentMotionTracker.offset('enemy',160),{x:0,y:0,depth:0});
+});
