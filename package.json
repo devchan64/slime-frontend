@@ -17,7 +17,8 @@
     "prepare:sprite-assets": "node scripts/prepare-map-assets.mjs --sprites",
     "check:sprite-assets": "node scripts/prepare-map-assets.mjs --sprites --check && node scripts/check-map-assets.mjs --sprites",
     "check:ui-assets": "node scripts/prepare-map-assets.mjs --ui --check && node scripts/check-map-assets.mjs --ui",
-    "build:verified": "bash scripts/verify_production_build.sh"
+    "build:verified": "bash scripts/verify_production_build.sh",
+    "check:production-browser": "node scripts/check-production-browser.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",

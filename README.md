@@ -74,6 +74,13 @@ SDK의 `/v1/sponsorship/sdk/…/costume.js` 경로는 페이지와 같은 origin
 
 산출물은 Git 제외 대상인 `dist/`에 생성한다. 이 명령은 S3 업로드·CDN 무효화·운영 배포를 실행하지 않는다. 배포용 공개키 등 설정은 별도로 준비해야 하며, 빌드 성공과 실제 환경 수용 검증은 구분한다.
 
+`npm run check:production-browser`는 먼저 생성한 `dist/`만 임시 로컬 HTTP 서버로 제공하고 실제 Chrome에서 로그인 폼·로그인 이미지·스타일과 해시 JS 로딩을 검사한다. 개발 서버나 백엔드는 사용하지 않으며, 인증·게임 플레이 검사는 별도다. Chrome 기본 경로는 `/usr/bin/google-chrome`이고 `CHROME_BIN`으로 지정할 수 있다. `.tmp/test/production-build-browser/<한국 시각>/`에 스크린샷·DOM·Chrome/단계 로그·결과 및 검사한 index SHA-256을 보존한다.
+
+```sh
+npm run build:verified
+npm run check:production-browser
+```
+
 ## 자동 회귀검사
 
 전체 검사 파일을 명시하여 실행한다. 실행기는 번역 검사, TypeScript 검사, 테스트를 순서대로 실행하고 로그·heartbeat·종료 코드·최종 결과를 `.tmp/test/frontend-regression/<실행 시각>/`에 보존한다.
