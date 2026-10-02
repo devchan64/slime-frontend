@@ -59,11 +59,8 @@ files:
   source_path: assets/tiles/buildings/marble/marble-small-window-wall-v1.png
   sha256: 23cab9d740332678d9acb34a542705238b0122d68eb34fc5b8a04d6e3d4393da
 - path: assets/world/isloon/terrain/limestone-floor-type-a-v1.png
-  source_path: assets/tiles/terrain/road/limestone-floor-type-a-v1.png
-  sha256: b6bc4dce7a385cecbfa5db28949b560d8182e6c6fb7c74f3e4dac45f5ad17d87
-- path: assets/world/isloon/terrain/limestone-floor-type-a-v1.source.json
-  source_path: assets/tiles/terrain/road/limestone-floor-type-a-v1.source.json
-  sha256: 10d5f6ee117da8af269e5d03d3f40870bfccfd3ba1df5a1d914e626c3749d93d
+  source_path: assets/tiles/terrain/road/stone-road-v1.png
+  sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/world/reedhaven/terrain/dirt-road-v1.png
   source_path: assets/tiles/terrain/road/dirt-road-v1.png
   sha256: 2fe0b1494ec0669db50ab2269bd1d01e7ffd11a295ceb9f45db95f481a00e3cf
@@ -98,11 +95,11 @@ files:
   source_path: assets/tiles/terrain/non-road/exposed-rock-ground-v1.source.json
   sha256: 6a1d1d05a475ce038cbd161ea5ae5c0f98cf5307e40404faa3a4a6abd6621498
 - path: assets/world/stonewarm/terrain/gravel-paving-v1.png
-  source_path: assets/tiles/terrain/road/gravel-paving-v1.png
-  sha256: 4bb194670b227d92da9ea0e6e0280e08279bb60abfac9594fc97cb3bd0e417d3
+  source_path: assets/tiles/terrain/road/stone-road-v1.png
+  sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/world/stonewarm/terrain/marble-paving-v1.png
-  source_path: assets/tiles/terrain/road/marble-paving-v1.png
-  sha256: 98a707024ebd8518f0714c28dc38954f45fec16a3fb30a7b4b2d272f91764825
+  source_path: assets/tiles/terrain/road/marble-road-v1.png
+  sha256: 871f47e388832f4ab571060e6007ca7649fdfb364d6aaf656cc8a162aadbf274
 - path: assets/world/stonewarm/buildings/red-stone-roof-v2.png
   source_path: assets/tiles/buildings/red-stone/red-stone-roof-v2.png
   sha256: 96d5adea2eea42ccea7c38853ce7a0cbf1371d6c47997f71ebc2c5fe8ae34f1d
@@ -125,23 +122,26 @@ files:
   source_path: assets/tiles/terrain/road/packed-dirt-road-v1.png
   sha256: 64ccb96f5c19eb1215563559992aab8814170b068fc59ae4a72e5ce9205bb230
 - path: assets/terrain/roads/stone-slab-road-v1.png
-  source_path: assets/tiles/terrain/road/stone-slab-road-v1.png
-  sha256: 64d8d156b010bf1a8ed918a46e56769bb1691dfbeb6d4197dcac8b12a6adfbd8
+  source_path: assets/tiles/terrain/road/stone-road-v1.png
+  sha256: f7f0a47a2da78fa78cde4e5cd2847ee6ac9ab59cf4980b2c30d50be7a77c4fee
 - path: assets/terrain/grass-v5.png
-  source_path: assets/tiles/terrain/non-road/grass-v5.png
-  sha256: b4cb6f1003e366a06396012bd0279e59859db2a0becdb3a4cd7552feb7d4a19a
+  source_path: assets/tiles/terrain/non-road/grass-type-a-v1.png
+  sha256: f9a1a5bf0c4784c590cab71e27aea18ae936797507520fe0aff4562e1877e0a9
 - path: assets/terrain/cactus-v1.png
   source_path: assets/tiles/terrain/blocked/cactus-v1.png
   sha256: 547b2062e4bff7e4203b3cb9964a9c98b7b23ad208e63699f94c6641a4507eb5
 - path: assets/terrain/shallow-water-v1.png
-  source_path: assets/tiles/terrain/blocked/shallow-water-v1.png
-  sha256: 867ee2a5bc239cd26308d33c78d4574fc664aeca40a6248b62ac62fac0994a20
+  source_path: assets/tiles/terrain/blocked/transparent-shallow-water-v1.png
+  sha256: f9ba967e446bd64dcdea6c6b50dcc5cf0ce1b56a686f9dcdf38e92abd32fe74e
 - path: assets/terrain/deep-water-v1.png
-  source_path: assets/tiles/terrain/blocked/deep-water-v1.png
-  sha256: ace3780690683a07716b9c9175b7db47b5e07955549566a21e9362051af2811a
+  source_path: assets/tiles/terrain/blocked/transparent-deep-water-v1.png
+  sha256: bf6258940791e5fc10040497ecd108614305719fce3f72edd5fa72ac774420b8
 - path: assets/terrain/wildflowers-v1.png
-  source_path: assets/tiles/terrain/non-road/wildflowers-v1.png
-  sha256: 3f409c198b27bc1c27521a7c208142fa7ef693f0056b507820735096659c5940
+  source_path: assets/tiles/terrain/non-road/wildflowers-v2.png
+  sha256: a1f7da5feb922013aa8ffe893415c8eaf0e42ff6945ce7fbb22acae463d6a6c8
 - path: assets/terrain/dry-soil-branches-v1.png
   source_path: assets/tiles/terrain/non-road/dry-soil-branches-v1.png
   sha256: f6c70b2f3cc1c47cd2d0301733874c091e7ba88c3c7bfa7d8b5c9ba63ff1d2c3
+- path: assets/terrain/grass-type-b-v1.png
+  source_path: assets/tiles/terrain/non-road/grass-type-b-v1.png
+  sha256: cdb5ade64e1ab031ab30b8718422afb6218d8caa26ccba85108f33a80b70bb01
