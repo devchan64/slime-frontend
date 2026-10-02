@@ -366,3 +366,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 자동 검사는 `node scripts/run-regression.mjs tests/text-refining-missions.test.mjs tests/refining-missions-browser.test.mjs`로 실행한다. Chrome 검사에서는 실제 패널·언어팩을 사용하며 HTTP 응답은 테스트 대역이다. 신규 임무 수락·완료 UI는 이 변경에 포함하지 않는다. 기존 v1 API를 사용하므로 인프라·배포·운영 비용 변경은 없다.
 
 정제 임무 목록 응답의 `destinations`는 해당 페이지의 임무 ID를 키로 정제 도시 번역명(`refiningCityNameTranslations`), 전달 도시 번역명(`receiverCityNameTranslations`), 전달 NPC 이름(`receiverName`)을 제공한다. 저장 견적과 분리된 현재 카탈로그 표시 정보다. 정제 도시와 전달 도시는 서로 다를 수 있다. 직전 v1 응답에 이 필드가 없으면 목적지 표시만 생략하며, 필드가 있으면 페이지 ID 집합과 두 언어 이름을 검증한다. 취소 확인창에는 선택한 임무의 결과 재료·목적지·수락 시각을 표시한다.
+
+실제 서버 연결용 정제 임무 검사 번들은 `node scripts/build-refining-mission-browser-test.mjs /tmp/slime-refining-mission-live-browser.js`로 생성한다. 백엔드 전용 검사에 `SLIME_MISSION_BROWSER_BUNDLE`로 전달하며 소스 저장소를 런타임에 가져오지 않는다. 실제 Client·패널·API를 사용하고 최초 취소 성공 응답만 브라우저에서 유실시켜 동일 요청의 영수증·단일 버전 증가·무환불·재고 보존을 검사한다. `/test-context`·`/test-result` 등은 검사 서버 전용이며 제품 API가 아니다. 전체 App·신규 수락·운영 배포 검증과 구분한다.
