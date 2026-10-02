@@ -4,11 +4,13 @@ function requireWorkshopCondition(currentConditionResult){
 }
 function isWorkshopWholeNumber(currentNumberValue){return Number.isSafeInteger(currentNumberValue)&&Number(currentNumberValue)>=0;}
 function validateWorkshopQuote(currentQuoteValue,currentContractKind){
+  requireWorkshopCondition(['craft','repair','consumable','material'].includes(currentContractKind));
+  if(currentContractKind==='material')requireWorkshopCondition(currentQuoteValue?.productionResult!==undefined);
   requireWorkshopCondition(currentQuoteValue&&isWorkshopWholeNumber(currentQuoteValue.costP)&&isWorkshopWholeNumber(currentQuoteValue.durationSeconds)&&currentQuoteValue.durationSeconds>0);
   if(currentQuoteValue.productionResult!==undefined){
     const currentProductionResult=currentQuoteValue.productionResult;
-    requireWorkshopCondition(['craft','consumable'].includes(currentContractKind)&&currentProductionResult&&currentProductionResult.productId===currentQuoteValue.definitionId
-      &&currentProductionResult.usage===(currentContractKind==='craft'?'equipment':'consumable')&&[1,2].includes(currentProductionResult.itemLevel)&&currentProductionResult.levelPolicyVersion===1
+    requireWorkshopCondition(['craft','consumable','material'].includes(currentContractKind)&&currentProductionResult&&currentProductionResult.productId===currentQuoteValue.definitionId
+      &&currentProductionResult.usage===(currentContractKind==='craft'?'equipment':currentContractKind)&&[1,2].includes(currentProductionResult.itemLevel)&&currentProductionResult.levelPolicyVersion===1
       &&isWorkshopWholeNumber(currentProductionResult.performanceVersion)&&currentProductionResult.performanceVersion>0
       &&isWorkshopWholeNumber(currentProductionResult.quality?.numerator)&&isWorkshopWholeNumber(currentProductionResult.quality?.denominator)
       &&currentProductionResult.quality.denominator>0&&currentProductionResult.quality.numerator>=currentProductionResult.quality.denominator
@@ -17,10 +19,12 @@ function validateWorkshopQuote(currentQuoteValue,currentContractKind){
       &&(currentContractKind==='craft'
         ? isWorkshopWholeNumber(currentProductionResult.performance?.attack_flat_bonus)&&isWorkshopWholeNumber(currentProductionResult.performance?.defense_flat_bonus)
           &&isWorkshopWholeNumber(currentProductionResult.performance?.maximum_durability_value)&&currentProductionResult.performance.maximum_durability_value>0
+        : currentContractKind==='material'
+          ? isWorkshopWholeNumber(currentProductionResult.performance?.material_strength_percent)&&currentProductionResult.performance.material_strength_percent>0&&Object.keys(currentProductionResult.performance).length===1
         : ((currentQuoteValue.definitionSnapshot?.effect==='restore_hp'&&isWorkshopWholeNumber(currentProductionResult.performance?.restoration_hp_value)&&currentProductionResult.performance.restoration_hp_value>0)
           ||(['place_route_marker','place_light_marker'].includes(currentQuoteValue.definitionSnapshot?.effect)&&isWorkshopWholeNumber(currentProductionResult.performance?.effect_duration_seconds)&&currentProductionResult.performance.effect_duration_seconds>0))&&Object.keys(currentProductionResult.performance).length===1));
   }
-  if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentQuoteValue.quantity)&&currentQuoteValue.quantity>0&&currentQuoteValue.quantity<=1000
+  if(['consumable','material'].includes(currentContractKind))requireWorkshopCondition(Number.isSafeInteger(currentQuoteValue.quantity)&&currentQuoteValue.quantity>0&&currentQuoteValue.quantity<=1000
     &&Number.isSafeInteger(currentQuoteValue.unitDurationSeconds)&&currentQuoteValue.unitDurationSeconds>0
     &&Number.isSafeInteger(currentQuoteValue.unitCostP)&&currentQuoteValue.unitCostP>0
     &&currentQuoteValue.durationSeconds===currentQuoteValue.quantity*currentQuoteValue.unitDurationSeconds
@@ -65,8 +69,8 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind,curr
   if(currentRequestedSelection!==undefined){
     requireWorkshopCondition(typeof currentRequestedSelection.targetId==='string'&&currentRequestedSelection.targetId.length>0
       &&(currentContractKind==='repair'?currentResponseValue.quote.instanceId:currentResponseValue.quote.definitionId)===currentRequestedSelection.targetId);
-    if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(['craft','consumable'].includes(currentContractKind)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentContractKind==='craft'?currentResponseValue.quote.selectedMaterials:currentResponseValue.quote.requiredMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
-    if(currentContractKind==='consumable')requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
+    if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(['craft','consumable','material'].includes(currentContractKind)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentContractKind==='craft'?currentResponseValue.quote.selectedMaterials:currentResponseValue.quote.requiredMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
+    if(['consumable','material'].includes(currentContractKind))requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
       &&currentRequestedSelection.quantity<=1000&&currentResponseValue.quote.quantity===currentRequestedSelection.quantity);
   }
 
@@ -96,6 +100,7 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind,curr
   return currentResponseValue;
 }
 export function parseWorkshopContracts(currentResponseValue,currentContractKind){
+  requireWorkshopCondition(['craft','repair','consumable','material'].includes(currentContractKind));
   requireWorkshopCondition(currentResponseValue&&isWorkshopWholeNumber(currentResponseValue.characterVersion)&&Number.isFinite(currentResponseValue.serverTime)
     &&(currentResponseValue.nextCursor===null||typeof currentResponseValue.nextCursor==='string'&&WORKSHOP_UUID_PATTERN.test(currentResponseValue.nextCursor))&&Array.isArray(currentResponseValue.entries));
   const currentContractIdentifiers=new Set();

@@ -160,3 +160,59 @@ test('표식 생산 견적은 고정 유지 시간과 효과 종류를 검증한
   const currentInvalidQuote=structuredClone(currentMarkerQuote);currentInvalidQuote.quote.productionResult.performance=currentPerformance;assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'consumable'));
  }
 });
+
+function createMaterialQuoteFixture(){
+ const currentMaterialInputs=[{materialId:'tanned-leather-low',quantity:3},{materialId:'tanned-leather-medium',quantity:1}];
+ return {characterVersion:3,quoteToken:'b'.repeat(64),ownedCoins:1000,
+  quote:{definitionId:'leather-cord',definitionSnapshot:{name:'표준 가죽끈',englishName:'Leather Cord'},
+   quantity:4,unitDurationSeconds:45,unitCostP:2,costP:8,durationSeconds:180,requiredMaterials:currentMaterialInputs,
+   productionResult:{productId:'leather-cord',usage:'material',itemLevel:1,levelPolicyVersion:1,performanceVersion:1,
+    quality:{numerator:5,denominator:4},performance:{material_strength_percent:100}}},
+  materials:currentMaterialInputs.map(currentInputRecord=>({...currentInputRecord,ownedQuantity:currentInputRecord.quantity,
+   consumedQuantity:currentInputRecord.quantity,missingQuantity:0,nameTranslations:{ko:'가죽',en:'Leather'}}))};
+}
+
+test('중간재 견적과 계약은 혼합 품질·레벨·수량·고정 강도를 검증한다',()=>{
+ const currentMaterialQuote=createMaterialQuoteFixture();
+ const currentQuoteSelection={targetId:'leather-cord',quantity:4,materialInputs:currentMaterialQuote.quote.requiredMaterials};
+ assert.equal(parseWorkshopQuote(currentMaterialQuote,'material',currentQuoteSelection).quote.productionResult.itemLevel,1);
+ const currentMaterialContracts={...currentContractFixture,entries:[{...currentContractFixture.entries[0],kind:'material',quote:currentMaterialQuote.quote}]};
+ assert.equal(parseWorkshopContracts(currentMaterialContracts,'material').entries[0].quote.quantity,4);
+ assert.throws(()=>parseWorkshopContracts(currentMaterialContracts,'consumable'));
+ for(const currentInvalidSelection of [{...currentQuoteSelection,quantity:3},{...currentQuoteSelection,targetId:'woven-cloth'},
+  {...currentQuoteSelection,materialInputs:[{materialId:'tanned-leather-low',quantity:4}]}]){
+  assert.throws(()=>parseWorkshopQuote(currentMaterialQuote,'material',currentInvalidSelection));
+ }
+});
+
+test('중간재의 미고정 결과·소모품 위조·잘못된 강도·대량 수량 불일치를 거절한다',()=>{
+ for(const currentInvalidResult of [undefined,null,
+  {...createMaterialQuoteFixture().quote.productionResult,usage:'consumable'},
+  {...createMaterialQuoteFixture().quote.productionResult,productId:'woven-cloth'},
+  {...createMaterialQuoteFixture().quote.productionResult,itemLevel:2},
+  {...createMaterialQuoteFixture().quote.productionResult,quality:{numerator:3,denominator:0}},
+  {...createMaterialQuoteFixture().quote.productionResult,performanceVersion:true}]){
+  const currentInvalidQuote=createMaterialQuoteFixture();currentInvalidQuote.quote.productionResult=currentInvalidResult;
+  assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'material'));
+ }
+ for(const currentInvalidPerformance of [{material_strength_percent:0},{material_strength_percent:true},{material_strength_percent:1.5},
+  {restoration_hp_value:3},{material_strength_percent:100,restoration_hp_value:3}]){
+  const currentInvalidQuote=createMaterialQuoteFixture();currentInvalidQuote.quote.productionResult.performance=currentInvalidPerformance;
+  assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'material'));
+ }
+ for(const currentInvalidFields of [{quantity:0},{quantity:1001},{quantity:true},{costP:2},{durationSeconds:45},{unitCostP:0}]){
+  const currentInvalidQuote=createMaterialQuoteFixture();Object.assign(currentInvalidQuote.quote,currentInvalidFields);
+  assert.throws(()=>parseWorkshopQuote(currentInvalidQuote,'material'));
+ }
+});
+
+test('중간재 과거 계약의 고정 성능은 현재 표를 추측하여 덮어쓰지 않는다',()=>{
+ const currentSavedQuote=createMaterialQuoteFixture();
+ currentSavedQuote.quote.productionResult.performanceVersion=9;
+ currentSavedQuote.quote.productionResult.performance.material_strength_percent=135;
+ const currentOriginalQuote=structuredClone(currentSavedQuote);
+ assert.equal(parseWorkshopQuote(currentSavedQuote,'material').quote.productionResult.performance.material_strength_percent,135);
+ assert.deepEqual(currentSavedQuote,currentOriginalQuote);
+ assert.throws(()=>parseWorkshopQuote(currentSavedQuote,'unsupported'));
+ assert.throws(()=>parseWorkshopContracts({...currentContractFixture,entries:[]},'unsupported'));
+});

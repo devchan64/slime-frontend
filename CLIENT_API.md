@@ -398,3 +398,5 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 텍스트 응급처치는 `first-aid <batchId>`와 `first-aid production-batch:<batchId>`를 모두 허용한다. 후자는 가방에 표시된 항목 ID를 그대로 복사하는 형식이며 API에는 접두사를 제거한 batchId만 보낸다. 생산 붕대 가방 항목은 해당 응급처치 명령을 안내한다. 빈 ID·중복 접두사·잘못된 문자는 전송 전에 거절하며 붕대를 일반 회복 use-item으로 안내하지 않는다.
 
 생산 중간재 가방 응답도 `kind: material`과 `production-batch:<batchId>` 식별자, `definitionId`·`itemLevel`·`performanceVersion`을 사용한다. GUI·텍스트 가방은 같은 검증기로 레벨을 표시하며 중간재에 `useAction`이 붙으면 거절한다. 품질 분수·원료 출처·평가가치는 가방 공개 데이터에 포함하지 않는다. 서버 가방 투영이 연결되어 `/v1/game/equipment`의 `bag.items`에서도 같은 형식을 제공한다. 중간재 공방 메뉴·생성·수령 명령 연결은 별도이며 이 표시 지원으로 활성화하지 않는다. 검증: `node scripts/run-regression.mjs tests/bag.test.mjs`.
+
+공방 공통 응답 검증기의 읽기 종류 `WorkshopReadKind`는 `material`을 포함한다. `parseWorkshopQuote(response, 'material', selection)`는 주문 수량과 입력 선택의 일치, `usage: material`, 품질 분수에 따른 레벨, 양의 정수 `material_strength_percent` 하나로 구성된 고정 성능을 검사한다. 중간재는 `productionResult` 누락을 허용하지 않는다. `parseWorkshopContracts(response, 'material')`도 같은 검증을 사용하며 과거 계약의 저장 성능 버전을 현재 표로 바꾸지 않는다. 명령 종류 `WorkshopContractKind`와 GUI·CLI의 생성·수령 기능은 그대로 유지하며, 이 검증기 확장은 중간재 명령 활성화가 아니다.
