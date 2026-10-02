@@ -10,6 +10,14 @@ Node.js 22 이상과 실행 중인 API, 기존 계정이 필요하다. 추가 �
 node scripts/text-client.mjs http://127.0.0.1:18080
 ```
 
+인증 API가 별도 주소라면 두 번째 인수로 지정한다. 생략하면 게임 API 주소로 인증한다.
+
+```bash
+node scripts/text-client.mjs https://game.example https://identity.example
+```
+
+라이브러리는 `new TextClient(gameBaseUrl, {identityBaseUrl})`로 같은 설정을 사용한다. `/v1/auth/*`만 인증 주소를 사용하며 게임 명령·세션 heartbeat는 게임 주소를 유지한다. 인증 장애 시 다른 주소로 재시도하지 않는다.
+
 아이디·비밀번호를 대화형 터미널에서 입력한다. 비밀번호는 숨기며 명령행 인수·환경 파일에 넣지 않는다. 토큰은 메모리에만 유지한다. 원격 접속은 HTTPS 주소를 사용한다. 주소에 인증 정보·쿼리·프래그먼트를 포함할 수 없다. `quit` 또는 Ctrl+C에서 로그아웃을 시도한다. 강제 종료·네트워크 단절은 서버의 세션 만료 또는 다음 로그인 전환으로 처리한다. 동일 계정으로 다른 클라이언트에 로그인하면 기존 세션이 전환될 수 있다.
 
 `help`로 전체 명령을 확인한다. 예:

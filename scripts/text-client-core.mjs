@@ -1,3 +1,4 @@
+import {createServiceRequestResolver} from "../src/client/service-request-url.mjs";
 import {validateGuildMembership} from '../src/client/guild-membership-validation.mjs';
 import {executeOnlinePartyCommand} from './text-online-party.mjs';
 import {executeGuildRecruitment} from './text-guild-recruitment.mjs';
@@ -26,18 +27,19 @@ export class ApiFailure extends Error {
 
 // 브라우저·자산·비공개 서버 모듈에 의존하지 않는 HTTP 클라이언트다.
 export class TextClient {
-  constructor(baseUrl, { fetcher = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)) } = {}) {
+  constructor(baseUrl, { fetcher = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)), identityBaseUrl } = {}) {
     const url = new URL(baseUrl);
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash)
       throw new Error('인증 정보·쿼리 없는 HTTP(S) API 주소가 필요합니다.');
     this.baseUrl = url.href.replace(/\/$/, '');
+    this.resolveServiceRequest=createServiceRequestResolver(this.baseUrl,identityBaseUrl);
     this.fetcher = fetcher;
     this.sleep = sleep;
     this.tokens = null;
     this.state = null;
   }
   async request(path, body) {
-    const response = await this.fetcher(this.baseUrl + path, {
+    const response = await this.fetcher(this.resolveServiceRequest(path), {
       method: body === undefined ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/json', ...(this.tokens ? { Authorization: `Bearer ${this.tokens.access_token}` } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),

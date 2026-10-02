@@ -1,3 +1,4 @@
+import {createServiceRequestResolver} from "./service-request-url.mjs";
 import { watchUserActivity } from "./userActivity";
 import { LocalizedError, type Notice } from './notice';
 import { getLocale } from "../i18n";
@@ -6,6 +7,7 @@ export { ApiError } from "./response";
 import type { State, Tokens } from "./types";
 const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) || "";
+const resolveHttpRequestUrl=createServiceRequestResolver(API_BASE,import.meta.env.VITE_IDENTITY_API_BASE_URL as string | undefined);
 const HEARTBEAT_MS = 10000;
 const SOCKET_RESPONSE_TIMEOUT_MS = 30000;
 const RECONNECT_MAX_MS = 5000;
@@ -59,7 +61,7 @@ export class Client {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
-      const response = await fetch(`${API_BASE}${path}`, {
+      const response = await fetch(resolveHttpRequestUrl(path), {
         method: body === undefined ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,6 +71,7 @@ export class Client {
         },
         body: body === undefined ? undefined : JSON.stringify(body),
         cache: "no-store",
+        redirect: "error",
         signal: controller.signal,
       });
       const currentResponseValue=await readApiResponse(response, getLocale(), path === "/v1/game/state" ? "state" : "message");

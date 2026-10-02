@@ -84,8 +84,8 @@ retry                  결과 불명 명령을 같은 요청 ID로 재확인
 help / quit            도움말 / 로그아웃 후 종료`;
 
 const args = process.argv.slice(2);
-if (args.length !== 1 || args[0] === '--help') {
-  console.log('사용법: node scripts/text-client.mjs http://127.0.0.1:18080\n아이디·비밀번호는 터미널에서 입력합니다.\n\n' + HELP);
+if ((args.length !== 1 && args.length !== 2) || args[0] === '--help') {
+  console.log('사용법: node scripts/text-client.mjs 게임API주소 [인증API주소]\n아이디·비밀번호는 터미널에서 입력합니다.\n\n' + HELP);
   process.exitCode = args[0] === '--help' ? 0 : 1;
 } else if (!process.stdin.isTTY || !process.stdout.isTTY) {
   console.error('비밀번호를 숨길 수 있는 대화형 터미널에서 실행하세요.');
@@ -106,7 +106,7 @@ if (args.length !== 1 || args[0] === '--help') {
   terminal.on('SIGINT', () => { stopped = true; terminal.close(); });
   terminal.on('close', () => { stopped = true; inputClosed.abort(); });
   try {
-    client = new TextClient(args[0]);
+    client = new TextClient(args[0],{identityBaseUrl:args[1]});
     const user = await terminal.question('아이디: ', { signal: inputClosed.signal });
     process.stdout.write('비밀번호: ');
     hidden = true;
