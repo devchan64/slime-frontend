@@ -3,7 +3,7 @@ import {screenFacing, type WorldFacing} from '../animation/facing';
 import type {Position} from '../../client/types';
 type Point = {x:number;y:number;depth:number};
 export type FieldActor = {id:string;cell:Position;point:Point;serverWorldFacing?:WorldFacing};
-type Track = FieldActor & {movementPathPoints:Point[];segmentWorldFacings:(WorldFacing|undefined)[];started:number};
+type Track = FieldActor & {movementPathPoints:Point[];segmentWorldFacings:(WorldFacing|undefined)[];started:number;animationStartedAt:number};
 
 /** 서버 확정 인접 이동만 보간한다. 논리 좌표와 이동 판정은 변경하지 않는다. */
 export class FieldMotion {
@@ -29,7 +29,7 @@ export class FieldMotion {
       const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
       if(adjacent)segmentWorldFacings.push(actor.serverWorldFacing);
       movementPathPoints.push({...actor.point});
-      next.set(actor.id,{...actor,cell:{...actor.cell},point:{...actor.point},movementPathPoints,segmentWorldFacings,started:currentMovementStart});
+      next.set(actor.id,{...actor,cell:{...actor.cell},point:{...actor.point},movementPathPoints,segmentWorldFacings,started:currentMovementStart,animationStartedAt:currentMotionTrack?.animationStartedAt??now});
     }
     this.tracks=next;
   }
@@ -41,7 +41,7 @@ export class FieldMotion {
   }
   movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
     if(!this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;
-    return Math.max(0,currentRenderTime-this.tracks.get(actorStableIdentifier)!.started);
+    return Math.max(0,currentRenderTime-this.tracks.get(actorStableIdentifier)!.animationStartedAt);
   }
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);

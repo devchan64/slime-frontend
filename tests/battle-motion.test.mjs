@@ -168,3 +168,17 @@ test('전투 이동의 12프레임 동안 출발·도착 바닥보다 앞에 그
   assert.deepEqual(currentMotionTracker.offset('hero',1510),{x:0,y:0,depth:0});
  }
 });
+
+test('전투 경로 추가로 완료 구간을 정리해도 걷기 프레임은 이어진다',()=>{
+ const currentMotionTracker=new BattleMotion();
+ currentMotionTracker.sync('phase',state(start),point,0);
+ currentMotionTracker.sync('phase',state(end,[move]),point,10);
+ const currentPreviousOffset=currentMotionTracker.offset('hero',1010);
+ const currentNextMove={...move,path:[corner]};
+ currentMotionTracker.sync('phase',state(corner,[move,currentNextMove]),point,1010);
+ assert.equal(currentMotionTracker.movementElapsedMilliseconds('hero',1010),1000);
+ assert.equal(currentMotionTracker.offset('hero',1010).y+point(corner).y,currentPreviousOffset.y+point(end).y);
+ assert.equal(currentMotionTracker.isMovementActive('hero',2260),false);
+ currentMotionTracker.sync('phase',state(end,[move,currentNextMove,{...move,path:[end]}]),point,3000);
+ assert.equal(currentMotionTracker.movementElapsedMilliseconds('hero',3000),0);
+});

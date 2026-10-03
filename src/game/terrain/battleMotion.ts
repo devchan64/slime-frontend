@@ -6,7 +6,7 @@ const ATTACK_TRANSITION_MILLISECONDS = 300;
 const ATTACK_LUNGE_DISTANCE_RATIO = 0.32;
 const ATTACK_RECOIL_DISTANCE_RATIO = 0.08;
 type Point = {x:number;y:number;depth:number};
-type Track = {points:Point[];started:number;segmentWorldFacings:(WorldFacing|undefined)[]};
+type Track = {points:Point[];started:number;animationStartedAt:number;segmentWorldFacings:(WorldFacing|undefined)[]};
 type ImpactTrack = {vector:Point;started:number;distanceRatio:number};
 /** 새로 수신한 확정 이동 로그만 재생하며 초기 접속의 과거 기록은 재생하지 않는다. */
 export class BattleMotion {
@@ -50,7 +50,7 @@ export class BattleMotion {
       const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
       segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
       points.push(...event.path.map(battlePathPosition => project(battlePathPosition, event.unitId)));
-      this.tracks.set(event.unitId,{points,started:currentMovementStart,segmentWorldFacings});
+      this.tracks.set(event.unitId,{points,started:currentMovementStart,animationStartedAt:currentMotionTrack?.animationStartedAt??now,segmentWorldFacings});
       this.positions.set(event.unitId,event.path[event.path.length-1]);
     }
     this.logCount=battle.log.length;
@@ -66,7 +66,7 @@ export class BattleMotion {
   }
   movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
     if(!this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;
-    return Math.max(0,currentRenderTime-this.tracks.get(actorStableIdentifier)!.started);
+    return Math.max(0,currentRenderTime-this.tracks.get(actorStableIdentifier)!.animationStartedAt);
   }
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);

@@ -95,3 +95,17 @@ test('양방향 이동의 모든 걷기 프레임에서 겹친 바닥에 가려�
   assert.equal(currentMotionTracker.offset('slime',760).depth,0);
  }
 });
+
+test('완료 구간을 정리해도 연속 걷기 프레임 시각은 유지한다',()=>{
+ const currentMotionTracker=new FieldMotion();
+ currentMotionTracker.sync('phase',[actor(0,0)],0);
+ currentMotionTracker.sync('phase',[actor(1,64)],10);
+ currentMotionTracker.sync('phase',[actor(2,128)],310);
+ const currentPreviousOffset=currentMotionTracker.offset('slime',1010);
+ currentMotionTracker.sync('phase',[actor(3,192)],1010);
+ assert.equal(currentMotionTracker.movementElapsedMilliseconds('slime',1010),1000);
+ assert.equal(currentMotionTracker.offset('slime',1010).x+192,currentPreviousOffset.x+128);
+ assert.equal(currentMotionTracker.isMovementActive('slime',2260),false);
+ currentMotionTracker.sync('phase',[actor(4,256)],3000);
+ assert.equal(currentMotionTracker.movementElapsedMilliseconds('slime',3000),0);
+});
