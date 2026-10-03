@@ -15,6 +15,22 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
     ||currentCapabilities.assets.some(currentAssetName=>!['CP','SP','P'].includes(currentAssetName)))throw new Error('개발자 권한 응답이 올바르지 않습니다.');
   return '개발자 도구 · 본인 캐릭터 전용 · '+currentCapabilities.assets.join(', ');
  }
+ if(currentActionName==='items'&&currentCommandArguments.length===1){
+  const currentCatalogResponse=await currentTextClient.request('/v1/developer/catalog');requireCurrentDeveloperSession();
+  const currentAllowedCategories=['material','collection','refined_material','consumable','equipment','skill_card','costume'];
+  const currentCatalogKeys=new Set();
+  if(currentCatalogResponse.accountId!==currentSessionTokens.user_id||currentCatalogResponse.targetScope!=='SELF'||!Array.isArray(currentCatalogResponse.entries)
+   ||currentCatalogResponse.entries.some(currentCatalogEntry=>{
+    const currentCatalogKey=currentCatalogEntry.category+':'+currentCatalogEntry.itemId;
+    const currentEntryInvalid=!currentAllowedCategories.includes(currentCatalogEntry.category)||typeof currentCatalogEntry.itemId!=='string'||!currentCatalogEntry.itemId
+     ||typeof currentCatalogEntry.nameTranslations?.ko!=='string'||!currentCatalogEntry.nameTranslations.ko
+     ||!Array.isArray(currentCatalogEntry.supportedOperations)||currentCatalogEntry.supportedOperations.some(currentOperationName=>!['ADD','REMOVE'].includes(currentOperationName))
+     ||currentCatalogKeys.has(currentCatalogKey);
+    currentCatalogKeys.add(currentCatalogKey);return currentEntryInvalid;
+   }))throw new Error('개발자 품목 응답이 올바르지 않습니다.');
+  return currentCatalogResponse.entries.map(currentCatalogEntry=>currentCatalogEntry.category+' '+currentCatalogEntry.itemId+' · '+currentCatalogEntry.nameTranslations.ko
+   +' · '+(currentCatalogEntry.supportedOperations.length?currentCatalogEntry.supportedOperations.join(', '):'조정 미지원')).join('\n');
+ }
  if(currentActionName==='history'&&(currentCommandArguments.length===1||currentCommandArguments.length===2)){
   if(currentAssetArgument&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentAssetArgument))throw new Error('변경 이력의 다음 커서 UUID를 입력하세요.');
   const currentHistoryPage=await currentTextClient.request('/v1/developer/adjustments'+(currentAssetArgument?'?after='+encodeURIComponent(currentAssetArgument):''));requireCurrentDeveloperSession();

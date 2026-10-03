@@ -991,6 +991,7 @@ test('개발자 포인트 조정은 본인 요청과 재시도 ID를 유지하�
  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
   const currentRequestBody=currentRequestOptions.body?JSON.parse(currentRequestOptions.body):undefined;
   currentRequestRecords.push({url:currentRequestUrl,body:currentRequestBody});
+  if(currentRequestUrl.endsWith('/v1/developer/catalog'))return Response.json({accountId:'test',targetScope:'SELF',entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:[]}]});
   if(currentRequestUrl.endsWith('/v1/developer/adjustments')){
    currentAttemptCount++;
    if(currentAttemptCount<=2)throw new Error('응답 유실');
@@ -1011,4 +1012,6 @@ test('개발자 포인트 조정은 본인 요청과 재시도 ID를 유지하�
  for(const currentInvalidCommand of ['dev add cp 0','dev add p -1','dev remove sp 1.5','dev add cp 2 other','dev add p 1000000001'])
   await assert.rejects(currentTextClient.execute(currentInvalidCommand),/형식/);
  assert.equal(currentRequestRecords.length,4);
+ assert.match(await currentTextClient.execute('dev items'),/material protein-jelly · 단백질 젤리 · 조정 미지원/);
+ assert.equal(currentRequestRecords[4].body,undefined);
 });
