@@ -150,3 +150,7 @@ developerBatchInstance: "Batch to remove · level · owned quantity · ID"
 
 developerCancel: "Cancel"
 developerProceed: "Apply adjustment"
+
+developerInvalidQuantity: "Enter a whole quantity from 1 to 1,000,000,000."
+developerSelectionRequired: "Select an item and its required level, instance, batch or issuer. Instance items require a quantity of one."
+developerInsufficientBalance: "Removal exceeds the owned balance. Reduce the quantity to the available amount."
