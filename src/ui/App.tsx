@@ -594,7 +594,7 @@ export function App() {
             </nav>
           </section>
           <DeveloperToolsPanel key={`developer:${state.generation}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
-          <AutomaticBattlePatternPanel key={`pattern:${state.generation}:${state.me.id}`} currentCharacterState={state.me} currentActionsDisabled={disabled} submitPatternCommand={command}/>
+          <AutomaticBattlePatternPanel key={`pattern:${state.generation}:${state.epoch}:${state.me.id}`} currentCharacterState={state.me} currentActionsDisabled={disabled} submitPatternCommand={command}/>
           <CostumeInventoryPanel key={`wardrobe:${state.generation}:${state.epoch}:${state.me.id}:${state.me.mode}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
         </main>
       ) : userTermsPage ? (
