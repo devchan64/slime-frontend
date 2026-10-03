@@ -908,3 +908,16 @@ test('개인 메시지 만료·세션 변경은 본문을 폐기하고 위조 �
   await assert.rejects(currentStaleRequest,/sessionChanged/);
   assert.throws(()=>currentMessageClient.readPendingDirectMessage(),/sessionChanged/);
 });
+
+
+test('텍스트 가방은 수집품과 정제 재료를 표시하고 정제 등급을 검증한다', () => {
+  const currentCollectionItem = {id:'hide', name:'짐승 가죽', kind:'collection', quantity:2};
+  const currentRefinedItem = {id:'tanned-hide-high', name:'상급 무두질 가죽', kind:'refined_material', grade:'high', quantity:3};
+  assert.equal(formatCharacterBag({items:[currentCollectionItem,currentRefinedItem]}),
+    '짐승 가죽 [hide] × 2\n상급 무두질 가죽 [tanned-hide-high] × 3');
+  for (const currentInvalidItem of [
+    {...currentRefinedItem,grade:undefined}, {...currentRefinedItem,grade:'invalid'},
+    {...currentCollectionItem,grade:'high'},
+    {...currentRefinedItem,useAction:{type:'RESTORE_HP',restorationHp:1,consumedOnSuccess:1}},
+  ]) assert.throws(()=>formatCharacterBag({items:[currentInvalidItem]}), /가방 응답 형식/);
+});

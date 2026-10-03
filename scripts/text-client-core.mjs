@@ -588,9 +588,12 @@ export function formatCharacterBag(receivedCharacterBag) {
   const renderedBagLines = receivedCharacterBag.items.map(receivedBagItem => {
     if (!receivedBagItem || typeof receivedBagItem.id !== 'string' || !receivedBagItem.id
         || typeof receivedBagItem.name !== 'string' || !receivedBagItem.name
-        || !['material', 'consumable', 'skillbook'].includes(receivedBagItem.kind)
+        || !['material', 'consumable', 'skillbook', 'collection', 'refined_material'].includes(receivedBagItem.kind)
         || !Number.isSafeInteger(receivedBagItem.quantity) || receivedBagItem.quantity < 1
         || seenBagIdentifiers.has(receivedBagItem.id)) throw new Error(invalidBagMessage);
+    if (receivedBagItem.kind === 'refined_material'
+        ? !['low', 'medium', 'high'].includes(receivedBagItem.grade)
+        : receivedBagItem.grade !== undefined) throw new Error(invalidBagMessage);
     validateProductionBagItem(receivedBagItem);
     seenBagIdentifiers.add(receivedBagItem.id);
     let renderedUseCommand = '';
