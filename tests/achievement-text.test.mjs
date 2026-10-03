@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 const { outputFiles } = await build({entryPoints:['src/client/achievementText.ts'],bundle:true,write:false,format:'esm',platform:'node'});
-const { localizedAchievement, validateAchievementSeasonHistory } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const { localizedAchievement, validateAchievementSeasonHistory, validateAchievementCatalogRecords } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 const original = {name:'첫 승리',scope:'GENERAL',cp:1,sp:1,checklist:{win:{description:'1회 승리',target:1}}};
 test('업적 이름과 조건을 함께 전환하고 원본 및 보상을 보존한다', () => {
  const definition = structuredClone(original);
@@ -39,4 +39,11 @@ test('과거 시즌 정의 누락은 현재 업적 대체 없이 거절하고 �
  }
  for(const currentInvalidHistory of [null,[],{previous:null},{previous:[]}])
    assert.throws(()=>validateAchievementSeasonHistory(currentInvalidHistory));
+});
+
+
+test('현재 업적 카탈로그의 잘못된 번역은 렌더 전에 거절한다',()=>{
+ validateAchievementCatalogRecords({current:original});
+ for(const currentInvalidCatalog of [null,[],{current:null},{current:{...original,translations:{ko:{name:'이름'}}}}])
+   assert.throws(()=>validateAchievementCatalogRecords(currentInvalidCatalog));
 });

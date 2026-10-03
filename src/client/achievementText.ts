@@ -25,6 +25,16 @@ export function localizedAchievement(definition: AchievementDefinition, locale: 
       {...criterion, description: translated(criterion.description, criterion.translations, 'description', locale)}]))};
 }
 
+/** 응답 수신 단계에서 검증하여 렌더 중 예외 대신 조회 재시도를 제공한다. */
+export function validateAchievementCatalogRecords(currentCatalogValue: unknown): void {
+  if (!currentCatalogValue || typeof currentCatalogValue !== 'object' || Array.isArray(currentCatalogValue))
+    throw new Error('업적 카탈로그가 객체가 아닙니다.');
+  for (const currentDefinitionRecord of Object.values(currentCatalogValue)) {
+    localizedAchievement(currentDefinitionRecord as AchievementDefinition, 'ko');
+    localizedAchievement(currentDefinitionRecord as AchievementDefinition, 'en');
+  }
+}
+
 /** 과거 정의 누락을 현재 카탈로그로 대체하면 다른 시즌의 기록이 섞이므로 거절한다. */
 export function validateAchievementSeasonHistory(currentHistoryValue: unknown): void {
   if (!currentHistoryValue || typeof currentHistoryValue !== 'object' || Array.isArray(currentHistoryValue))
@@ -39,9 +49,6 @@ export function validateAchievementSeasonHistory(currentHistoryValue: unknown): 
     }
     if (!Array.isArray(currentSeasonRecord.cpLedger) || !Array.isArray(currentSeasonRecord.spLedger))
       throw new Error('과거 시즌 CP·SP 지급 원장이 필요합니다.');
-    for (const currentDefinitionRecord of Object.values(currentSeasonRecord.catalog)) {
-      localizedAchievement(currentDefinitionRecord as AchievementDefinition, 'ko');
-      localizedAchievement(currentDefinitionRecord as AchievementDefinition, 'en');
-    }
+    validateAchievementCatalogRecords(currentSeasonRecord.catalog);
   }
 }

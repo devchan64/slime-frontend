@@ -4,7 +4,7 @@ import type { Client } from '../client/api';
 import { noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 import { localizedSkill, type SkillDefinition } from '../client/skillText';
-import { validateAchievementSeasonHistory, localizedAchievement, type AchievementDefinition as Definition } from '../client/achievementText';
+import { validateAchievementCatalogRecords, validateAchievementSeasonHistory, localizedAchievement, type AchievementDefinition as Definition } from '../client/achievementText';
 type Scope = 'GENERAL' | 'SEASONAL';
 type Progress = {completedAt:number|null;checklist:Record<string,{count:number}>};
 type Ledger = {id:string;achievementId:string;scope:Scope;seasonId:string|null;amount:number;createdAt:number;sourceType:string};
@@ -21,7 +21,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   useEffect(()=>{
     let cancelled=false;setAchievementRequestNotice('');setData(null);setSelectedHistorySeason('');
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
-      .then(([catalog,progress])=>{const currentHistoryRecords=progress.history === undefined ? {} : progress.history;validateAchievementSeasonHistory(currentHistoryRecords);if(!cancelled)setData({history:currentHistoryRecords,catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
+      .then(([catalog,progress])=>{validateAchievementCatalogRecords(catalog.achievements);const currentHistoryRecords=progress.history === undefined ? {} : progress.history;validateAchievementSeasonHistory(currentHistoryRecords);if(!cancelled)setData({history:currentHistoryRecords,catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
       .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
