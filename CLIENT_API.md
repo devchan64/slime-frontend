@@ -476,6 +476,8 @@ dev items
 dev item add material protein-jelly 10
 dev item remove material protein-jelly 2
 dev item add skill_card monster-dissection-card 1
+dev item add equipment iron-sword 1
+dev item remove equipment <개체ID>
 dev history
 dev add cp 10
 dev remove sp 1
@@ -483,4 +485,4 @@ dev add p 100
 retry
 ```
 
-수량은 1~1,000,000,000 정수다. 삭제는 보유량 이내만 가능하다. 응답이 유실되면 기존 공용 `retry`로 동일 요청을 확인한다. 영수증을 받은 뒤 최신 게임 상태를 다시 조회하며 조회만 실패한 경우 재산 변경을 다시 요청하지 않는다. 메뉴의 개발자 도구에서 같은 포인트 조정과 이력 조회를 사용할 수 있다. `dev items`는 등록 품목의 분류·ID·이름과 조정 지원 여부를 조회한다. `material`, `collection`, `refined_material`, `consumable`은 `dev item add|remove 분류 품목ID 수량`으로 조정한다. 빈 지원 목록은 조정 미지원으로 표시한다. 메뉴의 아이템 조정에서 품목 검색·선택·보유량 확인 후 같은 API를 사용한다. 전량 회수하면 재고 항목을 제거하고 변경 이력은 보존한다. 스킬카드는 `skill_card` 분류와 수량 1로 지급·회수한다. 계정 보관함에 developer 출처로 보관하며 자동 습득하지 않는다. 이미 보관·습득한 카드는 추가 지급할 수 없고 사용 시 기존 문해 조건을 따른다. 장비 개체·생산 배치·코스튬·증서는 아직 조정하지 못한다.
+수량은 1~1,000,000,000 정수다. 삭제는 보유량 이내만 가능하다. 응답이 유실되면 기존 공용 `retry`로 동일 요청을 확인한다. 영수증을 받은 뒤 최신 게임 상태를 다시 조회하며 조회만 실패한 경우 재산 변경을 다시 요청하지 않는다. 메뉴의 개발자 도구에서 같은 포인트 조정과 이력 조회를 사용할 수 있다. `dev items`는 등록 품목의 분류·ID·이름과 조정 지원 여부를 조회한다. `material`, `collection`, `refined_material`, `consumable`은 `dev item add|remove 분류 품목ID 수량`으로 조정한다. 빈 지원 목록은 조정 미지원으로 표시한다. 메뉴의 아이템 조정에서 품목 검색·선택·보유량 확인 후 같은 API를 사용한다. 전량 회수하면 재고 항목을 제거하고 변경 이력은 보존한다. 스킬카드는 `skill_card` 분류와 수량 1로 지급·회수한다. 계정 보관함에 developer 출처로 보관하며 자동 습득하지 않는다. 이미 보관·습득한 카드는 추가 지급할 수 없고 사용 시 기존 문해 조건을 따른다. 장비는 한 번에 1개 지급한다. `dev inventory`에서 활성 개체 ID·버전·회수 가능 여부를 확인하고 개체 ID로 회수한다. 메뉴에서도 보유 개체를 선택할 수 있으며 장착·수리 중인 장비는 먼저 해제·수령해야 한다. 회수해도 원본과 이력은 보존된다. 생산 배치·코스튬·증서는 아직 조정하지 못한다.

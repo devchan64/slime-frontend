@@ -1031,7 +1031,26 @@ test('개발자 수량형 아이템 명령은 분류·품목과 요청을 전달
  assert.match(await currentTextClient.execute('dev item remove material protein-jelly 2'),/material protein-jelly 2 → 0/);
  assert.equal(currentCommandRecords[0].asset,'ITEM');assert.equal(currentCommandRecords[0].itemId,'protein-jelly');
  assert.equal(currentCommandRecords[0].category,'material');assert.equal(currentCommandRecords[0].operation,'REMOVE');
- for(const currentInvalidCommand of ['dev item add equipment sword 1','dev item remove material protein-jelly 0','dev item add material protein-jelly 1 other'])
+ for(const currentInvalidCommand of ['dev item add costume unknown 1','dev item remove material protein-jelly 0','dev item add material protein-jelly 1 other'])
   await assert.rejects(currentTextClient.execute(currentInvalidCommand),/형식/);
  assert.equal(currentCommandRecords.length,1);
+});
+
+test('개발자 장비 회수는 본인 재고에서 개체 버전을 확인한다',async()=>{
+ const currentInstanceIdentifier='00000000-0000-4000-8000-000000000011';
+ const currentInitialState=state({me:{...state().me,id:'test'}});
+ const currentCommandPayloads=[];
+ const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
+  if(currentRequestUrl.endsWith('/v1/developer/inventory'))return Response.json({characterId:'test',version:currentInitialState.me.version,items:[{category:'equipment',itemId:'iron-sword',quantity:1,instanceId:currentInstanceIdentifier,instanceVersion:3,removable:true}]});
+  if(currentRequestUrl.endsWith('/v1/developer/adjustments')){
+   const currentRequestBody=JSON.parse(currentRequestOptions.body);currentCommandPayloads.push(currentRequestBody);
+   return Response.json({ok:true,...currentRequestBody,actorId:'test',characterId:'test',before:1,after:0,version:currentInitialState.me.version+1,instanceVersion:4});
+  }
+  return Response.json({...currentInitialState,cursor:2,me:{...currentInitialState.me,version:currentInitialState.me.version+1}});
+ }});
+ currentTextClient.tokens={user_id:'test',access_token:'local-test'};currentTextClient.accept(currentInitialState);
+ assert.match(await currentTextClient.execute('dev item remove equipment '+currentInstanceIdentifier),/iron-sword 1 → 0/);
+ assert.equal(currentCommandPayloads[0].instanceId,currentInstanceIdentifier);
+ assert.equal(currentCommandPayloads[0].expectedInstanceVersion,3);
+ assert.equal(currentCommandPayloads[0].quantity,1);
 });

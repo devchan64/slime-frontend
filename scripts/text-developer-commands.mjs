@@ -49,30 +49,40 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
     ||!['CP','SP','P'].every(currentAssetName=>Number.isSafeInteger(currentInventory.balances?.[currentAssetName])&&currentInventory.balances[currentAssetName]>=0))
    throw new Error('개발자 잔고 응답이 올바르지 않습니다.');
   if(!Array.isArray(currentInventory.items)||currentInventory.items.some(currentItemEntry=>typeof currentItemEntry.category!=='string'||typeof currentItemEntry.itemId!=='string'||!Number.isSafeInteger(currentItemEntry.quantity)||currentItemEntry.quantity<1))throw new Error('개발자 재고 응답이 올바르지 않습니다.');
-  return ['CP','SP','P'].map(currentAssetName=>currentAssetName+' '+currentInventory.balances[currentAssetName]).join(' · ')+'\n'+currentInventory.items.map(currentItemEntry=>currentItemEntry.category+' '+currentItemEntry.itemId+' '+currentItemEntry.quantity).join('\n');
+  return ['CP','SP','P'].map(currentAssetName=>currentAssetName+' '+currentInventory.balances[currentAssetName]).join(' · ')+'\n'+currentInventory.items.map(currentItemEntry=>currentItemEntry.category+' '+currentItemEntry.itemId+' '+currentItemEntry.quantity+(currentItemEntry.instanceId?' · '+currentItemEntry.instanceId+' · v'+currentItemEntry.instanceVersion+' · '+(currentItemEntry.removable?'회수 가능':'사용 중'):'')).join('\n');
  }
  const currentItemRequested=currentActionName==='item';
  const currentOperationArgument=currentItemRequested?currentCommandArguments[1]:currentActionName;
  const currentItemCategory=currentItemRequested?currentCommandArguments[2]:undefined;
- const currentItemIdentifier=currentItemRequested?currentCommandArguments[3]:undefined;
- const currentQuantityText=currentItemRequested?currentCommandArguments[4]:currentQuantityArgument;
- if(!['add','remove'].includes(currentOperationArgument)||currentCommandArguments.length!==(currentItemRequested?5:3)
-   ||(currentItemRequested?!['material','collection','refined_material','consumable','skill_card'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
-   ||(currentItemCategory==='skill_card'&&currentQuantityText!=='1')
+ let currentItemIdentifier=currentItemRequested?currentCommandArguments[3]:undefined;
+ const currentEquipmentRemoval=currentItemCategory==='equipment'&&currentOperationArgument==='remove';
+ const currentQuantityText=currentEquipmentRemoval?'1':currentItemRequested?currentCommandArguments[4]:currentQuantityArgument;
+ let currentEquipmentFields={};
+ if(currentEquipmentRemoval&&currentCommandArguments.length===4){
+  const currentInventoryResponse=await currentTextClient.request('/v1/developer/inventory');requireCurrentDeveloperSession();
+  if(currentInventoryResponse.characterId!==currentCharacterIdentifier||currentInventoryResponse.version!==currentTextClient.state.me.version||!Array.isArray(currentInventoryResponse.items))throw new Error('상태가 변경되었습니다. state 명령으로 갱신하세요.');
+  const currentOwnedEquipment=currentInventoryResponse.items.find(currentItemEntry=>currentItemEntry.category==='equipment'&&currentItemEntry.instanceId===currentItemIdentifier);
+  if(!currentOwnedEquipment||!currentOwnedEquipment.removable||!Number.isSafeInteger(currentOwnedEquipment.instanceVersion)||currentOwnedEquipment.instanceVersion<1)throw new Error('회수 가능한 본인 장비 개체 ID를 지정하세요.');
+  currentEquipmentFields={instanceId:currentOwnedEquipment.instanceId,expectedInstanceVersion:currentOwnedEquipment.instanceVersion};currentItemIdentifier=currentOwnedEquipment.itemId;
+ }
+ if(!['add','remove'].includes(currentOperationArgument)||currentCommandArguments.length!==(currentEquipmentRemoval?4:currentItemRequested?5:3)
+   ||(currentItemRequested?!['material','collection','refined_material','consumable','skill_card','equipment'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
+   ||(['skill_card','equipment'].includes(currentItemCategory)&&currentQuantityText!=='1')
    ||!/^[1-9][0-9]*$/.test(currentQuantityText)||!Number.isSafeInteger(Number(currentQuantityText))||Number(currentQuantityText)>1000000000)
   throw new Error('dev add|remove cp|sp|p 수량 또는 dev item add|remove 분류 품목ID 수량(1~1000000000) 형식으로 입력하세요.');
  const currentAssetName=currentItemRequested?'ITEM':currentAssetArgument.toUpperCase();
  const currentAssetLabel=currentItemRequested?currentItemCategory+' '+currentItemIdentifier:currentAssetName;
  return currentTextClient.command('/v1/developer/adjustments',{
   operation:currentOperationArgument==='add'?'ADD':'REMOVE',asset:currentAssetName,quantity:Number(currentQuantityText),
-  ...(currentItemRequested?{category:currentItemCategory,itemId:currentItemIdentifier}:{}),
- },currentReceiptRecord=>`${currentAssetLabel} ${currentReceiptRecord.before} → ${currentReceiptRecord.after} · 요청 ${currentReceiptRecord.requestId}`,{
+  ...(currentItemRequested?{category:currentItemCategory,itemId:currentItemIdentifier}:{}),...currentEquipmentFields,
+ },currentReceiptRecord=>`${currentAssetLabel} ${currentReceiptRecord.before} → ${currentReceiptRecord.after}${currentReceiptRecord.instanceId?' · '+currentReceiptRecord.instanceId:''} · 요청 ${currentReceiptRecord.requestId}`,{
   fetchStateAfterReceipt:true,readReceiptCharacterVersion:currentReceiptRecord=>currentReceiptRecord.version,
   validateCommandResponse:(currentReceiptRecord,currentRequestBody)=>{
    if(currentReceiptRecord.ok!==true||currentReceiptRecord.requestId!==currentRequestBody.requestId
      ||currentReceiptRecord.actorId!==currentSessionTokens.user_id||currentReceiptRecord.characterId!==currentCharacterIdentifier
      ||currentReceiptRecord.asset!==currentRequestBody.asset||currentReceiptRecord.operation!==currentRequestBody.operation
      ||currentReceiptRecord.itemId!==currentRequestBody.itemId||currentReceiptRecord.category!==currentRequestBody.category
+     ||(currentRequestBody.category==='equipment'&&(typeof currentReceiptRecord.instanceId!=='string'||!Number.isSafeInteger(currentReceiptRecord.instanceVersion)||(currentRequestBody.operation==='REMOVE'&&(currentReceiptRecord.instanceId!==currentRequestBody.instanceId||currentReceiptRecord.instanceVersion!==currentRequestBody.expectedInstanceVersion+1))))
      ||currentReceiptRecord.quantity!==currentRequestBody.quantity||currentReceiptRecord.version!==currentRequestBody.expectedVersion+1
      ||![currentReceiptRecord.before,currentReceiptRecord.after].every(currentBalanceValue=>Number.isSafeInteger(currentBalanceValue)&&currentBalanceValue>=0)
      ||currentReceiptRecord.after-currentReceiptRecord.before!==currentRequestBody.quantity*(currentRequestBody.operation==='ADD'?1:-1))

@@ -19,6 +19,9 @@ function clickDeveloperButton(currentMessageKey:string){
  let currentConfirmedPayload:any=null;
  let currentConfirmationCount=0;
  let currentItemReceipt:any=null;
+ let currentEquipmentReceipt:any=null;
+ let currentEquipmentOwned=false;
+ const currentEquipmentIdentifier='00000000-0000-4000-8000-000000000010';
  const currentRequestPayloads:any[]=[];
  const currentClientStub:any={tokens:{user_id:'test'},state:{generation:1,me:{id:'test',name:'test',mode:'FIELD',version:1,cp:10,sp:2,coins:20}},
   accept(currentIncomingState:any){this.state=currentIncomingState;},
@@ -27,11 +30,12 @@ function clickDeveloperButton(currentMessageKey:string){
     if(currentAccessDenied)throw new ApiError('DEVELOPER_FORBIDDEN','권한 없음',403);
     return {accountId:'test',targetScope:'SELF',assets:['CP','SP','P']};
    }
-   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']}]};
-   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[],version:currentItemReceipt?3:currentConfirmedReceipt?2:1,balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
-   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
+   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']},{category:'equipment',itemId:'iron-sword',nameTranslations:{ko:'철검',en:'Iron sword'},supportedOperations:['ADD','REMOVE']}]};
+   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:[...(currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[]),...(currentEquipmentOwned?[{category:'equipment',itemId:'iron-sword',quantity:1,instanceId:currentEquipmentIdentifier,instanceVersion:1,removable:true}]:[])],version:currentEquipmentReceipt?.version??(currentItemReceipt?3:currentConfirmedReceipt?2:1),balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
+   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentEquipmentReceipt?[currentEquipmentReceipt]:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
    if(currentRequestPath==='/v1/developer/adjustments'){
     currentPostRequestCount++;currentRequestPayloads.push(currentRequestPayload);
+    if(currentRequestPayload.category==='equipment'){currentEquipmentOwned=currentRequestPayload.operation==='ADD';currentEquipmentReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:currentEquipmentOwned?0:1,after:currentEquipmentOwned?1:0,instanceId:currentEquipmentIdentifier,instanceVersion:currentEquipmentOwned?1:2,version:currentEquipmentOwned?4:5,createdAt:102};return currentEquipmentReceipt;}
     if(currentRequestPayload.asset==='ITEM'){currentItemReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:0,after:1,version:3,createdAt:101};return currentItemReceipt;}
     if(!currentConfirmedReceipt){currentConfirmedPayload=currentRequestPayload;currentConfirmedReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:10,after:11,version:2,createdAt:100};}
     else assertDeveloperBrowserState(JSON.stringify(currentRequestPayload)===JSON.stringify(currentConfirmedPayload),'재시도 요청 ID·내용 보존');
@@ -40,7 +44,7 @@ function clickDeveloperButton(currentMessageKey:string){
    }
    if(currentRequestPath==='/v1/game/state'){
     if(currentStateReadLost){currentStateReadLost=false;throw new Error('상태 조회 유실');}
-    return {...this.state,me:{...this.state.me,version:currentItemReceipt?3:2,cp:11}};
+    return {...this.state,me:{...this.state.me,version:currentEquipmentReceipt?.version??(currentItemReceipt?3:2),cp:11}};
    }
    throw new Error('예상하지 않은 요청 '+currentRequestPath);
   }};
@@ -69,6 +73,13 @@ function clickDeveloperButton(currentMessageKey:string){
  clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
  assertDeveloperBrowserState(currentItemReceipt?.category==='material'&&currentItemReceipt?.itemId==='protein-jelly'&&currentItemReceipt?.expectedVersion===2,'아이템 분류·ID·버전 전송');
  assertDeveloperBrowserState(document.querySelector('li')?.textContent?.includes('material protein-jelly: 0 → 1'),'아이템 이력 표시');
+ currentItemSelect.value='equipment:iron-sword';currentItemSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentEquipmentOwned,'장비 개체 지급');
+ const currentOperationSelect=document.querySelectorAll('select')[1];currentOperationSelect.value='REMOVE';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ const currentInstanceSelect=document.querySelectorAll('select')[2];currentInstanceSelect.value=currentEquipmentIdentifier;currentInstanceSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(!currentEquipmentOwned&&currentEquipmentReceipt.expectedInstanceVersion===1&&currentEquipmentReceipt.instanceId===currentEquipmentIdentifier,'선택한 장비 개체와 버전으로 회수');
  assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

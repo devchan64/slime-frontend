@@ -5,11 +5,11 @@ import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
 type DeveloperAssetName = 'CP'|'SP'|'P';
-type DeveloperItemRecord = {category:string;itemId:string;quantity:number};
+type DeveloperItemRecord = {category:string;itemId:string;quantity:number;instanceId?:string;instanceVersion?:number;removable?:boolean};
 type DeveloperCatalogEntry = {category:string;itemId:string;nameTranslations:{ko:string;en:string};supportedOperations:('ADD'|'REMOVE')[]};
 type DeveloperInventoryRecord = {characterId:string;version:number;items:DeveloperItemRecord[];balances:Record<DeveloperAssetName,number>};
-type DeveloperAdjustmentPayload = {requestId:string;expectedVersion:number;operation:'ADD'|'REMOVE';asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;quantity:number};
-type DeveloperReceiptRecord = {requestId:string;actorId:string;characterId:string;asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;operation:'ADD'|'REMOVE';quantity:number;before:number;after:number;version:number;createdAt:number;ok:boolean};
+type DeveloperAdjustmentPayload = {requestId:string;expectedVersion:number;operation:'ADD'|'REMOVE';asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;instanceId?:string;instanceVersion?:number;expectedInstanceVersion?:number;quantity:number};
+type DeveloperReceiptRecord = {requestId:string;actorId:string;characterId:string;asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;instanceId?:string;instanceVersion?:number;expectedInstanceVersion?:number;operation:'ADD'|'REMOVE';quantity:number;before:number;after:number;version:number;createdAt:number;ok:boolean};
 const DEVELOPER_ASSET_NAMES:DeveloperAssetName[]=['CP','SP','P'];
 
 export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
@@ -22,6 +22,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const [currentSelectedAsset,setCurrentSelectedAsset]=useState<DeveloperAssetName>('CP');
  const [currentCatalogEntries,setCurrentCatalogEntries]=useState<DeveloperCatalogEntry[]>([]);
  const [currentSelectedItem,setCurrentSelectedItem]=useState('');
+ const [currentSelectedInstance,setCurrentSelectedInstance]=useState('');
  const [currentItemSearch,setCurrentItemSearch]=useState('');
  const [currentItemMode,setCurrentItemMode]=useState(false);
  const [currentQuantityInput,setCurrentQuantityInput]=useState('1');
@@ -72,17 +73,21 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const currentQuantityValue=Number(currentQuantityInput);
  const currentQuantityValid=/^[1-9][0-9]*$/.test(currentQuantityInput)&&Number.isSafeInteger(currentQuantityValue)&&currentQuantityValue<=1000000000;
  const currentSelectedDefinition=currentCatalogEntries.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem);
+ const currentEquipmentMode=currentItemMode&&currentSelectedDefinition?.category==='equipment';
+ const currentOwnedEquipment=currentInventoryRecord?.items.filter(currentItemEntry=>currentItemEntry.category==='equipment'&&currentItemEntry.itemId===currentSelectedDefinition?.itemId)??[];
+ const currentSelectedEquipment=currentOwnedEquipment.find(currentItemEntry=>currentItemEntry.instanceId===currentSelectedInstance);
  const currentItemSupported=!!currentSelectedDefinition?.supportedOperations.includes(currentOperationKind)
-  &&(currentSelectedDefinition.category!=='skill_card'||currentQuantityValue===1);
+  &&(!['skill_card','equipment'].includes(currentSelectedDefinition.category)||currentQuantityValue===1)
+  &&(!currentEquipmentMode||currentOperationKind==='ADD'||currentSelectedEquipment?.removable===true);
  const currentSelectedLabel=currentItemMode&&currentSelectedDefinition?currentSelectedDefinition.nameTranslations[currentDisplayLocale]+' ('+currentSelectedDefinition.itemId+')':currentSelectedAsset;
- const currentBalanceValue=(currentItemMode?currentInventoryRecord?.items.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem)?.quantity:currentInventoryRecord?.balances[currentSelectedAsset])??0;
+ const currentBalanceValue=currentEquipmentMode?(currentOperationKind==='REMOVE'&&currentSelectedEquipment?1:0):(currentItemMode?currentInventoryRecord?.items.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem)?.quantity:currentInventoryRecord?.balances[currentSelectedAsset])??0;
  const currentProjectedBalance=currentBalanceValue+(currentOperationKind==='ADD'?currentQuantityValue:-currentQuantityValue);
  const currentMutationBlocked=actionsAreDisabled||gameSessionClient.state?.me.mode!=='FIELD'||!!gameSessionClient.state?.battle||!!gameSessionClient.state?.reservation;
  async function submitDeveloperAdjustment(currentRetryRequested:boolean){
   if(!currentRetryRequested){
    if(currentMutationBlocked||currentPendingAdjustment.current||!currentInventoryRecord||!currentQuantityValid||currentProjectedBalance<0||(currentItemMode&&!currentItemSupported))return;
    if(!window.confirm(translateDeveloperText('app.developerConfirm',{asset:currentSelectedLabel,before:currentBalanceValue,after:currentProjectedBalance})))return;
-   currentPendingAdjustment.current={payload:{requestId:crypto.randomUUID(),expectedVersion:currentInventoryRecord.version,operation:currentOperationKind,asset:currentItemMode?'ITEM':currentSelectedAsset,quantity:currentQuantityValue,...(currentItemMode?{category:currentSelectedDefinition!.category,itemId:currentSelectedDefinition!.itemId}:{})}};
+   currentPendingAdjustment.current={payload:{requestId:crypto.randomUUID(),expectedVersion:currentInventoryRecord.version,operation:currentOperationKind,asset:currentItemMode?'ITEM':currentSelectedAsset,quantity:currentQuantityValue,...(currentItemMode?{category:currentSelectedDefinition!.category,itemId:currentSelectedDefinition!.itemId,...(currentEquipmentMode&&currentOperationKind==='REMOVE'?{instanceId:currentSelectedEquipment!.instanceId,expectedInstanceVersion:currentSelectedEquipment!.instanceVersion}:{})}:{})}};
   }
   const currentPendingRecord=currentPendingAdjustment.current;if(!currentPendingRecord)return;
   try{
@@ -92,6 +97,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
    if(currentReceipt.ok!==true||currentReceipt.requestId!==currentPayload.requestId||currentReceipt.characterId!==currentOwnerContext.current.character
     ||currentReceipt.actorId!==currentOwnerContext.current.owner||currentReceipt.asset!==currentPayload.asset||currentReceipt.operation!==currentPayload.operation
     ||currentReceipt.category!==currentPayload.category||currentReceipt.itemId!==currentPayload.itemId
+    ||(currentPayload.category==='equipment'&&(typeof currentReceipt.instanceId!=='string'||!Number.isSafeInteger(currentReceipt.instanceVersion)||(currentPayload.operation==='REMOVE'&&(currentReceipt.instanceId!==currentPayload.instanceId||currentReceipt.instanceVersion!==currentPayload.expectedInstanceVersion!+1))))
     ||currentReceipt.quantity!==currentPayload.quantity||currentReceipt.version!==currentPayload.expectedVersion+1
     ||![currentReceipt.before,currentReceipt.after].every(currentBalance=>Number.isSafeInteger(currentBalance)&&currentBalance>=0)
     ||currentReceipt.after-currentReceipt.before!==currentPayload.quantity*(currentPayload.operation==='ADD'?1:-1))throw new Error(translateDeveloperText('app.developerInvalid'));
@@ -128,6 +134,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
      </select></label></>:
     <label>{translateDeveloperText('app.developerAsset')}<select value={currentSelectedAsset} onChange={currentInputEvent=>setCurrentSelectedAsset(currentInputEvent.currentTarget.value as DeveloperAssetName)}>{DEVELOPER_ASSET_NAMES.map(currentAssetName=><option value={currentAssetName}>{currentAssetName}</option>)}</select></label>}
     <label>{translateDeveloperText('app.developerOperation')}<select value={currentOperationKind} onChange={currentInputEvent=>setCurrentOperationKind(currentInputEvent.currentTarget.value as 'ADD'|'REMOVE')}><option value="ADD">{translateDeveloperText('app.developerAdd')}</option><option value="REMOVE">{translateDeveloperText('app.developerRemove')}</option></select></label>
+    {currentEquipmentMode&&<><p>{translateDeveloperText('app.developerEquipmentQuantity')}</p>{currentOperationKind==='REMOVE'&&<label>{translateDeveloperText('app.developerInstance')}<select value={currentSelectedInstance} onChange={currentInputEvent=>setCurrentSelectedInstance(currentInputEvent.currentTarget.value)}><option value="">{translateDeveloperText('app.developerSelectItem')}</option>{currentOwnedEquipment.map(currentItemEntry=><option value={currentItemEntry.instanceId} disabled={!currentItemEntry.removable}>{currentItemEntry.instanceId} · v{currentItemEntry.instanceVersion}{!currentItemEntry.removable?' · '+translateDeveloperText('app.developerEquipmentLocked'):''}</option>)}</select></label>}</>}
     {currentItemMode&&currentSelectedDefinition?.category==='skill_card'&&<p>{translateDeveloperText('app.developerCardQuantity')}</p>}
     <label>{translateDeveloperText('app.developerQuantity')}<input type="number" min="1" max="1000000000" step="1" value={currentQuantityInput} onInput={currentInputEvent=>setCurrentQuantityInput(currentInputEvent.currentTarget.value)}/></label>
     {currentInventoryRecord&&<p>{currentSelectedLabel}: {currentBalanceValue} → {currentQuantityValid?currentProjectedBalance:'—'}</p>}
@@ -136,7 +143,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
    {currentMutationBlocked&&<p>{translateDeveloperText('app.developerFieldOnly')}</p>}
    {currentRequestUncertain&&<><p role="status">{translateDeveloperText('app.developerUncertain')}</p><button disabled={currentRequestBusy} onClick={()=>void runDeveloperPanelAction(()=>submitDeveloperAdjustment(true))}>{translateDeveloperText('app.developerRetry')}</button></>}
    <h3>{translateDeveloperText('app.developerHistory')}</h3>
-   <ul>{currentHistoryEntries.map(currentEntry=><li key={currentEntry.requestId}>{currentEntry.asset==='ITEM'?currentEntry.category+' '+currentEntry.itemId:currentEntry.asset}: {currentEntry.before} → {currentEntry.after} <small>{currentEntry.requestId}</small></li>)}</ul>
+   <ul>{currentHistoryEntries.map(currentEntry=><li key={currentEntry.requestId}>{currentEntry.asset==='ITEM'?currentEntry.category+' '+currentEntry.itemId:currentEntry.asset}: {currentEntry.before} → {currentEntry.after} {currentEntry.instanceId&&<small>{currentEntry.instanceId} </small>}<small>{currentEntry.requestId}</small></li>)}</ul>
    {currentHistoryCursor&&<button disabled={currentRequestBusy||currentRequestUncertain} onClick={()=>void runDeveloperPanelAction(()=>loadDeveloperPanelData(currentHistoryCursor))}>{translateDeveloperText('app.developerNext')}</button>}
   </>}
   {currentNoticeMessage&&<p role="status">{noticeText(currentNoticeMessage,currentDisplayLocale,translateDeveloperText)}</p>}
