@@ -1080,7 +1080,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .world-shell .world.is-battle > .world-title { flex: 0 0 auto; }
 .world-shell .world.is-battle > .battle-map-card {
   position: relative; top: auto; flex: 0 0 auto;
-  width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3;
+  width: 100%; height: auto; min-height: 0; aspect-ratio: auto;
   max-height: none; padding: 0; margin: 0; overflow: hidden; border-radius: 12px;
 }
 
@@ -1166,9 +1166,10 @@ body.battle-preview-shell .preview-hud { display: contents; }
 :root { --field-card-gap: 8px; --field-card-padding: 10px; }
 .world-shell .world-layout--immersive .world.is-field { display: flex; flex-direction: column; gap: var(--field-card-gap); overflow-y: auto; overflow-x: hidden; padding: 0 var(--field-card-padding) var(--field-card-padding); }
 .world-shell .world.is-field > .world-title { flex: 0 0 auto; }
-.world-shell .world.is-field > .field-map-card { position: relative; top: auto; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3; max-height: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; }
-/* 마을·야외·전투 맵은 카드의 4:3 영역을 공유하며 캔버스 크기가 카드를 늘리지 않는다. */
-.world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; }
+.world-shell .world.is-field > .field-map-card { position: relative; top: auto; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; aspect-ratio: auto; max-height: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; }
+/* 카드 테두리를 제외한 실제 맵 표시 영역에 4:3을 적용한다. */
+.world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap { position: relative; width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3; }
+.world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap canvas { position: absolute; inset: 0; }
 .world-shell .world.is-field > :is(.field-control-card, .field-help-card) { position: static; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; max-height: none; margin: 0; padding: var(--field-card-padding); border: 1px solid var(--border); border-radius: 12px; overflow: visible; }
 .world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
 .world-shell .world.is-field .field-control-card :is(.field-selection-details, .field-quick-targets) { height: auto; max-height: none; overflow: visible; }
