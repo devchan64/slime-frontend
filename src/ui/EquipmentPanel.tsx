@@ -25,10 +25,12 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
   const [unresolvedEquipmentCommand, setUnresolvedEquipmentCommand] = useState<EquipmentLoadoutCommand | null>(null);
   const equipmentPanelActive = useRef(false);
   const equipmentRequestActive = useRef(false);
-  const initialSessionIdentity = useRef({owner:gameSessionClient.tokens?.user_id, generation:gameSessionClient.state?.generation});
+  const initialSessionIdentity = useRef({owner:gameSessionClient.tokens?.user_id, generation:gameSessionClient.state?.generation, epoch:gameSessionClient.state?.epoch, character:gameSessionClient.state?.me.id});
   function equipmentSessionMatches() {
     return equipmentPanelActive.current && initialSessionIdentity.current.owner === gameSessionClient.tokens?.user_id
-      && initialSessionIdentity.current.generation === gameSessionClient.state?.generation;
+      && initialSessionIdentity.current.generation === gameSessionClient.state?.generation
+      && initialSessionIdentity.current.epoch === gameSessionClient.state?.epoch
+      && initialSessionIdentity.current.character === gameSessionClient.state?.me.id;
   }
   async function refreshEquipmentInventory(requestedEquipmentCursors: string[] = [''], preserveInventoryVersion = false) {
     const afterInstanceIdentifier=requestedEquipmentCursors[requestedEquipmentCursors.length-1];

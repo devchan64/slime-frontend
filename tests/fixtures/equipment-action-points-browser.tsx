@@ -12,7 +12,7 @@ function assertEquipmentBrowser(currentCondition:unknown,currentMessage:string){
  const currentHeavySummary={policyVersion:1,totalWeightG:40000,baseMaxAp:4,penaltyAp:4,effectiveMaxAp:0};
  let currentInventoryPage:any={serverTime:100,characterVersion:1,items:[currentItemRecord],slots:{},knownEquipmentWeightG:40000,nextCursor:null,actionPoints:currentBaseSummary,equipActionPoints:{[currentInstanceIdentifier]:currentHeavySummary},unequipActionPoints:{}};
  let currentMutationCount=0;
- const currentGameClient:any={tokens:{user_id:'hero'},state:{generation:1},request:async(currentRequestPath:string,currentRequestBody:any)=>{
+ const currentGameClient:any={tokens:{user_id:'hero'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async(currentRequestPath:string,currentRequestBody:any)=>{
   if(currentRequestBody)currentMutationCount++;
   if(currentRequestPath!=='/v1/game/equipment')throw new Error('예기치 않은 요청');
   return structuredClone(currentInventoryPage);
@@ -39,5 +39,12 @@ function assertEquipmentBrowser(currentCondition:unknown,currentMessage:string){
  assertEquipmentBrowser(document.querySelectorAll('.equipment-inventory>li').length===1&&document.body.textContent!.includes(t('equipment.historyPage',{page:2})),'다음 장비 페이지는 누적하지 않고 교체');
  await clickEquipmentPage('equipment.previousPage');
  assertEquipmentBrowser(document.body.textContent!.includes(t('equipment.historyPage',{page:1})),'장비 이전 페이지 복귀');
+ let resolveOldEquipmentPage:(currentPageValue:unknown)=>void=()=>{};
+ currentGameClient.request=()=>new Promise(currentResolveCallback=>{resolveOldEquipmentPage=currentResolveCallback;});
+ await clickEquipmentPage('equipment.refresh');
+ currentGameClient.state.epoch=2;
+ resolveOldEquipmentPage({...currentInventoryPage,knownEquipmentWeightG:123456});
+ await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,100));
+ assertEquipmentBrowser(!document.body.textContent!.includes('123456'),'세대 변경 뒤 이전 장비 응답 미표시');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertions});
 }catch(currentFailure){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailure),assertions:currentAssertions});}})();

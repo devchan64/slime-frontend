@@ -76,7 +76,7 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
         {gameSessionClient && <button class="secondary" aria-pressed={category === 'equipment'} onClick={() => setCategory('equipment')}>{t('equipment.title')}</button>}
         {gameSessionClient && <button class="secondary" aria-pressed={category === 'hunts'} onClick={() => setCategory('hunts')}>{t('hunts.title')}</button>}
       </div>
-      {category === 'hunts' && gameSessionClient ? <div key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}`}><SubstituteHuntPanel gameSessionClient={gameSessionClient} actionsAreDisabled={disabled} /><HuntLedgerPanel gameSessionClient={gameSessionClient} /></div> : category === 'equipment' && gameSessionClient ? <EquipmentPanel gameSessionClient={gameSessionClient}
+      {category === 'hunts' && gameSessionClient ? <div key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}`}><SubstituteHuntPanel gameSessionClient={gameSessionClient} actionsAreDisabled={disabled} /><HuntLedgerPanel gameSessionClient={gameSessionClient} /></div> : category === 'equipment' && gameSessionClient ? <EquipmentPanel key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}:${gameSessionClient.state?.epoch}`} gameSessionClient={gameSessionClient}
         actionsAreDisabled={disabled || !!me.battleId || !['LOBBY','FIELD','AWAY'].includes(me.mode)} characterStateVersion={me.version} /> : <>
       <p class="growth-help">{category === "skills" && t("character.skillList")}</p>
       {category === "skills" && me.battleSkillSlotLimit !== undefined && <section class="skill-loadout" aria-label={t("character.battleSlots")}>
