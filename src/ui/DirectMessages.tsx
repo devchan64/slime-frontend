@@ -137,7 +137,7 @@ export function DirectMessages({currentGameClient,currentGameState}:{currentGame
       <svg class="message-notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
       {currentNoticeCount!==null&&currentNoticeCount>0&&<span class="message-notice-badge" aria-hidden="true">{currentNoticeCount>99?'99+':currentNoticeCount}</span>}
       {currentNoticeFailed&&<span class="message-notice-error" aria-hidden="true">!</span>}
-      <span class="message-notice-status" role="status">{translateMessageText(currentNoticeFailed?'directmessages.noticeFailed':currentNoticeCount===null?'directmessages.noticeLoading':'directmessages.noticeCount',{count:currentNoticeCount??0})}</span>
+      <span class="message-notice-status" role="status">{translateMessageText(currentNoticeFailed?'directmessages.noticeFailed':currentNoticeCount===null?'directmessages.noticeLoading':'directmessages.noticeCount',currentNoticeFailed||currentNoticeCount===null?undefined:{count:currentNoticeCount})}</span>
     </button>
     {currentPanelOpen&&<WorldDrawer title={translateMessageText('directmessages.open')} onClose={()=>{currentHistoryRevision.current++;setCurrentPanelOpen(false);setCurrentHistoryPage(null);currentAcknowledgedIdentifiers.current.clear();}}>
       <p class="muted">{translateMessageText('directmessages.retention')}</p>
