@@ -65,6 +65,7 @@ export function ParcelPanel({gameSessionClient,actionsAreDisabled}:{gameSessionC
   return()=>window.clearInterval(currentExpirationTimer);
  },[currentParcelListing]);
  useEffect(()=>{currentActiveReference.current=true;return()=>{currentActiveReference.current=false;};},[]);
+ useEffect(()=>{if(!currentParcelListing)void loadParcelListing();},[actionsAreDisabled]);
  return <section class="guild-trade-panel" aria-label={translateParcelText('parcels.title')}>
   <h3>{translateParcelText('parcels.title')}</h3><p>{translateParcelText('parcels.help')}</p>
   <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel} onClick={()=>void loadParcelListing()}>{translateParcelText('parcels.refresh')}</button>

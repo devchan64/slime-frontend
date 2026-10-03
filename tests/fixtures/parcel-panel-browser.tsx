@@ -28,7 +28,7 @@ async function clickParcelButton(currentTranslationKey:string){
 (async()=>{try{
  setLocale(location.hash==='#en'?'en':'ko');
  render(<ParcelPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
- await currentWaitRender();await clickParcelButton('parcels.refresh');
+ await currentWaitRender();assertParcelBrowser(document.body.textContent!.includes('7'), '보관함 진입 시 소포 목록 자동 조회');
  assertParcelBrowser(document.body.textContent!.includes('7P')&&document.body.textContent!.includes((location.hash==='#en'?'Protein jelly':'단백질 젤리')+' × 2'),'첨부물 표시');
  await clickParcelButton('parcels.claim');
  assertParcelBrowser(document.body.textContent!.includes(t('parcels.uncertain')),'응답 유실 안내');
