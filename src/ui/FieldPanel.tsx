@@ -9,7 +9,7 @@ import {TravelerPermitPanel} from './TravelerPermitPanel';
 import {findFieldGuardCenter} from '../client/travelerIssuance';
 import {CitizenshipPricePanel} from './CitizenshipPricePanel';
 import {GuildTradePanel} from './GuildTradePanel';
-import {SkillbookPanel} from './SkillbookPanel';
+import {SkillCardPanel} from './SkillCardPanel';
 import {WorkshopPanel} from './WorkshopPanel';
 import {NpcDialogue} from './NpcDialogue';
 import type {Client} from '../client/api';
@@ -140,7 +140,7 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
       {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <GuildTradePanel
         key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
-      {selectedCityBuilding?.facilityKind==='bookshop' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <SkillbookPanel key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled}/> }
+      {selectedCityBuilding?.facilityKind==='bookshop' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <SkillCardPanel key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled}/> }
       {selectedCityBuilding?.facilityKind==='workshop' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <WorkshopPanel
         key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
         currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}

@@ -1,0 +1,21 @@
+shop: Bookshop skill cards
+storage: Stored skill cards
+policy: Purchased cards go to account storage. Using a card consumes it and teaches its skill.
+refresh: Refresh cards
+pending: Checking skill cards.
+literacy: 'Required literacy to use: {level}'
+requirement: 'Required literacy {required} · Current {current}'
+buy: 'Buy for {price} P'
+owned: In account storage
+learned: Skill already learned
+indefinite: No expiration
+use: Use card
+confirmTitle: Confirm skill card use
+confirm: 'Consume one {name} and learn its skill at level 0.'
+confirmUse: Consume and learn
+cancel: Cancel
+empty: No skill cards in storage.
+purchased: The skill card was delivered to account storage.
+used: Card consumed and skill learned.
+uncertain: The result could not be confirmed. Retry the same request.
+retry: Retry same request

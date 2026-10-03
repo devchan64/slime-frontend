@@ -264,23 +264,31 @@ GUI와 터미널은 `src/client/refining-validation.mjs`의 응답 검증을 공
 GUI와 동일한 소유 목록 검증기를 사용합니다. 비공개 거래 ID 등 예상하지 않은 필드, 미지원 획득 출처, 잘못된 가치·시각은 거절합니다. 조회 중 계정·캐릭터·세대가 변경되면 늦은 개인 응답을 표시하지 않습니다. 이 조회는 클라이언트 상태나 미확정 명령을 바꾸지 않으며 `retry` 대기 중에도 사용할 수 있습니다. 터미널의 직접 입력에 따른 기존 활동 통지는 별도로 유지합니다.
 
 
-## 텍스트 서점 구매와 스킬북 열람
+## 스킬카드 서점·계정 보관함 연결
 
-- `books list`: `/v1/game/skillbooks`에서 본인 소유 책과 열람 상태를 조회합니다.
-- `books shop 서점ID`: 현장 서점의 `/v1/game/bookshops/{facilityId}/catalog`를 조회해 최종 가격·문해 조건·소유 여부를 표시합니다.
-- `books buy 스킬북ID`: 방금 확인한 서점 목록의 정의 버전·가격으로 구매합니다. 목록 확인 뒤 캐릭터·계정·세대·위치·상태 버전이 달라졌으면 다시 조회해야 합니다.
-- `books read 스킬북ID`: 소유 책의 `/v1/game/skillbooks/{definitionId}/read`를 호출합니다. 본문은 `expectedVersion`만 포함합니다.
+서점은 `SkillCardPanel`을 시설 ID와 함께 열고 계정 보관함은 같은 컴포넌트를 시설 ID 없이 사용한다. 가방의 구형 책 패널은 제거했다. `parseSkillCardInventory`와 `validateSkillCardCommandResponse`를 GUI·텍스트 클라이언트가 공유한다.
 
-구매는 공용 `requestId`·`expectedVersion` 복구를 사용합니다. 성공 응답 유실·손상은 원래 요청으로 재확인하며 `retry` 대기 중 다른 변경 명령은 막습니다. 가격 변경 등 확정 거절은 자동 재구매하지 않습니다. 목록 조회는 복구 중에도 가능하며 늦은 다른 캐릭터·위치의 응답은 표시하지 않습니다. 구매 응답의 책·정의 버전·결제액·시설·요청 ID와 반환 상태의 캐릭터·세대를 확인한 뒤 상태를 반영합니다. 열람 완료 기록도 검사합니다.
+| 동작 | HTTP 경로 | 요청 |
+| --- | --- | --- |
+| 보관함 조회 | `GET /v1/accounts/me/skill-cards` | 없음 |
+| 서점 목록 | `GET /v1/game/bookshops/{facilityId}/skill-cards` | 없음 |
+| 구매 | `POST /v1/game/bookshops/{facilityId}/skill-card-purchases` | `requestId`, `expectedVersion`, `cardId`, `definitionVersion`, `priceP` |
+| 사용 | `POST /v1/accounts/me/skill-cards/{cardId}/use` | `requestId`, `expectedVersion` |
 
-GUI와 같은 스킬북 응답 검증 모듈을 사용합니다. 실제 시민권·시설 위치·잔고·단일 소유·문해 조건과 가격은 서버가 판정하며 텍스트 클라이언트에서 별도 가격 계산이나 스킬 지급을 하지 않습니다.
+목록의 `characterVersion`·`cards`와 서점의 `catalog`를 검증한다. 보관 항목은 `storage=ACCOUNT`, `expiresAt=null`, 사용 요구 `literacyRequired`, 현재 `currentLiteracy`, `learned`를 제공한다. 서점 최종 `priceP`는 서버 응답을 그대로 사용한다. 내부 정의 스냅샷이나 물가지수를 클라이언트에서 요구·계산하지 않는다. 최초 이관으로 조회 시 버전이 변경될 수 있으므로 텍스트 클라이언트는 필요하면 상태를 다시 읽어 동일한 세션·위치인지 확인한다.
 
+구매·사용 응답은 `receipt`와 `state`다. 영수증의 `requestId`·`command`·`result`·`completedAt`, 반환 상태의 캐릭터·세대·순번·버전을 검사한 뒤 적용한다. 사용 결과는 요청 카드와 습득 스킬 ID를 일치시킨다. 구매·사용 성공 응답 유실 또는 손상에서는 원래 요청 전체를 보존하고 재확인한다. GUI는 이때 새 조회·다른 변경을 막고 재확인 버튼을 표시한다. 확정 거절 시 자동 재구매하지 않고 새 목록을 요구한다.
 
-GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 구매·열람 결과를 함께 검증합니다. 요청한 책·구매 요청 ID·서점·정의 버전·금액 및 반환 상태의 캐릭터·세대·프로토콜·순번·버전을 검사하고, 열람은 완료 시각이 있어야 수용합니다. 검증 실패 시 GUI는 반환 상태를 적용하지 않고 오류를 표시합니다. 같은 구매 버튼으로 재확인할 때는 원래 요청 ID와 구매 내용을 유지합니다.
+- `cards list`: 본인 보관함 카드와 사용 조건을 조회한다.
+- `cards shop 서점ID`: 현장 서점의 카드·최종 가격·보관/습득 여부를 조회한다.
+- `cards buy 카드ID`: 조회한 견적으로 구매한다.
+- `cards use 카드ID`: 조회한 사용 조건을 확인하고 소비한다. 결과 불명 시 공용 `retry`를 사용한다.
 
-### 실제 서점 GUI 연동 검사
+GUI는 사용 확인 화면을 거쳐 명령을 보낸다. 소포 응답 검증은 새 `skill_card` 첨부 종류를 수용한다. 구형 `books` 명령과 구형 검사 모듈은 서버의 이전 API 정리 단위까지 호환 코드로 남아 있으며 새 도움말에서는 `cards`를 안내한다.
 
-`node scripts/build-backend-acceptance.mjs skillbook <출력.js>`로 실제 `SkillbookPanel`·`Client`를 사용하는 검사 번들을 만든다. 백엔드 자동화 회귀 실행 시 `SLIME_SKILLBOOK_BROWSER_BUNDLE`에 이 파일의 절대 경로를 전달하고 `tests/test_skillbook_live_browser.py`를 선택한다. 검사 서버가 인증 문맥을 제공하며 Chrome에서 구매·열람의 첫 성공 응답을 각각 유실시키고 같은 버튼으로 재시도한다. 요청 본문 유지, 완료 표시, 재열람 무변경을 확인하고 서버 검사가 DB의 단일 결제·소유 기록을 확인한다. 번들은 검사용 산출물이며 제품 런타임 의존성이 아니다.
+### 실제 카드 GUI 연동 검사
+
+기존 빌드 대상명과 환경변수를 유지한다. `node scripts/build-backend-acceptance.mjs skillbook <출력.js>`로 `SkillCardPanel`·`Client`를 사용하는 번들을 만들고, 백엔드의 `tests/test_skillbook_live_browser.py` 실행 시 `SLIME_SKILLBOOK_BROWSER_BUNDLE`로 절대 경로를 전달한다. 실제 Chrome·API·DB에서 구매·사용의 첫 성공 응답을 유실시키고 동일 요청으로 복구한다. 보관함 전환·소모 확인·단일 결제·카드 소비·스킬 저장을 확인한다. 검사 번들은 제품 런타임 의존성이 아니다.
 
 전투 상태의 선택적 `apRecoveryPolicyVersion`은 자기 턴 AP 회복의 반올림 방식을 고정한다. `2`는 최대 AP의 절반을 내림하고 `1` 또는 필드가 없는 저장 전투는 기존 반올림을 유지한다. AP 패널의 회복량과 규칙 설명은 이 값을 함께 사용한다. 새 필드를 이해하는 클라이언트를 먼저 배포해야 신규 전투의 안내가 서버 판정과 일치한다.
 

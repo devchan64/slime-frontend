@@ -1,7 +1,7 @@
 // 소포는 계정 보관함에서 조회하며 소포 ID 자체를 수령 재시도 키로 사용한다.
 const PARCEL_IDENTIFIER_PATTERN=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const PARCEL_FACILITY_PATTERN=/^[a-z][a-z0-9-]{0,99}$/;
-const PARCEL_ITEM_CATEGORIES=new Set(['material','collection','refined_material','consumable','equipment','skillbook']);
+const PARCEL_ITEM_CATEGORIES=new Set(['material','collection','refined_material','consumable','equipment','skillbook','skill_card']);
 function requireParcelCondition(currentConditionValue){if(!currentConditionValue)throw new Error('소포 응답 형식이 올바르지 않습니다.');}
 export function validateParcelAttachments(currentAttachmentEntries){
  requireParcelCondition(Array.isArray(currentAttachmentEntries)&&currentAttachmentEntries.length>0);

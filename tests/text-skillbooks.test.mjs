@@ -110,3 +110,30 @@ test('늦은 서점 응답·누락 카탈로그·불일치 버전은 구매 견�
   assert.equal(currentTextClient.bookshopCatalogQuote,null);
  }
 });
+
+test('스킬카드는 조회한 조건으로 구매·소비하며 유실된 사용 응답을 같은 ID로 복구한다',async()=>{
+ const currentCardDefinition={cardId:'monster-dissection-card',definitionVersion:1,priceP:100,literacyRequired:1,grantsSkill:'monster_dissection',nameTranslations:{ko:'몬스터 해부 스킬카드',en:'Monster Dissection Skill Card'},learned:false};
+ let currentStoredCard=null;
+ let currentUseAttempts=0;
+ const {currentTextClient,currentRequestRecords}=createSkillbookTextClient(currentRequestRecord=>{
+  if(currentRequestRecord.method==='GET')return {characterVersion:currentTextClient.state.me.version,cards:currentStoredCard?[currentStoredCard]:[],
+   ...(currentRequestRecord.path.includes('bookshops')?{catalog:[{...currentCardDefinition,owned:!!currentStoredCard}]}:{})};
+  const currentIsPurchase=currentRequestRecord.path.endsWith('/skill-card-purchases');
+  const currentReturnedState=structuredClone(currentTextClient.state);currentReturnedState.me.version++;currentReturnedState.cursor++;
+  if(currentIsPurchase)currentStoredCard={...currentCardDefinition,storage:'ACCOUNT',expiresAt:null,currentLiteracy:1,acquiredAt:100,source:'purchase'};
+  else{currentUseAttempts++;if(currentUseAttempts===1)throw new TypeError('응답 유실');currentStoredCard=null;currentReturnedState.me.skills={monster_dissection:0};}
+  return {state:currentReturnedState,receipt:{requestId:currentRequestRecord.body.requestId,completedAt:100,
+   command:currentIsPurchase?{kind:'purchase',cardId:currentCardDefinition.cardId,facilityId:'iseulon-bookshop',definitionVersion:1,priceP:100}:{kind:'use',cardId:currentCardDefinition.cardId},
+   result:currentIsPurchase?{cardId:currentCardDefinition.cardId,priceP:100,storage:'ACCOUNT',expiresAt:null}:{cardId:currentCardDefinition.cardId,skillId:'monster_dissection',level:0}}};
+ });
+ await assert.rejects(currentTextClient.execute('cards buy monster-dissection-card'),/먼저 확인/);
+ await currentTextClient.execute('cards shop iseulon-bookshop');
+ assert.match(await currentTextClient.execute('cards buy monster-dissection-card'),/계정 보관함 지급/);
+ await assert.rejects(currentTextClient.execute('cards use monster-dissection-card'),/먼저 확인/);
+ assert.match(await currentTextClient.execute('cards list'),/사용 시 소모/);
+ assert.match(await currentTextClient.execute('cards use monster-dissection-card'),/소모 완료/);
+ assert.deepEqual(currentRequestRecords.at(-1),currentRequestRecords.at(-2));
+ assert.ok(currentRequestRecords.at(-1).body.requestId);
+ assert.equal(currentTextClient.state.me.skills.monster_dissection,0);
+ assert.equal(currentTextClient.pendingCommandRequest,null);
+});

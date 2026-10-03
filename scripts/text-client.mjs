@@ -60,10 +60,10 @@ rest start / rest stop 휴식 시작 / 중단
 bag                    최신 가방 목록
 first-aid [배치ID]     응급처치 (생략 시 기존 붕대 소비)
 use-item 소모품ID      회복·개인 표식 소모품 사용
-books list             보유 스킬북·열람 상태 조회
-books shop 서점ID      서점 최종 가격·소유 여부 확인
-books buy 스킬북ID     확인한 서점 가격으로 구매
-books read 스킬북ID    보유 스킬북 열람
+cards list             계정 보관함 카드·문해·소모 조건 조회
+cards shop 서점ID      카드 최종 가격·보관·습득 여부 확인
+cards buy 카드ID       확인한 가격으로 구매 (계정 보관함 지급)
+cards use 카드ID       확인한 카드를 소모하고 스킬 습득
 costumes               전체 디자인 코스튬 카탈로그·설명 조회
 costumes owned         본인 보유 코스튬·획득 출처 조회 (교체는 게임 메뉴)
 npc list               현재 맵 NPC ID·입구 조회

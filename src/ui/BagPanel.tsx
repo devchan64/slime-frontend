@@ -1,7 +1,6 @@
 import {formatEquipmentItemName} from '../client/equipment';
 import {isHealthFull} from '../client/health-state.mjs';
 import {TravelerPermitList} from './TravelerPermitList';
-import {SkillbookPanel} from './SkillbookPanel';
 import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { State } from '../client/types';
@@ -110,7 +109,6 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       <TravelerPermitList currentPermitSummary={currentInventoryPage.travelerPermitSummary} currentCharacterName={me.name ?? me.id}/>
       {currentInventoryPage.nextCursor && <button class="secondary" disabled={currentRequestPending} onClick={() => void loadBagInventory(currentInventoryPage.nextCursor!)}>{translateBagText('equipment.more')}</button>}
     </>}
-    <SkillbookPanel key={`${me.id}:${gameSessionClient.state?.generation}:${gameSessionClient.state?.epoch}`} gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled}/>
     {historyInstanceIdentifier && <EquipmentHistory key={historyInstanceIdentifier} gameSessionClient={gameSessionClient} equipmentInstanceIdentifier={historyInstanceIdentifier} closeEquipmentHistory={() => setHistoryInstanceIdentifier(null)} />}
   </section>;
 }
