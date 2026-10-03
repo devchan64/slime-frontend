@@ -4,7 +4,7 @@ import type { Client } from '../client/api';
 import { noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 import { localizedSkill, type SkillDefinition } from '../client/skillText';
-import { localizedAchievement, type AchievementDefinition as Definition } from '../client/achievementText';
+import { validateAchievementSeasonHistory, localizedAchievement, type AchievementDefinition as Definition } from '../client/achievementText';
 type Scope = 'GENERAL' | 'SEASONAL';
 type Progress = {completedAt:number|null;checklist:Record<string,{count:number}>};
 type Ledger = {id:string;achievementId:string;scope:Scope;seasonId:string|null;amount:number;createdAt:number;sourceType:string};
@@ -21,14 +21,14 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   useEffect(()=>{
     let cancelled=false;setAchievementRequestNotice('');setData(null);setSelectedHistorySeason('');
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
-      .then(([catalog,progress])=>{if(!cancelled)setData({history:progress.history ?? {},catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
+      .then(([catalog,progress])=>{validateAchievementSeasonHistory(progress.history ?? {});if(!cancelled)setData({history:progress.history ?? {},catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
       .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
   const number=(value:number)=>value.toLocaleString(locale);
   const selectedHistoryRecord=selectedHistorySeason?data?.history[selectedHistorySeason]:undefined;
   const displayedProgressRecords=selectedHistoryRecord?{...selectedHistoryRecord.achievements,...selectedHistoryRecord.seasonalAchievements}:data?.progress;
-  const displayedCatalogRecords=selectedHistoryRecord?.catalog??data?.catalog;
+  const displayedCatalogRecords=selectedHistoryRecord?selectedHistoryRecord.catalog:data?.catalog;
   const displayedRewardLedgers=selectedHistoryRecord??data;
   const catalog=displayedCatalogRecords?Object.fromEntries(Object.entries(displayedCatalogRecords).map(([id,d])=>[id,localizedAchievement(d,locale)])):{};
   const items=Object.entries(catalog).filter(([,d])=>d.scope===scope);

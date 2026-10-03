@@ -24,3 +24,24 @@ export function localizedAchievement(definition: AchievementDefinition, locale: 
     checklist: Object.fromEntries(Object.entries(definition.checklist).map(([id, criterion]) => [id,
       {...criterion, description: translated(criterion.description, criterion.translations, 'description', locale)}]))};
 }
+
+/** 과거 정의 누락을 현재 카탈로그로 대체하면 다른 시즌의 기록이 섞이므로 거절한다. */
+export function validateAchievementSeasonHistory(currentHistoryValue: unknown): void {
+  if (!currentHistoryValue || typeof currentHistoryValue !== 'object' || Array.isArray(currentHistoryValue))
+    throw new Error('과거 시즌 업적 이력이 객체가 아닙니다.');
+  for (const currentSeasonRecord of Object.values(currentHistoryValue)) {
+    if (!currentSeasonRecord || typeof currentSeasonRecord !== 'object' || Array.isArray(currentSeasonRecord))
+      throw new Error('과거 시즌 업적 기록이 올바르지 않습니다.');
+    for (const currentRecordField of ['catalog', 'achievements', 'seasonalAchievements']) {
+      if (!currentSeasonRecord[currentRecordField] || typeof currentSeasonRecord[currentRecordField] !== 'object'
+          || Array.isArray(currentSeasonRecord[currentRecordField]))
+        throw new Error('과거 시즌 업적 정의와 진행 기록이 필요합니다.');
+    }
+    if (!Array.isArray(currentSeasonRecord.cpLedger) || !Array.isArray(currentSeasonRecord.spLedger))
+      throw new Error('과거 시즌 CP·SP 지급 원장이 필요합니다.');
+    for (const currentDefinitionRecord of Object.values(currentSeasonRecord.catalog)) {
+      localizedAchievement(currentDefinitionRecord as AchievementDefinition, 'ko');
+      localizedAchievement(currentDefinitionRecord as AchievementDefinition, 'en');
+    }
+  }
+}
