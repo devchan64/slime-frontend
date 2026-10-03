@@ -157,3 +157,7 @@ developerInsufficientBalance: "Removal exceeds the owned balance. Reduce the qua
 
 bagCategory: Bag category
 bagCategoryEmpty: No items in this category.
+bagSuppliesPagination: Supplies pages
+bagPreviousPage: Previous
+bagNextPage: Next
+bagPageNumber: "Page {page} of {total}"

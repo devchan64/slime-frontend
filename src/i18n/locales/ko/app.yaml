@@ -157,3 +157,7 @@ developerInsufficientBalance: "회수 수량이 보유량보다 많습니다. �
 
 bagCategory: 가방 분류
 bagCategoryEmpty: 이 분류에 보유한 아이템이 없습니다.
+bagSuppliesPagination: 재료·소모품 페이지 이동
+bagPreviousPage: 이전
+bagNextPage: 다음
+bagPageNumber: "{page} / {total}페이지"

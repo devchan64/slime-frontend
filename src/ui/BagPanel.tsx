@@ -9,6 +9,7 @@ import { parseBagInventory, type BagInventoryPage } from '../client/bag';
 import { LocalizedError, noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 
+const BAG_SUPPLIES_PAGE_SIZE = 10;
 const BAG_REFINING_GRADE_KEYS = {low:'app.refiningGradeLow',medium:'app.refiningGradeMedium',high:'app.refiningGradeHigh'} as const;
 
 export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, submitConsumableUse}: {
@@ -20,6 +21,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
   const [currentRequestNotice,setCurrentRequestNotice] = useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending] = useState(false);
   const [currentBagCategory,setCurrentBagCategory] = useState<'supplies'|'equipment'|'permits'>('supplies');
+  const [currentSuppliesPage,setCurrentSuppliesPage] = useState(0);
   const activeRequestSequence = useRef(0);
   const activePanelReference = useRef(false);
   const initialSessionReference = useRef({owner:gameSessionClient.tokens?.user_id,
@@ -57,6 +59,8 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       if (receivedInventoryPage.items.some(currentItemEntry => previousInstanceIdentifiers.has(currentItemEntry.instanceId))) {
         throw new LocalizedError('app.bagChanged');
       }
+      const receivedSuppliesPageCount = Math.max(1,Math.ceil(receivedInventoryPage.bag.items.filter(currentItemEntry=>currentItemEntry.kind!=='skillbook').length/BAG_SUPPLIES_PAGE_SIZE));
+      setCurrentSuppliesPage(previousSuppliesPageIndex=>Math.min(previousSuppliesPageIndex,receivedSuppliesPageCount-1));
       setCurrentInventoryPage({...receivedInventoryPage,items:[...previousInventoryItems,...receivedInventoryPage.items]});
     } catch (currentRequestError) {
       if (matchesCurrentRequest()) {
@@ -73,6 +77,9 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
     return () => {activePanelReference.current = false;activeRequestSequence.current++;};
   }, [me.id, me.version, gameSessionClient]);
   const currentBagSummary = currentInventoryPage?.bag;
+  const currentSupplyEntries = currentBagSummary?.items.filter(currentItemEntry=>currentItemEntry.kind!=='skillbook') ?? [];
+  const currentSuppliesPageCount = Math.max(1,Math.ceil(currentSupplyEntries.length/BAG_SUPPLIES_PAGE_SIZE));
+  const displayedSuppliesPageIndex = Math.min(currentSuppliesPage,currentSuppliesPageCount-1);
   return <section class="bag-panel" aria-label={translateBagText('app.bag')}>
     <button class="secondary compact" disabled={currentRequestPending} onClick={() => void loadBagInventory()}>{translateBagText('equipment.refresh')}</button>
     {currentRequestPending && <p role="status">{translateBagText('app.bagLoading')}</p>}
@@ -86,10 +93,16 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           {translateBagText(currentCategoryValue==='supplies'?'app.bagSupplies':currentCategoryValue==='equipment'?'equipment.title':'citizenship.permitTitle')}
         </button>)}
       </div>
-      {currentBagCategory==='supplies'&&!currentBagSummary.items.some(currentItemEntry=>currentItemEntry.kind!=='skillbook')&&<p>{translateBagText('app.bagCategoryEmpty')}</p>}
+      {currentBagCategory==='supplies'&&!currentSupplyEntries.length&&<p>{translateBagText('app.bagCategoryEmpty')}</p>}
       {currentBagCategory==='equipment'&&!currentInventoryPage.items.length&&<p>{translateBagText('app.bagCategoryEmpty')}</p>}
-      {currentBagCategory==='supplies' && currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagSupplies')}</h3><ul class="bag-items">
-        {currentBagSummary.items.filter(currentItemEntry => currentItemEntry.kind !== 'skillbook').map(currentMaterialEntry => <li key={currentMaterialEntry.id}>
+      {currentBagCategory==='supplies' && !!currentSupplyEntries.length && <><h3>{translateBagText('app.bagSupplies')}</h3>
+      {currentSuppliesPageCount>1&&<nav class="record-page-navigation" aria-label={translateBagText('app.bagSuppliesPagination')}>
+        <button class="secondary" disabled={currentRequestPending||displayedSuppliesPageIndex===0} onClick={()=>setCurrentSuppliesPage(displayedSuppliesPageIndex-1)}>{translateBagText('app.bagPreviousPage')}</button>
+        <span role="status">{translateBagText('app.bagPageNumber',{page:displayedSuppliesPageIndex+1,total:currentSuppliesPageCount})}</span>
+        <button class="secondary" disabled={currentRequestPending||displayedSuppliesPageIndex+1>=currentSuppliesPageCount} onClick={()=>setCurrentSuppliesPage(displayedSuppliesPageIndex+1)}>{translateBagText('app.bagNextPage')}</button>
+      </nav>}
+      <ul class="bag-items">
+        {currentSupplyEntries.slice(displayedSuppliesPageIndex*BAG_SUPPLIES_PAGE_SIZE,(displayedSuppliesPageIndex+1)*BAG_SUPPLIES_PAGE_SIZE).map(currentMaterialEntry => <li key={currentMaterialEntry.id}>
           <div><strong>{currentMaterialEntry.nameTranslations[currentLocaleCode]}{currentMaterialEntry.itemLevel !== undefined ? ` · Lv.${currentMaterialEntry.itemLevel}` : ''}</strong><span>×{currentMaterialEntry.quantity}</span></div>
           {currentMaterialEntry.kind === 'collection' && <small>{translateBagText('app.bagCollection')}</small>}
           {currentMaterialEntry.kind === 'refined_material' && currentMaterialEntry.grade && <small>{translateBagText('app.bagRefinedMaterial')} · {translateBagText(BAG_REFINING_GRADE_KEYS[currentMaterialEntry.grade])}</small>}
