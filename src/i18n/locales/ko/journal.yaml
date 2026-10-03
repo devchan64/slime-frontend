@@ -19,3 +19,5 @@ capacityFull: 수령 한도에 도달했습니다. 진행 중인 의뢰를 완�
 
 showDestination: 전달 도시 보기
 destinationUnavailable: 전달 도시는 현재 월드맵에 공개되어 있지 않습니다.
+
+returnToJournal: 의뢰 기록으로 돌아가기

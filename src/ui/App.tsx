@@ -162,8 +162,9 @@ export function App() {
     setInitialStorageCategory(selectedStorageCategory);
     setDrawer("rewards");
   }
+  const [journalDestinationOpen,setJournalDestinationOpen]=useState(false);
   const [selectedWorldDestination,setSelectedWorldDestination]=useState<string|undefined>(undefined);
-  useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
+  useEffect(() => { setDrawer(null);setJournalDestinationOpen(false); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
   const [renderedLocation, setRenderedLocation] = useState("");
   const [transferPending, setTransferPending] = useState(false);
@@ -726,7 +727,7 @@ export function App() {
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("channels")}>{t('channels.open')}</button>
                 <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("nearby")}>{state.reservation ? t('common.encounter') : t('common.nearby')}</button>
-                <button class="secondary" aria-haspopup="dialog" onClick={() => {setSelectedWorldDestination(undefined);setDrawer("worldMap");}}>{t('app.worldMap')}</button>
+                <button class="secondary" aria-haspopup="dialog" onClick={() => {setSelectedWorldDestination(undefined);setJournalDestinationOpen(false);setDrawer("worldMap");}}>{t('app.worldMap')}</button>
                 <button class="secondary" disabled={loading} onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button>
               <FieldRestControls currentPlayerState={state.me} currentServerTime={(clock + serverOffset.current) / 1000}
                 actionsAreDisabled={disabled || !!walking} submitRestCommand={commandPathValue => command(commandPathValue)} />
@@ -746,13 +747,14 @@ export function App() {
           </section>
         </main>
       )}
-          {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "channels" ? t("channels.title") : drawer === "worldMap" ? t("app.worldMap") : drawer === "journal" ? t("journal.title") : drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => setDrawer(null)}>
+          {state && drawer && (inWorld || menuPage || drawer === "rewards") && <WorldDrawer title={drawer === "channels" ? t("channels.title") : drawer === "worldMap" ? t("app.worldMap") : drawer === "journal" ? t("journal.title") : drawer === "loans" ? t("loans.title") : drawer === "rewards" ? t("rewards.title") : drawer === "bag" ? t("app.bag") : drawer === "nearby" ? t('app.nearbyHeading') : drawer === "party" ? t('app.partyHeading') : t('app.chat')} onClose={() => {setDrawer(null);setJournalDestinationOpen(false);}}>
             {drawer === "channels" && <ChannelPanel key={`${state.me.id}:${state.generation}:${state.epoch}:${state.location.id}`} gameSessionClient={client}
               currentGameState={state} actionsAreDisabled={disabled || !!walking} onChannelTransferChange={setTransferPending} />}
+            {drawer === "worldMap" && journalDestinationOpen && <button class="secondary" onClick={()=>{setDrawer("journal");setJournalDestinationOpen(false);}}>{t('journal.returnToJournal')}</button>}
             {drawer === "worldMap" && <WorldMapPanel key={`${state.me.id}:${state.generation}`} gameSessionClient={client} currentMapIdentifier={state.map.id} initialSelectedMapIdentifier={selectedWorldDestination} />}
             {drawer === "bag" && <BagPanel key={`${state.me.id}:${state.generation}`} me={state.me} gameSessionClient={client}
               actionsAreDisabled={disabled || !!walking} submitConsumableUse={currentItemIdentifier => command('/v1/game/consumables/use',{itemId:currentItemIdentifier})} />}
-            {drawer === "journal" && <div key={`${client.tokens?.user_id}:${state.generation}:${state.epoch}:${state.me.id}`}><MainEventJournal gameSessionClient={client} actionsAreDisabled={busy || !connected} onShowDestinationCity={currentCityIdentifier=>{setSelectedWorldDestination(currentCityIdentifier);setDrawer("worldMap");}} /><RefiningMissionPanel gameSessionClient={client} actionsAreDisabled={busy || !connected} characterStateVersion={state.me.version}/></div>}
+            {(drawer === "journal" || drawer === "worldMap" && journalDestinationOpen) && <div hidden={drawer !== "journal"} key={`${client.tokens?.user_id}:${state.generation}:${state.epoch}:${state.me.id}`}><MainEventJournal gameSessionClient={client} actionsAreDisabled={busy || !connected} onShowDestinationCity={currentCityIdentifier=>{setSelectedWorldDestination(currentCityIdentifier);setJournalDestinationOpen(true);setDrawer("worldMap");}} /><RefiningMissionPanel gameSessionClient={client} actionsAreDisabled={busy || !connected} characterStateVersion={state.me.version}/></div>}
             {drawer === "loans" && <BorrowedLoansPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "rewards" && <AccountRewardsPanel initialStorageCategory={initialStorageCategory} key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}

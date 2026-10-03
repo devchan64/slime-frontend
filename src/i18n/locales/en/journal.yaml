@@ -19,3 +19,5 @@ capacityFull: The acceptance limit is full. Complete an active quest to accept a
 
 showDestination: Show delivery town
 destinationUnavailable: The delivery town is not available on the current world map.
+
+returnToJournal: Return to quest journal
