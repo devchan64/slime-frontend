@@ -446,3 +446,17 @@ GUI는 사용 확인 화면을 거쳐 명령을 보낸다. 소포 응답 검증�
 
 
 계정 기능의 실제 브라우저 수용 번들은 기존 `parcel` 대상을 사용한다. `tests/fixtures/parcel-live-browser.tsx`는 `/test-context`의 `tokens`·`recipientTokens`·`locale`·`expectedMaterialName`을 받아 소포 수령 뒤 서로 다른 두 인증 클라이언트의 개인 메시지 발송·응답 유실 재시도·수신·차단을 확인한다. `node scripts/build-backend-acceptance.mjs parcel <출력.js>`로 생성하고 서버 검사에는 `SLIME_PARCEL_BROWSER_BUNDLE`로 전달한다. 테스트 계정 토큰은 실행 중에만 제공하며 번들·로그·저장소에 넣지 않는다.
+
+### 자동전투와 등록 패턴 명령
+
+`auto on` / `auto off`는 현재 전투의 본인 자동전투를 전환한다. 기존 전투 명령 API에 `action.type: AUTO_PLAY`, `enabled: boolean`, 현재 전투 ID·턴을 보낸다. 자동 상태에서는 수동 행동 전에 `auto off`를 실행한다. 전투 상태 출력에서 본인의 자동 여부를 확인할 수 있다.
+
+`pattern show`는 `GET /v1/characters/me/automatic-pattern`으로 등록 패턴을 조회한다. `pattern set JSON`과 `pattern clear`는 같은 경로에 POST하며 캐릭터 버전·요청 ID와 각각 패턴 객체 또는 null을 보낸다. API를 지원하는 백엔드를 먼저 배포한다. 예시:
+
+```text
+pattern set {"version":1,"rules":[{"condition":"ALWAYS","action":"ATTACK"},{"condition":"ALWAYS","action":"APPROACH"},{"condition":"ALWAYS","action":"END_TURN"}]}
+pattern show
+pattern clear
+```
+
+규칙은 최대 10개이며 마지막 규칙은 `ALWAYS`/`END_TURN`이다. 조건은 `ALWAYS`, `SELF_HP`, `ALLY_HP`이며 HP 조건에는 정수 `hpPercent`(1~100)를 지정한다. 행동은 `ATTACK`, `APPROACH`, `END_TURN`, `SKILL`이고 `SKILL`에만 `actionId`를 지정한다. 등록 가능한 액션·필드·버전과 실행 조건은 서버가 검증한다. 저장 결과는 기존 명령 재시도 절차를 따르며, 결과 불명 상태에서는 `retry`로 확정한다.

@@ -955,3 +955,31 @@ test('업적 이력 필드 미지원과 손상된 null 응답을 구분한다', 
   for(const currentInvalidHistory of [null,[],42])
     assert.throws(()=>formatAchievementRecords({...currentProgressResponse,history:currentInvalidHistory},{achievements:{}}),/업적 응답 형식/);
 });
+
+test('자동전투 전환·패턴 저장·삭제는 기존 버전과 명령 전송 경로를 사용한다', async () => {
+  const currentBattleState = {id:'b',version:7,turnId:3,status:'ACTIVE',order:['me'],index:0,units:[],tactics:{}};
+  const currentPatternRecord = {version:1,rules:[{condition:'ALWAYS',action:'END_TURN'}]};
+  const {client:currentTextClient,calls:currentRequestCalls} = setup([
+    {state:state({cursor:2,battle:currentBattleState})},
+    {state:state({cursor:3,battle:currentBattleState})},
+    {state:state({cursor:4,battle:currentBattleState})},
+    {characterVersion:4,pattern:currentPatternRecord},
+    {state:state({cursor:5,battle:currentBattleState})},
+  ]);
+  currentTextClient.accept(state({battle:currentBattleState}));
+  await currentTextClient.execute('auto on');
+  await currentTextClient.execute('auto off');
+  await currentTextClient.execute('pattern set '+JSON.stringify(currentPatternRecord));
+  assert.equal(JSON.parse(await currentTextClient.execute('pattern show')).rules[0].action,'END_TURN');
+  await currentTextClient.execute('pattern clear');
+  assert.deepEqual(currentRequestCalls[0].body.action,{type:'AUTO_PLAY',battleId:'b',turnId:3,enabled:true});
+  assert.equal(currentRequestCalls[1].body.action.enabled,false);
+  assert.equal(currentRequestCalls[0].body.expectedVersion,7);
+  assert.equal(currentRequestCalls[2].body.expectedVersion,4);
+  assert.deepEqual(currentRequestCalls[2].body.pattern,currentPatternRecord);
+  assert.ok(currentRequestCalls[2].url.endsWith('/v1/characters/me/automatic-pattern'));
+  assert.equal(currentRequestCalls[4].body.pattern,null);
+  for (const currentInvalidCommand of ['auto yes','auto on extra','pattern clear extra','pattern set null','pattern set []','pattern set {','pattern what'])
+    await assert.rejects(currentTextClient.execute(currentInvalidCommand));
+  assert.equal(currentRequestCalls.length,5);
+});

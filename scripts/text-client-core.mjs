@@ -206,6 +206,7 @@ export class TextClient {
     if(name==='retry'){arity(0);return this.submitPendingCommand();}
     if(name==='dm')return executeDirectMessageCommand(this,line);
     if(this.pendingCommandRequest&&!['state','bag','skills','hunts','journal','guards','channels','costumes'].includes(name)
+      &&!(name==='pattern'&&args[0]==='show')
       &&!(name==='party'&&args[0]==='list')
       &&!(name==='recruitment'&&args[0]==='list')
       &&!(name==='loans'&&!['remove','add'].includes(args[0]))
@@ -294,6 +295,27 @@ export class TextClient {
       if (!['start', 'stop'].includes(requestedRestAction)) throw new Error('rest start 또는 rest stop으로 입력하세요.');
       if (this.state?.battle || this.state?.me.mode !== 'FIELD') throw new Error('필드에서만 휴식할 수 있습니다.');
       return this.command('/v1/game/rest/' + requestedRestAction);
+    }
+    if (name === 'auto') {
+      arity(1);
+      if (!['on','off'].includes(args[0])) throw new Error('auto on 또는 auto off를 입력하세요.');
+      return battle('AUTO_PLAY', {enabled: args[0] === 'on'});
+    }
+    if (name === 'pattern') {
+      if (args[0] === 'show') {
+        arity(1);
+        const currentPatternResponse = await this.request('/v1/characters/me/automatic-pattern');
+        return currentPatternResponse.pattern === null ? '등록된 자동전투 패턴이 없습니다.' : JSON.stringify(currentPatternResponse.pattern, null, 2);
+      }
+      if (args[0] === 'clear') {
+        arity(1);
+        return this.command('/v1/characters/me/automatic-pattern', {pattern: null});
+      }
+      if (args[0] !== 'set' || args.length < 2) throw new Error('pattern show / pattern clear / pattern set JSON을 입력하세요.');
+      const requestedPatternRecord = JSON.parse(args.slice(1).join(' '));
+      if (requestedPatternRecord === null || typeof requestedPatternRecord !== 'object' || Array.isArray(requestedPatternRecord))
+        throw new Error('패턴은 version과 rules를 포함한 JSON 객체여야 합니다.');
+      return this.command('/v1/characters/me/automatic-pattern', {pattern: requestedPatternRecord});
     }
     if (name === 'skills') {
       arity(0);
@@ -433,6 +455,8 @@ export function formatState(state) {
     const b = state.battle;
     lines.push(`전투 ${b.id} | ${b.status} | 턴 ${b.turnId} | 현재 ${b.order[b.index]}`);
     for (const u of b.units) lines.push(`${u.id} ${u.name} [${u.side}] (${u.position.column},${u.position.row}) ${u.side === 'enemy' ? (u.healthVisibility === 'BANDED' ? `추정 건강 단계 ${u.hp}/${u.maxHp}` : '체력 정보 없음') : `HP ${u.hp}/${u.maxHp}${Number.isInteger(u.ap) && Number.isInteger(u.maxAp) ? ` | AP ${u.ap}/${u.maxAp}` : ''}`}`);
+    const currentOwnedUnit = b.units.find(currentUnitRecord => currentUnitRecord.id === state.me.id && currentUnitRecord.side === 'ally');
+    if (currentOwnedUnit) lines.push(currentOwnedUnit.automaticPlay === true ? '자동전투 켬 · 수동 행동 전 auto off로 해제하세요.' : '자동전투 끔 · auto on으로 시작할 수 있습니다.');
     const recoveringBattleUnit = b.units.find(battleUnitEntry => battleUnitEntry.id === state.me.id && battleUnitEntry.healthRecoveryPending);
     if (recoveringBattleUnit) lines.push('전투 이동 불가: 전투불능 회복 대기 · 제자리 행동/턴 종료 가능');
     lines.push(`이동 가능: ${(b.tactics?.moves ?? []).map(m => `${m.position.column},${m.position.row}${Number.isInteger(m.apCost) ? ` (${m.apCost} AP → 잔여 ${m.apAfter})` : ''}`).join(' / ') || '없음'}`);

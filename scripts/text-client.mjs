@@ -55,6 +55,9 @@ scout 몬스터ID         개인 정찰 (서버 FP 비용 적용)
 ready / cancel         조우·전투 준비 / 조우 예약 취소
 attack 유닛ID          일반 공격
 use-skill 액션ID 유닛ID 전투 스킬 실행
+auto on / auto off     본인 자동전투 켜기 / 끄기
+pattern show / clear   등록 패턴 조회 / 삭제
+pattern set JSON       version·rules 패턴 저장 (마지막 규칙 ALWAYS/END_TURN)
 end / surrender        턴 종료 / 기권
 rest start / rest stop 휴식 시작 / 중단
 bag                    최신 가방 목록
