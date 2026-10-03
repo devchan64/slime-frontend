@@ -20,12 +20,15 @@ export function parseAccountRewardPage(rawResponseValue: unknown): AccountReward
         || !Array.isArray(storedRewardEntry.materials) || !storedRewardEntry.materials.length)
       throw new Error('계정 보관함 보상 정보가 올바르지 않습니다.');
     seenRewardIdentifiers.add(storedRewardEntry.id);
+    const currentRewardMaterialIdentifiers = new Set<string>();
     for (const storedMaterialEntry of storedRewardEntry.materials) {
-      if (!storedMaterialEntry || typeof storedMaterialEntry.materialId !== 'string'
+      if (!storedMaterialEntry || typeof storedMaterialEntry.materialId !== 'string' || !storedMaterialEntry.materialId.trim()
+          || currentRewardMaterialIdentifiers.has(storedMaterialEntry.materialId)
           || !Number.isSafeInteger(storedMaterialEntry.quantity) || storedMaterialEntry.quantity <= 0
           || !storedMaterialEntry.nameTranslations || !(['ko', 'en'] as const).every(localeCodeValue =>
             typeof storedMaterialEntry.nameTranslations[localeCodeValue] === 'string' && storedMaterialEntry.nameTranslations[localeCodeValue].trim()))
         throw new Error('계정 보관함 물품 정보가 올바르지 않습니다.');
+      currentRewardMaterialIdentifiers.add(storedMaterialEntry.materialId);
     }
   }
   return parsedRewardPage;

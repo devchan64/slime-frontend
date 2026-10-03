@@ -7,6 +7,8 @@ const validRewardPage = () => ({serverTime:100,nextCursor:null,entries:[{id:'rew
 test('보관함 페이지의 물품·수량·두 언어와 기한을 보존한다',()=>{
   const storedRewardPage=validRewardPage();
   assert.deepEqual(parseAccountRewardPage(storedRewardPage),storedRewardPage);
+  storedRewardPage.entries.push({...structuredClone(storedRewardPage.entries[0]),id:'reward-b'});
+  assert.deepEqual(parseAccountRewardPage(storedRewardPage),storedRewardPage);
   assert.deepEqual(parseAccountRewardPage({serverTime:100,nextCursor:null,entries:[]}).entries,[]);
 });
 test('잘못된 기한·중복 보상·물품 정보는 수령 화면에서 거절한다',()=>{
@@ -14,6 +16,9 @@ test('잘못된 기한·중복 보상·물품 정보는 수령 화면에서 거�
     rewardPageData=>{rewardPageData.serverTime=NaN;},
     rewardPageData=>{rewardPageData.entries[0].expiresAt=50;},
     rewardPageData=>{rewardPageData.entries.push(rewardPageData.entries[0]);},
+    rewardPageData=>{rewardPageData.entries[0].materials[0].materialId='';},
+    rewardPageData=>{rewardPageData.entries[0].materials[0].materialId='   ';},
+    rewardPageData=>{rewardPageData.entries[0].materials.push({...rewardPageData.entries[0].materials[0]});},
     rewardPageData=>{rewardPageData.entries[0].materials[0].quantity=0;},
     rewardPageData=>{rewardPageData.entries[0].materials[0].quantity=1.5;},
     rewardPageData=>{delete rewardPageData.entries[0].materials[0].nameTranslations.en;},
