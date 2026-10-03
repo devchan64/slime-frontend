@@ -6,9 +6,11 @@ import { noticeText, type Notice } from '../client/notice';
 import { parseAccountRewardPage, parseAccountRewardClaim, parseAccountRewardReceipt, type AccountRewardClaimSummary, rewardRemainingSeconds, REWARD_CLOCK_INTERVAL_MS, type AccountRewardPage } from '../client/accountRewards';
 import { useTranslation } from '../i18n';
 
-export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {gameSessionClient: Client; actionsAreDisabled: boolean}) {
+export type AccountStorageCategory = 'cards' | 'parcels' | 'rewards';
+
+export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled, initialStorageCategory = 'cards'}: {gameSessionClient: Client; actionsAreDisabled: boolean; initialStorageCategory?: AccountStorageCategory}) {
   const {t: translateRewardText, locale: currentLocaleCode} = useTranslation();
-  const [selectedStorageCategory, setSelectedStorageCategory] = useState<'cards' | 'parcels' | 'rewards'>('cards');
+  const [selectedStorageCategory, setSelectedStorageCategory] = useState<AccountStorageCategory>(initialStorageCategory);
   const [rewardPageCursorHistory, setRewardPageCursorHistory] = useState<(string | undefined)[]>([undefined]);
   const [storedRewardPage, setStoredRewardPage] = useState<AccountRewardPage | null>(null);
   const [latestClaimSummary, setLatestClaimSummary] = useState<AccountRewardClaimSummary | null>(null);

@@ -13,7 +13,7 @@ import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue,
 import { FieldRestControls } from './FieldRestControls';
 import { FieldFirstAid } from './FieldFirstAid';
 import { BorrowedLoansPanel } from './BorrowedLoansPanel';
-import { AccountRewardsPanel } from "./AccountRewardsPanel";
+import { AccountRewardsPanel, type AccountStorageCategory } from "./AccountRewardsPanel";
 import { BagPanel } from "./BagPanel";
 import { noticeText, LocalizedError, type Notice } from '../client/notice';
 import { FieldInterruptionNotice } from './FieldInterruptionNotice';
@@ -157,6 +157,11 @@ export function App() {
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
   const settingsPage = settingsAvailable && characterRoute === "#/characters/settings";
   const [drawer, setDrawer] = useState<"channels" | "worldMap" | "nearby" | "party" | "chat" | "bag" | "rewards" | "loans" | "journal" | null>(null);
+  const [initialStorageCategory, setInitialStorageCategory] = useState<AccountStorageCategory>('cards');
+  function openAccountStorageCategory(selectedStorageCategory: AccountStorageCategory = 'cards') {
+    setInitialStorageCategory(selectedStorageCategory);
+    setDrawer("rewards");
+  }
   const [selectedWorldDestination,setSelectedWorldDestination]=useState<string|undefined>(undefined);
   useEffect(() => { setDrawer(null); }, [state?.location.id, state?.battle?.id]);
   useEffect(() => { if (state?.reservation) setDrawer("nearby"); }, [state?.reservation?.id]);
@@ -424,7 +429,7 @@ export function App() {
         </section>
       </div>}
       {state?.me.name && <ParcelArrivalNotice key={`${state.me.id}:${state.generation}`}
-        currentGameClient={client} currentCharacterIdentifier={state.me.id} openAccountStorage={()=>setDrawer("rewards")} />}
+        currentGameClient={client} currentCharacterIdentifier={state.me.id} openAccountStorage={()=>openAccountStorageCategory('parcels')} />}
       <header>
         <LanguageSelect />
         {state?.me.name && <DirectMessages key={`direct:${state.me.id}:${state.generation}`} currentGameClient={client} currentGameState={state} />}
@@ -577,7 +582,7 @@ export function App() {
             {state.me.lastPartyDisband?.reason === "LEADER_OFFLINE" && <p role="status">{t("terms.partyDisbandNotice")}</p>}
             <nav class="field-menu-actions" aria-label={t('app.gameMenu')}>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("bag")}>{t("app.bag")}</button>
-              <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>
+              <button class="secondary" aria-haspopup="dialog" onClick={() => openAccountStorageCategory()}>{t("rewards.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("journal")}>{t("journal.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("loans")}>{t("loans.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("cutins.settings")}</button>
@@ -625,7 +630,7 @@ export function App() {
           <section class="card">
             <h1>{t('common.settings')}</h1>
             <nav class="character-settings-navigation" aria-label={t('app.characterNavigation')}>
-            <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("rewards")}>{t("rewards.title")}</button>
+            <button class="secondary" aria-haspopup="dialog" onClick={() => openAccountStorageCategory()}>{t("rewards.title")}</button>
             <button class="secondary" disabled={busy} onClick={() => {
               setCharacterPage("select");
               navigateCharacterPage(worldGeneration === state.generation && state.me.mode !== "LOBBY" ? "#/menu" : "#/characters");
@@ -642,7 +647,7 @@ export function App() {
               state.me.name ? <>
                 <CharacterSelectionCard currentPlayerState={state.me} actionsAreDisabled={disabled}
                   openCharacterSettings={() => navigateCharacterPage("#/characters/settings")}
-                  openAccountRewards={() => setDrawer("rewards")}
+                  openAccountRewards={() => openAccountStorageCategory()}
                   enterCurrentWorld={() => command("/v1/world/enter")} />
                 <p class="growth-help">{t('app.characterLimit')}</p>
               </> : <div class="character-select-empty">
@@ -749,7 +754,7 @@ export function App() {
               actionsAreDisabled={disabled || !!walking} submitConsumableUse={currentItemIdentifier => command('/v1/game/consumables/use',{itemId:currentItemIdentifier})} />}
             {drawer === "journal" && <div key={`${client.tokens?.user_id}:${state.generation}:${state.epoch}:${state.me.id}`}><MainEventJournal gameSessionClient={client} actionsAreDisabled={busy || !connected} onShowDestinationCity={currentCityIdentifier=>{setSelectedWorldDestination(currentCityIdentifier);setDrawer("worldMap");}} /><RefiningMissionPanel gameSessionClient={client} actionsAreDisabled={busy || !connected} characterStateVersion={state.me.version}/></div>}
             {drawer === "loans" && <BorrowedLoansPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
-            {drawer === "rewards" && <AccountRewardsPanel key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
+            {drawer === "rewards" && <AccountRewardsPanel initialStorageCategory={initialStorageCategory} key={`${client.tokens?.user_id}:${state.generation}`} gameSessionClient={client} actionsAreDisabled={busy || !connected} />}
             {drawer === "nearby" && !battle && <FieldPanel state={state} selected={selected} disabled={disabled} now={(clock + serverOffset.current) / 1000}
               select={p => { selectField(p); setDrawer(null); }} command={command} />}
             {drawer === "party" && !battle && (
