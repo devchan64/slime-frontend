@@ -13,6 +13,7 @@ export type Position = { column: number; row: number };
 export type SizeClass = "small" | "medium" | "large" | "huge";
 export type Appearance = { nameTranslations?: Record<"ko" | "en", string>; monsterTypeId?: string; monsterInstanceId?: string; sizeClass?: SizeClass; appearance?: "slime" | "beast" | "giant"; heightRatio?: number };
 export type Unit = Appearance & {
+  automaticPlay?: boolean;
   costumeAppearance?: CostumeAppearanceReference;
   id: string;
   name: string;
@@ -54,7 +55,7 @@ export type Battle = {
     moves: { position: Position; path: Position[]; cost: number; apCost?: number; apAfter?: number; expectedApCost?: number; maximumApCost?: number; attackRange: Position[]; attacks: { targetId: string; damage: number; apCost?: number }[] }[];
     attacks: { targetId: string; damage: number; apCost?: number }[];
   };
-  log: { unitId: string; action: string; turnId: number; at: number; stillshot?: ActionCutinEvent;
+  log: { unitId: string; action: string; turnId: number; at: number; enabled?: boolean; stillshot?: ActionCutinEvent;
          damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean; apCost?: number; apAfter?: number; movementStopped?: boolean }[];
   id: string;
   version: number;

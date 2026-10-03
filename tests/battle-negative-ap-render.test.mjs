@@ -29,3 +29,22 @@ for(const currentMaximumPoints of [0,5])for(const currentPolicyVersion of [undef
  const endTurnButtonNode=renderedPanelNodes.find(renderedPanelNode=>renderedPanelNode?.type==='button'&&renderedPanelNode.props.children==='battle.endTurn');
  assert.equal(endTurnButtonNode.props.disabled,false);
 });
+
+for (const currentAutomaticEnabled of [false, true]) for (const currentOwnTurn of [false, true]) test(`자동전투 ${currentAutomaticEnabled} · 본인 턴 ${currentOwnTurn}의 전환과 수동 버튼`, () => {
+ const currentBattleState = {id:'battle',rulesVersion:'1.4.0',status:'ACTIVE',round:1,turnId:1,version:1,index:currentOwnTurn?0:1,order:['me','enemy'],log:[],
+  field:{columns:5,rows:5,cells:[],blocked:[]},tactics:{canAct:currentOwnTurn,moves:[],attacks:[]},
+  units:[{id:'me',name:'모험가',side:'ally',hp:25,maxHp:25,ap:5,maxAp:5,automaticPlay:currentAutomaticEnabled,position:{column:1,row:1}},
+    {id:'enemy',name:'슬라임',side:'enemy',hp:5,maxHp:5,position:{column:3,row:3}}]};
+ const currentSubmittedCommands = [];
+ const currentRenderedNodes = collectRenderedNodes(BattlePanel({me:{skills:{},battleSkillLoadout:[]},battle:currentBattleState,actor:'me',selected:null,disabled:false,select:()=>{},execute:(...currentCommandArguments)=>currentSubmittedCommands.push(currentCommandArguments)}));
+ const currentToggleButton = currentRenderedNodes.find(currentRenderNode => currentRenderNode?.type === 'button' && currentRenderNode.props.children === (currentAutomaticEnabled?'battle.automaticDisable':'battle.automaticEnable'));
+ assert.equal(currentToggleButton.props.disabled, false);
+ assert.equal(currentToggleButton.props['aria-pressed'], currentAutomaticEnabled);
+ currentToggleButton.props.onClick();
+ assert.deepEqual(currentSubmittedCommands, [['AUTO_PLAY',undefined,undefined,!currentAutomaticEnabled]]);
+ for (const currentButtonLabel of ['battle.endTurn','battle.skills']) {
+  const currentManualButton = currentRenderedNodes.find(currentRenderNode => currentRenderNode?.type === 'button' && currentRenderNode.props.children === currentButtonLabel);
+  assert.equal(currentManualButton.props.disabled, currentAutomaticEnabled || !currentOwnTurn);
+ }
+ assert.ok(currentRenderedNodes.includes(currentAutomaticEnabled?'battle.automaticActiveHelp':'battle.automaticManualHelp'));
+});

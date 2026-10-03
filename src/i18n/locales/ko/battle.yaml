@@ -162,3 +162,15 @@ expectedHealing: "예상 HP 회복 {healing}"
 expectedDrain: "자신 HP 회복 {healing}"
 
 apRulesFloor: "이동 1칸당 1 AP · 일반 공격 3 AP · 자기 턴마다 최대 AP의 50% 내림 회복 · 잔여 AP 이월"
+
+automaticEnable: 자동전투 켜기
+
+automaticDisable: 자동전투 끄기
+
+automaticActiveHelp: 자동전투 중입니다. 수동 행동은 자동전투를 끈 뒤 선택하세요.
+
+automaticManualHelp: 이번 전투에서만 적용됩니다. 접속 종료 후에는 수동으로 돌아옵니다.
+
+automaticEnabledLog: 자동전투 켬
+
+automaticDisabledLog: 자동전투 끔

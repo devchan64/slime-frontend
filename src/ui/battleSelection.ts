@@ -3,7 +3,7 @@ import type {Battle, Position} from '../client/types';
 export type BattleMode = 'MOVE' | 'ATTACK' | 'END_TURN';
 
 export function defaultBattleMode(battle: Battle, actor: string): BattleMode | null {
-  if (battle.status !== 'ACTIVE' || !battle.tactics.canAct || battle.order[battle.index] !== actor) return null;
+  if (battle.units.some(currentUnitRecord => currentUnitRecord.id === actor && currentUnitRecord.automaticPlay === true) || battle.status !== 'ACTIVE' || !battle.tactics.canAct || battle.order[battle.index] !== actor) return null;
   const ap = battle.rulesVersion === '1.4.0';
   if (ap && battle.moved && battle.tactics.attacks.length) return 'ATTACK';
   if ((ap || !battle.moved) && battle.tactics.moves.length) return 'MOVE';
@@ -20,7 +20,7 @@ export function singleAttackTarget(battle: Battle): Position | null {
 
 /** 현재 실행 효과가 정의된 스킬만 서버 전술 후보를 통해 행동으로 연결한다. */
 export function availableSkillAction(battle: Battle, actor: string, skill: string | null, level: number): 'ATTACK' | null {
-  if (skill !== 'physical_activity' || !Number.isInteger(level) || level < 1
+  if (battle.units.some(currentUnitRecord => currentUnitRecord.id === actor && currentUnitRecord.automaticPlay === true) || skill !== 'physical_activity' || !Number.isInteger(level) || level < 1
       || battle.status !== 'ACTIVE' || !battle.tactics.canAct || battle.order[battle.index] !== actor
       || (battle.rulesVersion !== '1.4.0' && battle.acted) || !battle.tactics.attacks.length) return null;
   return 'ATTACK';

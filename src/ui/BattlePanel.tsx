@@ -65,10 +65,12 @@ function BattleConfirmation({ title, summary, disabled, close, confirm, confirmB
 export function BattlePanel({ me, battle, actor, selected, disabled, select, execute, onMode, selectionIntent = 0, monsterLoreLevel = 0 }: {
   me: State["me"]; selectionIntent?: number; battle: Battle; monsterLoreLevel?: number; actor: string; selected: Position | null; disabled: boolean;
   onMode?: (mode: "MOVE" | "ATTACK" | null) => void;
-  select: (p: Position | null) => void; execute: (type: string, targetId?: string, selectedActionIdentifier?: string) => void;
+  select: (p: Position | null) => void; execute: (type: string, targetId?: string, selectedActionIdentifier?: string, requestedAutomaticState?: boolean) => void;
 }) {
   const { t, locale } = useTranslation();
   battle = localizedBattle(battle, locale);
+  const currentOwnedUnit = battle.units.find(currentUnitRecord => currentUnitRecord.id === actor && currentUnitRecord.side === 'ally');
+  const currentAutomaticEnabled = currentOwnedUnit?.automaticPlay === true;
   const apBattle = battle.rulesVersion === "1.4.0";
   const healthLabel = (unit: Battle["units"][number]) => {
     const display = healthDisplay(unit, monsterLoreLevel);
@@ -78,7 +80,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   const [idleNotice, setIdleNotice] = useState(false);
   const [surrenderDialogOpen, setSurrenderDialogOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
-  useEffect(() => { onMode?.(!skillsOpen && (mode === "MOVE" || mode === "ATTACK") ? mode : null); }, [mode, skillsOpen]);
+  useEffect(() => { onMode?.(!currentAutomaticEnabled && !skillsOpen && (mode === "MOVE" || mode === "ATTACK") ? mode : null); }, [mode, skillsOpen, currentAutomaticEnabled]);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   useEffect(() => { setConfirming(false); setSurrenderDialogOpen(false); }, [battle.id, battle.turnId, battle.version, battle.status]);
@@ -86,13 +88,13 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   useEffect(() => {
     if (lastSelectionIntent.current === selectionIntent) return;
     lastSelectionIntent.current = selectionIntent;
-    setConfirming(!disabled && mode === "MOVE" && !!selected);
+    setConfirming(!disabled && !currentAutomaticEnabled && mode === "MOVE" && !!selected);
   }, [selectionIntent]);
   const selectAttackTarget = (selectedTargetPosition: Position) => {
     select(selectedTargetPosition);
     setConfirming(false);
   };
-  const canActNow = battle.tactics.canAct && battle.order[battle.index] === actor;
+  const canActNow = !currentAutomaticEnabled && battle.tactics.canAct && battle.order[battle.index] === actor;
   useEffect(() => {
     const next = defaultBattleMode(battle, actor);
     setMode(next); setSurrenderDialogOpen(false); setSkillsOpen(false);
@@ -116,7 +118,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
   </section>;
   const player = battle.units.find(u => u.id === actor && u.side === "ally");
   const current = battle.units.find(u => u.id === battle.order[battle.index]);
-  const own = battle.tactics.canAct && current?.id === actor;
+  const own = !currentAutomaticEnabled && battle.tactics.canAct && current?.id === actor;
   const apExhausted = own && battle.status === "ACTIVE" && !!current && (actionPoints(current)?.value ?? 1) <= 0;
   const move = battle.tactics.moves.find(m => same(m.position, selected));
   const target = battle.units.find(u => !isHealthDepleted(u) && same(u.position, selected));
@@ -138,8 +140,16 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>
 <div class="battle-command-area">
     <BattleActionPoints battle={battle} selected={selected} />
+    {apBattle && currentOwnedUnit && battle.status === 'ACTIVE' && <>
+      <button class="secondary" aria-pressed={currentAutomaticEnabled}
+        disabled={disabled || (!currentAutomaticEnabled && isHealthDepleted(currentOwnedUnit))}
+        onClick={() => execute('AUTO_PLAY', undefined, undefined, !currentAutomaticEnabled)}>
+        {t(currentAutomaticEnabled ? 'battle.automaticDisable' : 'battle.automaticEnable')}
+      </button>
+      {!currentAutomaticEnabled && <p class="battle-action-hint">{t('battle.automaticManualHelp')}</p>}
+    </>}
     {player?.healthRecoveryPending && <p class="battle-action-hint" role="status">{t("battle.recoveryPending")}</p>}
-    <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
+    <p class={`battle-action-hint${apExhausted ? " battle-ap-exhausted" : ""}`} role="status" aria-live="polite">{currentAutomaticEnabled ? t('battle.automaticActiveHelp') : apExhausted ? t("battle.apExhausted") : !own ? t('battle.waitFor',{name:current?.name ?? t('battle.participant')}) : mode === "MOVE" ? t('battle.moveHint') : mode === "ATTACK" ? t('battle.attackHint') : t('battle.endHint')}</p>
     <div class="battle-button-toolbar">
     <div class="battle-mode-buttons" role="group" aria-label={t('battle.actions')}>
       {(["MOVE", "ATTACK"] as Mode[]).map(value => <button
@@ -249,7 +259,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
     </div>
     </section>
     <section class="battle-records"><h4>{t('battle.logCount',{count:battle.log.length})}</h4><ol class="battle-log">
-      {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">{t('battle.turnNumber',{turn:event.turnId})} · </span>{name(event.unitId)} · {LABELS[event.action] ? t(LABELS[event.action]) : event.action}
+      {battle.log.map((event, index) => <li key={`${event.turnId}-${index}`}><span class="battle-log-turn">{t('battle.turnNumber',{turn:event.turnId})} · </span>{name(event.unitId)} · {event.action === 'AUTO_PLAY' ? t(event.enabled ? 'battle.automaticEnabledLog' : 'battle.automaticDisabledLog') : LABELS[event.action] ? t(LABELS[event.action]) : event.action}
         {event.path?.length ? ` · ${t('battle.logMove',{path:event.path.map(p => `(${p.column}, ${p.row})`).join(' → ')})}` : ""}{event.apCost !== undefined && event.apAfter !== undefined ? ` · ${t('battle.apPreview',{cost:event.apCost,remaining:event.apAfter})}` : ''}{event.movementStopped ? ` · ${t('battle.terrainMovementStopped')}` : ''}{event.autoGuard ? ` · ${t('battle.autoGuard')}` : ""}{event.targetId ? t('battle.logDamage',{name:name(event.targetId),damage:String(event.damage)}) : ""}</li>)}
     </ol>{battle.log.length === 0 && <p>{t('battle.emptyLog')}</p>}</section>
 
@@ -278,7 +288,7 @@ export function BattlePanel({ me, battle, actor, selected, disabled, select, exe
 function BattleSkillActionPanel({currentBattleState, selectedSkillIdentifier, selectedTargetPosition, currentActionsDisabled, selectTargetPosition, executeSkillCommand}: {
   currentBattleState: Battle; selectedSkillIdentifier: string | null; selectedTargetPosition: Position | null; currentActionsDisabled: boolean;
   selectTargetPosition: (selectedTargetPosition: Position | null) => void;
-  executeSkillCommand: (selectedCommandType: string, selectedTargetIdentifier?: string, selectedActionIdentifier?: string) => void;
+  executeSkillCommand: (selectedCommandType: string, selectedTargetIdentifier?: string, selectedActionIdentifier?: string, requestedAutomaticState?: boolean) => void;
 }) {
   const {t} = useTranslation();
   const [selectedActionIdentifier, setSelectedActionIdentifier] = useState<string | null>(null);

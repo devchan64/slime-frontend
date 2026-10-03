@@ -390,11 +390,12 @@ export function App() {
   const disabled = !!battleReport || busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
   const battle = (battleReport ? battleReportSceneSnapshot.current : state)?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
-  const battleCommand = (type: string, targetId?: string, selectedActionIdentifier?: string) =>
+  const battleCommand = (type: string, targetId?: string, selectedActionIdentifier?: string, requestedAutomaticState?: boolean) =>
     command("/v1/game/battle/commands", {
       action: {
         type,
         turnId: battle?.turnId,
+        ...(requestedAutomaticState !== undefined ? { enabled: requestedAutomaticState } : {}),
         ...(targetId ? { targetId } : {}),
         ...(selectedActionIdentifier ? { actionId: selectedActionIdentifier } : {}),
         ...(type === "MOVE" ? { position: selected } : {}),

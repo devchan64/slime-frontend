@@ -162,3 +162,15 @@ expectedHealing: "Expected HP healing {healing}"
 expectedDrain: "Self HP healing {healing}"
 
 apRulesFloor: "Move: 1 AP per tile · Basic attack: 3 AP · Recover 50% of maximum AP rounded down each turn · Unused AP carries over"
+
+automaticEnable: Enable automatic battle
+
+automaticDisable: Disable automatic battle
+
+automaticActiveHelp: Automatic battle is active. Disable it before choosing a manual action.
+
+automaticManualHelp: Applies to this battle only. Disconnecting returns you to manual control.
+
+automaticEnabledLog: Automatic battle enabled
+
+automaticDisabledLog: Automatic battle disabled
