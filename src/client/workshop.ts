@@ -3,7 +3,7 @@ import {ApiError} from './response';
 export type WorkshopBatchInput={batchId:string;quantity:number};
 export type WorkshopBatchSlot={materialId:string;requiredQuantity:number;nameTranslations:{ko:string;en:string};choices:{batchId:string;ownedQuantity:number;itemLevel:number}[]};
 export type WorkshopMaterialInput={materialId:string;quantity:number};
-export type WorkshopMaterialSelection={requiredQuantity:number;defaultMaterialId:string;choices:{materialId:string;grade:'low'|'medium'|'high';ownedQuantity:number;nameTranslations:{ko:string;en:string}}[]};
+export type WorkshopMaterialSelection={source?:'inventory_material';requiredQuantity:number;defaultMaterialId:string;choices:{materialId:string;grade:'low'|'medium'|'high'|null;ownedQuantity:number;nameTranslations:{ko:string;en:string}}[]};
 export type WorkshopContractKind='craft'|'repair'|'consumable'|'material';
 export type WorkshopReadKind=WorkshopContractKind;
 export type WorkshopPriceQuote={requestedBatches?:WorkshopBatchInput[];productionResult?:{itemLevel:number;performanceVersion:number};baseCostP?:number;missingMaterialValueP?:number;missingMaterialCostP?:number;quantity?:number;unitDurationSeconds?:number;unitCostP?:number;costP:number;durationSeconds:number;definitionSnapshot?:{name:string;englishName:string};instanceVersion?:number;

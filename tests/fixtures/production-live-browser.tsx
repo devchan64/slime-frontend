@@ -116,5 +116,23 @@ async function clickProductionButton(currentLocaleKey:string){
  const currentFinalShield=currentFinalInventory.items.find((currentItemEntry:any)=>currentItemEntry.definitionId==='round-shield');
  assertProductionCondition(currentFinalShield?.definitionVersion===3&&currentFinalShield.itemLevel===1,'전환 레시피 완제품 수령');
  assertProductionCondition(currentFinalInventory.bag.items.find((currentItemEntry:any)=>currentItemEntry.batchId===currentMaterialEntry.batchId)?.quantity===3,'중간재 배치 4개 중 1개만 소비');
+ for(const [currentProductIdentifier,currentRequestedQuantity] of [['clean-bandage',2],['cooling-wrap',1]] as const){
+  await clickProductionButton('workshop.consumable');
+  const currentClothSelect=document.querySelector('select')!;currentClothSelect.value=currentProductIdentifier;currentClothSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitProductionRender();
+  const currentClothQuantity=document.querySelector<HTMLInputElement>('input[max="1000"]')!;currentClothQuantity.value=String(currentRequestedQuantity);currentClothQuantity.dispatchEvent(new Event('input',{bubbles:true}));await waitProductionRender();
+  const currentClothInputs=[...document.querySelectorAll<HTMLInputElement>('fieldset input')];
+  assertProductionCondition(currentClothInputs.length===2,'정제수와 보유 직물 배치만 선택');
+  currentClothInputs[0].value='2';currentClothInputs[0].dispatchEvent(new Event('input',{bubbles:true}));await waitProductionRender();
+  currentClothInputs[1].value=String(currentRequestedQuantity);currentClothInputs[1].dispatchEvent(new Event('input',{bubbles:true}));await waitProductionRender();
+  await clickProductionButton('workshop.quote');await waitProductionText('Lv.2');
+  assertProductionCondition(currentQuotedCost===(currentProductIdentifier==='clean-bandage'?currentRequestedQuantity:2),'기존 제작료 유지');
+  await clickProductionButton('workshop.confirm');await waitProductionText(t('workshop.inprogress'));
+  assertProductionCondition(currentCreatedRequests.at(-1).batchInputs[0].quantity===currentRequestedQuantity,'주문량에 비례한 직물 선택');
+  const currentClothCompletion=await currentOriginalFetch('/test-complete-consumable',{method:'POST'});assertProductionCondition(currentClothCompletion.ok,'직물 소모품 완료 준비');
+  await clickProductionButton('journal.refresh');await clickProductionButton('workshop.claim');await waitProductionText(t('workshop.claimed'));
+  const currentClothInventory=await currentGameClient.request('/v1/game/equipment');
+  const currentClothProduct=currentClothInventory.bag.items.find((currentItemEntry:any)=>currentItemEntry.definitionId===currentProductIdentifier);
+  assertProductionCondition(currentClothProduct?.quantity===currentRequestedQuantity&&currentClothProduct.itemLevel===2,'직물 품질을 보존한 소모품 수령');
+ }
  await currentOriginalFetch('/test-result',{method:'POST',body:'PASS: 실제 중간재 생산·수령→장비 배치 선택·제작·수령과 기존 제작 여정'});
 }catch(currentError){await currentOriginalFetch('/test-result',{method:'POST',body:'FAIL: '+String(currentError)});}})();

@@ -125,14 +125,14 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
   },[workshopPanelOpened,currentContractPage,currentContractKind,currentContractCursor,actionsAreDisabled,workshopRequestPending,workshopCreationUncertain]);
   const currentSelectedOption=currentSelectionOptions.find(currentSelectionOption=>currentSelectionOption.id===currentTargetIdentifier);
   const currentMaterialSlots=currentContractKind==='repair'?[]:(currentSelectedOption?.materialSlots??(currentSelectedOption?.materialSelection?[currentSelectedOption.materialSelection]:[]));
-  const currentBatchSlots=currentContractKind==='craft'?(currentSelectedOption?.batchSlots??[]):[];
-  const currentBatchSelectionValid=currentBatchSlots.every(currentBatchSlot=>currentBatchSlot.choices.reduce((currentTotalQuantity,currentBatchChoice)=>currentTotalQuantity+(currentBatchQuantities[currentBatchChoice.batchId]??0),0)===currentBatchSlot.requiredQuantity
-    &&currentBatchSlot.choices.every(currentBatchChoice=>{const currentBatchQuantity=currentBatchQuantities[currentBatchChoice.batchId]??0;return Number.isSafeInteger(currentBatchQuantity)&&currentBatchQuantity>=0&&currentBatchQuantity<=currentBatchChoice.ownedQuantity;}));
   const currentQuantityMultiplier=(currentContractKind==='consumable'||currentContractKind==='material')?currentRequestedQuantity:1;
+  const currentBatchSlots=['craft','consumable'].includes(currentContractKind)?(currentSelectedOption?.batchSlots??[]):[];
+  const currentBatchSelectionValid=currentBatchSlots.every(currentBatchSlot=>currentBatchSlot.choices.reduce((currentTotalQuantity,currentBatchChoice)=>currentTotalQuantity+(currentBatchQuantities[currentBatchChoice.batchId]??0),0)===currentBatchSlot.requiredQuantity*currentQuantityMultiplier
+    &&currentBatchSlot.choices.every(currentBatchChoice=>{const currentBatchQuantity=currentBatchQuantities[currentBatchChoice.batchId]??0;return Number.isSafeInteger(currentBatchQuantity)&&currentBatchQuantity>=0&&currentBatchQuantity<=currentBatchChoice.ownedQuantity;}));
   const currentMaterialSelectionValid=currentMaterialSlots.every(currentMaterialSlot=>{
     const currentRequiredQuantity=currentMaterialSlot.requiredQuantity*currentQuantityMultiplier;
     return currentMaterialSlot.choices.reduce((currentTotalValue,currentChoice)=>currentTotalValue+(currentMaterialQuantities[currentChoice.materialId]??0),0)===currentRequiredQuantity
-      &&currentMaterialSlot.choices.every(currentChoice=>{const currentSelectedQuantity=currentMaterialQuantities[currentChoice.materialId]??0;return Number.isSafeInteger(currentSelectedQuantity)&&currentSelectedQuantity>=0&&currentSelectedQuantity<=currentRequiredQuantity;});
+      &&currentMaterialSlot.choices.every(currentChoice=>{const currentSelectedQuantity=currentMaterialQuantities[currentChoice.materialId]??0;return Number.isSafeInteger(currentSelectedQuantity)&&currentSelectedQuantity>=0&&currentSelectedQuantity<=currentRequiredQuantity&&(currentMaterialSlot.source!=='inventory_material'||currentSelectedQuantity<=currentChoice.ownedQuantity);});
   });
   const currentControlsDisabled=actionsAreDisabled||workshopRequestPending||workshopCreationUncertain;
   const currentQuoteBalanceInsufficient=currentQuoteResponse?.ownedCoins!==undefined
@@ -169,10 +169,10 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
         <legend>{currentBatchSlot.nameTranslations[currentWorkshopLocale]} · {translateWorkshopText('workshop.batchSelection')}</legend>
         <p>{translateWorkshopText('workshop.batchRequired')}</p>
         {currentBatchSlot.choices.map(currentBatchChoice=><label key={currentBatchChoice.batchId}>Lv.{currentBatchChoice.itemLevel} · {currentBatchChoice.batchId} · {translateWorkshopText('workshop.materialOwned',{quantity:currentBatchChoice.ownedQuantity})}
-          <input type="number" min="0" max={Math.min(currentBatchSlot.requiredQuantity,currentBatchChoice.ownedQuantity)} step="1" value={currentBatchQuantities[currentBatchChoice.batchId]??0}
+          <input type="number" min="0" max={Math.min(currentBatchSlot.requiredQuantity*currentQuantityMultiplier,currentBatchChoice.ownedQuantity)} step="1" value={currentBatchQuantities[currentBatchChoice.batchId]??0}
             onInput={currentBatchEvent=>{setCurrentBatchQuantities({...currentBatchQuantities,[currentBatchChoice.batchId]:Number(currentBatchEvent.currentTarget.value)});setCurrentQuoteResponse(null);quotedRequestReference.current=null;}}/>
         </label>)}
-        <p>{translateWorkshopText('workshop.materialTotal',{selected:currentBatchSlot.choices.reduce((currentTotalQuantity,currentBatchChoice)=>currentTotalQuantity+(currentBatchQuantities[currentBatchChoice.batchId]??0),0),required:currentBatchSlot.requiredQuantity})}</p>
+        <p>{translateWorkshopText('workshop.materialTotal',{selected:currentBatchSlot.choices.reduce((currentTotalQuantity,currentBatchChoice)=>currentTotalQuantity+(currentBatchQuantities[currentBatchChoice.batchId]??0),0),required:currentBatchSlot.requiredQuantity*currentQuantityMultiplier})}</p>
       </fieldset>)}
       {!currentSelectionOptions.length&&<p>{translateWorkshopText('workshop.noItems')}</p>}
       <button class="secondary compact" disabled={currentControlsDisabled||!currentBatchSelectionValid||!currentMaterialSelectionValid||!currentTargetIdentifier||((currentContractKind==='consumable'||currentContractKind==='material')&&(!Number.isSafeInteger(currentRequestedQuantity)||currentRequestedQuantity<1||currentRequestedQuantity>1000))} onClick={()=>void requestWorkshopQuote()}>{translateWorkshopText('workshop.quote')}</button>

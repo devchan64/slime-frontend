@@ -22,6 +22,7 @@ function validateWorkshopQuote(currentQuoteValue,currentContractKind){
         : currentContractKind==='material'
           ? isWorkshopWholeNumber(currentProductionResult.performance?.material_strength_percent)&&currentProductionResult.performance.material_strength_percent>0&&Object.keys(currentProductionResult.performance).length===1
         : ((currentQuoteValue.definitionSnapshot?.effect==='restore_hp'&&isWorkshopWholeNumber(currentProductionResult.performance?.restoration_hp_value)&&currentProductionResult.performance.restoration_hp_value>0)
+          ||(currentQuoteValue.definitionSnapshot?.effect==='first_aid_reagent'&&isWorkshopWholeNumber(currentProductionResult.performance?.first_aid_bonus_hp))
           ||(['place_route_marker','place_light_marker'].includes(currentQuoteValue.definitionSnapshot?.effect)&&isWorkshopWholeNumber(currentProductionResult.performance?.effect_duration_seconds)&&currentProductionResult.performance.effect_duration_seconds>0))&&Object.keys(currentProductionResult.performance).length===1));
   }
   if(['consumable','material'].includes(currentContractKind))requireWorkshopCondition(Number.isSafeInteger(currentQuoteValue.quantity)&&currentQuoteValue.quantity>0&&currentQuoteValue.quantity<=1000
@@ -69,7 +70,7 @@ export function parseWorkshopQuote(currentResponseValue,currentContractKind,curr
   if(currentRequestedSelection!==undefined){
     requireWorkshopCondition(typeof currentRequestedSelection.targetId==='string'&&currentRequestedSelection.targetId.length>0
       &&(currentContractKind==='repair'?currentResponseValue.quote.instanceId:currentResponseValue.quote.definitionId)===currentRequestedSelection.targetId);
-    if(currentRequestedSelection.batchInputs!==undefined)requireWorkshopCondition(currentContractKind==='craft'&&matchesWorkshopBatches(currentRequestedSelection.batchInputs,currentResponseValue.quote.requestedBatches));
+    if(currentRequestedSelection.batchInputs!==undefined)requireWorkshopCondition(['craft','consumable'].includes(currentContractKind)&&matchesWorkshopBatches(currentRequestedSelection.batchInputs,currentResponseValue.quote.requestedBatches));
     if(currentRequestedSelection.materialInputs!==undefined)requireWorkshopCondition(['craft','consumable','material'].includes(currentContractKind)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentContractKind==='craft'?currentResponseValue.quote.selectedMaterials:currentResponseValue.quote.requiredMaterials)&&matchesWorkshopMaterials(currentRequestedSelection.materialInputs,currentResponseValue.materials));
     if(['consumable','material'].includes(currentContractKind))requireWorkshopCondition(Number.isSafeInteger(currentRequestedSelection.quantity)&&currentRequestedSelection.quantity>=1
       &&currentRequestedSelection.quantity<=1000&&currentResponseValue.quote.quantity===currentRequestedSelection.quantity);
@@ -134,10 +135,11 @@ export function parseWorkshopCatalog(currentResponseValue){
     const currentAllSlotMaterials=new Set();
     for(const currentMaterialSelection of currentMaterialSelections){
       requireWorkshopCondition(currentMaterialSelection&&isWorkshopWholeNumber(currentMaterialSelection.requiredQuantity)&&currentMaterialSelection.requiredQuantity>0&&Array.isArray(currentMaterialSelection.choices)&&currentMaterialSelection.choices.length>0);
+      requireWorkshopCondition(currentMaterialSelection.source===undefined||currentMaterialSelection.source==='inventory_material');
       const currentSeenMaterials=new Set();
       for(const currentMaterialChoice of currentMaterialSelection.choices){
         requireWorkshopCondition(currentMaterialChoice&&typeof currentMaterialChoice.materialId==='string'&&!!currentMaterialChoice.materialId.trim()&&!currentSeenMaterials.has(currentMaterialChoice.materialId)
-          &&['low','medium','high'].includes(currentMaterialChoice.grade)&&isWorkshopWholeNumber(currentMaterialChoice.ownedQuantity)
+          &&(currentMaterialSelection.source==='inventory_material'?currentMaterialChoice.grade===null:['low','medium','high'].includes(currentMaterialChoice.grade))&&isWorkshopWholeNumber(currentMaterialChoice.ownedQuantity)
           &&['ko','en'].every(currentLanguageCode=>typeof currentMaterialChoice.nameTranslations?.[currentLanguageCode]==='string'&&!!currentMaterialChoice.nameTranslations[currentLanguageCode].trim()));
         requireWorkshopCondition(!currentAllSlotMaterials.has(currentMaterialChoice.materialId));
         currentAllSlotMaterials.add(currentMaterialChoice.materialId);

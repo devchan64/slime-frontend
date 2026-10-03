@@ -244,3 +244,13 @@ test('장비 배치 견적·복구는 선택 수량을 검증하고 카탈로그
  currentReceiptResponse.batches=[{batchId:'batch-other',quantity:1}];
  await assert.rejects(()=>recoverWorkshopCreationResult(currentRequestClient,currentOriginalRequest,'iseulon-workshop'));
 });
+
+ test('직물 소모품 카탈로그는 등급 없는 정제수와 배치 견적을 검증한다',()=>{
+ const currentBatchInputs=[{batchId:'cloth-batch',quantity:2}];
+ const currentQuoteResponse={...currentQuoteFixture,quote:{...currentQuoteFixture.quote,definitionId:'clean-bandage',quantity:2,costP:2,unitCostP:1,durationSeconds:60,unitDurationSeconds:30,definitionSnapshot:{name:'붕대',englishName:'Bandage',effect:'first_aid_reagent'},productionResult:{productId:'clean-bandage',usage:'consumable',itemLevel:2,levelPolicyVersion:1,performanceVersion:1,quality:{numerator:7,denominator:4},performance:{first_aid_bonus_hp:1}},requestedBatches:currentBatchInputs}};
+ assert.equal(parseWorkshopQuote(currentQuoteResponse,'consumable',{targetId:'clean-bandage',quantity:2,batchInputs:currentBatchInputs}),currentQuoteResponse);
+ assert.throws(()=>parseWorkshopQuote(currentQuoteResponse,'consumable',{targetId:'clean-bandage',quantity:2,batchInputs:[{batchId:'cloth-batch',quantity:1}]}));
+ const currentCatalogResponse={items:[{id:'clean-bandage',name:'붕대',englishName:'Bandage',materialSlots:[{slotId:'clean-water',source:'inventory_material',requiredQuantity:1,defaultMaterialId:'clean-water',choices:[{materialId:'clean-water',grade:null,ownedQuantity:2,nameTranslations:{ko:'정제수',en:'Clean Water'}}]}]}]};
+ assert.equal(parseWorkshopCatalog(currentCatalogResponse)[0].materialSlots[0].choices[0].grade,null);
+ currentCatalogResponse.items[0].materialSlots[0].choices[0].grade='low';assert.throws(()=>parseWorkshopCatalog(currentCatalogResponse));
+ });

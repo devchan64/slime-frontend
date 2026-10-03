@@ -73,14 +73,14 @@ test('중간재 선택 재료 견적은 주문량·종류·총 재료량을 계�
  assert.equal(currentRequestEntries.length,2);
 });
 
-test('장비 텍스트 명령은 중간재 배치와 정제 재료 선택을 견적부터 계약까지 보존한다',async()=>{
- const currentMaterialInputs=[{materialId:'processed-lumber-low',quantity:4}];
+for(const [currentContractKind,currentProductIdentifier,currentMaterialIdentifier,currentRequiredQuantity] of [['craft','round-shield','processed-lumber-low',4],['consumable','clean-bandage','clean-water',1]])test(currentContractKind+' 배치와 일반 재료 입력을 견적부터 계약까지 보존한다',async()=>{
+ const currentMaterialInputs=[{materialId:currentMaterialIdentifier,quantity:currentRequiredQuantity}];
  const currentBatchInputs=[{batchId:CURRENT_INSTANCE_IDENTIFIER,quantity:1}];
- const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:'round-shield',definitionSnapshot:{name:'목제 원방패',englishName:'Shield'},costP:12,durationSeconds:600,selectedMaterials:currentMaterialInputs,requestedBatches:currentBatchInputs},materials:currentMaterialInputs.map(currentMaterialEntry=>({...currentMaterialEntry,nameTranslations:{ko:'목재',en:'Wood'},ownedQuantity:4,consumedQuantity:4,missingQuantity:0}))};
+ const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:currentProductIdentifier,definitionSnapshot:{name:'목제 원방패',englishName:'Shield'},costP:12,durationSeconds:600,...(currentContractKind==='consumable'?{quantity:1,unitCostP:12,unitDurationSeconds:600}:{}),selectedMaterials:currentMaterialInputs,requiredMaterials:currentMaterialInputs,requestedBatches:currentBatchInputs},materials:currentMaterialInputs.map(currentMaterialEntry=>({...currentMaterialEntry,nameTranslations:{ko:'목재',en:'Wood'},ownedQuantity:4,consumedQuantity:currentRequiredQuantity,missingQuantity:0}))};
  const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentQuoteData,{state:createWorkshopState()}]);
- await currentTextClient.execute('workshop craft quote iseulon-workshop round-shield processed-lumber-low=4 batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1');
- await currentTextClient.execute('workshop craft create iseulon-workshop');
+ await currentTextClient.execute('workshop '+currentContractKind+' quote iseulon-workshop '+currentProductIdentifier+(currentContractKind==='consumable'?' 1':'')+' '+currentMaterialIdentifier+'='+currentRequiredQuantity+' batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1');
+ await currentTextClient.execute('workshop '+currentContractKind+' create iseulon-workshop');
  for(const currentRequestEntry of currentRequestEntries){assert.deepEqual(currentRequestEntry.body.materialInputs,currentMaterialInputs);assert.deepEqual(currentRequestEntry.body.batchInputs,currentBatchInputs);}
- for(const currentInvalidBatch of ['=0','=1.5','=1 batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1'])await assert.rejects(currentTextClient.execute('workshop craft quote iseulon-workshop round-shield processed-lumber-low=4 batch:'+CURRENT_INSTANCE_IDENTIFIER+currentInvalidBatch));
+ for(const currentInvalidBatch of ['=0','=1.5','=1 batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1'])await assert.rejects(currentTextClient.execute('workshop '+currentContractKind+' quote iseulon-workshop '+currentProductIdentifier+(currentContractKind==='consumable'?' 1':'')+' '+currentMaterialIdentifier+'='+currentRequiredQuantity+' batch:'+CURRENT_INSTANCE_IDENTIFIER+currentInvalidBatch));
  assert.equal(currentRequestEntries.length,2);
 });

@@ -57,7 +57,7 @@ export async function executeWorkshopCommand(currentTextClient,currentCommandArg
    const currentInputArguments=currentActionArguments.slice(currentMaterialOffset);
    const currentBatchArguments=currentInputArguments.filter(currentInputText=>currentInputText.startsWith('batch:'));
    if(currentBatchArguments.length){
-    if(currentContractKind!=='craft')throw new Error('중간재 배치는 장비 제작에만 사용할 수 있습니다.');
+    if(!['craft','consumable'].includes(currentContractKind))throw new Error('중간재 배치는 등록된 장비·소모품 제작에만 사용할 수 있습니다.');
     const currentSeenBatches=new Set();
     currentBatchInputs=currentBatchArguments.map(currentInputText=>{
      const currentInputMatch=/^batch:([a-zA-Z0-9-]{1,200})=([1-9][0-9]*)$/.exec(currentInputText);
@@ -71,7 +71,7 @@ export async function executeWorkshopCommand(currentTextClient,currentCommandArg
     currentSeenMaterials.add(currentInputMatch[1]);return {materialId:currentInputMatch[1],quantity:Number(currentInputMatch[2])};
    });
   }
-  if(currentBatchInputs&&!currentMaterialInputs?.length)throw new Error('정제 재료ID=수량과 중간재 batch:배치ID=수량을 함께 지정하세요.');
+  if(currentBatchInputs&&!currentMaterialInputs?.length)throw new Error('재료ID=수량과 중간재 batch:배치ID=수량을 함께 지정하세요.');
   const currentQuoteSelection={targetId:currentItemIdentifier,...(currentBatchInputs?{batchInputs:currentBatchInputs}:{}),...(currentMaterialInputs?{materialInputs:currentMaterialInputs}:{}),...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:Number(currentQuantityText)}:{})};
   const currentQueryParameters=new URLSearchParams({kind:currentContractKind,targetId:currentItemIdentifier,...((currentContractKind==='consumable'||currentContractKind==='material')?{quantity:currentQuantityText}:{})});
   const currentQuoteData=parseWorkshopQuote(await currentTextClient.request(currentMaterialInputs?currentRequestPrefix+'/production-quote':currentRequestPrefix+'/quote?'+currentQueryParameters,currentMaterialInputs?{...currentQuoteSelection,...((currentContractKind==='consumable'||currentContractKind==='material')?{kind:currentContractKind}:{})}:undefined),currentContractKind,currentQuoteSelection);

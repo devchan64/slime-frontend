@@ -397,6 +397,16 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 배치 사용 장비의 `production-quote` 및 계약 생성 본문에는 동일한 `batchInputs: [{batchId, quantity}]`를 전달한다. 견적의 `requestedBatches`와 원장 복구의 `batches`가 원래 선택과 다르면 클라이언트는 성공으로 처리하지 않는다. 텍스트 명령은 `workshop craft quote 시설ID 품목ID 재료ID=수량 [batch:배치ID=수량 ...]`이며 카탈로그가 제공한 정제 재료와 배치를 함께 지정한다. 견적 확인 후 기존 `workshop craft create 시설ID`로 확정한다.
 
 
+### 직물 소모품 배치 제작
+
+배치 레시피가 등록된 소모품도 `batchSlots`와 `batchInputs`를 사용한다. `POST /v1/game/workshops/{facilityId}/production-quote`에 `kind: consumable`, `targetId`, `quantity`, `materialInputs`, `batchInputs`를 전달하고 계약 생성에도 같은 선택을 유지한다. 일반 재료·배치의 수량은 모두 주문 전체분이며 카탈로그의 `requiredQuantity`는 개당 수량이다. 선택 없는 옛 GET 견적은 배치가 필수인 새 계약에서 실패한다.
+
+`materialSlots[].source: inventory_material`은 보유량만 사용할 수 있는 일반 재료다. 이 슬롯의 `choices[].grade`는 `null`이며 등급을 추정하지 않는다. GUI는 일반 재료 보유량과 배치별 보유량, 슬롯 합계에 주문량을 곱한 값을 검증한다. 기존 등급별 정제 재료 슬롯의 계약은 유지한다.
+
+텍스트 예: `consumables quote iseulon-workshop clean-bandage 2 clean-water=2 batch:배치ID=2`. 이어서 `consumables create iseulon-workshop`으로 확정한다. 견적의 `requestedBatches`와 복구 영수증의 `batches`를 원래 요청과 대조한다. 붕대의 `productionResult.performance.first_aid_bonus_hp`는 0 이상의 정수로 검증하며 `first_aid_reagent` 효과에서만 허용한다. 기존 생산 결과가 없는 계약도 읽을 수 있다.
+
+이 응답을 지원하는 클라이언트를 서버의 신규 레시피 전환보다 먼저 적용한다. 롤백 때도 이미 저장된 생산 배치·계약 응답을 읽는 지원은 유지한다. 실제 GUI 검증은 기존 `production-live-browser.tsx`에서 두 소모품의 주문량별 입력·견적·제작·수령을 확인한다.
+
 ### 개인 메시지 HTTP API
 
 개인 메시지는 게임 상태 응답·맵 채팅과 분리된 `/v1/direct-messages` 경로를 사용한다. Bearer 인증과 유효한 캐릭터 세션이 필요하며 정상 응답은 `Cache-Control: no-store`다. 별도 광고 승인은 요구하지 않는다.
