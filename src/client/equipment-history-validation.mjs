@@ -1,5 +1,5 @@
 import {EQUIPMENT_SLOT_NAMES} from './equipment-validation.mjs';
-export const EQUIPMENT_HISTORY_KINDS = ['ACQUIRED','EQUIPPED','UNEQUIPPED','REPAIR_RESERVED','REPAIRED','WORN'];
+export const EQUIPMENT_HISTORY_KINDS = ['ACQUIRED','EQUIPPED','UNEQUIPPED','REPAIR_RESERVED','REPAIRED','WORN','REVOKED'];
 function validateHistorySnapshot(currentSnapshotValue) {
   if (!currentSnapshotValue || typeof currentSnapshotValue.ownerCharacterId !== 'string'
       || !Number.isSafeInteger(currentSnapshotValue.stateVersion) || currentSnapshotValue.stateVersion<1

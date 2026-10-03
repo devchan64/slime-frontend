@@ -4,7 +4,7 @@ import {parseEquipmentHistory,type EquipmentHistoryPage} from '../client/equipme
 import {LocalizedError, noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
-const EQUIPMENT_HISTORY_LABELS = {ACQUIRED:'historyAcquired',EQUIPPED:'historyEquipped',UNEQUIPPED:'historyUnequipped',REPAIR_RESERVED:'historyRepairReserved',REPAIRED:'historyRepaired',WORN:'historyWorn'} as const;
+const EQUIPMENT_HISTORY_LABELS = {ACQUIRED:'historyAcquired',EQUIPPED:'historyEquipped',UNEQUIPPED:'historyUnequipped',REPAIR_RESERVED:'historyRepairReserved',REPAIRED:'historyRepaired',WORN:'historyWorn',REVOKED:'historyRevoked'} as const;
 
 export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,closeEquipmentHistory}:{
   gameSessionClient:Client; equipmentInstanceIdentifier:string; closeEquipmentHistory:()=>void;

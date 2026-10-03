@@ -42,3 +42,4 @@ actionPoints: "기본 최대 AP {base} · 장착 {weight} g · 중량 감소 {pe
 zeroActionPoints: 중량 때문에 최대 AP가 0입니다. AP가 필요한 행동을 하려면 전투 전에 장비를 가볍게 바꾸세요.
 equipAp: "장착 후 최대 AP: {maximum}"
 unequipAp: "해제 후 최대 AP: {maximum}"
+historyRevoked: "개발자 회수"

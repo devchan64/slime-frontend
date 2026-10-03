@@ -1,7 +1,7 @@
 import {formatEquipmentItemName} from '../src/client/equipment-validation.mjs';
 import {parseEquipmentHistory} from '../src/client/equipment-history-validation.mjs';
 import {parseEquipmentInventory,EQUIPMENT_SLOT_NAMES} from '../src/client/equipment-validation.mjs';
-const EQUIPMENT_HISTORY_LABELS={ACQUIRED:'획득',EQUIPPED:'장착',UNEQUIPPED:'해제',REPAIR_RESERVED:'수리 예약',REPAIRED:'수리 완료',WORN:'전투 마모'};
+const EQUIPMENT_HISTORY_LABELS={ACQUIRED:'획득',EQUIPPED:'장착',UNEQUIPPED:'해제',REPAIR_RESERVED:'수리 예약',REPAIRED:'수리 완료',WORN:'전투 마모',REVOKED:'개발자 회수'};
 const EQUIPMENT_IDENTIFIER_PATTERN=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 function captureEquipmentContext(currentTextClient){
  const currentGameState=currentTextClient.state;
