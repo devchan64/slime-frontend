@@ -3,7 +3,7 @@ import {ApiError} from './response';
 import {parseSubstituteHuntReceipt,type SubstituteHuntReceipt} from './substituteHunt';
 type PendingHuntCommand={requestId:string;expectedVersion:number;encounterId:string};
 const SESSION_HUNT_COMMANDS=new WeakMap<Client,SubstituteHuntCommand>();
-export function currentHuntSessionIdentity(currentGameClient:Client){return JSON.stringify([currentGameClient.tokens?.user_id,currentGameClient.state?.generation,currentGameClient.state?.epoch,currentGameClient.state?.me.id]);}
+export function currentHuntSessionIdentity(currentGameClient:Client){return JSON.stringify([currentGameClient.tokens?.user_id,currentGameClient.state?.generation,currentGameClient.state?.me.id]);}
 export class SubstituteHuntCommand {
  pendingHuntRequest:PendingHuntCommand|null=null;
  completedHuntReceipt:SubstituteHuntReceipt|null=null;
@@ -23,7 +23,7 @@ export class SubstituteHuntCommand {
   try{
    if(!this.completedHuntReceipt)this.completedHuntReceipt=parseSubstituteHuntReceipt(await this.currentGameClient.request('/v1/game/substitute-hunts',currentOriginalRequest),currentOriginalRequest.requestId,currentOriginalRequest.encounterId);
    const currentUpdatedState=await this.currentGameClient.request('/v1/game/state');
-   if(currentHuntSessionIdentity(this.currentGameClient)!==this.originalSessionIdentity||currentUpdatedState.me?.id!==this.currentGameClient.state?.me.id||currentUpdatedState.generation!==this.currentGameClient.state?.generation||currentUpdatedState.epoch!==this.currentGameClient.state?.epoch)throw new Error('대체 사냥 응답의 세션이 다릅니다.');
+   if(currentHuntSessionIdentity(this.currentGameClient)!==this.originalSessionIdentity||currentUpdatedState.me?.id!==this.currentGameClient.state?.me.id||currentUpdatedState.generation!==this.currentGameClient.state?.generation)throw new Error('대체 사냥 응답의 세션이 다릅니다.');
    if(!Number.isSafeInteger(currentUpdatedState.me?.version)||currentUpdatedState.me.version<this.completedHuntReceipt.substituteHunt.characterVersion)throw new Error('대체 사냥 이후의 최신 상태가 필요합니다.');
    this.currentGameClient.accept(currentUpdatedState);
    const currentCompletedReceipt=this.completedHuntReceipt;

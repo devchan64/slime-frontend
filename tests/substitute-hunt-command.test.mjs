@@ -5,10 +5,10 @@ const currentModuleBuild=await build({entryPoints:['src/client/substituteHuntCom
 const {getSubstituteHuntCommand}=await import(`data:text/javascript;base64,${Buffer.from(currentModuleBuild.outputFiles[0].text).toString('base64')}`);
 function buildHuntTestClient(){
  const currentRequestCalls=[];
- const currentGameClient={tokens:{user_id:'actor'},state:{generation:1,epoch:1,me:{id:'actor',version:3}},accept(currentNewState){this.state=currentNewState;},async request(currentRequestPath,currentRequestBody){
+ const currentGameClient={tokens:{user_id:'actor'},state:{generation:1,me:{id:'actor',version:3}},accept(currentNewState){this.state=currentNewState;},async request(currentRequestPath,currentRequestBody){
   currentRequestCalls.push({path:currentRequestPath,body:currentRequestBody});
   if(currentRequestBody)return {ok:true,kind:'substitute_hunt',requestId:currentRequestBody.requestId,substituteHunt:{policyVersion:1,encounterId:'passive',encounterCatalogVersion:1,speciesId:'slime',monsterReferenceVersion:2,csp:8,enemyCount:2,fpCost:16,dropCatalogVersion:2,dissectionPolicyVersion:1,materials:[],fpConsumed:16,fpRemaining:34,characterVersion:4}};
-  return {generation:1,epoch:1,me:{id:'actor',version:4}};
+  return {generation:1,me:{id:'actor',version:4}};
  }};
  return {currentGameClient,currentRequestCalls};
 }
@@ -36,21 +36,4 @@ test('세션이 바뀌면 이전 결과로 새 캐릭터 상태를 덮지 않는
  const {currentGameClient}=buildHuntTestClient();const currentOriginalRequest=currentGameClient.request.bind(currentGameClient);
  currentGameClient.request=async(...currentRequestArguments)=>{const currentResponse=await currentOriginalRequest(...currentRequestArguments);if(!currentRequestArguments[1])currentGameClient.state={generation:2,me:{id:'other',version:0}};return currentResponse;};
  const currentHuntController=getSubstituteHuntCommand(currentGameClient);await assert.rejects(currentHuntController.executeHuntCommand('passive',3));assert.equal(currentGameClient.state.me.id,'other');assert.notEqual(getSubstituteHuntCommand(currentGameClient),currentHuntController);
-});
-
-test('시즌 전환 중 늦은 결과는 적용하지 않고 이전 요청을 재사용하지 않는다',async()=>{
- const {currentGameClient}=buildHuntTestClient();const currentOriginalRequest=currentGameClient.request.bind(currentGameClient);
- currentGameClient.request=async(...currentRequestArguments)=>{const currentResponse=await currentOriginalRequest(...currentRequestArguments);if(!currentRequestArguments[1])currentGameClient.state={...currentGameClient.state,epoch:2};return currentResponse;};
- const currentHuntController=getSubstituteHuntCommand(currentGameClient);
- await assert.rejects(currentHuntController.executeHuntCommand('passive',3));
- assert.equal(currentGameClient.state.epoch,2);assert.equal(currentGameClient.state.me.version,3);
- const replacementHuntController=getSubstituteHuntCommand(currentGameClient);
- assert.notEqual(replacementHuntController,currentHuntController);assert.equal(replacementHuntController.pendingHuntRequest,null);
- await assert.rejects(currentHuntController.executeHuntCommand('passive',3));
-});
-test('현재 세션과 다른 시즌의 상태 응답을 적용하지 않는다',async()=>{
- const {currentGameClient}=buildHuntTestClient();const currentOriginalRequest=currentGameClient.request.bind(currentGameClient);
- currentGameClient.request=async(...currentRequestArguments)=>{const currentResponse=await currentOriginalRequest(...currentRequestArguments);return currentRequestArguments[1]?currentResponse:{...currentResponse,epoch:2};};
- await assert.rejects(getSubstituteHuntCommand(currentGameClient).executeHuntCommand('passive',3));
- assert.equal(currentGameClient.state.epoch,1);assert.equal(currentGameClient.state.me.version,3);
 });
