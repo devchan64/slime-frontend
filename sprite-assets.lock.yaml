@@ -154,3 +154,12 @@ files:
 - path: assets/characters/female/walk-v1/walk-v1.png
   source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v1/walk-v1.png
   sha256: 969e8e7bbc0eda5b0d09de2a93e22ac2c0f1b1ed9da96be27f5f6ff4f095b04c
+- path: assets/characters/default/walk-12frames-v1/source.yaml
+  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v1/source.yaml
+  sha256: e7552c006427387a3a29ab7b5fa65377f9309c7b097ef793f83443691ea2d87f
+- path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.animation.json
+  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v1/walk-12frames-v1.animation.json
+  sha256: 43dfc1b3022e83a438b05dd25fa15cfcdbbce8a7b8eb37a8999642c171354067
+- path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.png
+  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v1/walk-12frames-v1.png
+  sha256: 9ebb4056e86caf398038c74be481463acf470ca461d3eb2d716802bdbb668e2e

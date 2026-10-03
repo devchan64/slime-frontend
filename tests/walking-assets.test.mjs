@@ -9,7 +9,7 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
   const characterDataValues = new Map(Object.entries({actorIdleKind:actorIdleKindValue,idlePhaseOffset:0,actorDisplayHeight:80}));
   const registeredTextureFrames = new Set();
   const walkingTextureRecord = {
-    getSourceImage:()=>({width:1536,height:768}),
+    getSourceImage:()=>({width:1536,height:1152}),
     has:(currentFrameIdentifier)=>registeredTextureFrames.has(currentFrameIdentifier),
     add(currentFrameIdentifier){registeredTextureFrames.add(currentFrameIdentifier);return {};},
   };
@@ -23,18 +23,18 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
     setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
   };
 }
-test('정면왼쪽 걷기는 8프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
+test('정면왼쪽 걷기는 12프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
   renderedCharacterImage.scene.time.now=2371;
   for(const currentDirectionName of ['down_left']) {
-    for(let frameColumnIndex=0;frameColumnIndex<=8;frameColumnIndex++) {
+    for(let frameColumnIndex=0;frameColumnIndex<=12;frameColumnIndex++) {
       renderedCharacterImage.scene.time.now=2371+frameColumnIndex*125;
       updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,true);
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
-      assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%8}`));
+      assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%12}`));
       assert.equal(renderedCharacterImage.originX,192/384);
       assert.equal(renderedCharacterImage.originY,376/384);
-      assert.equal(renderedCharacterImage.scaleX,80/362.0);
+      assert.equal(renderedCharacterImage.scaleX,80/360.0);
     }
     updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,false);
     assert.equal(renderedCharacterImage.textureKey,'idle-human');
