@@ -14,10 +14,9 @@ export const DEFAULT_CHARACTER_WALK_ASSET = {
 
 /** 이동 중 걷기를 표시하고 정지 시 원래 크기와 대기로 돌아간다. */
 export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjects.Image,
-  actorScreenDirection: Direction, actionElapsedMilliseconds?: number, characterMovementActive = false) {
-  const characterWalkingActive = characterMovementActive && actorRenderImage.getData("actorIdleKind") === "human";
+  actorScreenDirection: Direction, actionElapsedMilliseconds?: number, movementElapsedMilliseconds?: number) {
+  const characterWalkingActive = movementElapsedMilliseconds !== undefined && actorRenderImage.getData("actorIdleKind") === "human";
   if (!characterWalkingActive) {
-    actorRenderImage.setData("walkingStartedAt", undefined);
     const savedIdleScaleValue = actorRenderImage.getData("walkingIdleScale");
     if (savedIdleScaleValue !== undefined) {
       actorRenderImage.setScale(savedIdleScaleValue).setData("walkingIdleScale", undefined);
@@ -30,12 +29,8 @@ export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjec
     bindCellTexture(actorRenderImage.scene, characterWalkAsset.key, characterWalkAsset.animation);
     actorRenderImage.setData("walkingIdleScale", actorRenderImage.scaleX);
   }
-  if (actorRenderImage.getData("walkingStartedAt") === undefined) {
-    actorRenderImage.setData("walkingStartedAt", actorRenderImage.scene.time.now);
-  }
-  const walkingElapsedMilliseconds = actorRenderImage.scene.time.now - actorRenderImage.getData("walkingStartedAt");
   const sampledWalkingFrame = characterWalkAsset.animation.sample(
-    characterWalkAsset.animation.clip("walk", actorScreenDirection), walkingElapsedMilliseconds).frame;
+    characterWalkAsset.animation.clip("walk", actorScreenDirection), movementElapsedMilliseconds!).frame;
   actorRenderImage.setTexture(characterWalkAsset.key,
     `cell:${characterWalkAsset.animation.data.animationId}@${characterWalkAsset.animation.data.version}:${sampledWalkingFrame.frameId}`)
     .setOrigin(sampledWalkingFrame.anchor.x / sampledWalkingFrame.rect.width, sampledWalkingFrame.anchor.y / sampledWalkingFrame.rect.height)

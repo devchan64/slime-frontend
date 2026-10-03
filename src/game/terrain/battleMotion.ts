@@ -64,6 +64,10 @@ export class BattleMotion {
     const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS);
     return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
+  movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
+    if(!this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;
+    return Math.max(0,currentRenderTime-this.tracks.get(actorStableIdentifier)!.started);
+  }
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;

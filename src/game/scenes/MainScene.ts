@@ -121,8 +121,8 @@ export class MainScene extends Phaser.Scene {
     const now=performance.now();
     for(const item of this.movingObjects){
       const offset=item.key.startsWith("battle:") ? this.battleMotion.offset(item.key.slice(7),now) : this.fieldMotion.offset(item.key,now);
-      const characterMovementActive = item.key.startsWith("battle:")
-        ? this.battleMotion.isMovementActive(item.key.slice(7), now) : this.fieldMotion.isMovementActive(item.key, now);
+      const characterMovementElapsed = item.key.startsWith("battle:")
+        ? this.battleMotion.movementElapsedMilliseconds(item.key.slice(7), now) : this.fieldMotion.movementElapsedMilliseconds(item.key, now);
       const characterRestingFacing = item.object.getData("characterRestingFacing");
       if (characterRestingFacing) {
         const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : undefined;
@@ -138,7 +138,7 @@ export class MainScene extends Phaser.Scene {
         const selectedWorldFacing = currentMovementFacing ?? item.object.getData("actorWorldFacing");
         if (selectedWorldFacing) item.object.setFlipX(shouldMirrorActorSprite(selectedWorldFacing, this.rotation));
         if (!updateActorRestPlayback(item.object, selectedScreenFacing, actorRestPlayback))
-          updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementActive);
+          updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementElapsed);
         if (item.object.flipX) item.object.setOrigin(1 - item.object.originX, item.object.originY);
       }
       item.object.setPosition(item.x+offset.x,item.y+offset.y);

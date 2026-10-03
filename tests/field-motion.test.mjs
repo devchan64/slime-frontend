@@ -15,6 +15,8 @@ test('서버 인접 이동의 몸체·발밑·높이·깊이는 같은 보간 �
 test('중복 상태와 선택 화면 재조회는 이동을 다시 시작하지 않는다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(3,164)],10);
  motion.sync('field',[actor(3,164)],760);
+ assert.equal(motion.movementElapsedMilliseconds('slime',760),750);
+ assert.equal(motion.movementElapsedMilliseconds('slime',1510),undefined);
  assert.equal(motion.offset('slime',1510).x,0);
 });
 test('연속 확정 이동은 각 칸의 1.5초를 보존하고 서버 좌표는 변경하지 않는다',()=>{

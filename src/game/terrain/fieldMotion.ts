@@ -29,6 +29,10 @@ export class FieldMotion {
     }
     this.tracks=next;
   }
+  movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
+    if(!this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;
+    return Math.max(0,currentRenderTime-this.tracks.get(actorStableIdentifier)!.started);
+  }
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;

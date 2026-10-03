@@ -14,6 +14,8 @@ test('확정 경로를 꺾이는 칸까지 순서대로 재생하고 중복 스�
  assert.deepEqual(m.offset('hero',10),{x:-10,y:-10,depth:-2});
  assert.deepEqual(m.offset('hero',1510),{x:0,y:-10,depth:-1});
  m.sync('a',state(end,[move]),point,1520);
+ assert.equal(m.movementElapsedMilliseconds('hero',1520),1510);
+ assert.equal(m.movementElapsedMilliseconds('hero',3010),undefined);
  assert.deepEqual(m.offset('hero',3010),{x:0,y:0,depth:0});
 });
 test('접속과 회전·전장 변경은 과거 경로를 재생하지 않는다',()=>{
