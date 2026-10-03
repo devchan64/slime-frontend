@@ -11,23 +11,14 @@ files:
   source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v2/source.json
   sha256: f52a3e79ca499892f405615fa0637287078b8f6727d116df0b63a5c347671503
 - path: assets/characters/default/rest-v2/rest-v2.animation.json
-  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/rest-v2.animation.json
-  sha256: 6dd934e7000a2f3de42ad103a3f04a2192cf44255e24bbd2e351c72512a1f667
+  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/rest-v2.animation.json
+  sha256: 02c43036a3b966a8aae03d9388e12322f8e9561836f2d5404cd159e0b61558e8
 - path: assets/characters/default/rest-v2/rest-v2.png
-  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/rest-v2.png
-  sha256: 54e95ce08282ef68ec70475e16c7eb18de4de19d4b6f0827950b309a1c4bf8a2
+  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/rest-v2.png
+  sha256: 8db749f3adfc8e6646df750edb352aa383da67d3e4dd38542ebbbc4f698b9542
 - path: assets/characters/default/rest-v2/source.json
-  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v1/source.json
-  sha256: 28905f7c0c5d942c9d76dc78abcffb07caf37f96bba13fc164c5f2c0f035cf55
-- path: assets/characters/default/walk-v2/source.yaml
-  source_path: assets/characters/default/animations/walk-v2/down-left-8frames-v1/source.yaml
-  sha256: 401d66006be77908b4adf244a9135d20101b12a9863ebb111dc142480f037643
-- path: assets/characters/default/walk-v2/walk-v2.animation.json
-  source_path: assets/characters/default/animations/walk-v2/down-left-8frames-v1/walk-v2.animation.json
-  sha256: 6bf59ccdbde41b625ee97c2c3e7011dc036803820c621eb0c2cb92d68737813a
-- path: assets/characters/default/walk-v2/walk-v2.png
-  source_path: assets/characters/default/animations/walk-v2/down-left-8frames-v1/walk-v2.png
-  sha256: 2d0609bc09878bda647c3881c01bd64e7a8ca8510c6bb00c60989973cf1e4034
+  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/source.json
+  sha256: b907b536fc58f44062cd26d9e2b50f81e5ae6f0736c9a8199705b7262db7eca1
 - path: assets/monsters/standing-v1/ash-fox-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/ash-fox-idle-v1.animation.json
   sha256: ce09bfa0894127dc9de0bf71d24c37c84ca466431dbf2b6d28dfc69c5bea3fb7
@@ -137,29 +128,29 @@ files:
   source_path: assets/characters/female/animations/idle-v1/down-left-8frames-v2/source.yaml
   sha256: 016a8cdc3e4a4c0cea52c6966bdedf495cfb05736fdac438c82a113bf0cfe036
 - path: assets/characters/female/rest-v1/rest-v1.png
-  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v1/rest-v1.png
-  sha256: e37154a2031a03fc5e1d5fef712c8a4a91e294c47f78afbdf0c2f7d285db1fe7
+  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v2/rest-v1.png
+  sha256: 551cd4d617f2c5f08b6c681c882436576f8d25eaf1693dcc9ac67064bf9f6401
 - path: assets/characters/female/rest-v1/rest-v1.animation.json
-  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v1/rest-v1.animation.json
-  sha256: e04b84e961e003758e9be9a5e229304b5c24c10c5ccfeb03d9b725f202d9997f
+  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v2/rest-v1.animation.json
+  sha256: 05b3eb167f4e1e5b709655a1390f738ef0776fb159fe37f744e240ccb1294161
 - path: assets/characters/female/rest-v1/source.yaml
-  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v1/source.yaml
-  sha256: c7e2aa0a5064eaa50d433e2269023f04fc1ec84fce2a2cacba052ac7b2ea5e13
+  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v2/source.yaml
+  sha256: 1875ae2baf7e748745e61101cd3586bda83fe982786a65c3ae87083d479d8832
 - path: assets/characters/female/walk-v1/source.yaml
-  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v1/source.yaml
-  sha256: 3454a5d9a7e88929a0d4da2e334b049711471e73e77f386a2aab78339ebbb985
+  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v2/source.yaml
+  sha256: b1528803ccb93aa1e7e7a52822fd6777ff3be248ddeee49ecbf6d15e1a75db5a
 - path: assets/characters/female/walk-v1/walk-v1.animation.json
-  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v1/walk-v1.animation.json
-  sha256: 774bd75e8eb2afdbc5296e74afd638751b4aa1a0cbb4e7ae9b3dcccb725fe96c
+  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v2/walk-v1.animation.json
+  sha256: 7b7887a9f53ef57cf167827eab2236e8910dc74532717b62eff9b7b29ed955df
 - path: assets/characters/female/walk-v1/walk-v1.png
-  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v1/walk-v1.png
-  sha256: 969e8e7bbc0eda5b0d09de2a93e22ac2c0f1b1ed9da96be27f5f6ff4f095b04c
+  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v2/walk-v1.png
+  sha256: 25e4a4cc54180aba8f4a52636ec762786fb0aaac7ef828b0a01da36c8da08709
 - path: assets/characters/default/walk-12frames-v1/source.yaml
-  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v1/source.yaml
-  sha256: e7552c006427387a3a29ab7b5fa65377f9309c7b097ef793f83443691ea2d87f
+  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/source.yaml
+  sha256: 569d3f063f760940c107a6f91b3b7d3bf2ddb50f065ed5daca3b24fb79954aad
 - path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.animation.json
-  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v1/walk-12frames-v1.animation.json
-  sha256: 43dfc1b3022e83a438b05dd25fa15cfcdbbce8a7b8eb37a8999642c171354067
+  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/walk-12frames-v1.animation.json
+  sha256: d8a3ffd97ed56551b1b75f03a37bc2b3f30217cd60e12b8168f83fad93158fb7
 - path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.png
-  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v1/walk-12frames-v1.png
-  sha256: 9ebb4056e86caf398038c74be481463acf470ca461d3eb2d716802bdbb668e2e
+  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/walk-12frames-v1.png
+  sha256: 7b9cfa7c4ac13f1080cc9e83786d96cb21039e6b2dd94d34ad9955fd3088b097
