@@ -1077,3 +1077,27 @@ test('개발자 증서 명령은 도시·발급처와 회수 개체를 전달한
   else assert.equal(currentSentPayload.instanceId,currentInstanceIdentifier);
  }
 });
+
+test('개발자 배치 명령은 등록 레벨과 소유 배치 ID를 전달한다',async()=>{
+ for(const currentOperationName of ['add','remove']){
+  const currentBatchIdentifier='00000000-0000-4000-8000-000000000013';
+  const currentInitialState=state({me:{...state().me,id:'test'}});
+  let currentSentPayload;
+  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
+   if(currentRequestUrl.endsWith('/v1/developer/catalog'))return Response.json({accountId:'test',productionRecipes:[{itemId:'leather-cord',itemLevels:[1,2]}]});
+   if(currentRequestUrl.endsWith('/v1/developer/inventory'))return Response.json({characterId:'test',version:currentInitialState.me.version,items:[{category:'production_batch',itemId:'leather-cord',quantity:3,batchId:currentBatchIdentifier,itemLevel:2}]});
+   if(currentRequestUrl.endsWith('/v1/developer/adjustments')){
+    currentSentPayload=JSON.parse(currentRequestOptions.body);
+    return Response.json({ok:true,...currentSentPayload,actorId:'test',characterId:'test',before:currentOperationName==='add'?0:3,after:currentOperationName==='add'?2:1,version:currentInitialState.me.version+1,
+     batchId:currentBatchIdentifier,batch:{productionResult:{productId:'leather-cord',itemLevel:2}}});
+   }
+   return Response.json({...currentInitialState,cursor:2,me:{...currentInitialState.me,version:currentInitialState.me.version+1}});
+  }});
+  currentTextClient.tokens={user_id:'test',access_token:'local-test'};currentTextClient.accept(currentInitialState);
+  assert.match(await currentTextClient.execute('dev batch recipes'),/leather-cord · 레벨 1, 2/);
+  await currentTextClient.execute(currentOperationName==='add'?'dev batch add leather-cord 2 2':'dev batch remove '+currentBatchIdentifier+' 2');
+  assert.equal(currentSentPayload.category,'production_batch');assert.equal(currentSentPayload.quantity,2);
+  if(currentOperationName==='add')assert.equal(currentSentPayload.itemLevel,2);
+  else {assert.equal(currentSentPayload.batchId,currentBatchIdentifier);assert.equal(currentSentPayload.itemId,'leather-cord');}
+ }
+});
