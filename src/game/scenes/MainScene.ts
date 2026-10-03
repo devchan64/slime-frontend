@@ -107,8 +107,8 @@ export class MainScene extends Phaser.Scene {
         return this.calculateActorPlacement(battlePathPosition, movingBattleUnit?.side === "enemy" ? movingBattleUnit : undefined);
       },performance.now());
     const actors=s.battle ? [] : [
-      ...s.monsters.filter(m=>m.state!=="COOLDOWN").map(m=>({id:`monster:${m.id}`,cell:m.position, appearance:m})),
-      ...s.members.filter(m=>m.mode!=="IN_BATTLE").map(m=>({id:`member:${m.id}`,cell:m.position, appearance:undefined})),
+      ...s.monsters.filter(m=>m.state!=="COOLDOWN").map(m=>({id:`monster:${m.id}`,cell:m.position, serverWorldFacing:m.facing, appearance:m})),
+      ...s.members.filter(m=>m.mode!=="IN_BATTLE").map(m=>({id:`member:${m.id}`,cell:m.position, serverWorldFacing:m.facing ?? (m.id === s.me.id ? s.me.fieldFacing : undefined), appearance:undefined})),
     ];
     this.fieldMotion.sync(`${s.location.id}:${s.generation}:${s.epoch}:${this.rotation}`,
       actors.map(a=>({...a,point:this.calculateActorPlacement(a.cell,a.appearance)})),performance.now());
@@ -125,7 +125,7 @@ export class MainScene extends Phaser.Scene {
         ? this.battleMotion.movementElapsedMilliseconds(item.key.slice(7), now) : this.fieldMotion.movementElapsedMilliseconds(item.key, now);
       const characterRestingFacing = item.object.getData("characterRestingFacing");
       if (characterRestingFacing) {
-        const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : undefined;
+        const currentMovementFacing = item.key.startsWith("battle:") ? this.battleMotion.currentWorldFacing(item.key.slice(7), now) : this.fieldMotion.currentWorldFacing(item.key,now);
         const selectedScreenFacing = currentMovementFacing ? screenFacing(currentMovementFacing, this.rotation) : characterRestingFacing;
         const actorRestPlayback = this.fieldRestAnimation.sampleRestAnimation(item.key, now, calculateRestExitDuration());
         let idleActionElapsedTime: number | null = null;

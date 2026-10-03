@@ -1,8 +1,9 @@
 import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './movementTransition';
+import {screenFacing, type WorldFacing} from '../animation/facing';
 import type {Position} from '../../client/types';
 type Point = {x:number;y:number;depth:number};
-export type FieldActor = {id:string;cell:Position;point:Point};
-type Track = FieldActor & {movementPathPoints:Point[];started:number};
+export type FieldActor = {id:string;cell:Position;point:Point;serverWorldFacing?:WorldFacing};
+type Track = FieldActor & {movementPathPoints:Point[];segmentWorldFacings:(WorldFacing|undefined)[];started:number};
 
 /** 서버 확정 인접 이동만 보간한다. 논리 좌표와 이동 판정은 변경하지 않는다. */
 export class FieldMotion {
@@ -13,6 +14,7 @@ export class FieldMotion {
     if(space!==this.space){this.clear();this.space=space;}
     const next=new Map<string,Track>();
     for(const actor of actors){
+      if(actor.serverWorldFacing !== undefined)screenFacing(actor.serverWorldFacing,0);
       const old=this.tracks.get(actor.id);
       if(old && old.cell.column===actor.cell.column && old.cell.row===actor.cell.row
           && old.point.x===actor.point.x && old.point.y===actor.point.y && old.point.depth===actor.point.depth){
@@ -24,10 +26,18 @@ export class FieldMotion {
       const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*TILE_MOVEMENT_DURATION_MS : now;
       const movementPathPoints=currentMotionTrack ? currentMotionTrack.movementPathPoints.slice(completedSegmentCount)
         : adjacent ? [{...old.point}] : [];
+      const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
+      if(adjacent)segmentWorldFacings.push(actor.serverWorldFacing);
       movementPathPoints.push({...actor.point});
-      next.set(actor.id,{...actor,cell:{...actor.cell},point:{...actor.point},movementPathPoints,started:currentMovementStart});
+      next.set(actor.id,{...actor,cell:{...actor.cell},point:{...actor.point},movementPathPoints,segmentWorldFacings,started:currentMovementStart});
     }
     this.tracks=next;
+  }
+  currentWorldFacing(actorStableIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
+    const currentMotionTrack=this.tracks.get(actorStableIdentifier);
+    if(!currentMotionTrack)return undefined;
+    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS);
+    return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
   movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
     if(!this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;

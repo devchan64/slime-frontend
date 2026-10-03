@@ -65,3 +65,17 @@ test('도착점을 조금 넘은 몸체·그림자·깊이는 같은 비율로 �
  assert.ok(currentMotionTracker.offset('slime',1350).x<currentMotionOffset.x);
  assert.deepEqual(currentMotionTracker.offset('slime',1510),{x:0,y:0,depth:0});
 });
+
+
+test('필드의 서버 방향은 현재 재생 구간을 따르며 다음 도착 방향을 미리 표시하지 않는다',()=>{
+ const currentMotionTracker=new FieldMotion();
+ currentMotionTracker.sync('field',[actor(2,100)],0);
+ currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'column_positive'}],10);
+ currentMotionTracker.sync('field',[{...actor(4,228),serverWorldFacing:'row_negative'}],510);
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',1509),'column_positive');
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',1510),'row_negative');
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',3010),undefined);
+ currentMotionTracker.sync('field',[actor(5,292)],4010);
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',4100),undefined);
+ assert.throws(()=>currentMotionTracker.sync('field',[{...actor(6,356),serverWorldFacing:'invalid'}],4200),/방향/);
+});
