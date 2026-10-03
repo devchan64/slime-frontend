@@ -63,6 +63,11 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
       <section class="card" aria-label={t(`achievements.${scope.toLowerCase()}`)}>
         <h2>{t(`achievements.${scope.toLowerCase()}`)} <small>{t('achievements.completedCount',{done:completed,total:items.length})}</small></h2>
         {scope==='SEASONAL'&&!selectedHistoryRecord&&<p>{t('achievements.season',{season:data.seasonDisplay ? `${data.seasonDisplay.number} · ${data.seasonDisplay.names[locale]}` : data.season})}</p>}
+        {achievementPageCount>1&&<nav class="record-page-navigation" aria-label={t('achievements.pagination')}>
+          <button class="secondary" disabled={currentAchievementPage===0} onClick={()=>setCurrentAchievementPage(currentPageIndex=>currentPageIndex-1)}>{t('achievements.previous')}</button>
+          <span role="status">{t('achievements.page',{page:currentAchievementPage+1,total:achievementPageCount})}</span>
+          <button class="secondary" disabled={currentAchievementPage+1>=achievementPageCount} onClick={()=>setCurrentAchievementPage(currentPageIndex=>currentPageIndex+1)}>{t('achievements.next')}</button>
+        </nav>}
         {!items.length?<p>{t('achievements.empty')}</p>:items.slice(currentAchievementPage*ACHIEVEMENT_LIST_PAGE_SIZE,(currentAchievementPage+1)*ACHIEVEMENT_LIST_PAGE_SIZE).map(([id,d])=>{
           const progress=displayedProgressRecords?.[id];
           return <article class="achievement-item" key={id}><h3>{d.name} <small>{t(progress?.completedAt!=null?'achievements.complete':'achievements.inProgress')}</small></h3>
@@ -77,23 +82,20 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
             })}</ul>
           </article>;
         })}
-        {achievementPageCount>1&&<nav class="record-page-navigation" aria-label={t('achievements.pagination')}>
-          <button class="secondary" disabled={currentAchievementPage===0} onClick={()=>setCurrentAchievementPage(currentPageIndex=>currentPageIndex-1)}>{t('achievements.previous')}</button>
-          <span role="status">{t('achievements.page',{page:currentAchievementPage+1,total:achievementPageCount})}</span>
-          <button class="secondary" disabled={currentAchievementPage+1>=achievementPageCount} onClick={()=>setCurrentAchievementPage(currentPageIndex=>currentPageIndex+1)}>{t('achievements.next')}</button>
-        </nav>}
+
       </section>
       <details class="card achievement-history"><summary>{t('achievements.history',{count:ledger.length})}</summary>
         <p>{t('achievements.historyHelp')}</p>
-        {!ledger.length?<p>{t('achievements.noHistory')}</p>:<ul>{ledger.slice(currentHistoryPage*ACHIEVEMENT_HISTORY_PAGE_SIZE,(currentHistoryPage+1)*ACHIEVEMENT_HISTORY_PAGE_SIZE).map(entry=><li key={`${entry.currency}:${entry.id}`}>
-          <div><strong>{catalog[entry.achievementId]?.name??entry.achievementId}</strong><span>+{number(entry.amount)} {entry.currency}</span></div>
-          <small>{entry.sourceType==='achievement_migration'?t('achievements.supplement'):t('achievements.awarded')}{entry.seasonId?` · ${entry.seasonId}`:''} · {new Date(entry.createdAt*1000).toLocaleString(locale)}</small>
-        </li>)}</ul>}
         {historyPageCount>1&&<nav class="record-page-navigation" aria-label={t('achievements.historyPagination')}>
           <button class="secondary" disabled={currentHistoryPage===0} onClick={()=>setCurrentHistoryPage(currentPageIndex=>currentPageIndex-1)}>{t('achievements.previous')}</button>
           <span role="status">{t('achievements.page',{page:currentHistoryPage+1,total:historyPageCount})}</span>
           <button class="secondary" disabled={currentHistoryPage+1>=historyPageCount} onClick={()=>setCurrentHistoryPage(currentPageIndex=>currentPageIndex+1)}>{t('achievements.next')}</button>
         </nav>}
+        {!ledger.length?<p>{t('achievements.noHistory')}</p>:<ul>{ledger.slice(currentHistoryPage*ACHIEVEMENT_HISTORY_PAGE_SIZE,(currentHistoryPage+1)*ACHIEVEMENT_HISTORY_PAGE_SIZE).map(entry=><li key={`${entry.currency}:${entry.id}`}>
+          <div><strong>{catalog[entry.achievementId]?.name??entry.achievementId}</strong><span>+{number(entry.amount)} {entry.currency}</span></div>
+          <small>{entry.sourceType==='achievement_migration'?t('achievements.supplement'):t('achievements.awarded')}{entry.seasonId?` · ${entry.seasonId}`:''} · {new Date(entry.createdAt*1000).toLocaleString(locale)}</small>
+        </li>)}</ul>}
+
       </details>
     </>}
   </main>;
