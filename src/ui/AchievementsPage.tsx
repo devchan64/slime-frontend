@@ -59,11 +59,11 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
         {!items.length?<p>{t('achievements.empty')}</p>:items.map(([id,d])=>{
           const progress=displayedProgressRecords?.[id];
           return <article class="achievement-item" key={id}><h3>{d.name} <small>{t(progress?.completedAt!=null?'achievements.complete':'achievements.inProgress')}</small></h3>
-            <p>{t('achievements.reward')} · {[d.cp>0?`${number(d.cp)} CP`:null,d.sp?`${number(d.sp)} SP`:null].filter(Boolean).join(' · ')}{(d.skills??[]).map(id=>{
+            {(d.cp>0||(d.sp??0)>0||(d.skills?.length??0)>0)&&<p>{t('achievements.reward')} · {[d.cp>0?`${number(d.cp)} CP`:null,d.sp?`${number(d.sp)} SP`:null].filter(Boolean).join(' · ')}{(d.skills??[]).map(id=>{
               const skill=data.skills[id];
               if(!skill)throw new Error(`업적 보상 스킬 정의가 없습니다: ${id}`);
               return <span key={id}> · {t('achievements.skill',{name:localizedSkill(skill,locale).name})}</span>;
-            })}</p>
+            })}</p>}
             <ul>{Object.entries(d.checklist).map(([key,c])=>{
               const count=progress?.checklist[key]?.count??0;
               return <li key={key}><div class="achievement-progress-label"><span>{c.description}</span><strong>{number(count)} / {number(c.target)}</strong></div><progress value={count} max={c.target} aria-label={c.description} /></li>;
