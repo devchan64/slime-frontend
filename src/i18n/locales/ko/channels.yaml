@@ -31,3 +31,4 @@ pagination: 채널 목록 페이지
 previousPage: 이전
 nextPage: 다음
 pageNumber: '{page} / {total} 페이지'
+empty: 표시할 같은 맵의 채널이 없습니다. 목록을 새로고침해 주세요.

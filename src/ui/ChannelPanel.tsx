@@ -101,6 +101,7 @@ export function ChannelPanel({gameSessionClient,currentGameState,actionsAreDisab
       <span role="status">{translateChannelText('channels.pageNumber',{page:displayedChannelPageIndex+1,total:currentChannelPageCount})}</span>
       <button class="secondary" disabled={currentRequestPending||displayedChannelPageIndex+1>=currentChannelPageCount} onClick={()=>setCurrentChannelPage(displayedChannelPageIndex+1)}>{translateChannelText('channels.nextPage')}</button>
     </nav>}
+    {currentChannelEntries && currentMapChannels.length===0 && !currentRequestPending && <p role="status">{translateChannelText('channels.empty')}</p>}
     {currentChannelEntries && <ul class="channel-list">{currentMapChannels.slice(displayedChannelPageIndex*CHANNEL_LIST_PAGE_SIZE,(displayedChannelPageIndex+1)*CHANNEL_LIST_PAGE_SIZE).map(currentChannelEntry=>{
       const currentTargetReason=channelTargetRestriction(currentGameState,currentChannelEntry);
       return <li key={currentChannelEntry.id} class="channel-list-entry" data-channel-address={currentChannelEntry.address}>

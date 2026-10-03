@@ -31,3 +31,4 @@ pagination: Channel list pages
 previousPage: Previous
 nextPage: Next
 pageNumber: 'Page {page} of {total}'
+empty: No channels on this map are available to display. Refresh the list to check again.

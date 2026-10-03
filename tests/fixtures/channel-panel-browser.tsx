@@ -100,5 +100,12 @@ async function enterChannelAddress(currentAddressText:string){const currentInput
   currentRequestHandler=async()=>Array.from({length:21},(_,currentEntryIndex)=>({...currentChannelRecords[0],id:`page-${currentEntryIndex}`,address:`a${currentEntryIndex+1}`}));
   findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
   verifyCurrentCondition(!!document.querySelector('[data-channel-address="a1"]')&&findNamedButton(t('channels.previousPage')).disabled,'목록 재증가 시 이전의 무효 페이지로 돌아가지 않음');
+  currentRequestHandler=async()=>currentChannelRecords.filter(currentChannelEntry=>currentChannelEntry.mapDefinitionId==='iseulon');
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(!document.querySelector('[data-channel-address]')&&document.body.textContent!.includes(t('channels.empty')),'같은 맵의 채널이 없으면 빈 목록과 재조회 안내');
+  verifyCurrentCondition(!document.querySelector('.record-page-navigation')&&!findNamedButton(t('channels.refresh')).disabled,'빈 목록은 페이지 이동 없이 새로고침 가능');
+  currentRequestHandler=null;
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(!!document.querySelector('[data-channel-address]')&&!document.body.textContent!.includes(t('channels.empty')),'재조회 성공 후 빈 목록 안내 해제');
   document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionLabels,commands:currentCommandRecords});
 }catch(currentFailureError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailureError),stack:(currentFailureError as Error).stack,assertions:currentAssertionLabels});}})();
