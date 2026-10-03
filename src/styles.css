@@ -1506,3 +1506,12 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .field-control-card .field-exploration p { margin: 0; font-size: 12px; line-height: 1.4; }
 .field-control-card .field-exploration > div { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
 .field-control-card .field-exploration button { margin: 0; min-height: 44px; padding: 6px 10px; font-size: 13px; }
+
+/* 헤더 메시지 알림: 빈 상태는 아이콘, 도착 알림은 숫자 배지로 구분한다. */
+header .message-notice-button { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0; margin: 0; border-radius: 12px; color: var(--muted); background: transparent; }
+.message-notice-icon { width: 23px; height: 23px; }
+header .message-notice-button:hover, header .message-notice-button.has-notices { color: var(--brand-primary); border-color: var(--brand-primary); background: #153832; }
+.message-notice-button:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: 4px; }
+.message-notice-badge { position: absolute; top: -6px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--brand-primary); color: var(--brand-ink); border: 2px solid #081f23; font-size: 10px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+.message-notice-error { position: absolute; bottom: -4px; right: -4px; padding: 0 5px; border-radius: 8px; background: #edbf70; color: #081f23; font-size: 11px; font-weight: 800; }
+.message-notice-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
