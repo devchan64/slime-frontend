@@ -1497,3 +1497,12 @@ body.battle-preview-shell .preview-hud { display: contents; }
 
 .automatic-pattern-panel fieldset { min-width: 0; }
 .automatic-pattern-panel select, .automatic-pattern-panel input { width: 100%; max-width: 100%; box-sizing: border-box; }
+
+/* 필드 선택·탐색은 조작 카드 상단에서 압축해 표시한다. */
+.field-control-card .field-target-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+.field-control-card .field-target-summary small { margin: 0; }
+.field-control-card .field-exploration { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; margin: 4px 0 8px; }
+.field-control-card .field-exploration > p { grid-column: 1 / -1; }
+.field-control-card .field-exploration p { margin: 0; font-size: 12px; line-height: 1.4; }
+.field-control-card .field-exploration > div { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
+.field-control-card .field-exploration button { margin: 0; min-height: 44px; padding: 6px 10px; font-size: 13px; }

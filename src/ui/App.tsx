@@ -709,6 +709,12 @@ export function App() {
         }} />}
 </div>
             {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
+              <div ref={selectedFieldCommands} class="field-selected-commands">
+              <FieldSelection state={state} selected={selected} disabled={disabled} gameSessionClient={client} now={(clock + serverOffset.current) / 1000}
+                disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
+                select={selectField} command={command} walking={walking} walk={requestedWalkingDestination => void run(()=>walk(requestedWalkingDestination))} encounter={id => void run(() => approachEncounter(id))}
+                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
+              </div>
               <div class="field-card-heading"><div class="field-control-actions">
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("chat")}>{t('common.channelChat')}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("channels")}>{t('channels.open')}</button>
@@ -720,12 +726,6 @@ export function App() {
               </div></div>
               <div class="field-support-actions"><FieldFirstAid currentGameState={state} actionsAreDisabled={disabled || !!walking}
                 submitFirstAidCommand={(currentBatchIdentifier) => command('/v1/game/skills/first-aid',currentBatchIdentifier?{batchId:currentBatchIdentifier}:{})} /></div>
-              <div ref={selectedFieldCommands} class="field-selected-commands">
-              <FieldSelection state={state} selected={selected} disabled={disabled} gameSessionClient={client} now={(clock + serverOffset.current) / 1000}
-                disabledReason={renderFailed ? t('app.reconnectHelp') : !connected ? t('app.connectingHelp') : loading ? t('app.preparingMap') : t('app.processing')}
-                select={selectField} command={command} walking={walking} walk={requestedWalkingDestination => void run(()=>walk(requestedWalkingDestination))} encounter={id => void run(() => approachEncounter(id))}
-                stop={() => { stopWalking.current = true; setWalking(w => w && { ...w, stopping: true }); }} />
-              </div>
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
 
 </section>}
