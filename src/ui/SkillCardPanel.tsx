@@ -34,7 +34,7 @@ export function SkillCardPanel({gameSessionClient,currentFacilityIdentifier,acti
   try{
    const currentCatalogPath=currentFacilityIdentifier?`/v1/game/bookshops/${encodeURIComponent(currentFacilityIdentifier)}/skill-cards`:'/v1/accounts/me/skill-cards';
    const currentReceivedInventory=parseSkillCardInventory(await gameSessionClient.request(currentCatalogPath));
-   if(matchesCardSessionContext())setCurrentCardInventory(currentReceivedInventory);
+   if(matchesCardSessionContext()){setCurrentCardInventory(currentReceivedInventory);return true;}
   }catch(currentRequestError){if(matchesCardSessionContext())setCurrentCardNotice(currentRequestError as Error);}
   finally{currentPendingReference.current=false;if(matchesCardSessionContext())setCurrentRequestPending(false);}
  }
@@ -52,6 +52,7 @@ export function SkillCardPanel({gameSessionClient,currentFacilityIdentifier,acti
    validateSkillCardCommandResponse(currentCommandResponse,{characterId:currentRequestState.me.id,generation:currentRequestState.generation,
     expectedVersion:currentPendingCommand.payload.expectedVersion,requestId:currentPendingCommand.payload.requestId,command:currentPendingCommand.identity,grantsSkill:currentPendingCommand.grantsSkill});
    gameSessionClient.accept(currentCommandResponse.state);
+   setCurrentCardInventory(null);
    currentCommandReference.current=null;setCurrentUncertainRequest(false);setCurrentSelectedCard(null);currentCommandCompleted=true;
   }catch(currentRequestError){if(matchesCardSessionContext()){
    const currentOutcomeUncertain=!(currentRequestError instanceof ApiError)||currentRequestError.status>=500;
@@ -60,8 +61,8 @@ export function SkillCardPanel({gameSessionClient,currentFacilityIdentifier,acti
    setCurrentCardNotice(currentRequestError as Error);
   }}finally{currentPendingReference.current=false;if(matchesCardSessionContext())setCurrentRequestPending(false);}
   if(currentCommandCompleted&&matchesCardSessionContext()){
-   await loadCurrentCardInventory();
-   if(matchesCardSessionContext())setCurrentCardNotice({key:currentPendingCommand.identity.kind==='purchase'?'cards.purchased':'cards.used'});
+   const currentInventoryLoaded=await loadCurrentCardInventory();
+   if(currentInventoryLoaded&&matchesCardSessionContext())setCurrentCardNotice({key:currentPendingCommand.identity.kind==='purchase'?'cards.purchased':'cards.used'});
   }
  }
  useEffect(()=>{currentActiveReference.current=true;void loadCurrentCardInventory();return()=>{currentActiveReference.current=false;};},[]);
