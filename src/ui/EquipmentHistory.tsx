@@ -13,6 +13,7 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
   const [currentHistoryPage,setCurrentHistoryPage]=useState<EquipmentHistoryPage|null>(null);
   const [currentRequestNotice,setCurrentRequestNotice]=useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending]=useState(false);
+  const [historyPageCursorStack,setHistoryPageCursorStack]=useState<Array<number|undefined>>([undefined]);
   const activeRequestSequence=useRef(0);
   const historySectionElement=useRef<HTMLElement>(null);
   const initialHistoryRevealed=useRef(false);
@@ -20,8 +21,9 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
   const originalHistorySession=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id});
   function historySessionMatches(){return historyPanelActive.current&&originalHistorySession.current.owner===gameSessionClient.tokens?.user_id
     &&originalHistorySession.current.generation===gameSessionClient.state?.generation&&originalHistorySession.current.character===gameSessionClient.state?.me.id;}
-  async function loadEquipmentHistory(beforeInstanceVersion?:number) {
+  async function loadEquipmentHistory(requestedHistoryCursorStack:Array<number|undefined>=[undefined]) {
     if(!historySessionMatches())return;
+    const beforeInstanceVersion=requestedHistoryCursorStack[requestedHistoryCursorStack.length-1];
     const currentRequestSequence=++activeRequestSequence.current;
     const currentSessionGeneration=gameSessionClient.state?.generation;
     const currentCharacterIdentifier=gameSessionClient.state?.me.id;
@@ -34,7 +36,8 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
       if(beforeInstanceVersion && receivedHistoryPage.items.some(currentHistoryRecord=>currentHistoryRecord.after.stateVersion>=beforeInstanceVersion)) {
         throw new LocalizedError('equipment.historyChanged');
       }
-      setCurrentHistoryPage({...receivedHistoryPage,items:[...(beforeInstanceVersion?currentHistoryPage?.items??[]:[]),...receivedHistoryPage.items]});
+      setCurrentHistoryPage(receivedHistoryPage);
+      setHistoryPageCursorStack(requestedHistoryCursorStack);
     } catch(currentRequestError) {
       if(historySessionMatches()&&activeRequestSequence.current===currentRequestSequence) setCurrentRequestNotice(currentRequestError as Error);
     } finally {if(historySessionMatches()&&activeRequestSequence.current===currentRequestSequence) setCurrentRequestPending(false);}
@@ -53,12 +56,17 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
     {currentRequestNotice && <p role="alert">{noticeText(currentRequestNotice,currentLocaleCode,translateHistoryText)}</p>}
     {currentHistoryPage && <>
       {!currentHistoryPage.items.length && <p>{translateHistoryText('equipment.noHistory')}</p>}
+      {(historyPageCursorStack.length>1||currentHistoryPage.nextBefore)&&<nav class="record-page-navigation" aria-label={translateHistoryText('equipment.historyPagination')}>
+        <button class="secondary" disabled={currentRequestPending||historyPageCursorStack.length===1} onClick={()=>void loadEquipmentHistory(historyPageCursorStack.slice(0,-1))}>{translateHistoryText('equipment.previousPage')}</button>
+        <span role="status">{translateHistoryText('equipment.historyPage',{page:historyPageCursorStack.length})}</span>
+        <button class="secondary" disabled={currentRequestPending||!currentHistoryPage.nextBefore} onClick={()=>void loadEquipmentHistory([...historyPageCursorStack,currentHistoryPage.nextBefore!])}>{translateHistoryText('equipment.nextPage')}</button>
+      </nav>}
       <ol class="bag-items">{currentHistoryPage.items.map(currentHistoryRecord=><li key={currentHistoryRecord.recordId}>
         <strong>{translateHistoryText(`equipment.${EQUIPMENT_HISTORY_LABELS[currentHistoryRecord.kind]}`)}</strong>
         <p>{new Date(currentHistoryRecord.createdAt*1000).toLocaleString(currentLocaleCode)}</p>
         <p>{translateHistoryText('equipment.durability')}{' '}{currentHistoryRecord.before && `${currentHistoryRecord.before.currentDurability}/${currentHistoryRecord.before.maxDurability} → `}{currentHistoryRecord.after.currentDurability}/{currentHistoryRecord.after.maxDurability}</p>
       </li>)}</ol>
-      {currentHistoryPage.nextBefore && <button class="secondary" disabled={currentRequestPending} onClick={()=>void loadEquipmentHistory(currentHistoryPage.nextBefore!)}>{translateHistoryText('equipment.more')}</button>}
+
     </>}
   </section>;
 }

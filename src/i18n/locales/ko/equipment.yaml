@@ -43,3 +43,8 @@ zeroActionPoints: 중량 때문에 최대 AP가 0입니다. AP가 필요한 행�
 equipAp: "장착 후 최대 AP: {maximum}"
 unequipAp: "해제 후 최대 AP: {maximum}"
 historyRevoked: "개발자 회수"
+
+historyPagination: 장비 변경 이력 페이지 이동
+previousPage: 이전
+nextPage: 다음
+historyPage: "{page}페이지"

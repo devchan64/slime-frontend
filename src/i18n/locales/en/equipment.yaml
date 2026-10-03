@@ -43,3 +43,8 @@ zeroActionPoints: Weight has reduced your maximum AP to 0. Equip lighter gear be
 equipAp: "Maximum AP after equipping: {maximum}"
 unequipAp: "Maximum AP after removing: {maximum}"
 historyRevoked: "Developer revocation"
+
+historyPagination: Equipment history pages
+previousPage: Previous
+nextPage: Next
+historyPage: "Page {page}"
