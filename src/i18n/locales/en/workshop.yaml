@@ -57,3 +57,5 @@ material: Material crafting
 
 batchSelection: Material batches
 batchRequired: Select the required quantity from owned batches. Missing batches cannot be purchased.
+ownedMaterialRequired: Only owned materials can be used. Obtain any missing materials before crafting.
+ownedMaterialInvalid: Select the required quantity within your stock. Reduce the order quantity or obtain more materials if needed.

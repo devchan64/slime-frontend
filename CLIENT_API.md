@@ -401,7 +401,7 @@ GUI 서점·가방과 텍스트 명령은 `validateSkillbookCommandResponse`로 
 
 배치 레시피가 등록된 소모품도 `batchSlots`와 `batchInputs`를 사용한다. `POST /v1/game/workshops/{facilityId}/production-quote`에 `kind: consumable`, `targetId`, `quantity`, `materialInputs`, `batchInputs`를 전달하고 계약 생성에도 같은 선택을 유지한다. 일반 재료·배치의 수량은 모두 주문 전체분이며 카탈로그의 `requiredQuantity`는 개당 수량이다. 선택 없는 옛 GET 견적은 배치가 필수인 새 계약에서 실패한다.
 
-`materialSlots[].source: inventory_material`은 보유량만 사용할 수 있는 일반 재료다. 이 슬롯의 `choices[].grade`는 `null`이며 등급을 추정하지 않는다. GUI는 일반 재료 보유량과 배치별 보유량, 슬롯 합계에 주문량을 곱한 값을 검증한다. 기존 등급별 정제 재료 슬롯의 계약은 유지한다.
+`materialSlots[].source: inventory_material`은 보유량만 사용할 수 있는 일반 재료다. 이 슬롯의 `choices[].grade`는 `null`이며 등급을 추정하지 않는다. GUI와 텍스트 카탈로그는 보유 재료만 사용할 수 있음을 안내한다. GUI는 입력 상한에 보유량을 반영하고 부족 시 주문량 축소 또는 재료 확보를 안내한다. 오류는 해당 슬롯에만 표시하며 일반 재료 보유량과 배치별 보유량, 슬롯 합계에 주문량을 곱한 값을 검증한다. 기존 등급별 정제 재료 슬롯의 계약은 유지한다.
 
 텍스트 예: `consumables quote iseulon-workshop clean-bandage 2 clean-water=2 batch:배치ID=2`. 이어서 `consumables create iseulon-workshop`으로 확정한다. 견적의 `requestedBatches`와 복구 영수증의 `batches`를 원래 요청과 대조한다. 붕대의 `productionResult.performance.first_aid_bonus_hp`는 0 이상의 정수로 검증하며 `first_aid_reagent` 효과에서만 허용한다. 기존 생산 결과가 없는 계약도 읽을 수 있다.
 
