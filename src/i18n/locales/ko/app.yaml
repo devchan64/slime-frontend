@@ -144,3 +144,6 @@ developerPermitDuration: "증서는 한 번에 1개를 지급하며 발급 시�
 developerPermitCity: "도시"
 developerPermitIssuer: "경비센터 발급처"
 developerPermitInstance: "회수할 증서 · 도시 · 만료일 · 개체 ID"
+
+developerBatchLevel: "지급할 생산 레벨"
+developerBatchInstance: "회수할 배치 · 레벨 · 보유 수량 · ID"

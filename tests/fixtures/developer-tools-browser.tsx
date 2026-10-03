@@ -21,6 +21,9 @@ function clickDeveloperButton(currentMessageKey:string){
  let currentItemReceipt:any=null;
  let currentEquipmentReceipt:any=null;
  let currentEquipmentOwned=false;
+ let currentBatchQuantity=0;
+ let currentBatchReceipt:any=null;
+ const currentBatchIdentifier='00000000-0000-4000-8000-000000000030';
  let currentPermitOwned=false;
  let currentPermitReceipt:any=null;
  const currentPermitIdentifier='00000000-0000-4000-8000-000000000020';
@@ -33,11 +36,12 @@ function clickDeveloperButton(currentMessageKey:string){
     if(currentAccessDenied)throw new ApiError('DEVELOPER_FORBIDDEN','권한 없음',403);
     return {accountId:'test',targetScope:'SELF',assets:['CP','SP','P']};
    }
-   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',permitIssuers:[{cityId:'iseulon',issuerId:'meadow-guard-center'}],entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']},{category:'equipment',itemId:'iron-sword',nameTranslations:{ko:'철검',en:'Iron sword'},supportedOperations:['ADD','REMOVE']},{category:'traveler_permit',itemId:'city-traveler-permit',nameTranslations:{ko:'여행자증명서',en:'Traveler Certificate'},supportedOperations:['ADD','REMOVE']}]};
-   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:[...(currentPermitOwned?[{category:'traveler_permit',itemId:'city-traveler-permit',quantity:1,instanceId:currentPermitIdentifier,cityId:'iseulon',issuerId:'meadow-guard-center',expiresAt:604900}]:[]),...(currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[]),...(currentEquipmentOwned?[{category:'equipment',itemId:'iron-sword',quantity:1,instanceId:currentEquipmentIdentifier,instanceVersion:1,removable:true}]:[])],version:currentPermitReceipt?.version??currentEquipmentReceipt?.version??(currentItemReceipt?3:currentConfirmedReceipt?2:1),balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
-   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentPermitReceipt?[currentPermitReceipt]:currentEquipmentReceipt?[currentEquipmentReceipt]:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
+   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',productionRecipes:[{itemId:'leather-cord',nameTranslations:{ko:'가죽끈',en:'Leather cord'},itemLevels:[1,2],recipeVersion:'v1',usage:'material'}],permitIssuers:[{cityId:'iseulon',issuerId:'meadow-guard-center'}],entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']},{category:'equipment',itemId:'iron-sword',nameTranslations:{ko:'철검',en:'Iron sword'},supportedOperations:['ADD','REMOVE']},{category:'traveler_permit',itemId:'city-traveler-permit',nameTranslations:{ko:'여행자증명서',en:'Traveler Certificate'},supportedOperations:['ADD','REMOVE']}]};
+   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:[...(currentBatchQuantity?[{category:'production_batch',itemId:'leather-cord',quantity:currentBatchQuantity,batchId:currentBatchIdentifier,itemLevel:2}]:[]),...(currentPermitOwned?[{category:'traveler_permit',itemId:'city-traveler-permit',quantity:1,instanceId:currentPermitIdentifier,cityId:'iseulon',issuerId:'meadow-guard-center',expiresAt:604900}]:[]),...(currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[]),...(currentEquipmentOwned?[{category:'equipment',itemId:'iron-sword',quantity:1,instanceId:currentEquipmentIdentifier,instanceVersion:1,removable:true}]:[])],version:currentBatchReceipt?.version??currentPermitReceipt?.version??currentEquipmentReceipt?.version??(currentItemReceipt?3:currentConfirmedReceipt?2:1),balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
+   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentBatchReceipt?[currentBatchReceipt]:currentPermitReceipt?[currentPermitReceipt]:currentEquipmentReceipt?[currentEquipmentReceipt]:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
    if(currentRequestPath==='/v1/developer/adjustments'){
     currentPostRequestCount++;currentRequestPayloads.push(currentRequestPayload);
+    if(currentRequestPayload.category==='production_batch'){const currentPreviousQuantity=currentBatchQuantity;currentBatchQuantity+=currentRequestPayload.quantity*(currentRequestPayload.operation==='ADD'?1:-1);currentBatchReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:currentPreviousQuantity,after:currentBatchQuantity,batchId:currentBatchIdentifier,batch:{batchId:currentBatchIdentifier,productionResult:{productId:'leather-cord',itemLevel:2}},version:currentRequestPayload.expectedVersion+1,createdAt:104};return currentBatchReceipt;}
     if(currentRequestPayload.category==='traveler_permit'){currentPermitOwned=currentRequestPayload.operation==='ADD';currentPermitReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:currentPermitOwned?0:1,after:currentPermitOwned?1:0,instanceId:currentPermitIdentifier,permit:{characterId:'test',cityId:'iseulon',issuerId:'meadow-guard-center'},version:currentPermitOwned?6:7,createdAt:103};return currentPermitReceipt;}
     if(currentRequestPayload.category==='equipment'){currentEquipmentOwned=currentRequestPayload.operation==='ADD';currentEquipmentReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:currentEquipmentOwned?0:1,after:currentEquipmentOwned?1:0,instanceId:currentEquipmentIdentifier,instanceVersion:currentEquipmentOwned?1:2,version:currentEquipmentOwned?4:5,createdAt:102};return currentEquipmentReceipt;}
     if(currentRequestPayload.asset==='ITEM'){currentItemReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:0,after:1,version:3,createdAt:101};return currentItemReceipt;}
@@ -48,7 +52,7 @@ function clickDeveloperButton(currentMessageKey:string){
    }
    if(currentRequestPath==='/v1/game/state'){
     if(currentStateReadLost){currentStateReadLost=false;throw new Error('상태 조회 유실');}
-    return {...this.state,me:{...this.state.me,version:currentPermitReceipt?.version??currentEquipmentReceipt?.version??(currentItemReceipt?3:2),cp:11}};
+    return {...this.state,me:{...this.state.me,version:currentBatchReceipt?.version??currentPermitReceipt?.version??currentEquipmentReceipt?.version??(currentItemReceipt?3:2),cp:11}};
    }
    throw new Error('예상하지 않은 요청 '+currentRequestPath);
   }};
@@ -96,6 +100,21 @@ function clickDeveloperButton(currentMessageKey:string){
  assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'증서 선택 모바일 가로 넘침 없음');
  clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
  assertDeveloperBrowserState(!currentPermitOwned&&currentPermitReceipt.instanceId===currentPermitIdentifier&&!currentPermitReceipt.cityId,'선택한 증서 개체만 회수');
+ currentItemSelect.value='production_batch:leather-cord';currentItemSelect.dispatchEvent(new Event('change',{bubbles:true}));
+ currentOperationSelect.value='ADD';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ const currentLevelSelect=document.querySelectorAll('select')[2];currentLevelSelect.value='2';currentLevelSelect.dispatchEvent(new Event('change',{bubbles:true}));
+ const currentQuantityElement=document.querySelector('input[type=number]') as HTMLInputElement;currentQuantityElement.value='3';currentQuantityElement.dispatchEvent(new Event('input',{bubbles:true}));await waitForDeveloperRender();
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentBatchQuantity===3&&currentBatchReceipt.itemLevel===2&&currentBatchReceipt.expectedVersion===7,'선택한 레벨과 수량으로 생산 배치 지급');
+ currentOperationSelect.value='REMOVE';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ const currentBatchSelect=document.querySelectorAll('select')[2];currentBatchSelect.value=currentBatchIdentifier;currentBatchSelect.dispatchEvent(new Event('change',{bubbles:true}));
+ currentQuantityElement.value='1';currentQuantityElement.dispatchEvent(new Event('input',{bubbles:true}));await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentBatchSelect.selectedOptions[0].textContent!.includes('Lv.2 · 3'),'배치 레벨과 보유 수량 표시');
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentBatchQuantity===2&&currentBatchReceipt.batchId===currentBatchIdentifier&&currentBatchReceipt.itemLevel===undefined,'선택한 배치에서 일부 수량 회수');
+ currentQuantityElement.value='2';currentQuantityElement.dispatchEvent(new Event('input',{bubbles:true}));await waitForDeveloperRender();
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentBatchQuantity===0&&document.querySelectorAll('select')[2].options.length===1,'전량 회수 후 배치 선택 목록에서 제거');
  assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();
