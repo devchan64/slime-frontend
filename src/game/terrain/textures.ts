@@ -1,3 +1,4 @@
+import rampTreadPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png";
 import battleRockTypeASource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png";
 import battleRockTypeBSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-b-v1.png";
 import battleRockTypeCSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-c-v1.png";
@@ -48,6 +49,7 @@ export const UNIFIED_WOOD_WALL_TEXTURE = "unified-wood-wall-v2";
 export const STONEWARM_ROOF_TEXTURE = "stonewarm-stone-roof";
 export const STONEWARM_GUILD_ROOF_TEXTURE = "stonewarm-guild-red-stone-roof-v2";
 export const TERRAIN_ATLAS = "meadow-terrain";
+export const RAMP_TREAD_TEXTURE = "ramp-tread-surface-v1";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
 export const STONEWARM_PAVING_FRAME = "stonewarm-paving";
 export const STONEWARM_MARBLE_PAVING_FRAME = "stonewarm-marble-paving";
@@ -116,6 +118,7 @@ export function preloadTerrain(scene: Phaser.Scene) {
   scene.load.image(STONEWARM_ROOF_TEXTURE, stonewarmRoofImageSource);
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
   for (const specialSourceRecord of SPECIAL_TERRAIN_SOURCES) scene.load.image(`terrain-source-${specialSourceRecord.frame}`, specialSourceRecord.source);
+  scene.load.image(RAMP_TREAD_TEXTURE, rampTreadPatternSource);
   scene.load.image(CLIFF_WALL_TEXTURE, cliffWallPatternSource);
 }
 

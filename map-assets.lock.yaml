@@ -157,3 +157,6 @@ files:
 - path: assets/terrain/dry-ground-tree-stump-v1.png
   source_path: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   sha256: 5fb1da73cf457863f3886c35c5b87a7fb7db712600762010247dd16c58e92e6c
+- path: assets/terrain/ramp-earth-stone-wall-v1.png
+  source_path: assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
+  sha256: 7a5a0cb33ee79f4b482b4f60a71e5ac2fa6488381310c7728e47db091808db14

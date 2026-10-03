@@ -35,7 +35,7 @@ import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
 import { drawBlockStructure, drawCityPaving, type CityBuildingRegion } from "../terrain/blockStructureRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
-import { addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
+import { addRampWallPatterns, addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
 const COLORS = {
@@ -705,6 +705,7 @@ export class MainScene extends Phaser.Scene {
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
+        addRampWallPatterns(this,remember,elevationTile,this.viewSurface!,depth+TERRAIN_DEPTH.surface);
         return objects;
       }
       const sides=remember(this.add.graphics().setDepth(depth));

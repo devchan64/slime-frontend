@@ -10,7 +10,7 @@ export function rotateSurfacePosition(currentCellPosition:SurfacePosition,curren
 export function projectSurfaceVertex(currentVertexPosition:SurfacePosition & {height?:number},currentRenderOptions:RenderOptions):SurfacePoint;
 export function findSurfaceStair(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord):SurfaceStair|undefined;
 export function projectSurfaceCell(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions):SurfacePoint;
-export function buildSurfaceCliffs(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions):SurfacePoint[][];
+export function buildSurfaceCliffs(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions):Array<SurfacePoint[] & {rampWall?:boolean}>;
 export function buildSurfaceStairs(currentStairRecord:SurfaceStair,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions):{points:SurfacePoint[];top:boolean}[];
 export function containsSurfacePoint(currentScreenPoint:SurfacePoint,currentPolygonPoints:SurfacePoint[]):boolean;
 

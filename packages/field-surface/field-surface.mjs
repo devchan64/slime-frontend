@@ -1,5 +1,5 @@
 /** 게임과 검수가 함께 사용하는 고도·투영 계약. 엔진과 DOM에 의존하지 않는다. */
-export const FIELD_SURFACE_VERSION = '1.0.4';
+export const FIELD_SURFACE_VERSION = '1.0.5';
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:80,tileHeight:40,elevationHeight:32,baseThickness:16});
 const TERRAIN_STAIR_COUNT = 6;
 export function readSurfaceHeight(currentCellPosition,currentMapSurface){
@@ -30,10 +30,13 @@ export function buildSurfaceCliffs(currentCellPosition,currentMapSurface,current
   const currentNeighborOffset=rotateSurfacePosition(currentEdgeRecord.direction,-(currentRenderOptions.rotation??0));
   const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
   const currentNeighborInside=currentNeighborCell.column>=0&&currentNeighborCell.row>=0&&currentNeighborCell.column<currentMapSurface.columns&&currentNeighborCell.row<currentMapSurface.rows;
-  const currentHeightDrop=currentNeighborInside?(currentHeightValue-readSurfaceHeight(currentNeighborCell,currentMapSurface))*currentRenderOptions.elevationHeight:currentHeightValue*currentRenderOptions.elevationHeight+currentRenderOptions.baseThickness;
+  const currentNeighborStair=findSurfaceStair(currentNeighborCell,currentMapSurface);
+  const currentRampSideWall=Boolean(currentNeighborStair&&(currentNeighborOffset.column*(currentNeighborStair.cell.column-currentNeighborStair.lower.column)+currentNeighborOffset.row*(currentNeighborStair.cell.row-currentNeighborStair.lower.row))===0);
+  const currentNeighborHeight=readSurfaceHeight(currentNeighborCell,currentMapSurface)-(currentRampSideWall?1:0);
+  const currentHeightDrop=currentNeighborInside?(currentHeightValue-currentNeighborHeight)*currentRenderOptions.elevationHeight:currentHeightValue*currentRenderOptions.elevationHeight+currentRenderOptions.baseThickness;
   if(currentHeightDrop<=0)return [];
   const [currentFirstPoint,currentSecondPoint]=currentEdgeRecord.edge.map(([currentOffsetX,currentOffsetY])=>({x:currentCenterPoint.x+currentOffsetX,y:currentCenterPoint.y+currentOffsetY}));
-  return [[currentFirstPoint,currentSecondPoint,{x:currentSecondPoint.x,y:currentSecondPoint.y+currentHeightDrop},{x:currentFirstPoint.x,y:currentFirstPoint.y+currentHeightDrop}]];
+  return [Object.assign([currentFirstPoint,currentSecondPoint,{x:currentSecondPoint.x,y:currentSecondPoint.y+currentHeightDrop},{x:currentFirstPoint.x,y:currentFirstPoint.y+currentHeightDrop}],{rampWall:currentRampSideWall})];
  });
 }
 export function buildSurfaceStairs(currentStairRecord,currentMapSurface,currentRenderOptions){
