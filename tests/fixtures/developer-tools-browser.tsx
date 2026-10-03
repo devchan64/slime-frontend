@@ -121,5 +121,22 @@ function clickDeveloperButton(currentMessageKey:string){
  clickDeveloperButton('app.developerApply');await waitForDeveloperRender();clickDeveloperButton('app.developerProceed');await waitForDeveloperRender();
  assertDeveloperBrowserState(currentBatchQuantity===0&&document.querySelectorAll('select')[2].options.length===1,'전량 회수 후 배치 선택 목록에서 제거');
  assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
+ // 같은 계정·캐릭터라도 상태 세대가 바뀌면 지연된 재산 조회를 폐기한다.
+ render(null,currentRootElement);
+ let resolveDelayedInventory:(currentInventoryValue:unknown)=>void=()=>{};
+ const currentDelayedRequests:string[]=[];
+ const currentEpochClient:any={tokens:{user_id:'test'},state:{generation:1,epoch:1,me:{id:'test',mode:'FIELD'}},
+  request(currentRequestPath:string){
+   currentDelayedRequests.push(currentRequestPath);
+   if(currentRequestPath==='/v1/developer/capabilities')return Promise.resolve({accountId:'test',targetScope:'SELF'});
+   if(currentRequestPath==='/v1/developer/inventory')return new Promise(currentResolveCallback=>{resolveDelayedInventory=currentResolveCallback;});
+   throw new Error('이전 세대 조회가 후속 요청을 전송했습니다: '+currentRequestPath);
+  }};
+ render(<DeveloperToolsPanel gameSessionClient={currentEpochClient} actionsAreDisabled={false}/>,currentRootElement);await waitForDeveloperRender();
+ clickDeveloperButton('app.developerTitle');await waitForDeveloperRender();
+ currentEpochClient.state.epoch=2;
+ resolveDelayedInventory({characterId:'test',version:1,items:[],balances:{CP:99,SP:2,P:20}});await waitForDeveloperRender();
+ assertDeveloperBrowserState(!currentDelayedRequests.includes('/v1/developer/catalog'),'이전 epoch 재산 응답은 후속 카탈로그 조회 전에 폐기');
+ assertDeveloperBrowserState(!document.body.textContent!.includes('99'),'이전 epoch 잔액 미표시');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();
