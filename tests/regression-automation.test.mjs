@@ -13,7 +13,7 @@ for(const [currentSignalName,currentIgnoreSignal] of [['SIGTERM',false],['SIGINT
    await mkdir(join(currentTemporaryRoot,'scripts'));
    await copyFile(REGRESSION_RUNNER_SOURCE,join(currentTemporaryRoot,'scripts/run-regression.mjs'));
    await writeFile(join(currentTemporaryRoot,'scripts/check-locales.mjs'),`${currentIgnoreSignal?'process.on("SIGTERM",()=>{});':''}setTimeout(()=>process.exit(9),16000); setInterval(()=>{},1000); setTimeout(()=>process.kill(process.ppid,${JSON.stringify(currentSignalName)}),100);`);
-   const currentRunnerProcess=spawn(process.execPath,['scripts/run-regression.mjs','--with-checks','tests/example.test.mjs'],{cwd:currentTemporaryRoot,timeout:18000,killSignal:'SIGKILL',stdio:['ignore','pipe','pipe']});
+   const currentRunnerProcess=spawn(process.execPath,['scripts/run-regression.mjs','--with-checks','tests/example.test.mjs'],{cwd:currentTemporaryRoot,env:{...process.env,NODE_TEST_CONTEXT:undefined},timeout:18000,killSignal:'SIGKILL',stdio:['ignore','pipe','pipe']});
    let currentRunnerOutput='';
    currentRunnerProcess.stdout.on('data',currentOutputChunk=>{currentRunnerOutput+=currentOutputChunk;});
    currentRunnerProcess.stderr.on('data',currentOutputChunk=>{currentRunnerOutput+=currentOutputChunk;});
@@ -29,6 +29,7 @@ for(const [currentSignalName,currentIgnoreSignal] of [['SIGTERM',false],['SIGINT
    const currentResultRecord=JSON.parse(await readFile(join(currentResultDirectory,'result.json'),'utf8'));
    assert.equal(currentResultRecord.status,'FAILED');
    assert.equal(currentResultRecord.terminationSignal,currentSignalName);
+   assert.equal(currentResultRecord.summary,null,'중단된 사전 검사는 0건 통과로 표시하지 않는다');
    assert.equal(currentResultRecord.steps.length,1,'중단 후 다음 검사 단계를 실행하지 않는다');
    assert.equal(currentResultRecord.steps[0].signal,currentIgnoreSignal?'SIGKILL':currentSignalName);
    assert.equal(currentResultRecord.steps[0].exitCode,null);
@@ -44,13 +45,13 @@ for(const currentChecksEnabled of [false,true]){
    await mkdir(join(currentTemporaryRoot,'scripts'));
    await mkdir(join(currentTemporaryRoot,'tests'));
    await copyFile(REGRESSION_RUNNER_SOURCE,join(currentTemporaryRoot,'scripts/run-regression.mjs'));
-   await writeFile(join(currentTemporaryRoot,'tests/example.test.mjs'),'console.log("선택 검사 실행");');
+   await writeFile(join(currentTemporaryRoot,'tests/example.test.mjs'),'import {test} from "node:test";test("통과 사례",()=>console.log("성공 상세 로그"));test.skip("보류 사례",()=>{});');
    if(currentChecksEnabled){
     await writeFile(join(currentTemporaryRoot,'scripts/check-locales.mjs'),'console.log("번역 검사 실행");');
     await mkdir(join(currentTemporaryRoot,'node_modules/typescript/bin'),{recursive:true});
     await writeFile(join(currentTemporaryRoot,'node_modules/typescript/bin/tsc'),'console.log("타입 검사 실행");');
    }
-   const currentRunnerProcess=spawn(process.execPath,['scripts/run-regression.mjs',...(currentChecksEnabled?['--with-checks']:[]),'tests/example.test.mjs'],{cwd:currentTemporaryRoot,timeout:5000,stdio:'ignore'});
+   const currentRunnerProcess=spawn(process.execPath,['scripts/run-regression.mjs',...(currentChecksEnabled?['--with-checks']:[]),'tests/example.test.mjs'],{cwd:currentTemporaryRoot,env:{...process.env,NODE_TEST_CONTEXT:undefined},timeout:5000,stdio:'ignore'});
    const currentRunnerExit=await new Promise((currentResolveExit,currentRejectError)=>{
     currentRunnerProcess.once('error',currentRejectError);
     currentRunnerProcess.once('close',currentResolveExit);
@@ -61,6 +62,9 @@ for(const currentChecksEnabled of [false,true]){
    const currentResultRecord=JSON.parse(await readFile(join(currentOutputRoot,currentResultDirectory,'result.json'),'utf8'));
    assert.equal(currentResultRecord.status,'PASSED');
    assert.equal(currentResultRecord.checksIncluded,currentChecksEnabled);
+   assert.deepEqual(currentResultRecord.summary,{tests:2,pass:1,fail:0,cancelled:0,skipped:1,todo:0});
+   assert.ok((await readFile(currentResultRecord.junitPath,'utf8')).includes('</testsuites>'));
+   assert.ok(currentResultRecord.durationSeconds>=0);
    assert.deepEqual(currentResultRecord.steps.map(currentStepResult=>currentStepResult.command),[
     ...(currentChecksEnabled?[['scripts/check-locales.mjs'],['node_modules/typescript/bin/tsc','-b']]:[]),['--test','tests/example.test.mjs'],
    ]);

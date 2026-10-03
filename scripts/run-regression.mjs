@@ -5,6 +5,7 @@ import {createWriteStream} from 'node:fs';
 import {resolve} from 'node:path';
 import {constants} from 'node:os';
 const REGRESSION_TERMINATION_GRACE_MS=10000;
+const REGRESSION_FAILURE_OUTPUT_LIMIT=4000;
 const currentRunnerArguments=process.argv.slice(2);
 const currentChecksEnabled=currentRunnerArguments[0]==='--with-checks';
 const currentTestTargets=currentChecksEnabled?currentRunnerArguments.slice(1):currentRunnerArguments;
@@ -41,8 +42,11 @@ for(const [currentSignalName,currentSignalHandler] of currentSignalHandlers)proc
 for(const currentCommandArguments of currentCommandSteps){
  if(currentTerminationSignal)break;
  const currentStepStarted=performance.now();
- writeRegressionTrace('start',JSON.stringify(currentCommandArguments));
- const currentTestProcess=spawn(process.execPath,currentCommandArguments,{stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
+ const currentExecutionArguments=currentCommandArguments[0]==='--test'
+  ? ['--test','--test-reporter=tap','--test-reporter-destination=stdout','--test-reporter=junit',`--test-reporter-destination=${resolve(currentOutputDirectory,'junit.xml')}`,...currentCommandArguments.slice(1)]
+  : currentCommandArguments;
+ writeRegressionTrace('start',JSON.stringify(currentExecutionArguments));
+ const currentTestProcess=spawn(process.execPath,currentExecutionArguments,{stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  currentActiveProcess=currentTestProcess;
  currentTestProcess.stdout.pipe(currentLogStream,{end:false});currentTestProcess.stderr.pipe(currentLogStream,{end:false});
  const currentHeartbeatTimer=setInterval(()=>writeRegressionTrace('heartbeat',`경과 ${Math.round((Date.now()-currentStartTime.getTime())/1000)}초`),5000);
@@ -55,9 +59,31 @@ for(const currentCommandArguments of currentCommandSteps){
 if(currentTerminationSignal)currentExitCode=128+constants.signals[currentTerminationSignal];
 clearTimeout(currentTerminationTimer);
 await new Promise(currentResolve=>currentLogStream.end(currentResolve));
-await writeFile(resolve(currentOutputDirectory,'result.pending.json'),JSON.stringify({status:currentExitCode===0?'PASSED':'FAILED',exitCode:currentExitCode,terminationSignal:currentTerminationSignal,steps:currentStepResults,checksIncluded:currentChecksEnabled,targets:currentTestTargets,startedAt:currentStartTime.toISOString(),finishedAt:new Date().toISOString()},null,2)+'\n');
+const currentCompleteLog=await readFile(resolve(currentOutputDirectory,'run.log'),'utf8');
+const currentSummaryValues=Object.fromEntries(['tests','pass','fail','cancelled','skipped','todo'].map(currentSummaryName=>{
+ const currentSummaryMatches=[...currentCompleteLog.matchAll(new RegExp(`^# ${currentSummaryName} (\\d+)$`,'gm'))];
+ return [currentSummaryName,currentSummaryMatches.length===1?Number(currentSummaryMatches[0][1]):null];
+}));
+let currentReportAvailable=false;
+try{
+ const currentJunitReport=await readFile(resolve(currentOutputDirectory,'junit.xml'),'utf8');
+ currentReportAvailable=currentJunitReport.includes('<testsuites>')&&currentJunitReport.trimEnd().endsWith('</testsuites>');
+}catch(currentReportError){
+ if(currentReportError.code!=='ENOENT')currentReportAvailable=false;
+}
+const currentSummaryAvailable=currentReportAvailable&&Object.values(currentSummaryValues).every(currentSummaryValue=>Number.isSafeInteger(currentSummaryValue))
+ && currentSummaryValues.tests===currentSummaryValues.pass+currentSummaryValues.fail+currentSummaryValues.cancelled+currentSummaryValues.skipped+currentSummaryValues.todo;
+const currentTestSummary=currentSummaryAvailable?currentSummaryValues:null;
+const currentElapsedSeconds=(Date.now()-currentStartTime.getTime())/1000;
+await writeFile(resolve(currentOutputDirectory,'result.pending.json'),JSON.stringify({summary:currentTestSummary,durationSeconds:currentElapsedSeconds,junitPath:resolve(currentOutputDirectory,'junit.xml'),status:currentExitCode===0?'PASSED':'FAILED',exitCode:currentExitCode,terminationSignal:currentTerminationSignal,steps:currentStepResults,checksIncluded:currentChecksEnabled,targets:currentTestTargets,startedAt:currentStartTime.toISOString(),finishedAt:new Date().toISOString()},null,2)+'\n');
 await rename(resolve(currentOutputDirectory,'result.pending.json'),resolve(currentOutputDirectory,'result.json'));
 for(const [currentSignalName,currentSignalHandler] of currentSignalHandlers)process.removeListener(currentSignalName,currentSignalHandler);
-console.log(`자동 회귀검사 완료: ${currentOutputDirectory} (종료 코드 ${currentExitCode})`);
-if(currentExitCode!==0)console.error((await readFile(resolve(currentOutputDirectory,'run.log'),'utf8')).slice(-8192));
+const currentSummaryText=currentTestSummary
+ ? `통과 ${currentTestSummary.pass} · 실패 ${currentTestSummary.fail} · 오류/중단 ${currentTestSummary.cancelled} · 건너뜀 ${currentTestSummary.skipped} · 미완성 ${currentTestSummary.todo}`
+ : '집계 불가: 보고서 누락·손상 또는 검사 미완료';
+console.log(`${currentSummaryText} · 종료 코드 ${currentExitCode} · ${currentElapsedSeconds.toFixed(2)}초 · ${currentOutputDirectory}`);
+if(currentExitCode!==0){
+ const currentFailureDetails=[...currentCompleteLog.matchAll(/^\s*not ok [^\n]+(?:\n[ \t]+[^\n]*)*/gm)].map(currentFailureMatch=>currentFailureMatch[0].trim());
+ console.error((currentFailureDetails.join('\n')||'검사 실행기 또는 사전 검사 실패: 상세 원인은 run.log를 확인하세요.').slice(0,REGRESSION_FAILURE_OUTPUT_LIMIT));
+}
 process.exitCode=currentExitCode;

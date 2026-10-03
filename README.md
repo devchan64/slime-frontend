@@ -142,6 +142,8 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 
 ### 자동 회귀검사 종료 기록
 
+콘솔에는 통과·실패·오류/중단·건너뜀·미완성 수, 종료 코드, 총 시간과 결과 경로를 요약한다. 실패한 테스트의 식별자와 진단만 최대 4,000자로 출력하며 전체 로그는 `run.log`, Node JUnit 보고서는 `junit.xml`에 보존한다. `result.json`의 `summary`는 TAP 최종 집계와 JUnit 완료 확인을 거친 값이다. 사전 검사 중단이나 보고서 누락·불완전 집계는 `summary: null`과 집계 불가로 표시하고 원래 종료 코드를 유지한다.
+
 `node scripts/run-regression.mjs tests/<대상>.test.mjs`는 각 단계의 종료 코드·종료 신호·소요 시간(`durationMs`)을 `result.json`의 `steps`에 저장한다. `checksIncluded`는 번역·타입 검사 포함 여부다. 선택 검사 성공은 전체 검사·타입 검사 성공을 뜻하지 않는다. 실행기가 SIGTERM·SIGINT를 받으면 활성 검사에 전달하고 다음 단계는 시작하지 않는다. POSIX에서는 독립 검사 프로세스 그룹에 전달하며 Windows에서는 직접 자식 프로세스에 전달한다. 10초 유예를 넘으면 SIGKILL로 종료한다. 최종 상태는 FAILED, `exitCode`는 128+수신 신호 번호, `terminationSignal`은 수신 신호 이름이다. 결과는 임시 파일 작성 후 이름을 바꿔 확정한다. 실행기 자체의 SIGKILL·호스트 중단·파일시스템 장애에서는 최종 기록을 보장하지 않는다.
 
 
