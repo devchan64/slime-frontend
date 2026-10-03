@@ -8,6 +8,7 @@ import { useTranslation } from '../i18n';
 
 export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {gameSessionClient: Client; actionsAreDisabled: boolean}) {
   const {t: translateRewardText, locale: currentLocaleCode} = useTranslation();
+  const [selectedStorageCategory, setSelectedStorageCategory] = useState<'cards' | 'parcels' | 'rewards'>('cards');
   const [storedRewardPage, setStoredRewardPage] = useState<AccountRewardPage | null>(null);
   const [latestClaimSummary, setLatestClaimSummary] = useState<AccountRewardClaimSummary | null>(null);
   const [currentRewardNotice, setCurrentRewardNotice] = useState<Notice>('');
@@ -74,8 +75,18 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
   const rewardActionPending = isRewardLoading || claimedRewardIdentifier !== null;
   return <section aria-label={translateRewardText('rewards.title')}>
     <p>{translateRewardText('rewards.help')}</p>
+    <div class="account-storage-categories" role="group" aria-label={translateRewardText('rewards.title')}>
+      <button class="secondary" aria-pressed={selectedStorageCategory === 'cards'} aria-controls="account-storage-cards" onClick={() => setSelectedStorageCategory('cards')}>{translateRewardText('cards.storage')}</button>
+      <button class="secondary" aria-pressed={selectedStorageCategory === 'parcels'} aria-controls="account-storage-parcels" onClick={() => setSelectedStorageCategory('parcels')}>{translateRewardText('parcels.title')}</button>
+      <button class="secondary" aria-pressed={selectedStorageCategory === 'rewards'} aria-controls="account-storage-rewards" onClick={() => setSelectedStorageCategory('rewards')}>{translateRewardText('rewards.loanRewards')}</button>
+    </div>
+    <div id="account-storage-cards" hidden={selectedStorageCategory !== 'cards'}>
     <SkillCardPanel key={`${gameSessionClient.state?.me.id}:${gameSessionClient.state?.generation}:${gameSessionClient.state?.epoch}`} gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled || isRewardLoading || claimedRewardIdentifier!==null}/>
+    </div>
+    <div id="account-storage-parcels" hidden={selectedStorageCategory !== 'parcels'}>
     <ParcelPanel gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled || isRewardLoading || claimedRewardIdentifier!==null}/>
+    </div>
+    <div id="account-storage-rewards" hidden={selectedStorageCategory !== 'rewards'}>
     <h3>{translateRewardText('rewards.loanRewards')}</h3>
     <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage()}>{translateRewardText('rewards.refresh')}</button>
     <button disabled={actionsAreDisabled || rewardActionPending || !(storedRewardPage?.nextCursor || storedRewardPage?.entries.some(storedRewardEntry => rewardRemainingSeconds(storedRewardEntry.expiresAt, storedRewardPage.serverTime, rewardClockValue - rewardClockAnchor.current) > 0))} onClick={() => void claimAllStoredRewards()}>{translateRewardText(claimedRewardIdentifier === 'all' ? 'rewards.claiming' : 'rewards.claimAll')}</button>
@@ -96,5 +107,6 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
       </li>;
     })}</ul>
     {storedRewardPage?.nextCursor && <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage(storedRewardPage.nextCursor!)}>{translateRewardText('rewards.more')}</button>}
+    </div>
   </section>;
 }

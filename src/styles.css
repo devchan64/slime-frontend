@@ -1516,3 +1516,7 @@ header .message-notice-button:hover, header .message-notice-button.has-notices {
 .message-notice-badge { position: absolute; top: -6px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--brand-primary); color: var(--brand-ink); border: 2px solid #081f23; font-size: 10px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
 .message-notice-error { position: absolute; bottom: -4px; right: -4px; padding: 0 5px; border-radius: 8px; background: #edbf70; color: #081f23; font-size: 11px; font-weight: 800; }
 .message-notice-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.account-storage-categories { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.account-storage-categories button { flex: 1 1 140px; width: auto; }
+.account-storage-categories button[aria-pressed="true"] { border-color: var(--brand-primary); color: var(--brand-primary); }
