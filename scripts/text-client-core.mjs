@@ -352,6 +352,17 @@ export class TextClient {
         throw new Error('보관함에서 표시한 다음커서 UUID를 입력하세요.');
       return formatAccountRewardPage(await this.request('/v1/accounts/me/rewards' + (args.length ? '?after=' + encodeURIComponent(args[0]) : '')));
     }
+    if (name === 'achievements') {
+      if (args.length > 1 || args.length === 1 && !/^[a-z][a-z0-9_]*$/.test(args[0]))
+        throw new Error('achievements [시즌ID]를 입력하세요.');
+      const currentRequestTokens = this.tokens;
+      const currentProgressResponse = await this.request('/v1/characters/me/achievements');
+      this.requireAuthenticationContext(currentRequestTokens);
+      const currentCatalogResponse = !args.length || args[0] === currentProgressResponse.seasonId
+        ? await this.request('/v1/achievements') : undefined;
+      this.requireAuthenticationContext(currentRequestTokens);
+      return formatAchievementRecords(currentProgressResponse, currentCatalogResponse, args[0]);
+    }
     if (name === 'hunts') {
       if (args.length > 1 || args.length === 1 && (!/^\d+$/.test(args[0]) || !Number.isSafeInteger(Number(args[0]))))
         throw new Error('hunts 또는 hunts 다음커서(0 이상의 정수)를 입력하세요.');
@@ -793,4 +804,58 @@ export function formatAccountRewardPage(receivedRewardPage) {
   if (receivedRewardPage.nextCursor) renderedRewardLines.push('다음 페이지: rewards ' + receivedRewardPage.nextCursor);
   renderedRewardLines.push('전체 페이지의 유효 보상 수령: rewards claim-all');
   return renderedRewardLines.join('\n');
+}
+
+
+export function formatAchievementRecords(currentProgressResponse, currentCatalogResponse, requestedSeasonIdentifier) {
+  const invalidAchievementMessage = '업적 응답 형식이 올바르지 않습니다.';
+  const isAchievementRecord = currentRecordValue => currentRecordValue && typeof currentRecordValue === 'object' && !Array.isArray(currentRecordValue);
+  const renderAchievementText = currentTextValue => {
+    if (typeof currentTextValue !== 'string' || !currentTextValue.trim()) throw new Error(invalidAchievementMessage);
+    return currentTextValue.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ');
+  };
+  if (!isAchievementRecord(currentProgressResponse) || typeof currentProgressResponse.seasonId !== 'string'
+      || ![currentProgressResponse.cp,currentProgressResponse.sp].every(currentPointValue => Number.isSafeInteger(currentPointValue) && currentPointValue >= 0))
+    throw new Error(invalidAchievementMessage);
+  const currentHistoryRecords = currentProgressResponse.history ?? {};
+  if (!isAchievementRecord(currentHistoryRecords)) throw new Error(invalidAchievementMessage);
+  const currentSelectedSeason = requestedSeasonIdentifier ?? currentProgressResponse.seasonId;
+  const currentArchiveSelected = currentSelectedSeason !== currentProgressResponse.seasonId;
+  if (currentArchiveSelected && !Object.hasOwn(currentHistoryRecords,currentSelectedSeason)) throw new Error('보존된 시즌 업적이 없습니다.');
+  const currentSelectedRecord = currentArchiveSelected ? currentHistoryRecords[currentSelectedSeason] : currentProgressResponse;
+  if (!isAchievementRecord(currentSelectedRecord) || !isAchievementRecord(currentSelectedRecord.achievements)
+      || currentArchiveSelected && !isAchievementRecord(currentSelectedRecord.seasonalAchievements)) throw new Error(invalidAchievementMessage);
+  const currentCatalogRecords = currentArchiveSelected ? currentSelectedRecord.catalog : currentCatalogResponse?.achievements;
+  if (!isAchievementRecord(currentCatalogRecords)) throw new Error(invalidAchievementMessage);
+  const currentProgressRecords = currentArchiveSelected
+    ? {...currentSelectedRecord.achievements,...currentSelectedRecord.seasonalAchievements} : currentSelectedRecord.achievements;
+  const currentOutputLines = ['현재 잔고: '+currentProgressResponse.cp+' CP · '+currentProgressResponse.sp+' SP',
+    '조회 시즌: '+renderAchievementText(currentSelectedSeason),
+    ...(currentArchiveSelected ? ['이전 시즌 기록입니다. 보상은 다시 지급되지 않습니다.'] : [])];
+  for (const [currentAchievementIdentifier,currentDefinitionRecord] of Object.entries(currentCatalogRecords)) {
+    if (!isAchievementRecord(currentDefinitionRecord) || !isAchievementRecord(currentDefinitionRecord.checklist)) throw new Error(invalidAchievementMessage);
+    const currentAchievementProgress = currentProgressRecords[currentAchievementIdentifier];
+    if (currentAchievementProgress !== undefined && (!isAchievementRecord(currentAchievementProgress) || !isAchievementRecord(currentAchievementProgress.checklist))) throw new Error(invalidAchievementMessage);
+    currentOutputLines.push(renderAchievementText(currentDefinitionRecord.translations?.ko?.name ?? currentDefinitionRecord.name)
+      +' · '+(currentAchievementProgress?.completedAt != null ? '완료' : '진행 중'));
+    for (const [currentCriterionIdentifier,currentCriterionRecord] of Object.entries(currentDefinitionRecord.checklist)) {
+      const currentProgressCount = currentAchievementProgress?.checklist[currentCriterionIdentifier]?.count ?? 0;
+      if (!isAchievementRecord(currentCriterionRecord) || !Number.isSafeInteger(currentCriterionRecord.target) || currentCriterionRecord.target < 1
+          || !Number.isSafeInteger(currentProgressCount) || currentProgressCount < 0) throw new Error(invalidAchievementMessage);
+      currentOutputLines.push('  '+renderAchievementText(currentCriterionRecord.translations?.ko?.description ?? currentCriterionRecord.description)
+        +' · '+currentProgressCount+'/'+currentCriterionRecord.target);
+    }
+  }
+  currentOutputLines.push('지급 이력:');
+  for (const [currentCurrencyName,currentLedgerField] of [['CP','cpLedger'],['SP','spLedger']]) {
+    if (!Array.isArray(currentSelectedRecord[currentLedgerField])) throw new Error(invalidAchievementMessage);
+    for (const currentRewardRecord of currentSelectedRecord[currentLedgerField]) {
+      if (!isAchievementRecord(currentRewardRecord) || !Number.isSafeInteger(currentRewardRecord.amount) || currentRewardRecord.amount < 1) throw new Error(invalidAchievementMessage);
+      const currentRewardDefinition = currentCatalogRecords[currentRewardRecord.achievementId];
+      currentOutputLines.push(renderAchievementText(currentRewardDefinition?.translations?.ko?.name ?? currentRewardDefinition?.name ?? currentRewardRecord.achievementId)
+        +' +'+currentRewardRecord.amount+' '+currentCurrencyName);
+    }
+  }
+  currentOutputLines.push('보존 시즌: '+(Object.keys(currentHistoryRecords).map(renderAchievementText).join(', ') || '없음'));
+  return currentOutputLines.join('\n');
 }

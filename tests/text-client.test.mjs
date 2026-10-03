@@ -921,3 +921,29 @@ test('텍스트 가방은 수집품과 정제 재료를 표시하고 정제 등�
     {...currentRefinedItem,useAction:{type:'RESTORE_HP',restorationHp:1,consumedOnSuccess:1}},
   ]) assert.throws(()=>formatCharacterBag({items:[currentInvalidItem]}), /가방 응답 형식/);
 });
+
+test('업적 명령은 현재·과거 정의와 지급 이력을 읽기 전용으로 구분한다', async () => {
+  const currentDefinitionRecord={name:'현재 업적',checklist:{use:{description:'현재 사용',target:10}}};
+  const currentPastDefinition={name:'과거 업적',checklist:{use:{description:'과거 사용',target:100}}};
+  const currentProgressResponse={seasonId:'new',cp:10,sp:2,achievements:{current:{completedAt:null,checklist:{use:{count:3}}}},cpLedger:[],spLedger:[],
+    history:{old:{catalog:{past:currentPastDefinition},achievements:{past:{completedAt:1,checklist:{use:{count:100}}}},seasonalAchievements:{},
+      cpLedger:[{achievementId:'past',amount:1}],spLedger:[{achievementId:'past',amount:1}]}}};
+  const currentOriginalResponse=JSON.stringify(currentProgressResponse);
+  const {client:currentTextClient,calls:currentRecordedCalls}=setup([currentProgressResponse,{achievements:{current:currentDefinitionRecord}},currentProgressResponse,currentProgressResponse]);
+  const currentRenderedText=await currentTextClient.execute('achievements');
+  assert.match(currentRenderedText,/현재 업적.*진행 중/);
+  assert.match(currentRenderedText,/3\/10/);
+  const currentArchivedText=await currentTextClient.execute('achievements old');
+  assert.match(currentArchivedText,/현재 잔고: 10 CP · 2 SP/);
+  assert.match(currentArchivedText,/과거 업적.*완료/);
+  assert.match(currentArchivedText,/100\/100/);
+  assert.match(currentArchivedText,/과거 업적 \+1 CP/);
+  assert.match(currentArchivedText,/과거 업적 \+1 SP/);
+  assert.match(currentArchivedText,/보상은 다시 지급되지 않습니다/);
+  assert.doesNotMatch(currentArchivedText,/현재 업적/);
+  await assert.rejects(currentTextClient.execute('achievements missing'),/보존된 시즌/);
+  await assert.rejects(currentTextClient.execute('achievements old extra'),/시즌ID/);
+  assert.equal(JSON.stringify(currentProgressResponse),currentOriginalResponse);
+  assert.ok(currentRecordedCalls.every(currentRequestRecord=>currentRequestRecord.method==='GET'&&currentRequestRecord.body===undefined));
+  assert.equal(currentRecordedCalls.filter(currentRequestRecord=>currentRequestRecord.url.endsWith('/v1/achievements')).length,1);
+});

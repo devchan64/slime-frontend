@@ -76,6 +76,7 @@ journal                메인 의뢰 기록 조회
 rewards [다음커서]      계정 보관함 조회 (claim-all: 전체 수령)
 substitute list        대체 사냥 대상·비용 조회
 substitute run 조우ID   대체 사냥 실행
+achievements [시즌ID]   현재 또는 이전 시즌 업적·지급 이력 조회
 hunts [다음커서]        본인 사냥 기록·종류별 누적 수량
 party list              과거 파티 기록 조회 (정리 호환)
 party leave             탈퇴

@@ -158,3 +158,5 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 ### 소포 알림 클라이언트
 
 로그인한 캐릭터의 전역 알림 컴포넌트는 `GET /v1/game/parcels/notice`를 최초 렌더와 응답 완료 후 15초 간격으로 조회한다. 백엔드 해당 API를 먼저 배포한다. 텍스트 클라이언트는 `parcels notice`로 같은 조회를 제공한다. 검증은 `node scripts/run-regression.mjs tests/parcel-notice.test.mjs tests/parcel-notice-browser.test.mjs tests/parcel-panel-browser.test.mjs`로 실행한다.
+
+텍스트 클라이언트의 `achievements`는 현재 업적 진행도·CP/SP 지급 이력과 보존 시즌 ID를 조회한다. `achievements <시즌ID>`는 해당 시즌의 보존 정의·진행도·지급 이력을 표시한다. 현재 잔고는 별도로 표시하며 조회는 보상을 지급하지 않는다. 두 명령은 기존 `/v1/characters/me/achievements`와 `/v1/achievements`의 GET 계약을 사용한다.
