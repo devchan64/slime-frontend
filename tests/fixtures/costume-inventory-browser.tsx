@@ -1,4 +1,5 @@
 import {render} from 'preact';
+import {act} from 'preact/test-utils';
 import {CostumeInventoryPanel} from '../../src/ui/CostumeInventoryPanel';
 import {parseCostumeInventory} from '../../src/client/costumeInventory';
 import {t,setLocale} from '../../src/i18n';
@@ -22,7 +23,7 @@ const currentClientStub:any={tokens:{user_id:'account'},state:{generation:1,epoc
 async function clickCostumeRefresh(){const currentRefreshButton=document.querySelector('button')!;assertCostumeInventory(!currentRefreshButton.disabled,'조회 버튼 사용 가능');currentRefreshButton.click();await currentWaitRender();}
 (async()=>{try{
  setLocale(location.hash==='#en'?'en':'ko');
- render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
+ await act(()=>{render(<CostumeInventoryPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);});
  await currentWaitRender();await clickCostumeRefresh();
  assertCostumeInventory(document.body.textContent!.includes(t('wardrobe.empty')),'빈 소유 목록 안내');
  currentResponseData.entries=[currentOwnedEntry];await clickCostumeRefresh();
