@@ -13,7 +13,6 @@ import {executeEquipmentCommand} from './text-equipment-commands.mjs';
 import {executeWorkshopCommand} from './text-workshop-commands.mjs';
 import {executeConsumableCommand} from './text-consumable-commands.mjs';
 import {executeSkillCardCommand} from './text-skill-card-commands.mjs';
-import {executeSkillbookCommand} from './text-skillbook-commands.mjs';
 import {executeSubstituteHuntCommand} from './text-substitute-hunts.mjs';
 import {executeParcelCommand} from './text-parcel-commands.mjs';
 import {executeCostumeReadCommand} from './text-costume-catalog.mjs';
@@ -219,7 +218,6 @@ export class TextClient {
       &&!(name==='workshop'&&['catalog','contracts'].includes(args[1]))
       &&!(name==='consumables'&&['catalog','contracts'].includes(args[0]))
       &&!(name==='cards'&&['list','shop'].includes(args[0]))
-      &&!(name==='books'&&['list','shop'].includes(args[0]))
       &&!(name==='materials'&&args[0]==='list'))throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const battle = (type, extra = {}) => {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
@@ -231,7 +229,7 @@ export class TextClient {
     if (name === 'workshop') return executeWorkshopCommand(this,args);
     if (name === 'consumables') return executeConsumableCommand(this,args);
     if (name === 'cards') return executeSkillCardCommand(this,args);
-    if (name === 'books') return executeSkillbookCommand(this,args);
+    if (name === 'books') throw new Error('스킬북 기능은 종료되었습니다. cards list / cards shop / cards buy / cards use를 이용하세요.');
     if (name === 'substitute') return executeSubstituteHuntCommand(this,args);
     if (name === 'parcels') return executeParcelCommand(this,args);
     if(name==='rewards'&&args[0]==='parcels')return executeParcelCommand(this,args.slice(1));

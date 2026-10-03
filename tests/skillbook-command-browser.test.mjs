@@ -9,7 +9,7 @@ const CURRENT_BROWSER_PATH=process.env.CHROME_BIN || '/usr/bin/google-chrome';
 const CURRENT_RUN_TIMESTAMP=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()).replace(' ','_').replaceAll(':','-');
 const CURRENT_OUTPUT_ROOT=resolve('.tmp/test/skillbook-command-browser',CURRENT_RUN_TIMESTAMP);
 
-test('Chrome에서 스킬북 구매·열람 영수증 검증을 확인한다',async()=>{
+test('Chrome에서 스킬카드 구매·소비와 영수증 복구을 확인한다',async()=>{
  await mkdir(CURRENT_OUTPUT_ROOT,{recursive:true});
  const currentHeartbeatTimer=setInterval(()=>console.log(`${new Date().toISOString()}/test/skillbook-command-browser ${CURRENT_OUTPUT_ROOT}`),5000);
  try {

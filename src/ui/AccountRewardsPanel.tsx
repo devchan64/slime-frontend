@@ -74,7 +74,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
   const rewardActionPending = isRewardLoading || claimedRewardIdentifier !== null;
   return <section aria-label={translateRewardText('rewards.title')}>
     <p>{translateRewardText('rewards.help')}</p>
-    <SkillCardPanel gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled || isRewardLoading || claimedRewardIdentifier!==null}/>
+    <SkillCardPanel key={`${gameSessionClient.state?.me.id}:${gameSessionClient.state?.generation}:${gameSessionClient.state?.epoch}`} gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled || isRewardLoading || claimedRewardIdentifier!==null}/>
     <ParcelPanel gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled || isRewardLoading || claimedRewardIdentifier!==null}/>
     <h3>{translateRewardText('rewards.loanRewards')}</h3>
     <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage()}>{translateRewardText('rewards.refresh')}</button>
