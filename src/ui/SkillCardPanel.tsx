@@ -65,12 +65,17 @@ export function SkillCardPanel({gameSessionClient,currentFacilityIdentifier,acti
   }
  }
  useEffect(()=>{currentActiveReference.current=true;void loadCurrentCardInventory();return()=>{currentActiveReference.current=false;};},[]);
+ const currentCharacterState=gameSessionClient.state;
+ const currentCardActionBlocked=currentCharacterState?.me.mode!=='FIELD'||!!currentCharacterState.me.battleId||!!currentCharacterState.battle||!!currentCharacterState.reservation;
  const currentActionsDisabled=!allowsCardMutationRequest()||currentRequestPending||currentUncertainRequest;
  return <section class="bag-panel" aria-label={translateCardText(currentFacilityIdentifier?'cards.shop':'cards.storage')}>
   <h3>{translateCardText(currentFacilityIdentifier?'cards.shop':'cards.storage')}</h3><p>{translateCardText('cards.policy')}</p>
+  {currentCardActionBlocked&&<p>{translateCardText('cards.fieldRequired')}</p>}
+  {!currentCardActionBlocked&&actionsAreDisabled&&<p>{translateCardText('cards.waitForConnection')}</p>}
   <button class="secondary compact" disabled={currentRequestPending||currentUncertainRequest} onClick={()=>void loadCurrentCardInventory()}>{translateCardText('cards.refresh')}</button>
   {currentCardInventory&&<ul class="bag-items">{currentFacilityIdentifier?currentCardInventory.catalog?.map(currentCardEntry=><li key={currentCardEntry.cardId}>
    <strong>{currentCardEntry.nameTranslations[currentCardLocale]}</strong><p>{translateCardText('cards.literacy',{level:currentCardEntry.literacyRequired})}</p>
+   {!currentCardEntry.learned&&!currentCardEntry.owned&&(gameSessionClient.state?.me.coins??0)<currentCardEntry.priceP&&<p>{translateCardText('cards.insufficientFunds')}</p>}
    {currentCardEntry.learned?<span>{translateCardText('cards.learned')}</span>:currentCardEntry.owned?<span>{translateCardText('cards.owned')}</span>:
     <button disabled={currentActionsDisabled||(gameSessionClient.state?.me.coins??0)<currentCardEntry.priceP} onClick={()=>void executeCurrentCardRequest({
      path:`/v1/game/bookshops/${encodeURIComponent(currentFacilityIdentifier)}/skill-card-purchases`,grantsSkill:currentCardEntry.grantsSkill,
