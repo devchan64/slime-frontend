@@ -1,4 +1,5 @@
 import {render} from 'preact';
+import {act} from 'preact/test-utils';
 import {SkillCardPanel} from '../../src/ui/SkillCardPanel';
 import {setLocale,t} from '../../src/i18n';
 const currentAssertionsList:string[]=[];
@@ -50,7 +51,7 @@ async function verifySkillCardFlow(){
    return {receipt:currentUseReceipt,state:currentReturnedState};
   }};
  render(null,document.getElementById('root')!);
- render(<SkillCardPanel gameSessionClient={currentCardClient} currentFacilityIdentifier="iseulon-bookshop" actionsAreDisabled={false}/>,document.getElementById('root')!);
+ await act(()=>{render(<SkillCardPanel gameSessionClient={currentCardClient} currentFacilityIdentifier="iseulon-bookshop" actionsAreDisabled={false}/>,document.getElementById('root')!);});
  await waitBookPanelRender();
  await clickBookPanelButton(t('cards.buy',{price:100}));
  assertBookCommandResult(!('monster_dissection' in currentCardClient.state.me.skills),'문해 부족 상태에서도 구매 가능하며 자동 습득하지 않음');
@@ -59,7 +60,7 @@ async function verifySkillCardFlow(){
  assertBookCommandResult(JSON.stringify(currentCardRequests[0])===JSON.stringify(currentCardRequests[1]),'구매 응답 유실 후 동일 요청 복구');
  assertBookCommandResult(document.body.textContent!.includes(t('cards.owned')),'구매 카드를 보관함으로 안내');
  render(null,document.getElementById('root')!);
- render(<SkillCardPanel gameSessionClient={currentCardClient} actionsAreDisabled={false}/>,document.getElementById('root')!);
+ await act(()=>{render(<SkillCardPanel gameSessionClient={currentCardClient} actionsAreDisabled={false}/>,document.getElementById('root')!);});
  await waitBookPanelRender();
  assertBookCommandResult([...document.querySelectorAll('button')].some(currentButtonEntry=>currentButtonEntry.textContent===t('cards.use')&&currentButtonEntry.disabled),'문해 부족 카드 사용 비활성');
  currentCardClient.state.me.skills.literacy=1;
