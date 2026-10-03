@@ -15,6 +15,7 @@ const HALF = 0.5;
 const SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.54, height: 0.24, coreAlpha: 0.24, coreScale: 0.65 };
 const HUMAN_CONTACT_SHADOW = { width: 0.32, height: 0.12 };
 const FIELD_CHARACTER_SHADOW_SCALE = 1.3;
+const FIELD_CHARACTER_SHADOW_OPACITY_SCALE = 1.5;
 const MONSTER_RING = { alpha: 0.45, width: 1 };
 const SPRITE_DEPTH_OFFSET = 0.01;
 const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 3, radius: 7, rise: 18, spread: 21 };
@@ -55,12 +56,14 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
   // 그림자는 점유 타일 수가 아닌 중형 대비 외형 비율을 따른다.
-  const currentShadowScale = ratio * (kind === "human" && actorFieldShadowEnabled ? FIELD_CHARACTER_SHADOW_SCALE : 1);
+  const fieldCharacterShadowActive = kind === "human" && actorFieldShadowEnabled;
+  const currentShadowScale = ratio * (fieldCharacterShadowActive ? FIELD_CHARACTER_SHADOW_SCALE : 1);
+  const currentShadowOpacityScale = fieldCharacterShadowActive ? FIELD_CHARACTER_SHADOW_OPACITY_SCALE : 1;
   const contactShadowWidth = TILE_W * (kind === "human" ? HUMAN_CONTACT_SHADOW.width : SHADOW.width) * currentShadowScale;
   const contactShadowHeight = TILE_H * (kind === "human" ? HUMAN_CONTACT_SHADOW.height : SHADOW.height) * currentShadowScale;
-  g.fillStyle(SHADOW.color, SHADOW.alpha);
+  g.fillStyle(SHADOW.color, SHADOW.alpha * currentShadowOpacityScale);
   g.fillEllipse(x, y, contactShadowWidth, contactShadowHeight);
-  g.fillStyle(SHADOW.color, SHADOW.coreAlpha);
+  g.fillStyle(SHADOW.color, SHADOW.coreAlpha * currentShadowOpacityScale);
   g.fillEllipse(x, y, contactShadowWidth * SHADOW.coreScale, contactShadowHeight * SHADOW.coreScale);
   if (kind !== "human") {
     g.lineStyle(MONSTER_RING.width, color, MONSTER_RING.alpha);
