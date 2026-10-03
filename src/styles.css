@@ -1520,3 +1520,7 @@ header .message-notice-button:hover, header .message-notice-button.has-notices {
 .account-storage-categories { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .account-storage-categories button { flex: 1 1 140px; width: auto; }
 .account-storage-categories button[aria-pressed="true"] { border-color: var(--brand-primary); color: var(--brand-primary); }
+
+.record-page-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block: 12px; }
+.record-page-navigation button { flex: 1 1 120px; width: auto; }
+.record-page-navigation [role="status"] { white-space: nowrap; }

@@ -7,6 +7,7 @@ import {getLocale,useTranslation} from '../i18n';
 export function TimedEventJournal({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
  const {t:translateTimedText,locale:currentDisplayLocale}=useTranslation();
  const [currentPanelOpen,setCurrentPanelOpen]=useState(false);
+ const [journalPageOffsetHistory,setJournalPageOffsetHistory]=useState<number[]>([0]);
  const [currentJournalPage,setCurrentJournalPage]=useState<TimedEventPage|null>(null);
  const [currentRequestBusy,setCurrentRequestBusy]=useState(false);
  const [currentRequestError,setCurrentRequestError]=useState<Error|null>(null);
@@ -14,13 +15,14 @@ export function TimedEventJournal({gameSessionClient,actionsAreDisabled}:{gameSe
  const currentComponentAlive=useRef(false);
  const currentOriginalSession=useRef([gameSessionClient.tokens?.user_id,gameSessionClient.state?.me.id,gameSessionClient.state?.generation]);
  function matchesTimedJournalSession(){return currentComponentAlive.current&&JSON.stringify(currentOriginalSession.current)===JSON.stringify([gameSessionClient.tokens?.user_id,gameSessionClient.state?.me.id,gameSessionClient.state?.generation]);}
- async function loadTimedJournalPage(currentPageOffset=0){
+ async function loadTimedJournalPage(requestedOffsetHistory:number[]=[0]){
   if(currentRequestActive.current||!matchesTimedJournalSession())return;
   const currentRequestedLocale=getLocale();currentRequestActive.current=true;setCurrentRequestBusy(true);setCurrentRequestError(null);
   try{
+   const currentPageOffset=requestedOffsetHistory[requestedOffsetHistory.length-1];
    const currentReceivedPage=parseTimedEventPage(await gameSessionClient.request(`/v1/game/timed-events?language=${currentRequestedLocale}&offset=${currentPageOffset}`));
    if(currentReceivedPage.npc!==null)throw new Error('개인 기간 의뢰 기록이 아닙니다.');
-   if(matchesTimedJournalSession()&&currentRequestedLocale===getLocale())setCurrentJournalPage(currentReceivedPage);
+   if(matchesTimedJournalSession()&&currentRequestedLocale===getLocale()){setCurrentJournalPage(currentReceivedPage);setJournalPageOffsetHistory(requestedOffsetHistory);}
   }catch(currentFailure){if(matchesTimedJournalSession())setCurrentRequestError(currentFailure as Error);}
   finally{currentRequestActive.current=false;if(matchesTimedJournalSession()){setCurrentRequestBusy(false);if(currentRequestedLocale!==getLocale())void loadTimedJournalPage();}}
  }
@@ -40,7 +42,11 @@ export function TimedEventJournal({gameSessionClient,actionsAreDisabled}:{gameSe
     {currentQuestEntry.items.map(currentItemEntry=><p key={currentItemEntry.itemId}>{translateTimedText('journal.material',{name:currentItemEntry.nameTranslations[currentDisplayLocale],owned:currentItemEntry.owned,required:currentItemEntry.required})}</p>)}
     {currentQuestEntry.status!=='EXPIRED'&&<p>{translateTimedText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>}
    </li>)}</ul>
-   {currentJournalPage?.nextOffset!==null&&currentJournalPage&&<button disabled={actionsAreDisabled||currentRequestBusy} onClick={()=>void loadTimedJournalPage(currentJournalPage.nextOffset!)}>{translateTimedText('timedquests.next')}</button>}
+   {currentJournalPage&&<nav class="record-page-navigation" aria-label={translateTimedText('timedquests.pagination')}>
+    <button disabled={actionsAreDisabled||currentRequestBusy||journalPageOffsetHistory.length<=1} onClick={()=>void loadTimedJournalPage(journalPageOffsetHistory.slice(0,-1))}>{translateTimedText('timedquests.previous')}</button>
+    <span role="status">{translateTimedText('timedquests.page',{page:journalPageOffsetHistory.length})}</span>
+    <button disabled={actionsAreDisabled||currentRequestBusy||currentJournalPage.nextOffset===null} onClick={()=>void loadTimedJournalPage([...journalPageOffsetHistory,currentJournalPage.nextOffset!])}>{translateTimedText('timedquests.next')}</button>
+   </nav>}
   </div>}
  </section>;
 }

@@ -8,3 +8,7 @@ deliverBefore: 'Deliver before: {time}'
 randomDeadline: Deliver within 24 hours after accepting.
 seasonDeadline: 'Delivery deadline after acceptance: {time}'
 next: Next records
+
+pagination: Timed quest journal pages
+previous: Previous records
+page: "Page {page}"

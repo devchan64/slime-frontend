@@ -78,7 +78,7 @@ export function ParcelPanel({gameSessionClient,actionsAreDisabled}:{gameSessionC
    {currentParcelEntry.expiresAt<=currentDisplayTime&&<p>{translateParcelText('parcels.expired')}</p>}
    <button class="compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||currentParcelEntry.expiresAt<=currentDisplayTime} onClick={()=>void claimParcelEntry(currentParcelEntry.parcelId)}>{translateParcelText('parcels.claim')}</button>
   </article>)}
-  {currentParcelListing&&<nav class="account-storage-categories" aria-label={translateParcelText('parcels.pagination')}>
+  {currentParcelListing&&<nav class="record-page-navigation" aria-label={translateParcelText('parcels.pagination')}>
    <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||parcelPageCursorHistory.length<=1} onClick={()=>void loadParcelListing(parcelPageCursorHistory.slice(0,-1))}>{translateParcelText('parcels.previous')}</button>
    <span role="status">{translateParcelText('parcels.page',{page:parcelPageCursorHistory.length})}</span>
    <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||!currentParcelListing.nextCursor} onClick={()=>void loadParcelListing([...parcelPageCursorHistory,currentParcelListing.nextCursor])}>{translateParcelText('parcels.next')}</button>

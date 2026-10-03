@@ -111,7 +111,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled, init
         <button disabled={actionsAreDisabled || rewardActionPending || remainingRewardSeconds <= 0} onClick={() => void claimStoredReward(storedRewardEntry.id)}>{translateRewardText(claimedRewardIdentifier === storedRewardEntry.id ? 'rewards.claiming' : 'rewards.claim')}</button>
       </li>;
     })}</ul>
-    {storedRewardPage && <nav class="account-storage-categories" aria-label={translateRewardText('rewards.pagination')}>
+    {storedRewardPage && <nav class="record-page-navigation" aria-label={translateRewardText('rewards.pagination')}>
       <button class="secondary" disabled={actionsAreDisabled || rewardActionPending || rewardPageCursorHistory.length <= 1} onClick={() => void loadRewardPage(rewardPageCursorHistory.slice(0, -1))}>{translateRewardText('rewards.previous')}</button>
       <span role="status">{translateRewardText('rewards.page', {page: rewardPageCursorHistory.length})}</span>
       <button class="secondary" disabled={actionsAreDisabled || rewardActionPending || !storedRewardPage.nextCursor} onClick={() => void loadRewardPage([...rewardPageCursorHistory, storedRewardPage.nextCursor!])}>{translateRewardText('rewards.next')}</button>

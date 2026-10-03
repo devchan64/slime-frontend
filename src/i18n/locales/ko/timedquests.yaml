@@ -8,3 +8,7 @@ deliverBefore: '전달 마감: {time}'
 randomDeadline: 수령 확정 후 24시간 이내에 전달해야 합니다.
 seasonDeadline: '수령 후 전달 기한: {time}'
 next: 다음 기록
+
+pagination: 기간 의뢰 기록 페이지 이동
+previous: 이전 기록
+page: "{page}페이지"
