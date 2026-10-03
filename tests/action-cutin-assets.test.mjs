@@ -46,9 +46,9 @@ test('등록된 시트 몬스터는 첫 프레임만 컷인으로 사용한다',
 });
 
 test('캐릭터 피격 컷인은 통합 대기 시트의 전방 좌측 첫 셀을 사용한다',()=>{
- assert.match(resolveActionCutinAsset(defaultCharacterGroups,'target'),/idle-v6\/down-left-8frames-v1\/idle-v6\.png$/);
+ assert.match(resolveActionCutinAsset(defaultCharacterGroups,'target'),/idle-v6\/down-left-8frames-v2\/idle-v6\.png$/);
  assert.deepEqual(resolveActionCutinFrame(defaultCharacterGroups,'target'),{
-  rect:{x:0,y:0,width:384,height:384},sheet:{width:1536,height:768}
+  rect:{x:0,y:0,width:384,height:384},sheet:{width:3072,height:384}
  });
 });
 

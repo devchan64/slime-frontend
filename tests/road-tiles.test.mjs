@@ -56,5 +56,5 @@ test('채석장·절개지 도로는 석판으로 연결하며 다른 맵과 마
       assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},true,currentMapIdentifier),`road-${connectionMaskValue}`);
     }
   }
-  assert.equal(selectFieldRoadFrame(5,{column:0,row:0},false,'meadow'),'dirt-road-5');
+  assert.equal(selectFieldRoadFrame(5,{column:0,row:0},false,'meadow'),'meadow-road');
 });
