@@ -26,6 +26,15 @@ async function waitHuntBrowserCondition(currentCondition:()=>boolean){const curr
  const currentBeforeState=currentGameClient.state!;
  const currentCatalogData=await currentGameClient.request('/v1/game/substitute-hunts/catalog');
  const currentPassiveQuote=currentCatalogData.encounters.find((currentEntry:any)=>currentEntry.encounterId==='passive');
+ await waitHuntBrowserCondition(()=>!!document.querySelector('[data-hunt-encounter]'));
+ while(!document.querySelector('[data-hunt-encounter="passive"]')){
+  const currentNextPageButton=[...document.querySelectorAll('button')].find(currentButton=>currentButton.textContent===t('hunts.next'));
+  assertHuntBrowserCondition(currentNextPageButton&&!currentNextPageButton.disabled,'전체 대상 페이지에서 passive 조우를 찾아야 합니다.');
+  const previousEncounterIdentifier=document.querySelector('[data-hunt-encounter]')!.getAttribute('data-hunt-encounter');
+  currentNextPageButton!.click();
+  await waitHuntBrowserCondition(()=>document.querySelector('[data-hunt-encounter]')?.getAttribute('data-hunt-encounter')!==previousEncounterIdentifier);
+ }
+
  await waitHuntBrowserCondition(()=>!!document.querySelector<HTMLButtonElement>('[data-hunt-encounter="passive"]')&&!document.querySelector<HTMLButtonElement>('[data-hunt-encounter="passive"]')!.disabled);
  assertHuntBrowserCondition(document.body.textContent?.includes(t('hunts.fpCost',{amount:currentPassiveQuote.fpCost})),'소비 FP 표시');
  document.querySelector<HTMLButtonElement>('[data-hunt-encounter="passive"]')!.click();
