@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag, formatCharacterSkills, formatHuntLedger } from '../scripts/text-client-core.mjs';
+import { TextClient, ApiFailure, formatState, formatScoutingResult, formatCharacterBag, formatCharacterSkills, formatHuntLedger, formatAchievementRecords } from '../scripts/text-client-core.mjs';
 
 function state(extra = {}) {
   return { protocolVersion: 1, generation: 1, epoch: 1, cursor: 1,
@@ -946,4 +946,12 @@ test('업적 명령은 현재·과거 정의와 지급 이력을 읽기 전용�
   assert.equal(JSON.stringify(currentProgressResponse),currentOriginalResponse);
   assert.ok(currentRecordedCalls.every(currentRequestRecord=>currentRequestRecord.method==='GET'&&currentRequestRecord.body===undefined));
   assert.equal(currentRecordedCalls.filter(currentRequestRecord=>currentRequestRecord.url.endsWith('/v1/achievements')).length,1);
+});
+
+
+test('업적 이력 필드 미지원과 손상된 null 응답을 구분한다', () => {
+  const currentProgressResponse={seasonId:'initial',cp:10,sp:0,achievements:{},cpLedger:[],spLedger:[]};
+  assert.match(formatAchievementRecords(currentProgressResponse,{achievements:{}}),/보존 시즌: 없음/);
+  for(const currentInvalidHistory of [null,[],42])
+    assert.throws(()=>formatAchievementRecords({...currentProgressResponse,history:currentInvalidHistory},{achievements:{}}),/업적 응답 형식/);
 });

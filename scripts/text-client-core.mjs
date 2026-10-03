@@ -817,7 +817,7 @@ export function formatAchievementRecords(currentProgressResponse, currentCatalog
   if (!isAchievementRecord(currentProgressResponse) || typeof currentProgressResponse.seasonId !== 'string'
       || ![currentProgressResponse.cp,currentProgressResponse.sp].every(currentPointValue => Number.isSafeInteger(currentPointValue) && currentPointValue >= 0))
     throw new Error(invalidAchievementMessage);
-  const currentHistoryRecords = currentProgressResponse.history ?? {};
+  const currentHistoryRecords = currentProgressResponse.history === undefined ? {} : currentProgressResponse.history;
   if (!isAchievementRecord(currentHistoryRecords)) throw new Error(invalidAchievementMessage);
   const currentSelectedSeason = requestedSeasonIdentifier ?? currentProgressResponse.seasonId;
   const currentArchiveSelected = currentSelectedSeason !== currentProgressResponse.seasonId;

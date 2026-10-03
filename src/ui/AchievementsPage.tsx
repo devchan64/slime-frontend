@@ -21,7 +21,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   useEffect(()=>{
     let cancelled=false;setAchievementRequestNotice('');setData(null);setSelectedHistorySeason('');
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
-      .then(([catalog,progress])=>{validateAchievementSeasonHistory(progress.history ?? {});if(!cancelled)setData({history:progress.history ?? {},catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
+      .then(([catalog,progress])=>{const currentHistoryRecords=progress.history === undefined ? {} : progress.history;validateAchievementSeasonHistory(currentHistoryRecords);if(!cancelled)setData({history:currentHistoryRecords,catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
       .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
