@@ -154,3 +154,6 @@ developerProceed: "조정 실행"
 developerInvalidQuantity: "수량은 1~1,000,000,000 사이의 정수로 입력하세요."
 developerSelectionRequired: "품목과 필요한 레벨·개체·배치·발급처를 선택하세요. 개체형 아이템의 수량은 1이어야 합니다."
 developerInsufficientBalance: "회수 수량이 보유량보다 많습니다. 보유량 이하로 줄이세요."
+
+bagCategory: 가방 분류
+bagCategoryEmpty: 이 분류에 보유한 아이템이 없습니다.

@@ -19,6 +19,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
   const [currentInventoryPage,setCurrentInventoryPage] = useState<BagInventoryPage | null>(null);
   const [currentRequestNotice,setCurrentRequestNotice] = useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending] = useState(false);
+  const [currentBagCategory,setCurrentBagCategory] = useState<'supplies'|'equipment'|'permits'>('supplies');
   const activeRequestSequence = useRef(0);
   const activePanelReference = useRef(false);
   const initialSessionReference = useRef({owner:gameSessionClient.tokens?.user_id,
@@ -80,7 +81,14 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       <p class="bag-weight">{translateBagText('app.bagWeight',{weight:currentBagSummary.knownWeightG.toLocaleString(currentLocaleCode),capacity:currentBagSummary.capacityG.toLocaleString(currentLocaleCode)})}</p>
       {currentBagSummary.unknownWeightQuantity > 0 && <p>{translateBagText('app.bagUnknownWeight',{count:currentBagSummary.unknownWeightQuantity})}</p>}
       {!currentBagSummary.items.length && !currentInventoryPage.items.length && !currentInventoryPage.nextCursor && currentInventoryPage.travelerPermitSummary?.records.length === 0 && <p>{translateBagText('app.emptyBag')}</p>}
-      {currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagSupplies')}</h3><ul class="bag-items">
+      <div class="growth-categories" role="group" aria-label={translateBagText('app.bagCategory')}>
+        {(['supplies','equipment','permits'] as const).map(currentCategoryValue=><button class="secondary" key={currentCategoryValue} aria-pressed={currentBagCategory===currentCategoryValue} onClick={()=>setCurrentBagCategory(currentCategoryValue)}>
+          {translateBagText(currentCategoryValue==='supplies'?'app.bagSupplies':currentCategoryValue==='equipment'?'equipment.title':'citizenship.permitTitle')}
+        </button>)}
+      </div>
+      {currentBagCategory==='supplies'&&!currentBagSummary.items.some(currentItemEntry=>currentItemEntry.kind!=='skillbook')&&<p>{translateBagText('app.bagCategoryEmpty')}</p>}
+      {currentBagCategory==='equipment'&&!currentInventoryPage.items.length&&<p>{translateBagText('app.bagCategoryEmpty')}</p>}
+      {currentBagCategory==='supplies' && currentBagSummary.items.some(currentItemEntry => currentItemEntry.kind !== 'skillbook') && <><h3>{translateBagText('app.bagSupplies')}</h3><ul class="bag-items">
         {currentBagSummary.items.filter(currentItemEntry => currentItemEntry.kind !== 'skillbook').map(currentMaterialEntry => <li key={currentMaterialEntry.id}>
           <div><strong>{currentMaterialEntry.nameTranslations[currentLocaleCode]}{currentMaterialEntry.itemLevel !== undefined ? ` · Lv.${currentMaterialEntry.itemLevel}` : ''}</strong><span>×{currentMaterialEntry.quantity}</span></div>
           {currentMaterialEntry.kind === 'collection' && <small>{translateBagText('app.bagCollection')}</small>}
@@ -98,7 +106,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           </button>}
         </li>)}
       </ul></>}
-      {!!currentInventoryPage.items.length && <><h3>{translateBagText('equipment.title')}</h3><ul class="bag-items">
+      {currentBagCategory==='equipment' && !!currentInventoryPage.items.length && <><h3>{translateBagText('equipment.title')}</h3><ul class="bag-items">
         {currentInventoryPage.items.map(currentEquipmentEntry => <li key={currentEquipmentEntry.instanceId}>
           <div><strong>{formatEquipmentItemName(currentEquipmentEntry,currentLocaleCode)}</strong><span>{translateBagText(currentEquipmentEntry.reserved ? 'equipment.reserved' : currentEquipmentEntry.equippedSlot ? 'equipment.equipped' : 'equipment.emptySlot')}</span></div>
           <p>{translateBagText('equipment.durability')} {currentEquipmentEntry.currentDurability}/{currentEquipmentEntry.maxDurability} · {currentEquipmentEntry.weightG} g</p>
@@ -106,8 +114,8 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           {currentEquipmentEntry.currentDurability === 0 && <p>{translateBagText('equipment.broken')}</p>}
         </li>)}
       </ul></>}
-      <TravelerPermitList currentPermitSummary={currentInventoryPage.travelerPermitSummary} currentCharacterName={me.name ?? me.id}/>
-      {currentInventoryPage.nextCursor && <button class="secondary" disabled={currentRequestPending} onClick={() => void loadBagInventory(currentInventoryPage.nextCursor!)}>{translateBagText('equipment.more')}</button>}
+      {currentBagCategory==='permits' && <TravelerPermitList currentPermitSummary={currentInventoryPage.travelerPermitSummary} currentCharacterName={me.name ?? me.id}/>}
+      {currentBagCategory==='equipment' && currentInventoryPage.nextCursor && <button class="secondary" disabled={currentRequestPending} onClick={() => void loadBagInventory(currentInventoryPage.nextCursor!)}>{translateBagText('equipment.more')}</button>}
     </>}
     {historyInstanceIdentifier && <EquipmentHistory key={historyInstanceIdentifier} gameSessionClient={gameSessionClient} equipmentInstanceIdentifier={historyInstanceIdentifier} closeEquipmentHistory={() => setHistoryInstanceIdentifier(null)} />}
   </section>;
