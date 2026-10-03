@@ -9,7 +9,7 @@ const CURRENT_BROWSER_PATH=process.env.CHROME_BIN || '/usr/bin/google-chrome';
 const CURRENT_RUN_TIMESTAMP=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()).replace(' ','_').replaceAll(':','-');
 const CURRENT_OUTPUT_ROOT=resolve('.tmp/test/parcel-notice-browser',CURRENT_RUN_TIMESTAMP);
 
-for(const currentFixtureName of ['parcel-notice','direct-messages'])test(`Chrome에서 ${currentFixtureName} 화면·세션 정리와 모바일 배치를 확인한다`,async()=>{
+for(const currentFixtureName of ['parcel-notice','direct-messages','developer-tools'])test(`Chrome에서 ${currentFixtureName} 화면·세션 정리와 모바일 배치를 확인한다`,async()=>{
  const currentFixtureOutput=resolve(CURRENT_OUTPUT_ROOT,currentFixtureName);
  await mkdir(currentFixtureOutput,{recursive:true});
  const currentHeartbeatTimer=setInterval(()=>console.log(`${new Date().toISOString()}/test/parcel-notice-browser ${currentFixtureOutput}`),5000);
