@@ -2,7 +2,7 @@ import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './moveme
 import type {Position} from '../../client/types';
 type Point = {x:number;y:number;depth:number};
 export type FieldActor = {id:string;cell:Position;point:Point};
-type Track = FieldActor & {from:Point;started:number};
+type Track = FieldActor & {movementPathPoints:Point[];started:number};
 
 /** 서버 확정 인접 이동만 보간한다. 논리 좌표와 이동 판정은 변경하지 않는다. */
 export class FieldMotion {
@@ -19,16 +19,20 @@ export class FieldMotion {
         next.set(actor.id,old);continue;
       }
       const adjacent=old && Math.abs(old.cell.column-actor.cell.column)+Math.abs(old.cell.row-actor.cell.row)===1;
-      const from=adjacent ? this.sample(old,now) : actor.point;
-      next.set(actor.id,{...actor,cell:{...actor.cell},point:{...actor.point},from:{...from},started:now});
+      const currentMotionTrack=adjacent && this.isMovementActive(actor.id,now) ? old : undefined;
+      const completedSegmentCount=currentMotionTrack ? Math.floor(Math.max(0,now-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS) : 0;
+      const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*TILE_MOVEMENT_DURATION_MS : now;
+      const movementPathPoints=currentMotionTrack ? currentMotionTrack.movementPathPoints.slice(completedSegmentCount)
+        : adjacent ? [{...old.point}] : [];
+      movementPathPoints.push({...actor.point});
+      next.set(actor.id,{...actor,cell:{...actor.cell},point:{...actor.point},movementPathPoints,started:currentMovementStart});
     }
     this.tracks=next;
   }
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;
-    return currentRenderTime < currentMotionTrack.started + TILE_MOVEMENT_DURATION_MS &&
-      (currentMotionTrack.from.x !== currentMotionTrack.point.x || currentMotionTrack.from.y !== currentMotionTrack.point.y);
+    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.movementPathPoints.length-1)*TILE_MOVEMENT_DURATION_MS;
   }
   offset(id:string,now:number):Point {
     const track=this.tracks.get(id);
@@ -37,9 +41,13 @@ export class FieldMotion {
     return {x:at.x-track.point.x,y:at.y-track.point.y,depth:at.depth-track.point.depth};
   }
   private sample(track:Track,now:number):Point {
-    const t=calculateTileMovementProgress((now-track.started)/TILE_MOVEMENT_DURATION_MS);
-    return {x:track.from.x+(track.point.x-track.from.x)*t,
-      y:track.from.y+(track.point.y-track.from.y)*t,
-      depth:track.from.depth+(track.point.depth-track.from.depth)*t};
+    const elapsedSegmentCount=Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS;
+    const currentSegmentIndex=Math.min(Math.floor(elapsedSegmentCount),track.movementPathPoints.length-1);
+    const segmentStartPoint=track.movementPathPoints[currentSegmentIndex];
+    const segmentTargetPoint=track.movementPathPoints[Math.min(currentSegmentIndex+1,track.movementPathPoints.length-1)];
+    const currentSegmentProgress=calculateTileMovementProgress(elapsedSegmentCount-currentSegmentIndex);
+    return {x:segmentStartPoint.x+(segmentTargetPoint.x-segmentStartPoint.x)*currentSegmentProgress,
+      y:segmentStartPoint.y+(segmentTargetPoint.y-segmentStartPoint.y)*currentSegmentProgress,
+      depth:segmentStartPoint.depth+(segmentTargetPoint.depth-segmentStartPoint.depth)*currentSegmentProgress};
   }
 }
