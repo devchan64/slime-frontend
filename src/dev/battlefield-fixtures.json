@@ -3024,7 +3024,8 @@
           }
         ],
         "attacks": []
-      }
+      },
+      "apRecoveryPolicyVersion": 2
     },
     "messages": []
   },
@@ -6256,7 +6257,8 @@
           }
         ],
         "attacks": []
-      }
+      },
+      "apRecoveryPolicyVersion": 2
     },
     "messages": []
   },
@@ -9189,7 +9191,8 @@
           }
         ],
         "attacks": []
-      }
+      },
+      "apRecoveryPolicyVersion": 2
     },
     "messages": []
   },
@@ -12241,7 +12244,8 @@
           }
         ],
         "attacks": []
-      }
+      },
+      "apRecoveryPolicyVersion": 2
     },
     "messages": []
   },
@@ -15254,7 +15258,8 @@
           }
         ],
         "attacks": []
-      }
+      },
+      "apRecoveryPolicyVersion": 2
     },
     "messages": []
   },
@@ -17938,7 +17943,8 @@
         "canAct": false,
         "moves": [],
         "attacks": []
-      }
+      },
+      "apRecoveryPolicyVersion": 2
     },
     "messages": []
   }
