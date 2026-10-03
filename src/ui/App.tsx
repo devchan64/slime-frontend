@@ -248,6 +248,7 @@ export function App() {
     let disposed = false;
     let canvas: HTMLCanvasElement | null = null;
     const lost = (e: Event) => {
+      if (disposed) return;
       e.preventDefault();
       stopWalking.current = true;
       setRenderFailed(true);
@@ -259,7 +260,13 @@ export function App() {
     void import("../game/createGame")
       .then(({ createGame }) => {
         if (disposed || !container.current) return;
-        renderer.current = createGame(container.current, position => { setSelected(position); setBattleSelectionIntent(value => value + 1); }, setRenderedLocation, message => {
+        renderer.current = createGame(container.current, position => {
+          if (disposed) return;
+          setSelected(position); setBattleSelectionIntent(value => value + 1);
+        }, currentReadyLocation => {
+          if (!disposed) setRenderedLocation(currentReadyLocation);
+        }, message => {
+          if (disposed) return;
           stopWalking.current = true;
           setRenderFailed(true);
           setRenderError(message);
@@ -272,6 +279,7 @@ export function App() {
         canvas.addEventListener("webglcontextlost", lost);
       })
       .catch((worldInitializationError) => {
+        if (disposed) return;
         console.error(`[${new Date().toISOString()}/world/renderer-init] 월드 렌더러 초기화 실패`, worldInitializationError);
         stopWalking.current = true;
         setRenderFailed(true);
