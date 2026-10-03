@@ -140,3 +140,7 @@ developerCardQuantity: "Adjust one skill card at a time. Granting does not teach
 developerEquipmentQuantity: "Adjust one equipment instance at a time. Unequip it and finish repairs before removal."
 developerInstance: "Equipment instance to remove"
 developerEquipmentLocked: "In use: unequip or claim repair first"
+developerPermitDuration: "Grant one certificate at a time, valid for seven days from issuance."
+developerPermitCity: "City"
+developerPermitIssuer: "Issuing guard center"
+developerPermitInstance: "Certificate · city · expiry · instance ID"

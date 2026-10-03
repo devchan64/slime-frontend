@@ -21,6 +21,9 @@ function clickDeveloperButton(currentMessageKey:string){
  let currentItemReceipt:any=null;
  let currentEquipmentReceipt:any=null;
  let currentEquipmentOwned=false;
+ let currentPermitOwned=false;
+ let currentPermitReceipt:any=null;
+ const currentPermitIdentifier='00000000-0000-4000-8000-000000000020';
  const currentEquipmentIdentifier='00000000-0000-4000-8000-000000000010';
  const currentRequestPayloads:any[]=[];
  const currentClientStub:any={tokens:{user_id:'test'},state:{generation:1,me:{id:'test',name:'test',mode:'FIELD',version:1,cp:10,sp:2,coins:20}},
@@ -30,11 +33,12 @@ function clickDeveloperButton(currentMessageKey:string){
     if(currentAccessDenied)throw new ApiError('DEVELOPER_FORBIDDEN','권한 없음',403);
     return {accountId:'test',targetScope:'SELF',assets:['CP','SP','P']};
    }
-   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']},{category:'equipment',itemId:'iron-sword',nameTranslations:{ko:'철검',en:'Iron sword'},supportedOperations:['ADD','REMOVE']}]};
-   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:[...(currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[]),...(currentEquipmentOwned?[{category:'equipment',itemId:'iron-sword',quantity:1,instanceId:currentEquipmentIdentifier,instanceVersion:1,removable:true}]:[])],version:currentEquipmentReceipt?.version??(currentItemReceipt?3:currentConfirmedReceipt?2:1),balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
-   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentEquipmentReceipt?[currentEquipmentReceipt]:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
+   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',permitIssuers:[{cityId:'iseulon',issuerId:'meadow-guard-center'}],entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']},{category:'equipment',itemId:'iron-sword',nameTranslations:{ko:'철검',en:'Iron sword'},supportedOperations:['ADD','REMOVE']},{category:'traveler_permit',itemId:'city-traveler-permit',nameTranslations:{ko:'여행자증명서',en:'Traveler Certificate'},supportedOperations:['ADD','REMOVE']}]};
+   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:[...(currentPermitOwned?[{category:'traveler_permit',itemId:'city-traveler-permit',quantity:1,instanceId:currentPermitIdentifier,cityId:'iseulon',issuerId:'meadow-guard-center',expiresAt:604900}]:[]),...(currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[]),...(currentEquipmentOwned?[{category:'equipment',itemId:'iron-sword',quantity:1,instanceId:currentEquipmentIdentifier,instanceVersion:1,removable:true}]:[])],version:currentPermitReceipt?.version??currentEquipmentReceipt?.version??(currentItemReceipt?3:currentConfirmedReceipt?2:1),balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
+   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentPermitReceipt?[currentPermitReceipt]:currentEquipmentReceipt?[currentEquipmentReceipt]:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
    if(currentRequestPath==='/v1/developer/adjustments'){
     currentPostRequestCount++;currentRequestPayloads.push(currentRequestPayload);
+    if(currentRequestPayload.category==='traveler_permit'){currentPermitOwned=currentRequestPayload.operation==='ADD';currentPermitReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:currentPermitOwned?0:1,after:currentPermitOwned?1:0,instanceId:currentPermitIdentifier,permit:{characterId:'test',cityId:'iseulon',issuerId:'meadow-guard-center'},version:currentPermitOwned?6:7,createdAt:103};return currentPermitReceipt;}
     if(currentRequestPayload.category==='equipment'){currentEquipmentOwned=currentRequestPayload.operation==='ADD';currentEquipmentReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:currentEquipmentOwned?0:1,after:currentEquipmentOwned?1:0,instanceId:currentEquipmentIdentifier,instanceVersion:currentEquipmentOwned?1:2,version:currentEquipmentOwned?4:5,createdAt:102};return currentEquipmentReceipt;}
     if(currentRequestPayload.asset==='ITEM'){currentItemReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:0,after:1,version:3,createdAt:101};return currentItemReceipt;}
     if(!currentConfirmedReceipt){currentConfirmedPayload=currentRequestPayload;currentConfirmedReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:10,after:11,version:2,createdAt:100};}
@@ -44,7 +48,7 @@ function clickDeveloperButton(currentMessageKey:string){
    }
    if(currentRequestPath==='/v1/game/state'){
     if(currentStateReadLost){currentStateReadLost=false;throw new Error('상태 조회 유실');}
-    return {...this.state,me:{...this.state.me,version:currentEquipmentReceipt?.version??(currentItemReceipt?3:2),cp:11}};
+    return {...this.state,me:{...this.state.me,version:currentPermitReceipt?.version??currentEquipmentReceipt?.version??(currentItemReceipt?3:2),cp:11}};
    }
    throw new Error('예상하지 않은 요청 '+currentRequestPath);
   }};
@@ -80,6 +84,18 @@ function clickDeveloperButton(currentMessageKey:string){
  const currentInstanceSelect=document.querySelectorAll('select')[2];currentInstanceSelect.value=currentEquipmentIdentifier;currentInstanceSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
  clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
  assertDeveloperBrowserState(!currentEquipmentOwned&&currentEquipmentReceipt.expectedInstanceVersion===1&&currentEquipmentReceipt.instanceId===currentEquipmentIdentifier,'선택한 장비 개체와 버전으로 회수');
+ currentItemSelect.value='traveler_permit:city-traveler-permit';currentItemSelect.dispatchEvent(new Event('change',{bubbles:true}));
+ currentOperationSelect.value='ADD';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ const currentCitySelect=document.querySelectorAll('select')[2];currentCitySelect.value='iseulon';currentCitySelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ const currentIssuerSelect=document.querySelectorAll('select')[3];currentIssuerSelect.value='meadow-guard-center';currentIssuerSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentPermitOwned&&currentPermitReceipt.cityId==='iseulon'&&currentPermitReceipt.issuerId==='meadow-guard-center','도시와 경비센터 선택 후 증서 지급');
+ currentOperationSelect.value='REMOVE';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ const currentPermitSelect=document.querySelectorAll('select')[2];currentPermitSelect.value=currentPermitIdentifier;currentPermitSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentPermitSelect.selectedOptions[0].textContent!.includes('iseulon'),'증서 도시와 개체 표시');
+ assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'증서 선택 모바일 가로 넘침 없음');
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(!currentPermitOwned&&currentPermitReceipt.instanceId===currentPermitIdentifier&&!currentPermitReceipt.cityId,'선택한 증서 개체만 회수');
  assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

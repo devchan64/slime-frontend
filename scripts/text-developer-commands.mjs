@@ -17,7 +17,7 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
  }
  if(currentActionName==='items'&&currentCommandArguments.length===1){
   const currentCatalogResponse=await currentTextClient.request('/v1/developer/catalog');requireCurrentDeveloperSession();
-  const currentAllowedCategories=['material','collection','refined_material','consumable','equipment','skill_card','costume'];
+  const currentAllowedCategories=['material','collection','refined_material','consumable','equipment','skill_card','costume','traveler_permit'];
   const currentCatalogKeys=new Set();
   if(currentCatalogResponse.accountId!==currentSessionTokens.user_id||currentCatalogResponse.targetScope!=='SELF'||!Array.isArray(currentCatalogResponse.entries)
    ||currentCatalogResponse.entries.some(currentCatalogEntry=>{

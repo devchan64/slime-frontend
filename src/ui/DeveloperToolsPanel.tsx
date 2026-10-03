@@ -5,11 +5,11 @@ import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
 type DeveloperAssetName = 'CP'|'SP'|'P';
-type DeveloperItemRecord = {category:string;itemId:string;quantity:number;instanceId?:string;instanceVersion?:number;removable?:boolean};
+type DeveloperItemRecord = {category:string;itemId:string;quantity:number;instanceId?:string;instanceVersion?:number;removable?:boolean;cityId?:string;issuerId?:string;expiresAt?:number};
 type DeveloperCatalogEntry = {category:string;itemId:string;nameTranslations:{ko:string;en:string};supportedOperations:('ADD'|'REMOVE')[]};
 type DeveloperInventoryRecord = {characterId:string;version:number;items:DeveloperItemRecord[];balances:Record<DeveloperAssetName,number>};
-type DeveloperAdjustmentPayload = {requestId:string;expectedVersion:number;operation:'ADD'|'REMOVE';asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;instanceId?:string;instanceVersion?:number;expectedInstanceVersion?:number;quantity:number};
-type DeveloperReceiptRecord = {requestId:string;actorId:string;characterId:string;asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;instanceId?:string;instanceVersion?:number;expectedInstanceVersion?:number;operation:'ADD'|'REMOVE';quantity:number;before:number;after:number;version:number;createdAt:number;ok:boolean};
+type DeveloperAdjustmentPayload = {requestId:string;expectedVersion:number;operation:'ADD'|'REMOVE';asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;instanceId?:string;instanceVersion?:number;expectedInstanceVersion?:number;cityId?:string;issuerId?:string;quantity:number};
+type DeveloperReceiptRecord = {requestId:string;actorId:string;characterId:string;asset:DeveloperAssetName|'ITEM';category?:string;itemId?:string;instanceId?:string;instanceVersion?:number;expectedInstanceVersion?:number;cityId?:string;issuerId?:string;operation:'ADD'|'REMOVE';quantity:number;before:number;after:number;version:number;createdAt:number;ok:boolean;permit?:{characterId:string;cityId:string;issuerId:string}};
 const DEVELOPER_ASSET_NAMES:DeveloperAssetName[]=['CP','SP','P'];
 
 export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
@@ -23,6 +23,9 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const [currentCatalogEntries,setCurrentCatalogEntries]=useState<DeveloperCatalogEntry[]>([]);
  const [currentSelectedItem,setCurrentSelectedItem]=useState('');
  const [currentSelectedInstance,setCurrentSelectedInstance]=useState('');
+ const [currentPermitIssuers,setCurrentPermitIssuers]=useState<{cityId:string;issuerId:string}[]>([]);
+ const [currentSelectedCity,setCurrentSelectedCity]=useState('');
+ const [currentSelectedIssuer,setCurrentSelectedIssuer]=useState('');
  const [currentItemSearch,setCurrentItemSearch]=useState('');
  const [currentItemMode,setCurrentItemMode]=useState(false);
  const [currentQuantityInput,setCurrentQuantityInput]=useState('1');
@@ -40,7 +43,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
   const currentInventory=await gameSessionClient.request('/v1/developer/inventory');
   if(!matchesCurrentDeveloperSession())return;
   if(currentInventory.characterId!==currentOwnerContext.current.character||!Number.isSafeInteger(currentInventory.version)
-   ||!Array.isArray(currentInventory.items)||currentInventory.items.some((currentItemEntry:DeveloperItemRecord)=>typeof currentItemEntry.category!=='string'||typeof currentItemEntry.itemId!=='string'||!Number.isSafeInteger(currentItemEntry.quantity)||currentItemEntry.quantity<1)
+   ||!Array.isArray(currentInventory.items)||currentInventory.items.some((currentItemEntry:DeveloperItemRecord)=>typeof currentItemEntry.category!=='string'||typeof currentItemEntry.itemId!=='string'||!Number.isSafeInteger(currentItemEntry.quantity)||currentItemEntry.quantity<1||(currentItemEntry.category==='traveler_permit'&&(typeof currentItemEntry.instanceId!=='string'||typeof currentItemEntry.cityId!=='string'||!Number.isFinite(currentItemEntry.expiresAt))))
    ||!DEVELOPER_ASSET_NAMES.every(currentAssetName=>Number.isSafeInteger(currentInventory.balances?.[currentAssetName])&&currentInventory.balances[currentAssetName]>=0))throw new Error(translateDeveloperText('app.developerInvalid'));
   const currentCatalog=await gameSessionClient.request('/v1/developer/catalog');
   if(!matchesCurrentDeveloperSession())return;
@@ -48,6 +51,8 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
    ||currentCatalog.entries.some((currentItemEntry:DeveloperCatalogEntry)=>typeof currentItemEntry.category!=='string'||typeof currentItemEntry.itemId!=='string'
     ||typeof currentItemEntry.nameTranslations?.ko!=='string'||typeof currentItemEntry.nameTranslations?.en!=='string'||!Array.isArray(currentItemEntry.supportedOperations)
     ||currentItemEntry.supportedOperations.some(currentOperationName=>!['ADD','REMOVE'].includes(currentOperationName))))throw new Error(translateDeveloperText('app.developerInvalid'));
+  if(!Array.isArray(currentCatalog.permitIssuers)||currentCatalog.permitIssuers.some((currentIssuerEntry:{cityId:string;issuerId:string})=>typeof currentIssuerEntry.cityId!=='string'||typeof currentIssuerEntry.issuerId!=='string'))throw new Error(translateDeveloperText('app.developerInvalid'));
+  setCurrentPermitIssuers(currentCatalog.permitIssuers);
   setCurrentCatalogEntries(currentCatalog.entries);
   const currentHistory=await gameSessionClient.request('/v1/developer/adjustments'+(currentNextCursor?'?after='+encodeURIComponent(currentNextCursor):''));
   if(!matchesCurrentDeveloperSession())return;
@@ -73,21 +78,26 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const currentQuantityValue=Number(currentQuantityInput);
  const currentQuantityValid=/^[1-9][0-9]*$/.test(currentQuantityInput)&&Number.isSafeInteger(currentQuantityValue)&&currentQuantityValue<=1000000000;
  const currentSelectedDefinition=currentCatalogEntries.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem);
+ const currentPermitMode=currentItemMode&&currentSelectedDefinition?.category==='traveler_permit';
+ const currentOwnedPermits=currentInventoryRecord?.items.filter(currentItemEntry=>currentItemEntry.category==='traveler_permit')??[];
+ const currentSelectedPermit=currentOwnedPermits.find(currentItemEntry=>currentItemEntry.instanceId===currentSelectedInstance);
+ const currentPermitIssuer=currentPermitIssuers.find(currentIssuerEntry=>currentIssuerEntry.cityId===currentSelectedCity&&currentIssuerEntry.issuerId===currentSelectedIssuer);
  const currentEquipmentMode=currentItemMode&&currentSelectedDefinition?.category==='equipment';
  const currentOwnedEquipment=currentInventoryRecord?.items.filter(currentItemEntry=>currentItemEntry.category==='equipment'&&currentItemEntry.itemId===currentSelectedDefinition?.itemId)??[];
  const currentSelectedEquipment=currentOwnedEquipment.find(currentItemEntry=>currentItemEntry.instanceId===currentSelectedInstance);
  const currentItemSupported=!!currentSelectedDefinition?.supportedOperations.includes(currentOperationKind)
-  &&(!['skill_card','equipment'].includes(currentSelectedDefinition.category)||currentQuantityValue===1)
-  &&(!currentEquipmentMode||currentOperationKind==='ADD'||currentSelectedEquipment?.removable===true);
+  &&(!['skill_card','equipment','traveler_permit'].includes(currentSelectedDefinition.category)||currentQuantityValue===1)
+  &&(!currentEquipmentMode||currentOperationKind==='ADD'||currentSelectedEquipment?.removable===true)
+  &&(!currentPermitMode||(currentOperationKind==='ADD'?!!currentPermitIssuer:!!currentSelectedPermit));
  const currentSelectedLabel=currentItemMode&&currentSelectedDefinition?currentSelectedDefinition.nameTranslations[currentDisplayLocale]+' ('+currentSelectedDefinition.itemId+')':currentSelectedAsset;
- const currentBalanceValue=currentEquipmentMode?(currentOperationKind==='REMOVE'&&currentSelectedEquipment?1:0):(currentItemMode?currentInventoryRecord?.items.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem)?.quantity:currentInventoryRecord?.balances[currentSelectedAsset])??0;
+ const currentBalanceValue=currentPermitMode?(currentOperationKind==='REMOVE'&&currentSelectedPermit?1:0):currentEquipmentMode?(currentOperationKind==='REMOVE'&&currentSelectedEquipment?1:0):(currentItemMode?currentInventoryRecord?.items.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem)?.quantity:currentInventoryRecord?.balances[currentSelectedAsset])??0;
  const currentProjectedBalance=currentBalanceValue+(currentOperationKind==='ADD'?currentQuantityValue:-currentQuantityValue);
  const currentMutationBlocked=actionsAreDisabled||gameSessionClient.state?.me.mode!=='FIELD'||!!gameSessionClient.state?.battle||!!gameSessionClient.state?.reservation;
  async function submitDeveloperAdjustment(currentRetryRequested:boolean){
   if(!currentRetryRequested){
    if(currentMutationBlocked||currentPendingAdjustment.current||!currentInventoryRecord||!currentQuantityValid||currentProjectedBalance<0||(currentItemMode&&!currentItemSupported))return;
-   if(!window.confirm(translateDeveloperText('app.developerConfirm',{asset:currentSelectedLabel,before:currentBalanceValue,after:currentProjectedBalance})))return;
-   currentPendingAdjustment.current={payload:{requestId:crypto.randomUUID(),expectedVersion:currentInventoryRecord.version,operation:currentOperationKind,asset:currentItemMode?'ITEM':currentSelectedAsset,quantity:currentQuantityValue,...(currentItemMode?{category:currentSelectedDefinition!.category,itemId:currentSelectedDefinition!.itemId,...(currentEquipmentMode&&currentOperationKind==='REMOVE'?{instanceId:currentSelectedEquipment!.instanceId,expectedInstanceVersion:currentSelectedEquipment!.instanceVersion}:{})}:{})}};
+   if(!window.confirm(translateDeveloperText('app.developerConfirm',{asset:currentSelectedLabel+(currentPermitMode?' · '+(currentOperationKind==='ADD'?currentSelectedCity+' · '+currentSelectedIssuer:currentSelectedPermit!.cityId+' · '+currentSelectedPermit!.instanceId):''),before:currentBalanceValue,after:currentProjectedBalance})))return;
+   currentPendingAdjustment.current={payload:{requestId:crypto.randomUUID(),expectedVersion:currentInventoryRecord.version,operation:currentOperationKind,asset:currentItemMode?'ITEM':currentSelectedAsset,quantity:currentQuantityValue,...(currentItemMode?{category:currentSelectedDefinition!.category,itemId:currentSelectedDefinition!.itemId,...(currentPermitMode?(currentOperationKind==='ADD'?{cityId:currentSelectedCity,issuerId:currentSelectedIssuer}:{instanceId:currentSelectedPermit!.instanceId}):{}),...(currentEquipmentMode&&currentOperationKind==='REMOVE'?{instanceId:currentSelectedEquipment!.instanceId,expectedInstanceVersion:currentSelectedEquipment!.instanceVersion}:{})}:{})}};
   }
   const currentPendingRecord=currentPendingAdjustment.current;if(!currentPendingRecord)return;
   try{
@@ -97,6 +107,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
    if(currentReceipt.ok!==true||currentReceipt.requestId!==currentPayload.requestId||currentReceipt.characterId!==currentOwnerContext.current.character
     ||currentReceipt.actorId!==currentOwnerContext.current.owner||currentReceipt.asset!==currentPayload.asset||currentReceipt.operation!==currentPayload.operation
     ||currentReceipt.category!==currentPayload.category||currentReceipt.itemId!==currentPayload.itemId
+    ||(currentPayload.category==='traveler_permit'&&(typeof currentReceipt.instanceId!=='string'||currentReceipt.permit?.characterId!==currentOwnerContext.current.character||(currentPayload.operation==='REMOVE'?currentReceipt.instanceId!==currentPayload.instanceId:currentReceipt.permit.cityId!==currentPayload.cityId||currentReceipt.permit.issuerId!==currentPayload.issuerId)))
     ||(currentPayload.category==='equipment'&&(typeof currentReceipt.instanceId!=='string'||!Number.isSafeInteger(currentReceipt.instanceVersion)||(currentPayload.operation==='REMOVE'&&(currentReceipt.instanceId!==currentPayload.instanceId||currentReceipt.instanceVersion!==currentPayload.expectedInstanceVersion!+1))))
     ||currentReceipt.quantity!==currentPayload.quantity||currentReceipt.version!==currentPayload.expectedVersion+1
     ||![currentReceipt.before,currentReceipt.after].every(currentBalance=>Number.isSafeInteger(currentBalance)&&currentBalance>=0)
@@ -134,6 +145,10 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
      </select></label></>:
     <label>{translateDeveloperText('app.developerAsset')}<select value={currentSelectedAsset} onChange={currentInputEvent=>setCurrentSelectedAsset(currentInputEvent.currentTarget.value as DeveloperAssetName)}>{DEVELOPER_ASSET_NAMES.map(currentAssetName=><option value={currentAssetName}>{currentAssetName}</option>)}</select></label>}
     <label>{translateDeveloperText('app.developerOperation')}<select value={currentOperationKind} onChange={currentInputEvent=>setCurrentOperationKind(currentInputEvent.currentTarget.value as 'ADD'|'REMOVE')}><option value="ADD">{translateDeveloperText('app.developerAdd')}</option><option value="REMOVE">{translateDeveloperText('app.developerRemove')}</option></select></label>
+    {currentPermitMode&&<><p>{translateDeveloperText('app.developerPermitDuration')}</p>{currentOperationKind==='ADD'?<>
+     <label>{translateDeveloperText('app.developerPermitCity')}<select value={currentSelectedCity} onChange={currentInputEvent=>{setCurrentSelectedCity(currentInputEvent.currentTarget.value);setCurrentSelectedIssuer('');}}><option value="">{translateDeveloperText('app.developerSelectItem')}</option>{[...new Set(currentPermitIssuers.map(currentIssuerEntry=>currentIssuerEntry.cityId))].map(currentCityIdentifier=><option value={currentCityIdentifier}>{currentCityIdentifier}</option>)}</select></label>
+     <label>{translateDeveloperText('app.developerPermitIssuer')}<select value={currentSelectedIssuer} onChange={currentInputEvent=>setCurrentSelectedIssuer(currentInputEvent.currentTarget.value)}><option value="">{translateDeveloperText('app.developerSelectItem')}</option>{currentPermitIssuers.filter(currentIssuerEntry=>currentIssuerEntry.cityId===currentSelectedCity).map(currentIssuerEntry=><option value={currentIssuerEntry.issuerId}>{currentIssuerEntry.issuerId}</option>)}</select></label>
+    </>:<label>{translateDeveloperText('app.developerPermitInstance')}<select value={currentSelectedInstance} onChange={currentInputEvent=>setCurrentSelectedInstance(currentInputEvent.currentTarget.value)}><option value="">{translateDeveloperText('app.developerSelectItem')}</option>{currentOwnedPermits.map(currentPermitEntry=><option value={currentPermitEntry.instanceId}>{currentPermitEntry.cityId} · {new Date(currentPermitEntry.expiresAt!*1000).toLocaleString(currentDisplayLocale)} · {currentPermitEntry.instanceId}</option>)}</select></label>}</>}
     {currentEquipmentMode&&<><p>{translateDeveloperText('app.developerEquipmentQuantity')}</p>{currentOperationKind==='REMOVE'&&<label>{translateDeveloperText('app.developerInstance')}<select value={currentSelectedInstance} onChange={currentInputEvent=>setCurrentSelectedInstance(currentInputEvent.currentTarget.value)}><option value="">{translateDeveloperText('app.developerSelectItem')}</option>{currentOwnedEquipment.map(currentItemEntry=><option value={currentItemEntry.instanceId} disabled={!currentItemEntry.removable}>{currentItemEntry.instanceId} · v{currentItemEntry.instanceVersion}{!currentItemEntry.removable?' · '+translateDeveloperText('app.developerEquipmentLocked'):''}</option>)}</select></label>}</>}
     {currentItemMode&&currentSelectedDefinition?.category==='skill_card'&&<p>{translateDeveloperText('app.developerCardQuantity')}</p>}
     <label>{translateDeveloperText('app.developerQuantity')}<input type="number" min="1" max="1000000000" step="1" value={currentQuantityInput} onInput={currentInputEvent=>setCurrentQuantityInput(currentInputEvent.currentTarget.value)}/></label>

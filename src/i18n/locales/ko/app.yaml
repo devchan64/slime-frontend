@@ -140,3 +140,7 @@ developerCardQuantity: "스킬카드는 한 번에 1개만 조정합니다. 지�
 developerEquipmentQuantity: "장비는 한 번에 1개를 조정합니다. 회수는 장착·수리 중이 아닌 개체를 선택하세요."
 developerInstance: "회수할 장비 개체"
 developerEquipmentLocked: "장착·수리 중: 해제 또는 수리 수령 후 이용"
+developerPermitDuration: "증서는 한 번에 1개를 지급하며 발급 시각부터 7일간 유효합니다."
+developerPermitCity: "도시"
+developerPermitIssuer: "경비센터 발급처"
+developerPermitInstance: "회수할 증서 · 도시 · 만료일 · 개체 ID"
