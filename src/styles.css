@@ -1172,6 +1172,15 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap { position: relative; width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3; }
 .field-preview-canvas canvas,
 .world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap canvas { position: absolute; inset: 0; }
+/* 낮은 가로 화면에서는 헤더·제목·조작 접근 공간을 남기고 맵의 두 축을 함께 줄인다. */
+:root { --field-map-viewport-reserve: 160px; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .world-shell .world:is(.is-field, .is-battle) > :is(.field-map-card, .battle-map-card) {
+    width: min(100%, max(0px, calc((100dvh - var(--field-map-viewport-reserve)) * 4 / 3)));
+    align-self: center;
+  }
+}
+
 .world-shell .world.is-field > :is(.field-control-card, .field-help-card) { position: static; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; max-height: none; margin: 0; padding: var(--field-card-padding); border: 1px solid var(--border); border-radius: 12px; overflow: visible; }
 .world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
 .world-shell .world.is-field .field-control-card :is(.field-selection-details, .field-quick-targets) { height: auto; max-height: none; overflow: visible; }
