@@ -41,13 +41,16 @@ export class BattleMotion {
       }
       const old=this.positions.get(event.unitId);
       if(!old)continue;
-      const track=this.tracks.get(event.unitId);
-      const points=track ? [this.sample(track,now),...track.points.slice(Math.min(track.points.length,Math.floor(Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS)+1))] : [project(old, event.unitId)];
-      const remainingSegmentIndex = track ? Math.floor(Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS) : 0;
-      const segmentWorldFacings = track ? track.segmentWorldFacings.slice(remainingSegmentIndex) : [];
+      const previousMotionTrack=this.tracks.get(event.unitId);
+      const currentMotionTrack=previousMotionTrack && this.isMovementActive(event.unitId,now) ? previousMotionTrack : undefined;
+      const completedSegmentCount=currentMotionTrack ? Math.floor(Math.max(0,now-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS) : 0;
+      // 새 로그가 도착해도 진행 중인 칸의 시작 시각과 보간 곡선을 유지한다.
+      const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*TILE_MOVEMENT_DURATION_MS : now;
+      const points=currentMotionTrack ? currentMotionTrack.points.slice(completedSegmentCount) : [project(old,event.unitId)];
+      const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
       segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
       points.push(...event.path.map(battlePathPosition => project(battlePathPosition, event.unitId)));
-      this.tracks.set(event.unitId,{points,started:now,segmentWorldFacings});
+      this.tracks.set(event.unitId,{points,started:currentMovementStart,segmentWorldFacings});
       this.positions.set(event.unitId,event.path[event.path.length-1]);
     }
     this.logCount=battle.log.length;

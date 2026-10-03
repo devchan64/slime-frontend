@@ -120,3 +120,27 @@ test('공격 로그의 정수 HP 0은 생존 대상의 반동을 제거하지 �
  currentMotionTracker.sync('fractional-impact',{...currentImpactBattle,units:[currentImpactBattle.units[0],{...currentImpactBattle.units[1],healthDepleted:true}]},point,150);
  assert.deepEqual(currentMotionTracker.offset('enemy',160),{x:0,y:0,depth:0});
 });
+
+
+test('이동 도중 받은 다음 경로는 현재 칸의 위치·방향·1.5초 종료 시각을 유지한다',()=>{
+ const currentMotionTracker=new BattleMotion();
+ const firstMovementRecord={...move,path:[corner],pathFacings:['column_positive']};
+ const secondMovementRecord={...move,path:[end],pathFacings:['row_positive']};
+ currentMotionTracker.sync('queued',state(start),point,0);
+ currentMotionTracker.sync('queued',state(corner,[firstMovementRecord]),point,10);
+ const previousMovementOffset=currentMotionTracker.offset('hero',510);
+ currentMotionTracker.sync('queued',state(end,[firstMovementRecord,secondMovementRecord]),point,510);
+ const appendedMovementOffset=currentMotionTracker.offset('hero',510);
+ for(const currentCoordinateName of ['x','y','depth'])
+   assert.ok(Math.abs(point(corner)[currentCoordinateName]+previousMovementOffset[currentCoordinateName]-point(end)[currentCoordinateName]-appendedMovementOffset[currentCoordinateName])<1e-12);
+ assert.equal(currentMotionTracker.currentWorldFacing('hero',1509),'column_positive');
+ assert.equal(currentMotionTracker.currentWorldFacing('hero',1510),'row_positive');
+ assert.deepEqual(currentMotionTracker.offset('hero',1510),{x:0,y:-10,depth:-1});
+ assert.equal(currentMotionTracker.isMovementActive('hero',3009),true);
+ assert.equal(currentMotionTracker.isMovementActive('hero',3010),false);
+ assert.deepEqual(currentMotionTracker.offset('hero',3010),{x:0,y:0,depth:0});
+ const thirdMovementRecord={...move,path:[corner],pathFacings:['row_negative']};
+ currentMotionTracker.sync('queued',state(corner,[firstMovementRecord,secondMovementRecord,thirdMovementRecord]),point,5010);
+ assert.equal(currentMotionTracker.isMovementActive('hero',6509),true);
+ assert.equal(currentMotionTracker.isMovementActive('hero',6510),false);
+});
