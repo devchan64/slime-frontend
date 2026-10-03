@@ -11,6 +11,7 @@ export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled,isHunt
  const [currentHuntCatalog,setCurrentHuntCatalog]=useState<SubstituteHuntCatalog|null>(null);
  const [currentTargetPage,setCurrentTargetPage]=useState(0);
  const [currentHuntNotice,setCurrentHuntNotice]=useState<Notice>('');
+ const [currentCatalogNotice,setCurrentCatalogNotice]=useState<Notice>('');
  const [currentHuntReceipt,setCurrentHuntReceipt]=useState<SubstituteHuntReceipt|null>(null);
  const [currentRequestPending,setCurrentRequestPending]=useState(false);
  const currentMountedReference=useRef(true);
@@ -20,14 +21,14 @@ export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled,isHunt
  function matchesHuntSession(){return currentMountedReference.current&&currentSessionReference.current===currentHuntSessionIdentity(gameSessionClient);}
  async function loadHuntCatalog(preserveTargetPage=false){
   if(currentBusyReference.current)return;
-  currentBusyReference.current=true;setCurrentRequestPending(true);
+  currentBusyReference.current=true;setCurrentRequestPending(true);setCurrentCatalogNotice('');
   try{const currentCatalogResponse=parseSubstituteHuntCatalog(await gameSessionClient.request('/v1/game/substitute-hunts/catalog'));if(matchesHuntSession()){setCurrentHuntCatalog(currentCatalogResponse);if(!preserveTargetPage)setCurrentTargetPage(0);}}
-  catch(currentRequestError){if(matchesHuntSession())setCurrentHuntNotice(currentRequestError as Error);}
+  catch(currentRequestError){if(matchesHuntSession())setCurrentCatalogNotice(currentRequestError as Error);}
   finally{currentBusyReference.current=false;if(matchesHuntSession())setCurrentRequestPending(false);}
  }
  async function executeHuntSelection(currentEncounterIdentifier:string){
   if(actionsAreDisabled||currentBusyReference.current||!matchesHuntSession()||(!currentHuntCatalog&&!currentHuntController.pendingHuntRequest))return;
-  currentBusyReference.current=true;setCurrentRequestPending(true);setCurrentHuntNotice('');
+  currentBusyReference.current=true;setCurrentRequestPending(true);setCurrentHuntNotice('');setCurrentCatalogNotice('');
   try{
    const currentCommandReceipt=await currentHuntController.executeHuntCommand(currentEncounterIdentifier,currentHuntCatalog?.characterVersion??currentHuntController.pendingHuntRequest!.expectedVersion);
    if(matchesHuntSession()){setCurrentHuntReceipt(currentCommandReceipt);setCurrentHuntCatalog(null);}
@@ -42,6 +43,7 @@ export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled,isHunt
   <h3>{translateHuntText('hunts.substituteTitle')}</h3><p>{translateHuntText('hunts.substituteHelp')}</p>
   <button class="secondary compact" disabled={currentRequestPending||actionsAreDisabled} onClick={()=>void loadHuntCatalog()}>{translateHuntText('hunts.refreshTargets')}</button>
   {currentRequestPending&&<p role="status">{translateHuntText('hunts.processing')}</p>}
+  {currentCatalogNotice&&<p role="alert">{noticeText(currentCatalogNotice,currentHuntLocale,translateHuntText)}</p>}
   {currentHuntNotice&&<p role="alert">{noticeText(currentHuntNotice,currentHuntLocale,translateHuntText)}</p>}
   {currentHuntController.pendingHuntRequest&&<p>{translateHuntText('hunts.uncertain')} <button disabled={currentRequestPending||actionsAreDisabled} onClick={()=>void executeHuntSelection(currentHuntController.pendingHuntRequest!.encounterId)}>{translateHuntText('hunts.retry')}</button></p>}
   {currentHuntCatalog&&<><p>{translateHuntText('hunts.fpBalance',{amount:currentHuntCatalog.fp})}</p>{currentTargetPageCount>1&&<nav class="record-page-navigation" aria-label={translateHuntText('hunts.targetPagination')}>
