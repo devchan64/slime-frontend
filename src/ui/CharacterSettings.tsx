@@ -35,6 +35,7 @@ type Props = {
 
 export function CharacterSettings({ me, disabled, command, expanded = false, gameSessionClient }: Props) {
   const { t, locale } = useTranslation();
+  const [selectedHuntCategory,setSelectedHuntCategory]=useState<"history"|"substitute">("history");
   const [category, setCategory] = useState<"attributes" | "skills" | "equipment" | "hunts">("attributes");
   const entries = category === "attributes" ? ATTRIBUTES.map(entry => ({ ...entry, name: t(`character.${entry.id}Name`), description: t(`character.${entry.id}Description`) })) : Object.keys(me.skills).map(id => {
     // 직전 v1 서버는 생성 시 지급 스킬의 메타데이터를 제공하지 않는다.
@@ -76,7 +77,10 @@ export function CharacterSettings({ me, disabled, command, expanded = false, gam
         {gameSessionClient && <button class="secondary" aria-pressed={category === 'equipment'} onClick={() => setCategory('equipment')}>{t('equipment.title')}</button>}
         {gameSessionClient && <button class="secondary" aria-pressed={category === 'hunts'} onClick={() => setCategory('hunts')}>{t('hunts.title')}</button>}
       </div>
-      {category === 'hunts' && gameSessionClient ? <div key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}`}><SubstituteHuntPanel gameSessionClient={gameSessionClient} actionsAreDisabled={disabled} /><HuntLedgerPanel gameSessionClient={gameSessionClient} /></div> : category === 'equipment' && gameSessionClient ? <EquipmentPanel key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}:${gameSessionClient.state?.epoch}`} gameSessionClient={gameSessionClient}
+      {category === 'hunts' && gameSessionClient ? <div key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}`}><div class="growth-categories" role="group" aria-label={t('hunts.title')}>
+        <button class="secondary" aria-pressed={selectedHuntCategory==='history'} onClick={()=>setSelectedHuntCategory('history')}>{t('hunts.title')}</button>
+        <button class="secondary" aria-pressed={selectedHuntCategory==='substitute'} onClick={()=>setSelectedHuntCategory('substitute')}>{t('hunts.substituteTitle')}</button>
+      </div><div hidden={selectedHuntCategory!=='substitute'}><SubstituteHuntPanel gameSessionClient={gameSessionClient} actionsAreDisabled={disabled} /></div><div hidden={selectedHuntCategory!=='history'}><HuntLedgerPanel gameSessionClient={gameSessionClient} /></div></div> : category === 'equipment' && gameSessionClient ? <EquipmentPanel key={`${me.id}:${gameSessionClient.tokens?.user_id}:${gameSessionClient.state?.generation}:${gameSessionClient.state?.epoch}`} gameSessionClient={gameSessionClient}
         actionsAreDisabled={disabled || !!me.battleId || !['LOBBY','FIELD','AWAY'].includes(me.mode)} characterStateVersion={me.version} /> : <>
       <p class="growth-help">{category === "skills" && t("character.skillList")}</p>
       {category === "skills" && me.battleSkillSlotLimit !== undefined && <section class="skill-loadout" aria-label={t("character.battleSlots")}>
