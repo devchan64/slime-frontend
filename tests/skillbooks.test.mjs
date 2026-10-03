@@ -7,6 +7,7 @@ test('스킬카드 보관과 영수증의 소유자·결제·소비 계약을 �
   storage:'ACCOUNT',expiresAt:null,source:'purchase',acquiredAt:100,currentLiteracy:1};
  const currentCardResponse={characterVersion:2,cards:[currentCardEntry],catalog:[{...currentCardEntry,priceP:100,owned:true}]};
  assert.equal(parseSkillCardInventory(currentCardResponse),currentCardResponse);
+ assert.equal(parseSkillCardInventory({...currentCardResponse,cards:[{...currentCardEntry,source:'developer'}]}).cards[0].source,'developer');
  for(const currentInvalidPatch of [{expiresAt:200},{source:'unknown'},{currentLiteracy:-1},{learned:0},{cardId:12}]){
   assert.throws(()=>parseSkillCardInventory({...currentCardResponse,cards:[{...currentCardEntry,...currentInvalidPatch}]}));
  }

@@ -72,7 +72,8 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const currentQuantityValue=Number(currentQuantityInput);
  const currentQuantityValid=/^[1-9][0-9]*$/.test(currentQuantityInput)&&Number.isSafeInteger(currentQuantityValue)&&currentQuantityValue<=1000000000;
  const currentSelectedDefinition=currentCatalogEntries.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem);
- const currentItemSupported=!!currentSelectedDefinition?.supportedOperations.includes(currentOperationKind);
+ const currentItemSupported=!!currentSelectedDefinition?.supportedOperations.includes(currentOperationKind)
+  &&(currentSelectedDefinition.category!=='skill_card'||currentQuantityValue===1);
  const currentSelectedLabel=currentItemMode&&currentSelectedDefinition?currentSelectedDefinition.nameTranslations[currentDisplayLocale]+' ('+currentSelectedDefinition.itemId+')':currentSelectedAsset;
  const currentBalanceValue=(currentItemMode?currentInventoryRecord?.items.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem)?.quantity:currentInventoryRecord?.balances[currentSelectedAsset])??0;
  const currentProjectedBalance=currentBalanceValue+(currentOperationKind==='ADD'?currentQuantityValue:-currentQuantityValue);
@@ -127,6 +128,7 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
      </select></label></>:
     <label>{translateDeveloperText('app.developerAsset')}<select value={currentSelectedAsset} onChange={currentInputEvent=>setCurrentSelectedAsset(currentInputEvent.currentTarget.value as DeveloperAssetName)}>{DEVELOPER_ASSET_NAMES.map(currentAssetName=><option value={currentAssetName}>{currentAssetName}</option>)}</select></label>}
     <label>{translateDeveloperText('app.developerOperation')}<select value={currentOperationKind} onChange={currentInputEvent=>setCurrentOperationKind(currentInputEvent.currentTarget.value as 'ADD'|'REMOVE')}><option value="ADD">{translateDeveloperText('app.developerAdd')}</option><option value="REMOVE">{translateDeveloperText('app.developerRemove')}</option></select></label>
+    {currentItemMode&&currentSelectedDefinition?.category==='skill_card'&&<p>{translateDeveloperText('app.developerCardQuantity')}</p>}
     <label>{translateDeveloperText('app.developerQuantity')}<input type="number" min="1" max="1000000000" step="1" value={currentQuantityInput} onInput={currentInputEvent=>setCurrentQuantityInput(currentInputEvent.currentTarget.value)}/></label>
     {currentInventoryRecord&&<p>{currentSelectedLabel}: {currentBalanceValue} → {currentQuantityValid?currentProjectedBalance:'—'}</p>}
     <button disabled={!currentInventoryRecord||!currentQuantityValid||currentProjectedBalance<0||(currentItemMode&&!currentItemSupported)} onClick={()=>void runDeveloperPanelAction(()=>submitDeveloperAdjustment(false))}>{translateDeveloperText('app.developerApply')}</button>

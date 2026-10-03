@@ -57,7 +57,8 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
  const currentItemIdentifier=currentItemRequested?currentCommandArguments[3]:undefined;
  const currentQuantityText=currentItemRequested?currentCommandArguments[4]:currentQuantityArgument;
  if(!['add','remove'].includes(currentOperationArgument)||currentCommandArguments.length!==(currentItemRequested?5:3)
-   ||(currentItemRequested?!['material','collection','refined_material','consumable'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
+   ||(currentItemRequested?!['material','collection','refined_material','consumable','skill_card'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
+   ||(currentItemCategory==='skill_card'&&currentQuantityText!=='1')
    ||!/^[1-9][0-9]*$/.test(currentQuantityText)||!Number.isSafeInteger(Number(currentQuantityText))||Number(currentQuantityText)>1000000000)
   throw new Error('dev add|remove cp|sp|p 수량 또는 dev item add|remove 분류 품목ID 수량(1~1000000000) 형식으로 입력하세요.');
  const currentAssetName=currentItemRequested?'ITEM':currentAssetArgument.toUpperCase();

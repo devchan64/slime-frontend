@@ -17,7 +17,7 @@ export function parseSkillCardInventory(currentResponseValue){
  }
  for(const currentCardEntry of currentResponseValue.cards){
   requireCardResponseCondition(currentCardEntry.storage==='ACCOUNT'&&currentCardEntry.expiresAt===null
-   &&['purchase','event','legacy_book'].includes(currentCardEntry.source)&&Number.isFinite(currentCardEntry.acquiredAt)&&currentCardEntry.acquiredAt>=0
+   &&['purchase','event','legacy_book','developer'].includes(currentCardEntry.source)&&Number.isFinite(currentCardEntry.acquiredAt)&&currentCardEntry.acquiredAt>=0
    &&Number.isSafeInteger(currentCardEntry.currentLiteracy)&&currentCardEntry.currentLiteracy>=0);
  }
  for(const currentCatalogEntry of currentResponseValue.catalog??[]){
