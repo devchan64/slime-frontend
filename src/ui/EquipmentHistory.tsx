@@ -17,6 +17,7 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
   const activeRequestSequence=useRef(0);
   const historySectionElement=useRef<HTMLElement>(null);
   const initialHistoryRevealed=useRef(false);
+  const historyTriggerElement=useRef<HTMLElement|null>(null);
   const historyPanelActive=useRef(false);
   const originalHistorySession=useRef({owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id});
   function historySessionMatches(){return historyPanelActive.current&&originalHistorySession.current.owner===gameSessionClient.tokens?.user_id
@@ -42,7 +43,7 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
       if(historySessionMatches()&&activeRequestSequence.current===currentRequestSequence) setCurrentRequestNotice(currentRequestError as Error);
     } finally {if(historySessionMatches()&&activeRequestSequence.current===currentRequestSequence) setCurrentRequestPending(false);}
   }
-  useEffect(()=>{historyPanelActive.current=true;setCurrentHistoryPage(null);void loadEquipmentHistory();return()=>{historyPanelActive.current=false;activeRequestSequence.current++;};},[equipmentInstanceIdentifier,gameSessionClient]);
+  useEffect(()=>{historyTriggerElement.current=document.activeElement instanceof HTMLElement?document.activeElement:null;historyPanelActive.current=true;setCurrentHistoryPage(null);void loadEquipmentHistory();return()=>{historyPanelActive.current=false;activeRequestSequence.current++;};},[equipmentInstanceIdentifier,gameSessionClient]);
   useEffect(()=>{
     if(currentHistoryPage && !initialHistoryRevealed.current) {
       initialHistoryRevealed.current=true;historySectionElement.current?.scrollIntoView({block:'nearest',behavior:'smooth'});
@@ -50,7 +51,7 @@ export function EquipmentHistory({gameSessionClient,equipmentInstanceIdentifier,
   },[currentHistoryPage]);
   return <section ref={historySectionElement} class="equipment-history" aria-label={translateHistoryText('equipment.history')}>
     <h3>{translateHistoryText('equipment.history')}</h3>
-    <button class="secondary compact" onClick={closeEquipmentHistory}>{translateHistoryText('equipment.closeHistory')}</button>{' '}
+    <button class="secondary compact" onClick={()=>{closeEquipmentHistory();if(historyTriggerElement.current?.isConnected)historyTriggerElement.current.focus();}}>{translateHistoryText('equipment.closeHistory')}</button>{' '}
     <button class="secondary compact" disabled={currentRequestPending} onClick={()=>void loadEquipmentHistory()}>{translateHistoryText('equipment.refresh')}</button>
     {currentRequestPending && <p role="status">{translateHistoryText('equipment.loading')}</p>}
     {currentRequestNotice && <p role="alert">{noticeText(currentRequestNotice,currentLocaleCode,translateHistoryText)}</p>}
