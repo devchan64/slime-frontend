@@ -983,3 +983,32 @@ test('자동전투 전환·패턴 저장·삭제는 기존 버전과 명령 전�
     await assert.rejects(currentTextClient.execute(currentInvalidCommand));
   assert.equal(currentRequestCalls.length,5);
 });
+
+test('개발자 포인트 조정은 본인 요청과 재시도 ID를 유지하고 영수증 뒤 최신 상태를 읽는다',async()=>{
+ const currentRequestRecords=[];
+ let currentAttemptCount=0;
+ const currentInitialState=state({me:{...state().me,id:'test',coins:0}});
+ const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
+  const currentRequestBody=currentRequestOptions.body?JSON.parse(currentRequestOptions.body):undefined;
+  currentRequestRecords.push({url:currentRequestUrl,body:currentRequestBody});
+  if(currentRequestUrl.endsWith('/v1/developer/adjustments')){
+   currentAttemptCount++;
+   if(currentAttemptCount<=2)throw new Error('응답 유실');
+   return Response.json({ok:true,requestId:currentRequestBody.requestId,actorId:'test',characterId:'test',asset:'CP',operation:'ADD',quantity:10,before:10,after:20,version:5});
+  }
+  assert.ok(currentRequestUrl.endsWith('/v1/game/state'));
+  return Response.json({...currentInitialState,cursor:2,me:{...currentInitialState.me,version:5,cp:20}});
+ }});
+ currentTextClient.tokens={user_id:'test',access_token:'local-test'};
+ currentTextClient.accept(currentInitialState);
+ await assert.rejects(currentTextClient.execute('dev add cp 10'),/retry/);
+ assert.equal(currentTextClient.state.me.cp,10);
+ assert.match(await currentTextClient.execute('retry'),/CP 10 → 20/);
+ assert.equal(currentTextClient.state.me.cp,20);
+ assert.deepEqual(currentRequestRecords[0].body,currentRequestRecords[2].body);
+ assert.equal(Object.hasOwn(currentRequestRecords[0].body,'targetId'),false);
+ assert.equal(currentTextClient.pendingCommandRequest,null);
+ for(const currentInvalidCommand of ['dev add cp 0','dev add p -1','dev remove sp 1.5','dev add cp 2 other','dev add p 1000000001'])
+  await assert.rejects(currentTextClient.execute(currentInvalidCommand),/형식/);
+ assert.equal(currentRequestRecords.length,4);
+});

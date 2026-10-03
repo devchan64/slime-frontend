@@ -1,3 +1,4 @@
+import {executeDeveloperCommand} from './text-developer-commands.mjs';
 import {executeDirectMessageCommand} from './text-direct-messages.mjs';
 import {validateProductionBagItem} from '../src/client/production-bag-validation.mjs';
 import {executeRefiningMissionCommand} from './text-refining-missions.mjs';
@@ -224,6 +225,7 @@ export class TextClient {
       if (!this.state?.battle) throw new Error('참가 중인 전투가 없습니다.');
       return this.command(BATTLE_PATH, { action: { type, battleId: this.state.battle.id, turnId: this.state.battle.turnId, ...extra } });
     };
+    if (name === 'dev') return executeDeveloperCommand(this,args);
     if (name === 'party') return executeOnlinePartyCommand(this,args);
     if (name === 'missions') return executeRefiningMissionCommand(this,args);
     if (name === 'equipment') return executeEquipmentCommand(this,args);
