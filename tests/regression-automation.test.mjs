@@ -11,6 +11,8 @@ for(const [currentSignalName,currentIgnoreSignal] of [['SIGTERM',false],['SIGINT
   const currentTemporaryRoot=await mkdtemp(join(tmpdir(),'slime-regression-contract-'));
   try{
    await mkdir(join(currentTemporaryRoot,'scripts'));
+   await mkdir(join(currentTemporaryRoot,'tests'));
+   await writeFile(join(currentTemporaryRoot,'tests/example.test.mjs'),'');
    await copyFile(REGRESSION_RUNNER_SOURCE,join(currentTemporaryRoot,'scripts/run-regression.mjs'));
    await writeFile(join(currentTemporaryRoot,'scripts/check-locales.mjs'),`${currentIgnoreSignal?'process.on("SIGTERM",()=>{});':''}setTimeout(()=>process.exit(9),16000); setInterval(()=>{},1000); setTimeout(()=>process.kill(process.ppid,${JSON.stringify(currentSignalName)}),100);`);
    const currentRunnerProcess=spawn(process.execPath,['scripts/run-regression.mjs','--with-checks','tests/example.test.mjs'],{cwd:currentTemporaryRoot,env:{...process.env,NODE_TEST_CONTEXT:undefined},timeout:18000,killSignal:'SIGKILL',stdio:['ignore','pipe','pipe']});
@@ -72,3 +74,21 @@ for(const currentChecksEnabled of [false,true]){
   }finally{await rm(currentTemporaryRoot,{recursive:true,force:true});}
  });
 }
+
+test('존재하는 검사와 누락된 검사를 함께 지정하면 실행 전에 실패한다',async()=>{
+ const currentTemporaryRoot=await mkdtemp(join(tmpdir(),'slime-regression-missing-'));
+ try{
+  await mkdir(join(currentTemporaryRoot,'scripts'));await mkdir(join(currentTemporaryRoot,'tests'));
+  await copyFile(REGRESSION_RUNNER_SOURCE,join(currentTemporaryRoot,'scripts/run-regression.mjs'));
+  await writeFile(join(currentTemporaryRoot,'tests/example.test.mjs'),'');
+  const currentRunnerProcess=spawn(process.execPath,['scripts/run-regression.mjs','tests/example.test.mjs','tests/missing.test.mjs'],{cwd:currentTemporaryRoot,env:{...process.env,NODE_TEST_CONTEXT:undefined},stdio:'ignore'});
+  const currentRunnerExit=await new Promise((resolveRunnerExit,rejectRunnerError)=>{currentRunnerProcess.once('error',rejectRunnerError);currentRunnerProcess.once('close',resolveRunnerExit);});
+  assert.equal(currentRunnerExit,1);
+  const currentOutputRoot=join(currentTemporaryRoot,'.tmp/test/frontend-regression');
+  const [currentResultDirectory]=await readdir(currentOutputRoot);
+  const currentResultPath=join(currentOutputRoot,currentResultDirectory);
+  const currentResultRecord=JSON.parse(await readFile(join(currentResultPath,'result.json'),'utf8'));
+  assert.equal(currentResultRecord.status,'FAILED');assert.equal(currentResultRecord.summary,null);assert.deepEqual(currentResultRecord.steps,[]);
+  assert.match(await readFile(join(currentResultPath,'run.log'),'utf8'),/검사 대상 확인 실패: tests\/missing.test.mjs/);
+ }finally{await rm(currentTemporaryRoot,{recursive:true,force:true});}
+});

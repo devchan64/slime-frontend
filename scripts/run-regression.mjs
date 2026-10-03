@@ -1,6 +1,6 @@
 // 회귀검사 실행·로그·heartbeat·최종 결과 저장은 이 스크립트가 담당한다.
 import {spawn} from 'node:child_process';
-import {mkdir,writeFile,readFile,rename} from 'node:fs/promises';
+import {mkdir,writeFile,readFile,rename,stat} from 'node:fs/promises';
 import {createWriteStream} from 'node:fs';
 import {resolve} from 'node:path';
 import {constants} from 'node:os';
@@ -39,8 +39,16 @@ function terminateRegressionProcess(currentSignalName){
 }
 const currentSignalHandlers=new Map(['SIGTERM','SIGINT'].map(currentSignalName=>[currentSignalName,()=>terminateRegressionProcess(currentSignalName)]));
 for(const [currentSignalName,currentSignalHandler] of currentSignalHandlers)process.on(currentSignalName,currentSignalHandler);
+for(const currentTestTarget of currentTestTargets){
+ try{
+  if(!(await stat(currentTestTarget)).isFile())throw new Error('일반 파일이 아닙니다.');
+ }catch(currentTargetError){
+  currentExitCode=1;
+  writeRegressionTrace('error',`검사 대상 확인 실패: ${currentTestTarget}: ${currentTargetError.message}`);
+ }
+}
 for(const currentCommandArguments of currentCommandSteps){
- if(currentTerminationSignal)break;
+ if(currentTerminationSignal||currentExitCode!==0)break;
  const currentStepStarted=performance.now();
  const currentExecutionArguments=currentCommandArguments[0]==='--test'
   ? ['--test','--test-reporter=tap','--test-reporter-destination=stdout','--test-reporter=junit',`--test-reporter-destination=${resolve(currentOutputDirectory,'junit.xml')}`,...currentCommandArguments.slice(1)]
