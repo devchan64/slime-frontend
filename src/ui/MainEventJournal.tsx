@@ -57,6 +57,6 @@ export function MainEventJournal({gameSessionClient,actionsAreDisabled,onShowDes
         {time:new Date((currentJournalEntry.completedAt??currentJournalEntry.acceptedAt)*1000).toLocaleString(currentJournalLocale)})}</small>
       {currentJournalEntry.materialsSufficient && <p>{translateJournalText('journal.materialsReady')}</p>}
     </li>)}</ul>
-    <TimedEventJournal gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled}/>
+    <TimedEventJournal gameSessionClient={gameSessionClient} actionsAreDisabled={actionsAreDisabled} onShowDestinationCity={onShowDestinationCity}/>
   </section>;
 }

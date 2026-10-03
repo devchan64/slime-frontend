@@ -4,7 +4,7 @@ import {parseTimedEventPage,type TimedEventPage} from '../client/timed-event-val
 import {noticeText} from '../client/notice';
 import {getLocale,useTranslation} from '../i18n';
 
-export function TimedEventJournal({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
+export function TimedEventJournal({gameSessionClient,actionsAreDisabled,onShowDestinationCity}:{gameSessionClient:Client;actionsAreDisabled:boolean;onShowDestinationCity?:(currentCityIdentifier:string)=>void}){
  const {t:translateTimedText,locale:currentDisplayLocale}=useTranslation();
  const [currentPanelOpen,setCurrentPanelOpen]=useState(false);
  const [journalPageOffsetHistory,setJournalPageOffsetHistory]=useState<number[]>([0]);
@@ -38,6 +38,7 @@ export function TimedEventJournal({gameSessionClient,actionsAreDisabled}:{gameSe
    <ul>{currentJournalPage?.entries.map(currentQuestEntry=><li key={currentQuestEntry.offerId}>
     <strong>{currentQuestEntry.title}</strong><p>{translateTimedText(currentQuestEntry.status==='EXPIRED'?'timedquests.expired':currentQuestEntry.status==='COMPLETED'?'journal.completed':'journal.accepted')}</p>
     <p>{translateTimedText('npc.destination',{city:currentQuestEntry.destination.cityNameTranslations[currentDisplayLocale],name:currentQuestEntry.destination.name})}</p>
+    {currentQuestEntry.status==='ACCEPTED'&&onShowDestinationCity&&<button class="secondary compact" disabled={actionsAreDisabled||currentRequestBusy} onClick={()=>onShowDestinationCity(currentQuestEntry.destination.cityId)}>{translateTimedText('journal.showDestination')}</button>}
     <p>{translateTimedText('timedquests.deliverBefore',{time:new Date(currentQuestEntry.deliveryDeadline*1000).toLocaleString(currentDisplayLocale)})}</p>
     {currentQuestEntry.items.map(currentItemEntry=><p key={currentItemEntry.itemId}>{translateTimedText('journal.material',{name:currentItemEntry.nameTranslations[currentDisplayLocale],owned:currentItemEntry.owned,required:currentItemEntry.required})}</p>)}
     {currentQuestEntry.status!=='EXPIRED'&&<p>{translateTimedText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>}
