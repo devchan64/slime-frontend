@@ -1054,3 +1054,26 @@ test('개발자 장비 회수는 본인 재고에서 개체 버전을 확인한�
  assert.equal(currentCommandPayloads[0].expectedInstanceVersion,3);
  assert.equal(currentCommandPayloads[0].quantity,1);
 });
+
+test('개발자 증서 명령은 도시·발급처와 회수 개체를 전달한다',async()=>{
+ for(const currentOperationName of ['add','remove']){
+  const currentInstanceIdentifier='00000000-0000-4000-8000-000000000012';
+  const currentInitialState=state({me:{...state().me,id:'test'}});
+  let currentSentPayload;
+  const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
+   if(currentRequestUrl.endsWith('/v1/developer/catalog'))return Response.json({accountId:'test',permitIssuers:[{cityId:'iseulon',issuerId:'gate-guard-center'}]});
+   if(currentRequestUrl.endsWith('/v1/developer/adjustments')){
+    currentSentPayload=JSON.parse(currentRequestOptions.body);
+    return Response.json({ok:true,...currentSentPayload,actorId:'test',characterId:'test',before:currentOperationName==='add'?0:1,after:currentOperationName==='add'?1:0,version:currentInitialState.me.version+1,
+     instanceId:currentInstanceIdentifier,permit:{characterId:'test',cityId:'iseulon',issuerId:'gate-guard-center'}});
+   }
+   return Response.json({...currentInitialState,cursor:2,me:{...currentInitialState.me,version:currentInitialState.me.version+1}});
+  }});
+  currentTextClient.tokens={user_id:'test',access_token:'local-test'};currentTextClient.accept(currentInitialState);
+  assert.match(await currentTextClient.execute('dev permit issuers'),/iseulon · gate-guard-center/);
+  await currentTextClient.execute(currentOperationName==='add'?'dev permit add iseulon gate-guard-center':'dev permit remove '+currentInstanceIdentifier);
+  assert.equal(currentSentPayload.category,'traveler_permit');assert.equal(currentSentPayload.quantity,1);
+  if(currentOperationName==='add'){assert.equal(currentSentPayload.cityId,'iseulon');assert.equal(currentSentPayload.issuerId,'gate-guard-center');}
+  else assert.equal(currentSentPayload.instanceId,currentInstanceIdentifier);
+ }
+});

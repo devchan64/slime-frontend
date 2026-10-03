@@ -31,6 +31,11 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
   return currentCatalogResponse.entries.map(currentCatalogEntry=>currentCatalogEntry.category+' '+currentCatalogEntry.itemId+' · '+currentCatalogEntry.nameTranslations.ko
    +' · '+(currentCatalogEntry.supportedOperations.length?currentCatalogEntry.supportedOperations.join(', '):'조정 미지원')).join('\n');
  }
+ if(currentActionName==='permit'&&currentCommandArguments[1]==='issuers'&&currentCommandArguments.length===2){
+  const currentCatalogResponse=await currentTextClient.request('/v1/developer/catalog');requireCurrentDeveloperSession();
+  if(currentCatalogResponse.accountId!==currentSessionTokens.user_id||!Array.isArray(currentCatalogResponse.permitIssuers)||currentCatalogResponse.permitIssuers.some(currentIssuerEntry=>typeof currentIssuerEntry.cityId!=='string'||typeof currentIssuerEntry.issuerId!=='string'))throw new Error('여행자증명서 발급처 응답이 올바르지 않습니다.');
+  return currentCatalogResponse.permitIssuers.map(currentIssuerEntry=>currentIssuerEntry.cityId+' · '+currentIssuerEntry.issuerId).join('\n');
+ }
  if(currentActionName==='history'&&(currentCommandArguments.length===1||currentCommandArguments.length===2)){
   if(currentAssetArgument&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentAssetArgument))throw new Error('변경 이력의 다음 커서 UUID를 입력하세요.');
   const currentHistoryPage=await currentTextClient.request('/v1/developer/adjustments'+(currentAssetArgument?'?after='+encodeURIComponent(currentAssetArgument):''));requireCurrentDeveloperSession();
@@ -49,15 +54,16 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
     ||!['CP','SP','P'].every(currentAssetName=>Number.isSafeInteger(currentInventory.balances?.[currentAssetName])&&currentInventory.balances[currentAssetName]>=0))
    throw new Error('개발자 잔고 응답이 올바르지 않습니다.');
   if(!Array.isArray(currentInventory.items)||currentInventory.items.some(currentItemEntry=>typeof currentItemEntry.category!=='string'||typeof currentItemEntry.itemId!=='string'||!Number.isSafeInteger(currentItemEntry.quantity)||currentItemEntry.quantity<1))throw new Error('개발자 재고 응답이 올바르지 않습니다.');
-  return ['CP','SP','P'].map(currentAssetName=>currentAssetName+' '+currentInventory.balances[currentAssetName]).join(' · ')+'\n'+currentInventory.items.map(currentItemEntry=>currentItemEntry.category+' '+currentItemEntry.itemId+' '+currentItemEntry.quantity+(currentItemEntry.instanceId?' · '+currentItemEntry.instanceId+' · v'+currentItemEntry.instanceVersion+' · '+(currentItemEntry.removable?'회수 가능':'사용 중'):'')).join('\n');
+  return ['CP','SP','P'].map(currentAssetName=>currentAssetName+' '+currentInventory.balances[currentAssetName]).join(' · ')+'\n'+currentInventory.items.map(currentItemEntry=>currentItemEntry.category+' '+currentItemEntry.itemId+' '+currentItemEntry.quantity+(currentItemEntry.instanceId?' · '+currentItemEntry.instanceId+(currentItemEntry.category==='equipment'?' · v'+currentItemEntry.instanceVersion+' · '+(currentItemEntry.removable?'회수 가능':'사용 중'):''):'')).join('\n');
  }
- const currentItemRequested=currentActionName==='item';
+ const currentPermitRequested=currentActionName==='permit';
+ const currentItemRequested=currentActionName==='item'||currentPermitRequested;
  const currentOperationArgument=currentItemRequested?currentCommandArguments[1]:currentActionName;
- const currentItemCategory=currentItemRequested?currentCommandArguments[2]:undefined;
- let currentItemIdentifier=currentItemRequested?currentCommandArguments[3]:undefined;
+ const currentItemCategory=currentPermitRequested?'traveler_permit':currentItemRequested?currentCommandArguments[2]:undefined;
+ let currentItemIdentifier=currentPermitRequested?'city-traveler-permit':currentItemRequested?currentCommandArguments[3]:undefined;
  const currentEquipmentRemoval=currentItemCategory==='equipment'&&currentOperationArgument==='remove';
- const currentQuantityText=currentEquipmentRemoval?'1':currentItemRequested?currentCommandArguments[4]:currentQuantityArgument;
- let currentEquipmentFields={};
+ const currentQuantityText=currentPermitRequested||currentEquipmentRemoval?'1':currentItemRequested?currentCommandArguments[4]:currentQuantityArgument;
+ let currentEquipmentFields=currentPermitRequested?(currentOperationArgument==='add'?{cityId:currentCommandArguments[2],issuerId:currentCommandArguments[3]}:{instanceId:currentCommandArguments[2]}):{};
  if(currentEquipmentRemoval&&currentCommandArguments.length===4){
   const currentInventoryResponse=await currentTextClient.request('/v1/developer/inventory');requireCurrentDeveloperSession();
   if(currentInventoryResponse.characterId!==currentCharacterIdentifier||currentInventoryResponse.version!==currentTextClient.state.me.version||!Array.isArray(currentInventoryResponse.items))throw new Error('상태가 변경되었습니다. state 명령으로 갱신하세요.');
@@ -65,9 +71,9 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
   if(!currentOwnedEquipment||!currentOwnedEquipment.removable||!Number.isSafeInteger(currentOwnedEquipment.instanceVersion)||currentOwnedEquipment.instanceVersion<1)throw new Error('회수 가능한 본인 장비 개체 ID를 지정하세요.');
   currentEquipmentFields={instanceId:currentOwnedEquipment.instanceId,expectedInstanceVersion:currentOwnedEquipment.instanceVersion};currentItemIdentifier=currentOwnedEquipment.itemId;
  }
- if(!['add','remove'].includes(currentOperationArgument)||currentCommandArguments.length!==(currentEquipmentRemoval?4:currentItemRequested?5:3)
-   ||(currentItemRequested?!['material','collection','refined_material','consumable','skill_card','equipment'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
-   ||(['skill_card','equipment'].includes(currentItemCategory)&&currentQuantityText!=='1')
+ if(!['add','remove'].includes(currentOperationArgument)||currentCommandArguments.length!==(currentPermitRequested?(currentOperationArgument==='add'?4:3):currentEquipmentRemoval?4:currentItemRequested?5:3)
+   ||(currentItemRequested?!['material','collection','refined_material','consumable','skill_card','equipment','traveler_permit'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
+   ||(['skill_card','equipment','traveler_permit'].includes(currentItemCategory)&&currentQuantityText!=='1')
    ||!/^[1-9][0-9]*$/.test(currentQuantityText)||!Number.isSafeInteger(Number(currentQuantityText))||Number(currentQuantityText)>1000000000)
   throw new Error('dev add|remove cp|sp|p 수량 또는 dev item add|remove 분류 품목ID 수량(1~1000000000) 형식으로 입력하세요.');
  const currentAssetName=currentItemRequested?'ITEM':currentAssetArgument.toUpperCase();
@@ -82,6 +88,7 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
      ||currentReceiptRecord.actorId!==currentSessionTokens.user_id||currentReceiptRecord.characterId!==currentCharacterIdentifier
      ||currentReceiptRecord.asset!==currentRequestBody.asset||currentReceiptRecord.operation!==currentRequestBody.operation
      ||currentReceiptRecord.itemId!==currentRequestBody.itemId||currentReceiptRecord.category!==currentRequestBody.category
+     ||(currentRequestBody.category==='traveler_permit'&&(typeof currentReceiptRecord.instanceId!=='string'||currentReceiptRecord.permit?.characterId!==currentCharacterIdentifier||(currentRequestBody.operation==='REMOVE'?currentReceiptRecord.instanceId!==currentRequestBody.instanceId:currentReceiptRecord.permit.cityId!==currentRequestBody.cityId||currentReceiptRecord.permit.issuerId!==currentRequestBody.issuerId)))
      ||(currentRequestBody.category==='equipment'&&(typeof currentReceiptRecord.instanceId!=='string'||!Number.isSafeInteger(currentReceiptRecord.instanceVersion)||(currentRequestBody.operation==='REMOVE'&&(currentReceiptRecord.instanceId!==currentRequestBody.instanceId||currentReceiptRecord.instanceVersion!==currentRequestBody.expectedInstanceVersion+1))))
      ||currentReceiptRecord.quantity!==currentRequestBody.quantity||currentReceiptRecord.version!==currentRequestBody.expectedVersion+1
      ||![currentReceiptRecord.before,currentReceiptRecord.after].every(currentBalanceValue=>Number.isSafeInteger(currentBalanceValue)&&currentBalanceValue>=0)
