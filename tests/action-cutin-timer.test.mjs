@@ -12,7 +12,7 @@ const actionCutinBuildResult = await build({
       importedModuleRecord => ({ path: importedModuleRecord.path, namespace: 'cutin-test' }));
     bundleBuildContext.onLoad({ filter: /.*/, namespace: 'cutin-test' }, importedModuleRecord => ({
       contents: importedModuleRecord.path === 'preact/hooks'
-        ? 'export const useState=value=>[value,()=>{}]; export const useRef=value=>({current:value}); export const useEffect=callback=>globalThis.actionCutinTestRuntime.effects.push(callback);'
+        ? 'export const useId=()=>"cutin-test-clip"; export const useState=value=>[value,()=>{}]; export const useRef=value=>({current:value}); export const useEffect=callback=>globalThis.actionCutinTestRuntime.effects.push(callback);'
         : importedModuleRecord.path === '../i18n'
           ? 'export const useTranslation=()=>({t:key=>key});'
           : 'export const resolveActionCutinAsset=()=>{if(globalThis.actionCutinTestRuntime.assetFailure)throw new Error("unregistered");return "/test.png";}; export const resolveActionCutinFrame=()=>null;',

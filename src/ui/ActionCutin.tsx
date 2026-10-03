@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useId, useRef, useState } from 'preact/hooks';
 import { useTranslation } from '../i18n';
 import { findActionCutinPresentation, type ActionCutinEvent } from './actionCutins';
 import { resolveActionCutinAsset, resolveActionCutinFrame } from './actionCutinAssets';
@@ -7,6 +7,7 @@ const ACTION_CUTIN_COLLISION_MILLISECONDS = 260;
 
 function CutinActor({ appearance, side, imageFailed }: { appearance: ActionCutinEvent['appearance']; side: 'attacker' | 'target'; imageFailed: () => void }) {
   const {t: translateActorError} = useTranslation();
+  const currentFrameClipIdentifier = useId();
   let currentCutinFrame: ReturnType<typeof resolveActionCutinFrame>;
   let currentCutinUrl: string;
   try {
@@ -19,7 +20,10 @@ function CutinActor({ appearance, side, imageFailed }: { appearance: ActionCutin
   }
   return <div class={`action-cutin-duel-actor action-cutin-duel-${side}`}>
     {currentCutinFrame ? <svg aria-hidden="true" viewBox={`${currentCutinFrame.rect.x} ${currentCutinFrame.rect.y} ${currentCutinFrame.rect.width} ${currentCutinFrame.rect.height}`}>
-      <image href={currentCutinUrl} width={currentCutinFrame.sheet.width} height={currentCutinFrame.sheet.height} onError={imageFailed} />
+      <defs><clipPath id={currentFrameClipIdentifier} clipPathUnits="userSpaceOnUse">
+        <rect x={currentCutinFrame.rect.x} y={currentCutinFrame.rect.y} width={currentCutinFrame.rect.width} height={currentCutinFrame.rect.height} />
+      </clipPath></defs>
+      <image clip-path={`url(#${currentFrameClipIdentifier})`} href={currentCutinUrl} width={currentCutinFrame.sheet.width} height={currentCutinFrame.sheet.height} onError={imageFailed} />
     </svg> : <img src={currentCutinUrl} alt="" onError={imageFailed} />}
   </div>;
 }
