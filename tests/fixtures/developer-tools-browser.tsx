@@ -18,6 +18,7 @@ function clickDeveloperButton(currentMessageKey:string){
  let currentConfirmedReceipt:any=null;
  let currentConfirmedPayload:any=null;
  let currentConfirmationCount=0;
+ let currentItemReceipt:any=null;
  const currentRequestPayloads:any[]=[];
  const currentClientStub:any={tokens:{user_id:'test'},state:{generation:1,me:{id:'test',name:'test',mode:'FIELD',version:1,cp:10,sp:2,coins:20}},
   accept(currentIncomingState:any){this.state=currentIncomingState;},
@@ -26,10 +27,12 @@ function clickDeveloperButton(currentMessageKey:string){
     if(currentAccessDenied)throw new ApiError('DEVELOPER_FORBIDDEN','권한 없음',403);
     return {accountId:'test',targetScope:'SELF',assets:['CP','SP','P']};
    }
-   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',version:currentConfirmedReceipt?2:1,balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
-   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
+   if(currentRequestPath==='/v1/developer/catalog')return {accountId:'test',targetScope:'SELF',entries:[{category:'material',itemId:'protein-jelly',nameTranslations:{ko:'단백질 젤리',en:'Protein jelly'},supportedOperations:['ADD','REMOVE']}]};
+   if(currentRequestPath==='/v1/developer/inventory')return {characterId:'test',items:currentItemReceipt?[{category:'material',itemId:'protein-jelly',quantity:1}]:[],version:currentItemReceipt?3:currentConfirmedReceipt?2:1,balances:{CP:currentConfirmedReceipt?11:10,SP:2,P:20}};
+   if(currentRequestPath==='/v1/developer/adjustments'&&!currentRequestPayload)return {characterId:'test',entries:currentItemReceipt?[currentItemReceipt,currentConfirmedReceipt]:currentConfirmedReceipt?[currentConfirmedReceipt]:[],nextCursor:null};
    if(currentRequestPath==='/v1/developer/adjustments'){
     currentPostRequestCount++;currentRequestPayloads.push(currentRequestPayload);
+    if(currentRequestPayload.asset==='ITEM'){currentItemReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:0,after:1,version:3,createdAt:101};return currentItemReceipt;}
     if(!currentConfirmedReceipt){currentConfirmedPayload=currentRequestPayload;currentConfirmedReceipt={ok:true,...currentRequestPayload,actorId:'test',characterId:'test',before:10,after:11,version:2,createdAt:100};}
     else assertDeveloperBrowserState(JSON.stringify(currentRequestPayload)===JSON.stringify(currentConfirmedPayload),'재시도 요청 ID·내용 보존');
     if(currentResponseLost){currentResponseLost=false;throw new Error('응답 유실');}
@@ -37,7 +40,7 @@ function clickDeveloperButton(currentMessageKey:string){
    }
    if(currentRequestPath==='/v1/game/state'){
     if(currentStateReadLost){currentStateReadLost=false;throw new Error('상태 조회 유실');}
-    return {...this.state,me:{...this.state.me,version:2,cp:11}};
+    return {...this.state,me:{...this.state.me,version:currentItemReceipt?3:2,cp:11}};
    }
    throw new Error('예상하지 않은 요청 '+currentRequestPath);
   }};
@@ -60,6 +63,12 @@ function clickDeveloperButton(currentMessageKey:string){
  assertDeveloperBrowserState(currentClientStub.state.me.cp===11,'최신 상태 반영');
  assertDeveloperBrowserState(document.querySelector('li')?.textContent?.includes('10 → 11'),'서버 변경 이력 표시');
  assertDeveloperBrowserState(!document.querySelector('fieldset')!.disabled,'성공 후 조작 복구');
+ (document.querySelector('input[type=checkbox]') as HTMLInputElement).click();await waitForDeveloperRender();
+ const currentItemSelect=document.querySelector('select')!;currentItemSelect.value='material:protein-jelly';currentItemSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
+ assertDeveloperBrowserState(document.body.textContent!.includes('0 → 1'),'아이템 보유량 미리보기');
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentItemReceipt?.category==='material'&&currentItemReceipt?.itemId==='protein-jelly'&&currentItemReceipt?.expectedVersion===2,'아이템 분류·ID·버전 전송');
+ assertDeveloperBrowserState(document.querySelector('li')?.textContent?.includes('material protein-jelly: 0 → 1'),'아이템 이력 표시');
  assertDeveloperBrowserState(document.documentElement.scrollWidth<=window.innerWidth,'모바일 가로 넘침 없음');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

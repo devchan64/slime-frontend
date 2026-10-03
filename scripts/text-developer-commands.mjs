@@ -36,11 +36,11 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
   const currentHistoryPage=await currentTextClient.request('/v1/developer/adjustments'+(currentAssetArgument?'?after='+encodeURIComponent(currentAssetArgument):''));requireCurrentDeveloperSession();
   if(currentHistoryPage.characterId!==currentCharacterIdentifier||!Array.isArray(currentHistoryPage.entries)
     ||currentHistoryPage.entries.some(currentReceiptRecord=>currentReceiptRecord.characterId!==currentCharacterIdentifier||currentReceiptRecord.actorId!==currentSessionTokens.user_id
-     ||!['CP','SP','P'].includes(currentReceiptRecord.asset)||!['ADD','REMOVE'].includes(currentReceiptRecord.operation)
+     ||!['CP','SP','P','ITEM'].includes(currentReceiptRecord.asset)||(currentReceiptRecord.asset==='ITEM'&&(typeof currentReceiptRecord.itemId!=='string'||typeof currentReceiptRecord.category!=='string'))||!['ADD','REMOVE'].includes(currentReceiptRecord.operation)
      ||![currentReceiptRecord.before,currentReceiptRecord.after,currentReceiptRecord.quantity].every(Number.isSafeInteger)
      ||typeof currentReceiptRecord.requestId!=='string'||!Number.isFinite(currentReceiptRecord.createdAt))
     ||(currentHistoryPage.nextCursor!==null&&typeof currentHistoryPage.nextCursor!=='string'))throw new Error('개발자 변경 이력 응답이 올바르지 않습니다.');
-  return currentHistoryPage.entries.map(currentReceiptRecord=>new Date(currentReceiptRecord.createdAt*1000).toISOString()+' · '+currentReceiptRecord.asset+' '+currentReceiptRecord.before+' → '+currentReceiptRecord.after+' · '+currentReceiptRecord.requestId).join('\n')
+  return currentHistoryPage.entries.map(currentReceiptRecord=>new Date(currentReceiptRecord.createdAt*1000).toISOString()+' · '+(currentReceiptRecord.asset==='ITEM'?currentReceiptRecord.category+' '+currentReceiptRecord.itemId:currentReceiptRecord.asset)+' '+currentReceiptRecord.before+' → '+currentReceiptRecord.after+' · '+currentReceiptRecord.requestId).join('\n')
    +'\n'+(currentHistoryPage.nextCursor?'다음: dev history '+currentHistoryPage.nextCursor:'이력 끝');
  }
  if(currentActionName==='inventory'&&currentCommandArguments.length===1){
@@ -48,20 +48,30 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
   if(currentInventory.characterId!==currentCharacterIdentifier||!Number.isSafeInteger(currentInventory.version)
     ||!['CP','SP','P'].every(currentAssetName=>Number.isSafeInteger(currentInventory.balances?.[currentAssetName])&&currentInventory.balances[currentAssetName]>=0))
    throw new Error('개발자 잔고 응답이 올바르지 않습니다.');
-  return ['CP','SP','P'].map(currentAssetName=>currentAssetName+' '+currentInventory.balances[currentAssetName]).join(' · ');
+  if(!Array.isArray(currentInventory.items)||currentInventory.items.some(currentItemEntry=>typeof currentItemEntry.category!=='string'||typeof currentItemEntry.itemId!=='string'||!Number.isSafeInteger(currentItemEntry.quantity)||currentItemEntry.quantity<1))throw new Error('개발자 재고 응답이 올바르지 않습니다.');
+  return ['CP','SP','P'].map(currentAssetName=>currentAssetName+' '+currentInventory.balances[currentAssetName]).join(' · ')+'\n'+currentInventory.items.map(currentItemEntry=>currentItemEntry.category+' '+currentItemEntry.itemId+' '+currentItemEntry.quantity).join('\n');
  }
- if(!['add','remove'].includes(currentActionName)||currentCommandArguments.length!==3||!['cp','sp','p'].includes(currentAssetArgument)
-   ||!/^[1-9][0-9]*$/.test(currentQuantityArgument)||!Number.isSafeInteger(Number(currentQuantityArgument))||Number(currentQuantityArgument)>1000000000)
-  throw new Error('dev status / inventory / add|remove cp|sp|p 수량(1~1000000000) 형식으로 입력하세요.');
- const currentAssetName=currentAssetArgument.toUpperCase();
+ const currentItemRequested=currentActionName==='item';
+ const currentOperationArgument=currentItemRequested?currentCommandArguments[1]:currentActionName;
+ const currentItemCategory=currentItemRequested?currentCommandArguments[2]:undefined;
+ const currentItemIdentifier=currentItemRequested?currentCommandArguments[3]:undefined;
+ const currentQuantityText=currentItemRequested?currentCommandArguments[4]:currentQuantityArgument;
+ if(!['add','remove'].includes(currentOperationArgument)||currentCommandArguments.length!==(currentItemRequested?5:3)
+   ||(currentItemRequested?!['material','collection','refined_material','consumable'].includes(currentItemCategory)||!currentItemIdentifier:!['cp','sp','p'].includes(currentAssetArgument))
+   ||!/^[1-9][0-9]*$/.test(currentQuantityText)||!Number.isSafeInteger(Number(currentQuantityText))||Number(currentQuantityText)>1000000000)
+  throw new Error('dev add|remove cp|sp|p 수량 또는 dev item add|remove 분류 품목ID 수량(1~1000000000) 형식으로 입력하세요.');
+ const currentAssetName=currentItemRequested?'ITEM':currentAssetArgument.toUpperCase();
+ const currentAssetLabel=currentItemRequested?currentItemCategory+' '+currentItemIdentifier:currentAssetName;
  return currentTextClient.command('/v1/developer/adjustments',{
-  operation:currentActionName==='add'?'ADD':'REMOVE',asset:currentAssetName,quantity:Number(currentQuantityArgument),
- },currentReceiptRecord=>`${currentAssetName} ${currentReceiptRecord.before} → ${currentReceiptRecord.after} · 요청 ${currentReceiptRecord.requestId}`,{
+  operation:currentOperationArgument==='add'?'ADD':'REMOVE',asset:currentAssetName,quantity:Number(currentQuantityText),
+  ...(currentItemRequested?{category:currentItemCategory,itemId:currentItemIdentifier}:{}),
+ },currentReceiptRecord=>`${currentAssetLabel} ${currentReceiptRecord.before} → ${currentReceiptRecord.after} · 요청 ${currentReceiptRecord.requestId}`,{
   fetchStateAfterReceipt:true,readReceiptCharacterVersion:currentReceiptRecord=>currentReceiptRecord.version,
   validateCommandResponse:(currentReceiptRecord,currentRequestBody)=>{
    if(currentReceiptRecord.ok!==true||currentReceiptRecord.requestId!==currentRequestBody.requestId
      ||currentReceiptRecord.actorId!==currentSessionTokens.user_id||currentReceiptRecord.characterId!==currentCharacterIdentifier
      ||currentReceiptRecord.asset!==currentRequestBody.asset||currentReceiptRecord.operation!==currentRequestBody.operation
+     ||currentReceiptRecord.itemId!==currentRequestBody.itemId||currentReceiptRecord.category!==currentRequestBody.category
      ||currentReceiptRecord.quantity!==currentRequestBody.quantity||currentReceiptRecord.version!==currentRequestBody.expectedVersion+1
      ||![currentReceiptRecord.before,currentReceiptRecord.after].every(currentBalanceValue=>Number.isSafeInteger(currentBalanceValue)&&currentBalanceValue>=0)
      ||currentReceiptRecord.after-currentReceiptRecord.before!==currentRequestBody.quantity*(currentRequestBody.operation==='ADD'?1:-1))

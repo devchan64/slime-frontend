@@ -1015,3 +1015,23 @@ test('개발자 포인트 조정은 본인 요청과 재시도 ID를 유지하�
  assert.match(await currentTextClient.execute('dev items'),/material protein-jelly · 단백질 젤리 · 조정 미지원/);
  assert.equal(currentRequestRecords[4].body,undefined);
 });
+
+
+test('개발자 수량형 아이템 명령은 분류·품목과 요청을 전달한다',async()=>{
+ const currentCommandRecords=[];
+ const currentInitialState=state({me:{...state().me,id:'test'}});
+ const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
+  if(currentRequestUrl.endsWith('/v1/developer/adjustments')){
+   const currentRequestBody=JSON.parse(currentRequestOptions.body);currentCommandRecords.push(currentRequestBody);
+   return Response.json({ok:true,...currentRequestBody,actorId:'test',characterId:'test',before:2,after:0,version:5});
+  }
+  return Response.json({...currentInitialState,cursor:2,me:{...currentInitialState.me,version:5}});
+ }});
+ currentTextClient.tokens={user_id:'test',access_token:'local-test'};currentTextClient.accept(currentInitialState);
+ assert.match(await currentTextClient.execute('dev item remove material protein-jelly 2'),/material protein-jelly 2 → 0/);
+ assert.equal(currentCommandRecords[0].asset,'ITEM');assert.equal(currentCommandRecords[0].itemId,'protein-jelly');
+ assert.equal(currentCommandRecords[0].category,'material');assert.equal(currentCommandRecords[0].operation,'REMOVE');
+ for(const currentInvalidCommand of ['dev item add equipment sword 1','dev item remove material protein-jelly 0','dev item add material protein-jelly 1 other'])
+  await assert.rejects(currentTextClient.execute(currentInvalidCommand),/형식/);
+ assert.equal(currentCommandRecords.length,1);
+});

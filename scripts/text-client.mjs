@@ -4,6 +4,7 @@ import { TextClient, formatState } from './text-client-core.mjs';
 
 const TERMINAL_TIMEOUT_LIMIT_MS=2147483647;
 const HELP = `dev status / inventory 개발자 본인 권한·CP·SP·P 조회 (로컬 전용)
+dev item add|remove 분류 품목ID 수량 수량형 아이템 조정
 dev items 등록 아이템과 조정 지원 여부 조회
 dev history [다음커서] 본인 개발자 변경 이력
 dev add|remove cp|sp|p 수량 포인트 증감 (응답 불명 시 retry)
