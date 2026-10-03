@@ -41,7 +41,7 @@ import { watchBrowserResume } from "../client/browserResume";
 import { registrationIssue } from "../client/credentials";
 import type { Position, State } from "../client/types";
 import type { createGame } from "../game/createGame";
-import { FIELD_MOVEMENT_INTERVAL_MS } from '../game/terrain/movementTransition';
+import { calculateFieldMovementPause } from '../game/terrain/movementTransition';
 const loginIllustration = new URL("../../../slime-assets/assets/ui/login/slime-welcome-v4.png", import.meta.url).href;
 const RESULT_NAMES: Record<string, string> = {
   WIN: "battle.resultWin",
@@ -364,7 +364,7 @@ export function App() {
         if (!current.map.safeTown && current.me.fp !== undefined && current.me.fp < 1) throw new LocalizedError("app.movementFpError");
         await client.command("/v1/game/moves", { position: steps[i] });
         setWalking({ completed: i + 1, total: steps.length, stopping: stopWalking.current });
-        if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, FIELD_MOVEMENT_INTERVAL_MS));
+        if (i + 1 < steps.length) await new Promise(resolve => setTimeout(resolve, calculateFieldMovementPause(i + 1, true)));
       }
     } finally { setWalking(null); }
   }
@@ -380,7 +380,7 @@ export function App() {
           finally { setTransferPending(false); }
         },
         progress: (completed,total) => setWalking({completed,total,stopping:false}),
-        pause: () => new Promise(resolve => setTimeout(resolve,FIELD_MOVEMENT_INTERVAL_MS)),
+        pause: (currentCompletedSteps,currentHasNextStep) => new Promise(resolve => setTimeout(resolve,calculateFieldMovementPause(currentCompletedSteps,currentHasNextStep))),
       });
     } finally { setWalking(null); }
   }

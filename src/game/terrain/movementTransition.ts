@@ -1,9 +1,18 @@
-/** 걷기 12프레임을 8 FPS로 재생하는 한 칸 이동 시간이다. */
+/** 전투는 기존 한 칸 12프레임, 필드는 한 칸 6프레임을 8 FPS로 재생한다. */
 const CHARACTER_WALK_FRAME_COUNT = 12;
 const CHARACTER_WALK_FRAME_RATE = 8;
 export const TILE_MOVEMENT_DURATION_MS = CHARACTER_WALK_FRAME_COUNT * 1000 / CHARACTER_WALK_FRAME_RATE;
-/** 다음 서버 이동 요청은 한 칸 전환과 도착 여유 시간 뒤에 보낸다. */
-export const FIELD_MOVEMENT_INTERVAL_MS = TILE_MOVEMENT_DURATION_MS + 90;
+export const FIELD_TILE_MOVEMENT_DURATION_MS = TILE_MOVEMENT_DURATION_MS / 2;
+const FIELD_MOVEMENT_SETTLE_MILLISECONDS = 90;
+const FIELD_PAIRED_REQUEST_MILLISECONDS = 300;
+const FIELD_MOVEMENT_BATCH_TILES = 2;
+/** 두 칸까지 먼저 확정하되 각 칸은 서버에서 독립 판정한다. */
+export function calculateFieldMovementPause(currentCompletedSteps: number, currentHasNextStep: boolean): number {
+  if (currentCompletedSteps % FIELD_MOVEMENT_BATCH_TILES === 0)
+    return TILE_MOVEMENT_DURATION_MS + FIELD_MOVEMENT_SETTLE_MILLISECONDS - FIELD_PAIRED_REQUEST_MILLISECONDS;
+  return currentHasNextStep ? FIELD_PAIRED_REQUEST_MILLISECONDS
+    : FIELD_TILE_MOVEMENT_DURATION_MS + FIELD_MOVEMENT_SETTLE_MILLISECONDS;
+}
 
 /** 최대 약 3.7%만 목표를 넘는 약한 ease-out-back 탄성이다. */
 const TILE_MOVEMENT_OVERSHOOT_STRENGTH = 1;

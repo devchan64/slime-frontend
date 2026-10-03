@@ -3,8 +3,8 @@ import {parsePack} from '../src/i18n/catalog.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({stdin:{contents:"export * from './src/ui/encounterNavigation'; export * from './src/client/notice';",resolveDir:process.cwd()},bundle:true,write:false,format:'esm',platform:'node'});
-const {approachMonster,noticeText}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {outputFiles}=await build({stdin:{contents:"export * from './src/ui/encounterNavigation'; export * from './src/client/notice'; export * from './src/game/terrain/movementTransition';",resolveDir:process.cwd()},bundle:true,write:false,format:'esm',platform:'node'});
+const {approachMonster,noticeText,calculateFieldMovementPause}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 function setup() {
  const state={me:{id:'hero',mode:'FIELD',position:{column:0,row:1}},map:{columns:6,rows:4,blocked:[]},location:{id:'meadow'},generation:1,epoch:1,monsters:[{id:'slime',state:'AVAILABLE',position:{column:4,row:1}}]};
  const events=[];
@@ -25,7 +25,11 @@ test('음수 FP는 조우를 막지만 0 FP에서 인접 조우는 가능하다'
  assert.deepEqual(events,[['reserve','slime']]);
 });
 test('원거리 몬스터 인접 위치에 도착한 후 한 번만 조우 요청',async()=>{
- const {state,events,controls}=setup();await approachMonster('slime',controls);
+ const {state,events,controls}=setup();
+ const currentPauseDurations=[];
+ controls.pause=async(currentCompletedSteps,currentHasNextStep)=>{currentPauseDurations.push(calculateFieldMovementPause(currentCompletedSteps,currentHasNextStep));};
+ await approachMonster('slime',controls);
+ assert.deepEqual(currentPauseDurations,[300,1290,840]);
  assert.deepEqual(state.me.position,{column:3,row:1});
  assert.deepEqual(events.map(e=>e[0]),['move','move','move','reserve']);
 });

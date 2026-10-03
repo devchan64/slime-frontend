@@ -7,7 +7,7 @@ import {fieldActionContext, canContinueFieldAction} from './fieldActionContext';
 export async function approachMonster(monsterId: string, controls: {
   state: () => State | null; stopped: () => boolean;
   move: (position: Position) => Promise<unknown>; reserve: (monsterId: string) => Promise<unknown>;
-  progress: (completed: number, total: number) => void; pause: () => Promise<void>;
+  progress: (completed: number, total: number) => void; pause: (currentCompletedSteps: number, currentHasNextStep: boolean) => Promise<void>;
 }) {
   const initial = controls.state();
   if (!initial || initial.me.mode !== 'FIELD') throw new LocalizedError('field.approachFieldRequired');
@@ -32,6 +32,6 @@ export async function approachMonster(monsterId: string, controls: {
     if (completed === maxSteps) throw new LocalizedError('field.approachTooLong');
     controls.progress(completed, completed + route.length);
     await controls.move(route[0]);
-    await controls.pause();
+    await controls.pause(completed + 1, route.length > 1);
   }
 }

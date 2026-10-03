@@ -1,4 +1,4 @@
-import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './movementTransition';
+import {calculateTileMovementProgress, FIELD_TILE_MOVEMENT_DURATION_MS} from './movementTransition';
 import {screenFacing, type WorldFacing} from '../animation/facing';
 import type {Position} from '../../client/types';
 type Point = {x:number;y:number;depth:number};
@@ -22,8 +22,8 @@ export class FieldMotion {
       }
       const adjacent=old && Math.abs(old.cell.column-actor.cell.column)+Math.abs(old.cell.row-actor.cell.row)===1;
       const currentMotionTrack=adjacent && this.isMovementActive(actor.id,now) ? old : undefined;
-      const completedSegmentCount=currentMotionTrack ? Math.floor(Math.max(0,now-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS) : 0;
-      const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*TILE_MOVEMENT_DURATION_MS : now;
+      const completedSegmentCount=currentMotionTrack ? Math.floor(Math.max(0,now-currentMotionTrack.started)/FIELD_TILE_MOVEMENT_DURATION_MS) : 0;
+      const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*FIELD_TILE_MOVEMENT_DURATION_MS : now;
       const movementPathPoints=currentMotionTrack ? currentMotionTrack.movementPathPoints.slice(completedSegmentCount)
         : adjacent ? [{...old.point}] : [];
       const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
@@ -36,7 +36,7 @@ export class FieldMotion {
   currentWorldFacing(actorStableIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return undefined;
-    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS);
+    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/FIELD_TILE_MOVEMENT_DURATION_MS);
     return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
   movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
@@ -46,7 +46,7 @@ export class FieldMotion {
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;
-    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.movementPathPoints.length-1)*TILE_MOVEMENT_DURATION_MS;
+    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.movementPathPoints.length-1)*FIELD_TILE_MOVEMENT_DURATION_MS;
   }
   offset(id:string,now:number):Point {
     const track=this.tracks.get(id);
@@ -55,7 +55,7 @@ export class FieldMotion {
     return {x:at.x-track.point.x,y:at.y-track.point.y,depth:at.depth-track.point.depth};
   }
   private sample(track:Track,now:number):Point {
-    const elapsedSegmentCount=Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS;
+    const elapsedSegmentCount=Math.max(0,now-track.started)/FIELD_TILE_MOVEMENT_DURATION_MS;
     const currentSegmentIndex=Math.min(Math.floor(elapsedSegmentCount),track.movementPathPoints.length-1);
     const segmentStartPoint=track.movementPathPoints[currentSegmentIndex];
     const segmentTargetPoint=track.movementPathPoints[Math.min(currentSegmentIndex+1,track.movementPathPoints.length-1)];
