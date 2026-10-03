@@ -28,7 +28,7 @@ export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled,isHunt
  }
  async function executeHuntSelection(currentEncounterIdentifier:string){
   if(actionsAreDisabled||currentBusyReference.current||!matchesHuntSession()||(!currentHuntCatalog&&!currentHuntController.pendingHuntRequest))return;
-  currentBusyReference.current=true;setCurrentRequestPending(true);setCurrentHuntNotice('');setCurrentCatalogNotice('');
+  currentBusyReference.current=true;setCurrentRequestPending(true);setCurrentHuntNotice('');setCurrentCatalogNotice('');setCurrentHuntReceipt(null);
   try{
    const currentCommandReceipt=await currentHuntController.executeHuntCommand(currentEncounterIdentifier,currentHuntCatalog?.characterVersion??currentHuntController.pendingHuntRequest!.expectedVersion);
    if(matchesHuntSession()){setCurrentHuntReceipt(currentCommandReceipt);setCurrentHuntCatalog(null);}
