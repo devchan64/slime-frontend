@@ -35,6 +35,21 @@ export function validateAchievementCatalogRecords(currentCatalogValue: unknown):
   }
 }
 
+/** 지급 항목 오류도 수신 단계에서 거절하여 화면의 재조회 경로를 유지한다. */
+export function validateAchievementRewardLedger(currentLedgerValue: unknown): void {
+  if (!Array.isArray(currentLedgerValue)) throw new Error('업적 지급 원장이 배열이 아닙니다.');
+  for (const currentRewardRecord of currentLedgerValue) {
+    if (!currentRewardRecord || typeof currentRewardRecord !== 'object' || Array.isArray(currentRewardRecord)
+        || !['id', 'achievementId', 'sourceType'].every(currentFieldName =>
+          typeof currentRewardRecord[currentFieldName] === 'string' && currentRewardRecord[currentFieldName].trim())
+        || !['GENERAL', 'SEASONAL'].includes(currentRewardRecord.scope)
+        || !(currentRewardRecord.seasonId === null || typeof currentRewardRecord.seasonId === 'string' && currentRewardRecord.seasonId.trim())
+        || !Number.isSafeInteger(currentRewardRecord.amount) || currentRewardRecord.amount < 1
+        || !Number.isFinite(currentRewardRecord.createdAt) || currentRewardRecord.createdAt < 0)
+      throw new Error('업적 지급 항목이 올바르지 않습니다.');
+  }
+}
+
 /** 과거 정의 누락을 현재 카탈로그로 대체하면 다른 시즌의 기록이 섞이므로 거절한다. */
 export function validateAchievementSeasonHistory(currentHistoryValue: unknown): void {
   if (!currentHistoryValue || typeof currentHistoryValue !== 'object' || Array.isArray(currentHistoryValue))
@@ -47,8 +62,8 @@ export function validateAchievementSeasonHistory(currentHistoryValue: unknown): 
           || Array.isArray(currentSeasonRecord[currentRecordField]))
         throw new Error('과거 시즌 업적 정의와 진행 기록이 필요합니다.');
     }
-    if (!Array.isArray(currentSeasonRecord.cpLedger) || !Array.isArray(currentSeasonRecord.spLedger))
-      throw new Error('과거 시즌 CP·SP 지급 원장이 필요합니다.');
+    validateAchievementRewardLedger(currentSeasonRecord.cpLedger);
+    validateAchievementRewardLedger(currentSeasonRecord.spLedger);
     validateAchievementCatalogRecords(currentSeasonRecord.catalog);
   }
 }

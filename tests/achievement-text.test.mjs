@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 const { outputFiles } = await build({entryPoints:['src/client/achievementText.ts'],bundle:true,write:false,format:'esm',platform:'node'});
-const { localizedAchievement, validateAchievementSeasonHistory, validateAchievementCatalogRecords } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const { validateAchievementRewardLedger, localizedAchievement, validateAchievementSeasonHistory, validateAchievementCatalogRecords } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const validRewardEntry = {id:'reward-1',achievementId:'old',scope:'GENERAL',seasonId:null,amount:1,createdAt:1,sourceType:'achievement'};
 const original = {name:'첫 승리',scope:'GENERAL',cp:1,sp:1,checklist:{win:{description:'1회 승리',target:1}}};
 test('업적 이름과 조건을 함께 전환하고 원본 및 보상을 보존한다', () => {
  const definition = structuredClone(original);
@@ -27,7 +28,7 @@ test('언어 누락과 빈 이름 또는 조건을 즉시 거절한다', () => {
 
 
 test('과거 시즌 정의 누락은 현재 업적 대체 없이 거절하고 정상 기록은 변경하지 않는다',()=>{
- const currentHistoryRecord={previous:{catalog:{old:original},achievements:{old:{completedAt:1,checklist:{win:{count:1}}}},seasonalAchievements:{},cpLedger:[{amount:1}],spLedger:[{amount:1}]}};
+ const currentHistoryRecord={previous:{catalog:{old:original},achievements:{old:{completedAt:1,checklist:{win:{count:1}}}},seasonalAchievements:{},cpLedger:[{...validRewardEntry}],spLedger:[{...validRewardEntry}]}};
  const currentOriginalHistory=structuredClone(currentHistoryRecord);
  validateAchievementSeasonHistory(currentHistoryRecord);
  assert.deepEqual(currentHistoryRecord,currentOriginalHistory);
@@ -46,4 +47,16 @@ test('현재 업적 카탈로그의 잘못된 번역은 렌더 전에 거절한�
  validateAchievementCatalogRecords({current:original});
  for(const currentInvalidCatalog of [null,[],{current:null},{current:{...original,translations:{ko:{name:'이름'}}}}])
    assert.throws(()=>validateAchievementCatalogRecords(currentInvalidCatalog));
+});
+
+
+test('지급 원장 오류는 현재·과거 시즌 모두 화면 렌더 전에 거절한다',()=>{
+ validateAchievementRewardLedger([validRewardEntry]);
+ for (const currentInvalidEntry of [null, [], {...validRewardEntry,id:1}, {...validRewardEntry,scope:'UNKNOWN'},
+   {...validRewardEntry,amount:-1}, {...validRewardEntry,amount:0.5}, {...validRewardEntry,createdAt:NaN},
+   {...validRewardEntry,seasonId:3}, {...validRewardEntry,sourceType:''}]) {
+   assert.throws(()=>validateAchievementRewardLedger([currentInvalidEntry]));
+   assert.throws(()=>validateAchievementSeasonHistory({old:{catalog:{old:original},achievements:{},seasonalAchievements:{},cpLedger:[currentInvalidEntry],spLedger:[]}}));
+ }
+ for (const currentInvalidLedger of [null,{},undefined]) assert.throws(()=>validateAchievementRewardLedger(currentInvalidLedger));
 });
