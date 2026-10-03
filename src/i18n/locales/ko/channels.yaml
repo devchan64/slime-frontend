@@ -27,3 +27,7 @@ alreadyHere: 현재 채널입니다.
 closed: 입장이 중지된 채널입니다.
 full: 만석입니다. 다른 채널을 선택하거나 목록을 다시 확인하세요.
 waitAction: 진행 중인 이동·로딩을 마친 뒤 채널을 이동하세요.
+pagination: 채널 목록 페이지
+previousPage: 이전
+nextPage: 다음
+pageNumber: '{page} / {total} 페이지'

@@ -83,5 +83,16 @@ async function enterChannelAddress(currentAddressText:string){const currentInput
   const currentDialogElement=document.querySelector('dialog')!;
   verifyCurrentCondition(currentDialogElement.scrollWidth<=currentDialogElement.clientWidth,'모바일 긴 채널 ID 가로 넘침 없음');
   verifyCurrentCondition(currentTransferFlags.join(',')==='true,false,true,false,true,false','전송 종료·실패 시 전환 잠금 해제');
+  currentRequestHandler=async()=>Array.from({length:21},(_,currentEntryIndex)=>({...currentChannelRecords[0],id:`page-${currentEntryIndex}`,address:`a${currentEntryIndex+1}`}));
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(document.querySelectorAll('[data-channel-address]').length===10,'채널 첫 페이지 10개');
+  findNamedButton(t('channels.nextPage')).click();await waitRenderCycle();
+  verifyCurrentCondition(!!document.querySelector('[data-channel-address="a11"]')&&!document.querySelector('[data-channel-address="a1"]'),'채널 다음 페이지 교체');
+  findNamedButton(t('channels.nextPage')).click();await waitRenderCycle();
+  verifyCurrentCondition(document.querySelectorAll('[data-channel-address]').length===1&&findNamedButton(t('channels.nextPage')).disabled,'채널 마지막 페이지와 다음 버튼 차단');
+  findNamedButton(t('channels.previousPage')).click();await waitRenderCycle();
+  verifyCurrentCondition(!!document.querySelector('[data-channel-address="a11"]'),'채널 이전 페이지 복귀');
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(!!document.querySelector('[data-channel-address="a1"]')&&findNamedButton(t('channels.previousPage')).disabled,'채널 새로고침 첫 페이지 복귀');
   document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionLabels,commands:currentCommandRecords});
 }catch(currentFailureError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailureError),stack:(currentFailureError as Error).stack,assertions:currentAssertionLabels});}})();

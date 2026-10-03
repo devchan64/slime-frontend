@@ -7,9 +7,12 @@ import {CHANNEL_ADDRESS_MAX_LENGTH,normalizeChannelAddress,parseChannelListing,c
 import {useTranslation} from '../i18n';
 import './channelPanel.css';
 
+const CHANNEL_LIST_PAGE_SIZE = 10;
+
 export function ChannelPanel({gameSessionClient,currentGameState,actionsAreDisabled,onChannelTransferChange}:{gameSessionClient:Client;currentGameState:State;actionsAreDisabled:boolean;onChannelTransferChange:(currentTransferPending:boolean)=>void}) {
   const {t:translateChannelText,locale:currentDisplayLocale}=useTranslation();
   const [currentChannelEntries,setCurrentChannelEntries]=useState<ChannelListingEntry[]|null>(null);
+  const [currentChannelPage,setCurrentChannelPage]=useState(0);
   const [currentAddressInput,setCurrentAddressInput]=useState('');
   const [currentChannelNotice,setCurrentChannelNotice]=useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending]=useState(false);
@@ -36,7 +39,7 @@ export function ChannelPanel({gameSessionClient,currentGameState,actionsAreDisab
       }
       const currentReceivedEntries=parseChannelListing(await gameSessionClient.request('/v1/channels'));
       if(!channelSessionMatches())return;
-      setCurrentChannelEntries(currentReceivedEntries);setCurrentResultUncertain(false);
+      setCurrentChannelEntries(currentReceivedEntries);setCurrentChannelPage(0);setCurrentResultUncertain(false);
     }catch(currentRequestError){if(channelSessionMatches())setCurrentChannelNotice(currentRequestError as Error);}
     finally {pendingRequestReference.current=false;if(activePanelReference.current)setCurrentRequestPending(false);}
   }
@@ -60,6 +63,9 @@ export function ChannelPanel({gameSessionClient,currentGameState,actionsAreDisab
     }
   }
   useEffect(()=>{activePanelReference.current=true;void refreshChannelListing();return()=>{activePanelReference.current=false;};},[]);
+  const currentMapChannels=(currentChannelEntries??[]).filter(currentChannelEntry=>currentChannelEntry.mapDefinitionId===currentGameState.map.id).sort(compareChannelAddresses);
+  const currentChannelPageCount=Math.max(1,Math.ceil(currentMapChannels.length/CHANNEL_LIST_PAGE_SIZE));
+  const displayedChannelPageIndex=Math.min(currentChannelPage,currentChannelPageCount-1);
   const currentMovementReason=channelMovementRestriction(currentGameState);
   let currentNormalizedAddress='';
   let currentAddressReason:string|null=null;
@@ -86,7 +92,12 @@ export function ChannelPanel({gameSessionClient,currentGameState,actionsAreDisab
     </form>
     <h3>{translateChannelText('channels.sameMap')}</h3>
     <p>{translateChannelText('channels.populationHelp')}</p>
-    {currentChannelEntries && <ul class="channel-list">{currentChannelEntries.filter(currentChannelEntry=>currentChannelEntry.mapDefinitionId===currentGameState.map.id).sort(compareChannelAddresses).map(currentChannelEntry=>{
+    {currentChannelPageCount>1 && <nav class="record-page-navigation" aria-label={translateChannelText('channels.pagination')}>
+      <button class="secondary" disabled={currentRequestPending||displayedChannelPageIndex===0} onClick={()=>setCurrentChannelPage(displayedChannelPageIndex-1)}>{translateChannelText('channels.previousPage')}</button>
+      <span role="status">{translateChannelText('channels.pageNumber',{page:displayedChannelPageIndex+1,total:currentChannelPageCount})}</span>
+      <button class="secondary" disabled={currentRequestPending||displayedChannelPageIndex+1>=currentChannelPageCount} onClick={()=>setCurrentChannelPage(displayedChannelPageIndex+1)}>{translateChannelText('channels.nextPage')}</button>
+    </nav>}
+    {currentChannelEntries && <ul class="channel-list">{currentMapChannels.slice(displayedChannelPageIndex*CHANNEL_LIST_PAGE_SIZE,(displayedChannelPageIndex+1)*CHANNEL_LIST_PAGE_SIZE).map(currentChannelEntry=>{
       const currentTargetReason=channelTargetRestriction(currentGameState,currentChannelEntry);
       return <li key={currentChannelEntry.id} class="channel-list-entry" data-channel-address={currentChannelEntry.address}>
         <div><strong>{currentChannelEntry.address}</strong>

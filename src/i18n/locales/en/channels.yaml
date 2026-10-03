@@ -27,3 +27,7 @@ alreadyHere: You are in this channel.
 closed: This channel is closed to new arrivals.
 full: This channel is full. Choose another channel or refresh the list.
 waitAction: Finish the current movement or loading before changing channels.
+pagination: Channel list pages
+previousPage: Previous
+nextPage: Next
+pageNumber: 'Page {page} of {total}'
