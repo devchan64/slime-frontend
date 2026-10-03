@@ -34,6 +34,11 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const [currentRequestBusy,setCurrentRequestBusy]=useState(false);
  const [currentRequestUncertain,setCurrentRequestUncertain]=useState(false);
  const [currentNoticeMessage,setCurrentNoticeMessage]=useState<Notice>('');
+ const [currentConfirmationOpen,setCurrentConfirmationOpen]=useState(false);
+ const currentConfirmationDialog=useRef<HTMLDialogElement>(null);
+ const currentApplyButton=useRef<HTMLButtonElement>(null);
+ useEffect(()=>{if(currentConfirmationOpen)currentConfirmationDialog.current?.showModal();else currentConfirmationDialog.current?.close();},[currentConfirmationOpen]);
+ function closeDeveloperConfirmation(){setCurrentConfirmationOpen(false);currentApplyButton.current?.focus();}
  const currentActiveReference=useRef(false);
  const currentBusyReference=useRef(false);
  const currentPendingAdjustment=useRef<{payload:DeveloperAdjustmentPayload;receipt?:DeveloperReceiptRecord}|null>(null);
@@ -99,11 +104,11 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const currentBalanceValue=currentBatchMode?(currentOperationKind==='REMOVE'?currentSelectedBatch?.quantity??0:0):currentPermitMode?(currentOperationKind==='REMOVE'&&currentSelectedPermit?1:0):currentEquipmentMode?(currentOperationKind==='REMOVE'&&currentSelectedEquipment?1:0):(currentItemMode?currentInventoryRecord?.items.find(currentItemEntry=>currentItemEntry.category+':'+currentItemEntry.itemId===currentSelectedItem)?.quantity:currentInventoryRecord?.balances[currentSelectedAsset])??0;
  const currentProjectedBalance=currentBalanceValue+(currentOperationKind==='ADD'?currentQuantityValue:-currentQuantityValue);
  const currentMutationBlocked=actionsAreDisabled||gameSessionClient.state?.me.mode!=='FIELD'||!!gameSessionClient.state?.battle||!!gameSessionClient.state?.reservation;
+ const currentConfirmationText=translateDeveloperText('app.developerConfirm',{asset:currentSelectedLabel+(currentBatchMode?' · Lv.'+(currentOperationKind==='ADD'?currentSelectedLevel:currentSelectedBatch?.itemLevel)+' · '+(currentOperationKind==='REMOVE'?currentSelectedBatch?.batchId:''):'')+(currentPermitMode?' · '+(currentOperationKind==='ADD'?currentSelectedCity+' · '+currentSelectedIssuer:currentSelectedPermit?.cityId+' · '+currentSelectedPermit?.instanceId):''),before:currentBalanceValue,after:currentProjectedBalance});
  async function submitDeveloperAdjustment(currentRetryRequested:boolean){
   if(!currentRetryRequested){
    if(currentMutationBlocked||currentPendingAdjustment.current||!currentInventoryRecord||!currentQuantityValid||currentProjectedBalance<0||(currentItemMode&&!currentItemSupported))return;
-   if(!window.confirm(translateDeveloperText('app.developerConfirm',{asset:currentSelectedLabel+(currentBatchMode?' · Lv.'+(currentOperationKind==='ADD'?currentSelectedLevel:currentSelectedBatch!.itemLevel)+' · '+(currentOperationKind==='REMOVE'?currentSelectedBatch!.batchId:''):'')+(currentPermitMode?' · '+(currentOperationKind==='ADD'?currentSelectedCity+' · '+currentSelectedIssuer:currentSelectedPermit!.cityId+' · '+currentSelectedPermit!.instanceId):''),before:currentBalanceValue,after:currentProjectedBalance})))return;
-   currentPendingAdjustment.current={payload:{requestId:crypto.randomUUID(),expectedVersion:currentInventoryRecord.version,operation:currentOperationKind,asset:currentItemMode?'ITEM':currentSelectedAsset,quantity:currentQuantityValue,...(currentItemMode?{category:currentSelectedDefinition!.category,itemId:currentSelectedDefinition!.itemId,...(currentBatchMode?(currentOperationKind==='ADD'?{itemLevel:currentSelectedLevel}:{batchId:currentSelectedBatch!.batchId}):{}),...(currentPermitMode?(currentOperationKind==='ADD'?{cityId:currentSelectedCity,issuerId:currentSelectedIssuer}:{instanceId:currentSelectedPermit!.instanceId}):{}),...(currentEquipmentMode&&currentOperationKind==='REMOVE'?{instanceId:currentSelectedEquipment!.instanceId,expectedInstanceVersion:currentSelectedEquipment!.instanceVersion}:{})}:{})}};
+   currentPendingAdjustment.current={payload:{requestId:crypto.randomUUID(),expectedVersion:currentInventoryRecord.version,operation:currentOperationKind,asset:currentItemMode?'ITEM':currentSelectedAsset,quantity:currentQuantityValue,...(currentItemMode?{category:currentSelectedDefinition!.category,itemId:currentSelectedDefinition!.itemId,...(currentBatchMode?(currentOperationKind==='ADD'?{itemLevel:currentSelectedLevel}:{batchId:currentSelectedBatch?.batchId}):{}),...(currentPermitMode?(currentOperationKind==='ADD'?{cityId:currentSelectedCity,issuerId:currentSelectedIssuer}:{instanceId:currentSelectedPermit?.instanceId}):{}),...(currentEquipmentMode&&currentOperationKind==='REMOVE'?{instanceId:currentSelectedEquipment!.instanceId,expectedInstanceVersion:currentSelectedEquipment!.instanceVersion}:{})}:{})}};
   }
   const currentPendingRecord=currentPendingAdjustment.current;if(!currentPendingRecord)return;
   try{
@@ -161,8 +166,15 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
     {currentItemMode&&currentSelectedDefinition?.category==='skill_card'&&<p>{translateDeveloperText('app.developerCardQuantity')}</p>}
     <label>{translateDeveloperText('app.developerQuantity')}<input type="number" min="1" max="1000000000" step="1" value={currentQuantityInput} onInput={currentInputEvent=>setCurrentQuantityInput(currentInputEvent.currentTarget.value)}/></label>
     {currentInventoryRecord&&<p>{currentSelectedLabel}: {currentBalanceValue} → {currentQuantityValid?currentProjectedBalance:'—'}</p>}
-    <button disabled={!currentInventoryRecord||!currentQuantityValid||currentProjectedBalance<0||(currentItemMode&&!currentItemSupported)} onClick={()=>void runDeveloperPanelAction(()=>submitDeveloperAdjustment(false))}>{translateDeveloperText('app.developerApply')}</button>
+    <button ref={currentApplyButton} disabled={!currentInventoryRecord||!currentQuantityValid||currentProjectedBalance<0||(currentItemMode&&!currentItemSupported)} onClick={()=>setCurrentConfirmationOpen(true)}>{translateDeveloperText('app.developerApply')}</button>
    </fieldset>
+   <dialog ref={currentConfirmationDialog} class="battle-confirm-dialog" aria-labelledby="developer-confirm-title" aria-describedby="developer-confirm-description" onCancel={currentCancelEvent=>{currentCancelEvent.preventDefault();closeDeveloperConfirmation();}}>
+    <h2 id="developer-confirm-title">{translateDeveloperText('app.developerApply')}</h2>
+    <p id="developer-confirm-description">{currentConfirmationText}</p>
+    <p>{translateDeveloperText('app.developerQuantity')}: {currentQuantityValue}</p>
+    <button class="secondary" autoFocus onClick={closeDeveloperConfirmation}>{translateDeveloperText('app.developerCancel')}</button>
+    <button disabled={currentMutationBlocked||currentRequestBusy} onClick={()=>{closeDeveloperConfirmation();void runDeveloperPanelAction(()=>submitDeveloperAdjustment(false));}}>{translateDeveloperText('app.developerProceed')}</button>
+   </dialog>
    {currentMutationBlocked&&<p>{translateDeveloperText('app.developerFieldOnly')}</p>}
    {currentRequestUncertain&&<><p role="status">{translateDeveloperText('app.developerUncertain')}</p><button disabled={currentRequestBusy} onClick={()=>void runDeveloperPanelAction(()=>submitDeveloperAdjustment(true))}>{translateDeveloperText('app.developerRetry')}</button></>}
    <h3>{translateDeveloperText('app.developerHistory')}</h3>

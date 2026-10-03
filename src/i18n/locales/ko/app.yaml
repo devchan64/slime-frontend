@@ -147,3 +147,6 @@ developerPermitInstance: "회수할 증서 · 도시 · 만료일 · 개체 ID"
 
 developerBatchLevel: "지급할 생산 레벨"
 developerBatchInstance: "회수할 배치 · 레벨 · 보유 수량 · ID"
+
+developerCancel: "취소"
+developerProceed: "조정 실행"

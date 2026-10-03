@@ -147,3 +147,6 @@ developerPermitInstance: "Certificate · city · expiry · instance ID"
 
 developerBatchLevel: "Production level to grant"
 developerBatchInstance: "Batch to remove · level · owned quantity · ID"
+
+developerCancel: "Cancel"
+developerProceed: "Apply adjustment"
