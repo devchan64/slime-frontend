@@ -161,3 +161,5 @@ bagSuppliesPagination: Supplies pages
 bagPreviousPage: Previous
 bagNextPage: Next
 bagPageNumber: "Page {page} of {total}"
+bagEquipmentPagination: Equipment pages
+bagEquipmentPage: "Page {page}"

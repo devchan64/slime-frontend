@@ -161,3 +161,5 @@ bagSuppliesPagination: 재료·소모품 페이지 이동
 bagPreviousPage: 이전
 bagNextPage: 다음
 bagPageNumber: "{page} / {total}페이지"
+bagEquipmentPagination: 장비 페이지 이동
+bagEquipmentPage: "{page}페이지"

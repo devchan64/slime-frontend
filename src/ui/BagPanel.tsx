@@ -22,6 +22,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
   const [currentRequestPending,setCurrentRequestPending] = useState(false);
   const [currentBagCategory,setCurrentBagCategory] = useState<'supplies'|'equipment'|'permits'>('supplies');
   const [currentSuppliesPage,setCurrentSuppliesPage] = useState(0);
+  const [equipmentPageCursorHistory,setEquipmentPageCursorHistory] = useState<string[]>(['']);
   const activeRequestSequence = useRef(0);
   const activePanelReference = useRef(false);
   const initialSessionReference = useRef({owner:gameSessionClient.tokens?.user_id,
@@ -36,8 +37,9 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
     if (!matchesBagSession() || actionsAreDisabled || currentRequestPending) return;
     submitConsumableUse?.(currentItemIdentifier);
   }
-  async function loadBagInventory(afterInstanceIdentifier?: string) {
+  async function loadBagInventory(requestedEquipmentCursors: string[] = [''], preserveInventoryVersion = false) {
     if (!matchesBagSession()) return;
+    const afterInstanceIdentifier = requestedEquipmentCursors[requestedEquipmentCursors.length-1];
     const currentRequestSequence = ++activeRequestSequence.current;
     const currentSessionGeneration = gameSessionClient.state?.generation;
     const currentCharacterIdentifier = me.id;
@@ -51,8 +53,8 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       const receivedInventoryPage = parseBagInventory(await gameSessionClient.request('/v1/game/equipment?includeSkillbooks=true&includeRefining=true&includeTravelerPermits=true'
         + (afterInstanceIdentifier ? `&after=${encodeURIComponent(afterInstanceIdentifier)}` : '')), currentCharacterIdentifier);
       if (!matchesCurrentRequest()) return;
-      const previousInventoryItems = afterInstanceIdentifier ? currentInventoryPage?.items ?? [] : [];
-      if (afterInstanceIdentifier && receivedInventoryPage.characterVersion !== currentInventoryPage?.characterVersion) {
+      const previousInventoryItems = preserveInventoryVersion ? currentInventoryPage?.items ?? [] : [];
+      if (preserveInventoryVersion && receivedInventoryPage.characterVersion !== currentInventoryPage?.characterVersion) {
         throw new LocalizedError('app.bagChanged');
       }
       const previousInstanceIdentifiers = new Set(previousInventoryItems.map(currentItemEntry => currentItemEntry.instanceId));
@@ -61,7 +63,8 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
       }
       const receivedSuppliesPageCount = Math.max(1,Math.ceil(receivedInventoryPage.bag.items.filter(currentItemEntry=>currentItemEntry.kind!=='skillbook').length/BAG_SUPPLIES_PAGE_SIZE));
       setCurrentSuppliesPage(previousSuppliesPageIndex=>Math.min(previousSuppliesPageIndex,receivedSuppliesPageCount-1));
-      setCurrentInventoryPage({...receivedInventoryPage,items:[...previousInventoryItems,...receivedInventoryPage.items]});
+      setCurrentInventoryPage(receivedInventoryPage);
+      setEquipmentPageCursorHistory(requestedEquipmentCursors);
     } catch (currentRequestError) {
       if (matchesCurrentRequest()) {
         setCurrentInventoryPage(null); setCurrentRequestNotice(currentRequestError as Error);
@@ -119,6 +122,11 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
           </button>}
         </li>)}
       </ul></>}
+      {currentBagCategory==='equipment' && (equipmentPageCursorHistory.length>1||currentInventoryPage.nextCursor) && <nav class="record-page-navigation" aria-label={translateBagText('app.bagEquipmentPagination')}>
+        <button class="secondary" disabled={currentRequestPending||equipmentPageCursorHistory.length===1} onClick={()=>void loadBagInventory(equipmentPageCursorHistory.slice(0,-1),true)}>{translateBagText('app.bagPreviousPage')}</button>
+        <span role="status">{translateBagText('app.bagEquipmentPage',{page:equipmentPageCursorHistory.length})}</span>
+        <button class="secondary" disabled={currentRequestPending||!currentInventoryPage.nextCursor} onClick={()=>void loadBagInventory([...equipmentPageCursorHistory,currentInventoryPage.nextCursor!],true)}>{translateBagText('app.bagNextPage')}</button>
+      </nav>}
       {currentBagCategory==='equipment' && !!currentInventoryPage.items.length && <><h3>{translateBagText('equipment.title')}</h3><ul class="bag-items">
         {currentInventoryPage.items.map(currentEquipmentEntry => <li key={currentEquipmentEntry.instanceId}>
           <div><strong>{formatEquipmentItemName(currentEquipmentEntry,currentLocaleCode)}</strong><span>{translateBagText(currentEquipmentEntry.reserved ? 'equipment.reserved' : currentEquipmentEntry.equippedSlot ? 'equipment.equipped' : 'equipment.emptySlot')}</span></div>
@@ -128,7 +136,7 @@ export function BagPanel({me, gameSessionClient, actionsAreDisabled = true, subm
         </li>)}
       </ul></>}
       {currentBagCategory==='permits' && <TravelerPermitList currentPermitSummary={currentInventoryPage.travelerPermitSummary} currentCharacterName={me.name ?? me.id}/>}
-      {currentBagCategory==='equipment' && currentInventoryPage.nextCursor && <button class="secondary" disabled={currentRequestPending} onClick={() => void loadBagInventory(currentInventoryPage.nextCursor!)}>{translateBagText('equipment.more')}</button>}
+
     </>}
     {historyInstanceIdentifier && <EquipmentHistory key={historyInstanceIdentifier} gameSessionClient={gameSessionClient} equipmentInstanceIdentifier={historyInstanceIdentifier} closeEquipmentHistory={() => setHistoryInstanceIdentifier(null)} />}
   </section>;
