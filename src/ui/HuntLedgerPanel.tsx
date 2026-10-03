@@ -7,7 +7,7 @@ import {useTranslation} from '../i18n';
 const HUNT_LEDGER_PAGE_SIZE=10;
 const HUNT_RESULT_LABEL_KEYS:Record<string,string>={WIN:'battle.resultWin',LOSE:'battle.resultLose',TIMEOUT:'battle.resultTimeout',SURRENDER:'battle.resultSurrender'};
 
-export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
+export function HuntLedgerPanel({gameSessionClient,isLedgerPanelActive=true}:{gameSessionClient:Client;isLedgerPanelActive?:boolean}){
   const {t:translateLedgerText,locale:currentLocaleCode}=useTranslation();
   const [currentLedgerPage,setCurrentLedgerPage]=useState<HuntLedgerPage|null>(null);
   const [ledgerPageCursorHistory,setLedgerPageCursorHistory]=useState<number[]>([0]);
@@ -32,7 +32,8 @@ export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
     }catch(currentRequestError){if(matchesCurrentSession())setCurrentLedgerNotice(currentRequestError as Error);}
     finally{if(matchesCurrentSession()){pendingRequestReference.current=false;setCurrentRequestPending(false);}}
   }
-  useEffect(()=>{pendingRequestReference.current=false;setCurrentLedgerPage(null);void loadHuntLedger();return()=>{activeRequestSequence.current++;};},[gameSessionClient]);
+  useEffect(()=>{pendingRequestReference.current=false;setCurrentLedgerPage(null);return()=>{activeRequestSequence.current++;};},[gameSessionClient]);
+  useEffect(()=>{if(isLedgerPanelActive)void loadHuntLedger(ledgerPageCursorHistory);},[gameSessionClient,isLedgerPanelActive]);
   return <section class="hunt-ledger-panel" aria-label={translateLedgerText('hunts.title')}>
     <h3>{translateLedgerText('hunts.title')}</h3>
     <p>{translateLedgerText('hunts.help')}</p>
