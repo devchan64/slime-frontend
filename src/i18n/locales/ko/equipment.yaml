@@ -48,3 +48,5 @@ historyPagination: 장비 변경 이력 페이지 이동
 previousPage: 이전
 nextPage: 다음
 historyPage: "{page}페이지"
+inventoryPagination: 장비 목록 페이지 이동
+inventoryPageHelp: 현재 페이지의 장비 중 선택한 장착 부위에 맞는 장비를 표시합니다.

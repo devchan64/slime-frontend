@@ -27,5 +27,17 @@ function assertEquipmentBrowser(currentCondition:unknown,currentMessage:string){
  assertEquipmentBrowser(document.body.textContent!.includes(t('equipment.zeroActionPoints')),'행동 불가 및 해소 안내');
  assertEquipmentBrowser(document.body.textContent!.includes(t('equipment.unequipAp',{maximum:4})),'해제 후 최대 AP 복구 안내');
  assertEquipmentBrowser(currentMutationCount===0,'미리보기는 장비 변경 명령 없음');
+ const nextEquipmentIdentifier='22222222-2222-4222-8222-222222222222';
+ currentGameClient.request=async(currentRequestPath:string)=>({...structuredClone(currentInventoryPage),items:[{...currentItemRecord,instanceId:currentRequestPath.includes('?after=')?nextEquipmentIdentifier:currentInstanceIdentifier}],equipActionPoints:{[currentRequestPath.includes('?after=')?nextEquipmentIdentifier:currentInstanceIdentifier]:currentHeavySummary},nextCursor:currentRequestPath.includes('?after=')?null:currentInstanceIdentifier});
+ const clickEquipmentPage=async(currentMessageKey:string)=>{
+  const currentPageButton=[...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t(currentMessageKey))!;
+  assertEquipmentBrowser(currentPageButton&&!currentPageButton.disabled,'페이지 버튼 사용 가능: '+currentMessageKey);
+  currentPageButton.click();await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,100));
+ };
+ await clickEquipmentPage('equipment.refresh');
+ await clickEquipmentPage('equipment.nextPage');
+ assertEquipmentBrowser(document.querySelectorAll('.equipment-inventory>li').length===1&&document.body.textContent!.includes(t('equipment.historyPage',{page:2})),'다음 장비 페이지는 누적하지 않고 교체');
+ await clickEquipmentPage('equipment.previousPage');
+ assertEquipmentBrowser(document.body.textContent!.includes(t('equipment.historyPage',{page:1})),'장비 이전 페이지 복귀');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertions});
 }catch(currentFailure){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailure),assertions:currentAssertions});}})();

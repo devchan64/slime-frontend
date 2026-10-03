@@ -2,8 +2,8 @@ import { EquipmentHistory } from './EquipmentHistory';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Client } from '../client/api';
 import { ApiError } from '../client/response';
-import { noticeText, type Notice } from '../client/notice';
-import { formatEquipmentItemName, EQUIPMENT_SLOT_NAMES, parseEquipmentInventory, mergeEquipmentInventoryPages, type EquipmentInventoryPage, type EquipmentInstanceEntry, type EquipmentSlotName, type EquipmentLoadoutCommand } from '../client/equipment';
+import { LocalizedError, noticeText, type Notice } from '../client/notice';
+import { formatEquipmentItemName, EQUIPMENT_SLOT_NAMES, parseEquipmentInventory, type EquipmentInventoryPage, type EquipmentInstanceEntry, type EquipmentSlotName, type EquipmentLoadoutCommand } from '../client/equipment';
 import { useTranslation } from '../i18n';
 import './equipment.css';
 
@@ -18,6 +18,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
   const {t: translateEquipmentText, locale: currentLocaleCode} = useTranslation();
   const [historyInstanceIdentifier,setHistoryInstanceIdentifier] = useState<string | null>(null);
   const [currentInventoryPage, setCurrentInventoryPage] = useState<EquipmentInventoryPage | null>(null);
+  const [equipmentPageCursorHistory,setEquipmentPageCursorHistory]=useState<string[]>(['']);
   const [selectedEquipmentSlot, setSelectedEquipmentSlot] = useState<EquipmentSlotName>('main_hand');
   const [currentEquipmentNotice, setCurrentEquipmentNotice] = useState<Notice>('');
   const [equipmentRequestPending, setEquipmentRequestPending] = useState(false);
@@ -29,22 +30,25 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
     return equipmentPanelActive.current && initialSessionIdentity.current.owner === gameSessionClient.tokens?.user_id
       && initialSessionIdentity.current.generation === gameSessionClient.state?.generation;
   }
-  async function refreshEquipmentInventory(afterInstanceIdentifier?: string) {
+  async function refreshEquipmentInventory(requestedEquipmentCursors: string[] = [''], preserveInventoryVersion = false) {
+    const afterInstanceIdentifier=requestedEquipmentCursors[requestedEquipmentCursors.length-1];
     if (!equipmentSessionMatches()) return;
     const receivedInventoryPage = parseEquipmentInventory(await gameSessionClient.request('/v1/game/equipment'
       + (afterInstanceIdentifier ? `?after=${encodeURIComponent(afterInstanceIdentifier)}` : '')));
     if (!equipmentSessionMatches()) return;
     try {
-      setCurrentInventoryPage(mergeEquipmentInventoryPages(currentInventoryPage, receivedInventoryPage, afterInstanceIdentifier));
+      if(preserveInventoryVersion && (!currentInventoryPage || currentInventoryPage.characterVersion!==receivedInventoryPage.characterVersion)) throw new LocalizedError('equipment.inventoryChanged');
+      setCurrentInventoryPage(receivedInventoryPage);
+      setEquipmentPageCursorHistory(requestedEquipmentCursors);
     } catch (currentInventoryError) {
       setCurrentInventoryPage(null);
       throw currentInventoryError;
     }
   }
-  async function loadEquipmentInventory(afterInstanceIdentifier?: string) {
+  async function loadEquipmentInventory(requestedEquipmentCursors: string[] = [''], preserveInventoryVersion = false) {
     if (equipmentRequestActive.current || !equipmentSessionMatches()) return;
     equipmentRequestActive.current = true; setEquipmentRequestPending(true); setCurrentEquipmentNotice('');
-    try { await refreshEquipmentInventory(afterInstanceIdentifier); }
+    try { await refreshEquipmentInventory(requestedEquipmentCursors,preserveInventoryVersion); }
     catch (currentRequestError) { if (equipmentSessionMatches()) setCurrentEquipmentNotice(currentRequestError as Error); }
     finally {equipmentRequestActive.current = false; if (equipmentSessionMatches()) setEquipmentRequestPending(false);}
   }
@@ -106,6 +110,12 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
         {selectedSlotEquipment && <button class="secondary" disabled={equipmentActionsLocked} onClick={() => selectEquipmentInstance(null)}>{translateEquipmentText('equipment.unequip')}</button>}
       </div>
       {currentInventoryPage.unequipActionPoints?.[selectedEquipmentSlot]&&<p>{translateEquipmentText('equipment.unequipAp',{maximum:currentInventoryPage.unequipActionPoints[selectedEquipmentSlot]!.effectiveMaxAp})}</p>}
+      {(equipmentPageCursorHistory.length>1||currentInventoryPage.nextCursor)&&<nav class="record-page-navigation" aria-label={translateEquipmentText('equipment.inventoryPagination')}>
+        <button class="secondary" disabled={equipmentActionsLocked||equipmentPageCursorHistory.length===1} onClick={()=>void loadEquipmentInventory(equipmentPageCursorHistory.slice(0,-1),true)}>{translateEquipmentText('equipment.previousPage')}</button>
+        <span role="status">{translateEquipmentText('equipment.historyPage',{page:equipmentPageCursorHistory.length})}</span>
+        <button class="secondary" disabled={equipmentActionsLocked||!currentInventoryPage.nextCursor} onClick={()=>void loadEquipmentInventory([...equipmentPageCursorHistory,currentInventoryPage.nextCursor!],true)}>{translateEquipmentText('equipment.nextPage')}</button>
+      </nav>}
+      <p>{translateEquipmentText('equipment.inventoryPageHelp')}</p>
       <ul class="equipment-inventory">{matchingEquipmentItems.map(currentItemEntry => <li key={currentItemEntry.instanceId}>
         <div><h4>{formatEquipmentItemName(currentItemEntry,currentLocaleCode)}</h4><p>{currentItemEntry.description}</p>
           <dl><div><dt>{translateEquipmentText('equipment.durability')}</dt><dd>{currentItemEntry.currentDurability}/{currentItemEntry.maxDurability}</dd></div>
@@ -123,7 +133,6 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
           onClick={() => selectEquipmentInstance(currentItemEntry)}>{translateEquipmentText(currentItemEntry.reserved ? 'equipment.reserved' : currentItemEntry.equippedSlot ? 'equipment.equipped' : currentItemEntry.currentDurability === 0 ? 'equipment.broken' : 'equipment.equip')}</button></div>
       </li>)}</ul>
       {matchingEquipmentItems.length === 0 && <p>{translateEquipmentText('equipment.noItems')}</p>}
-      {currentInventoryPage.nextCursor && <button class="secondary" disabled={equipmentActionsLocked} onClick={() => void loadEquipmentInventory(currentInventoryPage.nextCursor!)}>{translateEquipmentText('equipment.more')}</button>}
     </>}
     {historyInstanceIdentifier && <EquipmentHistory key={historyInstanceIdentifier} gameSessionClient={gameSessionClient} equipmentInstanceIdentifier={historyInstanceIdentifier} closeEquipmentHistory={() => setHistoryInstanceIdentifier(null)} />}
   </section>;

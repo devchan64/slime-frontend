@@ -48,3 +48,5 @@ historyPagination: Equipment history pages
 previousPage: Previous
 nextPage: Next
 historyPage: "Page {page}"
+inventoryPagination: Equipment inventory pages
+inventoryPageHelp: Shows equipment for the selected slot on the current page.
