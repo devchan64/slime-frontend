@@ -460,3 +460,7 @@ pattern clear
 ```
 
 규칙은 최대 10개이며 마지막 규칙은 `ALWAYS`/`END_TURN`이다. 조건은 `ALWAYS`, `SELF_HP`, `ALLY_HP`이며 HP 조건에는 정수 `hpPercent`(1~100)를 지정한다. 행동은 `ATTACK`, `APPROACH`, `END_TURN`, `SKILL`이고 `SKILL`에만 `actionId`를 지정한다. 등록 가능한 액션·필드·버전과 실행 조건은 서버가 검증한다. 저장 결과는 기존 명령 재시도 절차를 따르며, 결과 불명 상태에서는 `retry`로 확정한다.
+
+### 경비센터 표시 에셋
+
+필드 `map.guardCenters`의 `cityId`로 `slime-assets/assets/ui/guard-centers.yaml`의 외형을 선택합니다. 스프라이트와 UI 잠금 목록으로 원본 해시를 검증하며, 관리도구도 같은 설정을 읽습니다. 이미지는 기존 발급 좌표 옆에 표시하며 발급 위치·통행·도시 입장 API 계약은 변경하지 않습니다.

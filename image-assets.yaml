@@ -120,3 +120,9 @@ data:
     path: ../slime-assets/assets/characters/female/animations/walk-v1/down-left-12frames-v2/walk-v1.png
   - managementId: sprite.characters.default.walk-12frames-v1.walk-12frames-v1.png
     path: ../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/walk-12frames-v1.png
+  - managementId: sprite.structures.guard-center-wood-v1.png
+    path: ../slime-assets/assets/sprites/structures/guard-center-wood-v1.png
+  - managementId: sprite.structures.guard-center-red-tile-v1.png
+    path: ../slime-assets/assets/sprites/structures/guard-center-red-tile-v1.png
+  - managementId: sprite.structures.guard-center-teal-v1.png
+    path: ../slime-assets/assets/sprites/structures/guard-center-teal-v1.png

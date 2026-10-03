@@ -10,3 +10,6 @@ files:
 - path: assets/ui/login/slime-welcome-v4.png
   source_path: assets/ui/login/slime-welcome-v4.png
   sha256: d0e0ee50f661b50812cc4560a26f60ff40eef65265756c7340d96495c5437490
+- path: assets/ui/guard-centers.yaml
+  source_path: assets/ui/guard-centers.yaml
+  sha256: d4dd3e5dbe15445dfd389b8bfe61f4a08207fa2f8b46b95b68cb5130cafb8223

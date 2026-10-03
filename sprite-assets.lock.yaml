@@ -154,3 +154,12 @@ files:
 - path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.png
   source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/walk-12frames-v1.png
   sha256: 7b9cfa7c4ac13f1080cc9e83786d96cb21039e6b2dd94d34ad9955fd3088b097
+- path: assets/structures/guard-center-wood-v1.png
+  source_path: assets/sprites/structures/guard-center-wood-v1.png
+  sha256: ae96b0a74415498bd329bfe079c517fcb3b268f3e8cb120fda3c8edc09c979ff
+- path: assets/structures/guard-center-red-tile-v1.png
+  source_path: assets/sprites/structures/guard-center-red-tile-v1.png
+  sha256: 6c0bdee1d138b258032e432263b226cf2f2d860c000a9d76357c95b67d73a15b
+- path: assets/structures/guard-center-teal-v1.png
+  source_path: assets/sprites/structures/guard-center-teal-v1.png
+  sha256: 6a7a8a306c1c94958a448c8f8795363392b1caa48b3e662983eb32253460c91e

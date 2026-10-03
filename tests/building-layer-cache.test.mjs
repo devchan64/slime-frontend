@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bundle:true,write:false,platform:'node',format:'esm',define:{'import.meta.url':JSON.stringify('file:///test/scene.js')},loader:{'.webp':'empty','.png':'empty'},plugins:[{name:'scene-test-dependencies',setup(currentBuildContext){
+const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bundle:true,write:false,platform:'node',format:'esm',banner:{js:"import {createRequire} from 'node:module';const require=createRequire(process.cwd()+'/package.json');"},define:{'import.meta.url':JSON.stringify('file:///test/scene.js')},loader:{'.yaml':'text','.webp':'empty','.png':'empty'},plugins:[{name:'scene-test-dependencies',setup(currentBuildContext){
  currentBuildContext.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'mock'}));
  currentBuildContext.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export default {Scene:class {}};'}));
  currentBuildContext.onResolve({filter:/blockStructureRendering$/},()=>({path:'buildings',namespace:'building-mock'}));
