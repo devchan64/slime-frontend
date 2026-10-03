@@ -15,6 +15,8 @@ const ACCEPTANCE_BROWSER_TARGETS=[
  ['split-service','SLIME_SPLIT_BROWSER_BUNDLE'],
  ['traveler-barter','SLIME_TRAVELER_BROWSER_BUNDLE'],
  ['costume-sponsor','SLIME_COSTUME_SPONSOR_BROWSER_BUNDLE'],
+ ['production','SLIME_PRODUCTION_BROWSER_BUNDLE'],
+ ['refining-mission','SLIME_MISSION_BROWSER_BUNDLE'],
 ];
 const ACCEPTANCE_NODE_TARGETS=[
  ['scripts/text-client-core.mjs','text-client.mjs',['SLIME_TEXT_CLIENT_MODULE','SLIME_SUBSTITUTE_HUNT_TEXT_BUNDLE','SLIME_SPLIT_SERVICE_CLIENT_BUNDLE']],
@@ -23,8 +25,6 @@ const ACCEPTANCE_NODE_TARGETS=[
 ];
 const ACCEPTANCE_BROWSER_FIXTURES=Object.fromEntries([
  ...ACCEPTANCE_BROWSER_TARGETS.map(([currentTargetName])=>[currentTargetName,`tests/fixtures/${currentTargetName}-live-browser.${currentTargetName==='split-service'?'ts':'tsx'}`]),
- ['production','tests/fixtures/production-live-browser.tsx'],
- ['refining-mission','tests/fixtures/refining-mission-live-browser.tsx'],
 ]);
 const ACCEPTANCE_LOCALE_EXPRESSION="import.meta.glob('./locales/*/*.yaml', { query: '?raw', import: 'default', eager: true })";
 const currentCommandArguments=process.argv.slice(2);
@@ -59,7 +59,7 @@ async function executeBrowserBuilder(currentBuilderName,currentArtifactPath){
  for(const currentLocaleName of ['ko','en'])for(const currentFileName of await readdir(`src/i18n/locales/${currentLocaleName}`)) {
   currentLocaleSources[`./locales/${currentLocaleName}/${currentFileName}`]=await readFile(`src/i18n/locales/${currentLocaleName}/${currentFileName}`,'utf8');
  }
- const currentBuildDefinitions={'import.meta.env.VITE_API_BASE_URL':'""'};
+ const currentBuildDefinitions={'import.meta.env.VITE_API_BASE_URL':'""','import.meta.env.VITE_IDENTITY_API_BASE_URL':'undefined'};
  if(currentBuilderName==='split-service')Object.assign(currentBuildDefinitions,{
   'import.meta.env.VITE_API_BASE_URL':'globalThis.__SLIME_SPLIT_CONTEXT__.gameOrigin',
   'import.meta.env.VITE_IDENTITY_API_BASE_URL':'globalThis.__SLIME_SPLIT_CONTEXT__.identityOrigin',
