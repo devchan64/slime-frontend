@@ -1,5 +1,5 @@
 import {isHealthDepleted} from '../../client/health-state.mjs';
-import {calculateTileMovementProgress, TILE_MOVEMENT_DURATION_MS} from './movementTransition';
+import {calculateTileMovementProgress, BATTLE_TILE_MOVEMENT_DURATION_MS} from './movementTransition';
 import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
 const ATTACK_TRANSITION_MILLISECONDS = 300;
@@ -43,9 +43,9 @@ export class BattleMotion {
       if(!old)continue;
       const previousMotionTrack=this.tracks.get(event.unitId);
       const currentMotionTrack=previousMotionTrack && this.isMovementActive(event.unitId,now) ? previousMotionTrack : undefined;
-      const completedSegmentCount=currentMotionTrack ? Math.floor(Math.max(0,now-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS) : 0;
+      const completedSegmentCount=currentMotionTrack ? Math.floor(Math.max(0,now-currentMotionTrack.started)/BATTLE_TILE_MOVEMENT_DURATION_MS) : 0;
       // 새 로그가 도착해도 진행 중인 칸의 시작 시각과 보간 곡선을 유지한다.
-      const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*TILE_MOVEMENT_DURATION_MS : now;
+      const currentMovementStart=currentMotionTrack ? currentMotionTrack.started+completedSegmentCount*BATTLE_TILE_MOVEMENT_DURATION_MS : now;
       const points=currentMotionTrack ? currentMotionTrack.points.slice(completedSegmentCount) : [project(old,event.unitId)];
       const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
       segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
@@ -61,7 +61,7 @@ export class BattleMotion {
   currentWorldFacing(battleUnitIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
     const currentMotionTrack=this.tracks.get(battleUnitIdentifier);
     if(!currentMotionTrack)return undefined;
-    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/TILE_MOVEMENT_DURATION_MS);
+    const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/BATTLE_TILE_MOVEMENT_DURATION_MS);
     return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
   }
   movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
@@ -71,7 +71,7 @@ export class BattleMotion {
   isMovementActive(actorStableIdentifier:string,currentRenderTime:number):boolean {
     const currentMotionTrack=this.tracks.get(actorStableIdentifier);
     if(!currentMotionTrack)return false;
-    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.points.length - 1) * TILE_MOVEMENT_DURATION_MS;
+    return currentRenderTime < currentMotionTrack.started + (currentMotionTrack.points.length - 1) * BATTLE_TILE_MOVEMENT_DURATION_MS;
   }
   offset(id:string,now:number):Point{
     const track=this.tracks.get(id);
@@ -86,9 +86,9 @@ export class BattleMotion {
       depth:movementOffset.depth+impactTrack.vector.depth*impactTrack.distanceRatio*transitionProgress};
   }
   private sample(track:Track,now:number):Point{
-    const progress=Math.max(0,now-track.started)/TILE_MOVEMENT_DURATION_MS;
+    const progress=Math.max(0,now-track.started)/BATTLE_TILE_MOVEMENT_DURATION_MS;
     const index=Math.min(Math.floor(progress),track.points.length-1);
     const a=track.points[index],b=track.points[Math.min(index+1,track.points.length-1)],t=calculateTileMovementProgress(progress-index);
-    return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,depth:a.depth+(b.depth-a.depth)*t};
+    return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,depth:Math.max(a.depth,b.depth)};
   }
 }
