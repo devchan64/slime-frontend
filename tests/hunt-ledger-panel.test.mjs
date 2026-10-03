@@ -40,11 +40,10 @@ async function inspectDelayedHuntResponse(changeCurrentSession, rejectedRequestV
   }
 }
 
-test('사냥 원장의 늦은 성공과 오류는 계정·세대·시즌·캐릭터 전환 및 화면 종료 후 반영하지 않는다',async()=>{
+test('사냥 원장의 늦은 성공과 오류는 계정·세대·캐릭터 전환 및 화면 종료 후 반영하지 않는다',async()=>{
   const changeSessionCases=[
     currentSessionClient=>{currentSessionClient.tokens={user_id:'owner-two'};},
     currentSessionClient=>{currentSessionClient.state.generation++;},
-    currentSessionClient=>{currentSessionClient.state.epoch=(currentSessionClient.state.epoch??0)+1;},
     currentSessionClient=>{currentSessionClient.state.me={id:'character-two',version:1};},
     currentSessionClient=>{currentSessionClient.tokens=null;currentSessionClient.state=null;},
     (currentSessionClient,currentCleanupCallbacks)=>{for(const currentCleanupCallback of currentCleanupCallbacks)currentCleanupCallback?.();},

@@ -20,11 +20,10 @@ export function HuntLedgerPanel({gameSessionClient,isLedgerPanelActive=true}:{ga
     if(pendingRequestReference.current)return;
     pendingRequestReference.current=true;
     const currentRequestSequence=++activeRequestSequence.current;
-    const currentSessionIdentity={owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch,character:gameSessionClient.state?.me.id};
+    const currentSessionIdentity={owner:gameSessionClient.tokens?.user_id,generation:gameSessionClient.state?.generation,character:gameSessionClient.state?.me.id};
     const matchesCurrentSession=()=>activeRequestSequence.current===currentRequestSequence
       &&currentSessionIdentity.owner===gameSessionClient.tokens?.user_id
       &&currentSessionIdentity.generation===gameSessionClient.state?.generation
-      &&currentSessionIdentity.epoch===gameSessionClient.state?.epoch
       &&currentSessionIdentity.character===gameSessionClient.state?.me.id;
     setCurrentRequestPending(true);setCurrentLedgerNotice('');
     try{
