@@ -1,5 +1,7 @@
-/** 8fps 걷기 8프레임 한 주기를 모두 재생하는 한 칸 이동 시간이다. */
-export const TILE_MOVEMENT_DURATION_MS = 1000;
+/** 걷기 12프레임을 8 FPS로 재생하는 한 칸 이동 시간이다. */
+const CHARACTER_WALK_FRAME_COUNT = 12;
+const CHARACTER_WALK_FRAME_RATE = 8;
+export const TILE_MOVEMENT_DURATION_MS = CHARACTER_WALK_FRAME_COUNT * 1000 / CHARACTER_WALK_FRAME_RATE;
 /** 다음 서버 이동 요청은 한 칸 전환과 도착 여유 시간 뒤에 보낸다. */
 export const FIELD_MOVEMENT_INTERVAL_MS = TILE_MOVEMENT_DURATION_MS + 90;
 

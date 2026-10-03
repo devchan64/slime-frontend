@@ -9,21 +9,21 @@ test('서버 인접 이동의 몸체·발밑·높이·깊이는 같은 보간 �
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);
  motion.sync('field',[actor(3,164)],10);
  assert.deepEqual(motion.offset('slime',10),{x:-64,y:-32,depth:-10});
- assert.deepEqual(motion.offset('slime',510),{x:0,y:0,depth:0});
- assert.deepEqual(motion.offset('slime',1010),{x:0,y:0,depth:0});
+ assert.deepEqual(motion.offset('slime',760),{x:0,y:0,depth:0});
+ assert.deepEqual(motion.offset('slime',1510),{x:0,y:0,depth:0});
 });
 test('중복 상태와 선택 화면 재조회는 이동을 다시 시작하지 않는다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(3,164)],10);
- motion.sync('field',[actor(3,164)],510);
- assert.equal(motion.offset('slime',1010).x,0);
+ motion.sync('field',[actor(3,164)],760);
+ assert.equal(motion.offset('slime',1510).x,0);
 });
 test('연속 확정 이동은 현재 화면 위치에서 이어지고 서버 좌표는 변경하지 않는다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(3,164)],10);
  const next=actor(4,228),original=structuredClone(next);
- motion.sync('field',[next],510);
- assert.equal(motion.offset('slime',510).x+next.point.x,164);
+ motion.sync('field',[next],760);
+ assert.equal(motion.offset('slime',760).x+next.point.x,164);
  assert.deepEqual(next,original);
- assert.equal(motion.offset('slime',1510).x,0);
+ assert.equal(motion.offset('slime',2260).x,0);
 });
 test('공간/회전/세대 변경·원거리 보정·사라진 개체 재등장은 즉시 배치한다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(5,292)],10);
@@ -39,8 +39,8 @@ test('걷기 상태는 인접 이동 중에만 켜지고 완료·순간 배치 �
  fieldMotionTracker.sync('field',[actor(2,100)],0);
  assert.equal(fieldMotionTracker.isMovementActive('slime',0),false);
  fieldMotionTracker.sync('field',[actor(3,164)],10);
- assert.equal(fieldMotionTracker.isMovementActive('slime',1009),true);
- assert.equal(fieldMotionTracker.isMovementActive('slime',1010),false);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',1509),true);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',1510),false);
  fieldMotionTracker.sync('field',[actor(6,356)],200);
  assert.equal(fieldMotionTracker.isMovementActive('slime',200),false);
 });
@@ -49,10 +49,10 @@ test('도착점을 조금 넘은 몸체·그림자·깊이는 같은 비율로 �
  const currentMotionTracker=new FieldMotion();
  currentMotionTracker.sync('field',[actor(2,100)],0);
  currentMotionTracker.sync('field',[actor(3,164)],10);
- const currentMotionOffset=currentMotionTracker.offset('slime',(10+1000*2/3));
+ const currentMotionOffset=currentMotionTracker.offset('slime',(10+1500*2/3));
  assert.ok(currentMotionOffset.x>0 && currentMotionOffset.x<64*.04);
  assert.ok(Math.abs(currentMotionOffset.y-currentMotionOffset.x/2)<1e-10);
  assert.ok(Math.abs(currentMotionOffset.depth-currentMotionOffset.x*10/64)<1e-10);
- assert.ok(currentMotionTracker.offset('slime',900).x<currentMotionOffset.x);
- assert.deepEqual(currentMotionTracker.offset('slime',1010),{x:0,y:0,depth:0});
+ assert.ok(currentMotionTracker.offset('slime',1350).x<currentMotionOffset.x);
+ assert.deepEqual(currentMotionTracker.offset('slime',1510),{x:0,y:0,depth:0});
 });
