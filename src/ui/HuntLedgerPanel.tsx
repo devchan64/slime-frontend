@@ -4,6 +4,7 @@ import {parseHuntLedgerPage,localizedHuntName,type HuntLedgerPage} from '../clie
 import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
+const HUNT_LEDGER_PAGE_SIZE=10;
 const HUNT_RESULT_LABEL_KEYS:Record<string,string>={WIN:'battle.resultWin',LOSE:'battle.resultLose',TIMEOUT:'battle.resultTimeout',SURRENDER:'battle.resultSurrender'};
 
 export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
@@ -26,7 +27,7 @@ export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
       &&currentSessionIdentity.character===gameSessionClient.state?.me.id;
     setCurrentRequestPending(true);setCurrentLedgerNotice('');
     try{
-      const receivedLedgerPage=parseHuntLedgerPage(await gameSessionClient.request('/v1/characters/me/hunts?after='+requestedLedgerCursor+'&limit=50'),requestedLedgerCursor);
+      const receivedLedgerPage=parseHuntLedgerPage(await gameSessionClient.request('/v1/characters/me/hunts?after='+requestedLedgerCursor+'&limit='+HUNT_LEDGER_PAGE_SIZE),requestedLedgerCursor);
       if(matchesCurrentSession()){setCurrentLedgerPage(receivedLedgerPage);setLedgerPageCursorHistory(requestedLedgerCursors);}
     }catch(currentRequestError){if(matchesCurrentSession())setCurrentLedgerNotice(currentRequestError as Error);}
     finally{if(matchesCurrentSession()){pendingRequestReference.current=false;setCurrentRequestPending(false);}}
