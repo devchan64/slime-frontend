@@ -57,3 +57,59 @@ test('동일 세션의 성공과 오류는 정상적으로 화면 상태를 갱�
   for(const rejectedRequestValue of [false,true])
     assert.ok(await inspectDelayedHuntResponse(()=>{},rejectedRequestValue)>0);
 });
+
+test('사냥 기록 페이지는 실패 시 유지되고 재시도·이전·새로고침에서 올바른 커서를 요청한다',async()=>{
+  const savedHookValues=[];
+  const requestedLedgerUrls=[];
+  const previousTestHarness=globalThis.huntSessionHarness;
+  let currentHookIndex=0;
+  let currentRequestResolver;
+  let currentRequestRejecter;
+  globalThis.huntSessionHarness={
+    useState(initialHookValue){const currentHookSlot=currentHookIndex++;if(!(currentHookSlot in savedHookValues))savedHookValues[currentHookSlot]=initialHookValue;return [savedHookValues[currentHookSlot],updatedHookValue=>{savedHookValues[currentHookSlot]=updatedHookValue;}];},
+    useRef(initialHookValue){const currentHookSlot=currentHookIndex++;return savedHookValues[currentHookSlot]??(savedHookValues[currentHookSlot]={current:initialHookValue});},
+    useEffect(){}
+  };
+  const currentSessionClient={tokens:{user_id:'owner-one'},state:{generation:1,me:{id:'character-one'}},request(currentRequestUrl){
+    requestedLedgerUrls.push(currentRequestUrl);
+    return new Promise((resolveCurrentRequest,rejectCurrentRequest)=>{currentRequestResolver=resolveCurrentRequest;currentRequestRejecter=rejectCurrentRequest;});
+  }};
+  function collectRenderedNodes(currentRenderedValue){
+    if(Array.isArray(currentRenderedValue))return currentRenderedValue.flatMap(collectRenderedNodes);
+    if(!currentRenderedValue||typeof currentRenderedValue!=='object')return [];
+    return [currentRenderedValue,...collectRenderedNodes(currentRenderedValue.props?.children)];
+  }
+  function renderLedgerNodes(){currentHookIndex=0;return collectRenderedNodes(HuntLedgerPanel({gameSessionClient:currentSessionClient}));}
+  function findLedgerButton(currentButtonLabel){return renderLedgerNodes().find(currentRenderedNode=>currentRenderedNode.type==='button'&&currentRenderedNode.props.children===currentButtonLabel);}
+  function createLedgerResponse(currentEntryIdentifier,currentNextCursor){return {
+    entries:[{id:currentEntryIdentifier,monsterInstanceId:'monster-'+currentEntryIdentifier,monsterTypeId:'slime',battleId:'battle-one',spawnId:'spawn-one',mapId:'forest',quantity:1,result:'WIN',createdAt:1}],
+    totals:[{monsterTypeId:'slime',quantity:11}],nextCursor:currentNextCursor,
+  };}
+  function currentEntryIdentifiers(){return renderLedgerNodes().filter(currentRenderedNode=>currentRenderedNode.type==='li'&&typeof currentRenderedNode.key==='number').map(currentRenderedNode=>currentRenderedNode.key);}
+  async function completeLedgerRequest(currentLedgerResponse){currentRequestResolver(currentLedgerResponse);await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));}
+  try{
+    findLedgerButton('hunts.refresh').props.onClick();
+    await completeLedgerRequest(createLedgerResponse(10,10));
+    assert.equal(findLedgerButton('hunts.previous').props.disabled,true);
+    findLedgerButton('hunts.next').props.onClick();
+    assert.equal(findLedgerButton('hunts.next').props.disabled,true);
+    currentRequestRejecter(new Error('조회 실패'));
+    await new Promise(resolvePendingWork=>setImmediate(resolvePendingWork));
+    assert.deepEqual(currentEntryIdentifiers(),[10]);
+    assert.equal(findLedgerButton('hunts.previous').props.disabled,true);
+    assert.ok(renderLedgerNodes().some(currentRenderedNode=>currentRenderedNode.props?.role==='alert'));
+    findLedgerButton('hunts.next').props.onClick();
+    await completeLedgerRequest(createLedgerResponse(11,null));
+    assert.deepEqual(currentEntryIdentifiers(),[11]);
+    assert.equal(findLedgerButton('hunts.next').props.disabled,true);
+    findLedgerButton('hunts.previous').props.onClick();
+    await completeLedgerRequest(createLedgerResponse(10,10));
+    assert.deepEqual(currentEntryIdentifiers(),[10]);
+    findLedgerButton('hunts.next').props.onClick();
+    await completeLedgerRequest(createLedgerResponse(11,null));
+    findLedgerButton('hunts.refresh').props.onClick();
+    await completeLedgerRequest(createLedgerResponse(10,10));
+    assert.equal(findLedgerButton('hunts.previous').props.disabled,true);
+    assert.deepEqual(requestedLedgerUrls,[0,10,10,0,10,0].map(currentLedgerCursor=>'/v1/characters/me/hunts?after='+currentLedgerCursor+'&limit=10'));
+  }finally{globalThis.huntSessionHarness=previousTestHarness;}
+});
