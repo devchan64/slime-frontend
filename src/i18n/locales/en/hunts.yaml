@@ -27,3 +27,5 @@ emptyDrop: No materials dropped this time.
 pagination: Hunt history pages
 previous: Previous page
 pageNumber: 'Page {page}'
+targetPagination: FP substitute hunt target pages
+targetPageNumber: 'Page {page} of {total}'
