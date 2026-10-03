@@ -42,9 +42,10 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  const currentActiveReference=useRef(false);
  const currentBusyReference=useRef(false);
  const currentPendingAdjustment=useRef<{payload:DeveloperAdjustmentPayload;receipt?:DeveloperReceiptRecord}|null>(null);
- const currentOwnerContext=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation});
+ const currentOwnerContext=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation,epoch:gameSessionClient.state?.epoch});
  const matchesCurrentDeveloperSession=()=>currentActiveReference.current&&gameSessionClient.tokens?.user_id===currentOwnerContext.current.owner
-  &&gameSessionClient.state?.me.id===currentOwnerContext.current.character&&gameSessionClient.state?.generation===currentOwnerContext.current.generation;
+  &&gameSessionClient.state?.me.id===currentOwnerContext.current.character&&gameSessionClient.state?.generation===currentOwnerContext.current.generation
+  &&gameSessionClient.state?.epoch===currentOwnerContext.current.epoch;
  async function loadDeveloperPanelData(currentNextCursor?:string){
   const currentInventory=await gameSessionClient.request('/v1/developer/inventory');
   if(!matchesCurrentDeveloperSession())return;
