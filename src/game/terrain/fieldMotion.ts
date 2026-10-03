@@ -62,6 +62,7 @@ export class FieldMotion {
     const currentSegmentProgress=calculateTileMovementProgress(elapsedSegmentCount-currentSegmentIndex);
     return {x:segmentStartPoint.x+(segmentTargetPoint.x-segmentStartPoint.x)*currentSegmentProgress,
       y:segmentStartPoint.y+(segmentTargetPoint.y-segmentStartPoint.y)*currentSegmentProgress,
-      depth:segmentStartPoint.depth+(segmentTargetPoint.depth-segmentStartPoint.depth)*currentSegmentProgress};
+      // 이동 중 겹치는 두 바닥 타일 위에 유지한다. 위치 보간과 그리기 순서는 구분한다.
+      depth:Math.max(segmentStartPoint.depth,segmentTargetPoint.depth)};
   }
 }
