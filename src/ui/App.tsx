@@ -558,7 +558,7 @@ export function App() {
       ) : battleReportIsReady ? (
         <main aria-label={t('app.reportRegion')} />
       ) : state.me.mode === "AWAY" ? (
-        <AchievementsPage client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
+        <AchievementsPage key={`${client.tokens?.user_id}:${state.me.id}:${state.generation}:${state.epoch}`} client={client} disabled={busy || !connected} onReturn={() => command("/v1/world/resume")} />
       ) : menuPage ? (
         <main class="lobby field-menu-page">
           <section class="card">
