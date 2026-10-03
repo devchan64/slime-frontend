@@ -47,7 +47,7 @@ test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 �
  const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
  scene.children={list:[]};scene.textures=createIdleTextureDouble();
  const make=(x=0,y=0)=>{
-  const target={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},destroyed:false};
+  const target={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},postFX:{addGlow(){}},destroyed:false};
   const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
    if(key==='setData')o.data[args[0]]=args[1];
    if(key==='getData')return o.data[args[0]];
@@ -141,7 +141,7 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
  const scene=new MainScene(()=>{},()=>{},()=>{});
  scene.children={list:[]};scene.textures=createIdleTextureDouble();
  const make=(x=0,y=0)=>{
-  const object={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{}};
+  const object={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},postFX:{addGlow(){}}};
   const proxy=new Proxy(object,{get(o,key){if(key in o)return o[key];return (...args)=>{
    if(key==='setData')o.data[args[0]]=args[1];
    if(key==='getData')return o.data[args[0]];
@@ -173,6 +173,18 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
  for(const item of scene.movingObjects.filter(item=>item.depth>=scene.annotationDepth()))assert.equal(item.object.depth,item.depth);
  assert.ok(scene.annotationDepth()>30030);
  assert.deepEqual(scene.selected,{column:3,row:2});
+ // 같은 실제 장면에서 이미지 재생성 이후에도 이동 트래커의 프레임을 따른다.
+ const continuedMovementTimestamp=performance.now()-875;
+ scene.fieldMotion.sync('redrawn',[{id:'monster:s',cell:{column:2,row:2},point:{x:100,y:50,depth:30020}}],continuedMovementTimestamp);
+ scene.fieldMotion.sync('redrawn',[{id:'monster:s',cell:{column:3,row:2},point:{x:164,y:82,depth:30030}}],continuedMovementTimestamp);
+ scene.animateFieldActors();
+ const originalCharacterImage=scene.movingObjects.find(currentRenderObject=>currentRenderObject.object.type==='Image').object;
+ assert.ok(originalCharacterImage.frame.name.endsWith('down_left.7'));
+ scene.unit({column:3,row:2},0xff0000,'슬라임',false,undefined,false,undefined,undefined,'monster:s');
+ scene.animateFieldActors();
+ const currentCharacterImages=scene.movingObjects.filter(currentRenderObject=>currentRenderObject.object.type==='Image');
+ assert.equal(currentCharacterImages.length,2);
+ assert.equal(currentCharacterImages[1].object.frame.name,originalCharacterImage.frame.name);
 });
 
 test('필드에서 자기 캐릭터가 보간 이동하면 카메라도 현재 화면 위치를 따라간다',()=>{
@@ -220,7 +232,7 @@ test('프레임 지연으로 이동이 끝나도 카메라를 최종 좌표에 �
  currentSceneInstance.state={battle:null,me:{id:'hero',position:{column:3,row:2}}};
  currentSceneInstance.cameras={main:{centerOn:(x,y)=>recordedCameraCenters.push({x,y})}};
  currentSceneInstance.calculateActorPlacement=()=>({x:164,y:82,depth:0});
- const expiredMotionTimestamp=performance.now()-1000;
+ const expiredMotionTimestamp=performance.now()-1500;
  currentSceneInstance.fieldMotion.sync('map',[{id:'member:hero',cell:{column:2,row:2},point:{x:100,y:50,depth:0}}],expiredMotionTimestamp);
  currentSceneInstance.fieldMotion.sync('map',[{id:'member:hero',cell:{column:3,row:2},point:{x:164,y:82,depth:0}}],expiredMotionTimestamp);
  currentSceneInstance.fieldCameraFollowPending=true;
