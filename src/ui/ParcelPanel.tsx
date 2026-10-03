@@ -9,6 +9,7 @@ const PARCEL_EXPIRATION_REFRESH_MILLISECONDS=1000;
 
 export function ParcelPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
  const {t:translateParcelText,locale:currentParcelLocale}=useTranslation();
+ const [parcelPageCursorHistory,setParcelPageCursorHistory]=useState<(string|null)[]>([null]);
  const [currentParcelListing,setCurrentParcelListing]=useState<ParcelListing|null>(null);
  const [currentParcelNotice,setCurrentParcelNotice]=useState<Notice>('');
  const [currentRequestPending,setCurrentRequestPending]=useState(false);
@@ -22,12 +23,13 @@ export function ParcelPanel({gameSessionClient,actionsAreDisabled}:{gameSessionC
  const currentInitialContext=useRef({owner:gameSessionClient.tokens?.user_id,character:gameSessionClient.state?.me.id,generation:gameSessionClient.state?.generation});
  function parcelContextMatches(){return currentActiveReference.current&&!!gameSessionClient.state&&gameSessionClient.tokens?.user_id===currentInitialContext.current.owner&&gameSessionClient.state.me.id===currentInitialContext.current.character&&gameSessionClient.state.generation===currentInitialContext.current.generation;}
  const currentEndpointPrefix='/v1/accounts/me/parcels';
- async function loadParcelListing(currentAfterCursor:string|null=null){
+ async function loadParcelListing(requestedCursorHistory:(string|null)[]=[null]){
   if(actionsAreDisabled||currentPendingReference.current||currentOriginalRequest.current||!parcelContextMatches())return;
   currentPendingReference.current=true;setCurrentRequestPending(true);setCurrentParcelNotice('');
   try{
+   const currentAfterCursor=requestedCursorHistory[requestedCursorHistory.length-1];
    const currentResponseRecord=validateNamedParcelListing(await gameSessionClient.request(currentEndpointPrefix+'?includeNames=true'+(currentAfterCursor?'&after='+encodeURIComponent(currentAfterCursor):'')));
-   if(parcelContextMatches()){currentListingClock.current={serverTime:currentResponseRecord.serverTime,receivedAt:performance.now()};setCurrentDisplayTime(currentResponseRecord.serverTime);setCurrentParcelListing(currentResponseRecord);}
+   if(parcelContextMatches()){currentListingClock.current={serverTime:currentResponseRecord.serverTime,receivedAt:performance.now()};setCurrentDisplayTime(currentResponseRecord.serverTime);setCurrentParcelListing(currentResponseRecord);setParcelPageCursorHistory(requestedCursorHistory);}
   }catch(currentRequestError){if(parcelContextMatches())setCurrentParcelNotice(currentRequestError as Error);}
   finally{currentPendingReference.current=false;if(parcelContextMatches())setCurrentRequestPending(false);}
  }
@@ -76,7 +78,11 @@ export function ParcelPanel({gameSessionClient,actionsAreDisabled}:{gameSessionC
    {currentParcelEntry.expiresAt<=currentDisplayTime&&<p>{translateParcelText('parcels.expired')}</p>}
    <button class="compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||currentParcelEntry.expiresAt<=currentDisplayTime} onClick={()=>void claimParcelEntry(currentParcelEntry.parcelId)}>{translateParcelText('parcels.claim')}</button>
   </article>)}
-  {currentParcelListing?.nextCursor&&<button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel} onClick={()=>void loadParcelListing(currentParcelListing.nextCursor)}>{translateParcelText('parcels.next')}</button>}
+  {currentParcelListing&&<nav class="account-storage-categories" aria-label={translateParcelText('parcels.pagination')}>
+   <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||parcelPageCursorHistory.length<=1} onClick={()=>void loadParcelListing(parcelPageCursorHistory.slice(0,-1))}>{translateParcelText('parcels.previous')}</button>
+   <span role="status">{translateParcelText('parcels.page',{page:parcelPageCursorHistory.length})}</span>
+   <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||!!currentUncertainParcel||!currentParcelListing.nextCursor} onClick={()=>void loadParcelListing([...parcelPageCursorHistory,currentParcelListing.nextCursor])}>{translateParcelText('parcels.next')}</button>
+  </nav>}
   {currentUncertainParcel&&<><p>{translateParcelText('parcels.uncertain')}</p><button disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void claimParcelEntry(currentUncertainParcel)}>{translateParcelText('parcels.retry')}</button></>}
   {currentRequestPending&&<p role="status">{translateParcelText('parcels.pending')}</p>}
   {currentParcelNotice&&<p role="status">{noticeText(currentParcelNotice,currentParcelLocale,translateParcelText)}</p>}

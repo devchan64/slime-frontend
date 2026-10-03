@@ -80,6 +80,26 @@ async function clickParcelButton(currentTranslationKey:string){
   assertParcelBrowser(document.body.textContent!.includes(t('parcels.received')),currentContextChange+' 변경 후에도 수령 완료 안내 유지');
   assertParcelBrowser(currentDeferredClaimCount===1,currentContextChange+' 변경 중 수령 요청 중복 없음');
  }
+ render(null,document.getElementById('root')!);
+ let rejectNextParcelPage=true;
+ const parcelPageEntries=Array.from({length:100},(_,currentParcelIndex)=>({parcelId:`11111111-1111-4111-8111-${String(currentParcelIndex).padStart(12,'0')}`,sentAt:90,expiresAt:10000,attachmentNames:[null],attachments:[{kind:'money',amountP:7}]}));
+ currentClientStub.request=async(currentRequestPath:string)=>{
+  if(currentRequestPath.includes('&after=')){
+   if(rejectNextParcelPage)throw new Error('페이지 조회 실패');
+   return {serverTime:100,characterVersion:4,nextCursor:null,entries:[]};
+  }
+  return {serverTime:100,characterVersion:4,nextCursor:parcelPageEntries.at(-1)!.parcelId,entries:parcelPageEntries};
+ };
+ render(<ParcelPanel gameSessionClient={currentClientStub} actionsAreDisabled={false}/>,document.getElementById('root')!);
+ await currentWaitRender();
+ await clickParcelButton('parcels.next');
+ assertParcelBrowser(document.querySelectorAll('article').length===100,'다음 페이지 실패 시 기존 소포 유지');
+ rejectNextParcelPage=false;
+ await clickParcelButton('parcels.next');
+ assertParcelBrowser(document.querySelectorAll('article').length===0,'다음 페이지는 이전 목록을 대체');
+ await clickParcelButton('parcels.previous');
+ assertParcelBrowser(document.querySelectorAll('article').length===100,'이전 소포 페이지 재조회');
+ assertParcelBrowser([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('parcels.previous'))?.disabled,'첫 페이지 이전 이동 차단');
  currentClientStub.request=currentOriginalRequestHandler;currentClientStub.accept=currentOriginalAcceptHandler;
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

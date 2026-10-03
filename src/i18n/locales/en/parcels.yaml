@@ -15,3 +15,7 @@ expires: "Expires: {time}"
 expired: The storage period has ended. Refresh the parcel list.
 arrived: "You have {count} parcels. Collect them from account storage."
 noticeFailed: Could not check for parcels. Retrying shortly.
+
+pagination: Parcel pages
+previous: Previous page
+page: "Page {page}"
