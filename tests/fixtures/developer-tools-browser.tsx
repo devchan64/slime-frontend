@@ -89,7 +89,9 @@ function clickDeveloperButton(currentMessageKey:string){
  assertDeveloperBrowserState(currentEquipmentOwned,'장비 개체 지급');
  const currentOperationSelect=document.querySelectorAll('select')[1];currentOperationSelect.value='REMOVE';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
  const currentInstanceSelect=document.querySelectorAll('select')[2];currentInstanceSelect.value=currentEquipmentIdentifier;currentInstanceSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
- clickDeveloperButton('app.developerApply');await waitForDeveloperRender();clickDeveloperButton('app.developerProceed');await waitForDeveloperRender();
+ clickDeveloperButton('app.developerApply');await waitForDeveloperRender();
+ assertDeveloperBrowserState(document.querySelector('dialog')!.textContent!.includes(currentEquipmentIdentifier)&&document.querySelector('dialog')!.textContent!.includes('v1'),'장비 회수 확인에 선택한 개체 ID와 버전 표시');
+ clickDeveloperButton('app.developerProceed');await waitForDeveloperRender();
  assertDeveloperBrowserState(!currentEquipmentOwned&&currentEquipmentReceipt.expectedInstanceVersion===1&&currentEquipmentReceipt.instanceId===currentEquipmentIdentifier,'선택한 장비 개체와 버전으로 회수');
  currentItemSelect.value='traveler_permit:city-traveler-permit';currentItemSelect.dispatchEvent(new Event('change',{bubbles:true}));
  currentOperationSelect.value='ADD';currentOperationSelect.dispatchEvent(new Event('change',{bubbles:true}));await waitForDeveloperRender();
