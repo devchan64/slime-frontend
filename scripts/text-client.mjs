@@ -4,6 +4,7 @@ import { TextClient, formatState } from './text-client-core.mjs';
 
 const TERMINAL_TIMEOUT_LIMIT_MS=2147483647;
 const HELP = `dev status / inventory 개발자 본인 권한·CP·SP·P 조회 (로컬 전용)
+dev history [다음커서] 본인 개발자 변경 이력
 dev add|remove cp|sp|p 수량 포인트 증감 (응답 불명 시 retry)
 dm list [다음커서] / blocks [다음커서] 개인 대화·수신 차단 목록
 dm read 캐릭터ID [이전커서] 개인 대화 조회 (만료·다음 입력 시 화면 지움)

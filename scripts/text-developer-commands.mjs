@@ -15,6 +15,18 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
     ||currentCapabilities.assets.some(currentAssetName=>!['CP','SP','P'].includes(currentAssetName)))throw new Error('개발자 권한 응답이 올바르지 않습니다.');
   return '개발자 도구 · 본인 캐릭터 전용 · '+currentCapabilities.assets.join(', ');
  }
+ if(currentActionName==='history'&&(currentCommandArguments.length===1||currentCommandArguments.length===2)){
+  if(currentAssetArgument&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentAssetArgument))throw new Error('변경 이력의 다음 커서 UUID를 입력하세요.');
+  const currentHistoryPage=await currentTextClient.request('/v1/developer/adjustments'+(currentAssetArgument?'?after='+encodeURIComponent(currentAssetArgument):''));requireCurrentDeveloperSession();
+  if(currentHistoryPage.characterId!==currentCharacterIdentifier||!Array.isArray(currentHistoryPage.entries)
+    ||currentHistoryPage.entries.some(currentReceiptRecord=>currentReceiptRecord.characterId!==currentCharacterIdentifier||currentReceiptRecord.actorId!==currentSessionTokens.user_id
+     ||!['CP','SP','P'].includes(currentReceiptRecord.asset)||!['ADD','REMOVE'].includes(currentReceiptRecord.operation)
+     ||![currentReceiptRecord.before,currentReceiptRecord.after,currentReceiptRecord.quantity].every(Number.isSafeInteger)
+     ||typeof currentReceiptRecord.requestId!=='string'||!Number.isFinite(currentReceiptRecord.createdAt))
+    ||(currentHistoryPage.nextCursor!==null&&typeof currentHistoryPage.nextCursor!=='string'))throw new Error('개발자 변경 이력 응답이 올바르지 않습니다.');
+  return currentHistoryPage.entries.map(currentReceiptRecord=>new Date(currentReceiptRecord.createdAt*1000).toISOString()+' · '+currentReceiptRecord.asset+' '+currentReceiptRecord.before+' → '+currentReceiptRecord.after+' · '+currentReceiptRecord.requestId).join('\n')
+   +'\n'+(currentHistoryPage.nextCursor?'다음: dev history '+currentHistoryPage.nextCursor:'이력 끝');
+ }
  if(currentActionName==='inventory'&&currentCommandArguments.length===1){
   const currentInventory=await currentTextClient.request('/v1/developer/inventory');requireCurrentDeveloperSession();
   if(currentInventory.characterId!==currentCharacterIdentifier||!Number.isSafeInteger(currentInventory.version)

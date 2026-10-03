@@ -472,6 +472,7 @@ pattern clear
 ```text
 dev status
 dev inventory
+dev history
 dev add cp 10
 dev remove sp 1
 dev add p 100
