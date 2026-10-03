@@ -169,12 +169,14 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
   assert.ok(Math.abs(item.object.x-item.x-offset)<.001);
   assert.ok(Math.abs(item.object.y-item.y-offset/2)<.001);
  }
- assert.ok(first.object.depth<first.depth);
+ // 도착 타일이 더 앞쪽이므로 이동 중에도 몸체가 해당 바닥 위에 남는다.
+ assert.equal(first.object.depth,first.depth);
  for(const item of scene.movingObjects.filter(item=>item.depth>=scene.annotationDepth()))assert.equal(item.object.depth,item.depth);
  assert.ok(scene.annotationDepth()>30030);
  assert.deepEqual(scene.selected,{column:3,row:2});
  // 같은 실제 장면에서 이미지 재생성 이후에도 이동 트래커의 프레임을 따른다.
  const continuedMovementTimestamp=performance.now()-875;
+ scene.fieldMotion.sync('redrawn',[{id:'monster:s',cell:{column:1,row:2},point:{x:36,y:18,depth:30010}}],continuedMovementTimestamp);
  scene.fieldMotion.sync('redrawn',[{id:'monster:s',cell:{column:2,row:2},point:{x:100,y:50,depth:30020}}],continuedMovementTimestamp);
  scene.fieldMotion.sync('redrawn',[{id:'monster:s',cell:{column:3,row:2},point:{x:164,y:82,depth:30030}}],continuedMovementTimestamp);
  scene.animateFieldActors();
