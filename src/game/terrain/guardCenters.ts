@@ -38,3 +38,8 @@ export function drawGuardCenterSprite(currentGameScene:Phaser.Scene,currentCityI
   const currentGuardImage = currentGameScene.add.image(currentScreenPosition.x+currentStyleRecord.offsetX,currentScreenPosition.y+currentStyleRecord.offsetY,currentTextureKey);
   return currentGuardImage.setOrigin(currentStyleRecord.anchorX,currentStyleRecord.anchorY).setScale(currentStyleRecord.displayWidth/currentGuardImage.width);
 }
+
+/** 관문 좌표는 유지하며 경계의 구조물 표시만 안쪽 셀에 둔다. */
+export function resolveGuardDisplayPosition(currentGatePosition:{column:number;row:number},currentMapDimensions:{columns:number;rows:number}) {
+  return {column:Math.max(1,Math.min(currentMapDimensions.columns-2,currentGatePosition.column)),row:Math.max(1,Math.min(currentMapDimensions.rows-2,currentGatePosition.row))};
+}

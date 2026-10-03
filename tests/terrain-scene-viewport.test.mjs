@@ -15,14 +15,14 @@ afterEach(() => {
 });
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
-const {outputFiles}=await build({stdin:{contents:"export {drawGuardCenterSprite} from './src/game/terrain/guardCenters.ts'; export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_IDLE_TEXTURES} from './src/game/animation/idleActors.ts'; export {DEFAULT_CHARACTER_WALK_ASSET} from './src/game/animation/walkingActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',banner:{js:"import {createRequire} from 'node:module';const require=createRequire(process.cwd()+'/package.json');"},
+const {outputFiles}=await build({stdin:{contents:"export {drawGuardCenterSprite,resolveGuardDisplayPosition} from './src/game/terrain/guardCenters.ts'; export {MainScene} from './src/game/scenes/MainScene.ts'; export {ACTOR_IDLE_TEXTURES} from './src/game/animation/idleActors.ts'; export {DEFAULT_CHARACTER_WALK_ASSET} from './src/game/animation/walkingActors.ts';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm',banner:{js:"import {createRequire} from 'node:module';const require=createRequire(process.cwd()+'/package.json');"},
  loader:{'.yaml':'text','.webp':'empty','.png':'empty'},define:{'import.meta.url':'"file:///test/scene.js"'},plugins:[{name:'phaser-double',setup(build){
   build.onResolve({filter:/i18n$/},()=>({path:'i18n',namespace:'locale-double'}));
   build.onLoad({filter:/.*/,namespace:'locale-double'},()=>({contents:'export const t = currentMessageKey => currentMessageKey;'}));
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
   build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
-const {MainScene,ACTOR_IDLE_TEXTURES,DEFAULT_CHARACTER_WALK_ASSET,drawGuardCenterSprite}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
+const {MainScene,ACTOR_IDLE_TEXTURES,DEFAULT_CHARACTER_WALK_ASSET,drawGuardCenterSprite,resolveGuardDisplayPosition}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
 
 function createIdleTextureDouble() {
@@ -261,9 +261,11 @@ test('도시별 경비센터 외형을 발급 접점 옆에 표시하고 미등�
  for(const [currentCityName,currentStyleName] of Object.entries({iseulon:'teal',reedhaven:'wood',stonewarm:'red-tile',grainstead:'wood',saltford:'wood'})){
   const currentGuardImage=drawGuardCenterSprite(currentSceneDouble,currentCityName,{x:100,y:200});
   assert.equal(currentGuardImage.key,`guard-center-${currentStyleName}`);
-  assert.ok(currentGuardImage.x>100);
+  assert.equal(currentGuardImage.x,100);
   assert.ok(currentGuardImage.scale>0);
  }
  assert.equal(currentCreatedImages.length,5);
+ assert.deepEqual(resolveGuardDisplayPosition({column:16,row:0},{columns:32,rows:32}),{column:16,row:1});
+ assert.deepEqual(resolveGuardDisplayPosition({column:31,row:16},{columns:32,rows:32}),{column:30,row:16});
  assert.throws(()=>drawGuardCenterSprite(currentSceneDouble,'unknown-city',{x:0,y:0}),/미등록/);
 });

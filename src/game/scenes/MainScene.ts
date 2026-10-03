@@ -24,7 +24,7 @@ import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
-import {drawGuardCenterSprite, preloadGuardCenterSprites} from "../terrain/guardCenters";
+import {drawGuardCenterSprite, preloadGuardCenterSprites, resolveGuardDisplayPosition} from "../terrain/guardCenters";
 import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
@@ -589,8 +589,9 @@ export class MainScene extends Phaser.Scene {
         this.personalMarkerGraphics.push({graphic:currentMarkerGraphic,expiresAt:currentMarkerRecord.expiresAt});
       }
       for (const currentGuardRecord of s.map.guardCenters ?? []) {
-        if (!s.map.safeTown) drawGuardCenterSprite(this,currentGuardRecord.cityId,this.project(currentGuardRecord.position))
-          .setDepth(this.depth(currentGuardRecord.position) + TERRAIN_DEPTH.overlay);
+        const currentGuardPosition = resolveGuardDisplayPosition(currentGuardRecord.position,s.map);
+        if (!s.map.safeTown) drawGuardCenterSprite(this,currentGuardRecord.cityId,this.project(currentGuardPosition))
+          .setDepth(this.depth(currentGuardPosition) + TERRAIN_DEPTH.overlay);
       }
       for (const gate of s.map.connections) {
         const p = this.project(gate);
