@@ -9,7 +9,7 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
   const characterDataValues = new Map(Object.entries({actorIdleKind:actorIdleKindValue,idlePhaseOffset:0,actorDisplayHeight:80}));
   const registeredTextureFrames = new Set();
   const walkingTextureRecord = {
-    getSourceImage:()=>({width:1536,height:1152}),
+    getSourceImage:()=>({width:4608,height:384}),
     has:(currentFrameIdentifier)=>registeredTextureFrames.has(currentFrameIdentifier),
     add(currentFrameIdentifier){registeredTextureFrames.add(currentFrameIdentifier);return {};},
   };
@@ -33,7 +33,7 @@ test('정면왼쪽 걷기는 12프레임을 125ms 간격으로 반복하고 정�
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
       assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%12}`));
       assert.equal(renderedCharacterImage.originX,192/384);
-      assert.equal(renderedCharacterImage.originY,376/384);
+      assert.equal(renderedCharacterImage.originY,346/384);
       assert.equal(renderedCharacterImage.scaleX,80/360.0);
     }
     updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,undefined);
