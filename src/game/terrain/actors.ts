@@ -54,9 +54,10 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.lineStyle(FOOTPRINT.lineWidth, color, FOOTPRINT.lineAlpha);
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
-  const currentShadowScale = kind === "human" && actorFieldShadowEnabled ? FIELD_CHARACTER_SHADOW_SCALE : 1;
-  const contactShadowWidth = width * (kind === "human" ? HUMAN_CONTACT_SHADOW.width : SHADOW.width) * currentShadowScale;
-  const contactShadowHeight = groundHeight * (kind === "human" ? HUMAN_CONTACT_SHADOW.height : SHADOW.height) * currentShadowScale;
+  // 그림자는 점유 타일 수가 아닌 중형 대비 외형 비율을 따른다.
+  const currentShadowScale = ratio * (kind === "human" && actorFieldShadowEnabled ? FIELD_CHARACTER_SHADOW_SCALE : 1);
+  const contactShadowWidth = TILE_W * (kind === "human" ? HUMAN_CONTACT_SHADOW.width : SHADOW.width) * currentShadowScale;
+  const contactShadowHeight = TILE_H * (kind === "human" ? HUMAN_CONTACT_SHADOW.height : SHADOW.height) * currentShadowScale;
   g.fillStyle(SHADOW.color, SHADOW.alpha);
   g.fillEllipse(x, y, contactShadowWidth, contactShadowHeight);
   g.fillStyle(SHADOW.color, SHADOW.coreAlpha);
