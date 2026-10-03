@@ -31,7 +31,7 @@ const world=document.createElement('section');world.className='world is-field';
 const shell=document.createElement('main');shell.className='world-layout world-layout--immersive';
 gameRoot.before(shell);shell.append(world);document.body.classList.add('world-shell','terrain-shell');
 const heading=document.createElement('div');heading.className='world-title';heading.innerHTML='<h2 id="field-title">이슬 초원</h2><span class="world-resources">모험가 · 디자인 미리보기</span>';
-const stage=document.createElement('div');stage.className='map-stage';
+const stage=document.createElement('div');stage.className='map-stage card field-map-card';
 const selectionRoot=document.createElement('div');
 world.append(heading,stage);stage.append(gameRoot);selectionRoot.className="field-command-dock";world.append(selectionRoot);
 const fpPreview=document.createElement('div');world.querySelector('.world-title').append(fpPreview);render(h(FieldPoints,{fp:200,max:1000,nextChargeAt:60,now:0}),fpPreview);

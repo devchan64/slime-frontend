@@ -1168,7 +1168,9 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .world-shell .world.is-field > .world-title { flex: 0 0 auto; }
 .world-shell .world.is-field > .field-map-card { position: relative; top: auto; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; aspect-ratio: auto; max-height: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; }
 /* 카드 테두리를 제외한 실제 맵 표시 영역에 4:3을 적용한다. */
+.field-preview-canvas,
 .world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap { position: relative; width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3; }
+.field-preview-canvas canvas,
 .world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap canvas { position: absolute; inset: 0; }
 .world-shell .world.is-field > :is(.field-control-card, .field-help-card) { position: static; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; max-height: none; margin: 0; padding: var(--field-card-padding); border: 1px solid var(--border); border-radius: 12px; overflow: visible; }
 .world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
