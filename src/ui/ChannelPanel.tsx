@@ -39,7 +39,11 @@ export function ChannelPanel({gameSessionClient,currentGameState,actionsAreDisab
       }
       const currentReceivedEntries=parseChannelListing(await gameSessionClient.request('/v1/channels'));
       if(!channelSessionMatches())return;
-      setCurrentChannelEntries(currentReceivedEntries);setCurrentChannelPage(0);setCurrentResultUncertain(false);
+      const receivedMapChannelCount=currentReceivedEntries.filter(currentChannelEntry=>currentChannelEntry.mapDefinitionId===currentGameState.map.id).length;
+      const receivedLastPageIndex=Math.max(0,Math.ceil(receivedMapChannelCount/CHANNEL_LIST_PAGE_SIZE)-1);
+      setCurrentChannelEntries(currentReceivedEntries);
+      setCurrentChannelPage(previousChannelPage=>Math.min(previousChannelPage,receivedLastPageIndex));
+      setCurrentResultUncertain(false);
     }catch(currentRequestError){if(channelSessionMatches())setCurrentChannelNotice(currentRequestError as Error);}
     finally {pendingRequestReference.current=false;if(activePanelReference.current)setCurrentRequestPending(false);}
   }

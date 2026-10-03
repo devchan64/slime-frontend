@@ -93,6 +93,12 @@ async function enterChannelAddress(currentAddressText:string){const currentInput
   findNamedButton(t('channels.previousPage')).click();await waitRenderCycle();
   verifyCurrentCondition(!!document.querySelector('[data-channel-address="a11"]'),'채널 이전 페이지 복귀');
   findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
-  verifyCurrentCondition(!!document.querySelector('[data-channel-address="a1"]')&&findNamedButton(t('channels.previousPage')).disabled,'채널 새로고침 첫 페이지 복귀');
+  verifyCurrentCondition(!!document.querySelector('[data-channel-address="a11"]'),'채널 새로고침 현재 페이지 유지');
+  currentRequestHandler=async()=>[currentChannelRecords[0]];
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(document.querySelectorAll('[data-channel-address]').length===1&&!document.querySelector('.record-page-navigation'),'채널 감소 시 유효 페이지로 이동');
+  currentRequestHandler=async()=>Array.from({length:21},(_,currentEntryIndex)=>({...currentChannelRecords[0],id:`page-${currentEntryIndex}`,address:`a${currentEntryIndex+1}`}));
+  findNamedButton(t('channels.refresh')).click();await waitRenderCycle();
+  verifyCurrentCondition(!!document.querySelector('[data-channel-address="a1"]')&&findNamedButton(t('channels.previousPage')).disabled,'목록 재증가 시 이전의 무효 페이지로 돌아가지 않음');
   document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionLabels,commands:currentCommandRecords});
 }catch(currentFailureError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentFailureError),stack:(currentFailureError as Error).stack,assertions:currentAssertionLabels});}})();
