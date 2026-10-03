@@ -1,3 +1,10 @@
+export type AutomaticBattleRule = {
+  condition: 'ALWAYS' | 'SELF_HP' | 'ALLY_HP';
+  hpPercent?: number | null;
+  action: 'ATTACK' | 'SKILL' | 'APPROACH' | 'END_TURN';
+  actionId?: string | null;
+};
+export type AutomaticBattlePattern = {version: 1; rules: AutomaticBattleRule[]};
 import type {GuildMembershipSummary} from './guildMembership';
 import type {CostumeAppearanceReference} from './costumeAppearance';
 import type {TerrainBlockRecord} from '../game/terrain/blockGeometry';
@@ -80,6 +87,7 @@ export type State = {
   epoch: number;
   cursor: number;
   me: {
+    automaticPattern?: AutomaticBattlePattern;
     costumeAppearance?: CostumeAppearanceReference;
     travelerPermitSummary?: import("./travelerPermits").TravelerPermitSummary;
     citizenshipSummary?: import("./citizenshipSummary").CitizenshipSummary;

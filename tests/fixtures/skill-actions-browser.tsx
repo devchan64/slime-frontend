@@ -1,3 +1,4 @@
+import {AutomaticBattlePatternPanel} from '../../src/ui/AutomaticBattlePatternPanel';
 import {render} from 'preact';
 import {useState} from 'preact/hooks';
 import {BattlePanel} from '../../src/ui/BattlePanel';
@@ -63,5 +64,35 @@ const refresh_review_panel=()=>render(<CurrentReviewPanel/>,document.getElementB
  verify_current_condition([...document.querySelectorAll('dialog[open] button')].find(currentButtonElement=>currentButtonElement.textContent.includes(t('battle.guardEndTurn')))?.disabled,'AP 1 방어 종료 비활성');
  await click_matching_button(t('battle.cancel'));
  verify_current_condition(current_commands_sent.length===1,'과중량 확인 취소는 명령 미전송');
+ const currentPatternCommands = [];
+ const currentPatternCharacter = {...current_character_data,automaticPattern:undefined,skillDefinitions:{...current_character_data.skillDefinitions,healing_magic:{...current_character_data.skillDefinitions.healing_magic,actions:[{actionId:'healing_mend',name:'상처 봉합',requiredLevel:1}]}}};
+ const renderPatternEditor = () => render(<AutomaticBattlePatternPanel currentCharacterState={currentPatternCharacter} currentActionsDisabled={false}
+  submitPatternCommand={(currentCommandPath,currentCommandBody,currentSuccessHandler)=>{
+   currentPatternCommands.push({path:currentCommandPath,body:currentCommandBody});
+   currentPatternCharacter.automaticPattern=currentCommandBody.pattern??undefined;
+   currentSuccessHandler(); renderPatternEditor();
+  }}/>,document.getElementById('root'));
+ render(null,document.getElementById('root'));renderPatternEditor();await wait_render_cycle();
+ await click_matching_button(t('battle.patternAddRule'));
+ const currentConditionSelect = document.querySelector('select');
+ currentConditionSelect.value='SELF_HP';currentConditionSelect.dispatchEvent(new Event('change',{bubbles:true}));await wait_render_cycle();
+ const currentThresholdInput = document.querySelector('input[type="number"]');
+ currentThresholdInput.value='0';currentThresholdInput.dispatchEvent(new Event('input',{bubbles:true}));await wait_render_cycle();
+ verify_current_condition([...document.querySelectorAll('button')].find(currentButtonEntry=>currentButtonEntry.textContent===t('battle.patternSave')).disabled,'범위 밖 HP 저장 차단');
+ currentThresholdInput.value='50';currentThresholdInput.dispatchEvent(new Event('input',{bubbles:true}));await wait_render_cycle();
+ const currentActionSelect = document.querySelectorAll('select')[1];
+ currentActionSelect.value='SKILL';currentActionSelect.dispatchEvent(new Event('change',{bubbles:true}));await wait_render_cycle();
+ verify_current_condition(document.querySelectorAll('select')[2].value==='healing_mend','습득·슬롯 스킬 액션 선택');
+ await click_matching_button(t('battle.patternAddRule'));
+ await click_matching_button(t('battle.patternMoveDown'));
+ await click_matching_button(t('battle.patternSave'));
+ verify_current_condition(currentPatternCommands[0].path==='/v1/characters/me/automatic-pattern','패턴 저장 API');
+ verify_current_condition(currentPatternCommands[0].body.pattern.rules[1].condition==='SELF_HP'&&currentPatternCommands[0].body.pattern.rules[1].hpPercent===50,'HP 조건과 순서 저장');
+ verify_current_condition(currentPatternCommands[0].body.pattern.rules[1].action==='SKILL'&&currentPatternCommands[0].body.pattern.rules[1].actionId==='healing_mend','선택한 스킬 액션 저장');
+ verify_current_condition(currentPatternCommands[0].body.pattern.rules.at(-1).action==='END_TURN','마지막 종료 규칙 유지');
+ await click_matching_button(t('battle.patternDelete'));
+ verify_current_condition(currentPatternCommands[1].body.pattern===null,'패턴 삭제 계약');
+ verify_current_condition(document.querySelectorAll('select').length===0,'삭제 후 고정 종료 규칙만 표시');
+ verify_current_condition(document.documentElement.scrollWidth<=innerWidth,'패턴 편집기가 모바일 화면 안에 표시');
  document.body.dataset.result=JSON.stringify({status:'PASS' ,assertions:current_assertion_labels,commands:current_commands_sent});
 }catch(current_failure_error){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(current_failure_error),stack:current_failure_error.stack,assertions:current_assertion_labels});}})();
