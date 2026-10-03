@@ -16,3 +16,8 @@ claimSummary: "Claimed {count} rewards, containing {quantity} items in total."
 nothingClaimed: "No rewards are currently available. They may have been claimed or expired."
 
 loanRewards: "Lending rewards"
+
+pagination: "Lending reward pages"
+previous: "Previous page"
+next: "Next page"
+page: "Page {page}"

@@ -9,6 +9,7 @@ import { useTranslation } from '../i18n';
 export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {gameSessionClient: Client; actionsAreDisabled: boolean}) {
   const {t: translateRewardText, locale: currentLocaleCode} = useTranslation();
   const [selectedStorageCategory, setSelectedStorageCategory] = useState<'cards' | 'parcels' | 'rewards'>('cards');
+  const [rewardPageCursorHistory, setRewardPageCursorHistory] = useState<(string | undefined)[]>([undefined]);
   const [storedRewardPage, setStoredRewardPage] = useState<AccountRewardPage | null>(null);
   const [latestClaimSummary, setLatestClaimSummary] = useState<AccountRewardClaimSummary | null>(null);
   const [currentRewardNotice, setCurrentRewardNotice] = useState<Notice>('');
@@ -23,15 +24,16 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
     return activePanelReference.current && gameSessionClient.tokens?.user_id === initialSessionReference.current.owner
       && gameSessionClient.state?.generation === initialSessionReference.current.generation;
   }
-  async function loadRewardPage(afterRewardIdentifier?: string) {
+  async function loadRewardPage(requestedCursorHistory: (string | undefined)[] = [undefined]) {
     if (pendingRewardRequest.current || !panelSessionMatches()) return;
     pendingRewardRequest.current = true; setIsRewardLoading(true); setCurrentRewardNotice(''); setLatestClaimSummary(null);
     try {
+      const afterRewardIdentifier = requestedCursorHistory[requestedCursorHistory.length - 1];
       const receivedRewardPage = parseAccountRewardPage(await gameSessionClient.request('/v1/accounts/me/rewards' + (afterRewardIdentifier ? `?after=${encodeURIComponent(afterRewardIdentifier)}` : '')));
       if (!panelSessionMatches()) return;
       rewardClockAnchor.current = performance.now(); setRewardClockValue(rewardClockAnchor.current);
-      setStoredRewardPage(previousRewardPage => ({...receivedRewardPage, entries: afterRewardIdentifier
-        ? [...(previousRewardPage?.entries ?? []), ...receivedRewardPage.entries] : receivedRewardPage.entries}));
+      setStoredRewardPage(receivedRewardPage);
+      setRewardPageCursorHistory(requestedCursorHistory);
     } catch (rewardRequestError) { if (panelSessionMatches()) setCurrentRewardNotice(rewardRequestError as Error); }
     finally { pendingRewardRequest.current = false; if (panelSessionMatches()) setIsRewardLoading(false); }
   }
@@ -61,6 +63,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
       const receivedClaimSummary = parseAccountRewardClaim(await gameSessionClient.request('/v1/accounts/me/rewards/claim-all', {}));
       if (!panelSessionMatches()) return;
       setStoredRewardPage(null);
+      setRewardPageCursorHistory([undefined]);
       setLatestClaimSummary(receivedClaimSummary);
       const currentCharacterState = await gameSessionClient.request('/v1/game/state');
       if (!panelSessionMatches()) return;
@@ -89,7 +92,7 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
     <div id="account-storage-rewards" hidden={selectedStorageCategory !== 'rewards'}>
     <h3>{translateRewardText('rewards.loanRewards')}</h3>
     <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage()}>{translateRewardText('rewards.refresh')}</button>
-    <button disabled={actionsAreDisabled || rewardActionPending || !(storedRewardPage?.nextCursor || storedRewardPage?.entries.some(storedRewardEntry => rewardRemainingSeconds(storedRewardEntry.expiresAt, storedRewardPage.serverTime, rewardClockValue - rewardClockAnchor.current) > 0))} onClick={() => void claimAllStoredRewards()}>{translateRewardText(claimedRewardIdentifier === 'all' ? 'rewards.claiming' : 'rewards.claimAll')}</button>
+    <button disabled={actionsAreDisabled || rewardActionPending || !(rewardPageCursorHistory.length > 1 || storedRewardPage?.nextCursor || storedRewardPage?.entries.some(storedRewardEntry => rewardRemainingSeconds(storedRewardEntry.expiresAt, storedRewardPage.serverTime, rewardClockValue - rewardClockAnchor.current) > 0))} onClick={() => void claimAllStoredRewards()}>{translateRewardText(claimedRewardIdentifier === 'all' ? 'rewards.claiming' : 'rewards.claimAll')}</button>
     <p>{translateRewardText('rewards.claimAllHelp')}</p>
     {latestClaimSummary && <p role="status">{latestClaimSummary.claimedCount === 0
       ? translateRewardText('rewards.nothingClaimed')
@@ -106,7 +109,11 @@ export function AccountRewardsPanel({gameSessionClient, actionsAreDisabled}: {ga
         <button disabled={actionsAreDisabled || rewardActionPending || remainingRewardSeconds <= 0} onClick={() => void claimStoredReward(storedRewardEntry.id)}>{translateRewardText(claimedRewardIdentifier === storedRewardEntry.id ? 'rewards.claiming' : 'rewards.claim')}</button>
       </li>;
     })}</ul>
-    {storedRewardPage?.nextCursor && <button class="secondary" disabled={actionsAreDisabled || rewardActionPending} onClick={() => void loadRewardPage(storedRewardPage.nextCursor!)}>{translateRewardText('rewards.more')}</button>}
+    {storedRewardPage && <nav class="account-storage-categories" aria-label={translateRewardText('rewards.pagination')}>
+      <button class="secondary" disabled={actionsAreDisabled || rewardActionPending || rewardPageCursorHistory.length <= 1} onClick={() => void loadRewardPage(rewardPageCursorHistory.slice(0, -1))}>{translateRewardText('rewards.previous')}</button>
+      <span role="status">{translateRewardText('rewards.page', {page: rewardPageCursorHistory.length})}</span>
+      <button class="secondary" disabled={actionsAreDisabled || rewardActionPending || !storedRewardPage.nextCursor} onClick={() => void loadRewardPage([...rewardPageCursorHistory, storedRewardPage.nextCursor!])}>{translateRewardText('rewards.next')}</button>
+    </nav>}
     </div>
   </section>;
 }

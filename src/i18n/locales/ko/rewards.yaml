@@ -16,3 +16,8 @@ claimSummary: "보상 {count}건 · 물품 총 {quantity}개를 수령했습니�
 nothingClaimed: "현재 수령 가능한 보상이 없습니다. 이미 수령했거나 보관 기한이 지났을 수 있습니다."
 
 loanRewards: "대여 보상"
+
+pagination: "대여 보상 페이지 이동"
+previous: "이전 페이지"
+next: "다음 페이지"
+page: "{page}페이지"

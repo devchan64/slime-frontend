@@ -141,3 +141,38 @@ test('잘못된 개별 영수증은 목록·상태를 보존하고 같은 보상
     }finally{currentPanelHarness.closeRewardPanel();}
   }
 });
+
+test('대여 보상 페이지는 교체 표시하고 조회 실패 시 현재 페이지와 이전 이동을 보존한다',async()=>{
+  const observedRequestPaths=[];let shouldRejectNextPage=true;
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async requestPathValue=>{
+    observedRequestPaths.push(requestPathValue);
+    if(requestPathValue.includes('?after=')){
+      if(shouldRejectNextPage)throw new Error('다음 페이지 조회 실패');
+      return {...sampleRewardPage(),entries:sampleRewardPage().entries.map(currentRewardEntry=>({...currentRewardEntry,id:'reward-two'}))};
+    }
+    return {...sampleRewardPage(),nextCursor:'reward-one'};
+  },accept:()=>assert.fail('페이지 이동은 캐릭터 상태를 변경하지 않습니다.')};
+  const currentPanelHarness=createPanelHarness(currentSessionClient);
+  function collectRewardIdentifiers(currentRenderNode){
+    if(Array.isArray(currentRenderNode))return currentRenderNode.flatMap(collectRewardIdentifiers);
+    if(!currentRenderNode||typeof currentRenderNode!=='object')return [];
+    return [...(currentRenderNode.type==='li'?[currentRenderNode.key]:[]),...collectRewardIdentifiers(currentRenderNode.props?.children)];
+  }
+  function findPaginationButton(currentButtonKey){return findRewardButtons(currentPanelHarness.renderRewardPanel()).find(currentButtonNode=>currentButtonNode.props.children===currentButtonKey);}
+  try{
+    currentPanelHarness.renderRewardPanel();await finishPendingPromises();
+    assert.equal(findPaginationButton('rewards.previous').props.disabled,true);
+    findPaginationButton('rewards.next').props.onClick();await finishPendingPromises();
+    assert.deepEqual(collectRewardIdentifiers(currentPanelHarness.renderRewardPanel()),['reward-one']);
+    assert.equal(findPaginationButton('rewards.previous').props.disabled,true);
+    shouldRejectNextPage=false;
+    findPaginationButton('rewards.next').props.onClick();await finishPendingPromises();
+    assert.deepEqual(collectRewardIdentifiers(currentPanelHarness.renderRewardPanel()),['reward-two']);
+    assert.equal(findPaginationButton('rewards.next').props.disabled,true);
+    assert.equal(findPaginationButton('rewards.previous').props.disabled,false);
+    findPaginationButton('rewards.previous').props.onClick();await finishPendingPromises();
+    assert.deepEqual(collectRewardIdentifiers(currentPanelHarness.renderRewardPanel()),['reward-one']);
+    assert.equal(findPaginationButton('rewards.previous').props.disabled,true);
+    assert.deepEqual(observedRequestPaths,['/v1/accounts/me/rewards','/v1/accounts/me/rewards?after=reward-one','/v1/accounts/me/rewards?after=reward-one','/v1/accounts/me/rewards']);
+  }finally{currentPanelHarness.closeRewardPanel();}
+});
