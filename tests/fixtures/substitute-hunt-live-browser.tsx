@@ -6,7 +6,9 @@ const currentGameClient=new Client();
 const currentRequestBodies:string[]=[];
 const originalBrowserFetch=window.fetch.bind(window);
 let currentDropFirstResponse=true;
+let rejectNextCatalogRequest=false;
 window.fetch=async(currentRequestInput,currentRequestOptions)=>{
+ if(rejectNextCatalogRequest&&String(currentRequestInput)==='/v1/game/substitute-hunts/catalog'){rejectNextCatalogRequest=false;throw new TypeError('검사: 목록 조회 실패');}
  const currentHttpResponse=await originalBrowserFetch(currentRequestInput,currentRequestOptions);
  if(String(currentRequestInput)==='/v1/game/substitute-hunts'&&currentRequestOptions?.method==='POST'){
   currentRequestBodies.push(String(currentRequestOptions.body));
@@ -38,6 +40,13 @@ async function waitHuntBrowserCondition(currentCondition:()=>boolean){const curr
  assertHuntBrowserCondition(currentAfterState.me.fp===currentBeforeState.me.fp-currentPassiveQuote.fpCost,'FP 일회 차감');
  assertHuntBrowserCondition(currentAfterState.me.mode==='AWAY','자리비움 보존');
  assertHuntBrowserCondition(document.body.textContent?.includes('단백질젤리'),'실제 획득 재료 이름 표시');
+ await waitHuntBrowserCondition(()=>[...document.querySelectorAll('button')].some(currentButton=>currentButton.textContent===t('hunts.refreshTargets')&&!currentButton.disabled));
+ rejectNextCatalogRequest=true;
+ [...document.querySelectorAll('button')].find(currentButton=>currentButton.textContent===t('hunts.refreshTargets'))!.click();
+ await waitHuntBrowserCondition(()=>!!document.querySelector('[role="alert"]'));
+ [...document.querySelectorAll('button')].find(currentButton=>currentButton.textContent===t('hunts.refreshTargets'))!.click();
+ await waitHuntBrowserCondition(()=>!document.querySelector('[role="alert"]')&&[...document.querySelectorAll('button')].some(currentButton=>currentButton.textContent===t('hunts.refreshTargets')&&!currentButton.disabled));
+ assertHuntBrowserCondition(currentRequestBodies.length===2,'목록 복구 중 사냥 재전송 없음');
  setLocale('en');await waitHuntBrowserCondition(()=>document.body.textContent?.includes(t('hunts.substituteTitle'))??false);
  await fetch('/test-result',{method:'POST',body:'PASS: 실제 대체 사냥 지급·응답 유실·메뉴 재진입·같은 요청 재시도·번역'});
 }catch(currentBrowserError){await fetch('/test-result',{method:'POST',body:'FAIL: '+String(currentBrowserError)});}})();
