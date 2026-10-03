@@ -6,7 +6,7 @@ import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 const SUBSTITUTE_HUNT_PAGE_SIZE=10;
 const HUNT_UNAVAILABLE_LABELS:Record<string,string>={INVALID_STATE:'hunts.invalidState',FIRST_HUNT_REQUIRED:'hunts.firstRequired',INSUFFICIENT_FP:'hunts.fpRequired'};
-export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
+export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled,isHuntPanelActive=true}:{gameSessionClient:Client;actionsAreDisabled:boolean;isHuntPanelActive?:boolean}){
  const {t:translateHuntText,locale:currentHuntLocale}=useTranslation();
  const [currentHuntCatalog,setCurrentHuntCatalog]=useState<SubstituteHuntCatalog|null>(null);
  const [currentTargetPage,setCurrentTargetPage]=useState(0);
@@ -18,10 +18,10 @@ export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled}:{game
  const currentSessionReference=useRef(currentHuntSessionIdentity(gameSessionClient));
  const currentHuntController=getSubstituteHuntCommand(gameSessionClient);
  function matchesHuntSession(){return currentMountedReference.current&&currentSessionReference.current===currentHuntSessionIdentity(gameSessionClient);}
- async function loadHuntCatalog(){
+ async function loadHuntCatalog(preserveTargetPage=false){
   if(currentBusyReference.current)return;
   currentBusyReference.current=true;setCurrentRequestPending(true);
-  try{const currentCatalogResponse=parseSubstituteHuntCatalog(await gameSessionClient.request('/v1/game/substitute-hunts/catalog'));if(matchesHuntSession()){setCurrentHuntCatalog(currentCatalogResponse);setCurrentTargetPage(0);}}
+  try{const currentCatalogResponse=parseSubstituteHuntCatalog(await gameSessionClient.request('/v1/game/substitute-hunts/catalog'));if(matchesHuntSession()){setCurrentHuntCatalog(currentCatalogResponse);if(!preserveTargetPage)setCurrentTargetPage(0);}}
   catch(currentRequestError){if(matchesHuntSession())setCurrentHuntNotice(currentRequestError as Error);}
   finally{currentBusyReference.current=false;if(matchesHuntSession())setCurrentRequestPending(false);}
  }
@@ -34,7 +34,8 @@ export function SubstituteHuntPanel({gameSessionClient,actionsAreDisabled}:{game
   }catch(currentRequestError){if(matchesHuntSession()){setCurrentHuntNotice(currentRequestError as Error);setCurrentHuntCatalog(null);}}
   finally{currentBusyReference.current=false;if(matchesHuntSession()){setCurrentRequestPending(false);if(!currentHuntController.pendingHuntRequest)void loadHuntCatalog();}}
  }
- useEffect(()=>{void loadHuntCatalog();return()=>{currentMountedReference.current=false;};},[]);
+ useEffect(()=>()=>{currentMountedReference.current=false;},[]);
+ useEffect(()=>{if(isHuntPanelActive)void loadHuntCatalog(true);},[isHuntPanelActive]);
  const currentTargetPageCount=Math.max(1,Math.ceil((currentHuntCatalog?.encounters.length??0)/SUBSTITUTE_HUNT_PAGE_SIZE));
  const displayedTargetPageIndex=Math.min(currentTargetPage,currentTargetPageCount-1);
  return <section aria-label={translateHuntText('hunts.substituteTitle')}>
