@@ -5,6 +5,8 @@ import { noticeText, type Notice } from '../client/notice';
 import { useTranslation } from '../i18n';
 import { localizedSkill, type SkillDefinition } from '../client/skillText';
 import { validateAchievementRewardLedger, validateAchievementCatalogRecords, validateAchievementSeasonHistory, localizedAchievement, type AchievementDefinition as Definition } from '../client/achievementText';
+const ACHIEVEMENT_LIST_PAGE_SIZE = 10;
+const ACHIEVEMENT_HISTORY_PAGE_SIZE = 20;
 type Scope = 'GENERAL' | 'SEASONAL';
 type Progress = {completedAt:number|null;checklist:Record<string,{count:number}>};
 type Ledger = {id:string;achievementId:string;scope:Scope;seasonId:string|null;amount:number;createdAt:number;sourceType:string};
@@ -16,10 +18,13 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   const [currentAchievementNotice,setAchievementRequestNotice]=useState<Notice>('');
   const [attempt,setAttempt]=useState(0);
   const [selectedHistorySeason,setSelectedHistorySeason]=useState<string>('');
+  const [currentAchievementPage,setCurrentAchievementPage]=useState(0);
+  const [currentHistoryPage,setCurrentHistoryPage]=useState(0);
+  const resetAchievementPages=()=>{setCurrentAchievementPage(0);setCurrentHistoryPage(0);};
   const [scope,setScope]=useState<Scope>('GENERAL');
   const [currentHuntMenuOpen,setCurrentHuntMenuOpen]=useState(false);
   useEffect(()=>{
-    let cancelled=false;setAchievementRequestNotice('');setData(null);setSelectedHistorySeason('');
+    let cancelled=false;setAchievementRequestNotice('');setData(null);setSelectedHistorySeason('');resetAchievementPages();
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
       .then(([catalog,progress])=>{validateAchievementCatalogRecords(catalog.achievements);validateAchievementRewardLedger(progress.cpLedger);validateAchievementRewardLedger(progress.spLedger === undefined ? [] : progress.spLedger);const currentHistoryRecords=progress.history === undefined ? {} : progress.history;validateAchievementSeasonHistory(currentHistoryRecords);if(!cancelled)setData({history:currentHistoryRecords,catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
       .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
@@ -35,6 +40,8 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
   const completed=items.filter(([id])=>displayedProgressRecords?.[id]?.completedAt!=null).length;
   const ledger=displayedRewardLedgers?[...displayedRewardLedgers.cpLedger.map(entry=>({...entry,currency:'CP'})),...displayedRewardLedgers.spLedger.map(entry=>({...entry,currency:'SP'}))]
     .filter(entry=>entry.scope===scope).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)||a.currency.localeCompare(b.currency)):[];
+  const achievementPageCount=Math.max(1,Math.ceil(items.length/ACHIEVEMENT_LIST_PAGE_SIZE));
+  const historyPageCount=Math.max(1,Math.ceil(ledger.length/ACHIEVEMENT_HISTORY_PAGE_SIZE));
   return <main class="achievements-page"><div class="achievement-heading"><div><h1>{t('achievements.title')}</h1><p>{t('achievements.away')}</p></div><button disabled={disabled} onClick={onReturn}>{t('achievements.return')}</button></div>
     <button class="secondary" aria-expanded={currentHuntMenuOpen} onClick={()=>setCurrentHuntMenuOpen(!currentHuntMenuOpen)}>{t('hunts.substituteTitle')}</button>
     {currentHuntMenuOpen&&<SubstituteHuntPanel key={`${client.tokens?.user_id}:${client.state?.generation}:${client.state?.me.id}`} gameSessionClient={client} actionsAreDisabled={disabled}/>}
@@ -43,11 +50,11 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
         <div><strong>{t('achievements.balance')}</strong><p>{number(data.cp)} CP · {data.sp===undefined?t('achievements.unsupported'):number(data.sp)} SP</p></div>
         <p>{t('achievements.balanceHelp')}</p>
         <div class="growth-categories" role="group" aria-label={t('achievements.category')}>
-          {(['GENERAL','SEASONAL'] as const).map(value=><button key={value} class="secondary" aria-pressed={scope===value} onClick={()=>setScope(value)}>{t(`achievements.${value.toLowerCase()}`)}</button>)}
+          {(['GENERAL','SEASONAL'] as const).map(value=><button key={value} class="secondary" aria-pressed={scope===value} onClick={()=>{setScope(value);resetAchievementPages();}}>{t(`achievements.${value.toLowerCase()}`)}</button>)}
         </div>
       </section>
       {Object.keys(data.history).length>0&&<label>{t('achievements.viewSeason')}
-        <select value={selectedHistorySeason} onChange={currentSelectionEvent=>setSelectedHistorySeason(currentSelectionEvent.currentTarget.value)}>
+        <select value={selectedHistorySeason} onChange={currentSelectionEvent=>{setSelectedHistorySeason(currentSelectionEvent.currentTarget.value);resetAchievementPages();}}>
           <option value="">{t('achievements.currentSeason')}</option>
           {Object.keys(data.history).map(currentSeasonIdentifier=><option key={currentSeasonIdentifier} value={currentSeasonIdentifier}>{currentSeasonIdentifier}</option>)}
         </select>
@@ -56,7 +63,7 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
       <section class="card" aria-label={t(`achievements.${scope.toLowerCase()}`)}>
         <h2>{t(`achievements.${scope.toLowerCase()}`)} <small>{t('achievements.completedCount',{done:completed,total:items.length})}</small></h2>
         {scope==='SEASONAL'&&!selectedHistoryRecord&&<p>{t('achievements.season',{season:data.seasonDisplay ? `${data.seasonDisplay.number} · ${data.seasonDisplay.names[locale]}` : data.season})}</p>}
-        {!items.length?<p>{t('achievements.empty')}</p>:items.map(([id,d])=>{
+        {!items.length?<p>{t('achievements.empty')}</p>:items.slice(currentAchievementPage*ACHIEVEMENT_LIST_PAGE_SIZE,(currentAchievementPage+1)*ACHIEVEMENT_LIST_PAGE_SIZE).map(([id,d])=>{
           const progress=displayedProgressRecords?.[id];
           return <article class="achievement-item" key={id}><h3>{d.name} <small>{t(progress?.completedAt!=null?'achievements.complete':'achievements.inProgress')}</small></h3>
             {(d.cp>0||(d.sp??0)>0||(d.skills?.length??0)>0)&&<p>{t('achievements.reward')} · {[d.cp>0?`${number(d.cp)} CP`:null,d.sp?`${number(d.sp)} SP`:null].filter(Boolean).join(' · ')}{(d.skills??[]).map(id=>{
@@ -70,13 +77,23 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
             })}</ul>
           </article>;
         })}
+        {achievementPageCount>1&&<nav class="record-page-navigation" aria-label={t('achievements.pagination')}>
+          <button class="secondary" disabled={currentAchievementPage===0} onClick={()=>setCurrentAchievementPage(currentPageIndex=>currentPageIndex-1)}>{t('achievements.previous')}</button>
+          <span role="status">{t('achievements.page',{page:currentAchievementPage+1,total:achievementPageCount})}</span>
+          <button class="secondary" disabled={currentAchievementPage+1>=achievementPageCount} onClick={()=>setCurrentAchievementPage(currentPageIndex=>currentPageIndex+1)}>{t('achievements.next')}</button>
+        </nav>}
       </section>
       <details class="card achievement-history"><summary>{t('achievements.history',{count:ledger.length})}</summary>
         <p>{t('achievements.historyHelp')}</p>
-        {!ledger.length?<p>{t('achievements.noHistory')}</p>:<ul>{ledger.map(entry=><li key={`${entry.currency}:${entry.id}`}>
+        {!ledger.length?<p>{t('achievements.noHistory')}</p>:<ul>{ledger.slice(currentHistoryPage*ACHIEVEMENT_HISTORY_PAGE_SIZE,(currentHistoryPage+1)*ACHIEVEMENT_HISTORY_PAGE_SIZE).map(entry=><li key={`${entry.currency}:${entry.id}`}>
           <div><strong>{catalog[entry.achievementId]?.name??entry.achievementId}</strong><span>+{number(entry.amount)} {entry.currency}</span></div>
           <small>{entry.sourceType==='achievement_migration'?t('achievements.supplement'):t('achievements.awarded')}{entry.seasonId?` · ${entry.seasonId}`:''} · {new Date(entry.createdAt*1000).toLocaleString(locale)}</small>
         </li>)}</ul>}
+        {historyPageCount>1&&<nav class="record-page-navigation" aria-label={t('achievements.historyPagination')}>
+          <button class="secondary" disabled={currentHistoryPage===0} onClick={()=>setCurrentHistoryPage(currentPageIndex=>currentPageIndex-1)}>{t('achievements.previous')}</button>
+          <span role="status">{t('achievements.page',{page:currentHistoryPage+1,total:historyPageCount})}</span>
+          <button class="secondary" disabled={currentHistoryPage+1>=historyPageCount} onClick={()=>setCurrentHistoryPage(currentPageIndex=>currentPageIndex+1)}>{t('achievements.next')}</button>
+        </nav>}
       </details>
     </>}
   </main>;

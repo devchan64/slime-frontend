@@ -24,3 +24,8 @@ awarded: "Achievement award"
 viewSeason: "Season to view"
 currentSeason: "Current season"
 archivedHelp: "Previous season records. These rewards are not included in your current balance and will not be awarded again."
+pagination: Achievement pages
+historyPagination: Award history pages
+previous: Previous
+next: Next
+page: "Page {page} of {total}"
