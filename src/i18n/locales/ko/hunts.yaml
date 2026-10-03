@@ -24,3 +24,6 @@ uncertain: 이전 요청의 결과를 먼저 확인하세요.
 retry: 같은 요청 다시 확인
 completed: '{amount} FP를 소비했습니다.'
 emptyDrop: 이번에는 획득한 재료가 없습니다.
+pagination: 사냥 기록 페이지 이동
+previous: 이전 페이지
+pageNumber: '{page}페이지'

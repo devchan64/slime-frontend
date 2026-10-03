@@ -9,11 +9,13 @@ const HUNT_RESULT_LABEL_KEYS:Record<string,string>={WIN:'battle.resultWin',LOSE:
 export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
   const {t:translateLedgerText,locale:currentLocaleCode}=useTranslation();
   const [currentLedgerPage,setCurrentLedgerPage]=useState<HuntLedgerPage|null>(null);
+  const [ledgerPageCursorHistory,setLedgerPageCursorHistory]=useState<number[]>([0]);
   const [currentLedgerNotice,setCurrentLedgerNotice]=useState<Notice>('');
   const [currentRequestPending,setCurrentRequestPending]=useState(false);
   const activeRequestSequence=useRef(0);
   const pendingRequestReference=useRef(false);
-  async function loadHuntLedger(requestedLedgerCursor=0){
+  async function loadHuntLedger(requestedLedgerCursors:number[]=[0]){
+    const requestedLedgerCursor=requestedLedgerCursors[requestedLedgerCursors.length-1];
     if(pendingRequestReference.current)return;
     pendingRequestReference.current=true;
     const currentRequestSequence=++activeRequestSequence.current;
@@ -25,7 +27,7 @@ export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
     setCurrentRequestPending(true);setCurrentLedgerNotice('');
     try{
       const receivedLedgerPage=parseHuntLedgerPage(await gameSessionClient.request('/v1/characters/me/hunts?after='+requestedLedgerCursor+'&limit=50'),requestedLedgerCursor);
-      if(matchesCurrentSession())setCurrentLedgerPage(receivedLedgerPage);
+      if(matchesCurrentSession()){setCurrentLedgerPage(receivedLedgerPage);setLedgerPageCursorHistory(requestedLedgerCursors);}
     }catch(currentRequestError){if(matchesCurrentSession())setCurrentLedgerNotice(currentRequestError as Error);}
     finally{if(matchesCurrentSession()){pendingRequestReference.current=false;setCurrentRequestPending(false);}}
   }
@@ -41,6 +43,11 @@ export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
       {!currentLedgerPage.totals.length?<p>{translateLedgerText('hunts.empty')}</p>:<ul>{currentLedgerPage.totals.map(currentSpeciesTotal=>
         <li key={currentSpeciesTotal.monsterTypeId}>{localizedHuntName(currentLedgerPage.monsterNames,currentSpeciesTotal.monsterTypeId,currentLocaleCode)} · {currentSpeciesTotal.quantity.toLocaleString(currentLocaleCode)}</li>)}</ul>}
       <h4>{translateLedgerText('hunts.page')}</h4>
+      {(ledgerPageCursorHistory.length>1||currentLedgerPage.nextCursor!==null)&&<nav class="record-page-navigation" aria-label={translateLedgerText('hunts.pagination')}>
+        <button class="secondary" disabled={currentRequestPending||ledgerPageCursorHistory.length===1} onClick={()=>void loadHuntLedger(ledgerPageCursorHistory.slice(0,-1))}>{translateLedgerText('hunts.previous')}</button>
+        <span role="status">{translateLedgerText('hunts.pageNumber',{page:ledgerPageCursorHistory.length})}</span>
+        <button class="secondary" disabled={currentRequestPending||currentLedgerPage.nextCursor===null} onClick={()=>void loadHuntLedger([...ledgerPageCursorHistory,currentLedgerPage.nextCursor!])}>{translateLedgerText('hunts.next')}</button>
+      </nav>}
       {!currentLedgerPage.entries.length?<p>{translateLedgerText('hunts.emptyPage')}</p>:<ul class="bag-items">{currentLedgerPage.entries.map(currentLedgerEntry=>
         <li key={currentLedgerEntry.id} style={{overflowWrap:'anywhere'}}>
           <strong>{localizedHuntName(currentLedgerPage.monsterNames,currentLedgerEntry.monsterTypeId,currentLocaleCode)} × {currentLedgerEntry.quantity.toLocaleString(currentLocaleCode)}</strong>
@@ -48,7 +55,6 @@ export function HuntLedgerPanel({gameSessionClient}:{gameSessionClient:Client}){
           <p>{translateLedgerText('hunts.battle')} · {currentLedgerEntry.battleId}</p>
           <time dateTime={new Date(currentLedgerEntry.createdAt*1000).toISOString()}>{new Date(currentLedgerEntry.createdAt*1000).toLocaleString(currentLocaleCode)}</time>
         </li>)}</ul>}
-      {currentLedgerPage.nextCursor!==null&&<button class="secondary" disabled={currentRequestPending} onClick={()=>void loadHuntLedger(currentLedgerPage.nextCursor!)}>{translateLedgerText('hunts.next')}</button>}
     </>}
   </section>;
 }

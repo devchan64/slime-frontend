@@ -24,3 +24,6 @@ uncertain: Check the previous request’s outcome first.
 retry: Check the same request again
 completed: 'Spent {amount} FP.'
 emptyDrop: No materials dropped this time.
+pagination: Hunt history pages
+previous: Previous page
+pageNumber: 'Page {page}'
