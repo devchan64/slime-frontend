@@ -22,10 +22,12 @@ async function clickParcelButton(currentTranslationKey:string){
  [...document.querySelectorAll('button')].find(currentButton=>currentButton.textContent===t(currentTranslationKey))!.click();
  await currentWaitRender();
 }
+const currentClaimVersions:number[]=[];
 window.fetch=async(currentInput,currentOptions)=>{
  const currentResponse=await currentOriginalFetch(currentInput,currentOptions);
  if(String(currentInput).endsWith('/claim')){
   currentRecordedPurchases.push(String(currentOptions?.body));
+  if(currentResponse.ok)currentClaimVersions.push((await currentResponse.clone().json()).state.me.version);
   if(currentResponse.ok&&!currentResponseDiscarded){currentResponseDiscarded=true;await currentResponse.arrayBuffer();throw new TypeError('실제 수령 응답 유실 검사');}
  }
  if(String(currentInput).endsWith('/v1/direct-messages/messages')&&currentOptions?.method==='POST'){
@@ -53,7 +55,8 @@ window.fetch=async(currentInput,currentOptions)=>{
  currentGameClient.accept(await currentGameClient.request('/v1/game/state'));
  assertBrowserCondition(currentGameClient.state!.me.coins===17,'돈 7P 단일 지급');
  assertBrowserCondition(currentGameClient.state!.me.bag!.items.some(currentItem=>currentItem.id==='protein-jelly'&&currentItem.quantity===2),'재료 2개 단일 지급');
- assertBrowserCondition(currentGameClient.state!.me.version===currentOriginalVersion+1,'캐릭터 버전 단일 증가');
+ assertBrowserCondition(currentClaimVersions.length===2&&currentClaimVersions[0]===currentClaimVersions[1],'재수령 요청에서 버전 유지');
+ assertBrowserCondition(currentGameClient.state!.me.version===currentClaimVersions[0]&&currentClaimVersions[0]>currentOriginalVersion,'최초 수령 상태 유지');
  await clickParcelButton('parcels.refresh');
  await waitParcelCondition(()=>document.body.textContent!.includes(t('parcels.empty')),'수령 후 빈 목록');
  const currentRecipientClient=new Client();currentRecipientClient.tokens=currentTestContext.recipientTokens;
