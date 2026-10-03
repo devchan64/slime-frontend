@@ -102,7 +102,7 @@ function collectParcelPanels(currentRenderedNode){
   if(Array.isArray(currentRenderedNode))return currentRenderedNode.flatMap(collectParcelPanels);
   return [...(currentRenderedNode.type?.name==='ParcelPanel'?[currentRenderedNode]:[]),...collectParcelPanels(currentRenderedNode.props?.children)];
 }
-test('길드 소포 창구는 조우 중 닫히고 epoch·맵 변경 시 새 인스턴스로 열린다',()=>{
+test('계정 보관함 통합 후 길드 현장에 소포 창구를 다시 열지 않는다',()=>{
   const currentGameState=createSelectionFixture();
   Object.assign(currentGameState,{generation:1,epoch:1,location:{id:'city-channel'}});
   Object.assign(currentGameState.me,{id:'hero'});
@@ -110,12 +110,11 @@ test('길드 소포 창구는 조우 중 닫히고 epoch·맵 변경 시 새 인
     origin:{column:0,row:1},width:1,height:1,entrance:{column:0,row:0}}]});
   function renderCurrentParcels(){return collectParcelPanels(FieldSelection({state:currentGameState,selected:{column:0,row:0},disabled:false,now:0,
     select(){},command(){},walking:null,walk(){},stop(){},gameSessionClient:{state:currentGameState}}));}
-  const currentInitialPanels=renderCurrentParcels();assert.equal(currentInitialPanels.length,1);
+  assert.equal(renderCurrentParcels().length,0);
   currentGameState.reservation={id:'reservation'};assert.equal(renderCurrentParcels().length,0);
-  currentGameState.reservation=null;assert.equal(renderCurrentParcels().length,1);
-  currentGameState.epoch++;assert.notEqual(renderCurrentParcels()[0].key,currentInitialPanels[0].key);
-  const currentEpochKey=renderCurrentParcels()[0].key;
-  currentGameState.map.id='other-city';assert.notEqual(renderCurrentParcels()[0].key,currentEpochKey);
+  currentGameState.reservation=null;assert.equal(renderCurrentParcels().length,0);
+  currentGameState.epoch++;assert.equal(renderCurrentParcels().length,0);
+  currentGameState.map.id='other-city';assert.equal(renderCurrentParcels().length,0);
   currentGameState.battle={id:'battle'};assert.equal(renderCurrentParcels().length,0);
 });
 

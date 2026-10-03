@@ -32,7 +32,7 @@ const finishPendingPromises=()=>new Promise(resolvePendingWork=>setImmediate(res
 function sampleRewardPage(expirationSecondsValue=1000){return {serverTime:100,nextCursor:null,entries:[{id:'reward-one',storedAt:50,expiresAt:expirationSecondsValue,materials:[{materialId:'jelly',quantity:3,nameTranslations:{ko:'젤리',en:'Jelly'}}]}]};}
 test('보관함의 연속 수령 클릭은 한 번만 요청하며 성공 후 가방 상태를 갱신한다',async()=>{
   const observedRequestPaths=[];let finishClaimRequest;const receivedPlayerStates=[];
-  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async requestPathValue=>{
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async requestPathValue=>{
     observedRequestPaths.push(requestPathValue);
     if(requestPathValue.endsWith('/claim'))return new Promise(resolveClaimRequest=>{finishClaimRequest=resolveClaimRequest;});
     return requestPathValue==='/v1/game/state'?{generation:1,me:{materials:{jelly:3}}}:sampleRewardPage();
@@ -49,7 +49,7 @@ test('보관함의 연속 수령 클릭은 한 번만 요청하며 성공 후 �
   }finally{currentPanelHarness.closeRewardPanel();}
 });
 test('만료된 보상은 수령 버튼을 잠근다',async()=>{
-  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async()=>sampleRewardPage(100),accept:()=>assert.fail('만료 보상의 상태를 적용했습니다.')};
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async()=>sampleRewardPage(100),accept:()=>assert.fail('만료 보상의 상태를 적용했습니다.')};
   const currentPanelHarness=createPanelHarness(currentSessionClient);
   try{
     currentPanelHarness.renderRewardPanel();await finishPendingPromises();
@@ -60,7 +60,7 @@ test('만료된 보상은 수령 버튼을 잠근다',async()=>{
 
 test('수령 요청 중 화면을 닫으면 늦은 응답으로 현재 세션을 갱신하지 않는다',async()=>{
   const observedRequestPaths=[];let finishClaimRequest;
-  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async requestPathValue=>{
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async requestPathValue=>{
     observedRequestPaths.push(requestPathValue);
     if(requestPathValue.endsWith('/claim'))return new Promise(resolveClaimRequest=>{finishClaimRequest=resolveClaimRequest;});
     return sampleRewardPage();
@@ -75,7 +75,7 @@ test('수령 요청 중 화면을 닫으면 늦은 응답으로 현재 세션을
 
 test('모두 수령은 추가 페이지를 펼치지 않고 전체 수령 API를 한 번 호출한다',async()=>{
   const observedRequestPaths=[];let finishClaimRequest;const receivedPlayerStates=[];
-  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async requestPathValue=>{
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async requestPathValue=>{
     observedRequestPaths.push(requestPathValue);
     if(requestPathValue.endsWith('/claim-all'))return new Promise(resolveClaimRequest=>{finishClaimRequest=resolveClaimRequest;});
     return requestPathValue==='/v1/game/state'?{generation:1,me:{materials:{jelly:303}}}:{...sampleRewardPage(),nextCursor:'more-rewards'};
@@ -95,7 +95,7 @@ test('모두 수령은 추가 페이지를 펼치지 않고 전체 수령 API를
 });
 
 test('수령 직전 만료된 0건 응답에는 지급 성공 대신 수령할 보상 없음을 안내한다',async()=>{
-  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async currentRequestPath=>{
+  const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async currentRequestPath=>{
     if(currentRequestPath.endsWith('/claim-all'))return {claimedCount:0,materials:[]};
     if(currentRequestPath==='/v1/game/state')return {generation:1};
     return sampleRewardPage();
@@ -119,7 +119,7 @@ test('수령 직전 만료된 0건 응답에는 지급 성공 대신 수령할 �
 test('잘못된 개별 영수증은 목록·상태를 보존하고 같은 보상으로 다시 확인한다',async()=>{
   for(const currentInvalidReceipt of [{id:'other',status:'CLAIMED',claimedAt:101},{id:'reward-one',status:'STORED',claimedAt:101},{id:'reward-one',status:'CLAIMED',claimedAt:null}]){
     const currentRequestedPaths=[];let currentClaimAttempts=0;let currentAcceptedStates=0;
-    const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1},request:async currentRequestPath=>{
+    const currentSessionClient={tokens:{user_id:'owner'},state:{generation:1,epoch:1,me:{id:'hero'}},request:async currentRequestPath=>{
       currentRequestedPaths.push(currentRequestPath);
       if(currentRequestPath.endsWith('/claim'))return ++currentClaimAttempts===1?currentInvalidReceipt:{id:'reward-one',status:'CLAIMED',claimedAt:101};
       return currentRequestPath==='/v1/game/state'?{generation:1}:sampleRewardPage();
