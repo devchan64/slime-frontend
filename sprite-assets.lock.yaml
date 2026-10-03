@@ -87,7 +87,7 @@ files:
   sha256: 9a9dbe7e9184c0d8fd53f07e0f5cfd04bef87b0893f623b458effa0f557a6d03
 - path: assets/characters/default/cutins/default-punch-v1.png
   source_path: assets/characters/default/battle-cutins/default-punch-v1.png
-  sha256: 1439db1d819c579cd065c79d9b3da41d9439f280f5a4be27c437fbffc51a45b9
+  sha256: a62577881f3ccbead5890553750f461015b1b519664a3f1d0782891c1dceaa1b
 - path: assets/monsters/standing-v1/moss-turtle-idle-v1.png
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png
   sha256: 8cfd43954bb54499d56fb8b41383d57d4c3b4301bf45654e73d41b813f757011
