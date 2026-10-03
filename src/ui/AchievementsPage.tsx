@@ -8,26 +8,32 @@ import { localizedAchievement, type AchievementDefinition as Definition } from '
 type Scope = 'GENERAL' | 'SEASONAL';
 type Progress = {completedAt:number|null;checklist:Record<string,{count:number}>};
 type Ledger = {id:string;achievementId:string;scope:Scope;seasonId:string|null;amount:number;createdAt:number;sourceType:string};
-type Data = {catalog:Record<string,Definition>;progress:Record<string,Progress>;season:string;seasonDisplay?:{number:number;names:Record<'ko'|'en',string>}|null;skills:Record<string,SkillDefinition>;cp:number;sp?:number;cpLedger:Ledger[];spLedger:Ledger[]};
+type ArchivedAchievementSeason = {catalog:Record<string,Definition>;achievements:Record<string,Progress>;seasonalAchievements:Record<string,Progress>;cpLedger:Ledger[];spLedger:Ledger[]};
+type Data = {history:Record<string,ArchivedAchievementSeason>;catalog:Record<string,Definition>;progress:Record<string,Progress>;season:string;seasonDisplay?:{number:number;names:Record<'ko'|'en',string>}|null;skills:Record<string,SkillDefinition>;cp:number;sp?:number;cpLedger:Ledger[];spLedger:Ledger[]};
 export function AchievementsPage({client,disabled,onReturn}:{client:Client;disabled:boolean;onReturn:()=>unknown}){
   const {t,locale}=useTranslation();
   const [data,setData]=useState<Data|null>(null);
   const [currentAchievementNotice,setAchievementRequestNotice]=useState<Notice>('');
   const [attempt,setAttempt]=useState(0);
+  const [selectedHistorySeason,setSelectedHistorySeason]=useState<string>('');
   const [scope,setScope]=useState<Scope>('GENERAL');
   const [currentHuntMenuOpen,setCurrentHuntMenuOpen]=useState(false);
   useEffect(()=>{
-    let cancelled=false;setAchievementRequestNotice('');setData(null);
+    let cancelled=false;setAchievementRequestNotice('');setData(null);setSelectedHistorySeason('');
     Promise.all([client.request('/v1/achievements'),client.request('/v1/characters/me/achievements')])
-      .then(([catalog,progress])=>{if(!cancelled)setData({catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
+      .then(([catalog,progress])=>{if(!cancelled)setData({history:progress.history ?? {},catalog:catalog.achievements,progress:progress.achievements,season:progress.seasonId,seasonDisplay:progress.seasonDisplay,skills:catalog.skillDefinitions ?? {},cp:progress.cp,sp:progress.sp,cpLedger:progress.cpLedger,spLedger:progress.spLedger ?? []});})
       .catch(currentRequestError=>{if(!cancelled)setAchievementRequestNotice(currentRequestError as Error);});
     return ()=>{cancelled=true;};
   },[client,attempt]);
   const number=(value:number)=>value.toLocaleString(locale);
-  const catalog=data?Object.fromEntries(Object.entries(data.catalog).map(([id,d])=>[id,localizedAchievement(d,locale)])):{};
+  const selectedHistoryRecord=selectedHistorySeason?data?.history[selectedHistorySeason]:undefined;
+  const displayedProgressRecords=selectedHistoryRecord?{...selectedHistoryRecord.achievements,...selectedHistoryRecord.seasonalAchievements}:data?.progress;
+  const displayedCatalogRecords=selectedHistoryRecord?.catalog??data?.catalog;
+  const displayedRewardLedgers=selectedHistoryRecord??data;
+  const catalog=displayedCatalogRecords?Object.fromEntries(Object.entries(displayedCatalogRecords).map(([id,d])=>[id,localizedAchievement(d,locale)])):{};
   const items=Object.entries(catalog).filter(([,d])=>d.scope===scope);
-  const completed=items.filter(([id])=>data?.progress[id]?.completedAt!=null).length;
-  const ledger=data?[...data.cpLedger.map(entry=>({...entry,currency:'CP'})),...data.spLedger.map(entry=>({...entry,currency:'SP'}))]
+  const completed=items.filter(([id])=>displayedProgressRecords?.[id]?.completedAt!=null).length;
+  const ledger=displayedRewardLedgers?[...displayedRewardLedgers.cpLedger.map(entry=>({...entry,currency:'CP'})),...displayedRewardLedgers.spLedger.map(entry=>({...entry,currency:'SP'}))]
     .filter(entry=>entry.scope===scope).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)||a.currency.localeCompare(b.currency)):[];
   return <main class="achievements-page"><div class="achievement-heading"><div><h1>{t('achievements.title')}</h1><p>{t('achievements.away')}</p></div><button disabled={disabled} onClick={onReturn}>{t('achievements.return')}</button></div>
     <button class="secondary" aria-expanded={currentHuntMenuOpen} onClick={()=>setCurrentHuntMenuOpen(!currentHuntMenuOpen)}>{t('hunts.substituteTitle')}</button>
@@ -40,11 +46,18 @@ export function AchievementsPage({client,disabled,onReturn}:{client:Client;disab
           {(['GENERAL','SEASONAL'] as const).map(value=><button key={value} class="secondary" aria-pressed={scope===value} onClick={()=>setScope(value)}>{t(`achievements.${value.toLowerCase()}`)}</button>)}
         </div>
       </section>
+      {Object.keys(data.history).length>0&&<label>{t('achievements.viewSeason')}
+        <select value={selectedHistorySeason} onChange={currentSelectionEvent=>setSelectedHistorySeason(currentSelectionEvent.currentTarget.value)}>
+          <option value="">{t('achievements.currentSeason')}</option>
+          {Object.keys(data.history).map(currentSeasonIdentifier=><option key={currentSeasonIdentifier} value={currentSeasonIdentifier}>{currentSeasonIdentifier}</option>)}
+        </select>
+      </label>}
+      {selectedHistoryRecord&&<p role="status">{t('achievements.archivedHelp')}</p>}
       <section class="card" aria-label={t(`achievements.${scope.toLowerCase()}`)}>
         <h2>{t(`achievements.${scope.toLowerCase()}`)} <small>{t('achievements.completedCount',{done:completed,total:items.length})}</small></h2>
-        {scope==='SEASONAL'&&<p>{t('achievements.season',{season:data.seasonDisplay ? `${data.seasonDisplay.number} · ${data.seasonDisplay.names[locale]}` : data.season})}</p>}
+        {scope==='SEASONAL'&&!selectedHistoryRecord&&<p>{t('achievements.season',{season:data.seasonDisplay ? `${data.seasonDisplay.number} · ${data.seasonDisplay.names[locale]}` : data.season})}</p>}
         {!items.length?<p>{t('achievements.empty')}</p>:items.map(([id,d])=>{
-          const progress=data.progress[id];
+          const progress=displayedProgressRecords?.[id];
           return <article class="achievement-item" key={id}><h3>{d.name} <small>{t(progress?.completedAt!=null?'achievements.complete':'achievements.inProgress')}</small></h3>
             <p>{t('achievements.reward')} · {[d.cp>0?`${number(d.cp)} CP`:null,d.sp?`${number(d.sp)} SP`:null].filter(Boolean).join(' · ')}{(d.skills??[]).map(id=>{
               const skill=data.skills[id];

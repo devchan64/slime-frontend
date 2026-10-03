@@ -21,3 +21,6 @@ historyHelp: "Awards for the selected category. Seasonal history includes previo
 noHistory: "No awards yet."
 supplement: "Retroactive supplement"
 awarded: "Achievement award"
+viewSeason: "Season to view"
+currentSeason: "Current season"
+archivedHelp: "Previous season records. These rewards are not included in your current balance and will not be awarded again."
