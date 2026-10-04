@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { useTranslation } from "../i18n";
-import characterIdlePortraitMetadata from "../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6.animation.json";
+import characterIdlePortraitMetadata from "../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6-anchor-v3.animation.json";
 
 const DEFAULT_CHARACTER_PORTRAIT = new URL("../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6.png", import.meta.url).href;
 const CHARACTER_PORTRAIT_CLIP = characterIdlePortraitMetadata.clips.find(currentClipRecord => currentClipRecord.clipId === "idle.down_left");

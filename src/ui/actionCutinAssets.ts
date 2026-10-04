@@ -11,7 +11,7 @@ import crabCutinMetadata from '../../../slime-assets/assets/sprites/monsters/sta
 import crawlerCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/reed-crawler-idle-v1.animation.json';
 import mothCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/lantern-moth-idle-v1.animation.json';
 import rabbitCutinMetadata from '../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.animation.json';
-import characterIdleMetadata from '../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6.animation.json';
+import characterIdleMetadata from '../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6-anchor-v3.animation.json';
 import type { ActionCutinEvent } from './actionCutins';
 import { parseDocument } from 'yaml';
 import actionCutinCatalogSource from '../../../slime-assets/assets/ui/cutins.yaml?raw';

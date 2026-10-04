@@ -8,8 +8,8 @@ files:
   source_path: assets/sprites/effects/rest/rest-recovery-v1-source.png
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
 - path: assets/characters/default/idle-v6/idle-v6.animation.json
-  source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6.animation.json
-  sha256: 5138051e62ee053e2b048529e7bba0e1ed5abd0d3ae10b4153a13ddb358ebbbc
+  source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6-anchor-v3.animation.json
+  sha256: 5f8e3ee3731ff66026e14e7e13f813861f323a56b1ea30b23e6e31ab7fcb3abc
 - path: assets/characters/default/idle-v6/idle-v6.png
   source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6.png
   sha256: 0a3ee00b38b61dc092df23b0a3847202ef650fd9b98a5305da0393245b21eadc

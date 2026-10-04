@@ -12,7 +12,7 @@ import restingCharacterMetadata from "../../../../slime-assets/assets/characters
 import characterRestSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/source.json";
 import type { RestPlaybackSample } from "./fieldRestAnimation";
 import characterIdleSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/source.json";
-import actorIdleMetadata0 from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6.animation.json";
+import actorIdleMetadata0 from "../../../../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v2/idle-v6-anchor-v3.animation.json";
 import actorIdleMetadata1 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.animation.json";
 import actorIdleMetadata2 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.animation.json";
 import actorIdleMetadata3 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.animation.json";
