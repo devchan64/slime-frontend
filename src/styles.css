@@ -1442,7 +1442,7 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .world-map-legend span { display:inline-flex;align-items:center; }
 .world-map-controls { display:flex;align-items:center;gap:8px;margin-top:12px; }
 .world-map-controls output { min-width:3.5rem;text-align:center;font-variant-numeric:tabular-nums; }
-.world-map-scroll { overflow:auto;max-height:50dvh;border:1px solid #718b8066;border-radius:12px;margin-top:8px;cursor:grab;touch-action:none; }
+.world-map-scroll { overflow:auto;max-height:50dvh;border:1px solid #718b8066;border-radius:12px;margin-top:8px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none; }
 .world-map-scroll:active { cursor:grabbing; }
 .world-map-zoom-surface { position:relative; }
 .world-map-canvas { position:relative;background:radial-gradient(ellipse,#dce8dc,#eef3ea);transform-origin:top left; }
