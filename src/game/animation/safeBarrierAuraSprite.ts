@@ -27,9 +27,11 @@ function getAuraFrameUvs(currentFrameIndex: number) {
   const textureRightPixels = frameRightPixels - frameWidthPixels * SAFE_BARRIER_AURA_FRAME_HORIZONTAL_CROP_RATIO;
   return [
     textureLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
+    textureLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
     textureRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
     textureLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
     textureRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
+    textureRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
   ];
 }
 
@@ -47,12 +49,15 @@ export function createSafeBarrierAuraSprite(scene: Phaser.Scene, boundaryStartPo
   const boundaryStartOffset = { x: boundaryStartPosition.x - boundaryCenterPosition.x, y: boundaryStartPosition.y - boundaryCenterPosition.y };
   const boundaryEndOffset = { x: boundaryEndPosition.x - boundaryCenterPosition.x, y: boundaryEndPosition.y - boundaryCenterPosition.y };
   const boundaryWallHeightPixels = SAFE_BARRIER_AURA_SPRITE_CONTRACT.displayHeightPixels;
+  // 인덱스 메시가 삼각형별로 꼭짓점을 복제하므로, UV 갱신과 같은 6개 꼭짓점 패널을 직접 전달한다.
   const auraMesh = scene.add.mesh(boundaryCenterPosition.x, boundaryCenterPosition.y, SAFE_BARRIER_AURA_TEXTURE_KEY, undefined, [
     boundaryStartOffset.x, boundaryStartOffset.y,
+    boundaryStartOffset.x, boundaryStartOffset.y - boundaryWallHeightPixels,
     boundaryEndOffset.x, boundaryEndOffset.y,
     boundaryStartOffset.x, boundaryStartOffset.y - boundaryWallHeightPixels,
     boundaryEndOffset.x, boundaryEndOffset.y - boundaryWallHeightPixels,
-  ], getAuraFrameUvs(0), [0, 2, 1, 2, 3, 1]);
+    boundaryEndOffset.x, boundaryEndOffset.y,
+  ], getAuraFrameUvs(0));
   auraMesh.hideCCW = false;
   auraMesh.ignoreDirtyCache = true;
   auraMesh.setOrtho(SAFE_BARRIER_AURA_SOURCE_WIDTH, SAFE_BARRIER_AURA_SOURCE_HEIGHT);
