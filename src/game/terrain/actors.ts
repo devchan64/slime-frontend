@@ -12,9 +12,11 @@ export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
 const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
-const MEDIUM_CONTACT_SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.4, height: 0.32, coreAlpha: 0.24, coreScale: 0.65 };
-const FIELD_CHARACTER_SHADOW_SCALE = 1.3;
-const FIELD_CHARACTER_SHADOW_OPACITY_SCALE = 1.5;
+/** 사람(중형) 기준 접지 그림자와 필드 인물 보정의 렌더링 계약이다. */
+export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({
+  medium: Object.freeze({ color: 0x18392e, alpha: 0.3, width: 0.4, height: 0.32, coreAlpha: 0.24, coreScale: 0.65 }),
+  fieldCharacter: Object.freeze({ scale: 1.3, opacityScale: 1.5 }),
+});
 const MONSTER_RING = { alpha: 0.45, width: 1, groundWidthRatio: 0.54, groundHeightRatio: 0.24 };
 const SPRITE_DEPTH_OFFSET = 0.01;
 const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 3, radius: 7, rise: 18, spread: 21 };
@@ -56,14 +58,14 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
   // 사람은 중형 기준이며, 나머지 크기 등급도 같은 기준 그림자에 외형 배율을 적용한다.
   const fieldCharacterShadowActive = kind === "human" && actorFieldShadowEnabled;
-  const currentShadowScale = ratio * (fieldCharacterShadowActive ? FIELD_CHARACTER_SHADOW_SCALE : 1);
-  const currentShadowOpacityScale = fieldCharacterShadowActive ? FIELD_CHARACTER_SHADOW_OPACITY_SCALE : 1;
-  const contactShadowWidth = TILE_W * MEDIUM_CONTACT_SHADOW.width * currentShadowScale;
-  const contactShadowHeight = TILE_H * MEDIUM_CONTACT_SHADOW.height * currentShadowScale;
-  g.fillStyle(MEDIUM_CONTACT_SHADOW.color, MEDIUM_CONTACT_SHADOW.alpha * currentShadowOpacityScale);
+  const currentShadowScale = ratio * (fieldCharacterShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldCharacter.scale : 1);
+  const currentShadowOpacityScale = fieldCharacterShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldCharacter.opacityScale : 1;
+  const contactShadowWidth = TILE_W * ACTOR_CONTACT_SHADOW_CONTRACT.medium.width * currentShadowScale;
+  const contactShadowHeight = TILE_H * ACTOR_CONTACT_SHADOW_CONTRACT.medium.height * currentShadowScale;
+  g.fillStyle(ACTOR_CONTACT_SHADOW_CONTRACT.medium.color, ACTOR_CONTACT_SHADOW_CONTRACT.medium.alpha * currentShadowOpacityScale);
   g.fillEllipse(x, y, contactShadowWidth, contactShadowHeight);
-  g.fillStyle(MEDIUM_CONTACT_SHADOW.color, MEDIUM_CONTACT_SHADOW.coreAlpha * currentShadowOpacityScale);
-  g.fillEllipse(x, y, contactShadowWidth * MEDIUM_CONTACT_SHADOW.coreScale, contactShadowHeight * MEDIUM_CONTACT_SHADOW.coreScale);
+  g.fillStyle(ACTOR_CONTACT_SHADOW_CONTRACT.medium.color, ACTOR_CONTACT_SHADOW_CONTRACT.medium.coreAlpha * currentShadowOpacityScale);
+  g.fillEllipse(x, y, contactShadowWidth * ACTOR_CONTACT_SHADOW_CONTRACT.medium.coreScale, contactShadowHeight * ACTOR_CONTACT_SHADOW_CONTRACT.medium.coreScale);
   if (kind !== "human") {
     g.lineStyle(MONSTER_RING.width, color, MONSTER_RING.alpha);
     g.strokeEllipse(x, y, width * MONSTER_RING.groundWidthRatio, groundHeight * MONSTER_RING.groundHeightRatio);
