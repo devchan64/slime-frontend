@@ -8,11 +8,11 @@ const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
 const PhaserMatrixFour=currentNodeRequire('phaser/src/math/Matrix4.js');
 const currentFlatSurface={columns:9,rows:9,elevations:Array.from({length:9},()=>Array(9).fill(0))};
 
-test('결계 패널은 Phaser 실제 직교 투영 후에도 엣지 전체 너비와 위쪽 25px을 유지한다',()=>{
+test('결계 패널은 Phaser 실제 직교 투영 후에도 엣지 전체 너비와 위쪽 15px을 유지한다',()=>{
  const currentBoundaryPanels=buildFieldBoundaryPanels({column:4,row:4},{column:4,row:4},0,{x:500,y:400});
  for(const currentPanelPoints of currentBoundaryPanels){
-  assert.equal(currentPanelPoints[3].y-currentPanelPoints[0].y,25);
-  assert.equal(currentPanelPoints[2].y-currentPanelPoints[1].y,25);
+  assert.equal(currentPanelPoints[3].y-currentPanelPoints[0].y,15);
+  assert.equal(currentPanelPoints[2].y-currentPanelPoints[1].y,15);
   const currentPanelGeometry=buildFieldPanelVertices(currentPanelPoints);
   for(const [currentViewportWidth,currentViewportHeight] of [[800,600],[1260,1034]]){
    const currentProjectionMatrix=new PhaserMatrixFour().ortho(-currentViewportWidth,currentViewportWidth,-currentViewportHeight,currentViewportHeight,-1000,1000);
@@ -47,6 +47,12 @@ test('오러 8프레임 UV가 각 셀 안에 있고 투영된 지면·계단은 
   assert.equal(currentFrameUvs.length,8);
   assert.ok(currentFrameUvs.every(currentUvValue=>currentUvValue>=0&&currentUvValue<=1));
   assert.ok(currentFrameUvs[2]>currentFrameUvs[0]);assert.ok(currentFrameUvs[5]>currentFrameUvs[1]);
+  // 시트의 외부 여백이 수직 패널 밑변과 이웃 엣지 사이에 끼지 않는다.
+  const currentFrameColumn=currentFrameIndex%4,currentFrameRow=Math.floor(currentFrameIndex/4);
+  assert.ok(currentFrameUvs[0]>currentFrameColumn/4);
+  assert.ok(currentFrameUvs[2]<(currentFrameColumn+1)/4);
+  assert.ok(currentFrameUvs[1]>currentFrameRow/2);
+  assert.ok(currentFrameUvs[5]<(currentFrameRow+1)/2);
  }
  assert.throws(()=>resolveFieldAuraUvs(8,1774,887));
  const currentStairSurface={columns:2,rows:2,elevations:[[0,0],[1,1]],elevationTiles:[{cell:{column:1,row:1},lower:{column:1,row:0}}]};

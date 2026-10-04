@@ -1,10 +1,10 @@
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.0';
+export const FIELD_RENDERER_VERSION = '1.0.2';
 export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:1,alpha:0.9});
 export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:627,anchorY:1095,bodyTop:82,displayHeight:112});
-export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:25,frameDuration:120,horizontalCrop:0.2});
+export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:15,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
 const FIELD_CELL_CORNERS = [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
 const FIELD_BOUNDARY_NEIGHBORS = [{column:1,row:0,edge:[1,2]},{column:0,row:1,edge:[2,3]},{column:-1,row:0,edge:[3,0]},{column:0,row:-1,edge:[0,1]}];
@@ -117,13 +117,14 @@ export function resolveFieldAuraUvs(currentFrameIndex,currentImageWidth,currentI
  const currentLeftPixel=Math.round(currentColumnIndex*currentImageWidth/FIELD_SAFE_AURA_PROFILE.columns),currentRightPixel=Math.round((currentColumnIndex+1)*currentImageWidth/FIELD_SAFE_AURA_PROFILE.columns);
  const currentTopPixel=Math.round(currentRowIndex*currentImageHeight/FIELD_SAFE_AURA_PROFILE.rows),currentBottomPixel=Math.round((currentRowIndex+1)*currentImageHeight/FIELD_SAFE_AURA_PROFILE.rows);
  const currentCropPixels=(currentRightPixel-currentLeftPixel)*FIELD_SAFE_AURA_PROFILE.horizontalCrop;
- const currentLeftUv=(currentLeftPixel+currentCropPixels)/currentImageWidth,currentRightUv=(currentRightPixel-currentCropPixels)/currentImageWidth,currentTopUv=currentTopPixel/currentImageHeight,currentBottomUv=currentBottomPixel/currentImageHeight;
+ const currentLeftUv=(currentLeftPixel+currentCropPixels)/currentImageWidth,currentRightUv=(currentRightPixel-currentCropPixels)/currentImageWidth,currentTopUv=(currentTopPixel+(currentBottomPixel-currentTopPixel)*FIELD_SAFE_AURA_PROFILE.topCrop)/currentImageHeight,currentBottomUv=(currentBottomPixel-(currentBottomPixel-currentTopPixel)*FIELD_SAFE_AURA_PROFILE.bottomCrop)/currentImageHeight;
  return [currentLeftUv,currentTopUv,currentRightUv,currentTopUv,currentRightUv,currentBottomUv,currentLeftUv,currentBottomUv];
 }
 
 export function drawFieldAuraPanel(currentGameScene,currentPanelPoints,currentTextureKey,currentRenderDepth){
  const currentSourceImage=currentGameScene.textures.get(currentTextureKey).getSourceImage();
  const currentAuraMesh=drawFieldTexturePanel(currentGameScene,currentPanelPoints,currentTextureKey,currentRenderDepth,resolveFieldAuraUvs(0,currentSourceImage.width,currentSourceImage.height));
+ currentAuraMesh.setAlpha(FIELD_SAFE_AURA_PROFILE.alpha);
  const synchronizeFieldAura=(currentTimeMilliseconds)=>{
   const currentFrameIndex=Math.floor(currentTimeMilliseconds/FIELD_SAFE_AURA_PROFILE.frameDuration)%FIELD_SAFE_AURA_PROFILE.frames;
   const currentUvCorners=resolveFieldAuraUvs(currentFrameIndex,currentSourceImage.width,currentSourceImage.height);

@@ -4,7 +4,7 @@ export const FIELD_RENDERER_VERSION:string;
 export function prepareFieldConnectedTexture(currentGameScene:Phaser.Scene,currentSourceKey:string,currentGrassKey:string,currentConnectionMask:number):string;
 export const FIELD_MESH_BOUNDARY_STYLE:Readonly<{color:number;width:number;alpha:number}>;
 export const FIELD_SAFE_TOWER_PROFILE:Readonly<{anchorX:number;anchorY:number;bodyTop:number;displayHeight:number}>;
-export const FIELD_SAFE_AURA_PROFILE:Readonly<{columns:number;rows:number;frames:number;height:number;frameDuration:number;horizontalCrop:number}>;
+export const FIELD_SAFE_AURA_PROFILE:Readonly<{columns:number;rows:number;frames:number;height:number;alpha:number;frameDuration:number;horizontalCrop:number;topCrop:number;bottomCrop:number}>;
 export function buildFieldCellGeometry(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions?:RenderOptions):{points:SurfacePoint[];top:boolean;kind:string}[];
 export function buildFieldPanelVertices(currentPanelPoints:SurfacePoint[]):{center:SurfacePoint;vertices:number[]};
 export function drawFieldMeshBoundary(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentRenderDepth:number):Phaser.GameObjects.Graphics;

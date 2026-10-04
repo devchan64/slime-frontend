@@ -3,7 +3,7 @@ import {drawFieldAuraPanel,FIELD_SAFE_AURA_PROFILE} from '../../../packages/fiel
 
 export const SAFE_BARRIER_AURA_SPRITE_CONTRACT = Object.freeze({frameWidthPixels:64,frameHeightPixels:64,frameColumnCount:FIELD_SAFE_AURA_PROFILE.columns,frameRowCount:FIELD_SAFE_AURA_PROFILE.rows,frameTotalCount:FIELD_SAFE_AURA_PROFILE.frames,displayHeightPixels:FIELD_SAFE_AURA_PROFILE.height});
 export const SAFE_BARRIER_AURA_TEXTURE_KEY = 'safe-barrier-aura';
-const SAFE_BARRIER_AURA_SOURCE_URL = new URL('../../../../slime-assets/assets/sprites/effects/safe-barrier/safe-barrier-aura-v1-source.png',import.meta.url).href;
+const SAFE_BARRIER_AURA_SOURCE_URL = new URL('../../../../slime-assets/assets/sprites/effects/safe-barrier/safe-barrier-aura-v2-source.png',import.meta.url).href;
 
 export function preloadSafeBarrierAuraSprite(currentGameScene:Phaser.Scene){
  currentGameScene.load.image(SAFE_BARRIER_AURA_TEXTURE_KEY,SAFE_BARRIER_AURA_SOURCE_URL);

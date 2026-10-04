@@ -1,9 +1,9 @@
 schema_version: 1
 repository: slime-assets
 files:
-- path: assets/effects/safe-barrier/safe-barrier-aura-v1-source.png
-  source_path: assets/sprites/effects/safe-barrier/safe-barrier-aura-v1-source.png
-  sha256: a1094133b25aacc8768fee1d77bae736b87c027f3d144782d2620dcfc2043d35
+- path: assets/effects/safe-barrier/safe-barrier-aura-v2-source.png
+  source_path: assets/sprites/effects/safe-barrier/safe-barrier-aura-v2-source.png
+  sha256: 4c5f78db08f5675da707adbeb9d7739dde5ffc8cde034ffe75a10e8601bdd43c
 - path: assets/effects/rest/rest-recovery-v1-source.png
   source_path: assets/sprites/effects/rest/rest-recovery-v1-source.png
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
