@@ -12,10 +12,10 @@ export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
 const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
-/** 사람(중형) 기준 접지 그림자와 필드 액터 보정의 렌더링 계약이다. */
+/** 사람(중형) 기준 접지 그림자의 모든 맵 필드 공용 렌더링 계약이다. */
 export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({
   medium: Object.freeze({ color: 0x18392e, alpha: 0.3, width: 0.4, height: 0.32, coreAlpha: 0.24, coreScale: 0.65 }),
-  fieldActor: Object.freeze({ scale: 1.3, opacityScale: 1.5 }),
+  allFields: Object.freeze({ scale: 1.3, opacityScale: 1.5 }),
 });
 const MONSTER_RING = { alpha: 0.45, width: 1, groundWidthRatio: 0.54, groundHeightRatio: 0.24 };
 const SPRITE_DEPTH_OFFSET = 0.01;
@@ -43,7 +43,7 @@ export function preloadActors(scene: Phaser.Scene) {
 
 // 발밑 좌표가 논리 셀이다. 사람은 머리 1 : 몸통 2 : 다리 2의 5등신이다.
 export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, color: number,
-  kind: "human" | "slime" | "beast" | "giant", ratio: number, tiles: number, actorScreenDirection: Direction = "down_left", actorMonsterTypeId?: string, actorStableIdentifier?: string, actorVerticalOffset: number = 0, actorRestIsActive: boolean = false, actorFieldShadowEnabled: boolean = false) {
+  kind: "human" | "slime" | "beast" | "giant", ratio: number, tiles: number, actorScreenDirection: Direction = "down_left", actorMonsterTypeId?: string, actorStableIdentifier?: string, actorVerticalOffset: number = 0, actorRestIsActive: boolean = false) {
   if (!Number.isFinite(ratio) || ratio < SLIME_RATIO || ratio > MAX_MONSTER_RATIO)
     throw new Error(`지원하지 않는 몬스터 크기입니다: ${ratio}`);
   if (tiles !== 1 && tiles !== 2) throw new Error(`지원하지 않는 표시 영역입니다: ${tiles}`);
@@ -56,13 +56,9 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.lineStyle(FOOTPRINT.lineWidth, color, FOOTPRINT.lineAlpha);
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
-  // 필드에서는 모든 액터가 사람(중형)과 같은 접지 그림자 크기를 쓴다.
-  // 전투 등 필드 밖에서는 크기 등급 배율을 적용한다.
-  const fieldActorShadowActive = actorFieldShadowEnabled;
-  const currentShadowScale = fieldActorShadowActive
-    ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.scale
-    : ratio;
-  const currentShadowOpacityScale = fieldActorShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.opacityScale : 1;
+  // 야외·전투·마을 필드의 모든 액터가 사람(중형) 기준 그림자 크기를 공유한다.
+  const currentShadowScale = ACTOR_CONTACT_SHADOW_CONTRACT.allFields.scale;
+  const currentShadowOpacityScale = ACTOR_CONTACT_SHADOW_CONTRACT.allFields.opacityScale;
   const contactShadowWidth = TILE_W * ACTOR_CONTACT_SHADOW_CONTRACT.medium.width * currentShadowScale;
   const contactShadowHeight = TILE_H * ACTOR_CONTACT_SHADOW_CONTRACT.medium.height * currentShadowScale;
   g.fillStyle(ACTOR_CONTACT_SHADOW_CONTRACT.medium.color, ACTOR_CONTACT_SHADOW_CONTRACT.medium.alpha * currentShadowOpacityScale);

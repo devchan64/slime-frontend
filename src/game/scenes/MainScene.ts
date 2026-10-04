@@ -763,7 +763,7 @@ export class MainScene extends Phaser.Scene {
     const depth = p.depth + TERRAIN_DEPTH.actor;
     g.setDepth(depth);
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
-      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, 0, actorRestIsActive, !this.state?.battle);
+      size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, 0, actorRestIsActive);
     for (const createdActorImage of this.children.list.slice(firstChild)) {
       if (createdActorImage instanceof Phaser.GameObjects.Image && createdActorImage.getData("actorIdleKind")) {
         createdActorImage.setData("actorWorldFacing", actorWorldFacing ?? "row_positive");
