@@ -462,7 +462,7 @@ export class MainScene extends Phaser.Scene {
           g.fillPoints(this.points(polygon), true);
         }
         if (isSafe && !s.map.safeTown) {
-          drawSafeBoundaryAura(this, this.safeBarrierSprites, point, this.viewPosition({column, row}), this.viewPosition(s.map.startPoint), this.project(s.map.startPoint), s.map.safeRadius, this.depth({column, row}) + TERRAIN_DEPTH.actor);
+          drawSafeBoundaryAura(this, this.safeBarrierSprites, point, this.viewPosition({column, row}), this.viewPosition(s.map.startPoint), s.map.safeRadius, this.depth({column, row}) + TERRAIN_DEPTH.actor);
         }
         if (!meadow && !textured) {
           g.lineStyle(1, COLORS.edge, 0.5);

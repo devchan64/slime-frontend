@@ -22,8 +22,8 @@ const SAFE_BARRIER_AURA_ANIMATION_DATA = {
 const SAFE_BARRIER_AURA_ANIMATION = new CellAnimation(SAFE_BARRIER_AURA_ANIMATION_DATA);
 
 export function preloadSafeBarrierAuraSprite(scene: Phaser.Scene) { scene.load.image(SAFE_BARRIER_AURA_TEXTURE_KEY, SAFE_BARRIER_AURA_SOURCE_URL); }
-export function createSafeBarrierAuraSprite(scene: Phaser.Scene, boundaryCenterPosition: { x: number; y: number }, boundaryWidthPixels: number, boundaryAngleRadians: number, boundaryDepth: number) {
+export function createSafeBarrierAuraSprite(scene: Phaser.Scene, boundaryCenterPosition: { x: number; y: number }, boundaryWidthPixels: number, boundaryDepth: number) {
   const currentAuraActor = new CellActor(scene, SAFE_BARRIER_AURA_TEXTURE_KEY, SAFE_BARRIER_AURA_ANIMATION, { x: boundaryCenterPosition.x, y: boundaryCenterPosition.y, scale: SAFE_BARRIER_AURA_SPRITE_CONTRACT.displayHeightPixels / SAFE_BARRIER_AURA_ROW_BOUNDARIES[1], action: "idle", direction: "down_left" });
-  currentAuraActor.image.setDisplaySize(boundaryWidthPixels, SAFE_BARRIER_AURA_SPRITE_CONTRACT.displayHeightPixels).setRotation(boundaryAngleRadians).setDepth(boundaryDepth);
+  currentAuraActor.image.setDisplaySize(boundaryWidthPixels, SAFE_BARRIER_AURA_SPRITE_CONTRACT.displayHeightPixels).setDepth(boundaryDepth);
   return currentAuraActor.image;
 }

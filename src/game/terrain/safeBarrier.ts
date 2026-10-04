@@ -13,19 +13,10 @@ const SAFE_BOUNDARY_DIRECTIONS = [
 const SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS = 4;
 const SAFE_BARRIER_BLOCKS_PER_TILE_EDGE = 2;
 
-function resolveAuraWallAngle(boundaryStartPoint: { x: number; y: number }, boundaryEndPoint: { x: number; y: number }, protectedCenterPoint: { x: number; y: number }) {
-  const currentBoundaryAngle = Phaser.Math.Angle.BetweenPoints(boundaryStartPoint, boundaryEndPoint);
-  const boundaryCenterPoint = { x: (boundaryStartPoint.x + boundaryEndPoint.x) / 2, y: (boundaryStartPoint.y + boundaryEndPoint.y) / 2 };
-  const protectedDirection = { x: protectedCenterPoint.x - boundaryCenterPoint.x, y: protectedCenterPoint.y - boundaryCenterPoint.y };
-  const currentWallRiseDirection = { x: Math.sin(currentBoundaryAngle), y: -Math.cos(currentBoundaryAngle) };
-  return currentWallRiseDirection.x * protectedDirection.x + currentWallRiseDirection.y * protectedDirection.y >= 0
-    ? currentBoundaryAngle : currentBoundaryAngle + Math.PI;
-}
-
 /** 화면 회전 후 안전 타일의 바깥 변마다 25px 높이 오러 벽을 배치한다. */
 export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects: Phaser.GameObjects.Image[],
   projectedCellPosition: {x: number; y: number}, rotatedCellPosition: Position,
-  rotatedCenterPosition: Position, protectedCenterPoint: { x: number; y: number }, safeZoneRadius: number, boundaryDepth: number) {
+  rotatedCenterPosition: Position, safeZoneRadius: number, boundaryDepth: number) {
   const boundaryVertexPoints = [
     {x: projectedCellPosition.x, y: projectedCellPosition.y - TILE_H / 2},
     {x: projectedCellPosition.x + TILE_W / 2, y: projectedCellPosition.y},
@@ -39,7 +30,6 @@ export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects:
     const boundaryStartPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[0]];
     const boundaryEndPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[1]];
     const tileEdgeWidthPixels = Phaser.Math.Distance.BetweenPoints(boundaryStartPoint, boundaryEndPoint);
-    const currentWallAngle = resolveAuraWallAngle(boundaryStartPoint, boundaryEndPoint, protectedCenterPoint);
     for (let currentBlockIndex = 0; currentBlockIndex < SAFE_BARRIER_BLOCKS_PER_TILE_EDGE; currentBlockIndex += 1) {
       const currentBlockCenterRatio = (currentBlockIndex + 0.5) / SAFE_BARRIER_BLOCKS_PER_TILE_EDGE;
       const boundaryBlockCenter = {
@@ -48,7 +38,7 @@ export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects:
       };
       boundarySpriteObjects.push(createSafeBarrierAuraSprite(scene, boundaryBlockCenter,
         tileEdgeWidthPixels / SAFE_BARRIER_BLOCKS_PER_TILE_EDGE + SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS,
-        currentWallAngle, boundaryDepth));
+        boundaryDepth));
     }
   }
 }
