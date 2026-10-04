@@ -56,9 +56,12 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.lineStyle(FOOTPRINT.lineWidth, color, FOOTPRINT.lineAlpha);
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
-  // 사람은 중형 기준이며, 나머지 크기 등급도 같은 기준 그림자에 외형 배율을 적용한다.
+  // 필드에서는 모든 액터가 사람(중형)과 같은 접지 그림자 크기를 쓴다.
+  // 전투 등 필드 밖에서는 크기 등급 배율을 적용한다.
   const fieldActorShadowActive = actorFieldShadowEnabled;
-  const currentShadowScale = ratio * (fieldActorShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.scale : 1);
+  const currentShadowScale = fieldActorShadowActive
+    ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.scale
+    : ratio;
   const currentShadowOpacityScale = fieldActorShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.opacityScale : 1;
   const contactShadowWidth = TILE_W * ACTOR_CONTACT_SHADOW_CONTRACT.medium.width * currentShadowScale;
   const contactShadowHeight = TILE_H * ACTOR_CONTACT_SHADOW_CONTRACT.medium.height * currentShadowScale;
