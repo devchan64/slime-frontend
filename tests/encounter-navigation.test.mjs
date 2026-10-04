@@ -29,7 +29,11 @@ test('원거리 몬스터 인접 위치에 도착한 후 한 번만 조우 요�
  const currentPauseDurations=[];
  controls.pause=async(currentCompletedSteps,currentHasNextStep)=>{currentPauseDurations.push(calculateFieldMovementPause(currentCompletedSteps,currentHasNextStep));};
  await approachMonster('slime',controls);
- assert.deepEqual(currentPauseDurations,[300,1290,840]);
+ assert.deepEqual(currentPauseDurations,[300,300,990]);
+ assert.equal(calculateFieldMovementPause(1,false),590);
+ assert.equal(calculateFieldMovementPause(2,false),790);
+ assert.equal(calculateFieldMovementPause(4,false),590);
+ assert.equal(calculateFieldMovementPause(5,false),790);
  assert.deepEqual(state.me.position,{column:3,row:1});
  assert.deepEqual(events.map(e=>e[0]),['move','move','move','reserve']);
 });
