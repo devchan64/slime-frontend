@@ -40,6 +40,8 @@ function applyAuraFrameUvs(auraMesh: Phaser.GameObjects.Mesh, currentFrameIndex:
   for (let currentVertexIndex = 0; currentVertexIndex < auraMesh.vertices.length; currentVertexIndex += 1) {
     auraMesh.vertices[currentVertexIndex].u = frameUvs[currentVertexIndex * 2];
     auraMesh.vertices[currentVertexIndex].v = frameUvs[currentVertexIndex * 2 + 1];
+    auraMesh.vertices[currentVertexIndex].tu = frameUvs[currentVertexIndex * 2];
+    auraMesh.vertices[currentVertexIndex].tv = frameUvs[currentVertexIndex * 2 + 1];
   }
 }
 
@@ -60,7 +62,8 @@ export function createSafeBarrierAuraSprite(scene: Phaser.Scene, boundaryStartPo
   ], getAuraFrameUvs(0));
   auraMesh.hideCCW = false;
   auraMesh.ignoreDirtyCache = true;
-  auraMesh.setOrtho(SAFE_BARRIER_AURA_SOURCE_WIDTH, SAFE_BARRIER_AURA_SOURCE_HEIGHT);
+  // 원본 시트의 해상도가 아니라 현재 화면 크기를 투영 기준으로 사용해야 엣지 좌표가 픽셀 크기 그대로 유지된다.
+  auraMesh.setOrtho(auraMesh.width, auraMesh.height);
   auraMesh.setDepth(boundaryDepth);
   const synchronizeAuraFrame = (currentTimeMilliseconds: number) => {
     const currentFrameIndex = Math.floor(currentTimeMilliseconds / SAFE_BARRIER_AURA_FRAME_DURATION_MILLISECONDS) % SAFE_BARRIER_AURA_SPRITE_CONTRACT.frameTotalCount;
