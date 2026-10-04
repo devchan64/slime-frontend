@@ -12,11 +12,10 @@ export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
 const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
-const SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.54, height: 0.24, coreAlpha: 0.24, coreScale: 0.65 };
-const HUMAN_CONTACT_SHADOW = { width: 0.4, height: 0.32 };
+const MEDIUM_CONTACT_SHADOW = { color: 0x18392e, alpha: 0.3, width: 0.4, height: 0.32, coreAlpha: 0.24, coreScale: 0.65 };
 const FIELD_CHARACTER_SHADOW_SCALE = 1.3;
 const FIELD_CHARACTER_SHADOW_OPACITY_SCALE = 1.5;
-const MONSTER_RING = { alpha: 0.45, width: 1 };
+const MONSTER_RING = { alpha: 0.45, width: 1, groundWidthRatio: 0.54, groundHeightRatio: 0.24 };
 const SPRITE_DEPTH_OFFSET = 0.01;
 const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 3, radius: 7, rise: 18, spread: 21 };
 export const updateCharacterFacing = updateCharacterAnimationFrame;
@@ -55,19 +54,19 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.lineStyle(FOOTPRINT.lineWidth, color, FOOTPRINT.lineAlpha);
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
-  // 그림자는 점유 타일 수가 아닌 중형 대비 외형 비율을 따른다.
+  // 사람은 중형 기준이며, 나머지 크기 등급도 같은 기준 그림자에 외형 배율을 적용한다.
   const fieldCharacterShadowActive = kind === "human" && actorFieldShadowEnabled;
   const currentShadowScale = ratio * (fieldCharacterShadowActive ? FIELD_CHARACTER_SHADOW_SCALE : 1);
   const currentShadowOpacityScale = fieldCharacterShadowActive ? FIELD_CHARACTER_SHADOW_OPACITY_SCALE : 1;
-  const contactShadowWidth = TILE_W * (kind === "human" ? HUMAN_CONTACT_SHADOW.width : SHADOW.width) * currentShadowScale;
-  const contactShadowHeight = TILE_H * (kind === "human" ? HUMAN_CONTACT_SHADOW.height : SHADOW.height) * currentShadowScale;
-  g.fillStyle(SHADOW.color, SHADOW.alpha * currentShadowOpacityScale);
+  const contactShadowWidth = TILE_W * MEDIUM_CONTACT_SHADOW.width * currentShadowScale;
+  const contactShadowHeight = TILE_H * MEDIUM_CONTACT_SHADOW.height * currentShadowScale;
+  g.fillStyle(MEDIUM_CONTACT_SHADOW.color, MEDIUM_CONTACT_SHADOW.alpha * currentShadowOpacityScale);
   g.fillEllipse(x, y, contactShadowWidth, contactShadowHeight);
-  g.fillStyle(SHADOW.color, SHADOW.coreAlpha * currentShadowOpacityScale);
-  g.fillEllipse(x, y, contactShadowWidth * SHADOW.coreScale, contactShadowHeight * SHADOW.coreScale);
+  g.fillStyle(MEDIUM_CONTACT_SHADOW.color, MEDIUM_CONTACT_SHADOW.coreAlpha * currentShadowOpacityScale);
+  g.fillEllipse(x, y, contactShadowWidth * MEDIUM_CONTACT_SHADOW.coreScale, contactShadowHeight * MEDIUM_CONTACT_SHADOW.coreScale);
   if (kind !== "human") {
     g.lineStyle(MONSTER_RING.width, color, MONSTER_RING.alpha);
-    g.strokeEllipse(x, y, width * SHADOW.width, groundHeight * SHADOW.height);
+    g.strokeEllipse(x, y, width * MONSTER_RING.groundWidthRatio, groundHeight * MONSTER_RING.groundHeightRatio);
   }
   const selectedIdleKind = kind === "human" && actorRestIsActive ? "human-rest" : actorMonsterTypeId && Object.hasOwn(ACTOR_IDLE_ASSETS, actorMonsterTypeId)
     ? actorMonsterTypeId as IdleActorKind : kind;
