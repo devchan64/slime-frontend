@@ -29,6 +29,7 @@ import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
 import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
+import { createFieldRestEffectSprite, preloadFieldRestEffectSprite } from "../animation/restEffectSprite";
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
@@ -174,6 +175,7 @@ export class MainScene extends Phaser.Scene {
     preloadTerrain(this);
 
     preloadActors(this);
+    preloadFieldRestEffectSprite(this);
     preloadSafeTower(this);
     preloadGuardCenterSprites(this);
     preloadBackdrop(this);
@@ -748,6 +750,9 @@ export class MainScene extends Phaser.Scene {
         createdActorImage.setFlipX(shouldMirrorActorSprite(actorWorldFacing ?? "row_positive", this.rotation));
         if (createdActorImage.flipX) createdActorImage.setOrigin(1 - createdActorImage.originX, createdActorImage.originY);
       }
+    }
+    if (actorRestIsActive && !appearance && !this.state?.battle) {
+      createFieldRestEffectSprite(this, p, height, depth + ACTOR_DEPTH.labelOffset);
     }
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
