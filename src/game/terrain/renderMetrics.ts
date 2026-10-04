@@ -1,5 +1,5 @@
 /** 게임 월드 좌표의 기준값. 원본 이미지 픽셀·논리 셀·화면 고정 UI와 구분한다. */
-export const MAP_DEFAULT_ZOOM = 1;
+export const MAP_DEFAULT_ZOOM = 2;
 export const MAP_TILE_WIDTH = 80;
 export const MAP_TILE_HEIGHT = 40;
 /** 등록된 지형 원본 해상도. 화면 타일 크기와 독립적으로 검증한다. */

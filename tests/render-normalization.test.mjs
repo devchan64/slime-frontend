@@ -4,7 +4,7 @@ import {build} from 'esbuild';
 const compiledMetricsBundle=await build({stdin:{contents:`export * from './src/game/terrain/renderMetrics';export * from './src/game/terrain/elevation';export * from './src/game/terrain/rotation';export * from './src/game/terrain/renderPlan';export * from './src/game/terrain/viewport';`,resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm'});
 const normalizedRenderModule=await import(`data:text/javascript;base64,${Buffer.from(compiledMetricsBundle.outputFiles[0].text).toString('base64')}`);
 test('정수 크기로 필드·전투 80×40, 마을 160×80, 사람 높이 80을 사용한다',()=>{
- assert.equal(normalizedRenderModule.MAP_DEFAULT_ZOOM,1);
+ assert.equal(normalizedRenderModule.MAP_DEFAULT_ZOOM,2);
  assert.equal(normalizedRenderModule.CHARACTER_BODY_HEIGHT,80);
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({}),{width:80,height:40});
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:true}),{width:160,height:80});

@@ -13,7 +13,6 @@ import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking
 import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
 import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
-import {fitActorZoom} from '../terrain/actorFraming';
 import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
 import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
 import { elevationTileAt, type Surface } from "../terrain/elevation";
@@ -60,13 +59,9 @@ const TEXT = {
 };
 const CENTER = 0.5,
   LABEL_OFFSET = 33,
-  BATTLE_DISPLAY_SCALE = 1.2,
-  PORTRAIT_BATTLE_FILL = 1.5,
-  CAMERA_PADDING = 52,
   DRAG_THRESHOLD = 6,
-  ZOOM_MIN = 0.4 / WORLD_UNIT_MIGRATION,
-  ZOOM_MAX = 1.4 / WORLD_UNIT_MIGRATION,
-  FIELD_ZOOM_MAX = 2.8 / WORLD_UNIT_MIGRATION,
+  FIELD_ZOOM_MINIMUM = 0.4 / WORLD_UNIT_MIGRATION,
+  FIELD_ZOOM_MAXIMUM = 2.8 / WORLD_UNIT_MIGRATION,
   TURN_BADGE_OFFSET = 21,
   TURN_BADGE_RADIUS = 14,
   PATH_WIDTH = 4,
@@ -75,7 +70,6 @@ const CENTER = 0.5,
   ARRIVAL_COLOR = 0xffbb66;
 const DEFAULT_TILE_ZOOM = MAP_DEFAULT_ZOOM;
 const SAFE_BARRIER_PULSE = { cycleMilliseconds: 2600, minimumOpacity: 0.72, opacityRange: 0.28 };
-const BATTLE_FRAMING_ZOOM = DEFAULT_TILE_ZOOM / BATTLE_DISPLAY_SCALE;
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
   outline: 0x071e35, outlineWidth: 8, edge: 0x9ceaff, edgeWidth: 4,
@@ -88,7 +82,6 @@ export class MainScene extends Phaser.Scene {
   private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
   private receivedStateTimestamp = 0;
   private state: State | null = null;
-  private useDefaultTileScale = false;
   private fieldMotion = new FieldMotion();
   private fieldCameraFollowPending = false;
   private battleMotion = new BattleMotion();
@@ -292,7 +285,7 @@ export class MainScene extends Phaser.Scene {
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
       this.cameras.main.setZoom(
-        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001 / WORLD_UNIT_MIGRATION, ZOOM_MIN, this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX),
+        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001 / WORLD_UNIT_MIGRATION, FIELD_ZOOM_MINIMUM, FIELD_ZOOM_MAXIMUM),
       ),
     );
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
@@ -326,7 +319,7 @@ export class MainScene extends Phaser.Scene {
     this.draw();
   }
   adjustZoom(delta: number) {
-    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta / WORLD_UNIT_MIGRATION,ZOOM_MIN,this.state?.battle ? ZOOM_MAX : FIELD_ZOOM_MAX));
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta / WORLD_UNIT_MIGRATION,FIELD_ZOOM_MINIMUM,FIELD_ZOOM_MAXIMUM));
   }
   rotateMap(direction: -1 | 1) {
     if (!this.state || !this.sys.isActive()) return;
@@ -397,36 +390,14 @@ export class MainScene extends Phaser.Scene {
     this.waypointZoom = zoom;
   }
   resetCameraView() {
-    this.useDefaultTileScale = true;
     this.focus();
   }
   focus() {
     if (this.state) {
-      const battle = this.state.battle;
-      const extent = battle ? battle.field.columns + battle.field.rows : 0;
-      const widthFit = this.cameras.main.width / (extent * this.currentTileDimensions.width / 2 + CAMERA_PADDING);
-      const heightFit = this.cameras.main.height / (extent * this.currentTileDimensions.height / 2 + CAMERA_PADDING);
-      this.cameras.main.setZoom(battle ? Math.min(BATTLE_FRAMING_ZOOM,
-        this.cameras.main.width < this.cameras.main.height ? Math.min(heightFit, widthFit * PORTRAIT_BATTLE_FILL) : Math.min(widthFit, heightFit)) : DEFAULT_TILE_ZOOM);
-      if (battle && this.backdropLayer) {
-        const cover = Math.max(this.cameras.main.width / this.backdropLayer.displayWidth,
-          this.cameras.main.height / this.backdropLayer.displayHeight);
-        this.cameras.main.setZoom(Math.min(BATTLE_FRAMING_ZOOM, Math.max(this.cameras.main.zoom, cover)));
-      }
-      if (battle) this.cameras.main.setZoom(Math.min(DEFAULT_TILE_ZOOM, this.cameras.main.zoom * BATTLE_DISPLAY_SCALE));
+      this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
       const point = this.project(
         this.state.battle ? { column: (this.state.battle.field.columns - 1) / 2, row: (this.state.battle.field.rows - 1) / 2 } : this.state.me.position,
       );
-      if(battle) {
-        const bounds=battle.units.filter(unit=>!isHealthDepleted(unit)).map(unit=>{
-          const p=this.calculateActorPlacement(unit.position,unit.side==='ally'?undefined:unit),size=actorSize(unit.side==='ally'?undefined:unit);
-          return {left:p.x-this.currentTileDimensions.width*size.tiles/2,right:p.x+this.currentTileDimensions.width*size.tiles/2,
-            top:p.y-HUMAN_HEIGHT*size.scale-TURN_BADGE_OFFSET-TURN_BADGE_RADIUS,
-            bottom:p.y+this.currentTileDimensions.height*size.tiles/2};
-        });
-        this.cameras.main.setZoom(fitActorZoom(this.cameras.main.zoom,point,this.cameras.main,bounds));
-      }
-      if (this.useDefaultTileScale) this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
       this.cameras.main.centerOn(point.x, point.y);
       this.syncActorViewport();
       this.animateFieldActors();
@@ -627,7 +598,6 @@ export class MainScene extends Phaser.Scene {
     const mapKey = s.battle?.id || s.map.id;
     if (this.previousMap !== mapKey) {
       this.previousMap = mapKey;
-      this.useDefaultTileScale = false;
       this.focus();
     }
   }

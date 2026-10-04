@@ -20,7 +20,7 @@ const {outputFiles}=await build({stdin:{contents:"export {drawGuardCenterSprite,
   build.onResolve({filter:/i18n$/},()=>({path:'i18n',namespace:'locale-double'}));
   build.onLoad({filter:/.*/,namespace:'locale-double'},()=>({contents:'export const t = currentMessageKey => currentMessageKey;'}));
   build.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'double'}));
-  build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
+  build.onLoad({filter:/.*/,namespace:'double'},()=>({contents:'export default {Math:{Clamp:(currentZoomValue,minimumZoomValue,maximumZoomValue)=>Math.min(maximumZoomValue,Math.max(minimumZoomValue,currentZoomValue))},Scene:class {time={now:0};},GameObjects:{Image:class {static [Symbol.hasInstance](renderedObjectValue){return renderedObjectValue.type==="Image";}}},Geom:{Point:class {constructor(x,y){this.x=x;this.y=y;}}}};'}));
  }}]});
 const {MainScene,ACTOR_IDLE_TEXTURES,DEFAULT_CHARACTER_WALK_ASSET,drawGuardCenterSprite,resolveGuardDisplayPosition}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
@@ -270,4 +270,26 @@ test('도시별 경비센터 외형을 발급 접점 옆에 표시하고 미등�
  assert.deepEqual(resolveGuardDisplayPosition({column:16,row:0},{columns:32,rows:32}),{column:16,row:1});
  assert.deepEqual(resolveGuardDisplayPosition({column:31,row:16},{columns:32,rows:32}),{column:30,row:16});
  assert.throws(()=>drawGuardCenterSprite(currentSceneDouble,'unknown-city',{x:0,y:0}),/미등록/);
+});
+
+
+test('마을·야외·전투의 진입과 시점 복귀는 작은 화면에서도 2배이며 수동 확대가 가능하다',()=>{
+ for(const currentFieldKind of ['town','outdoor','battle']) {
+  const currentSceneInstance=new MainScene(()=>{},()=>{},()=>{});
+  const currentCameraState={width:320,height:240,zoom:0.5,setZoom(currentZoomValue){this.zoom=currentZoomValue;},centerOn(){}};
+  currentSceneInstance.cameras={main:currentCameraState};
+  currentSceneInstance.state={map:{safeTown:currentFieldKind==='town'},me:{position:{column:1,row:1}},
+   battle:currentFieldKind==='battle'?{field:{columns:20,rows:20}}:null};
+  currentSceneInstance.project=()=>({x:80,y:40});
+  currentSceneInstance.syncActorViewport=()=>{};
+  currentSceneInstance.animateFieldActors=()=>{};
+  currentSceneInstance.focus();
+  assert.equal(currentCameraState.zoom,2,currentFieldKind);
+  currentSceneInstance.adjustZoom(0.1);
+  assert.ok(currentCameraState.zoom>2,'확대 버튼이 기본 배율보다 작게 되돌리지 않는다');
+  currentSceneInstance.adjustZoom(-0.5);
+  assert.ok(currentCameraState.zoom<2);
+  currentSceneInstance.resetCameraView();
+  assert.equal(currentCameraState.zoom,2);
+ }
 });
