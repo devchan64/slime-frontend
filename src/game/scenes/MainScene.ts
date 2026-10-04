@@ -28,7 +28,7 @@ import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundary } from "../terrain/safeBarrier";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
-import { drawActor, drawRestRecoveryEffect, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
+import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
@@ -37,7 +37,6 @@ import { actorSize } from "../terrain/sizes";
 import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
 import { addRampWallPatterns, addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
 import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
-const ACTOR_GROUND_SELECTION = { widthRatio: 0.4, heightRatio: 0.3, lineWidth: 1, alpha: 0.65 };
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -48,7 +47,6 @@ const COLORS = {
   other: 0x74b7f4,
   enemy: 0xff8d77,
   passive: 0xe6c789,
-  selected: 0xffebac,
 };
 const TEXT = {
   fontFamily: "sans-serif",
@@ -73,11 +71,10 @@ const SAFE_BARRIER_PULSE = { cycleMilliseconds: 2600, minimumOpacity: 0.72, opac
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
   outline: 0x071e35, outlineWidth: 8, edge: 0x9ceaff, edgeWidth: 4,
-  arrivalInset: 0.72, arrivalWidth: 3, targetWidth: 5, selectedWidth: 5,
+  arrivalInset: 0.72, arrivalWidth: 3, targetWidth: 5,
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
-const REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS = 1200;
 export class MainScene extends Phaser.Scene {
   private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
   private receivedStateTimestamp = 0;
@@ -86,7 +83,6 @@ export class MainScene extends Phaser.Scene {
   private fieldCameraFollowPending = false;
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
-  private restRecoveryEffects: {graphics:Phaser.GameObjects.Graphics;x:number;y:number;height:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private cityBuildingRegions: CityBuildingRegion[] = [];
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
@@ -213,7 +209,6 @@ export class MainScene extends Phaser.Scene {
       this.fieldMotion.clear();
       this.battleMotion.clear();
       this.movingObjects=[];
-      this.restRecoveryEffects=[];
       this.terrainCache?.clear();
       this.terrainCache=null;
       this.scale.off(Phaser.Scale.Events.RESIZE, resize);
@@ -383,7 +378,6 @@ export class MainScene extends Phaser.Scene {
     this.syncTerrainViewport();
     this.syncActorViewport();
     this.animateFieldActors();
-    this.animateRestRecoveryEffects();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
     for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom));
@@ -410,7 +404,6 @@ export class MainScene extends Phaser.Scene {
     this.actorCache=null;
     this.actorEntries=[];
     this.movingObjects=[];
-    this.restRecoveryEffects=[];
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.waypointMarkers = [];
@@ -499,11 +492,6 @@ export class MainScene extends Phaser.Scene {
         }
         if (!selectedMove && attackCells.has(`${column},${row}`)) {
           g.lineStyle(4, COLORS.enemy);
-          g.strokePoints(this.points(polygon), true);
-        }
-        if (this.selected?.column === column && this.selected.row === row) {
-          g.setDepth(this.annotationDepth());
-          g.lineStyle(s.battle ? MOVE_OVERLAY.selectedWidth : 3, COLORS.selected);
           g.strokePoints(this.points(polygon), true);
         }
       }
@@ -609,15 +597,6 @@ export class MainScene extends Phaser.Scene {
   private calculateActorPlacement = (actorLogicalPosition: Position, actorAppearanceData?: Appearance) =>
     calculateActorPlacement(actorLogicalPosition, actorSize(actorAppearanceData).tiles, this.surface(), this.project, this.depth);
   private annotationDepth = () => mapAnnotationDepth(this.viewSurface!);
-
-  private animateRestRecoveryEffects() {
-    const currentProgress = this.reducedMotionPreference.matches ? 0 :
-      (this.time.now % REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS) / REST_RECOVERY_EFFECT_CYCLE_MILLISECONDS;
-    for (const currentEffect of this.restRecoveryEffects) {
-      drawRestRecoveryEffect(currentEffect.graphics,currentEffect.x,currentEffect.y,currentEffect.height,currentProgress);
-      currentEffect.graphics.setAlpha(1).setDepth(currentEffect.depth);
-    }
-  }
 
   /** 필드에서 자기 캐릭터의 보간 이동 구간에만 카메라를 함께 이동한다. */
   private followMovingFieldCharacter() {
@@ -743,7 +722,6 @@ export class MainScene extends Phaser.Scene {
     this.actorCache=new ActorWindowCache(this.actorEntries,objects=>{
       const removed=new Set(objects);
       this.movingObjects=this.movingObjects.filter(item=>!removed.has(item.object));
-      this.restRecoveryEffects=this.restRecoveryEffects.filter(currentEffect=>!removed.has(currentEffect.graphics));
       for(const object of objects)object.destroy();
     });
     this.syncActorViewport();
@@ -771,20 +749,10 @@ export class MainScene extends Phaser.Scene {
         if (createdActorImage.flipX) createdActorImage.setOrigin(1 - createdActorImage.originX, createdActorImage.originY);
       }
     }
-    if (actorRestIsActive && !appearance && !this.state?.battle) {
-      const recoveryEffectGraphics = this.add.graphics().setDepth(depth + ACTOR_DEPTH.labelOffset);
-      this.restRecoveryEffects.push({graphics:recoveryEffectGraphics,x:p.x,y:p.y,height,depth:depth + ACTOR_DEPTH.labelOffset});
-      drawRestRecoveryEffect(recoveryEffectGraphics,p.x,p.y,height,0);
-    }
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
     }
     const annotation = this.add.graphics().setDepth(this.annotationDepth());
-    const selected = this.selected?.column === pos.column && this.selected.row === pos.row;
-    if (active || selected) {
-      g.lineStyle(ACTOR_GROUND_SELECTION.lineWidth, active ? COLORS.player : COLORS.selected, ACTOR_GROUND_SELECTION.alpha);
-      g.strokeEllipse(p.x, p.y, this.currentTileDimensions.width * ACTOR_GROUND_SELECTION.widthRatio, this.currentTileDimensions.height * ACTOR_GROUND_SELECTION.heightRatio);
-    }
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
       const badgeY=p.y-height-TURN_BADGE_OFFSET;
@@ -797,7 +765,7 @@ export class MainScene extends Phaser.Scene {
         fontFamily: "sans-serif", fontSize: "18px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
-    } else if (active || selected) {
+    } else if (active || (this.selected?.column === pos.column && this.selected.row === pos.row)) {
       this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, appearance ? { ...TEXT, color: `#${color.toString(16).padStart(6, "0")}` } : TEXT).setOrigin(CENTER, 1).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
     }
     if(motionKey)for(const child of this.children.list.slice(firstChild)){

@@ -10,32 +10,13 @@ export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
 const HUMAN_REST_HEIGHT_RATIO = 1;
 export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
-const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
-const HALF = 0.5;
 /** 사람(중형) 기준 접지 그림자의 모든 맵 필드 공용 렌더링 계약이다. */
 export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({
   medium: Object.freeze({ color: 0x18392e, alpha: 0.3, width: 0.4, height: 0.32, coreAlpha: 0.24, coreScale: 0.65 }),
   allFields: Object.freeze({ scale: 1.3, opacityScale: 1.5 }),
 });
-const MONSTER_RING = { alpha: 0.45, width: 1, groundWidthRatio: 0.54, groundHeightRatio: 0.24 };
 const SPRITE_DEPTH_OFFSET = 0.01;
-const REST_RECOVERY_EFFECT = { color: 0x9ff6d0, lineWidth: 3, radius: 7, rise: 18, spread: 21 };
 export const updateCharacterFacing = updateCharacterAnimationFrame;
-
-export function drawRestRecoveryEffect(graphics: Phaser.GameObjects.Graphics, x: number, y: number, height: number, progress: number) {
-  const currentRise = REST_RECOVERY_EFFECT.rise * progress;
-  const currentAlpha = 0.35 + (1 - progress) * 0.55;
-  graphics.clear();
-  graphics.lineStyle(REST_RECOVERY_EFFECT.lineWidth, REST_RECOVERY_EFFECT.color, currentAlpha);
-  const centerY = y - height * 0.72 - currentRise;
-  graphics.strokeCircle(x, centerY, REST_RECOVERY_EFFECT.radius);
-  for (const currentOffset of [-REST_RECOVERY_EFFECT.spread, REST_RECOVERY_EFFECT.spread]) {
-    const symbolX = x + currentOffset * (0.45 + progress * 0.55);
-    const symbolY = centerY + Math.abs(currentOffset) * 0.2;
-    graphics.lineBetween(symbolX - 4, symbolY, symbolX + 4, symbolY);
-    graphics.lineBetween(symbolX, symbolY - 4, symbolX, symbolY + 4);
-  }
-}
 
 export function preloadActors(scene: Phaser.Scene) {
   for (const { key, url } of [...ACTOR_IDLE_TEXTURES, DEFAULT_CHARACTER_WALK_ASSET]) scene.load.image(key, url);
@@ -47,14 +28,6 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   if (!Number.isFinite(ratio) || ratio < SLIME_RATIO || ratio > MAX_MONSTER_RATIO)
     throw new Error(`지원하지 않는 몬스터 크기입니다: ${ratio}`);
   if (tiles !== 1 && tiles !== 2) throw new Error(`지원하지 않는 표시 영역입니다: ${tiles}`);
-  const width = TILE_W * tiles, groundHeight = TILE_H * tiles;
-  const footprint = [new Phaser.Geom.Point(x, y - groundHeight * HALF),
-    new Phaser.Geom.Point(x + width * HALF, y), new Phaser.Geom.Point(x, y + groundHeight * HALF),
-    new Phaser.Geom.Point(x - width * HALF, y)];
-  g.fillStyle(color, FOOTPRINT.fillAlpha);
-  g.fillPoints(footprint, true);
-  g.lineStyle(FOOTPRINT.lineWidth, color, FOOTPRINT.lineAlpha);
-  g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
   // 야외·전투·마을 필드의 모든 액터가 사람(중형) 기준 그림자 크기를 공유한다.
   const currentShadowScale = ACTOR_CONTACT_SHADOW_CONTRACT.allFields.scale;
@@ -65,10 +38,6 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.fillEllipse(x, y, contactShadowWidth, contactShadowHeight);
   g.fillStyle(ACTOR_CONTACT_SHADOW_CONTRACT.medium.color, ACTOR_CONTACT_SHADOW_CONTRACT.medium.coreAlpha * currentShadowOpacityScale);
   g.fillEllipse(x, y, contactShadowWidth * ACTOR_CONTACT_SHADOW_CONTRACT.medium.coreScale, contactShadowHeight * ACTOR_CONTACT_SHADOW_CONTRACT.medium.coreScale);
-  if (kind !== "human") {
-    g.lineStyle(MONSTER_RING.width, color, MONSTER_RING.alpha);
-    g.strokeEllipse(x, y, width * MONSTER_RING.groundWidthRatio, groundHeight * MONSTER_RING.groundHeightRatio);
-  }
   const selectedIdleKind = kind === "human" && actorRestIsActive ? "human-rest" : actorMonsterTypeId && Object.hasOwn(ACTOR_IDLE_ASSETS, actorMonsterTypeId)
     ? actorMonsterTypeId as IdleActorKind : kind;
   if (!actorStableIdentifier) throw new Error("개체 대기 ID가 누락되었습니다.");
