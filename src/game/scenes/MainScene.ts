@@ -18,6 +18,9 @@ import { toView, fromView, nextRotation, rotateConnections, type MapRotation } f
 import { elevationTileAt, type Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
+import {drawFieldCellObjects,prepareFieldConnectedTexture,FIELD_RENDER_METRICS} from '../../../packages/field-renderer/field-renderer.mjs';
+import {MAP_ORIGIN} from '../terrain/elevation';
+import {CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../terrain/textures';
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
@@ -655,6 +658,16 @@ export class MainScene extends Phaser.Scene {
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
       const kind=field && terrain==='rock' ? `battle-rock-${['a','b','c'][(column+row)%3]}` : field && terrain==='thicket' ? 'battle-thicket' : terrain;
+      const currentCellIsWater=waterCells.has(`${column},${row}`);
+      if(field||!s.map.safeTown){
+        const currentSelectedFrame=waterCells.has(`${column},${row}`)?`water-${rotateConnections(waterConnections(cell,definition,waterCells),this.rotation)}`
+          :kind==='road'?selectFieldRoadFrame(rotateConnections(roadConnections(cell,definition,road),this.rotation),cell,false,s.map.id)
+          :kind==='flowers'&&s.map.id==='meadow'?'meadow-flowers':kind;
+        const currentConnectedFrame=/^(water|road|dirt-road|stone-road)-(\d+)$/.exec(currentSelectedFrame);
+        const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(this,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
+        const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
+        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,{ground:currentGroundKey,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder','tree-base'].includes(terrain)?'terrain-source-grass':undefined},depth))remember(currentRenderObject);
+      }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
         drawElevationTile(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface)),elevationTile,this.viewSurface!);
@@ -664,14 +677,14 @@ export class MainScene extends Phaser.Scene {
       const sides=remember(this.add.graphics().setDepth(depth));
       drawCliffs(sides,this.viewPosition(cell),this.viewSurface!);
       addCliffWallPatterns(this,remember,this.viewPosition(cell),this.viewSurface!,depth);
-      const isWater = waterCells.has(`${column},${row}`);
-      const frame = isWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
+      const frame = currentCellIsWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
         : kind === 'road' ? selectFieldRoadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation), cell, Boolean(s.map.safeTown), s.map.id)
           : kind === 'flowers' && s.map.id === 'meadow' ? 'meadow-flowers' : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
       if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p,this.currentTileDimensions);
-      if (!field && !isWater && !['boulder','tree-base','cactus','shallow-water','deep-water'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
+      }
+      if (!field && !currentCellIsWater && !['boulder','tree-base','cactus','shallow-water','deep-water'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));
         const obstacleKind=terrain==='water'||terrain==='rock'||terrain==='thicket'?terrain:undefined;
         drawBlockedTerrain(detail,cell,p.x,p.y,theme,obstacleKind);

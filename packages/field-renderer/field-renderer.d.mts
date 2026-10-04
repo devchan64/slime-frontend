@@ -1,0 +1,17 @@
+import type Phaser from 'phaser';
+import type {SurfacePosition,SurfacePoint,SurfaceRecord,RenderOptions} from '../field-surface/field-surface.mjs';
+export const FIELD_RENDERER_VERSION:string;
+export function prepareFieldConnectedTexture(currentGameScene:Phaser.Scene,currentSourceKey:string,currentGrassKey:string,currentConnectionMask:number):string;
+export const FIELD_MESH_BOUNDARY_STYLE:Readonly<{color:number;width:number;alpha:number}>;
+export const FIELD_SAFE_TOWER_PROFILE:Readonly<{anchorX:number;anchorY:number;bodyTop:number;displayHeight:number}>;
+export const FIELD_SAFE_AURA_PROFILE:Readonly<{columns:number;rows:number;frames:number;height:number;frameDuration:number;horizontalCrop:number}>;
+export function buildFieldCellGeometry(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions?:RenderOptions):{points:SurfacePoint[];top:boolean;kind:string}[];
+export function buildFieldPanelVertices(currentPanelPoints:SurfacePoint[]):{center:SurfacePoint;vertices:number[]};
+export function drawFieldMeshBoundary(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentRenderDepth:number):Phaser.GameObjects.Graphics;
+export function drawFieldTexturePanel(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentTextureKey:string,currentRenderDepth:number,currentUvCorners?:number[]):Phaser.GameObjects.Mesh;
+export function drawFieldCellObjects(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentTextureKeys:{ground:string;cliff:string;tread:string;underlay?:string},currentRenderDepth:number,currentShowMesh?:boolean):Phaser.GameObjects.GameObject[];
+export function buildFieldBoundaryPanels(currentCellPosition:SurfacePosition,currentSafeCenter:SurfacePosition,currentSafeRadius:number,currentScreenCenter:SurfacePoint,currentRenderOptions?:RenderOptions):SurfacePoint[][];
+export function resolveFieldAuraUvs(currentFrameIndex:number,currentImageWidth:number,currentImageHeight:number):number[];
+export function drawFieldAuraPanel(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentTextureKey:string,currentRenderDepth:number):Phaser.GameObjects.Mesh;
+export function drawFieldTowerObject(currentGameScene:Phaser.Scene,currentScreenPosition:SurfacePoint,currentTextureKey:string,currentRenderDepth?:number):Phaser.GameObjects.Image;
+export {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex} from '../field-surface/field-surface.mjs';

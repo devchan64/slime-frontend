@@ -1,0 +1,8 @@
+{
+  "name": "@slime/field-renderer",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {"types": "./field-renderer.d.mts", "import": "./field-renderer.mjs"},
+  "peerDependencies": {"phaser": "3.90.0"}
+}
