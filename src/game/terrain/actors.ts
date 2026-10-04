@@ -12,10 +12,10 @@ export const SLIME_RATIO = 0.5;
 export const MAX_MONSTER_RATIO = 2;
 const FOOTPRINT = { fillAlpha: .12, lineAlpha: .4, lineWidth: 1, shadowWidth: .8, shadowHeight: .65 };
 const HALF = 0.5;
-/** 사람(중형) 기준 접지 그림자와 필드 인물 보정의 렌더링 계약이다. */
+/** 사람(중형) 기준 접지 그림자와 필드 액터 보정의 렌더링 계약이다. */
 export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({
   medium: Object.freeze({ color: 0x18392e, alpha: 0.3, width: 0.4, height: 0.32, coreAlpha: 0.24, coreScale: 0.65 }),
-  fieldCharacter: Object.freeze({ scale: 1.3, opacityScale: 1.5 }),
+  fieldActor: Object.freeze({ scale: 1.3, opacityScale: 1.5 }),
 });
 const MONSTER_RING = { alpha: 0.45, width: 1, groundWidthRatio: 0.54, groundHeightRatio: 0.24 };
 const SPRITE_DEPTH_OFFSET = 0.01;
@@ -57,9 +57,9 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   g.strokePoints(footprint, true);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
   // 사람은 중형 기준이며, 나머지 크기 등급도 같은 기준 그림자에 외형 배율을 적용한다.
-  const fieldCharacterShadowActive = kind === "human" && actorFieldShadowEnabled;
-  const currentShadowScale = ratio * (fieldCharacterShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldCharacter.scale : 1);
-  const currentShadowOpacityScale = fieldCharacterShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldCharacter.opacityScale : 1;
+  const fieldActorShadowActive = actorFieldShadowEnabled;
+  const currentShadowScale = ratio * (fieldActorShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.scale : 1);
+  const currentShadowOpacityScale = fieldActorShadowActive ? ACTOR_CONTACT_SHADOW_CONTRACT.fieldActor.opacityScale : 1;
   const contactShadowWidth = TILE_W * ACTOR_CONTACT_SHADOW_CONTRACT.medium.width * currentShadowScale;
   const contactShadowHeight = TILE_H * ACTOR_CONTACT_SHADOW_CONTRACT.medium.height * currentShadowScale;
   g.fillStyle(ACTOR_CONTACT_SHADOW_CONTRACT.medium.color, ACTOR_CONTACT_SHADOW_CONTRACT.medium.alpha * currentShadowOpacityScale);
