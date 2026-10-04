@@ -1,12 +1,8 @@
-import type Phaser from 'phaser';
+import Phaser from 'phaser';
 import type { Position } from '../../client/types';
+import { createSafeBarrierAuraSprite } from '../animation/safeBarrierAuraSprite';
 import { TILE_W, TILE_H } from './meadow';
 
-const SAFE_BARRIER_STYLE = {
-  boundaryGlowColor: 0x66e8d0, boundaryLineColor: 0xd3fff1,
-  boundaryGlowWidth: 12, boundaryLineWidth: 3,
-  boundaryGlowAlpha: 0.24, boundaryLineAlpha: 0.95,
-};
 const SAFE_BOUNDARY_DIRECTIONS = [
   { column: 1, row: 0, edge: [1, 2] },
   { column: 0, row: 1, edge: [2, 3] },
@@ -14,10 +10,12 @@ const SAFE_BOUNDARY_DIRECTIONS = [
   { column: 0, row: -1, edge: [0, 1] },
 ];
 
-/** 화면 회전 후 좌표로 실제 안전 타일의 바깥 변만 표시한다. */
-export function drawSafeBoundary(boundaryGraphicsObject: Phaser.GameObjects.Graphics,
+const SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS = 4;
+
+/** 화면 회전 후 안전 타일의 바깥 변마다 25px 높이 오러 벽을 배치한다. */
+export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects: Phaser.GameObjects.Image[],
   projectedCellPosition: {x: number; y: number}, rotatedCellPosition: Position,
-  rotatedCenterPosition: Position, safeZoneRadius: number) {
+  rotatedCenterPosition: Position, safeZoneRadius: number, boundaryDepth: number) {
   const boundaryVertexPoints = [
     {x: projectedCellPosition.x, y: projectedCellPosition.y - TILE_H / 2},
     {x: projectedCellPosition.x + TILE_W / 2, y: projectedCellPosition.y},
@@ -30,9 +28,9 @@ export function drawSafeBoundary(boundaryGraphicsObject: Phaser.GameObjects.Grap
     if (neighborCenterDistance <= safeZoneRadius) continue;
     const boundaryStartPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[0]];
     const boundaryEndPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[1]];
-    boundaryGraphicsObject.lineStyle(SAFE_BARRIER_STYLE.boundaryGlowWidth, SAFE_BARRIER_STYLE.boundaryGlowColor, SAFE_BARRIER_STYLE.boundaryGlowAlpha);
-    boundaryGraphicsObject.lineBetween(boundaryStartPoint.x, boundaryStartPoint.y, boundaryEndPoint.x, boundaryEndPoint.y);
-    boundaryGraphicsObject.lineStyle(SAFE_BARRIER_STYLE.boundaryLineWidth, SAFE_BARRIER_STYLE.boundaryLineColor, SAFE_BARRIER_STYLE.boundaryLineAlpha);
-    boundaryGraphicsObject.lineBetween(boundaryStartPoint.x, boundaryStartPoint.y, boundaryEndPoint.x, boundaryEndPoint.y);
+    const boundaryWidthPixels = Phaser.Math.Distance.BetweenPoints(boundaryStartPoint, boundaryEndPoint) + SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS;
+    boundarySpriteObjects.push(createSafeBarrierAuraSprite(scene,
+      {x: (boundaryStartPoint.x + boundaryEndPoint.x) / 2, y: (boundaryStartPoint.y + boundaryEndPoint.y) / 2},
+      boundaryWidthPixels, Phaser.Math.Angle.BetweenPoints(boundaryStartPoint, boundaryEndPoint), boundaryDepth));
   }
 }

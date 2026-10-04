@@ -25,7 +25,8 @@ import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import {drawGuardCenterSprite, preloadGuardCenterSprites, resolveGuardDisplayPosition} from "../terrain/guardCenters";
 import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
-import { drawSafeBoundary } from "../terrain/safeBarrier";
+import { drawSafeBoundaryAura } from "../terrain/safeBarrier";
+import { preloadSafeBarrierAuraSprite } from "../animation/safeBarrierAuraSprite";
 import { drawBlockedTerrain } from "../terrain/scenery";
 import { constrainBackdropCamera, createBackdrop, fitBackdrop, preloadBackdrop } from "../terrain/backdrop";
 import { drawActor, preloadActors, updateCharacterFacing, HUMAN_HEIGHT } from "../terrain/actors";
@@ -68,7 +69,6 @@ const CENTER = 0.5,
   PATH_COLOR = 0x9eeeff,
   ARRIVAL_COLOR = 0xffbb66;
 const DEFAULT_TILE_ZOOM = MAP_DEFAULT_ZOOM;
-const SAFE_BARRIER_PULSE = { cycleMilliseconds: 2600, minimumOpacity: 0.72, opacityRange: 0.28 };
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
   outline: 0x071e35, outlineWidth: 8, edge: 0x9ceaff, edgeWidth: 4,
@@ -157,7 +157,7 @@ export class MainScene extends Phaser.Scene {
   private buildingLayerObjects = new Set<Phaser.GameObjects.GameObject>();
   private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
-  private safeBarrierGraphics: Phaser.GameObjects.Graphics[] = [];
+  private safeBarrierSprites: Phaser.GameObjects.Image[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   private waypointZoom = 0;
   constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice) => void) {
@@ -176,6 +176,7 @@ export class MainScene extends Phaser.Scene {
 
     preloadActors(this);
     preloadFieldRestEffectSprite(this);
+    preloadSafeBarrierAuraSprite(this);
     preloadSafeTower(this);
     preloadGuardCenterSprites(this);
     preloadBackdrop(this);
@@ -372,9 +373,6 @@ export class MainScene extends Phaser.Scene {
       currentMarkerGraphic.graphic.destroy();
       return false;
     });
-    const safeBarrierOpacity = this.reducedMotionPreference.matches ? 1 : SAFE_BARRIER_PULSE.minimumOpacity
-      + SAFE_BARRIER_PULSE.opacityRange * (1 + Math.sin(this.time.now * Math.PI * 2 / SAFE_BARRIER_PULSE.cycleMilliseconds)) / 2;
-    for (const safeBarrierGraphic of this.safeBarrierGraphics) safeBarrierGraphic.setAlpha(safeBarrierOpacity);
     if (this.backdropLayer?.visible) constrainBackdropCamera(this.backdropLayer, this.cameras.main);
     this.followMovingFieldCharacter();
     this.syncTerrainViewport();
@@ -410,7 +408,7 @@ export class MainScene extends Phaser.Scene {
       if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.waypointMarkers = [];
     this.personalMarkerGraphics = [];
-    this.safeBarrierGraphics = [];
+    this.safeBarrierSprites = [];
     const meadow = !s.battle;
     const textured = meadow || !!s.battle?.field.cells;
     this.updateTerrain(s, textured);
@@ -464,8 +462,7 @@ export class MainScene extends Phaser.Scene {
           g.fillPoints(this.points(polygon), true);
         }
         if (isSafe && !s.map.safeTown) {
-          drawSafeBoundary(g, point, this.viewPosition({column, row}), this.viewPosition(s.map.startPoint), s.map.safeRadius);
-          this.safeBarrierGraphics.push(g);
+          drawSafeBoundaryAura(this, this.safeBarrierSprites, point, this.viewPosition({column, row}), this.viewPosition(s.map.startPoint), s.map.safeRadius, this.depth({column, row}) + TERRAIN_DEPTH.actor);
         }
         if (!meadow && !textured) {
           g.lineStyle(1, COLORS.edge, 0.5);

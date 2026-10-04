@@ -2,6 +2,8 @@ managementId: registry.images.frontend
 data:
   version: 1
   images:
+  - managementId: image.effects.field.safe-barrier-aura-v1-source
+    path: ../slime-assets/assets/sprites/effects/safe-barrier/safe-barrier-aura-v1-source.png
   - managementId: image.effects.field.rest-recovery-v1-source
     path: ../slime-assets/assets/sprites/effects/rest/rest-recovery-v1-source.png
   - managementId: image.frontend.public.assets.brand.slime-favicon-v2-32.png
