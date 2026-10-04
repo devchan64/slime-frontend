@@ -11,6 +11,7 @@ const SAFE_BOUNDARY_DIRECTIONS = [
 ];
 
 const SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS = 4;
+const SAFE_BARRIER_BLOCKS_PER_TILE_EDGE = 2;
 
 function resolveAuraWallAngle(boundaryStartPoint: { x: number; y: number }, boundaryEndPoint: { x: number; y: number }, protectedCenterPoint: { x: number; y: number }) {
   const currentBoundaryAngle = Phaser.Math.Angle.BetweenPoints(boundaryStartPoint, boundaryEndPoint);
@@ -37,9 +38,17 @@ export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects:
     if (neighborCenterDistance <= safeZoneRadius) continue;
     const boundaryStartPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[0]];
     const boundaryEndPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[1]];
-    const boundaryWidthPixels = Phaser.Math.Distance.BetweenPoints(boundaryStartPoint, boundaryEndPoint) + SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS;
-    boundarySpriteObjects.push(createSafeBarrierAuraSprite(scene,
-      {x: (boundaryStartPoint.x + boundaryEndPoint.x) / 2, y: (boundaryStartPoint.y + boundaryEndPoint.y) / 2},
-      boundaryWidthPixels, resolveAuraWallAngle(boundaryStartPoint, boundaryEndPoint, protectedCenterPoint), boundaryDepth));
+    const tileEdgeWidthPixels = Phaser.Math.Distance.BetweenPoints(boundaryStartPoint, boundaryEndPoint);
+    const currentWallAngle = resolveAuraWallAngle(boundaryStartPoint, boundaryEndPoint, protectedCenterPoint);
+    for (let currentBlockIndex = 0; currentBlockIndex < SAFE_BARRIER_BLOCKS_PER_TILE_EDGE; currentBlockIndex += 1) {
+      const currentBlockCenterRatio = (currentBlockIndex + 0.5) / SAFE_BARRIER_BLOCKS_PER_TILE_EDGE;
+      const boundaryBlockCenter = {
+        x: boundaryStartPoint.x + (boundaryEndPoint.x - boundaryStartPoint.x) * currentBlockCenterRatio,
+        y: boundaryStartPoint.y + (boundaryEndPoint.y - boundaryStartPoint.y) * currentBlockCenterRatio,
+      };
+      boundarySpriteObjects.push(createSafeBarrierAuraSprite(scene, boundaryBlockCenter,
+        tileEdgeWidthPixels / SAFE_BARRIER_BLOCKS_PER_TILE_EDGE + SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS,
+        currentWallAngle, boundaryDepth));
+    }
   }
 }
