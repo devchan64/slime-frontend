@@ -10,11 +10,8 @@ const SAFE_BOUNDARY_DIRECTIONS = [
   { column: 0, row: -1, edge: [0, 1] },
 ];
 
-const SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS = 4;
-const SAFE_BARRIER_BLOCKS_PER_TILE_EDGE = 2;
-
 /** 화면 회전 후 안전 타일의 바깥 변마다 25px 높이 오러 벽을 배치한다. */
-export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects: Phaser.GameObjects.Image[],
+export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects: Phaser.GameObjects.Mesh[],
   projectedCellPosition: {x: number; y: number}, rotatedCellPosition: Position,
   rotatedCenterPosition: Position, safeZoneRadius: number, boundaryDepth: number) {
   const boundaryVertexPoints = [
@@ -29,16 +26,6 @@ export function drawSafeBoundaryAura(scene: Phaser.Scene, boundarySpriteObjects:
     if (neighborCenterDistance <= safeZoneRadius) continue;
     const boundaryStartPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[0]];
     const boundaryEndPoint = boundaryVertexPoints[boundaryDirectionEntry.edge[1]];
-    const tileEdgeWidthPixels = Phaser.Math.Distance.BetweenPoints(boundaryStartPoint, boundaryEndPoint);
-    for (let currentBlockIndex = 0; currentBlockIndex < SAFE_BARRIER_BLOCKS_PER_TILE_EDGE; currentBlockIndex += 1) {
-      const currentBlockCenterRatio = (currentBlockIndex + 0.5) / SAFE_BARRIER_BLOCKS_PER_TILE_EDGE;
-      const boundaryBlockCenter = {
-        x: boundaryStartPoint.x + (boundaryEndPoint.x - boundaryStartPoint.x) * currentBlockCenterRatio,
-        y: boundaryStartPoint.y + (boundaryEndPoint.y - boundaryStartPoint.y) * currentBlockCenterRatio,
-      };
-      boundarySpriteObjects.push(createSafeBarrierAuraSprite(scene, boundaryBlockCenter,
-        tileEdgeWidthPixels / SAFE_BARRIER_BLOCKS_PER_TILE_EDGE + SAFE_BARRIER_SEGMENT_OVERLAP_PIXELS,
-        boundaryDepth));
-    }
+    boundarySpriteObjects.push(createSafeBarrierAuraSprite(scene, boundaryStartPoint, boundaryEndPoint, boundaryDepth));
   }
 }

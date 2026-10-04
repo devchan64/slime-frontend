@@ -157,7 +157,7 @@ export class MainScene extends Phaser.Scene {
   private buildingLayerObjects = new Set<Phaser.GameObjects.GameObject>();
   private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
-  private safeBarrierSprites: Phaser.GameObjects.Image[] = [];
+  private safeBarrierSprites: Phaser.GameObjects.Mesh[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   private waypointZoom = 0;
   constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice) => void) {
