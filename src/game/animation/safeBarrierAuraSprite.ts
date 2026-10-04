@@ -8,6 +8,7 @@ const SAFE_BARRIER_AURA_SOURCE_HEIGHT = 887;
 const SAFE_BARRIER_AURA_COLUMN_BOUNDARIES = [0, 444, 887, 1331, SAFE_BARRIER_AURA_SOURCE_WIDTH];
 const SAFE_BARRIER_AURA_ROW_BOUNDARIES = [0, 444, SAFE_BARRIER_AURA_SOURCE_HEIGHT];
 const SAFE_BARRIER_AURA_FRAME_DURATION_MILLISECONDS = 120;
+const SAFE_BARRIER_AURA_FRAME_HORIZONTAL_CROP_RATIO = 0.2;
 type ScreenPoint = { x: number; y: number };
 
 export function preloadSafeBarrierAuraSprite(scene: Phaser.Scene) {
@@ -21,11 +22,14 @@ function getAuraFrameUvs(currentFrameIndex: number) {
   const frameTopPixels = SAFE_BARRIER_AURA_ROW_BOUNDARIES[currentRowIndex];
   const frameRightPixels = SAFE_BARRIER_AURA_COLUMN_BOUNDARIES[currentColumnIndex + 1];
   const frameBottomPixels = SAFE_BARRIER_AURA_ROW_BOUNDARIES[currentRowIndex + 1];
+  const frameWidthPixels = frameRightPixels - frameLeftPixels;
+  const textureLeftPixels = frameLeftPixels + frameWidthPixels * SAFE_BARRIER_AURA_FRAME_HORIZONTAL_CROP_RATIO;
+  const textureRightPixels = frameRightPixels - frameWidthPixels * SAFE_BARRIER_AURA_FRAME_HORIZONTAL_CROP_RATIO;
   return [
-    frameLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
-    frameRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
-    frameLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
-    frameRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
+    textureLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
+    textureRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameBottomPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
+    textureLeftPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
+    textureRightPixels / SAFE_BARRIER_AURA_SOURCE_WIDTH, frameTopPixels / SAFE_BARRIER_AURA_SOURCE_HEIGHT,
   ];
 }
 
@@ -50,6 +54,7 @@ export function createSafeBarrierAuraSprite(scene: Phaser.Scene, boundaryStartPo
     boundaryEndOffset.x, boundaryEndOffset.y - boundaryWallHeightPixels,
   ], getAuraFrameUvs(0), [0, 2, 1, 2, 3, 1]);
   auraMesh.hideCCW = false;
+  auraMesh.ignoreDirtyCache = true;
   auraMesh.setOrtho(SAFE_BARRIER_AURA_SOURCE_WIDTH, SAFE_BARRIER_AURA_SOURCE_HEIGHT);
   auraMesh.setDepth(boundaryDepth);
   const synchronizeAuraFrame = (currentTimeMilliseconds: number) => {

@@ -442,9 +442,7 @@ export class MainScene extends Phaser.Scene {
         const cellKey = `${column},${row}`;
         const reachable = !wall && this.reachable.has(cellKey);
         const onPath = previewPath.has(cellKey);
-        const color = wall ? COLORS.blocked : isSafe
-              ? COLORS.safe
-              : (row + column) % 2
+        const color = wall ? COLORS.blocked : (row + column) % 2
                 ? COLORS.ground
                 : COLORS.alternate;
         const polygon = [
@@ -457,8 +455,8 @@ export class MainScene extends Phaser.Scene {
           point.x - this.currentTileDimensions.width / 2,
           point.y,
         ];
-        if (!meadow || isSafe) {
-          g.fillStyle(color, textured ? (meadow ? 0.16 : 0) : 1);
+        if (!meadow) {
+          g.fillStyle(color, textured ? 0 : 1);
           g.fillPoints(this.points(polygon), true);
         }
         if (isSafe && !s.map.safeTown) {
