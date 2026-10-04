@@ -673,6 +673,7 @@ export function App() {
               </p>
             )}
           </section>
+        <DeveloperToolsPanel key={`developer-selection:${state.generation}:${state.epoch}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
         </main>
       ) : (
         <main class="world-layout world-layout--immersive">

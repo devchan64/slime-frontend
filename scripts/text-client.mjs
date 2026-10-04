@@ -9,6 +9,7 @@ dev item remove equipment 개체ID 장비 회수
 dev permit issuers / add 도시ID 경비센터ID / remove 증서ID 여행자증명서 조정
 dev batch recipes / add 품목ID 레벨 수량 / remove 배치ID 수량 생산 배치 조정
 dev items 등록 아이템과 조정 지원 여부 조회
+dev reset RESET test 전체 캐릭터 데이터 영구 삭제·재로그인 (응답 불명 시 retry)
 dev history [다음커서] 본인 개발자 변경 이력
 dev add|remove cp|sp|p 수량 포인트 증감 (응답 불명 시 retry)
 dm list [다음커서] / blocks [다음커서] 개인 대화·수신 차단 목록

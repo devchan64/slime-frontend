@@ -1,3 +1,4 @@
+import {DeveloperResetPanel} from './DeveloperResetPanel';
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {ApiError} from '../client/response';
@@ -14,6 +15,7 @@ const DEVELOPER_ASSET_NAMES:DeveloperAssetName[]=['CP','SP','P'];
 
 export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
  const {t:translateDeveloperText,locale:currentDisplayLocale}=useTranslation();
+ const [currentResetPending,setCurrentResetPending]=useState(false);
  const [currentAccessAllowed,setCurrentAccessAllowed]=useState(false);
  const [currentPanelOpened,setCurrentPanelOpened]=useState(false);
  const [currentInventoryRecord,setCurrentInventoryRecord]=useState<DeveloperInventoryRecord|null>(null);
@@ -144,12 +146,12 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
  }
  if(!currentAccessAllowed)return currentNoticeMessage?<p role="status">{noticeText(currentNoticeMessage,currentDisplayLocale,translateDeveloperText)}</p>:null;
  return <section class="card" aria-label={translateDeveloperText('app.developerTitle')}>
-  <button class="secondary" aria-expanded={currentPanelOpened} disabled={currentRequestBusy||currentRequestUncertain} onClick={()=>{
+  <button class="secondary" aria-expanded={currentPanelOpened} disabled={currentRequestBusy||currentRequestUncertain||currentResetPending} onClick={()=>{
    setCurrentPanelOpened(!currentPanelOpened);if(!currentPanelOpened)void runDeveloperPanelAction(()=>loadDeveloperPanelData());
   }}>{translateDeveloperText('app.developerTitle')}</button>
   {currentPanelOpened&&<><p>{translateDeveloperText('app.developerSelf')}</p>
-   <button class="secondary" disabled={currentRequestBusy||currentRequestUncertain} onClick={()=>void runDeveloperPanelAction(()=>loadDeveloperPanelData())}>{translateDeveloperText('app.developerRefresh')}</button>
-   <fieldset disabled={currentRequestBusy||currentRequestUncertain||currentMutationBlocked}>
+   <button class="secondary" disabled={currentRequestBusy||currentRequestUncertain||currentResetPending} onClick={()=>void runDeveloperPanelAction(()=>loadDeveloperPanelData())}>{translateDeveloperText('app.developerRefresh')}</button>
+   <fieldset disabled={currentResetPending||currentRequestBusy||currentRequestUncertain||currentMutationBlocked}>
     <legend>{translateDeveloperText('app.developerBalance')}</legend>
     <label><input type="checkbox" checked={currentItemMode} onChange={currentInputEvent=>setCurrentItemMode(currentInputEvent.currentTarget.checked)}/>{translateDeveloperText('app.developerItems')}</label>
     {currentItemMode?<><label>{translateDeveloperText('app.developerSearch')}<input value={currentItemSearch} onInput={currentInputEvent=>setCurrentItemSearch(currentInputEvent.currentTarget.value)}/></label>
@@ -180,9 +182,10 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
    </dialog>
    {currentMutationBlocked&&<p>{translateDeveloperText('app.developerFieldOnly')}</p>}
    {currentRequestUncertain&&<><p role="status">{translateDeveloperText('app.developerUncertain')}</p><button disabled={currentRequestBusy} onClick={()=>void runDeveloperPanelAction(()=>submitDeveloperAdjustment(true))}>{translateDeveloperText('app.developerRetry')}</button></>}
+   <DeveloperResetPanel currentGameClient={gameSessionClient} onResetPendingChange={setCurrentResetPending} currentActionsDisabled={actionsAreDisabled||currentRequestBusy||currentRequestUncertain}/>
    <h3>{translateDeveloperText('app.developerHistory')}</h3>
    <ul>{currentHistoryEntries.map(currentEntry=><li key={currentEntry.requestId}>{currentEntry.asset==='ITEM'?currentEntry.category+' '+currentEntry.itemId:currentEntry.asset}: {currentEntry.before} → {currentEntry.after} {currentEntry.batchId&&<small>{currentEntry.batchId} </small>}{currentEntry.instanceId&&<small>{currentEntry.instanceId} </small>}<small>{currentEntry.requestId}</small></li>)}</ul>
-   {currentHistoryCursor&&<button disabled={currentRequestBusy||currentRequestUncertain} onClick={()=>void runDeveloperPanelAction(()=>loadDeveloperPanelData(currentHistoryCursor))}>{translateDeveloperText('app.developerNext')}</button>}
+   {currentHistoryCursor&&<button disabled={currentRequestBusy||currentRequestUncertain||currentResetPending} onClick={()=>void runDeveloperPanelAction(()=>loadDeveloperPanelData(currentHistoryCursor))}>{translateDeveloperText('app.developerNext')}</button>}
   </>}
   {currentNoticeMessage&&<p role="status">{noticeText(currentNoticeMessage,currentDisplayLocale,translateDeveloperText)}</p>}
  </section>;

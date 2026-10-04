@@ -1101,3 +1101,22 @@ test('개발자 배치 명령은 등록 레벨과 소유 배치 ID를 전달한�
   else {assert.equal(currentSentPayload.batchId,currentBatchIdentifier);assert.equal(currentSentPayload.itemId,'leather-cord');}
  }
 });
+
+
+test('개발자 초기화는 명시적 확인과 동일 요청 재시도 후 세션을 비운다',async()=>{
+ const currentResetRequests=[];
+ const currentInitialState=state({me:{...state().me,id:'test',coins:100}});
+ const currentTextClient=new TextClient('http://localhost:18080',{fetcher:async(currentRequestUrl,currentRequestOptions)=>{
+  assert.ok(currentRequestUrl.endsWith('/v1/developer/character-reset'));
+  const currentResetPayload=JSON.parse(currentRequestOptions.body);currentResetRequests.push(currentResetPayload);
+  if(currentResetRequests.length<=2)throw new Error('응답 유실');
+  return Response.json({ok:true,requestId:currentResetPayload.requestId,requiresLogin:true});
+ }});
+ currentTextClient.tokens={user_id:'test',access_token:'test'};currentTextClient.accept(currentInitialState);
+ await assert.rejects(currentTextClient.execute('dev reset'),/형식/);
+ assert.equal(currentResetRequests.length,0);
+ await assert.rejects(currentTextClient.execute('dev reset RESET test'),/retry/);
+ await currentTextClient.execute('retry');
+ assert.equal(new Set(currentResetRequests.map(currentRequestRecord=>currentRequestRecord.requestId)).size,1);
+ assert.equal(currentTextClient.tokens,null);assert.equal(currentTextClient.state,null);
+});

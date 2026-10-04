@@ -135,7 +135,7 @@ export class TextClient {
     if(this.pendingCommandRequest)throw new Error('결과가 확인되지 않은 명령이 있습니다. retry로 먼저 확인하세요.');
     const expectedVersion = path === BATTLE_PATH ? this.state.battle?.version : this.state.me.version;
     if (!Number.isSafeInteger(expectedVersion)) throw new Error('명령에 필요한 상태 버전이 없습니다.');
-    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,validateCommandResponse:currentCommandOptions.validateCommandResponse,fetchStateAfterReceipt:currentCommandOptions.fetchStateAfterReceipt,readReceiptCharacterVersion:currentCommandOptions.readReceiptCharacterVersion,
+    this.pendingCommandRequest={path,payload:{...body,...(currentCommandOptions.includeRequestIdentifier===false?{}:{requestId:randomUUID()}),expectedVersion},projectCommandResponse,endsGameSession:currentCommandOptions.endsGameSession===true,validateCommandResponse:currentCommandOptions.validateCommandResponse,fetchStateAfterReceipt:currentCommandOptions.fetchStateAfterReceipt,readReceiptCharacterVersion:currentCommandOptions.readReceiptCharacterVersion,
       characterId:this.state.me.id,generation:this.state.generation,ownerId:this.tokens?.user_id};
     return this.submitPendingCommand();
   }
@@ -171,7 +171,7 @@ export class TextClient {
               ||!Number.isSafeInteger(currentFetchedState.me.version)||currentFetchedState.me.version<currentReceiptVersion)
               throw new Error('명령 이후 상태가 현재 캐릭터·세션과 일치하지 않습니다.');
             this.accept(currentFetchedState);
-          }else{
+          }else if(!currentPendingCommand.endsGameSession){
             const currentResponseState=currentCommandResult.state;
             if(currentResponseState?.me?.id!==currentPendingCommand.characterId
               ||currentResponseState?.generation!==currentPendingCommand.generation)

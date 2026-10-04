@@ -9,6 +9,15 @@ export async function executeDeveloperCommand(currentTextClient,currentCommandAr
   if(currentTextClient.tokens!==currentSessionTokens||currentTextClient.state?.me.id!==currentCharacterIdentifier||currentTextClient.state.generation!==currentSessionGeneration)
    throw new Error('개발자 조회 중 로그인 세션이 변경되었습니다.');
  };
+ if(currentActionName==='reset'&&currentCommandArguments.join(' ')==='reset RESET test'){
+  return currentTextClient.command('/v1/developer/character-reset',{confirmation:'RESET test'},()=>{
+   currentTextClient.tokens=null;currentTextClient.state=null;
+   return '캐릭터 데이터가 초기화되었습니다. 다시 로그인하면 캐릭터 생성 전 상태로 시작합니다.';
+  },{endsGameSession:true,validateCommandResponse(currentReceiptRecord,currentRequestBody){
+   if(currentReceiptRecord?.ok!==true||currentReceiptRecord.requestId!==currentRequestBody.requestId||currentReceiptRecord.requiresLogin!==true)
+    throw new Error('초기화 영수증이 요청과 일치하지 않습니다.');
+  }});
+ }
  if(currentActionName==='status'&&currentCommandArguments.length===1){
   const currentCapabilities=await currentTextClient.request('/v1/developer/capabilities');requireCurrentDeveloperSession();
   if(currentCapabilities.accountId!==currentSessionTokens.user_id||currentCapabilities.targetScope!=='SELF'||!Array.isArray(currentCapabilities.assets)

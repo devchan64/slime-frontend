@@ -1,3 +1,4 @@
+import {DeveloperResetPanel} from '../../src/ui/DeveloperResetPanel';
 import {render} from 'preact';
 import {DeveloperToolsPanel} from '../../src/ui/DeveloperToolsPanel';
 import {ApiError} from '../../src/client/response';
@@ -138,5 +139,27 @@ function clickDeveloperButton(currentMessageKey:string){
  resolveDelayedInventory({characterId:'test',version:1,items:[],balances:{CP:99,SP:2,P:20}});await waitForDeveloperRender();
  assertDeveloperBrowserState(!currentDelayedRequests.includes('/v1/developer/catalog'),'이전 epoch 재산 응답은 후속 카탈로그 조회 전에 폐기');
  assertDeveloperBrowserState(!document.body.textContent!.includes('99'),'이전 epoch 잔액 미표시');
+ render(null,currentRootElement);
+ const currentResetRequests:any[]=[];
+ let currentResetCompleted=false;
+ const currentResetClient:any={tokens:{user_id:'test'},state:{generation:1,me:{id:'test',version:7}},disconnect(){},async request(currentPath:string,currentPayload:any){
+  assertDeveloperBrowserState(currentPath==='/v1/developer/character-reset','초기화 전용 API 호출');currentResetRequests.push(currentPayload);
+  if(currentResetRequests.length===1)throw new Error('응답 유실');
+  return {ok:true,requestId:currentPayload.requestId,requiresLogin:true};
+ }};
+ render(<DeveloperResetPanel currentGameClient={currentResetClient} currentActionsDisabled={false} onResetCompleted={()=>{currentResetCompleted=true;}}/>,currentRootElement);await waitForDeveloperRender();
+ clickDeveloperButton('app.developerResetTitle');await waitForDeveloperRender();
+ const currentResetConfirmButton=document.querySelector('dialog button.danger') as HTMLButtonElement;
+ assertDeveloperBrowserState(currentResetConfirmButton.disabled,'확인 문구 없이는 초기화 차단');
+ clickDeveloperButton('app.developerCancel');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentResetRequests.length===0,'확인 취소 시 초기화 요청 없음');
+ clickDeveloperButton('app.developerResetTitle');await waitForDeveloperRender();
+ const currentResetInput=document.querySelector('dialog input') as HTMLInputElement;
+ currentResetInput.value='RESET test';currentResetInput.dispatchEvent(new Event('input',{bubbles:true}));await waitForDeveloperRender();
+ assertDeveloperBrowserState(!currentResetConfirmButton.disabled,'확인 문구 입력 후 활성화');
+ currentResetConfirmButton.click();await waitForDeveloperRender();
+ clickDeveloperButton('app.developerRetry');await waitForDeveloperRender();
+ assertDeveloperBrowserState(currentResetRequests.length===2&&JSON.stringify(currentResetRequests[0])===JSON.stringify(currentResetRequests[1]),'초기화 응답 유실 후 동일 요청 재확인');
+ assertDeveloperBrowserState(currentResetCompleted&&currentResetClient.tokens===null&&currentResetClient.state===null,'초기화 완료 후 이전 접속·캐릭터 상태 제거');
  document.body.dataset.result=JSON.stringify({status:'PASS',assertions:currentAssertionsList});
 }catch(currentTestError){document.body.dataset.result=JSON.stringify({status:'FAIL',error:String(currentTestError),assertions:currentAssertionsList});}})();

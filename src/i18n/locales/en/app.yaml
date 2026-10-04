@@ -163,3 +163,8 @@ bagNextPage: Next
 bagPageNumber: "Page {page} of {total}"
 bagEquipmentPagination: Equipment pages
 bagEquipmentPage: "Page {page}"
+
+developerResetTitle: "Reset all character data"
+developerResetDescription: "Permanently delete the character, assets, storage, costumes and past season records. Keep the account and password. Sign in again to start before character creation."
+developerResetConfirm: "Type RESET test to confirm."
+developerResetUncertain: "The reset result is unknown. Check again using the same request."
