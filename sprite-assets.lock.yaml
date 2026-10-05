@@ -125,31 +125,31 @@ files:
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.animation.json
   sha256: b73abe01b870650f8a51749a0bbb49c20abf5a1ab0bf6db79e6085b5be3b4b07
 - path: assets/characters/female/idle-v1/idle-v1.png
-  source_path: assets/characters/female/animations/idle-v1/down-left-8frames-v2/idle-v1.png
+  source_path: assets/characters/female-a/animations/idle-v1/down-left-8frames-v2/idle-v1.png
   sha256: d582075c2e7fbf28ebfd28c3580384df357990cdcd1d83a02e9db640cc05d8ab
 - path: assets/characters/female/idle-v1/idle-v1.animation.json
-  source_path: assets/characters/female/animations/idle-v1/down-left-8frames-v2/idle-v1.animation.json
+  source_path: assets/characters/female-a/animations/idle-v1/down-left-8frames-v2/idle-v1.animation.json
   sha256: 4436cd09e8fefb93153593cc6aef66d351081958d1ab0534d8a9297f8d9d7e0f
 - path: assets/characters/female/idle-v1/source.yaml
-  source_path: assets/characters/female/animations/idle-v1/down-left-8frames-v2/source.yaml
+  source_path: assets/characters/female-a/animations/idle-v1/down-left-8frames-v2/source.yaml
   sha256: 016a8cdc3e4a4c0cea52c6966bdedf495cfb05736fdac438c82a113bf0cfe036
 - path: assets/characters/female/rest-v1/rest-v1.png
-  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v2/rest-v1.png
+  source_path: assets/characters/female-a/animations/rest-v1/down-left-entry-exit-v2/rest-v1.png
   sha256: 551cd4d617f2c5f08b6c681c882436576f8d25eaf1693dcc9ac67064bf9f6401
 - path: assets/characters/female/rest-v1/rest-v1.animation.json
-  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v2/rest-v1.animation.json
+  source_path: assets/characters/female-a/animations/rest-v1/down-left-entry-exit-v2/rest-v1.animation.json
   sha256: 05b3eb167f4e1e5b709655a1390f738ef0776fb159fe37f744e240ccb1294161
 - path: assets/characters/female/rest-v1/source.yaml
-  source_path: assets/characters/female/animations/rest-v1/down-left-entry-exit-v2/source.yaml
+  source_path: assets/characters/female-a/animations/rest-v1/down-left-entry-exit-v2/source.yaml
   sha256: 1875ae2baf7e748745e61101cd3586bda83fe982786a65c3ae87083d479d8832
 - path: assets/characters/female/walk-v1/source.yaml
-  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v2/source.yaml
+  source_path: assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/source.yaml
   sha256: b1528803ccb93aa1e7e7a52822fd6777ff3be248ddeee49ecbf6d15e1a75db5a
 - path: assets/characters/female/walk-v1/walk-v1.animation.json
-  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v2/walk-v1.animation.json
+  source_path: assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/walk-v1.animation.json
   sha256: 7b7887a9f53ef57cf167827eab2236e8910dc74532717b62eff9b7b29ed955df
 - path: assets/characters/female/walk-v1/walk-v1.png
-  source_path: assets/characters/female/animations/walk-v1/down-left-12frames-v2/walk-v1.png
+  source_path: assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/walk-v1.png
   sha256: 25e4a4cc54180aba8f4a52636ec762786fb0aaac7ef828b0a01da36c8da08709
 - path: assets/characters/default/walk-12frames-v1/source.yaml
   source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/source.yaml
@@ -170,5 +170,5 @@ files:
   source_path: assets/sprites/structures/guard-center-teal-v1.png
   sha256: 6a7a8a306c1c94958a448c8f8795363392b1caa48b3e662983eb32253460c91e
 - path: assets/characters/female/cutins/female-roundhouse-kick-v1.png
-  source_path: assets/characters/female/battle-cutins/female-roundhouse-kick-v1.png
+  source_path: assets/characters/female-a/battle-cutins/female-roundhouse-kick-v1.png
   sha256: 563b08d6f0d9d4d585252f8500e501dd9e5d76ca83cdd998ac902f18177e8ad0
