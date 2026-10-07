@@ -24,7 +24,7 @@ import extendedGravelSource from "../../../../slime-assets/assets/tiles/terrain/
 import extendedLeafLitterSource from "../../../../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v1.png";
 import extendedMossSource from "../../../../slime-assets/assets/tiles/terrain/non-road/white-wildflower-grass-v1.png";
 import extendedMudSource from "../../../../slime-assets/assets/tiles/terrain/non-road/white-wildflower-grass-v1.png";
-import iseulonLimestoneRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v2.png";
+import iseulonLimestoneRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png";
 import reedhavenDirtRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/stone-road-v1.png";
 import stonewarmGravelPavingSource from "../../../../slime-assets/assets/tiles/terrain/road/stone-road-v1.png";
 import stonewarmMarblePavingSource from "../../../../slime-assets/assets/tiles/terrain/road/marble-road-v1.png";

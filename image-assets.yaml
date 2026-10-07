@@ -77,7 +77,7 @@ data:
   - managementId: image.terrain.stone-road
     path: ../slime-assets/assets/tiles/terrain/road/stone-road-v1.png
   - managementId: image.terrain.limestone-road
-    path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v2.png
+    path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png
   - managementId: image.terrain.ochre-pebble-road
     path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png
   - managementId: image.terrain.marble-road
