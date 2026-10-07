@@ -4,7 +4,7 @@ import battleRockTypeBSource from "../../../../slime-assets/assets/tiles/terrain
 import battleRockTypeCSource from "../../../../slime-assets/assets/tiles/terrain/blocked/boulder-type-c-v1.png";
 import battleTreeStumpSource from "../../../../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png";
 import meadowFlowerTileSource from "../../../../slime-assets/assets/tiles/terrain/non-road/white-wildflower-grass-v1.png";
-import meadowRoadTileSource from "../../../../slime-assets/assets/tiles/terrain/road/dry-soil-pebble-road-v1.png";
+import ochrePebbleRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png";
 import drySoilBranchesSource from "../../../../slime-assets/assets/tiles/terrain/non-road/white-wildflower-grass-v1.png";
 import deepWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png";
 import shallowWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v1.png";
@@ -65,7 +65,7 @@ const SPECIAL_TERRAIN_SOURCES = [
   { frame: "battle-rock-c", source: battleRockTypeCSource },
   { frame: "battle-thicket", source: battleTreeStumpSource },
   { frame: "meadow-flowers", source: meadowFlowerTileSource },
-  { frame: "meadow-road", source: meadowRoadTileSource },
+  { frame: "meadow-road", source: ochrePebbleRoadSource },
   { frame: ISEULON_GRASS_FRAME, source: grassTileImageSource },
   { frame: REEDHAVEN_DIRT_ROAD_FRAME, source: reedhavenDirtRoadSource },
   { frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource },

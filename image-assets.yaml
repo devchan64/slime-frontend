@@ -78,6 +78,8 @@ data:
     path: ../slime-assets/assets/tiles/terrain/road/stone-road-v1.png
   - managementId: image.terrain.limestone-road
     path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v2.png
+  - managementId: image.terrain.ochre-pebble-road
+    path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png
   - managementId: image.terrain.marble-road
     path: ../slime-assets/assets/tiles/terrain/road/marble-road-v1.png
   - managementId: tile.buildings.wall.wood-window
@@ -96,8 +98,6 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-b-v1.png
   - managementId: image.terrain.boulder-type-c
     path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-c-v1.png
-  - managementId: image.terrain.dry-soil-pebble-road
-    path: ../slime-assets/assets/tiles/terrain/road/dry-soil-pebble-road-v1.png
   - managementId: image.terrain.dry-ground-tree-stump
     path: ../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   - managementId: image.terrain.ramp-earth-stone-wall-v1
