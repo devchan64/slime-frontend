@@ -1,7 +1,7 @@
 /** 게임과 검수가 함께 사용하는 고도·투영 계약. 엔진과 DOM에 의존하지 않는다. */
 export const FIELD_SURFACE_VERSION = '1.0.5';
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:80,tileHeight:40,elevationHeight:32,baseThickness:16});
-const TERRAIN_STAIR_COUNT = 6;
+const TERRAIN_STAIR_COUNT = 3;
 export function readSurfaceHeight(currentCellPosition,currentMapSurface){
  if(currentCellPosition.column<0||currentCellPosition.row<0||currentCellPosition.column>=currentMapSurface.columns||currentCellPosition.row>=currentMapSurface.rows)return 0;
  if(currentMapSurface.heightSource)return readSurfaceHeight(currentMapSurface.heightSource.position(currentCellPosition),currentMapSurface.heightSource.surface);

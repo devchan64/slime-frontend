@@ -18,7 +18,7 @@ test('4방향 회전에서 외곽 절벽 높이와 계단 상면 수를 유지�
  for(let currentRotationIndex=0;currentRotationIndex<4;currentRotationIndex++){
   const currentRenderOptions={...FIELD_RENDER_METRICS,rotation:currentRotationIndex};
   const currentStairFaces=buildSurfaceStairs(currentMapSurface.elevationTiles[0],currentMapSurface,currentRenderOptions);
-  assert.equal(currentStairFaces.filter(currentFaceRecord=>currentFaceRecord.top).length,6);
+  assert.equal(currentStairFaces.filter(currentFaceRecord=>currentFaceRecord.top).length,3);
   assert.ok(currentStairFaces.flatMap(currentFaceRecord=>currentFaceRecord.points).every(currentPointValue=>Number.isFinite(currentPointValue.x)&&Number.isFinite(currentPointValue.y)));
   const currentCliffFaces=buildSurfaceCliffs({column:2,row:2},currentMapSurface,currentRenderOptions);
   assert.equal(currentCliffFaces.length,2);
