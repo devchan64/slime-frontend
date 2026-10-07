@@ -76,6 +76,8 @@ data:
     path: ../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v1.png
   - managementId: image.terrain.stone-road
     path: ../slime-assets/assets/tiles/terrain/road/stone-road-v1.png
+  - managementId: image.terrain.limestone-road
+    path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v2.png
   - managementId: image.terrain.marble-road
     path: ../slime-assets/assets/tiles/terrain/road/marble-road-v1.png
   - managementId: tile.buildings.wall.wood-window

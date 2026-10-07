@@ -58,9 +58,9 @@ files:
 - path: assets/world/isloon/buildings/marble-small-window-wall-v1.png
   source_path: assets/tiles/buildings/stone/stone-small-window-wall-v1.png
   sha256: d334d14f30c3bfe4e64280b4568f07146912b46dfd06d327e6eead52b9226700
-- path: assets/world/isloon/terrain/limestone-floor-type-a-v1.png
-  source_path: assets/tiles/terrain/road/stone-road-v1.png
-  sha256: c3494eeefd4ee3b01d055f1c11c1b131dc6b878ab95829c066274b8ec8df0288
+- path: assets/world/isloon/terrain/limestone-road-v2.png
+  source_path: assets/tiles/terrain/road/limestone-road-v2.png
+  sha256: d23fe26c2dd518e57e31e7b6e3ec4299f341624a23bf4aa8cba6a53608d2419b
 - path: assets/world/reedhaven/terrain/dirt-road-v1.png
   source_path: assets/tiles/terrain/road/stone-road-v1.png
   sha256: c3494eeefd4ee3b01d055f1c11c1b131dc6b878ab95829c066274b8ec8df0288
