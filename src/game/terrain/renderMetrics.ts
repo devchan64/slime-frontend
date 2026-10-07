@@ -3,7 +3,7 @@ export const MAP_DEFAULT_ZOOM = 2;
 export const MAP_TILE_WIDTH = 80;
 export const MAP_TILE_HEIGHT = 40;
 /** 등록된 지형 원본 해상도. 화면 타일 크기와 독립적으로 검증한다. */
-export const GAME_TILE_SOURCE_SIZES = Object.freeze([128, 256, 512]);
+export const GAME_TILE_SOURCE_SIZES = Object.freeze([64, 128, 256, 512]);
 
 export const CHARACTER_BODY_HEIGHT = 80;
 export const MAP_ELEVATION_HEIGHT = 32;
@@ -22,6 +22,6 @@ export function resolveMapTileSize(currentMapSurface: {safeTown?: boolean}) {
 
 export function validateTerrainSourceDimensions(currentSourceKey: string, currentSourceWidth: number, currentSourceHeight: number) {
   if (currentSourceWidth !== currentSourceHeight || !GAME_TILE_SOURCE_SIZES.includes(currentSourceWidth)) {
-    throw new Error(`타일 원본 크기 오류: ${currentSourceKey}는 128×128px, 256×256px 또는 512×512px여야 합니다. 실제 ${currentSourceWidth}×${currentSourceHeight}px.`);
+    throw new Error(`타일 원본 크기 오류: ${currentSourceKey}는 64×64px, 128×128px, 256×256px 또는 512×512px여야 합니다. 실제 ${currentSourceWidth}×${currentSourceHeight}px.`);
   }
 }

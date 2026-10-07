@@ -41,11 +41,11 @@ test('마을에서 전투로 전환한 뒤 복귀하면 지형 크기와 캐시�
  assert.equal(normalizedRenderModule.resolveMapTileSize(currentReturnPlan.surface).width,160);
 });
 
-test('등록된 128·256·512 정사각형 지형 원본을 허용하고 잘못된 규격을 거부한다',()=>{
- for(const currentSourceSize of [128,256,512]) {
+test('등록된 64·128·256·512 정사각형 지형 원본을 허용하고 잘못된 규격을 거부한다',()=>{
+ for(const currentSourceSize of [64,128,256,512]) {
   assert.doesNotThrow(()=>normalizedRenderModule.validateTerrainSourceDimensions('terrain-source-grass',currentSourceSize,currentSourceSize));
  }
- for(const [currentSourceWidth,currentSourceHeight] of [[0,0],[64,64],[512,256],[1024,1024]]) {
+ for(const [currentSourceWidth,currentSourceHeight] of [[0,0],[32,32],[512,256],[1024,1024]]) {
   assert.throws(()=>normalizedRenderModule.validateTerrainSourceDimensions('terrain-source-grass',currentSourceWidth,currentSourceHeight),/타일 원본 크기 오류: terrain-source-grass/);
  }
 });

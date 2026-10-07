@@ -70,8 +70,6 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v4.png
   - managementId: image.terrain.cliff-rock-face-v1
     path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-  - managementId: image.terrain.boulder-type-a
-    path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png
   - managementId: image.terrain.leaf-litter
     path: ../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v1.png
   - managementId: image.terrain.stone-road
@@ -94,10 +92,6 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v1.png
   - managementId: image.terrain.transparent-deep-water
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png
-  - managementId: image.terrain.boulder-type-b
-    path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-b-v1.png
-  - managementId: image.terrain.boulder-type-c
-    path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-c-v1.png
   - managementId: image.terrain.dry-ground-tree-stump
     path: ../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   - managementId: image.terrain.ramp-earth-stone-wall-v1
