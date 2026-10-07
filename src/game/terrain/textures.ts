@@ -6,7 +6,7 @@ import battleTreeStumpSource from "../../../../slime-assets/assets/tiles/terrain
 import meadowFlowerTileSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
 import ochrePebbleRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png";
 import drySoilBranchesSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import deepWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png";
+import deepWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v2.png";
 import shallowWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png";
 import cactusTileImageSource from "../../../../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png";
 import stoneSlabRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png";

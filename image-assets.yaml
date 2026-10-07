@@ -88,8 +88,8 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
   - managementId: image.terrain.transparent-shallow-water-v2
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
-  - managementId: image.terrain.transparent-deep-water
-    path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png
+  - managementId: image.terrain.opaque-deep-water-v2
+    path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v2.png
   - managementId: image.terrain.dry-ground-tree-stump
     path: ../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   - managementId: image.terrain.ramp-earth-stone-wall-v1

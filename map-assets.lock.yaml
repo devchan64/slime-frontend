@@ -131,8 +131,8 @@ files:
   source_path: assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
   sha256: 9fdeafcd40e45787b964f0ddf49f7ff2dddad96470942f7c6a52afba5515f106
 - path: assets/terrain/deep-water-v1.png
-  source_path: assets/tiles/terrain/blocked/transparent-deep-water-v1.png
-  sha256: dee17dccfe1ebbe1fc17a0bb6036e97f7f13349cb08d250ceaac641deed89fd6
+  source_path: assets/tiles/terrain/blocked/transparent-deep-water-v2.png
+  sha256: 3982b3fac2ddf0145b2bac111b37b7b7a029344f05834c0c23ac59612e9091b3
 - path: assets/terrain/wildflowers-v1.png
   source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
   sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
