@@ -153,7 +153,7 @@ files:
   sha256: e22e0e6071a45db93c1e157c761c7e86b44debf808becc613e9333485d6ceee0
 - path: assets/terrain/meadow-dry-soil-road-v1.png
   source_path: assets/tiles/terrain/road/ochre-pebble-road-v1.png
-  sha256: bd16b7d26304cea656e957b8be7eb2b585e201a8ed2191cb2a9098cf9719d4c0
+  sha256: 8a5706ccdb7ca4ffe01cdfe14f2756a7ab3050dc58aba80b530a2bfc6a6e1406
 - path: assets/terrain/dry-ground-tree-stump-v1.png
   source_path: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   sha256: 06708710d0ae3f979d812cd95c5e5cc39f545f68d7e06d41c87e15463c5656a2
