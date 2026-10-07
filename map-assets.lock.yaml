@@ -3,7 +3,7 @@ repository: slime-assets
 files:
 - path: assets/terrain/cliffs/dew-meadow-cliff-face-v1.png
   source_path: assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-  sha256: 42de9289c265b6c7dbb30d8042f489d9ceff783c38438ab9d7868cee452d4fab
+  sha256: 378f4d4b001bc0dacebcd56a871255f6c2a78d49fdc4ff1056d3342a5a688f66
 - path: assets/terrain/dew-v3.webp
   source_path: assets/tiles/terrain/non-road/white-wildflower-grass-v1.png
   sha256: c95909696f2730c33137777531b78b757c5a0407825187fc30225384b4664885
