@@ -96,19 +96,19 @@ test('높은 평면의 단차 모서리만 표시하고 평면 내부는 제외�
 });
 
 
-test('윗면 선은 내부 해상도와 확대 배율에 관계없이 화면 2px를 유지하고 정리한다',()=>{
+test('윗면 선은 내부 해상도와 확대 배율에 관계없이 화면 4px를 유지하고 정리한다',()=>{
  const currentSceneEvents=new (currentNodeRequire('node:events').EventEmitter)();
  const currentGraphicEvents=new (currentNodeRequire('node:events').EventEmitter)();
  const currentStrokeWidths=[];
  const currentMockGraphic=Object.assign(currentGraphicEvents,{setDepth(){return this;},clear(){},lineStyle(currentLineWidth){currentStrokeWidths.push(currentLineWidth);},lineBetween(){}});
  const currentMockScene={add:{graphics:()=>currentMockGraphic},events:currentSceneEvents,scale:{displayScale:{x:2}},cameras:{main:{zoom:4}}};
  drawFieldElevationOutline(currentMockScene,[[{x:0,y:0},{x:10,y:10}]],1);
- assert.equal(currentStrokeWidths.at(-1)*4/2,2);
+ assert.equal(currentStrokeWidths.at(-1)*4/2,4);
  currentSceneEvents.emit('postupdate');assert.equal(currentStrokeWidths.length,1);
  currentMockScene.cameras.main.zoom=2;currentSceneEvents.emit('postupdate');
- assert.equal(currentStrokeWidths.at(-1)*2/2,2);
+ assert.equal(currentStrokeWidths.at(-1)*2/2,4);
  currentMockScene.scale.displayScale.x=1;currentSceneEvents.emit('postupdate');
- assert.equal(currentStrokeWidths.at(-1)*2,2);
+ assert.equal(currentStrokeWidths.at(-1)*2,4);
  currentGraphicEvents.emit('destroy');assert.equal(currentSceneEvents.listenerCount('postupdate'),0);
 });
 
