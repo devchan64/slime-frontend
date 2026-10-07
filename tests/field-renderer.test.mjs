@@ -136,3 +136,15 @@ test('결계 오러는 씬 시간으로 UV를 순환하고 해제 시 애니메�
  currentMeshEvents.emit('destroy');
  assert.equal(currentSceneEvents.listenerCount('update'),0);
 });
+
+test('측벽 이음선은 제외하고 높이차 끝과 계단 접합부는 유지한다',async()=>{
+ const {buildFieldCliffEdges}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentWallSurface={columns:3,rows:2,elevations:[[2,2,2],[0,0,0]]};
+ const currentMiddleCell={column:1,row:0};
+ const currentMiddleFace=buildFieldCellGeometry(currentMiddleCell,currentWallSurface).find(currentFaceRecord=>currentFaceRecord.kind==='cliff');
+ assert.equal(buildFieldCliffEdges(currentMiddleCell,currentWallSurface,currentMiddleFace.points).length,2);
+ const currentStairSurface={...currentWallSurface,elevationTiles:[{cell:{column:2,row:0},lower:{column:2,row:1}}]};
+ assert.equal(buildFieldCliffEdges(currentMiddleCell,currentStairSurface,currentMiddleFace.points).length,3);
+ const currentPartialSurface={...currentWallSurface,elevations:[[1,2,2],[0,0,0]]};
+ assert.equal(buildFieldCliffEdges(currentMiddleCell,currentPartialSurface,currentMiddleFace.points).length,3);
+});

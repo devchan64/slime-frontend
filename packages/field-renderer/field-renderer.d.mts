@@ -26,3 +26,5 @@ export function buildFieldElevationEdges(currentCellPosition:SurfacePosition,cur
 export function drawFieldElevationOutline(currentGameScene:Phaser.Scene,currentEdgeSegments:SurfacePoint[][],currentRenderDepth:number):Phaser.GameObjects.Graphics;
 
 export function buildFieldRoadEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentConnectionMask:number,currentRenderOptions?:RenderOptions,currentFullTileRoad?:boolean):SurfacePoint[][];
+
+export function buildFieldCliffEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentFacePoints:SurfacePoint[],currentRenderOptions?:RenderOptions):SurfacePoint[][];

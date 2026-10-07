@@ -13,6 +13,7 @@ export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR = 0x18392e;
 export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:627,anchorY:1095,bodyTop:82,displayHeight:112});
 export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:15,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
+const FIELD_EDGE_COORDINATE_EPSILON=.000001;
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
 const FIELD_CELL_CORNERS = [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
 const FIELD_BOUNDARY_NEIGHBORS = [{column:1,row:0,edge:[1,2]},{column:0,row:1,edge:[2,3]},{column:-1,row:0,edge:[3,0]},{column:0,row:-1,edge:[0,1]}];
@@ -159,6 +160,36 @@ export function drawFieldElevationOutline(currentGameScene,currentEdgeSegments,c
  return currentEdgeGraphic;
 }
 
+/** 이어지는 측벽의 세로 이음선은 제외하고 계단 접합부와 끝 모서리는 유지한다. */
+export function buildFieldCliffEdges(currentCellPosition,currentMapSurface,currentFacePoints,currentRenderOptions=FIELD_RENDER_METRICS){
+ const currentEdgeSegments=currentFacePoints.map((currentStartPoint,currentPointIndex)=>[currentStartPoint,currentFacePoints[(currentPointIndex+1)%4]]);
+ if(findSurfaceStair(currentCellPosition,currentMapSurface))return currentEdgeSegments;
+ const currentTopVector={x:currentFacePoints[1].x-currentFacePoints[0].x,y:currentFacePoints[1].y-currentFacePoints[0].y};
+ const currentNeighborFaces=FIELD_BOUNDARY_NEIGHBORS.flatMap(currentNeighborOffset=>{
+  const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
+  if(currentNeighborCell.column<0||currentNeighborCell.row<0||currentNeighborCell.column>=currentMapSurface.columns||currentNeighborCell.row>=currentMapSurface.rows||findSurfaceStair(currentNeighborCell,currentMapSurface))return [];
+  return buildSurfaceCliffs(currentNeighborCell,currentMapSurface,currentRenderOptions);
+ });
+ return currentEdgeSegments.flatMap(([currentStartPoint,currentEndPoint],currentEdgeIndex)=>{
+  if(currentEdgeIndex%2===0)return [[currentStartPoint,currentEndPoint]];
+  let currentVisibleRanges=[[Math.min(currentStartPoint.y,currentEndPoint.y),Math.max(currentStartPoint.y,currentEndPoint.y)]];
+  for(const currentNeighborPoints of currentNeighborFaces){
+   const currentNeighborVector={x:currentNeighborPoints[1].x-currentNeighborPoints[0].x,y:currentNeighborPoints[1].y-currentNeighborPoints[0].y};
+   if(Math.abs(currentTopVector.x*currentNeighborVector.y-currentTopVector.y*currentNeighborVector.x)>FIELD_EDGE_COORDINATE_EPSILON)continue;
+   for(const currentNeighborIndex of [1,3]){
+    const currentNeighborStart=currentNeighborPoints[currentNeighborIndex],currentNeighborEnd=currentNeighborPoints[(currentNeighborIndex+1)%4];
+    if(Math.abs(currentNeighborStart.x-currentStartPoint.x)>FIELD_EDGE_COORDINATE_EPSILON)continue;
+    const currentRangeLower=Math.min(currentNeighborStart.y,currentNeighborEnd.y),currentRangeUpper=Math.max(currentNeighborStart.y,currentNeighborEnd.y);
+    currentVisibleRanges=currentVisibleRanges.flatMap(([currentLowerValue,currentUpperValue])=>{
+     if(currentRangeUpper<=currentLowerValue||currentRangeLower>=currentUpperValue)return [[currentLowerValue,currentUpperValue]];
+     return [[currentLowerValue,Math.min(currentUpperValue,currentRangeLower)],[Math.max(currentLowerValue,currentRangeUpper),currentUpperValue]].filter(([currentFromValue,currentToValue])=>currentToValue-currentFromValue>FIELD_EDGE_COORDINATE_EPSILON);
+    });
+   }
+  }
+  return currentVisibleRanges.map(([currentLowerValue,currentUpperValue])=>[{x:currentStartPoint.x,y:currentLowerValue},{x:currentStartPoint.x,y:currentUpperValue}]);
+ });
+}
+
 export function drawFieldCellObjects(currentGameScene,currentCellPosition,currentMapSurface,currentRenderOptions,currentTextureKeys,currentRenderDepth,currentShowMesh=false){
  const currentCellFaces=buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions);
  const currentTreadCount=currentCellFaces.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length;
@@ -185,7 +216,7 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
   }
   if(currentFaceRecord.kind==='tread'||currentFaceRecord.kind==='cliff'){
    // 측벽과 디딤면의 경계는 각 면의 깊이를 따라 앞쪽 지형에 가려진다.
-   const currentFaceSegments=currentFaceRecord.points.map((currentStartPoint,currentPointIndex)=>[currentStartPoint,currentFaceRecord.points[(currentPointIndex+1)%currentFaceRecord.points.length]]);
+   const currentFaceSegments=currentFaceRecord.kind==='cliff'?buildFieldCliffEdges(currentCellPosition,currentMapSurface,currentFaceRecord.points,currentRenderOptions):currentFaceRecord.points.map((currentStartPoint,currentPointIndex)=>[currentStartPoint,currentFaceRecord.points[(currentPointIndex+1)%currentFaceRecord.points.length]]);
    currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentFaceSegments,currentFaceDepth+.002));
   }
   if(currentShowMesh)currentRenderObjects.push(drawFieldMeshBoundary(currentGameScene,currentFaceRecord.points,currentFaceDepth+.002));
