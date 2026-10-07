@@ -1,14 +1,39 @@
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.3';
+export const FIELD_RENDERER_VERSION = '1.0.5';
 export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:1,alpha:0.9});
+/** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
+export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
+ baseline:Object.freeze({width:0.4,height:0.32,alpha:0.3,coreAlpha:0.24,coreScale:0.65,scale:1.3,opacityScale:1.5}),
+ contrast:Object.freeze({width:0.4,height:0.32,alpha:0.36,coreAlpha:0.3,coreScale:0.65,scale:1.3,opacityScale:1.5}),
+ broad:Object.freeze({width:0.44,height:0.34,alpha:0.32,coreAlpha:0.26,coreScale:0.65,scale:1.3,opacityScale:1.5}),
+});
+export const FIELD_ACTOR_CONTACT_SHADOW_COLOR = 0x18392e;
 export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:627,anchorY:1095,bodyTop:82,displayHeight:112});
 export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:15,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
 const FIELD_CELL_CORNERS = [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
 const FIELD_BOUNDARY_NEIGHBORS = [{column:1,row:0,edge:[1,2]},{column:0,row:1,edge:[2,3]},{column:-1,row:0,edge:[3,0]},{column:0,row:-1,edge:[0,1]}];
 const FIELD_CONNECTION_SHAPE = Object.freeze({inset:.08,radius:.2,half:.5});
+
+/** 캐릭터·몬스터 공통 그림자를 그리며 검수 화면도 게임과 동일한 계약을 사용한다. */
+export function resolveFieldActorContactShadow(currentShadowProfileName='contrast'){
+ const currentShadowProfile=FIELD_ACTOR_CONTACT_SHADOW_PROFILES[currentShadowProfileName];
+ if(!currentShadowProfile)throw Error('지원하지 않는 접지 그림자 프로필: '+currentShadowProfileName);
+ const currentShadowWidth=FIELD_RENDER_METRICS.tileWidth*currentShadowProfile.width*currentShadowProfile.scale;
+ const currentShadowHeight=FIELD_RENDER_METRICS.tileHeight*currentShadowProfile.height*currentShadowProfile.scale;
+ return {color:FIELD_ACTOR_CONTACT_SHADOW_COLOR,outer:{width:currentShadowWidth,height:currentShadowHeight,alpha:currentShadowProfile.alpha*currentShadowProfile.opacityScale},core:{width:currentShadowWidth*currentShadowProfile.coreScale,height:currentShadowHeight*currentShadowProfile.coreScale,alpha:currentShadowProfile.coreAlpha*currentShadowProfile.opacityScale}};
+}
+
+export function drawFieldActorContactShadow(currentShadowGraphics,currentScreenPosition,currentShadowProfileName='contrast'){
+ const currentShadowMetrics=resolveFieldActorContactShadow(currentShadowProfileName);
+ currentShadowGraphics.fillStyle(currentShadowMetrics.color,currentShadowMetrics.outer.alpha);
+ currentShadowGraphics.fillEllipse(currentScreenPosition.x,currentScreenPosition.y,currentShadowMetrics.outer.width,currentShadowMetrics.outer.height);
+ currentShadowGraphics.fillStyle(currentShadowMetrics.color,currentShadowMetrics.core.alpha);
+ currentShadowGraphics.fillEllipse(currentScreenPosition.x,currentScreenPosition.y,currentShadowMetrics.core.width,currentShadowMetrics.core.height);
+ return currentShadowMetrics;
+}
 
 /** 도로·수면 연결 마스크도 양쪽 클라이언트가 동일하게 합성한다. */
 export function prepareFieldConnectedTexture(currentGameScene,currentSourceKey,currentGrassKey,currentConnectionMask){

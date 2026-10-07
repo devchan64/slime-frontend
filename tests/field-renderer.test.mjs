@@ -1,12 +1,30 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
 const PhaserMatrixFour=currentNodeRequire('phaser/src/math/Matrix4.js');
 const currentFlatSurface={columns:9,rows:9,elevations:Array.from({length:9},()=>Array(9).fill(0))};
+
+test('접지 그림자 기본값은 중형 사람의 0.4×0.32 타일 비율을 유지한다',()=>{
+ const currentBaselineProfile=FIELD_ACTOR_CONTACT_SHADOW_PROFILES.baseline;
+ assert.deepEqual(currentBaselineProfile,{width:0.4,height:0.32,alpha:0.3,coreAlpha:0.24,coreScale:0.65,scale:1.3,opacityScale:1.5});
+ assert.ok(FIELD_ACTOR_CONTACT_SHADOW_PROFILES.contrast.alpha>currentBaselineProfile.alpha);
+ assert.ok(FIELD_ACTOR_CONTACT_SHADOW_PROFILES.broad.width>currentBaselineProfile.width);
+});
+
+test('접지 그림자는 게임과 검수에서 같은 두 겹 타원 계약을 사용한다',()=>{
+ const currentDrawingCalls=[];
+ const currentMockGraphics={fillStyle:(...currentArguments)=>currentDrawingCalls.push(['style',...currentArguments]),fillEllipse:(...currentArguments)=>currentDrawingCalls.push(['ellipse',...currentArguments])};
+  const currentShadowSize=drawFieldActorContactShadow(currentMockGraphics,{x:100,y:200});
+ assert.equal(currentShadowSize.color,0x18392e);
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:41.6,height:16.64,alpha:.54});
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:27.04,height:10.816,alpha:.45});
+ assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,41.6,16.64],['style',0x18392e,.45],['ellipse',100,200,27.04,10.816]]);
+ assert.throws(()=>drawFieldActorContactShadow(currentMockGraphics,{x:0,y:0},'missing'));
+});
 
 test('결계 패널은 Phaser 실제 직교 투영 후에도 엣지 전체 너비와 위쪽 15px을 유지한다',()=>{
  const currentBoundaryPanels=buildFieldBoundaryPanels({column:4,row:4},{column:4,row:4},0,{x:500,y:400});

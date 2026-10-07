@@ -1,6 +1,10 @@
 import type Phaser from 'phaser';
 import type {SurfacePosition,SurfacePoint,SurfaceRecord,RenderOptions} from '../field-surface/field-surface.mjs';
 export const FIELD_RENDERER_VERSION:string;
+export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES:Readonly<Record<string,Readonly<{width:number;height:number;alpha:number;coreAlpha:number;coreScale:number;scale:number;opacityScale:number}>>>;
+export const FIELD_ACTOR_CONTACT_SHADOW_COLOR:number;
+export function resolveFieldActorContactShadow(currentShadowProfileName?:string):{color:number;outer:{width:number;height:number;alpha:number};core:{width:number;height:number;alpha:number}};
+export function drawFieldActorContactShadow(currentShadowGraphics:Phaser.GameObjects.Graphics,currentScreenPosition:SurfacePoint,currentShadowProfileName?:string):{color:number;outer:{width:number;height:number;alpha:number};core:{width:number;height:number;alpha:number}};
 export function prepareFieldConnectedTexture(currentGameScene:Phaser.Scene,currentSourceKey:string,currentGrassKey:string,currentConnectionMask:number):string;
 export const FIELD_MESH_BOUNDARY_STYLE:Readonly<{color:number;width:number;alpha:number}>;
 export const FIELD_SAFE_TOWER_PROFILE:Readonly<{anchorX:number;anchorY:number;bodyTop:number;displayHeight:number}>;
