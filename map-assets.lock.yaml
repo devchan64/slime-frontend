@@ -46,12 +46,9 @@ files:
 - path: assets/world/isloon/buildings/marble-plain-wall-v1.png
   source_path: assets/tiles/buildings/stone/stone-wall-v1.png
   sha256: f4f5fb5c107bdfd3dba2c7d4242bb83a0b5adaa7452e7889922c476ba8aa4f44
-- path: assets/world/isloon/buildings/marble-roof-v2.png
-  source_path: assets/tiles/buildings/stone/stone-roof-v1.png
-  sha256: b9df367699d24583b0e80f29bd048f63ae57ecb6da9a77b7b47330e603f02dff
-- path: assets/world/isloon/buildings/marble-roof-v2.source.json
-  source_path: assets/tiles/buildings/marble/marble-roof-v2.source.json
-  sha256: a279902bf505c872a5b50500d459c270c8f6648a218a7ad64a47d42b38397bd8
+- path: assets/world/isloon/buildings/marble-roof-v3.png
+  source_path: assets/tiles/buildings/marble/marble-roof-v3.png
+  sha256: a653e26b0c9f2c8233a880cb1be2e486b1dab89b715755d2be2cb70ed04fc2ba
 - path: assets/world/isloon/buildings/marble-small-door-v1.png
   source_path: assets/tiles/buildings/stone/stone-door-v1.png
   sha256: 19d3d321953e8dab7d2e8658541c5618ea36286ee71372f7f43971011b0bc09b
@@ -127,6 +124,9 @@ files:
 - path: assets/terrain/cactus-v1.png
   source_path: assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
   sha256: c14562779139b4bed2bcdab30a319b32247b77e343c076acc27ccd5e3b34784c
+- path: assets/terrain/wind-swept-sand-ground-v1.png
+  source_path: assets/tiles/terrain/non-road/wind-swept-sand-ground-v1.png
+  sha256: d4d5abbad763bb21b54095f65cf0d3757b900f4b30d26d76c8915c258915b753
 - path: assets/terrain/shallow-water-v1.png
   source_path: assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
   sha256: 9fdeafcd40e45787b964f0ddf49f7ff2dddad96470942f7c6a52afba5515f106

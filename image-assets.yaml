@@ -58,6 +58,8 @@ data:
     path: ../slime-assets/assets/characters/default/animations/idle-v6/down-left-8frames-v4/idle-v6.png
   - managementId: image.world.stonewarm.stone-roof-v1
     path: ../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png
+  - managementId: tile.buildings.roof.marble-v3
+    path: ../slime-assets/assets/tiles/buildings/marble/marble-roof-v3.png
   - managementId: image.frontend.src.assets.world.stonewarm.buildings.stone-wall-crossbar-v1.png
     path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
   - managementId: image.terrain.stonewarm-mossy-ruin-ground-v2
@@ -86,6 +88,8 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-crossbar-wall-v1.png
   - managementId: image.terrain.sand-cactus-type-a
     path: ../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
+  - managementId: image.terrain.wind-swept-sand-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/wind-swept-sand-ground-v1.png
   - managementId: image.terrain.transparent-shallow-water-v2
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
   - managementId: image.terrain.opaque-deep-water-v2
