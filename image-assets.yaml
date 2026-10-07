@@ -70,8 +70,6 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v4.png
   - managementId: image.terrain.cliff-rock-face-v1
     path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-  - managementId: image.terrain.grass-type-a
-    path: ../slime-assets/assets/tiles/terrain/non-road/grass-type-a-v1.png
   - managementId: image.terrain.boulder-type-a
     path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-a-v1.png
   - managementId: image.terrain.leaf-litter
@@ -92,8 +90,6 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v1.png
   - managementId: image.terrain.transparent-deep-water
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png
-  - managementId: image.terrain.grass-type-b
-    path: ../slime-assets/assets/tiles/terrain/non-road/grass-type-b-v1.png
   - managementId: image.terrain.boulder-type-b
     path: ../slime-assets/assets/tiles/terrain/blocked/boulder-type-b-v1.png
   - managementId: image.terrain.boulder-type-c
@@ -130,3 +126,5 @@ data:
     path: ../slime-assets/assets/sprites/structures/guard-center-red-tile-v1.png
   - managementId: sprite.structures.guard-center-teal-v1.png
     path: ../slime-assets/assets/sprites/structures/guard-center-teal-v1.png
+  - managementId: image.terrain.white-wildflower-grass-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/white-wildflower-grass-v1.png
