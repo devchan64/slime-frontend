@@ -1,10 +1,9 @@
 import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE,WOOD_DOOR_WALL_TEXTURE,WOOD_CROSSBAR_WALL_TEXTURE,UNIFIED_WOOD_ROOF_TEXTURE} from "./textures";
-import {buildBlockSurfaceFaces} from './blockGeometry';
+import {buildRenderedBlockFaces} from './blockGeometry';
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
 import {t} from '../../i18n';
 import {cityBuildingCells} from './cityBuildings';
-import {resolveMapTileSize} from './renderMetrics';
 import {TERRAIN_DEPTH} from './elevation';
 
 const CITY_BUILDING_STYLE = {
@@ -13,20 +12,10 @@ const CITY_BUILDING_STYLE = {
   roofAlpha:0.9, labelFont:'17px', labelOffset:12, entranceRadius:7,
   roofColors:{guild:0x467c75,bookshop:0x755c84,inn:0xa56f54,workshop:0x626f7a,market:0xd4ad63},
 };
-const CITY_PAVING_STYLE = {fill:0xc8c4a4,edge:0xa4a28b,lineWidth:1,alpha:0.95};
 const CITY_HALF_TILE = 0.5;
 const WALL_ENTRANCE_POSITION_TOLERANCE = 0.01;
 type CityScreenPoint = {x:number;y:number};
 export type CityBuildingRegion = {position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
-
-export function drawCityPaving(currentTileGraphic: Phaser.GameObjects.Graphics,currentTilePosition:CityScreenPoint,currentTileDimensions = resolveMapTileSize({safeTown:true})) {
-  const currentTileCorners = [{x:currentTilePosition.x,y:currentTilePosition.y-currentTileDimensions.height/2},
-    {x:currentTilePosition.x+currentTileDimensions.width/2,y:currentTilePosition.y},{x:currentTilePosition.x,y:currentTilePosition.y+currentTileDimensions.height/2},
-    {x:currentTilePosition.x-currentTileDimensions.width/2,y:currentTilePosition.y}];
-  currentTileGraphic.fillStyle(CITY_PAVING_STYLE.fill,CITY_PAVING_STYLE.alpha).fillPoints(currentTileCorners,true);
-  currentTileGraphic.lineStyle(CITY_PAVING_STYLE.lineWidth,CITY_PAVING_STYLE.edge).strokePoints(currentTileCorners,true);
-  currentTileGraphic.lineBetween(currentTileCorners[0].x,currentTileCorners[0].y,currentTileCorners[2].x,currentTileCorners[2].y);
-}
 
 export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuilding:CityBuilding,
   projectTerrainPosition:(currentCellPosition:Position)=>CityScreenPoint,
@@ -34,7 +23,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
   if(currentCityBuilding.blockSchemaVersion!==1)throw new Error('지원하지 않는 건물 블록 버전');
   const currentBuildingCorners = cityBuildingCells(currentCityBuilding).map(projectTerrainPosition);
   const currentBuildingDepth = Math.max(...cityBuildingCells(currentCityBuilding).map(calculateTerrainDepth))+TERRAIN_DEPTH.overlay;
-  const currentSurfaceFaces=buildBlockSurfaceFaces(currentCityBuilding.blocks);
+  const currentSurfaceFaces=buildRenderedBlockFaces(currentCityBuilding.blocks);
   const currentProjectedFaces=currentSurfaceFaces.map(currentSurfaceFace=>({surface:currentSurfaceFace,depth:currentSurfaceFace.vertices.reduce((currentDepthSum,currentVertexPoint)=>currentDepthSum+projectTerrainPosition({column:currentCityBuilding.origin.column+currentVertexPoint.column,row:currentCityBuilding.origin.row+currentVertexPoint.row}).y,0)/currentSurfaceFace.vertices.length,points:currentSurfaceFace.vertices.map(currentVertexPoint=>{
     const currentScreenPoint=projectTerrainPosition({column:currentCityBuilding.origin.column+currentVertexPoint.column,row:currentCityBuilding.origin.row+currentVertexPoint.row});
     return {x:currentScreenPoint.x,y:currentScreenPoint.y-currentVertexPoint.height};

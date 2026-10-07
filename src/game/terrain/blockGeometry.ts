@@ -3,6 +3,7 @@ export type TerrainBlockRecord = {id:string;column:number;row:number;layer:numbe
 export type BlockVertexPoint = {column:number;row:number;height:number};
 export type BlockSurfaceFace = {vertices:BlockVertexPoint[];material:'wall'|'roof';top:boolean};
 const BLOCK_LAYER_HEIGHT = 60;
+export const BUILDING_RENDER_BLOCK_HEIGHT = 80;
 const BLOCK_CORNER_OFFSETS = [[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
 const BLOCK_NEIGHBOR_OFFSETS = [[0,-1],[1,0],[0,1],[-1,0]];
 const BLOCK_HEIGHT_EPSILON = 0.00001;
@@ -65,4 +66,9 @@ export function buildBlockSurfaceFaces(currentBlockRecords:TerrainBlockRecord[])
   }
  }
  return resultingSurfaceFaces;
+}
+
+/** 저장된 블록 단위와 화면 높이를 분리한다. 게임과 검수는 같은 80px 면을 사용한다. */
+export function buildRenderedBlockFaces(currentBlockRecords:TerrainBlockRecord[]):BlockSurfaceFace[] {
+ return buildBlockSurfaceFaces(currentBlockRecords).map(currentSurfaceFace=>({...currentSurfaceFace,vertices:currentSurfaceFace.vertices.map(currentVertexPoint=>({...currentVertexPoint,height:currentVertexPoint.height*BUILDING_RENDER_BLOCK_HEIGHT/BLOCK_LAYER_HEIGHT}))}));
 }

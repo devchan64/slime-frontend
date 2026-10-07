@@ -5,7 +5,7 @@ const {outputFiles}=await build({entryPoints:['src/game/scenes/MainScene.ts'],bu
  currentBuildContext.onResolve({filter:/^phaser$/},()=>({path:'phaser',namespace:'mock'}));
  currentBuildContext.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export default {Scene:class {}};'}));
  currentBuildContext.onResolve({filter:/blockStructureRendering$/},()=>({path:'buildings',namespace:'building-mock'}));
- currentBuildContext.onLoad({filter:/.*/,namespace:'building-mock'},()=>({contents:`export function drawCityPaving() {} export function drawBlockStructure(scene,building){const object={destroy(){scene.disposedCount++;scene.children.list=scene.children.list.filter(value=>value!==object);}};scene.createdCount++;scene.children.list.push(object);return {id:building.id};}`}));
+ currentBuildContext.onLoad({filter:/.*/,namespace:'building-mock'},()=>({contents:`export function drawBlockStructure(scene,building){const object={destroy(){scene.disposedCount++;scene.children.list=scene.children.list.filter(value=>value!==object);}};scene.createdCount++;scene.children.list.push(object);return {id:building.id};}`}));
 }}]});
 const {MainScene}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
 test('동일 건물은 상태 갱신에서 재사용하고 지형 변경·전투 진입에서 해제한다',()=>{

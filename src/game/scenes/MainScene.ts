@@ -38,7 +38,7 @@ import { createFieldRestEffectSprite, preloadFieldRestEffectSprite } from "../an
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
-import { drawBlockStructure, drawCityPaving, type CityBuildingRegion } from "../terrain/blockStructureRendering";
+import { drawBlockStructure, type CityBuildingRegion } from "../terrain/blockStructureRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
 import { addRampWallPatterns, addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
@@ -644,6 +644,12 @@ export class MainScene extends Phaser.Scene {
       : new Set([...(theme === "mist-lake" ? blockedCells : []), ...(s.map.terrainRows ?? []).flatMap((currentTerrainRow,currentRowIndex)=>[...currentTerrainRow].flatMap((currentTerrainCode,currentColumnIndex)=>s.map.terrainCodes?.[currentTerrainCode]==='water'?[`${currentColumnIndex},${currentRowIndex}`]:[]))]);
     const towerCenterCellKey = field || s.map.safeTown ? null : `${s.map.startPoint.column},${s.map.startPoint.row}`;
     if (towerCenterCellKey) waterCells.delete(towerCenterCellKey);
+    const resolveGroundMaterial=(currentViewCell:Position):string=>{
+      const currentSourceCell=fromView(currentViewCell,definition,this.rotation);
+      const currentTerrainName=field?cells.get(`${currentSourceCell.column},${currentSourceCell.row}`):fieldTerrainAt(s.map,currentSourceCell.column,currentSourceCell.row,road);
+      if(!currentTerrainName)throw new Error('바닥 타일 경계의 지형이 없습니다');
+      return currentTerrainName;
+    };
     this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
       const objects:Phaser.GameObjects.GameObject[]=[];
       const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {
@@ -667,7 +673,7 @@ export class MainScene extends Phaser.Scene {
         const currentConnectedFrame=/^(water|road|dirt-road|stone-road)-(\d+)$/.exec(currentSelectedFrame);
         const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(this,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
-        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,{ground:currentGroundKey,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,roadConnectionMask:kind==='road'?rotateConnections(roadConnections(cell,definition,road),this.rotation):undefined,fullTileRoad:kind==='road'&&!currentConnectedFrame,underlay:['boulder','tree-base'].includes(terrain)?'terrain-source-grass':undefined},depth))remember(currentRenderObject);
+        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,{ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,roadConnectionMask:kind==='road'?rotateConnections(roadConnections(cell,definition,road),this.rotation):undefined,fullTileRoad:kind==='road'&&!currentConnectedFrame,underlay:['boulder','tree-base'].includes(terrain)?'terrain-source-grass':undefined},depth))remember(currentRenderObject);
       }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
@@ -683,7 +689,6 @@ export class MainScene extends Phaser.Scene {
           : kind === 'flowers' && s.map.id === 'meadow' ? 'meadow-flowers' : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
-      if(terrain==='paving'&&!field&&s.map.safeTown)drawCityPaving(remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1)),p,this.currentTileDimensions);
       }
       if (!field && !currentCellIsWater && !['boulder','tree-base','cactus','shallow-water','deep-water'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));

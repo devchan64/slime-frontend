@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const compiledBlockModule=await build({entryPoints:['src/game/terrain/blockGeometry.ts'],bundle:true,write:false,platform:'node',format:'esm'});
-const {buildBlockSurfaceFaces,resolveBlockSurfaceHeight}=await import(`data:text/javascript;base64,${Buffer.from(compiledBlockModule.outputFiles[0].text).toString('base64')}`);
+const {buildBlockSurfaceFaces,resolveBlockSurfaceHeight,buildRenderedBlockFaces}=await import(`data:text/javascript;base64,${Buffer.from(compiledBlockModule.outputFiles[0].text).toString('base64')}`);
 const createTestBlock=(currentBlockOverrides={})=>({id:'a',column:0,row:0,layer:0,offsetHeight:0,height:60,shape:'full',material:'wall',walkable:false,...currentBlockOverrides});
 test('같은 높이의 이웃 블록은 공유 벽을 제거한다',()=>{
  assert.equal(buildBlockSurfaceFaces([createTestBlock(),createTestBlock({id:'b',column:1})]).length,8);
@@ -23,4 +23,11 @@ test('네 방향 경사는 낮은 경계에서 높은 경계까지 이어진다'
 test('중복 ID와 잘못된 경사 방향을 거부한다',()=>{
  assert.throws(()=>buildBlockSurfaceFaces([createTestBlock(),createTestBlock()]));
  assert.throws(()=>buildBlockSurfaceFaces([createTestBlock({shape:'ramp'})]));
+});
+
+test('건물 표시는 원본 블록을 바꾸지 않고 한 층을 80px로 그린다',()=>{
+ const currentSourceBlocks=[createTestBlock(),createTestBlock({id:'b',layer:1})];
+ const currentRenderedFaces=buildRenderedBlockFaces(currentSourceBlocks);
+ assert.equal(Math.max(...currentRenderedFaces.flatMap(currentSurfaceFace=>currentSurfaceFace.vertices.map(currentVertexPoint=>currentVertexPoint.height))),160);
+ assert.equal(currentSourceBlocks[0].height,60);
 });

@@ -1,7 +1,7 @@
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.6';
+export const FIELD_RENDERER_VERSION = '1.0.9';
 export const FIELD_ELEVATION_EDGE_STYLE = Object.freeze({color:0x303030,width:4,alpha:0.85});
 export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:1,alpha:0.9});
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
@@ -107,6 +107,22 @@ export function buildFieldElevationEdges(currentCellPosition,currentMapSurface,c
   const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
   if(currentNeighborCell.column<0||currentNeighborCell.row<0||currentNeighborCell.column>=currentMapSurface.columns||currentNeighborCell.row>=currentMapSurface.rows
     ||(readSurfaceHeight(currentNeighborCell,currentMapSurface)>currentCellHeight||(readSurfaceHeight(currentNeighborCell,currentMapSurface)===currentCellHeight&&!findSurfaceStair(currentNeighborCell,currentMapSurface))))return [];
+  return [currentNeighborOffset.edge.map(currentCornerIndex=>currentCornerPoints[currentCornerIndex])];
+ });
+}
+
+/** 같은 높이에서 바닥 재질이 바뀌는 이음새를 뒤쪽 셀당 한 번만 반환한다. 도로·단차는 전용 경계를 유지한다. */
+export function buildFieldMaterialEdges(currentCellPosition,currentMapSurface,resolveGroundMaterial,currentRenderOptions=FIELD_RENDER_METRICS){
+ if(findSurfaceStair(currentCellPosition,currentMapSurface))return [];
+ const currentMaterialName=resolveGroundMaterial(currentCellPosition);
+ if(currentMaterialName==='road')return [];
+ const currentCellHeight=readSurfaceHeight(currentCellPosition,currentMapSurface);
+ const currentCornerPoints=FIELD_CELL_CORNERS.map(([currentColumnOffset,currentRowOffset])=>projectSurfaceVertex({column:currentCellPosition.column+currentColumnOffset,row:currentCellPosition.row+currentRowOffset,height:currentCellHeight*currentRenderOptions.elevationHeight},currentRenderOptions));
+ return FIELD_BOUNDARY_NEIGHBORS.filter(currentNeighborOffset=>currentNeighborOffset.column<0||currentNeighborOffset.row<0).flatMap(currentNeighborOffset=>{
+  const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
+  if(currentNeighborCell.column<0||currentNeighborCell.row<0||findSurfaceStair(currentNeighborCell,currentMapSurface)||readSurfaceHeight(currentNeighborCell,currentMapSurface)!==currentCellHeight)return [];
+  const currentNeighborMaterial=resolveGroundMaterial(currentNeighborCell);
+  if(currentNeighborMaterial===currentMaterialName||currentNeighborMaterial==='road')return [];
   return [currentNeighborOffset.edge.map(currentCornerIndex=>currentCornerPoints[currentCornerIndex])];
  });
 }
@@ -224,6 +240,10 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
  if(currentTextureKeys.roadConnectionMask!==undefined&&!findSurfaceStair(currentCellPosition,currentMapSurface)){
   const currentRoadEdges=buildFieldRoadEdges(currentCellPosition,currentMapSurface,currentTextureKeys.roadConnectionMask,currentRenderOptions,currentTextureKeys.fullTileRoad);
   if(currentRoadEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentRoadEdges,currentRenderDepth+.98));
+ }
+ if(currentTextureKeys.resolveGroundMaterial){
+  const currentMaterialEdges=buildFieldMaterialEdges(currentCellPosition,currentMapSurface,currentTextureKeys.resolveGroundMaterial,currentRenderOptions);
+  if(currentMaterialEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentMaterialEdges,currentRenderDepth+.99));
  }
  const currentElevationEdges=buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions);
  if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentRenderDepth+0.99));

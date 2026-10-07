@@ -2,7 +2,7 @@ import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
@@ -147,4 +147,15 @@ test('측벽 이음선은 제외하고 높이차 끝과 계단 접합부는 유�
  assert.equal(buildFieldCliffEdges(currentMiddleCell,currentStairSurface,currentMiddleFace.points).length,3);
  const currentPartialSurface={...currentWallSurface,elevations:[[1,2,2],[0,0,0]]};
  assert.equal(buildFieldCliffEdges(currentMiddleCell,currentPartialSurface,currentMiddleFace.points).length,3);
+});
+
+test('바닥 재질 경계는 같은 높이에서 한 번 표시하고 도로·단차와 중복하지 않는다',()=>{
+ const currentMapSurface={columns:2,rows:2,elevations:[[0,0],[0,0]]};
+ const resolveGroundMaterial=currentCellPosition=>currentCellPosition.column===0?'grass':'flowers';
+ assert.equal(buildFieldMaterialEdges({column:0,row:0},currentMapSurface,resolveGroundMaterial).length,0);
+ assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveGroundMaterial).length,1);
+ assert.equal(buildFieldMaterialEdges({column:1,row:1},currentMapSurface,()=> 'grass').length,0);
+ assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,currentCellPosition=>currentCellPosition.column?'road':'grass').length,0);
+ assert.equal(buildFieldMaterialEdges({column:1,row:0},{...currentMapSurface,elevations:[[0,1],[0,1]]},resolveGroundMaterial).length,0);
+ for(const currentRotationValue of [0,1,2,3])assert.ok(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveGroundMaterial,{...FIELD_RENDER_METRICS,rotation:currentRotationValue}).flat().every(currentPoint=>Number.isFinite(currentPoint.x)&&Number.isFinite(currentPoint.y)));
 });

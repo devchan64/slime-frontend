@@ -13,7 +13,7 @@ export function buildFieldCellGeometry(currentCellPosition:SurfacePosition,curre
 export function buildFieldPanelVertices(currentPanelPoints:SurfacePoint[]):{center:SurfacePoint;vertices:number[]};
 export function drawFieldMeshBoundary(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentRenderDepth:number):Phaser.GameObjects.Graphics;
 export function drawFieldTexturePanel(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentTextureKey:string,currentRenderDepth:number,currentUvCorners?:number[]):Phaser.GameObjects.Mesh;
-export function drawFieldCellObjects(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentTextureKeys:{ground:string;cliff:string;tread:string;underlay?:string;roadConnectionMask?:number;fullTileRoad?:boolean},currentRenderDepth:number,currentShowMesh?:boolean):Phaser.GameObjects.GameObject[];
+export function drawFieldCellObjects(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentTextureKeys:{ground:string;cliff:string;tread:string;underlay?:string;resolveGroundMaterial?:(currentCellPosition:SurfacePosition)=>string;roadConnectionMask?:number;fullTileRoad?:boolean},currentRenderDepth:number,currentShowMesh?:boolean):Phaser.GameObjects.GameObject[];
 export function buildFieldBoundaryPanels(currentCellPosition:SurfacePosition,currentSafeCenter:SurfacePosition,currentSafeRadius:number,currentScreenCenter:SurfacePoint,currentRenderOptions?:RenderOptions):SurfacePoint[][];
 export function resolveFieldAuraUvs(currentFrameIndex:number,currentImageWidth:number,currentImageHeight:number):number[];
 export function drawFieldAuraPanel(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentTextureKey:string,currentRenderDepth:number):Phaser.GameObjects.Mesh;
@@ -28,3 +28,5 @@ export function drawFieldElevationOutline(currentGameScene:Phaser.Scene,currentE
 export function buildFieldRoadEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentConnectionMask:number,currentRenderOptions?:RenderOptions,currentFullTileRoad?:boolean):SurfacePoint[][];
 
 export function buildFieldCliffEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentFacePoints:SurfacePoint[],currentRenderOptions?:RenderOptions):SurfacePoint[][];
+
+export function buildFieldMaterialEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,resolveGroundMaterial:(currentCellPosition:SurfacePosition)=>string,currentRenderOptions?:RenderOptions):SurfacePoint[][];
