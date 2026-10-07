@@ -9,7 +9,7 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
   const characterDataValues = new Map(Object.entries({actorIdleKind:actorIdleKindValue,idlePhaseOffset:0,actorDisplayHeight:80}));
   const registeredTextureFrames = new Set();
   const walkingTextureRecord = {
-    getSourceImage:()=>({width:4608,height:384}),
+    getSourceImage:()=>({width:1536,height:1152}),
     has:(currentFrameIdentifier)=>registeredTextureFrames.has(currentFrameIdentifier),
     add(currentFrameIdentifier){registeredTextureFrames.add(currentFrameIdentifier);return {};},
   };

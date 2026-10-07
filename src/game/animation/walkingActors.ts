@@ -3,12 +3,12 @@ import type Phaser from "phaser";
 import { type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
 import { updateActorIdleFrame } from "./idleActors";
-import walkingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/walk-12frames-v1.animation.json";
+import walkingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.animation.json";
 
 const WALKING_REFERENCE_BODY_HEIGHT = 360.0;
 export const DEFAULT_CHARACTER_WALK_ASSET = {
   key: "walking-human-12frames-v1",
-  url: new URL("../../../../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v2/walk-12frames-v1.png", import.meta.url).href,
+  url: new URL("../../../../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.png", import.meta.url).href,
   animation: createBoardActorAnimation(walkingCharacterMetadata),
 } as const;
 
