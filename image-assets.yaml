@@ -60,8 +60,8 @@ data:
     path: ../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png
   - managementId: image.frontend.src.assets.world.stonewarm.buildings.stone-wall-crossbar-v1.png
     path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
-  - managementId: image.frontend.src.assets.world.stonewarm.terrain.exposed-rock-ground-v1.png
-    path: ../slime-assets/assets/tiles/terrain/non-road/exposed-rock-ground-v1.png
+  - managementId: image.terrain.stonewarm-mossy-ruin-ground-v2
+    path: ../slime-assets/assets/tiles/terrain/non-road/exposed-rock-ground-v2.png
   - managementId: image.frontend.src.assets.world.stonewarm.buildings.red-stone-roof-v2.png
     path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v2.png
   - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
@@ -70,16 +70,14 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v4.png
   - managementId: image.terrain.cliff-rock-face-v1
     path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-  - managementId: image.terrain.leaf-litter
-    path: ../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v1.png
-  - managementId: image.terrain.stone-road
-    path: ../slime-assets/assets/tiles/terrain/road/stone-road-v1.png
+  - managementId: image.terrain.leaf-litter-v2
+    path: ../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v2.png
   - managementId: image.terrain.limestone-road
     path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png
   - managementId: image.terrain.ochre-pebble-road
     path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png
-  - managementId: image.terrain.marble-road
-    path: ../slime-assets/assets/tiles/terrain/road/marble-road-v1.png
+  - managementId: image.terrain.marble-circular-road
+    path: ../slime-assets/assets/tiles/terrain/road/marble-circular-road-v1.png
   - managementId: tile.buildings.wall.wood-window
     path: ../slime-assets/assets/tiles/buildings/wood/wood-window-wall-v1.png
   - managementId: tile.buildings.wall.wood-door
@@ -88,8 +86,8 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-crossbar-wall-v1.png
   - managementId: image.terrain.sand-cactus-type-a
     path: ../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
-  - managementId: image.terrain.transparent-shallow-water
-    path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v1.png
+  - managementId: image.terrain.transparent-shallow-water-v2
+    path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
   - managementId: image.terrain.transparent-deep-water
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v1.png
   - managementId: image.terrain.dry-ground-tree-stump
@@ -122,5 +120,5 @@ data:
     path: ../slime-assets/assets/sprites/structures/guard-center-red-tile-v1.png
   - managementId: sprite.structures.guard-center-teal-v1.png
     path: ../slime-assets/assets/sprites/structures/guard-center-teal-v1.png
-  - managementId: image.terrain.white-wildflower-grass-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/white-wildflower-grass-v1.png
+  - managementId: image.terrain.grass-ground-v2
+    path: ../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png
