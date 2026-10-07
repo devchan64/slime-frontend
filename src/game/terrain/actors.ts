@@ -1,9 +1,10 @@
+import {CHARACTER_CONTACT_SHADOW_COLOR, CHARACTER_CONTACT_SHADOW_ALPHA_SCALE} from '../renderQuality';
 import { DEFAULT_CHARACTER_WALK_ASSET, updateCharacterAnimationFrame } from "../animation/walkingActors";
 import {CHARACTER_BODY_HEIGHT} from "./renderMetrics";
 import Phaser from "phaser";
 import type { Direction } from "../animation/cellAnimation";
 import { ACTOR_IDLE_TEXTURES, ACTOR_IDLE_ASSETS, createActorIdleImage, type IdleActorKind } from "../animation/idleActors";
-import {drawFieldActorContactShadow} from '../../../packages/field-renderer/field-renderer.mjs';
+import {drawFieldActorContactShadow,resolveFieldActorContactShadow} from '../../../packages/field-renderer/field-renderer.mjs';
 
 export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
 // 앉은 높이는 시트 포즈로 표현하고 입식 기준 배율은 유지한다.
@@ -28,7 +29,13 @@ export function drawActor(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   if (tiles !== 1 && tiles !== 2) throw new Error(`지원하지 않는 표시 영역입니다: ${tiles}`);
   const height = kind === "human" ? HUMAN_HEIGHT * (actorRestIsActive ? HUMAN_REST_HEIGHT_RATIO : 1) : HUMAN_HEIGHT * ratio;
   // 야외·전투·마을 필드의 모든 액터가 사람(중형) 기준 그림자 계약을 공유한다.
-  drawFieldActorContactShadow(g,{x,y},ACTOR_CONTACT_SHADOW_CONTRACT.profile);
+  if (kind === 'human') {
+    const currentShadowMetrics = resolveFieldActorContactShadow(ACTOR_CONTACT_SHADOW_CONTRACT.profile);
+    for (const currentShadowLayer of [currentShadowMetrics.outer, currentShadowMetrics.core]) {
+      g.fillStyle(CHARACTER_CONTACT_SHADOW_COLOR, Math.min(1, currentShadowLayer.alpha * CHARACTER_CONTACT_SHADOW_ALPHA_SCALE));
+      g.fillEllipse(x, y, currentShadowLayer.width, currentShadowLayer.height);
+    }
+  } else drawFieldActorContactShadow(g,{x,y},ACTOR_CONTACT_SHADOW_CONTRACT.profile);
   const selectedIdleKind = kind === "human" && actorRestIsActive ? "human-rest" : actorMonsterTypeId && Object.hasOwn(ACTOR_IDLE_ASSETS, actorMonsterTypeId)
     ? actorMonsterTypeId as IdleActorKind : kind;
   if (!actorStableIdentifier) throw new Error("개체 대기 ID가 누락되었습니다.");

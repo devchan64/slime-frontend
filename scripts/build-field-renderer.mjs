@@ -7,7 +7,7 @@ import path from 'node:path';
 const currentProjectRoot=fileURLToPath(new URL('../',import.meta.url));
 const currentPackageRecord=JSON.parse(await readFile(new URL('../packages/field-renderer/package.json',import.meta.url),'utf8'));
 const currentOutputDirectory=path.join(currentProjectRoot,'.tmp/field-renderer',currentPackageRecord.version);
-const currentSourceEntries={'field-renderer.mjs':'packages/field-renderer/field-renderer.mjs','phaser.mjs':'node_modules/phaser/dist/phaser.esm.js'};
+const currentSourceEntries={'game-render-profile.mjs':'packages/field-renderer/game-render-profile.ts','field-renderer.mjs':'packages/field-renderer/field-renderer.mjs','phaser.mjs':'node_modules/phaser/dist/phaser.esm.js'};
 try{
  console.log(`${new Date().toISOString()}/field-renderer/build/시작 ${currentOutputDirectory}`);
  await mkdir(currentOutputDirectory,{recursive:true});

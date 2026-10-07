@@ -1,3 +1,4 @@
+import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import Phaser from "phaser";
 import type { Waypoint } from "./meadow";
 
@@ -50,5 +51,5 @@ export function drawWaypoint(scene: Phaser.Scene,
     backgroundColor: "#123d47ee", padding: { x: STYLE.labelPadding, y: STYLE.labelPadding },
   }).setOrigin(0.5, 1);
   return scene.add.container(x, y, [badge, label]).setDepth(STYLE.depth)
-    .setScale(waypointMarkerScale(scene.cameras.main.zoom));
+    .setScale(waypointMarkerScale(scene.cameras.main.zoom / GAME_INTERNAL_RESOLUTION_SCALE));
 }

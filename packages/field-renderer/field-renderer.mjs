@@ -1,7 +1,8 @@
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.5';
+export const FIELD_RENDERER_VERSION = '1.0.6';
+export const FIELD_ELEVATION_EDGE_STYLE = Object.freeze({color:0x514b3d,width:1.25,alpha:0.85});
 export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:1,alpha:0.9});
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
@@ -96,6 +97,68 @@ export function drawFieldTexturePanel(currentGameScene,currentPanelPoints,curren
  return currentPanelMesh;
 }
 
+/** 높은 평면의 단차 모서리만 반환한다. 같은 높이의 평면 이음새는 제외하고 계단 접합부는 포함한다. 계단 자체는 각 디딤면에서 그린다. */
+export function buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
+ if(findSurfaceStair(currentCellPosition,currentMapSurface))return [];
+ const currentCellHeight=readSurfaceHeight(currentCellPosition,currentMapSurface);
+ const currentCornerPoints=FIELD_CELL_CORNERS.map(([currentColumnOffset,currentRowOffset])=>projectSurfaceVertex({column:currentCellPosition.column+currentColumnOffset,row:currentCellPosition.row+currentRowOffset,height:currentCellHeight*currentRenderOptions.elevationHeight},currentRenderOptions));
+ return FIELD_BOUNDARY_NEIGHBORS.flatMap(currentNeighborOffset=>{
+  const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
+  if(currentNeighborCell.column<0||currentNeighborCell.row<0||currentNeighborCell.column>=currentMapSurface.columns||currentNeighborCell.row>=currentMapSurface.rows
+    ||(readSurfaceHeight(currentNeighborCell,currentMapSurface)>currentCellHeight||(readSurfaceHeight(currentNeighborCell,currentMapSurface)===currentCellHeight&&!findSurfaceStair(currentNeighborCell,currentMapSurface))))return [];
+  return [currentNeighborOffset.edge.map(currentCornerIndex=>currentCornerPoints[currentCornerIndex])];
+ });
+}
+
+/** 연결 마스크의 둥근 도로 외곽만 투영한다. 연결된 타일 끝에는 선을 만들지 않는다. */
+export function buildFieldRoadEdges(currentCellPosition,currentMapSurface,currentConnectionMask,currentRenderOptions=FIELD_RENDER_METRICS,currentFullTileRoad=false){
+ const currentCellCenter=projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions);
+ const currentInsetValue=currentFullTileRoad?0:FIELD_CONNECTION_SHAPE.inset,currentCornerRadius=currentFullTileRoad?0:FIELD_CONNECTION_SHAPE.radius;
+ const currentCurveSteps=8;
+ const currentRoadSegments=[];
+ for(let currentCornerIndex=0;currentCornerIndex<4;currentCornerIndex++){
+  const currentFirstConnected=Boolean(currentConnectionMask&(1<<currentCornerIndex));
+  const currentSecondConnected=Boolean(currentConnectionMask&(1<<((currentCornerIndex+1)%4)));
+  if(currentFirstConnected&&currentSecondConnected)continue;
+  let currentCornerPoints;
+  if(currentFirstConnected)currentCornerPoints=[[1-currentInsetValue,0],[1-currentInsetValue,.5]];
+  else if(currentSecondConnected)currentCornerPoints=[[.5,currentInsetValue],[1,currentInsetValue]];
+  else{
+   currentCornerPoints=[[.5,currentInsetValue]];
+   for(let currentCurveIndex=0;currentCurveIndex<=currentCurveSteps;currentCurveIndex++){
+    const currentCurveAngle=-Math.PI/2+Math.PI/2*currentCurveIndex/currentCurveSteps;
+    currentCornerPoints.push([1-currentInsetValue-currentCornerRadius+Math.cos(currentCurveAngle)*currentCornerRadius,currentInsetValue+currentCornerRadius+Math.sin(currentCurveAngle)*currentCornerRadius]);
+   }
+   currentCornerPoints.push([1-currentInsetValue,.5]);
+  }
+  const currentProjectedPoints=currentCornerPoints.map(currentCornerPoint=>{
+   let [currentTextureColumn,currentTextureRow]=currentCornerPoint;
+   for(let currentRotationIndex=0;currentRotationIndex<currentCornerIndex;currentRotationIndex++)[currentTextureColumn,currentTextureRow]=[1-currentTextureRow,currentTextureColumn];
+   return {x:currentCellCenter.x+(currentTextureColumn-currentTextureRow)*currentRenderOptions.tileWidth/2,y:currentCellCenter.y+(currentTextureColumn+currentTextureRow-1)*currentRenderOptions.tileHeight/2};
+  });
+  for(let currentPointIndex=1;currentPointIndex<currentProjectedPoints.length;currentPointIndex++)currentRoadSegments.push([currentProjectedPoints[currentPointIndex-1],currentProjectedPoints[currentPointIndex]]);
+ }
+ return currentRoadSegments;
+}
+
+/** 화면 CSS 픽셀 기준 두께를 유지하며 배율 변경 때만 선을 다시 그린다. */
+export function drawFieldElevationOutline(currentGameScene,currentEdgeSegments,currentRenderDepth){
+ const currentEdgeGraphic=currentGameScene.add.graphics().setDepth(currentRenderDepth);
+ let previousStrokeWidth=null;
+ const synchronizeElevationWidth=()=>{
+  const currentStrokeWidth=FIELD_ELEVATION_EDGE_STYLE.width*currentGameScene.scale.displayScale.x/currentGameScene.cameras.main.zoom;
+  if(currentStrokeWidth===previousStrokeWidth)return;
+  previousStrokeWidth=currentStrokeWidth;
+  currentEdgeGraphic.clear();
+  currentEdgeGraphic.lineStyle(currentStrokeWidth,FIELD_ELEVATION_EDGE_STYLE.color,FIELD_ELEVATION_EDGE_STYLE.alpha);
+  for(const [currentStartPoint,currentEndPoint] of currentEdgeSegments)currentEdgeGraphic.lineBetween(currentStartPoint.x,currentStartPoint.y,currentEndPoint.x,currentEndPoint.y);
+ };
+ synchronizeElevationWidth();
+ currentGameScene.events.on('postupdate',synchronizeElevationWidth);
+ currentEdgeGraphic.once('destroy',()=>currentGameScene.events.off('postupdate',synchronizeElevationWidth));
+ return currentEdgeGraphic;
+}
+
 export function drawFieldCellObjects(currentGameScene,currentCellPosition,currentMapSurface,currentRenderOptions,currentTextureKeys,currentRenderDepth,currentShowMesh=false){
  const currentCellFaces=buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions);
  const currentTreadCount=currentCellFaces.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length;
@@ -120,8 +183,19 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
    if(currentFaceRecord.kind==='ground'&&currentTextureKeys.underlay)currentRenderObjects.push(drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentTextureKeys.underlay,currentFaceDepth));
    currentRenderObjects.push(drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentTextureKey,currentFaceDepth+.001,currentUvCorners));
   }
+  if(currentFaceRecord.kind==='tread'||currentFaceRecord.kind==='cliff'){
+   // 측벽과 디딤면의 경계는 각 면의 깊이를 따라 앞쪽 지형에 가려진다.
+   const currentFaceSegments=currentFaceRecord.points.map((currentStartPoint,currentPointIndex)=>[currentStartPoint,currentFaceRecord.points[(currentPointIndex+1)%currentFaceRecord.points.length]]);
+   currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentFaceSegments,currentFaceDepth+.002));
+  }
   if(currentShowMesh)currentRenderObjects.push(drawFieldMeshBoundary(currentGameScene,currentFaceRecord.points,currentFaceDepth+.002));
  }
+ if(currentTextureKeys.roadConnectionMask!==undefined&&!findSurfaceStair(currentCellPosition,currentMapSurface)){
+  const currentRoadEdges=buildFieldRoadEdges(currentCellPosition,currentMapSurface,currentTextureKeys.roadConnectionMask,currentRenderOptions,currentTextureKeys.fullTileRoad);
+  if(currentRoadEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentRoadEdges,currentRenderDepth+.98));
+ }
+ const currentElevationEdges=buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions);
+ if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentRenderDepth+0.99));
  return currentRenderObjects;
 }
 

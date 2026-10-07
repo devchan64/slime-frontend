@@ -1,7 +1,8 @@
+import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
@@ -79,4 +80,59 @@ test('오러 8프레임 UV가 각 셀 안에 있고 투영된 지면·계단은 
   assert.equal(currentFaceRecords.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length,6);
   assert.ok(currentFaceRecords.flatMap(currentFaceRecord=>currentFaceRecord.points).every(currentPointValue=>Number.isFinite(currentPointValue.x)&&Number.isFinite(currentPointValue.y)));
  }
+});
+
+test('높은 평면의 단차 모서리만 표시하고 평면 내부는 제외하고 계단 접합부는 포함한다',()=>{
+ const currentRaisedSurface={columns:3,rows:3,elevations:[[0,0,0],[0,1,1],[0,0,0]]};
+ const currentUpperEdges=buildFieldElevationEdges({column:1,row:1},currentRaisedSurface);
+ assert.equal(currentUpperEdges.length,3);
+ assert.deepEqual(buildFieldElevationEdges({column:0,row:0},currentRaisedSurface),[]);
+ assert.deepEqual(buildFieldElevationEdges({column:1,row:1},{columns:3,rows:3,elevations:Array.from({length:3},()=>[1,1,1])}),[]);
+ const currentStairSurface={...currentRaisedSurface,elevationTiles:[{cell:{column:1,row:1},lower:{column:1,row:0},kind:'stairs'}]};
+ assert.deepEqual(buildFieldElevationEdges({column:1,row:1},currentStairSurface),[]);
+ assert.equal(buildFieldElevationEdges({column:2,row:1},currentStairSurface).length,3);
+ const currentUpperCenter=projectSurfaceCell({column:1,row:1},currentRaisedSurface,FIELD_RENDER_METRICS);
+ assert.ok(currentUpperEdges.flat().every(currentPoint=>Math.abs(currentPoint.y-currentUpperCenter.y)<=FIELD_RENDER_METRICS.tileHeight/2));
+});
+
+
+test('윗면 선은 내부 해상도와 확대 배율에 관계없이 화면 1.25px를 유지하고 정리한다',()=>{
+ const currentSceneEvents=new (currentNodeRequire('node:events').EventEmitter)();
+ const currentGraphicEvents=new (currentNodeRequire('node:events').EventEmitter)();
+ const currentStrokeWidths=[];
+ const currentMockGraphic=Object.assign(currentGraphicEvents,{setDepth(){return this;},clear(){},lineStyle(currentLineWidth){currentStrokeWidths.push(currentLineWidth);},lineBetween(){}});
+ const currentMockScene={add:{graphics:()=>currentMockGraphic},events:currentSceneEvents,scale:{displayScale:{x:2}},cameras:{main:{zoom:4}}};
+ drawFieldElevationOutline(currentMockScene,[[{x:0,y:0},{x:10,y:10}]],1);
+ assert.equal(currentStrokeWidths.at(-1)*4/2,1.25);
+ currentSceneEvents.emit('postupdate');assert.equal(currentStrokeWidths.length,1);
+ currentMockScene.cameras.main.zoom=2;currentSceneEvents.emit('postupdate');
+ assert.equal(currentStrokeWidths.at(-1)*2/2,1.25);
+ currentMockScene.scale.displayScale.x=1;currentSceneEvents.emit('postupdate');
+ assert.equal(currentStrokeWidths.at(-1)*2,1.25);
+ currentGraphicEvents.emit('destroy');assert.equal(currentSceneEvents.listenerCount('postupdate'),0);
+});
+
+
+test('도로 연결 끝은 열고 교차점 내부에는 외곽선을 그리지 않는다',()=>{
+ const currentRoadCell={column:4,row:4};
+ assert.deepEqual(buildFieldRoadEdges(currentRoadCell,currentFlatSurface,15),[]);
+ assert.equal(buildFieldRoadEdges(currentRoadCell,currentFlatSurface,5).length,4);
+ assert.equal(buildFieldRoadEdges(currentRoadCell,currentFlatSurface,0).length,40);
+ for(let currentConnectionMask=0;currentConnectionMask<16;currentConnectionMask++)
+  assert.ok(buildFieldRoadEdges(currentRoadCell,currentFlatSurface,currentConnectionMask).flat().every(currentPoint=>Number.isFinite(currentPoint.x)&&Number.isFinite(currentPoint.y)));
+});
+
+test('결계 오러는 씬 시간으로 UV를 순환하고 해제 시 애니메이션 구독을 정리한다',()=>{
+ const currentSceneEvents=new EventEmitter(),currentMeshEvents=new EventEmitter();
+ const currentPanelMesh={width:800,height:600,vertices:Array.from({length:6},()=>({})),setOrtho(){},setDepth(){},setAlpha(){},once:(...currentEventArguments)=>currentMeshEvents.once(...currentEventArguments)};
+ const currentGameScene={events:currentSceneEvents,textures:{exists:()=>true,get:()=>({getSourceImage:()=>({width:1774,height:887})})},add:{mesh:()=>currentPanelMesh}};
+ drawFieldAuraPanel(currentGameScene,[{x:0,y:0},{x:10,y:0},{x:10,y:15},{x:0,y:15}],'aura',1);
+ currentSceneEvents.emit('update',0);
+ const currentFirstFrame=currentPanelMesh.vertices.map(currentMeshVertex=>[currentMeshVertex.u,currentMeshVertex.v]);
+ currentSceneEvents.emit('update',FIELD_SAFE_AURA_PROFILE.frameDuration);
+ assert.notDeepEqual(currentPanelMesh.vertices.map(currentMeshVertex=>[currentMeshVertex.u,currentMeshVertex.v]),currentFirstFrame);
+ currentSceneEvents.emit('update',FIELD_SAFE_AURA_PROFILE.frameDuration*FIELD_SAFE_AURA_PROFILE.frames);
+ assert.deepEqual(currentPanelMesh.vertices.map(currentMeshVertex=>[currentMeshVertex.u,currentMeshVertex.v]),currentFirstFrame);
+ currentMeshEvents.emit('destroy');
+ assert.equal(currentSceneEvents.listenerCount('update'),0);
 });

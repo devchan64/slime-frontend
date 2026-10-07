@@ -164,3 +164,9 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 로그인한 캐릭터의 전역 알림 컴포넌트는 `GET /v1/game/parcels/notice`를 최초 렌더와 응답 완료 후 15초 간격으로 조회한다. 백엔드 해당 API를 먼저 배포한다. 텍스트 클라이언트는 `parcels notice`로 같은 조회를 제공한다. 검증은 `node scripts/run-regression.mjs tests/parcel-notice.test.mjs tests/parcel-notice-browser.test.mjs tests/parcel-panel-browser.test.mjs`로 실행한다.
 
 텍스트 클라이언트의 `achievements`는 현재 업적 진행도·CP/SP 지급 이력과 보존 시즌 ID를 조회한다. `achievements <시즌ID>`는 해당 시즌의 보존 정의·진행도·지급 이력을 표시한다. 현재 잔고는 별도로 표시하며 조회는 보상을 지급하지 않는다. 두 명령은 기존 `/v1/characters/me/achievements`와 `/v1/achievements`의 GET 계약을 사용한다.
+
+### 캐릭터 렌더링 품질
+
+게임 캔버스는 CSS 표시 크기를 유지하고 내부 가로·세로 해상도를 2배로 렌더링합니다. 카메라 배율·줌 입력·드래그 임계값·화면 고정 표식을 함께 보정하며 리사이즈 시 Phaser 좌표 변환도 갱신합니다. 픽셀 수는 기존의 4배이므로 GPU 픽셀 처리량과 버퍼 메모리는 증가합니다. 서버·배포 구조 변경은 없습니다.
+
+사람 캐릭터는 월드 기준 1px 회갈색(#655D54) 형태선과 바깥 1px 밝은 분리선(#FFF2CC)을 사용하며 배율에 비례합니다. 대기·걷기·휴식의 현재 프레임과 앵커를 따라갑니다. 접지 그림자는 기존 크기와 중성 회색(#242424), 기존 contrast 프로필 대비 층별 불투명도 1.2배를 적용합니다. 설정 원본은 src/game/renderQuality.ts입니다.

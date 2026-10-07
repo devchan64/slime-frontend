@@ -1,0 +1,8 @@
+/** 검수에서 채택한 표시 크기와 독립적인 렌더링 기준값. */
+export const GAME_INTERNAL_RESOLUTION_SCALE = 2;
+export const CHARACTER_OUTLINE_BASE_WIDTH = 1;
+export const CHARACTER_OUTLINE_BASE_COLOR = 0x655d54;
+export const CHARACTER_SEPARATOR_BASE_WIDTH = 1;
+export const CHARACTER_SEPARATOR_BASE_COLOR = 0xfff2cc;
+export const CHARACTER_CONTACT_SHADOW_COLOR = 0x242424;
+export const CHARACTER_CONTACT_SHADOW_ALPHA_SCALE = 1.2;

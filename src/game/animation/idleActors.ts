@@ -1,3 +1,4 @@
+import {attachCharacterOutlineLayers} from './characterOutline';
 import newMonsterMetadata4 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.animation.json";
 import newMonsterMetadata3 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.animation.json";
 import newMonsterMetadata2 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.animation.json";
@@ -93,6 +94,7 @@ export function createActorIdleImage(actorRenderScene: Phaser.Scene, actorIdleKi
     .setScale(actorDisplayHeight / (actorIdleKind === "human" ? DEFAULT_IDLE_BODY_HEIGHT : actorIdleKind === "human-rest" ? REST_REFERENCE_BODY_HEIGHT : initialIdleFrame.rect.height * IDLE_BODY_HEIGHT_RATIO))
     .setData("actorDisplayHeight", actorDisplayHeight).setData("idlePhaseOffset", idlePhaseOffset).setData("actorIdleKind", actorIdleKind).setData("characterRestingFacing", actorScreenDirection);
   updateActorIdleFrame(actorRenderImage, actorScreenDirection);
+  if (actorIdleKind === 'human' || actorIdleKind === 'human-rest') attachCharacterOutlineLayers(actorRenderImage);
   return actorRenderImage;
 }
 

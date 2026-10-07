@@ -1,3 +1,4 @@
+import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import {isHealthDepleted} from '../../client/health-state.mjs';
 import {bindMapGestureCancellation} from '../mapGestureCancellation';
 import {updateMapPointerGesture,type MapPointerGesture} from '../mapPointerGesture';
@@ -62,16 +63,16 @@ const TEXT = {
 };
 const CENTER = 0.5,
   LABEL_OFFSET = 33,
-  DRAG_THRESHOLD = 6,
-  FIELD_ZOOM_MINIMUM = 0.4 / WORLD_UNIT_MIGRATION,
-  FIELD_ZOOM_MAXIMUM = 2.8 / WORLD_UNIT_MIGRATION,
+  DRAG_THRESHOLD = 6 * GAME_INTERNAL_RESOLUTION_SCALE,
+  FIELD_ZOOM_MINIMUM = 0.4 * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION,
+  FIELD_ZOOM_MAXIMUM = 2.8 * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION,
   TURN_BADGE_OFFSET = 21,
   TURN_BADGE_RADIUS = 14,
   PATH_WIDTH = 4,
   PATH_NODE_RADIUS = 9,
   PATH_COLOR = 0x9eeeff,
   ARRIVAL_COLOR = 0xffbb66;
-const DEFAULT_TILE_ZOOM = MAP_DEFAULT_ZOOM;
+const DEFAULT_TILE_ZOOM = MAP_DEFAULT_ZOOM * GAME_INTERNAL_RESOLUTION_SCALE;
 const MOVE_OVERLAY = {
   fill: 0x168ee0, alpha: 0.5, pathFill: 0x62dcff, pathAlpha: 0.62,
   outline: 0x071e35, outlineWidth: 8, edge: 0x9ceaff, edgeWidth: 4,
@@ -229,7 +230,7 @@ export class MainScene extends Phaser.Scene {
     }
     this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
-      if(this.panStart)return;
+      if(p.event.target !== this.game.canvas || this.panStart)return;
       this.panStart={x:p.x,y:p.y,scrollX:this.cameras.main.scrollX,scrollY:this.cameras.main.scrollY,
         currentPointerIdentifier:p.id,currentStartPositionX:p.x,currentStartPositionY:p.y,currentDragOccurred:false};
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({preventScroll:true});
@@ -286,7 +287,7 @@ export class MainScene extends Phaser.Scene {
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
       this.cameras.main.setZoom(
-        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001 / WORLD_UNIT_MIGRATION, FIELD_ZOOM_MINIMUM, FIELD_ZOOM_MAXIMUM),
+        Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001 * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION, FIELD_ZOOM_MINIMUM, FIELD_ZOOM_MAXIMUM),
       ),
     );
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
@@ -320,7 +321,7 @@ export class MainScene extends Phaser.Scene {
     this.draw();
   }
   adjustZoom(delta: number) {
-    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta / WORLD_UNIT_MIGRATION,FIELD_ZOOM_MINIMUM,FIELD_ZOOM_MAXIMUM));
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION,FIELD_ZOOM_MINIMUM,FIELD_ZOOM_MAXIMUM));
   }
   rotateMap(direction: -1 | 1) {
     if (!this.state || !this.sys.isActive()) return;
@@ -383,7 +384,7 @@ export class MainScene extends Phaser.Scene {
     this.animateFieldActors();
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
-    for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom));
+    for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom / GAME_INTERNAL_RESOLUTION_SCALE));
     this.waypointZoom = zoom;
   }
   resetCameraView() {
@@ -666,7 +667,7 @@ export class MainScene extends Phaser.Scene {
         const currentConnectedFrame=/^(water|road|dirt-road|stone-road)-(\d+)$/.exec(currentSelectedFrame);
         const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(this,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
-        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,{ground:currentGroundKey,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder','tree-base'].includes(terrain)?'terrain-source-grass':undefined},depth))remember(currentRenderObject);
+        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,{ground:currentGroundKey,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,roadConnectionMask:kind==='road'?rotateConnections(roadConnections(cell,definition,road),this.rotation):undefined,fullTileRoad:kind==='road'&&!currentConnectedFrame,underlay:['boulder','tree-base'].includes(terrain)?'terrain-source-grass':undefined},depth))remember(currentRenderObject);
       }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
@@ -732,7 +733,7 @@ export class MainScene extends Phaser.Scene {
     this.actorCache=new ActorWindowCache(this.actorEntries,objects=>{
       const removed=new Set(objects);
       this.movingObjects=this.movingObjects.filter(item=>!removed.has(item.object));
-      for(const object of objects)object.destroy();
+      for(const object of objects)if(object.scene)object.destroy();
     });
     this.syncActorViewport();
   }
@@ -763,7 +764,7 @@ export class MainScene extends Phaser.Scene {
       createFieldRestEffectSprite(this, p, height, depth + ACTOR_DEPTH.labelOffset);
     }
     for (const createdActorChild of this.children.list.slice(firstChild)) {
-      if (createdActorChild instanceof Phaser.GameObjects.Image) createdActorChild.setData('actorSelectionPosition', {...pos});
+      if (createdActorChild instanceof Phaser.GameObjects.Image && !createdActorChild.getData('characterOutlineLayer')) createdActorChild.setData('actorSelectionPosition', {...pos});
     }
     const annotation = this.add.graphics().setDepth(this.annotationDepth());
     if (rank !== undefined) {
@@ -783,6 +784,7 @@ export class MainScene extends Phaser.Scene {
     }
     if(motionKey)for(const child of this.children.list.slice(firstChild)){
       const object=child as Phaser.GameObjects.Image;
+      if (object.getData("characterOutlineLayer")) continue;
       this.movingObjects.push({key:motionKey,object,x:object.x,y:object.y,depth:object.depth});
     }
     return this.children.list.slice(firstChild);

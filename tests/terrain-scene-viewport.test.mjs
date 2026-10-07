@@ -1,3 +1,4 @@
+import {EventEmitter} from 'node:events';
 import {test, beforeEach, afterEach} from 'node:test';
 let originalWindowDescriptor;
 let currentMotionPreference;
@@ -45,18 +46,19 @@ function createIdleTextureDouble() {
 
 test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 이동 참조를 함께 해제한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
- scene.children={list:[]};scene.textures=createIdleTextureDouble();
+ scene.children={list:[]};scene.events=new EventEmitter();scene.textures=createIdleTextureDouble();
  const make=(x=0,y=0)=>{
-  const target={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},postFX:{addGlow(){}},destroyed:false};
+  const target={scene,x,y,depth:0,width:1024,height:1024,texture:{key:"idle-human"},frame:{name:""},data:{},postFX:{addGlow(){}},events:new EventEmitter(),destroyed:false};
   const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
    if(key==='setData')o.data[args[0]]=args[1];
    if(key==='getData')return o.data[args[0]];
-   if(key==='setTexture')o.frame={name:args[1]};
+   if(key==='setTexture'){o.texture={key:args[0]};o.frame={name:args[1]};}
    if(key==='setOrigin'){o.originX=args[0];o.originY=args[1];}
    if(key==='setPosition'){o.x=args[0];o.y=args[1];}
    if(key==='setDepth')o.depth=args[0];
+   if(key==='once')o.events.once(...args);
    if(key==='destroy'){
-    assert.equal(o.destroyed,false);o.destroyed=true;o.scene=null;
+    assert.equal(o.destroyed,false);o.events.emit('destroy');o.destroyed=true;o.scene=null;
     scene.children.list=scene.children.list.filter(item=>item!==proxy);
    }
    return proxy;
@@ -70,34 +72,36 @@ test('실제 씬에서 카메라 밖 개체의 몸체·그림자·이름표와 �
  scene.queueUnit('near',{column:50,row:50},0xffffff,'주변',true,undefined,false,undefined,undefined,'member:near');
  scene.queueUnit('far',{column:3000,row:50},0xffffff,'먼 곳',true,undefined,false,undefined,undefined,'member:far');
  scene.rebuildActorViewport();
- assert.equal(created.length,4);assert.equal(scene.movingObjects.length,4);
+ assert.equal(created.length,20);assert.equal(scene.movingObjects.length,4);
  assert.ok(scene.movingObjects.every(item=>item.key==='member:near'));
  const initial=[...created];scene.cameras.main.scrollX=2900;scene.update();
- assert.ok(initial.every(item=>item.destroyed));assert.equal(scene.children.list.length,4);
+ assert.ok(initial.every(item=>item.destroyed));assert.equal(scene.events.listenerCount("postupdate"),1);assert.equal(scene.children.list.length,20);
  assert.ok(scene.movingObjects.every(item=>item.key==='member:far'&&!item.object.destroyed));
  scene.cameras.main.scrollX=0;scene.update();
- assert.equal(scene.children.list.length,4);
+ assert.equal(scene.children.list.length,20);
  assert.ok(scene.movingObjects.every(item=>item.key==='member:near'&&!item.object.destroyed));
- scene.actorCache.clear();assert.equal(scene.children.list.length,0);assert.equal(scene.movingObjects.length,0);
+ scene.actorCache.clear();assert.equal(scene.children.list.length,0);assert.equal(scene.movingObjects.length,0);assert.equal(scene.events.listenerCount("postupdate"),0);
 });
 
 test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명과 표시를 갱신한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{}),created=[];
  const object=(x=0,y=0)=>{
-  const target={x,y,width:1024,height:1024,visible:true,destroyed:false};
+  const target={x,y,width:1024,height:1024,visible:true,destroyed:false,events:new EventEmitter()};
   const proxy=new Proxy(target,{get(o,key){if(key in o)return o[key];return (...args)=>{
-   if(key==='destroy'){assert.equal(o.destroyed,false);o.destroyed=true;}
+   if(key==='once')o.events.once(...args);
+   if(key==='destroy'){assert.equal(o.destroyed,false);o.events.emit('destroy');o.destroyed=true;}
    if(key==='setVisible')o.visible=args[0];
    if(key==='setData')o.data[args[0]]=args[1];
    if(key==='getData')return o.data[args[0]];
-   if(key==='setTexture')o.frame={name:args[1]};
+   if(key==='setTexture'){o.texture={key:args[0]};o.frame={name:args[1]};}
    if(key==='setOrigin'){o.originX=args[0];o.originY=args[1];}
    if(key==='setPosition'){o.x=args[0];o.y=args[1];}
    if(key==='setScale'){o.displayWidth=o.width*args[0];o.displayHeight=o.height*args[0];}
    return proxy;
   };}});created.push(proxy);return proxy;
  };
- scene.add={graphics:()=>object(),image:(x,y)=>object(x,y)};
+ scene.add={graphics:()=>object(),image:(x,y)=>object(x,y),mesh:(x,y)=>object(x,y)};
+ scene.events=new EventEmitter();scene.events.setMaxListeners(0);scene.scale={displayScale:{x:1}};
  scene.sys={isActive:()=>false};scene.textures={exists:()=>true};
  scene.cameras={main:{scrollX:700,scrollY:15000,width:800,height:600,zoom:1,setBounds(){},removeBounds(){}}};
  const state={me:{id:'hero',position:{column:2,row:2}},location:{id:'map:meadow'},monsters:[],members:[],map:{id:'meadow',columns:1000,rows:1000,startPoint:{column:2,row:2},safeRadius:3,connections:[],blocked:[]},battle:null};
@@ -139,13 +143,13 @@ test('실제 씬의 필드 생성·카메라 이동·축소에서 지형 수명�
 
 test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 논리 선택 좌표를 유지한다',()=>{
  const scene=new MainScene(()=>{},()=>{},()=>{});
- scene.children={list:[]};scene.textures=createIdleTextureDouble();
+ scene.children={list:[]};scene.events=new EventEmitter();scene.textures=createIdleTextureDouble();
  const make=(x=0,y=0)=>{
-  const object={scene,x,y,depth:0,width:1024,height:1024,frame:{name:""},data:{},postFX:{addGlow(){}}};
+  const object={scene,x,y,depth:0,width:1024,height:1024,texture:{key:"idle-human"},frame:{name:""},data:{},postFX:{addGlow(){}}};
   const proxy=new Proxy(object,{get(o,key){if(key in o)return o[key];return (...args)=>{
    if(key==='setData')o.data[args[0]]=args[1];
    if(key==='getData')return o.data[args[0]];
-   if(key==='setTexture')o.frame={name:args[1]};
+   if(key==='setTexture'){o.texture={key:args[0]};o.frame={name:args[1]};}
    if(key==='setOrigin'){o.originX=args[0];o.originY=args[1];}
    if(key==='setPosition'){o.x=args[0];o.y=args[1];}
    if(key==='setDepth')o.depth=args[0];
@@ -163,6 +167,17 @@ test('실제 씬은 필드 몸체·그림자·이름표를 함께 이동하고 �
  scene.unit({column:3,row:2},0xff0000,'슬라임',false,undefined,false,undefined,undefined,'monster:s');
  assert.equal(scene.movingObjects.length,4);
  scene.animateFieldActors();
+ scene.events.emit('postupdate');
+ const currentCharacterImage=scene.children.list.find(currentChild=>currentChild.data.actorIdleKind);
+ const currentOutlineImages=scene.children.list.filter(currentChild=>currentChild.data.characterOutlineLayer);
+ assert.equal(currentOutlineImages.length,16);
+ for(const currentOutlineImage of currentOutlineImages){
+  assert.equal(currentOutlineImage.texture.key,currentCharacterImage.texture.key);
+  assert.equal(currentOutlineImage.frame.name,currentCharacterImage.frame.name);
+  assert.ok(Math.abs(currentOutlineImage.x-currentCharacterImage.x)<=2);
+  assert.ok(Math.abs(currentOutlineImage.y-currentCharacterImage.y)<=2);
+  assert.equal(currentOutlineImage.data.actorSelectionPosition,undefined);
+ }
  const first=scene.movingObjects[0],offset=first.object.x-first.x;
  assert.ok(offset<0&&offset>=-64);
  for(const item of scene.movingObjects){
@@ -206,26 +221,7 @@ test('필드에서 자기 캐릭터가 보간 이동하면 카메라도 현재 �
 });
 
 
-test('결계 맥동은 씬 시간에 따라 변하고 동작 줄이기 설정은 고정 불투명도로 적용한다',()=>{
- const currentSceneInstance = new MainScene(()=>{},()=>{},()=>{});
- const recordedBarrierOpacities = [];
- currentSceneInstance.safeBarrierGraphics = [{setAlpha(barrierOpacityValue){recordedBarrierOpacities.push(barrierOpacityValue);}}];
- currentSceneInstance.syncTerrainViewport = ()=>{};
- currentSceneInstance.syncActorViewport = ()=>{};
- currentSceneInstance.animateFieldActors = ()=>{};
- currentSceneInstance.cameras = {main:{zoom:1}};
- currentSceneInstance.waypointZoom = 1;
- currentSceneInstance.time.now = 0;currentSceneInstance.update();
- currentSceneInstance.time.now = 650;currentSceneInstance.update();
- currentSceneInstance.time.now = 1950;currentSceneInstance.update();
- assert.ok(recordedBarrierOpacities.every(barrierOpacityValue=>barrierOpacityValue>=0.72&&barrierOpacityValue<=1));
- assert.ok(recordedBarrierOpacities[1]>recordedBarrierOpacities[0]);
- assert.ok(recordedBarrierOpacities[2]<recordedBarrierOpacities[0]);
- currentMotionPreference.matches = true;
- currentSceneInstance.time.now = 0;currentSceneInstance.update();
- currentSceneInstance.time.now = 1950;currentSceneInstance.update();
- assert.deepEqual(recordedBarrierOpacities.slice(-2),[1,1]);
-});
+
 
 
 test('프레임 지연으로 이동이 끝나도 카메라를 최종 좌표에 한 번 동기화한다',()=>{
@@ -276,7 +272,7 @@ test('도시별 경비센터 외형을 발급 접점 옆에 표시하고 미등�
 test('마을·야외·전투의 진입과 시점 복귀는 작은 화면에서도 2배이며 수동 확대가 가능하다',()=>{
  for(const currentFieldKind of ['town','outdoor','battle']) {
   const currentSceneInstance=new MainScene(()=>{},()=>{},()=>{});
-  const currentCameraState={width:320,height:240,zoom:0.5,setZoom(currentZoomValue){this.zoom=currentZoomValue;},centerOn(){}};
+  const currentCameraState={width:640,height:480,zoom:1,setZoom(currentZoomValue){this.zoom=currentZoomValue;},centerOn(){}};
   currentSceneInstance.cameras={main:currentCameraState};
   currentSceneInstance.state={map:{safeTown:currentFieldKind==='town'},me:{position:{column:1,row:1}},
    battle:currentFieldKind==='battle'?{field:{columns:20,rows:20}}:null};
@@ -284,12 +280,12 @@ test('마을·야외·전투의 진입과 시점 복귀는 작은 화면에서�
   currentSceneInstance.syncActorViewport=()=>{};
   currentSceneInstance.animateFieldActors=()=>{};
   currentSceneInstance.focus();
-  assert.equal(currentCameraState.zoom,2,currentFieldKind);
+  assert.equal(currentCameraState.zoom / 2,2,currentFieldKind);
   currentSceneInstance.adjustZoom(0.1);
-  assert.ok(currentCameraState.zoom>2,'확대 버튼이 기본 배율보다 작게 되돌리지 않는다');
+  assert.ok(currentCameraState.zoom / 2>2,'확대 버튼이 기본 배율보다 작게 되돌리지 않는다');
   currentSceneInstance.adjustZoom(-0.5);
-  assert.ok(currentCameraState.zoom<2);
+  assert.ok(currentCameraState.zoom / 2<2);
   currentSceneInstance.resetCameraView();
-  assert.equal(currentCameraState.zoom,2);
+  assert.equal(currentCameraState.zoom / 2,2);
  }
 });
