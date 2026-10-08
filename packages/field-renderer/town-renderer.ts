@@ -12,3 +12,5 @@ export function collectTerrainTextureSources():Record<string,string> {
  return registeredTextureSources;
 }
 export {BUILDING_RENDER_BLOCK_HEIGHT,buildRenderedBlockFaces} from '../../src/game/terrain/blockGeometry';
+
+export {resolveFieldTileTextures} from '../../src/game/terrain/fieldTileRendering';

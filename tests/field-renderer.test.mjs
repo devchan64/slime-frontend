@@ -159,3 +159,20 @@ test('바닥 재질 경계는 같은 높이에서 한 번 표시하고 도로·�
  assert.equal(buildFieldMaterialEdges({column:1,row:0},{...currentMapSurface,elevations:[[0,1],[0,1]]},resolveGroundMaterial).length,0);
  for(const currentRotationValue of [0,1,2,3])assert.ok(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveGroundMaterial,{...FIELD_RENDER_METRICS,rotation:currentRotationValue}).flat().every(currentPoint=>Number.isFinite(currentPoint.x)&&Number.isFinite(currentPoint.y)));
 });
+
+test('필드 공용 재질 선택은 맵별 도로와 바탕 재질 계약을 유지한다',async()=>{
+ const {build}=await import('esbuild');
+ const {outputFiles}=await build({entryPoints:['src/game/terrain/fieldTileRendering.ts'],bundle:true,write:false,platform:'node',format:'esm',loader:{'.png':'empty','.webp':'empty'},plugins:[{name:'texture-test',setup(currentBuildContext){
+ currentBuildContext.onResolve({filter:/field-renderer\.mjs$/},()=>({path:'connected',namespace:'test-mock'}));
+ currentBuildContext.onLoad({filter:/.*/,namespace:'test-mock'},()=>({contents:"export const prepareFieldConnectedTexture=(scene,source,grass,mask)=>source+'-'+mask;"}));
+ }}]});
+ const {resolveFieldTileTextures}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
+ const currentMaterialReader=()=> 'grass';
+ const currentMeadowTile=resolveFieldTileTextures({},'road',{column:0,row:0},'meadow',5,currentMaterialReader);
+ assert.equal(currentMeadowTile.ground,'terrain-source-meadow-road');assert.equal(currentMeadowTile.fullTileRoad,true);
+ assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'broken-quarry',5,currentMaterialReader).ground,'terrain-source-stone-road-5');
+ assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road-5');
+ assert.equal(resolveFieldTileTextures({},'road',{column:1,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-road-5');
+ assert.equal(resolveFieldTileTextures({},'flowers',{column:1,row:0},'meadow',0,currentMaterialReader).ground,'terrain-source-meadow-flowers');
+ assert.equal(resolveFieldTileTextures({},'boulder',{column:1,row:0},'ash-edge',0,currentMaterialReader).underlay,'terrain-source-grass');
+});

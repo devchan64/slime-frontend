@@ -1,3 +1,4 @@
+import {resolveFieldTileTextures} from '../terrain/fieldTileRendering';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import {isHealthDepleted} from '../../client/health-state.mjs';
 import {bindMapGestureCancellation} from '../mapGestureCancellation';
@@ -19,9 +20,8 @@ import { toView, fromView, nextRotation, rotateConnections, type MapRotation } f
 import { elevationTileAt, type Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
-import {drawFieldCellObjects,prepareFieldConnectedTexture,FIELD_RENDER_METRICS} from '../../../packages/field-renderer/field-renderer.mjs';
+import {drawFieldCellObjects,FIELD_RENDER_METRICS} from '../../../packages/field-renderer/field-renderer.mjs';
 import {MAP_ORIGIN} from '../terrain/elevation';
-import {CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../terrain/textures';
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
@@ -667,13 +667,10 @@ export class MainScene extends Phaser.Scene {
       const kind=field && terrain==='rock' ? `battle-rock-${['a','b','c'][(column+row)%3]}` : field && terrain==='thicket' ? 'battle-thicket' : terrain;
       const currentCellIsWater=waterCells.has(`${column},${row}`);
       if(field||!s.map.safeTown){
-        const currentSelectedFrame=waterCells.has(`${column},${row}`)?`water-${rotateConnections(waterConnections(cell,definition,waterCells),this.rotation)}`
-          :kind==='road'?selectFieldRoadFrame(rotateConnections(roadConnections(cell,definition,road),this.rotation),cell,false,s.map.id)
-          :kind==='flowers'&&s.map.id==='meadow'?'meadow-flowers':kind;
-        const currentConnectedFrame=/^(water|road|dirt-road|stone-road)-(\d+)$/.exec(currentSelectedFrame);
-        const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(this,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
+        const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):kind==='road'?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
+        const currentTileTextures=resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial);
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
-        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,{ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,roadConnectionMask:kind==='road'?rotateConnections(roadConnections(cell,definition,road),this.rotation):undefined,fullTileRoad:kind==='road'&&!currentConnectedFrame,underlay:['boulder','tree-base'].includes(terrain)?'terrain-source-grass':undefined},depth))remember(currentRenderObject);
+        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth))remember(currentRenderObject);
       }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){
