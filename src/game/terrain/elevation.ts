@@ -1,3 +1,5 @@
+import {MAP_ORIGIN,TERRAIN_DEPTH} from '../../../packages/field-renderer/render-constants.mjs';
+export {MAP_ORIGIN,TERRAIN_DEPTH} from '../../../packages/field-renderer/render-constants.mjs';
 import {projectSurfaceCell, buildSurfaceCliffs, buildSurfaceStairs} from "../../../packages/field-surface/field-surface.mjs";
 import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT, MAP_ELEVATION_HEIGHT, MAP_BASE_THICKNESS, resolveMapTileSize} from "./renderMetrics";
 import type { Position } from '../../client/types';
@@ -11,8 +13,6 @@ export type Surface = { columns: number; rows: number; safeTown?: boolean; eleva
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
 export const ELEVATION_STEP = MAP_ELEVATION_HEIGHT;
 export const CELL_WIDTH = MAP_TILE_WIDTH, CELL_HEIGHT = MAP_TILE_HEIGHT;
-export const MAP_ORIGIN = { x: 1040, y: 80 };
-export const TERRAIN_DEPTH = { stride: 100, base: 100, surface: 1, overlay: 10, actor: 20, annotation: 10000 };
 export const BASE_THICKNESS = MAP_BASE_THICKNESS;
 const same = (a: Position, b: Position) => a.column === b.column && a.row === b.row;
 export const inBounds = (p: Position, map: Surface) => Number.isInteger(p.column) && Number.isInteger(p.row) && p.column >= 0 && p.row >= 0 && p.column < map.columns && p.row < map.rows;

@@ -3,3 +3,5 @@ export {attachCharacterOutlineLayers} from '../../src/game/animation/characterOu
 export {roadConnections,waterConnections} from '../../src/game/terrain/roadTiles';
 
 export {drawCharacterContactShadow} from '../../src/game/terrain/characterContactShadow';
+
+export * from './render-constants.mjs';

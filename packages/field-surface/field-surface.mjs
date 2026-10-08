@@ -1,7 +1,9 @@
+import {TERRAIN_STAIR_COUNT} from '../field-renderer/render-constants.mjs';
+export {TERRAIN_STAIR_COUNT,CHARACTER_OUTLINE_STYLE} from '../field-renderer/render-constants.mjs';
 /** 게임과 검수가 함께 사용하는 고도·투영 계약. 엔진과 DOM에 의존하지 않는다. */
 export const FIELD_SURFACE_VERSION = '1.0.5';
-export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:80,tileHeight:40,elevationHeight:32,baseThickness:16});
-const TERRAIN_STAIR_COUNT = 3;
+import {FIELD_RENDER_METRICS} from '../field-renderer/render-constants.mjs';
+export {FIELD_RENDER_METRICS} from '../field-renderer/render-constants.mjs';
 export function readSurfaceHeight(currentCellPosition,currentMapSurface){
  if(currentCellPosition.column<0||currentCellPosition.row<0||currentCellPosition.column>=currentMapSurface.columns||currentCellPosition.row>=currentMapSurface.rows)return 0;
  if(currentMapSurface.heightSource)return readSurfaceHeight(currentMapSurface.heightSource.position(currentCellPosition),currentMapSurface.heightSource.surface);
@@ -67,4 +69,3 @@ export function resolveCliffTextureScale(currentRenderOptions,currentTextureWidt
 }
 
 /** 맵 캐릭터 외곽 강조의 공용 색상·두께. */
-export const CHARACTER_OUTLINE_STYLE = Object.freeze({color:0xfff3c4,cssColor:'#fff3c4',width:5,outerStrength:4,quality:0.1});

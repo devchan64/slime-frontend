@@ -1,3 +1,5 @@
+import {HUMAN_REST_HEIGHT_RATIO,SLIME_RATIO,MAX_MONSTER_RATIO,ACTOR_CONTACT_SHADOW_CONTRACT,SPRITE_DEPTH_OFFSET} from '../../../packages/field-renderer/render-constants.mjs';
+export {HUMAN_REST_HEIGHT_RATIO,SLIME_RATIO,MAX_MONSTER_RATIO,ACTOR_CONTACT_SHADOW_CONTRACT,SPRITE_DEPTH_OFFSET} from '../../../packages/field-renderer/render-constants.mjs';
 import {drawCharacterContactShadow} from './characterContactShadow';
 import { DEFAULT_CHARACTER_WALK_ASSET, updateCharacterAnimationFrame } from "../animation/walkingActors";
 import {CHARACTER_BODY_HEIGHT} from "./renderMetrics";
@@ -8,13 +10,8 @@ import {drawFieldActorContactShadow} from '../../../packages/field-renderer/fiel
 
 export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
 // 앉은 높이는 시트 포즈로 표현하고 입식 기준 배율은 유지한다.
-const HUMAN_REST_HEIGHT_RATIO = 1;
-export const SLIME_RATIO = 0.5;
-export const MAX_MONSTER_RATIO = 2;
 /** 사람(중형) 기준 접지 그림자의 모든 맵 필드 공용 렌더링 계약이다. */
 /** 시인성 검수에서 채택한 접지 대비 강화안을 모든 필드의 기본값으로 사용한다. */
-export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({profile:'contrast'});
-const SPRITE_DEPTH_OFFSET = 0.01;
 export const updateCharacterFacing = updateCharacterAnimationFrame;
 
 export function preloadActors(scene: Phaser.Scene) {

@@ -1,3 +1,5 @@
+import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
+export {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
 import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE,WOOD_DOOR_WALL_TEXTURE,WOOD_CROSSBAR_WALL_TEXTURE,UNIFIED_WOOD_ROOF_TEXTURE} from "./textures";
 import {buildRenderedBlockFaces} from './blockGeometry';
 import Phaser from 'phaser';
@@ -6,12 +8,6 @@ import {t} from '../../i18n';
 import {cityBuildingCells} from './cityBuildings';
 import {TERRAIN_DEPTH} from './elevation';
 
-const CITY_BUILDING_STYLE = {
-  wallLight:0xc8b68d, wallDark:0x8f8067,
-  outlineColor:0x453d35, outlineWidth:2, selectedColor:0xffdd78, selectedWidth:4,
-  roofAlpha:0.9, labelFont:'17px', labelOffset:12, entranceRadius:7,
-  roofColors:{guild:0x467c75,bookshop:0x755c84,inn:0xa56f54,workshop:0x626f7a,market:0xd4ad63},
-};
 const CITY_HALF_TILE = 0.5;
 const WALL_ENTRANCE_POSITION_TOLERANCE = 0.01;
 type CityScreenPoint = {x:number;y:number};

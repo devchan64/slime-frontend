@@ -1,8 +1,9 @@
+import {CHARACTER_OUTLINE_DEPTH_STEP} from '../../../packages/field-renderer/render-constants.mjs';
+export {CHARACTER_OUTLINE_DEPTH_STEP} from '../../../packages/field-renderer/render-constants.mjs';
 import type Phaser from 'phaser';
 import {CHARACTER_OUTLINE_BASE_WIDTH, CHARACTER_OUTLINE_BASE_COLOR, CHARACTER_SEPARATOR_BASE_WIDTH, CHARACTER_SEPARATOR_BASE_COLOR} from '../renderQuality';
 
 const CHARACTER_OUTLINE_SAMPLE_OFFSETS = [[-1,0],[1,0],[0,-1],[0,1],[-0.707,-0.707],[0.707,-0.707],[-0.707,0.707],[0.707,0.707]];
-const CHARACTER_OUTLINE_DEPTH_STEP = 0.0001;
 
 /** 원본 프레임·앵커·좌우반전·이동을 따라가며 월드 단위 선폭을 유지한다. */
 export function attachCharacterOutlineLayers(currentActorImage: Phaser.GameObjects.Image) {
