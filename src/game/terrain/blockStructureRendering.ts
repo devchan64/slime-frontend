@@ -38,7 +38,8 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
   }
   const usesRedBrickExterior=currentCityBuilding.id==='iseulon-guild';
   const usesUnifiedWoodWall=['iseulon-', 'reedhaven-', 'grainstead-', 'saltford-'].some(currentCityPrefix => currentCityBuilding.id.startsWith(currentCityPrefix))||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
-  if (usesUnifiedWoodWall) {
+  const currentStoneExterior=currentCityBuilding.id.startsWith("stonewarm-");
+  if (usesUnifiedWoodWall||currentStoneExterior) {
     const woodRoofBaseHeight=Math.min(...currentSurfaceFaces.filter(currentFaceRecord=>currentFaceRecord.material==='roof').flatMap(currentFaceRecord=>currentFaceRecord.vertices.map(currentVertexPoint=>currentVertexPoint.height)));
     for (const currentWallFace of currentVisibleFaces.filter(currentFaceRecord=>!currentFaceRecord.surface.top)) {
       const wallMinimumScreenX=Math.floor(Math.min(...currentWallFace.points.map(currentPointValue=>currentPointValue.x)));
@@ -66,7 +67,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       const wallUsesDoorTexture=wallMinimumHeight<WALL_ENTRANCE_POSITION_TOLERANCE
         &&Math.abs(entranceAlongWall-(wallMinimumHorizontal+wallMaximumHorizontal)/2)<WALL_ENTRANCE_POSITION_TOLERANCE
         &&Math.abs(Math.abs(entranceAcrossWall-wallFixedCoordinate)-CITY_HALF_TILE)<WALL_ENTRANCE_POSITION_TOLERANCE;
-      const wallSelectedTexture=usesRedBrickExterior?(wallUsesDoorTexture?RED_BRICK_DOOR_TEXTURE:wallUsesWindowTexture?RED_BRICK_WINDOW_TEXTURE:RED_BRICK_WALL_TEXTURE):wallMinimumHeight>=woodRoofBaseHeight?WOOD_CROSSBAR_WALL_TEXTURE:wallUsesDoorTexture?WOOD_DOOR_WALL_TEXTURE:wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
+      const wallSelectedTexture=currentStoneExterior?(wallUsesDoorTexture?"stone-building-door":wallUsesWindowTexture?"stone-building-window":"stone-building-wall"):usesRedBrickExterior?(wallUsesDoorTexture?RED_BRICK_DOOR_TEXTURE:wallUsesWindowTexture?RED_BRICK_WINDOW_TEXTURE:RED_BRICK_WALL_TEXTURE):wallMinimumHeight>=woodRoofBaseHeight?WOOD_CROSSBAR_WALL_TEXTURE:wallUsesDoorTexture?WOOD_DOOR_WALL_TEXTURE:wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
       const wallSourceImage=currentMapScene.textures.get(wallSelectedTexture).getSourceImage() as HTMLImageElement;
       const wallOriginPosition={column:currentCityBuilding.origin.column+(wallColumnVaries?wallMinimumHorizontal:wallVertexRecords[0].column),row:currentCityBuilding.origin.row+(wallColumnVaries?wallVertexRecords[0].row:wallMinimumHorizontal)};
       const wallOriginScreenPoint=projectTerrainPosition(wallOriginPosition);

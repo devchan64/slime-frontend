@@ -175,3 +175,9 @@ files:
 - path: assets/terrain/marsh-reed-clumps-v1.png
   source_path: assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png
   sha256: 9546dbad00f71698001b44dfc801e92f3476a4bd66281a2b7a2bcbd2761bade4
+- path: assets/terrain/stonewarm-granite-paving.png
+  source_path: assets/tiles/terrain/road/granite-slab-road-v1.png
+  sha256: 6fe50deab581a2dccd9752acfbe8f83865ae8b9e1c65cb9343148cc38e462a89
+- path: assets/terrain/stonewarm-pebble-ground.png
+  source_path: assets/tiles/terrain/non-road/pebble-shore-ground-v1.png
+  sha256: a86a004db48c56af6467a5ae33628115ec757265262a18272b3239aeb677c190

@@ -1,3 +1,9 @@
+import stonewarmPebbleGroundSource from "../../../../slime-assets/assets/tiles/terrain/non-road/pebble-shore-ground-v1.png";
+import stonewarmExposedGroundSource from "../../../../slime-assets/assets/tiles/terrain/non-road/exposed-rock-ground-v2.png";
+import stonewarmGranitePavingSource from "../../../../slime-assets/assets/tiles/terrain/road/granite-slab-road-v1.png";
+import stoneBuildingWindowSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-small-window-wall-v1.png";
+import stoneBuildingDoorSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-door-v1.png";
+import stoneBuildingWallSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-wall-v1.png";
 import marshReedClumpsSource from "../../../../slime-assets/assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png";
 import reedhavenDryEmbankmentSource from "../../../../slime-assets/assets/tiles/terrain/non-road/dry-soil-grass-v1.png";
 import redBrickWindowSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png";
@@ -81,6 +87,9 @@ const SPECIAL_TERRAIN_SOURCES = [
   { frame: "marsh-reed-clumps", source: marshReedClumpsSource },
   { frame: "reedhaven-dry-embankment", source: reedhavenDryEmbankmentSource },
   { frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource },
+  { frame: "stonewarm-exposed-ground", source: stonewarmExposedGroundSource },
+  { frame: "stonewarm-pebble-ground", source: stonewarmPebbleGroundSource },
+  { frame: "stonewarm-granite-paving", source: stonewarmGranitePavingSource },
   { frame: STONEWARM_MARBLE_PAVING_FRAME, source: stonewarmMarblePavingSource },
 ];
 const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base"]);
@@ -119,6 +128,9 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 }
 
 export function preloadTerrain(scene: Phaser.Scene) {
+  scene.load.image("stone-building-wall",stoneBuildingWallSource);
+  scene.load.image("stone-building-door",stoneBuildingDoorSource);
+  scene.load.image("stone-building-window",stoneBuildingWindowSource);
   scene.load.image(RED_BRICK_WINDOW_TEXTURE, redBrickWindowSource);
   scene.load.image(RED_BRICK_DOOR_TEXTURE, redBrickDoorSource);
   scene.load.image(RED_BRICK_WALL_TEXTURE, redBrickWallSource);
@@ -143,7 +155,7 @@ export function resolveGrassFrameForMap(currentMapIdentifier: string) {
 
 export function resolvePavingFrameForMap(currentMapIdentifier: string) {
   if (currentMapIdentifier === "iseulon") return "iseulon-courtyard-paving";
-  if (currentMapIdentifier === "stonewarm") return STONEWARM_MARBLE_PAVING_FRAME;
+  if (currentMapIdentifier === "stonewarm") return "stonewarm-granite-paving";
   if (currentMapIdentifier === "saltford") return STONEWARM_PAVING_FRAME;
   if (currentMapIdentifier === "reedhaven") return "reedhaven-dry-embankment";
   if (currentMapIdentifier === "grainstead") return REEDHAVEN_DIRT_ROAD_FRAME;
@@ -224,4 +236,9 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
 
 export function resolveReedFrameForMap(currentMapIdentifier: string) {
   return currentMapIdentifier === "reedhaven" ? "marsh-reed-clumps" : "reed-bed";
+}
+
+export function resolveTownGroundFrame(currentMapIdentifier: string,currentTerrainName: string) {
+ if(currentMapIdentifier!=="stonewarm")return currentTerrainName;
+ return ({gravel:"stonewarm-exposed-ground",stone:"stonewarm-pebble-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
 }
