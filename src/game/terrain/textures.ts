@@ -17,7 +17,7 @@ import woodDoorWallSource from "../../../../slime-assets/assets/tiles/buildings/
 import woodWindowWallSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-window-wall-v1.png";
 import unifiedWoodWallSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png";
 import stonewarmRoofImageSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png";
-import stonewarmGuildRoofSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v2.png";
+import stonewarmGuildRoofSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v3.png";
 import extendedAshSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
 import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
 import extendedGravelSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
@@ -47,7 +47,7 @@ export const WOOD_DOOR_WALL_TEXTURE = "wood-door-wall-v1";
 export const WOOD_WINDOW_WALL_TEXTURE = "wood-window-wall-v1";
 export const UNIFIED_WOOD_WALL_TEXTURE = "unified-wood-wall-v2";
 export const STONEWARM_ROOF_TEXTURE = "stonewarm-stone-roof";
-export const STONEWARM_GUILD_ROOF_TEXTURE = "stonewarm-guild-red-stone-roof-v2";
+export const STONEWARM_GUILD_ROOF_TEXTURE = "stonewarm-guild-red-stone-roof-v3";
 export const TERRAIN_ATLAS = "meadow-terrain";
 export const RAMP_TREAD_TEXTURE = "ramp-tread-surface-v1";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";

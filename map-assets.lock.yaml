@@ -94,9 +94,9 @@ files:
 - path: assets/world/stonewarm/terrain/marble-paving-v1.png
   source_path: assets/tiles/terrain/road/marble-circular-road-v1.png
   sha256: 4816d6fd3795932f02755099cb28f6d260224e0194ebd7e00c7dfa23c76ff0fc
-- path: assets/world/stonewarm/buildings/red-stone-roof-v2.png
-  source_path: assets/tiles/buildings/red-stone/red-stone-roof-v2.png
-  sha256: 96d5adea2eea42ccea7c38853ce7a0cbf1371d6c47997f71ebc2c5fe8ae34f1d
+- path: assets/world/stonewarm/buildings/red-stone-roof-v3.png
+  source_path: assets/tiles/buildings/red-stone/red-stone-roof-v3.png
+  sha256: d0036e010f24f4ed3725d49b46a54413294b3488f42cece92ba9728a40068fb8
 - path: assets/world/common/buildings/wood-wall-v2.png
   source_path: assets/tiles/buildings/wood/wood-wall-v2.png
   sha256: 56c51c9a169a6dbc651c4826f4fb006bf2a769ed3cabcaef74bc29a0b2e8565f
@@ -133,6 +133,9 @@ files:
 - path: assets/terrain/deep-water-v1.png
   source_path: assets/tiles/terrain/blocked/transparent-deep-water-v2.png
   sha256: 3982b3fac2ddf0145b2bac111b37b7b7a029344f05834c0c23ac59612e9091b3
+- path: assets/terrain/swamp-water-v2.png
+  source_path: assets/tiles/terrain/blocked/swamp-water-v2.png
+  sha256: 21efb8b2ec0b733c3265e432d10c78dd80132db3c8117eac7724000785edbe2a
 - path: assets/terrain/wildflowers-v1.png
   source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
   sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05

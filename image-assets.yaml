@@ -64,8 +64,10 @@ data:
     path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
   - managementId: image.terrain.stonewarm-mossy-ruin-ground-v2
     path: ../slime-assets/assets/tiles/terrain/non-road/exposed-rock-ground-v2.png
-  - managementId: image.frontend.src.assets.world.stonewarm.buildings.red-stone-roof-v2.png
-    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v2.png
+  - managementId: tile.buildings.roof.red-stone-v3
+    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v3.png
+  - managementId: tile.buildings.door.red-stone-brick-gate-v1
+    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v1.png
   - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
     path: ../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png
   - managementId: tile.buildings.roof.wood
@@ -94,6 +96,8 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
   - managementId: image.terrain.opaque-deep-water-v2
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v2.png
+  - managementId: image.terrain.murky-swamp-water-v2
+    path: ../slime-assets/assets/tiles/terrain/blocked/swamp-water-v2.png
   - managementId: image.terrain.dry-ground-tree-stump
     path: ../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   - managementId: image.terrain.ramp-earth-stone-wall-v1
