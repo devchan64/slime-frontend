@@ -66,8 +66,30 @@ data:
     path: ../slime-assets/assets/tiles/terrain/non-road/exposed-rock-ground-v2.png
   - managementId: tile.buildings.roof.red-stone-v3
     path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v3.png
-  - managementId: tile.buildings.door.red-stone-brick-gate-v1
-    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v1.png
+  - managementId: tile.buildings.door.red-stone-brick-gate-v2
+    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v2.png
+  - managementId: tile.buildings.door.red-stone-brick-gate-v3
+    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v3.png
+  - managementId: tile.buildings.wall.red-stone-sky-blue-window-v1
+    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png
+  - managementId: tile.buildings.wall.adobe-mudbrick-v1
+    path: ../slime-assets/assets/tiles/buildings/adobe/adobe-mudbrick-wall-v1.png
+  - managementId: tile.buildings.wall.mossy-ancient-stone-v1
+    path: ../slime-assets/assets/tiles/buildings/stone/mossy-ancient-stone-wall-v1.png
+  - managementId: tile.buildings.wall.white-plaster-timber-v1
+    path: ../slime-assets/assets/tiles/buildings/wood/white-plaster-timber-wall-v1.png
+  - managementId: tile.buildings.wall.dark-basalt-v1
+    path: ../slime-assets/assets/tiles/buildings/stone/dark-basalt-wall-v1.png
+  - managementId: tile.buildings.wall.limestone-ashlar-v1
+    path: ../slime-assets/assets/tiles/buildings/stone/limestone-ashlar-wall-v1.png
+  - managementId: image.terrain.dark-basalt-paver-road-v1
+    path: ../slime-assets/assets/tiles/terrain/road/dark-basalt-paver-road-v1.png
+  - managementId: image.terrain.granite-slab-road-v1
+    path: ../slime-assets/assets/tiles/terrain/road/granite-slab-road-v1.png
+  - managementId: image.terrain.limestone-mosaic-road-v1
+    path: ../slime-assets/assets/tiles/terrain/road/limestone-mosaic-road-v1.png
+  - managementId: image.terrain.ochre-pebble-road-v2
+    path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v2.png
   - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
     path: ../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png
   - managementId: tile.buildings.roof.wood
@@ -152,5 +174,3 @@ data:
     path: ../slime-assets/assets/sprites/structures/guard-center-red-tile-v1.png
   - managementId: sprite.structures.guard-center-teal-v1.png
     path: ../slime-assets/assets/sprites/structures/guard-center-teal-v1.png
-  - managementId: image.terrain.grass-ground-v2
-    path: ../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png
