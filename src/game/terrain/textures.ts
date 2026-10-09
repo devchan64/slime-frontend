@@ -239,6 +239,7 @@ export function resolveReedFrameForMap(currentMapIdentifier: string) {
 }
 
 export function resolveTownGroundFrame(currentMapIdentifier: string,currentTerrainName: string) {
+ if(currentMapIdentifier==="saltford")return ({gravel:"stonewarm-pebble-ground",stone:"stonewarm-exposed-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
  if(currentMapIdentifier!=="stonewarm")return currentTerrainName;
  return ({gravel:"stonewarm-exposed-ground",stone:"stonewarm-pebble-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
 }
