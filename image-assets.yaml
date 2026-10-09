@@ -76,6 +76,30 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
   - managementId: image.terrain.leaf-litter-v2
     path: ../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v2.png
+  - managementId: image.terrain.autumn-leaf-litter-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/autumn-leaf-litter-v1.png
+  - managementId: image.terrain.pebble-shore-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/pebble-shore-ground-v1.png
+  - managementId: image.terrain.mossy-ruin-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/mossy-ruin-ground-v1.png
+  - managementId: image.terrain.dark-humus-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/dark-humus-ground-v1.png
+  - managementId: image.terrain.frost-grass-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/frost-grass-ground-v1.png
+  - managementId: image.terrain.cracked-dry-earth-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/cracked-dry-earth-ground-v1.png
+  - managementId: image.terrain.wildflower-meadow-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  - managementId: image.terrain.shallow-reed-water-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/shallow-reed-water-ground-v1.png
+  - managementId: image.terrain.volcanic-ash-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/volcanic-ash-ground-v1.png
+  - managementId: image.terrain.round-fieldstone-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
+  - managementId: image.terrain.frosted-grass-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/frosted-grass-ground-v1.png
+  - managementId: image.terrain.sandy-scrub-ground-v1
+    path: ../slime-assets/assets/tiles/terrain/non-road/sandy-scrub-ground-v1.png
   - managementId: image.terrain.limestone-road
     path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png
   - managementId: image.terrain.ochre-pebble-road
