@@ -1,3 +1,4 @@
+import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveFieldTileTextures} from '../terrain/fieldTileRendering';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import {isHealthDepleted} from '../../client/health-state.mjs';
@@ -24,7 +25,7 @@ import {drawFieldCellObjects,FIELD_RENDER_METRICS} from '../../../packages/field
 import {MAP_ORIGIN} from '../terrain/elevation';
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
-import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
+import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolveReedFrameForMap,resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import {drawGuardCenterSprite, preloadGuardCenterSprites, resolveGuardDisplayPosition} from "../terrain/guardCenters";
@@ -683,9 +684,10 @@ export class MainScene extends Phaser.Scene {
       addCliffWallPatterns(this,remember,this.viewPosition(cell),this.viewSurface!,depth);
       const frame = currentCellIsWater ? `water-${rotateConnections(waterConnections(cell, definition, waterCells), this.rotation)}`
         : kind === 'road' ? selectFieldRoadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation), cell, Boolean(s.map.safeTown), s.map.id)
-          : kind === 'flowers' && s.map.id === 'meadow' ? 'meadow-flowers' : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
+          : kind === 'flowers' && s.map.id === 'meadow' ? 'meadow-flowers' : kind === 'reed-bed' ? resolveReedFrameForMap(s.map.id) : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : kind;
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
         .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
+      if(s.map.safeTown)for(const currentBoundaryGraphic of drawTownMaterialEdges(this,cell,currentCellPosition=>resolveGroundMaterial(this.viewPosition(currentCellPosition)),currentCellPosition=>this.project(currentCellPosition),currentCellPosition=>this.depth(currentCellPosition),TERRAIN_DEPTH.surface))remember(currentBoundaryGraphic);
       }
       if (!field && !currentCellIsWater && !['boulder','tree-base','cactus','shallow-water','deep-water'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));

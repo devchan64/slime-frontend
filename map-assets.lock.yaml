@@ -5,35 +5,35 @@ files:
   source_path: assets/tiles/terrain/blocked/cliff-rock-face-v1.png
   sha256: 64b1b09167eb1db1fc975d25d8e5d6f25ef0a0bee01f45aa3bb4e3d3929e0bca
 - path: assets/terrain/dew-v3.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/ash-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/boulder-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/gravel-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/leaf-litter-128.webp
   source_path: assets/tiles/terrain/non-road/leaf-litter-v2.png
   sha256: c83b23c3afe52e4db00d97ce272be167e7e26e304f1793c62bae4494e5fe76ec
 - path: assets/terrain/extension-v1/moss-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/mud-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/reed-bed-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/stone-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/tree-base-128.webp
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/backgrounds/meadow-backdrop-v2.webp
   source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
@@ -119,8 +119,8 @@ files:
   source_path: assets/tiles/terrain/road/limestone-road-v3.png
   sha256: 01b4a77f291c059096420a7a5af8deb30008c7f74a4d5a4efb9854ed96c6ef05
 - path: assets/terrain/grass-v5.png
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/cactus-v1.png
   source_path: assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
   sha256: c14562779139b4bed2bcdab30a319b32247b77e343c076acc27ccd5e3b34784c
@@ -137,20 +137,20 @@ files:
   source_path: assets/tiles/terrain/blocked/swamp-water-v2.png
   sha256: 21efb8b2ec0b733c3265e432d10c78dd80132db3c8117eac7724000785edbe2a
 - path: assets/terrain/wildflowers-v1.png
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/dry-soil-branches-v1.png
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/grass-type-b-v1.png
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/boulder-type-b-v1.png
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/boulder-type-c-v1.png
-  source_path: assets/tiles/terrain/non-road/grass-ground-v2.png
-  sha256: 5f9b342aa092b85e81831ecd03efb724bdff4dc5c69f963c7d5f272fc758ef05
+  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/meadow-dry-soil-road-v1.png
   source_path: assets/tiles/terrain/road/ochre-pebble-road-v1.png
   sha256: 8a5706ccdb7ca4ffe01cdfe14f2756a7ab3050dc58aba80b530a2bfc6a6e1406
@@ -160,3 +160,18 @@ files:
 - path: assets/terrain/ramp-earth-stone-wall-v1.png
   source_path: assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
   sha256: 908700bc55fae722eaa8ca98a42be0a48099e3026880159bcb5d09a72dc9262f
+- path: assets/world/buildings/red-stone/red-stone-brick-wall-v1.png
+  source_path: assets/tiles/buildings/red-stone/red-stone-brick-wall-v1.png
+  sha256: f2ecd3430352093e8ee2ee0b5475d0b7cd571dd9217422142831d6aa7ef3dd99
+- path: assets/world/buildings/red-stone/red-stone-brick-gate-v3.png
+  source_path: assets/tiles/buildings/red-stone/red-stone-brick-gate-v3.png
+  sha256: 14d3e46c3c2f6e270f8352e3c1fe041b025242e9a5a86ceb912f18632e9bc46b
+- path: assets/world/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png
+  source_path: assets/tiles/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png
+  sha256: 11e8cc3fefd6c0237e398210e07c366029523131507ac87113d4124cb34e8357
+- path: assets/terrain/reedhaven-dry-embankment.png
+  source_path: assets/tiles/terrain/non-road/dry-soil-grass-v1.png
+  sha256: 9dedba99909ceb6eefbcdab89d69d72bfeee40e08224441845c33b6e4b0c82a9
+- path: assets/terrain/marsh-reed-clumps-v1.png
+  source_path: assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png
+  sha256: 9546dbad00f71698001b44dfc801e92f3476a4bd66281a2b7a2bcbd2761bade4

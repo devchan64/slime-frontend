@@ -1,11 +1,17 @@
+import marshReedClumpsSource from "../../../../slime-assets/assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png";
+import reedhavenDryEmbankmentSource from "../../../../slime-assets/assets/tiles/terrain/non-road/dry-soil-grass-v1.png";
+import redBrickWindowSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png";
+import redBrickDoorSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v3.png";
+import redBrickWallSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-wall-v1.png";
+import iseulonCourtyardTileSource from "../../../../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v2.png";
 import rampTreadPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png";
-import battleRockTypeASource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import battleRockTypeBSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import battleRockTypeCSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import battleRockTypeASource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import battleRockTypeBSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import battleRockTypeCSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import battleTreeStumpSource from "../../../../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png";
-import meadowFlowerTileSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import meadowFlowerTileSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import ochrePebbleRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png";
-import drySoilBranchesSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import drySoilBranchesSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import deepWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v2.png";
 import shallowWaterTileSource from "../../../../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png";
 import cactusTileImageSource from "../../../../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png";
@@ -18,29 +24,32 @@ import woodWindowWallSource from "../../../../slime-assets/assets/tiles/building
 import unifiedWoodWallSource from "../../../../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png";
 import stonewarmRoofImageSource from "../../../../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png";
 import stonewarmGuildRoofSource from "../../../../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v3.png";
-import extendedAshSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import extendedGravelSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import extendedAshSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import extendedBoulderSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import extendedGravelSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import extendedLeafLitterSource from "../../../../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v2.png";
-import extendedMossSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import extendedMudSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import extendedMossSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import extendedMudSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import iseulonLimestoneRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png";
 import reedhavenDirtRoadSource from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png";
 import stonewarmGravelPavingSource from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png";
 import stonewarmMarblePavingSource from "../../../../slime-assets/assets/tiles/terrain/road/marble-circular-road-v1.png";
-import extendedReedBedSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import extendedStoneSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import extendedTreeBaseSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import extendedReedBedSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import extendedStoneSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import extendedTreeBaseSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import cliffWallPatternSource from "../../../../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png";
 import Phaser from "phaser";
-import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
-import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import grassTileImageSource from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
+import dew from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import road from "../../../../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png";
-import flowers from "../../../../slime-assets/assets/tiles/terrain/non-road/grass-ground-v2.png";
+import flowers from "../../../../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png";
 import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { validateTerrainSourceDimensions } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
+export const RED_BRICK_WALL_TEXTURE = "red-stone-brick-wall-v1";
+export const RED_BRICK_DOOR_TEXTURE = "red-stone-brick-gate-v3";
+export const RED_BRICK_WINDOW_TEXTURE = "red-stone-sky-blue-window-wall-v1";
 export const UNIFIED_WOOD_ROOF_TEXTURE = "wood-roof-v4";
 export const WOOD_CROSSBAR_WALL_TEXTURE = "wood-crossbar-wall-v1";
 export const WOOD_DOOR_WALL_TEXTURE = "wood-door-wall-v1";
@@ -60,6 +69,7 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "iseulon-courtyard-paving", source: iseulonCourtyardTileSource },
   { frame: "battle-rock-a", source: battleRockTypeASource },
   { frame: "battle-rock-b", source: battleRockTypeBSource },
   { frame: "battle-rock-c", source: battleRockTypeCSource },
@@ -68,6 +78,8 @@ const SPECIAL_TERRAIN_SOURCES = [
   { frame: "meadow-road", source: ochrePebbleRoadSource },
   { frame: ISEULON_GRASS_FRAME, source: grassTileImageSource },
   { frame: REEDHAVEN_DIRT_ROAD_FRAME, source: reedhavenDirtRoadSource },
+  { frame: "marsh-reed-clumps", source: marshReedClumpsSource },
+  { frame: "reedhaven-dry-embankment", source: reedhavenDryEmbankmentSource },
   { frame: STONEWARM_PAVING_FRAME, source: stonewarmGravelPavingSource },
   { frame: STONEWARM_MARBLE_PAVING_FRAME, source: stonewarmMarblePavingSource },
 ];
@@ -107,6 +119,9 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 }
 
 export function preloadTerrain(scene: Phaser.Scene) {
+  scene.load.image(RED_BRICK_WINDOW_TEXTURE, redBrickWindowSource);
+  scene.load.image(RED_BRICK_DOOR_TEXTURE, redBrickDoorSource);
+  scene.load.image(RED_BRICK_WALL_TEXTURE, redBrickWallSource);
   scene.load.image("terrain-source-dirt-road", packedDirtRoadSource);
   scene.load.image("terrain-source-stone-road", stoneSlabRoadSource);
   scene.load.image(UNIFIED_WOOD_WALL_TEXTURE, unifiedWoodWallSource);
@@ -127,9 +142,11 @@ export function resolveGrassFrameForMap(currentMapIdentifier: string) {
 }
 
 export function resolvePavingFrameForMap(currentMapIdentifier: string) {
+  if (currentMapIdentifier === "iseulon") return "iseulon-courtyard-paving";
   if (currentMapIdentifier === "stonewarm") return STONEWARM_MARBLE_PAVING_FRAME;
   if (currentMapIdentifier === "saltford") return STONEWARM_PAVING_FRAME;
-  if (currentMapIdentifier === "reedhaven" || currentMapIdentifier === "grainstead") return REEDHAVEN_DIRT_ROAD_FRAME;
+  if (currentMapIdentifier === "reedhaven") return "reedhaven-dry-embankment";
+  if (currentMapIdentifier === "grainstead") return REEDHAVEN_DIRT_ROAD_FRAME;
   return "paving";
 }
 
@@ -203,4 +220,8 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     }
   }
   atlas.refresh();
+}
+
+export function resolveReedFrameForMap(currentMapIdentifier: string) {
+  return currentMapIdentifier === "reedhaven" ? "marsh-reed-clumps" : "reed-bed";
 }

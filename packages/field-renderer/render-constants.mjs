@@ -45,3 +45,11 @@ export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({profile:'contrast'})
 export const SPRITE_DEPTH_OFFSET = 0.01;
 export const CHARACTER_OUTLINE_DEPTH_STEP = 0.0001;
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:MAP_TILE_WIDTH,tileHeight:MAP_TILE_HEIGHT,elevationHeight:MAP_ELEVATION_HEIGHT,baseThickness:MAP_BASE_THICKNESS});
+
+/** 바닥 재질 영역 경계는 게임·검수에서 기본 표시한다. */
+export const TERRAIN_MATERIAL_BOUNDARY_ENABLED = true;
+
+export const BUILDING_BOUNDARY_ENABLED = true;
+
+// 지붕 무늬는 면의 UV 좌표에서 반시계 방향으로 회전한다.
+export const BUILDING_ROOF_TEXTURE_ROTATION_RADIANS = -Math.PI / 2;

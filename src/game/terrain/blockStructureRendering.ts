@@ -1,4 +1,6 @@
-import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
+import {drawFieldElevationOutline} from '../../../packages/field-renderer/field-renderer.mjs';
+import {RED_BRICK_WALL_TEXTURE,RED_BRICK_DOOR_TEXTURE,RED_BRICK_WINDOW_TEXTURE} from "./textures";
+import {CITY_BUILDING_STYLE,BUILDING_BOUNDARY_ENABLED,BUILDING_ROOF_TEXTURE_ROTATION_RADIANS} from '../../../packages/field-renderer/render-constants.mjs';
 export {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
 import {STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE,WOOD_DOOR_WALL_TEXTURE,WOOD_CROSSBAR_WALL_TEXTURE,UNIFIED_WOOD_ROOF_TEXTURE} from "./textures";
 import {buildRenderedBlockFaces} from './blockGeometry';
@@ -34,7 +36,8 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
     currentBuildingGraphic.fillStyle(currentProjectedFace.surface.material==='roof'?CITY_BUILDING_STYLE.roofColors[currentCityBuilding.facilityKind]:CITY_BUILDING_STYLE.wallLight,1).fillPoints(currentProjectedFace.points,true);
     currentBuildingGraphic.lineStyle(1,CITY_BUILDING_STYLE.outlineColor,.35).strokePoints(currentProjectedFace.points,true);
   }
-  const usesUnifiedWoodWall=['reedhaven-', 'grainstead-', 'saltford-'].some(currentCityPrefix => currentCityBuilding.id.startsWith(currentCityPrefix))||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
+  const usesRedBrickExterior=currentCityBuilding.id==='iseulon-guild';
+  const usesUnifiedWoodWall=['iseulon-', 'reedhaven-', 'grainstead-', 'saltford-'].some(currentCityPrefix => currentCityBuilding.id.startsWith(currentCityPrefix))||['iseulon-bookshop','iseulon-inn'].includes(currentCityBuilding.id);
   if (usesUnifiedWoodWall) {
     const woodRoofBaseHeight=Math.min(...currentSurfaceFaces.filter(currentFaceRecord=>currentFaceRecord.material==='roof').flatMap(currentFaceRecord=>currentFaceRecord.vertices.map(currentVertexPoint=>currentVertexPoint.height)));
     for (const currentWallFace of currentVisibleFaces.filter(currentFaceRecord=>!currentFaceRecord.surface.top)) {
@@ -63,7 +66,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       const wallUsesDoorTexture=wallMinimumHeight<WALL_ENTRANCE_POSITION_TOLERANCE
         &&Math.abs(entranceAlongWall-(wallMinimumHorizontal+wallMaximumHorizontal)/2)<WALL_ENTRANCE_POSITION_TOLERANCE
         &&Math.abs(Math.abs(entranceAcrossWall-wallFixedCoordinate)-CITY_HALF_TILE)<WALL_ENTRANCE_POSITION_TOLERANCE;
-      const wallSelectedTexture=wallMinimumHeight>=woodRoofBaseHeight?WOOD_CROSSBAR_WALL_TEXTURE:wallUsesDoorTexture?WOOD_DOOR_WALL_TEXTURE:wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
+      const wallSelectedTexture=usesRedBrickExterior?(wallUsesDoorTexture?RED_BRICK_DOOR_TEXTURE:wallUsesWindowTexture?RED_BRICK_WINDOW_TEXTURE:RED_BRICK_WALL_TEXTURE):wallMinimumHeight>=woodRoofBaseHeight?WOOD_CROSSBAR_WALL_TEXTURE:wallUsesDoorTexture?WOOD_DOOR_WALL_TEXTURE:wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
       const wallSourceImage=currentMapScene.textures.get(wallSelectedTexture).getSourceImage() as HTMLImageElement;
       const wallOriginPosition={column:currentCityBuilding.origin.column+(wallColumnVaries?wallMinimumHorizontal:wallVertexRecords[0].column),row:currentCityBuilding.origin.row+(wallColumnVaries?wallVertexRecords[0].row:wallMinimumHorizontal)};
       const wallOriginScreenPoint=projectTerrainPosition(wallOriginPosition);
@@ -90,7 +93,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       const roofCanvasTexture=currentMapScene.textures.createCanvas(roofTextureIdentifier,roofCanvasWidth,roofCanvasHeight);
       if (!roofCanvasTexture) throw new Error('지붕 캔버스 생성 실패');
       const roofDrawingContext=roofCanvasTexture.getContext();
-      const selectedRoofTextureIdentifier=usesUnifiedWoodWall?UNIFIED_WOOD_ROOF_TEXTURE:currentCityBuilding.facilityKind==='guild'?STONEWARM_GUILD_ROOF_TEXTURE:STONEWARM_ROOF_TEXTURE;
+      const selectedRoofTextureIdentifier=usesRedBrickExterior?STONEWARM_GUILD_ROOF_TEXTURE:usesUnifiedWoodWall?UNIFIED_WOOD_ROOF_TEXTURE:currentCityBuilding.facilityKind==='guild'?STONEWARM_GUILD_ROOF_TEXTURE:STONEWARM_ROOF_TEXTURE;
       const roofSourceImage=currentMapScene.textures.get(selectedRoofTextureIdentifier).getSourceImage() as HTMLImageElement;
       for (const roofFaceRecord of roofSurfaceFaces) {
         const roofFacePoints=roofFaceRecord.points;
@@ -108,13 +111,64 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
           (roofFacePoints[3].x-roofFacePoints[0].x)/roofSourceImage.height,
           (roofFacePoints[3].y-roofFacePoints[0].y)/roofSourceImage.height,
           roofFacePoints[0].x-roofMinimumX,roofFacePoints[0].y-roofMinimumY);
-        roofDrawingContext.drawImage(roofSourceImage,0,0);
+        roofDrawingContext.translate(roofSourceImage.width/2,roofSourceImage.height/2);
+        roofDrawingContext.scale(roofSourceImage.width,roofSourceImage.height);
+        roofDrawingContext.rotate(BUILDING_ROOF_TEXTURE_ROTATION_RADIANS);
+        roofDrawingContext.drawImage(roofSourceImage,-0.5,-0.5,1,1);
         roofDrawingContext.restore();
       }
       roofCanvasTexture.refresh();
       currentMapScene.add.image(roofMinimumX,roofMinimumY,roofTextureIdentifier).setOrigin(0).setDepth(currentBuildingDepth+0.01)
         .once('destroy',()=>currentMapScene.textures.remove(roofTextureIdentifier));
     }
+  }
+  if(BUILDING_BOUNDARY_ENABLED){
+    const currentBoundaryEdges=new Map<string,{points:CityScreenPoint[];normals:string[]}>();
+    const currentAllVertices=currentVisibleFaces.flatMap(currentFaceRecord=>currentFaceRecord.surface.vertices);
+    const currentEdgeTolerance=0.000001;
+    for(const currentFaceRecord of currentVisibleFaces){
+      const currentVertexRecords=currentFaceRecord.surface.vertices;
+      // Newell 법선은 삼각 면의 중복 꼭짓점과 일직선 꼭짓점을 허용한다.
+      const currentNormalVector=[0,0,0];
+      for(let currentVertexIndex=0;currentVertexIndex<currentVertexRecords.length;currentVertexIndex++){
+        const currentStartVertex=currentVertexRecords[currentVertexIndex],currentEndVertex=currentVertexRecords[(currentVertexIndex+1)%currentVertexRecords.length];
+        currentNormalVector[0]+=(currentStartVertex.row-currentEndVertex.row)*(currentStartVertex.height+currentEndVertex.height);
+        currentNormalVector[1]+=(currentStartVertex.height-currentEndVertex.height)*(currentStartVertex.column+currentEndVertex.column);
+        currentNormalVector[2]+=(currentStartVertex.column-currentEndVertex.column)*(currentStartVertex.row+currentEndVertex.row);
+      }
+      const currentNormalLength=Math.hypot(...currentNormalVector);
+      if(currentNormalLength<currentEdgeTolerance)continue;
+      const currentNormalKey=currentNormalVector.map(currentAxisValue=>Math.round(currentAxisValue/currentNormalLength/currentEdgeTolerance)).join(',');
+      for(let currentVertexIndex=0;currentVertexIndex<currentVertexRecords.length;currentVertexIndex++){
+        const currentNextIndex=(currentVertexIndex+1)%currentVertexRecords.length;
+        const currentStartVertex=currentVertexRecords[currentVertexIndex],currentEndVertex=currentVertexRecords[currentNextIndex];
+        const currentStartCoordinates=[currentStartVertex.column,currentStartVertex.row,currentStartVertex.height];
+        const currentEdgeVector=[currentEndVertex.column-currentStartVertex.column,currentEndVertex.row-currentStartVertex.row,currentEndVertex.height-currentStartVertex.height];
+        const currentLengthSquared=currentEdgeVector.reduce((currentTotalValue,currentAxisValue)=>currentTotalValue+currentAxisValue*currentAxisValue,0);
+        if(currentLengthSquared<currentEdgeTolerance*currentEdgeTolerance)continue;
+        const currentSplitRatios=[0,1];
+        for(const currentCandidateVertex of currentAllVertices){
+          const currentOffsetVector=[currentCandidateVertex.column-currentStartVertex.column,currentCandidateVertex.row-currentStartVertex.row,currentCandidateVertex.height-currentStartVertex.height];
+          const currentProjectionRatio=currentOffsetVector.reduce((currentTotalValue,currentAxisValue,currentAxisIndex)=>currentTotalValue+currentAxisValue*currentEdgeVector[currentAxisIndex],0)/currentLengthSquared;
+          if(currentProjectionRatio<=currentEdgeTolerance||currentProjectionRatio>=1-currentEdgeTolerance)continue;
+          if(currentOffsetVector.every((currentAxisValue,currentAxisIndex)=>Math.abs(currentAxisValue-currentProjectionRatio*currentEdgeVector[currentAxisIndex])<currentEdgeTolerance))currentSplitRatios.push(currentProjectionRatio);
+        }
+        currentSplitRatios.sort((firstSplitRatio,secondSplitRatio)=>firstSplitRatio-secondSplitRatio);
+        for(let currentSplitIndex=1;currentSplitIndex<currentSplitRatios.length;currentSplitIndex++){
+          const currentSegmentRatios=[currentSplitRatios[currentSplitIndex-1],currentSplitRatios[currentSplitIndex]];
+          if(currentSegmentRatios[1]-currentSegmentRatios[0]<currentEdgeTolerance)continue;
+          const currentEdgeKey=currentSegmentRatios.map(currentSplitRatio=>currentStartCoordinates.map((currentAxisValue,currentAxisIndex)=>Math.round((currentAxisValue+currentSplitRatio*currentEdgeVector[currentAxisIndex])/currentEdgeTolerance)).join(',')).sort().join('|');
+          const currentEdgeRecord=currentBoundaryEdges.get(currentEdgeKey);
+          if(currentEdgeRecord)currentEdgeRecord.normals.push(currentNormalKey);
+          else {
+            const currentStartPoint=currentFaceRecord.points[currentVertexIndex],currentEndPoint=currentFaceRecord.points[currentNextIndex];
+            currentBoundaryEdges.set(currentEdgeKey,{points:currentSegmentRatios.map(currentSplitRatio=>({x:currentStartPoint.x+(currentEndPoint.x-currentStartPoint.x)*currentSplitRatio,y:currentStartPoint.y+(currentEndPoint.y-currentStartPoint.y)*currentSplitRatio})),normals:[currentNormalKey]});
+          }
+        }
+      }
+    }
+    const currentOutlineSegments=[...currentBoundaryEdges.values()].filter(currentEdgeRecord=>currentEdgeRecord.normals.length===1||new Set(currentEdgeRecord.normals).size>1).map(currentEdgeRecord=>currentEdgeRecord.points);
+    drawFieldElevationOutline(currentMapScene,currentOutlineSegments,currentBuildingDepth+.02);
   }
   const currentRoofCorners=currentVisibleFaces.flatMap(currentProjectedFace=>currentProjectedFace.points);
   const currentEntrancePoint = projectTerrainPosition(currentCityBuilding.entrance);

@@ -35,3 +35,9 @@ export const TERRAIN_STAIR_COUNT:number;
 export const TOWN_TILE_HEIGHT:number;
 export const TOWN_TILE_WIDTH:number;
 export const WORLD_UNIT_MIGRATION:number;
+
+export const TERRAIN_MATERIAL_BOUNDARY_ENABLED:boolean;
+
+export const BUILDING_BOUNDARY_ENABLED:boolean;
+
+export const BUILDING_ROOF_TEXTURE_ROTATION_RADIANS: number;

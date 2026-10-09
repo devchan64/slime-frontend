@@ -30,3 +30,5 @@ export function buildFieldRoadEdges(currentCellPosition:SurfacePosition,currentM
 export function buildFieldCliffEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentFacePoints:SurfacePoint[],currentRenderOptions?:RenderOptions):SurfacePoint[][];
 
 export function buildFieldMaterialEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,resolveGroundMaterial:(currentCellPosition:SurfacePosition)=>string,currentRenderOptions?:RenderOptions):SurfacePoint[][];
+
+export function drawTownMaterialEdges(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,resolveGroundMaterial:(currentCellPosition:SurfacePosition)=>string,projectGroundPosition:(currentCellPosition:SurfacePosition)=>SurfacePoint,resolveGroundDepth:(currentCellPosition:SurfacePosition)=>number,currentSurfaceDepth:number):Phaser.GameObjects.Graphics[];
