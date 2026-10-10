@@ -51,3 +51,4 @@ grassTileImageSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.
 dew: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
 road: assets/tiles/terrain/road/limestone-road-v3.png
 flowers: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+fallenOrchardFruitSource: assets/tiles/terrain/non-road/fallen-orchard-fruit-v1.png

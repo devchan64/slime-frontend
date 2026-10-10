@@ -1,3 +1,4 @@
+import {drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveFieldTileTextures} from '../terrain/fieldTileRendering';
@@ -30,7 +31,7 @@ import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolveTow
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import {drawGuardCenterSprite, preloadGuardCenterSprites} from "../terrain/guardCenters";
-import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
+import { preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundaryAura } from "../terrain/safeBarrier";
 import { preloadSafeBarrierAuraSprite } from "../animation/safeBarrierAuraSprite";
 import { drawBlockedTerrain } from "../terrain/scenery";
@@ -561,7 +562,10 @@ export class MainScene extends Phaser.Scene {
         const p = this.project(gate);
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
       }
-      if(!s.map.safeTown)drawSafeTower(this, this.project(s.map.startPoint)).setDepth(this.depth(s.map.startPoint) + TERRAIN_DEPTH.overlay);
+      for(const currentObjectRecord of s.map.objects??[]){
+        const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
+        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,this.depth(currentObjectPlacement.position)+TERRAIN_DEPTH.overlay);
+      }
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
           m.position,

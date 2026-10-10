@@ -1,5 +1,6 @@
 import terrainAssetPaths from "./terrain.asset-list.yaml";
 const {
+  fallenOrchardFruitSource,
   farmEmbankmentTileSource,
   tilledFurrowTileSource,
   grainFieldTileSource,
@@ -81,6 +82,7 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "fallen-orchard-fruit-v1", source: fallenOrchardFruitSource },
   { frame: "farm-embankment-v1", source: farmEmbankmentTileSource },
   { frame: "tilled-furrows-v1", source: tilledFurrowTileSource },
   { frame: "golden-grain-field-v1", source: grainFieldTileSource },

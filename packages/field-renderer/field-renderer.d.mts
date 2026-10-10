@@ -35,3 +35,10 @@ export function buildFieldMaterialEdges(currentCellPosition:SurfacePosition,curr
 export function drawTownMaterialEdges(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,resolveGroundMaterial:(currentCellPosition:SurfacePosition)=>string,projectGroundPosition:(currentCellPosition:SurfacePosition)=>SurfacePoint,resolveGroundDepth:(currentCellPosition:SurfacePosition)=>number,currentSurfaceDepth:number):Phaser.GameObjects.Graphics[];
 
 export const FIELD_GROUND_EDGE_STYLE:Readonly<{color:number;width:number;alpha:number}>;
+
+export type FieldSceneryTileAnchor = 'north-west'|'north'|'north-east'|'west'|'center'|'east'|'south-west'|'south'|'south-east';
+export type FieldSceneryRecord = {tileAnchor?:FieldSceneryTileAnchor;id:string;position:{column:number;row:number}} & ({kind:'ward-tower'} | {kind:'decoration';textureKey:string;displayHeight:number;anchorX:number;anchorY:number});
+export function drawFieldSceneryObject(currentGameScene:Phaser.Scene,currentObjectRecord:FieldSceneryRecord,currentScreenPosition:SurfacePoint,currentRenderDepth:number,currentTowerTextureKey?:string):Phaser.GameObjects.Image;
+
+export const FIELD_SCENERY_TILE_ANCHORS:Readonly<Record<FieldSceneryTileAnchor,Readonly<{column:number;row:number}>>>;
+export function resolveFieldSceneryPlacement(currentObjectRecord:FieldSceneryRecord,currentTileCenter:SurfacePoint,currentRenderOptions?:{tileWidth:number;tileHeight:number;rotation?:number}):{position:{column:number;row:number};screen:SurfacePoint};

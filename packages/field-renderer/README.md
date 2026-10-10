@@ -23,3 +23,21 @@
 경비센터는 공용 `resolveGuardDisplayPlacement`로 도시 입구에 가장 가까운 도로 인접 평지 2×2를 선택한다. 도로·물·장애물·계단과 겹치지 않으며 네 셀의 투영 좌표 평균을 표시 중심으로 사용한다. 발급 접점은 기존 관문 좌표를 유지한다. 야외 도로는 원본 텍스처를 셀 전체에 배치하고 일반 재질 경계선을 공유한다.
 
 지형·건물 텍스처 경로의 편집 원본은 `src/game/terrain/terrain.asset-list.yaml`이다. `scripts/asset-list-module.mjs`가 중복 키·자료형·허용 경로를 검사하고 정적 import로 변환한다. Vite 게임 빌드와 공용 렌더러 빌드가 같은 변환기를 사용한다. 배포 JS의 경로 변수는 자동 생성 결과이며 직접 편집하지 않는다. 등록 원본·버전·해시는 에셋 저장소 등록부와 `map-assets.lock.yaml`에서 검증한다.
+
+
+## 필드 지형지물
+
+맵 응답의 `objects`는 `id`, `kind`, `position: {column, row}`를 갖는다.
+에셋 맵 원본의 `field_tiles/<map>.yaml`에서 등록하며 별도 통행 속성은 허용하지 않는다.
+`ward-tower`는 공용 결계탑 접지·크기를 사용한다. `decoration`은 로딩된 `textureKey`,
+`displayHeight`(화면 기준 높이), `anchorX`, `anchorY`(0–1 접지 비율)를 명시한다.
+새 나무 스프라이트는 게임과 검수 양쪽의 에셋 로딩 목록에 먼저 등록해야 한다.
+`drawFieldSceneryObject`에 고도·회전이 반영된 타일 중심과 해당 타일 깊이를 전달한다.
+객체 생성은 충돌 셀을 추가하지 않으며 통행은 원래 타일·지형 계약을 따른다.
+
+
+`tileAnchor`는 `north-west / north / north-east / west / center / east / south-west / south / south-east` 중 하나다.
+기본값은 `center`이며 결계타워에도 동일하게 적용한다. 맵의 열·행 기준 3×3 배치로,
+모서리와 변의 중앙은 중심에서 ±0.5타일 떨어진 위치다. 화면 방향이 아닌 맵 방향에 고정되어 회전 시 함께 회전한다.
+이미지의 접지 비율 `anchorX/Y`와 구분한다. `resolveFieldSceneryPlacement`는 소속 타일 중심의 고도를 유지하며
+선택한 위치의 화면 좌표와 깊이 계산용 소수 좌표를 반환한다. 인접 타일 고도나 통행 속성을 조회·변경하지 않는다.

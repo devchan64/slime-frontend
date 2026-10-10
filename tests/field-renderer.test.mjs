@@ -5,7 +5,7 @@ import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
@@ -179,4 +179,42 @@ test('필드 공용 재질 선택은 맵별 도로와 바탕 재질 계약을 �
  assert.equal(resolveFieldTileTextures({},'road',{column:1,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road');
  assert.equal(resolveFieldTileTextures({},'flowers',{column:1,row:0},'meadow',0,currentMaterialReader).ground,'terrain-source-meadow-flowers');
  assert.equal(resolveFieldTileTextures({},'boulder',{column:1,row:0},'ash-edge',0,currentMaterialReader).underlay,'terrain-source-grass');
+});
+
+
+test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타워도 같은 진입점을 사용한다',()=>{
+ const currentRecordedImages=[];
+ const currentMockScene={textures:{exists:currentTextureKey=>['tree-sprite','tower-sprite'].includes(currentTextureKey)},add:{image(currentPositionX,currentPositionY,currentTextureKey){
+  const currentImageRecord={x:currentPositionX,y:currentPositionY,key:currentTextureKey,width:200,height:300,
+   setOrigin(currentAnchorX,currentAnchorY){this.origin=[currentAnchorX,currentAnchorY];return this;},
+   setScale(currentScaleValue){this.scale=currentScaleValue;return this;},
+   setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}};
+  currentRecordedImages.push(currentImageRecord);return currentImageRecord;
+ }}};
+ const currentObjectRecord={id:'tree-1',kind:'decoration',position:{column:2,row:3},textureKey:'tree-sprite',displayHeight:120,anchorX:.5,anchorY:.9};
+ const currentRenderedTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31);
+ assert.deepEqual([currentRenderedTree.x,currentRenderedTree.y,currentRenderedTree.scale,currentRenderedTree.depth],[80,60,.4,31]);
+ assert.deepEqual(currentRenderedTree.origin,[.5,.9]);
+ const currentRenderedTower=drawFieldSceneryObject(currentMockScene,{id:'tower',kind:'ward-tower',position:{column:0,row:0}},{x:10,y:20},5,'tower-sprite');
+ assert.equal(currentRenderedTower.key,'tower-sprite');
+ assert.equal(currentRenderedTower.depth,5);
+ assert.throws(()=>drawFieldSceneryObject(currentMockScene,{...currentObjectRecord,textureKey:'missing'},{x:0,y:0},1),/텍스처 누락/);
+});
+
+
+test('타일 9점 앵커는 고도 중심을 유지하고 네 방향 회전과 깊이 좌표를 반영한다',()=>{
+ const currentAnchorCases=[['north-west',0,-20],['north',20,-10],['north-east',40,0],['west',-20,-10],['center',0,0],['east',20,10],['south-west',-40,0],['south',-20,10],['south-east',0,20]];
+ const currentObjectRecord={id:'tree',kind:'ward-tower',position:{column:4,row:6}};
+ for(const [currentAnchorName,currentOffsetX,currentOffsetY] of currentAnchorCases){
+  const currentPlacement=resolveFieldSceneryPlacement({...currentObjectRecord,tileAnchor:currentAnchorName},{x:100,y:-200},{tileWidth:80,tileHeight:40});
+  assert.deepEqual(currentPlacement.screen,{x:100+currentOffsetX,y:-200+currentOffsetY});
+ }
+ const currentRotatedOffsets=[[40,0],[0,20],[-40,0],[0,-20]];
+ for(let currentRotationIndex=0;currentRotationIndex<4;currentRotationIndex++){
+  const currentPlacement=resolveFieldSceneryPlacement({...currentObjectRecord,tileAnchor:'north-east'},{x:100,y:-200},{tileWidth:80,tileHeight:40,rotation:currentRotationIndex});
+  assert.deepEqual(currentPlacement.position,{column:4.5,row:5.5});
+  assert.deepEqual(currentPlacement.screen,{x:100+currentRotatedOffsets[currentRotationIndex][0],y:-200+currentRotatedOffsets[currentRotationIndex][1]});
+ }
+ assert.deepEqual(resolveFieldSceneryPlacement(currentObjectRecord,{x:1,y:2}).screen,{x:1,y:2});
+ assert.throws(()=>resolveFieldSceneryPlacement({...currentObjectRecord,tileAnchor:'unknown'},{x:0,y:0}),/타일 앵커/);
 });

@@ -190,3 +190,6 @@ files:
 - path: assets/terrain/farm-embankment-v1.png
   source_path: assets/tiles/terrain/non-road/farm-embankment-v1.png
   sha256: ff4b58130bd084196747c2a8aac0146deb73ceb953d4b5943031d4a31a6752eb
+- path: assets/terrain/fallen-orchard-fruit-v1.png
+  source_path: assets/tiles/terrain/non-road/fallen-orchard-fruit-v1.png
+  sha256: d60bf3ac6e7e54436ed13cbb475dbf6d16c5e9773b41a10caad31d14c1ec4fa7
