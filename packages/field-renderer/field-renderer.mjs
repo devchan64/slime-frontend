@@ -1,7 +1,7 @@
 export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
 import {TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
-import {FIELD_ELEVATION_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
-export {FIELD_ELEVATION_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
+import {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
+export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
@@ -151,15 +151,15 @@ export function buildFieldRoadEdges(currentCellPosition,currentMapSurface,curren
 }
 
 /** 화면 CSS 픽셀 기준 두께를 유지하며 배율 변경 때만 선을 다시 그린다. */
-export function drawFieldElevationOutline(currentGameScene,currentEdgeSegments,currentRenderDepth){
+export function drawFieldElevationOutline(currentGameScene,currentEdgeSegments,currentRenderDepth,currentOutlineStyle=FIELD_ELEVATION_EDGE_STYLE){
  const currentEdgeGraphic=currentGameScene.add.graphics().setDepth(currentRenderDepth);
  let previousStrokeWidth=null;
  const synchronizeElevationWidth=()=>{
-  const currentStrokeWidth=FIELD_ELEVATION_EDGE_STYLE.width*currentGameScene.scale.displayScale.x/currentGameScene.cameras.main.zoom;
+  const currentStrokeWidth=currentOutlineStyle.width*currentGameScene.scale.displayScale.x/currentGameScene.cameras.main.zoom;
   if(currentStrokeWidth===previousStrokeWidth)return;
   previousStrokeWidth=currentStrokeWidth;
   currentEdgeGraphic.clear();
-  currentEdgeGraphic.lineStyle(currentStrokeWidth,FIELD_ELEVATION_EDGE_STYLE.color,FIELD_ELEVATION_EDGE_STYLE.alpha);
+  currentEdgeGraphic.lineStyle(currentStrokeWidth,currentOutlineStyle.color,currentOutlineStyle.alpha);
   for(const [currentStartPoint,currentEndPoint] of currentEdgeSegments)currentEdgeGraphic.lineBetween(currentStartPoint.x,currentStartPoint.y,currentEndPoint.x,currentEndPoint.y);
  };
  synchronizeElevationWidth();
@@ -231,11 +231,11 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
  }
  if(currentTextureKeys.roadConnectionMask!==undefined&&!findSurfaceStair(currentCellPosition,currentMapSurface)){
   const currentRoadEdges=buildFieldRoadEdges(currentCellPosition,currentMapSurface,currentTextureKeys.roadConnectionMask,currentRenderOptions,currentTextureKeys.fullTileRoad);
-  if(currentRoadEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentRoadEdges,currentRenderDepth+.98));
+  if(currentRoadEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentRoadEdges,currentRenderDepth+.98,FIELD_GROUND_EDGE_STYLE));
  }
  if(TERRAIN_MATERIAL_BOUNDARY_ENABLED&&currentTextureKeys.resolveGroundMaterial){
   const currentMaterialEdges=buildFieldMaterialEdges(currentCellPosition,currentMapSurface,currentTextureKeys.resolveGroundMaterial,currentRenderOptions);
-  if(currentMaterialEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentMaterialEdges,currentRenderDepth+.99));
+  if(currentMaterialEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentMaterialEdges,currentRenderDepth+.99,FIELD_GROUND_EDGE_STYLE));
  }
  const currentElevationEdges=buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions);
  if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentRenderDepth+0.99));
@@ -297,6 +297,6 @@ export function drawTownMaterialEdges(currentGameScene,currentCellPosition,resol
   const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
   if(currentNeighborCell.column<0||currentNeighborCell.row<0||resolveGroundMaterial(currentNeighborCell)===currentMaterialName)return [];
   const currentEdgePoints=currentNeighborOffset.edge.map(currentCornerIndex=>{const [currentColumnOffset,currentRowOffset]=FIELD_CELL_CORNERS[currentCornerIndex];return projectGroundPosition({column:currentCellPosition.column+currentColumnOffset,row:currentCellPosition.row+currentRowOffset});});
-  return [drawFieldElevationOutline(currentGameScene,[currentEdgePoints],Math.max(resolveGroundDepth(currentCellPosition),resolveGroundDepth(currentNeighborCell))+currentSurfaceDepth+.01)];
+  return [drawFieldElevationOutline(currentGameScene,[currentEdgePoints],Math.max(resolveGroundDepth(currentCellPosition),resolveGroundDepth(currentNeighborCell))+currentSurfaceDepth+.01,FIELD_GROUND_EDGE_STYLE)];
  });
 }

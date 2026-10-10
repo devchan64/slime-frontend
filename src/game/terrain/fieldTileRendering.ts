@@ -9,6 +9,10 @@ const ROCK_FACE_FIELD_IDENTIFIERS = new Set(['boar-ridge','broken-quarry','cryst
 
 /** 야외의 지형 코드와 실제 표시 원본 선택을 함께 제공한다. */
 export function resolveFieldTerrainFrame(currentTerrainName:string,currentMapIdentifier:string):string {
+ if(currentMapIdentifier==='granary-flats'){
+  const currentFarmMaterial=({flowers:'golden-grain-field-v1',mud:'tilled-furrows-v1','dry-soil-branches':'farm-embankment-v1'} as Record<string,string>)[currentTerrainName];
+  if(currentFarmMaterial)return currentFarmMaterial;
+ }
  if(currentTerrainName==='road')return selectFieldRoadFrame(0,{column:0,row:0},false,currentMapIdentifier);
  if(currentTerrainName==='boulder'&&ROCK_FACE_FIELD_IDENTIFIERS.has(currentMapIdentifier))return 'wall';
  if(currentTerrainName==='flowers'&&currentMapIdentifier==='meadow')return 'meadow-flowers';

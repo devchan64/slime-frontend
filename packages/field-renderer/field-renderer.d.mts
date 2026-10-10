@@ -24,7 +24,7 @@ export {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex} from '../f
 export const FIELD_ELEVATION_EDGE_STYLE:Readonly<{color:number;width:number;alpha:number}>;
 export function buildFieldElevationEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions?:RenderOptions):SurfacePoint[][];
 
-export function drawFieldElevationOutline(currentGameScene:Phaser.Scene,currentEdgeSegments:SurfacePoint[][],currentRenderDepth:number):Phaser.GameObjects.Graphics;
+export function drawFieldElevationOutline(currentGameScene:Phaser.Scene,currentEdgeSegments:SurfacePoint[][],currentRenderDepth:number,currentOutlineStyle?:Readonly<{color:number;width:number;alpha:number}>):Phaser.GameObjects.Graphics;
 
 export function buildFieldRoadEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentConnectionMask:number,currentRenderOptions?:RenderOptions,currentFullTileRoad?:boolean):SurfacePoint[][];
 
@@ -33,3 +33,5 @@ export function buildFieldCliffEdges(currentCellPosition:SurfacePosition,current
 export function buildFieldMaterialEdges(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,resolveGroundMaterial:(currentCellPosition:SurfacePosition)=>string,currentRenderOptions?:RenderOptions):SurfacePoint[][];
 
 export function drawTownMaterialEdges(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,resolveGroundMaterial:(currentCellPosition:SurfacePosition)=>string,projectGroundPosition:(currentCellPosition:SurfacePosition)=>SurfacePoint,resolveGroundDepth:(currentCellPosition:SurfacePosition)=>number,currentSurfaceDepth:number):Phaser.GameObjects.Graphics[];
+
+export const FIELD_GROUND_EDGE_STYLE:Readonly<{color:number;width:number;alpha:number}>;

@@ -181,3 +181,12 @@ files:
 - path: assets/terrain/stonewarm-pebble-ground.png
   source_path: assets/tiles/terrain/non-road/pebble-shore-ground-v1.png
   sha256: a86a004db48c56af6467a5ae33628115ec757265262a18272b3239aeb677c190
+- path: assets/terrain/golden-grain-field-v1.png
+  source_path: assets/tiles/terrain/non-road/golden-grain-field-v1.png
+  sha256: 6f9279593064cc8769f741d09c81222bf9682d48bd0d6ebd9b2aa72eff2a28a0
+- path: assets/terrain/tilled-furrows-v1.png
+  source_path: assets/tiles/terrain/non-road/tilled-furrows-v1.png
+  sha256: 3f5fd9732a24b8623d3d961b70ebd07c7c9ba0559b7acc624a040e3141e03f20
+- path: assets/terrain/farm-embankment-v1.png
+  source_path: assets/tiles/terrain/non-road/farm-embankment-v1.png
+  sha256: ff4b58130bd084196747c2a8aac0146deb73ceb953d4b5943031d4a31a6752eb

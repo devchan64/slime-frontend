@@ -41,3 +41,5 @@ export const TERRAIN_MATERIAL_BOUNDARY_ENABLED:boolean;
 export const BUILDING_BOUNDARY_ENABLED:boolean;
 
 export const BUILDING_ROOF_TEXTURE_ROTATION_RADIANS: number;
+
+export const FIELD_GROUND_EDGE_STYLE:Readonly<{color:number;width:number;alpha:number}>;

@@ -1,3 +1,4 @@
+import {createAssetListPlugin} from './asset-list-module.mjs';
 import {build as buildReviewBundle} from 'vite';
 import {readFileSync, writeFileSync, mkdirSync, mkdtempSync, readdirSync} from 'node:fs';
 import {resolve as resolveReviewPath, relative as relativeReviewPath} from 'node:path';
@@ -21,7 +22,7 @@ for(const currentReviewPage of reviewCatalogValue.pages){
 }
 mkdirSync(reviewOutputRoot,{recursive:true});
 console.log(`${reviewStartedTime}/ui-review/build ${reviewOutputRoot}`);
-await buildReviewBundle({configFile:false,base:'./',publicDir:false,esbuild:{jsx:'automatic',jsxImportSource:'preact'},build:{outDir:reviewOutputRoot,emptyOutDir:false,rollupOptions:{input:['review/design-system.html','review/battlefield-preview.html'].map(currentEntryPath=>resolveReviewPath(currentEntryPath))}}});
+await buildReviewBundle({configFile:false,plugins:[createAssetListPlugin()],base:'./',publicDir:false,esbuild:{jsx:'automatic',jsxImportSource:'preact'},build:{outDir:reviewOutputRoot,emptyOutDir:false,rollupOptions:{input:['review/design-system.html','review/battlefield-preview.html'].map(currentEntryPath=>resolveReviewPath(currentEntryPath))}}});
 function collectReviewFiles(currentDirectoryPath){
  return readdirSync(currentDirectoryPath,{withFileTypes:true}).flatMap(currentDirectoryEntry=>{
  const currentAbsolutePath=resolveReviewPath(currentDirectoryPath,currentDirectoryEntry.name);

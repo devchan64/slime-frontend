@@ -1,3 +1,6 @@
+import {readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {buildAssetListModule} from '../scripts/asset-list-module.mjs';
 import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -163,6 +166,7 @@ test('바닥·도로 재질 경계는 같은 높이에서 한 번 표시하고 �
 test('필드 공용 재질 선택은 맵별 도로와 바탕 재질 계약을 유지한다',async()=>{
  const {build}=await import('esbuild');
  const {outputFiles}=await build({entryPoints:['src/game/terrain/fieldTileRendering.ts'],bundle:true,write:false,platform:'node',format:'esm',loader:{'.png':'empty','.webp':'empty'},plugins:[{name:'texture-test',setup(currentBuildContext){
+ currentBuildContext.onLoad({filter:/\.asset-list\.yaml$/},async currentModuleArguments=>({contents:buildAssetListModule(await readFile(currentModuleArguments.path,'utf8'),resolve('../slime-assets')),loader:'js'}));
  currentBuildContext.onResolve({filter:/field-renderer\.mjs$/},()=>({path:'connected',namespace:'test-mock'}));
  currentBuildContext.onLoad({filter:/.*/,namespace:'test-mock'},()=>({contents:"export const prepareFieldConnectedTexture=(scene,source,grass,mask)=>source+'-'+mask;"}));
  }}]});
