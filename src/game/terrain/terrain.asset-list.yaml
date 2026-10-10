@@ -17,7 +17,7 @@ rampTreadPatternSource: assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.pn
 battleRockTypeASource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
 battleRockTypeBSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
 battleRockTypeCSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-battleTreeStumpSource: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
+battleTreeStumpSource: assets/tiles/terrain/non-road/leaf-litter-v2.png
 meadowFlowerTileSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
 ochrePebbleRoadSource: assets/tiles/terrain/road/ochre-pebble-road-v1.png
 drySoilBranchesSource: assets/tiles/terrain/non-road/dry-soil-grass-v1.png
@@ -45,7 +45,7 @@ stonewarmGravelPavingSource: assets/tiles/terrain/road/limestone-road-v3.png
 stonewarmMarblePavingSource: assets/tiles/terrain/road/marble-circular-road-v1.png
 extendedReedBedSource: assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png
 extendedStoneSource: assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
-extendedTreeBaseSource: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
+extendedTreeBaseSource: assets/tiles/terrain/non-road/leaf-litter-v2.png
 cliffWallPatternSource: assets/tiles/terrain/blocked/cliff-rock-face-v1.png
 grassTileImageSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
 dew: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png

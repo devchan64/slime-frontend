@@ -11,7 +11,7 @@ export function buildAssetListModule(currentSourceText,currentAssetRoot){
  const currentImportStatements=[];
  const currentExportEntries=[];
  for(const [currentAssetName,currentAssetPath] of Object.entries(currentAssetRecords)){
-  if(!/^[A-Za-z_$][\w$]*$/.test(currentAssetName)||typeof currentAssetPath!=='string'||!/^assets\/tiles\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.png$/.test(currentAssetPath))throw Error('잘못된 에셋 목록 항목: '+currentAssetName);
+  if(!/^[A-Za-z_$][\w$]*$/.test(currentAssetName)||typeof currentAssetPath!=='string'||!/^assets\/(?:tiles|sprites\/structures)\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.png$/.test(currentAssetPath))throw Error('잘못된 에셋 목록 항목: '+currentAssetName);
   const currentImportName='registeredTileAsset'+currentExportEntries.length;
   currentImportStatements.push('import '+currentImportName+' from '+JSON.stringify(currentAssetRoot+'/'+currentAssetPath)+';');
   currentExportEntries.push(JSON.stringify(currentAssetName)+': '+currentImportName);

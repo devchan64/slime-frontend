@@ -32,8 +32,8 @@ files:
   source_path: assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
   sha256: c9cf9884c3b6daf5eea48b74346be80116a27480266fd1a73d67bc9b8c92e325
 - path: assets/terrain/extension-v1/tree-base-128.webp
-  source_path: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
-  sha256: 06708710d0ae3f979d812cd95c5e5cc39f545f68d7e06d41c87e15463c5656a2
+  source_path: assets/tiles/terrain/non-road/leaf-litter-v2.png
+  sha256: c83b23c3afe52e4db00d97ce272be167e7e26e304f1793c62bae4494e5fe76ec
 - path: assets/backgrounds/meadow-backdrop-v2.webp
   source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
@@ -155,8 +155,8 @@ files:
   source_path: assets/tiles/terrain/road/ochre-pebble-road-v1.png
   sha256: 8a5706ccdb7ca4ffe01cdfe14f2756a7ab3050dc58aba80b530a2bfc6a6e1406
 - path: assets/terrain/dry-ground-tree-stump-v1.png
-  source_path: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
-  sha256: 06708710d0ae3f979d812cd95c5e5cc39f545f68d7e06d41c87e15463c5656a2
+  source_path: assets/tiles/terrain/non-road/leaf-litter-v2.png
+  sha256: c83b23c3afe52e4db00d97ce272be167e7e26e304f1793c62bae4494e5fe76ec
 - path: assets/terrain/ramp-earth-stone-wall-v1.png
   source_path: assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
   sha256: 908700bc55fae722eaa8ca98a42be0a48099e3026880159bcb5d09a72dc9262f

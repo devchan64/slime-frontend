@@ -172,3 +172,18 @@ files:
 - path: assets/characters/female/cutins/female-roundhouse-kick-v1.png
   source_path: assets/characters/female-a/battle-cutins/female-roundhouse-kick-v1.png
   sha256: 563b08d6f0d9d4d585252f8500e501dd9e5d76ca83cdd998ac902f18177e8ad0
+- path: assets/structures/orchard-apple-tree-v1.png
+  source_path: assets/sprites/structures/orchard-apple-tree-v1.png
+  sha256: 6bafec0f8858d94ab832ecb1c23a289590f5c604ebb4c892b5af023b39f4d474
+- path: assets/structures/orchard-dead-tree-v1.png
+  source_path: assets/sprites/structures/orchard-dead-tree-v1.png
+  sha256: 7f6d32a9f666a1ba21afb62124da500764d1145df9f68e6a9d183e9e2048ac74
+- path: assets/structures/orchard-autumn-tree-v1.png
+  source_path: assets/sprites/structures/orchard-autumn-tree-v1.png
+  sha256: 2891145eaa38788b80d3865a24110223788fc390dcd4d5dadfc01338a7950b4e
+- path: assets/structures/orchard-young-tree-v1.png
+  source_path: assets/sprites/structures/orchard-young-tree-v1.png
+  sha256: 9b8ca45e30535fd43565cfd942256ad0ba433392615d86a9ba647aa33b840fa5
+- path: assets/structures/orchard-old-tree-v1.png
+  source_path: assets/sprites/structures/orchard-old-tree-v1.png
+  sha256: 29f57bd686992b9f90f7dd5f9ed59c4cf0338ab0faf294bf1d43fab575deb85c

@@ -31,6 +31,7 @@ import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolveTow
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import {drawGuardCenterSprite, preloadGuardCenterSprites} from "../terrain/guardCenters";
+import { preloadFieldScenery } from "../terrain/scenery";
 import { preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundaryAura } from "../terrain/safeBarrier";
 import { preloadSafeBarrierAuraSprite } from "../animation/safeBarrierAuraSprite";
@@ -185,6 +186,7 @@ export class MainScene extends Phaser.Scene {
     preloadFieldRestEffectSprite(this);
     preloadSafeBarrierAuraSprite(this);
     preloadSafeTower(this);
+    preloadFieldScenery(this);
     preloadGuardCenterSprites(this);
     preloadBackdrop(this);
   }
