@@ -13,7 +13,7 @@ export function collectTerrainTextureSources():Record<string,string> {
 }
 export {BUILDING_RENDER_BLOCK_HEIGHT,buildRenderedBlockFaces} from '../../src/game/terrain/blockGeometry';
 
-export {resolveFieldTileTextures} from '../../src/game/terrain/fieldTileRendering';
+export {resolveFieldTileTextures,resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
 
 export {drawWaypoint,waypointMarkerScale} from '../../src/game/terrain/waypoint';
 

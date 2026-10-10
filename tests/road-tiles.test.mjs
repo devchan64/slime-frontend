@@ -38,23 +38,23 @@ test('수면은 같은 높이에서 이어지고 계단이 있어도 단차를 �
   assert.equal(waterConnections(center, map, water), 0);
 });
 
-test('흙도로는 필드 일부에 고정 배치되고 마을·연결 마스크를 유지한다', () => {
-  for (let connectionMaskValue=0;connectionMaskValue<16;connectionMaskValue++) {
-    assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},false),`dirt-road-${connectionMaskValue}`);
-    assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:1,row:0},false),`road-${connectionMaskValue}`);
-    assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},true),`road-${connectionMaskValue}`);
-  }
-  const selectedRoadFrames=Array.from({length:9},(_,currentColumnIndex)=>selectFieldRoadFrame(5,{column:currentColumnIndex,row:0},false));
-  assert.equal(selectedRoadFrames.filter(currentFrameName=>currentFrameName==='dirt-road-5').length,3);
-});
-
-test('채석장·절개지 도로는 석판으로 연결하며 다른 맵과 마을은 유지한다', () => {
-  for (const currentMapIdentifier of ['broken-quarry','crystal-cut']) {
-    for(let connectionMaskValue=0;connectionMaskValue<16;connectionMaskValue++) {
-      assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},false,currentMapIdentifier),`stone-road-${connectionMaskValue}`);
-      assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:1,row:0},false,currentMapIdentifier),`stone-road-${connectionMaskValue}`);
-      assert.equal(selectFieldRoadFrame(connectionMaskValue,{column:0,row:0},true,currentMapIdentifier),`road-${connectionMaskValue}`);
+test('26개 필드 도로는 좌표와 연결 마스크에 관계없이 지역 재질 전체 타일을 유지한다', () => {
+  const expectedRoadFrameGroups = [
+    ['dirt-road','meadow grove wind-hills mist-lake ash-edge cinder-path clover-bank dry-creek fallen-canopy lantern-wood moss-clearing old-orchard reed-crossing root-trail silver-marsh windrow-road granary-flats'],
+    ['stone-road','boar-ridge broken-quarry crystal-cut dawn-overlook mill-ridge'],
+    ['road','pebble-shore brine-bank salt-causeway salt-flat'],
+  ];
+  for (const [expectedRoadFrameName,currentMapIdentifierList] of expectedRoadFrameGroups) {
+    for (const currentMapIdentifier of currentMapIdentifierList.split(' ')) {
+      for (let currentConnectionMask=0;currentConnectionMask<16;currentConnectionMask++) {
+        for (const currentColumnIndex of [0,1,2,31]) {
+          assert.equal(selectFieldRoadFrame(currentConnectionMask,{column:currentColumnIndex,row:7},false,currentMapIdentifier),expectedRoadFrameName);
+        }
+      }
     }
   }
-  assert.equal(selectFieldRoadFrame(5,{column:0,row:0},false,'meadow'),'meadow-road');
+  assert.throws(()=>selectFieldRoadFrame(0,center,false,'missing-map'),/등록되지/);
+  for (let currentConnectionMask=0;currentConnectionMask<16;currentConnectionMask++) {
+    assert.equal(selectFieldRoadFrame(currentConnectionMask,center,true,'iseulon'),`road-${currentConnectionMask}`);
+  }
 });

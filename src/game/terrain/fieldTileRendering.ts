@@ -5,11 +5,19 @@ import {prepareFieldConnectedTexture} from '../../../packages/field-renderer/fie
 import {selectFieldRoadFrame} from './roadTiles';
 import {CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from './textures';
 
+const ROCK_FACE_FIELD_IDENTIFIERS = new Set(['boar-ridge','broken-quarry','crystal-cut','cinder-path','dawn-overlook','dry-creek','mill-ridge','brine-bank','wind-hills']);
+
+/** 야외의 지형 코드와 실제 표시 원본 선택을 함께 제공한다. */
+export function resolveFieldTerrainFrame(currentTerrainName:string,currentMapIdentifier:string):string {
+ if(currentTerrainName==='road')return selectFieldRoadFrame(0,{column:0,row:0},false,currentMapIdentifier);
+ if(currentTerrainName==='boulder'&&ROCK_FACE_FIELD_IDENTIFIERS.has(currentMapIdentifier))return 'wall';
+ if(currentTerrainName==='flowers'&&currentMapIdentifier==='meadow')return 'meadow-flowers';
+ return currentTerrainName;
+}
+
 export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string){
- const currentSelectedFrame=currentTerrainName==='water'?`water-${currentConnectionMask}`
-  :currentTerrainName==='road'?selectFieldRoadFrame(currentConnectionMask,currentCellPosition,false,currentMapIdentifier)
-  :currentTerrainName==='flowers'&&currentMapIdentifier==='meadow'?'meadow-flowers':currentTerrainName;
- const currentConnectedFrame=/^(water|road|dirt-road|stone-road)-(\d+)$/.exec(currentSelectedFrame);
+ const currentSelectedFrame=currentTerrainName==='water'?`water-${currentConnectionMask}`:resolveFieldTerrainFrame(currentTerrainName,currentMapIdentifier);
+ const currentConnectedFrame=/^(water)-(\d+)$/.exec(currentSelectedFrame);
  const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(currentGameScene,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
- return {ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,roadConnectionMask:currentTerrainName==='road'?currentConnectionMask:undefined,fullTileRoad:currentTerrainName==='road'&&!currentConnectedFrame,underlay:['boulder','tree-base'].includes(currentTerrainName)?'terrain-source-grass':undefined};
+ return {ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder','tree-base'].includes(currentTerrainName)?'terrain-source-grass':undefined};
 }

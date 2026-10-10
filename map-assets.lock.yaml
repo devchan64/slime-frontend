@@ -8,32 +8,32 @@ files:
   source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
   sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/ash-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/volcanic-ash-ground-v1.png
+  sha256: b48d072573d93e1e0ecef29fb1b326d8b76293a8df132494ee8ec64ebf96a340
 - path: assets/terrain/extension-v1/boulder-128.webp
   source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
   sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/extension-v1/gravel-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/pebble-shore-ground-v1.png
+  sha256: a86a004db48c56af6467a5ae33628115ec757265262a18272b3239aeb677c190
 - path: assets/terrain/extension-v1/leaf-litter-128.webp
   source_path: assets/tiles/terrain/non-road/leaf-litter-v2.png
   sha256: c83b23c3afe52e4db00d97ce272be167e7e26e304f1793c62bae4494e5fe76ec
 - path: assets/terrain/extension-v1/moss-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/dark-humus-ground-v1.png
+  sha256: 4a57a3c9365c2a034cbb256c36bc874495e4b1238e7fd791d905213683835a51
 - path: assets/terrain/extension-v1/mud-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/dark-humus-ground-v1.png
+  sha256: 4a57a3c9365c2a034cbb256c36bc874495e4b1238e7fd791d905213683835a51
 - path: assets/terrain/extension-v1/reed-bed-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png
+  sha256: 9546dbad00f71698001b44dfc801e92f3476a4bd66281a2b7a2bcbd2761bade4
 - path: assets/terrain/extension-v1/stone-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
+  sha256: c9cf9884c3b6daf5eea48b74346be80116a27480266fd1a73d67bc9b8c92e325
 - path: assets/terrain/extension-v1/tree-base-128.webp
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
+  sha256: 06708710d0ae3f979d812cd95c5e5cc39f545f68d7e06d41c87e15463c5656a2
 - path: assets/backgrounds/meadow-backdrop-v2.webp
   source_path: assets/backgrounds/meadow-backdrop-v2.webp
   sha256: f1eec0b07c1a9a14f199f7610be5b54468ee837fd6b92364ca3c491174ea29be
@@ -113,11 +113,11 @@ files:
   source_path: assets/tiles/buildings/wood/wood-roof-v4.png
   sha256: 2b9351fff8a262cd9479ccffd5c98a393286c8642ad5d21a6ee60120cad919a2
 - path: assets/terrain/roads/packed-dirt-road-v1.png
-  source_path: assets/tiles/terrain/road/limestone-road-v3.png
-  sha256: 01b4a77f291c059096420a7a5af8deb30008c7f74a4d5a4efb9854ed96c6ef05
+  source_path: assets/tiles/terrain/road/ochre-pebble-road-v1.png
+  sha256: 8a5706ccdb7ca4ffe01cdfe14f2756a7ab3050dc58aba80b530a2bfc6a6e1406
 - path: assets/terrain/roads/stone-slab-road-v1.png
-  source_path: assets/tiles/terrain/road/limestone-road-v3.png
-  sha256: 01b4a77f291c059096420a7a5af8deb30008c7f74a4d5a4efb9854ed96c6ef05
+  source_path: assets/tiles/terrain/road/granite-slab-road-v1.png
+  sha256: 6fe50deab581a2dccd9752acfbe8f83865ae8b9e1c65cb9343148cc38e462a89
 - path: assets/terrain/grass-v5.png
   source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
   sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
@@ -140,8 +140,8 @@ files:
   source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
   sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
 - path: assets/terrain/dry-soil-branches-v1.png
-  source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c
+  source_path: assets/tiles/terrain/non-road/dry-soil-grass-v1.png
+  sha256: 9dedba99909ceb6eefbcdab89d69d72bfeee40e08224441845c33b6e4b0c82a9
 - path: assets/terrain/grass-type-b-v1.png
   source_path: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
   sha256: c5da6468b2d25fe228f5b51f456b5cc8472c692075673fd75ae5746f56d4cc9c

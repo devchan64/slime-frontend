@@ -32,12 +32,15 @@ export function roadConnections(cell: Position, map: Surface, road: Set<string>)
   return mask;
 }
 
-// 필드 도로 일부를 좌표에 따라 고정 선택하여 회전·재접속 시 재질이 바뀌지 않는다.
-const DIRT_ROAD_VARIANT_PERIOD = 3;
-const STONE_SLAB_ROAD_MAPS = new Set(["broken-quarry", "crystal-cut"]);
-export function selectFieldRoadFrame(connectionMaskValue:number,currentCellPosition:Position,currentMapIsTown:boolean,currentMapIdentifier:string=""):string {
-  if(currentMapIdentifier === "meadow") return "meadow-road";
-  if(!currentMapIsTown&&STONE_SLAB_ROAD_MAPS.has(currentMapIdentifier))return `stone-road-${connectionMaskValue}`;
-  const roadVariantIndex=((currentCellPosition.column+currentCellPosition.row)%DIRT_ROAD_VARIANT_PERIOD+DIRT_ROAD_VARIANT_PERIOD)%DIRT_ROAD_VARIANT_PERIOD;
-  return !currentMapIsTown&&roadVariantIndex===0?`dirt-road-${connectionMaskValue}`:roadFrame(connectionMaskValue);
+// 야외 도로는 지역별 한 재질의 전체 타일을 사용한다. 좌표별 임의 혼합을 하지 않는다.
+const FIELD_ROAD_FRAME_GROUPS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  ["dirt-road", ["meadow", "grove", "wind-hills", "mist-lake", "ash-edge", "cinder-path", "clover-bank", "dry-creek", "fallen-canopy", "lantern-wood", "moss-clearing", "old-orchard", "reed-crossing", "root-trail", "silver-marsh", "windrow-road", "granary-flats"]],
+  ["stone-road", ["boar-ridge", "broken-quarry", "crystal-cut", "dawn-overlook", "mill-ridge"]],
+  ["road", ["pebble-shore", "brine-bank", "salt-causeway", "salt-flat"]],
+];
+export function selectFieldRoadFrame(connectionMaskValue:number,_currentCellPosition:Position,currentMapIsTown:boolean,currentMapIdentifier:string=""):string {
+  if (currentMapIsTown) return roadFrame(connectionMaskValue);
+  const selectedRoadFrameGroup = FIELD_ROAD_FRAME_GROUPS.find(([, currentMapIdentifiers]) => currentMapIdentifiers.includes(currentMapIdentifier));
+  if (!selectedRoadFrameGroup) throw new Error(`야외 도로 재질이 등록되지 않았습니다: ${currentMapIdentifier}`);
+  return selectedRoadFrameGroup[0];
 }

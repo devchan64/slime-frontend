@@ -1,3 +1,5 @@
+import {MAP_TILE_WIDTH} from './renderMetrics';
+import {GUARD_CENTER_FOOTPRINT_SIZE} from '../../../packages/field-renderer/guard-placement.mjs';
 import type Phaser from 'phaser';
 import {parseDocument} from 'yaml';
 import guardCenterCatalogSource from '../../../../slime-assets/assets/ui/guard-centers.yaml?raw';
@@ -36,10 +38,5 @@ export function drawGuardCenterSprite(currentGameScene:Phaser.Scene,currentCityI
   const currentTextureKey = `guard-center-${currentStyleName}`;
   if(!currentGameScene.textures.exists(currentTextureKey)) throw new Error('경비센터 이미지 로드 실패');
   const currentGuardImage = currentGameScene.add.image(currentScreenPosition.x+currentStyleRecord.offsetX,currentScreenPosition.y+currentStyleRecord.offsetY,currentTextureKey);
-  return currentGuardImage.setOrigin(currentStyleRecord.anchorX,currentStyleRecord.anchorY).setScale(currentStyleRecord.displayWidth/currentGuardImage.width);
-}
-
-/** 관문 좌표는 유지하며 경계의 구조물 표시만 안쪽 셀에 둔다. */
-export function resolveGuardDisplayPosition(currentGatePosition:{column:number;row:number},currentMapDimensions:{columns:number;rows:number}) {
-  return {column:Math.max(1,Math.min(currentMapDimensions.columns-2,currentGatePosition.column)),row:Math.max(1,Math.min(currentMapDimensions.rows-2,currentGatePosition.row))};
+  return currentGuardImage.setOrigin(currentStyleRecord.anchorX,currentStyleRecord.anchorY).setScale((MAP_TILE_WIDTH*GUARD_CENTER_FOOTPRINT_SIZE)/currentGuardImage.width);
 }

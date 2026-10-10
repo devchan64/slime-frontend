@@ -1,3 +1,4 @@
+export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
 import type Phaser from 'phaser';
 import type {SurfacePosition,SurfacePoint,SurfaceRecord,RenderOptions} from '../field-surface/field-surface.mjs';
 export const FIELD_RENDERER_VERSION:string;

@@ -1,3 +1,4 @@
+import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveFieldTileTextures} from '../terrain/fieldTileRendering';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
@@ -28,7 +29,7 @@ import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolveTownGroundFrame,resolveReedFrameForMap,resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
 import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
-import {drawGuardCenterSprite, preloadGuardCenterSprites, resolveGuardDisplayPosition} from "../terrain/guardCenters";
+import {drawGuardCenterSprite, preloadGuardCenterSprites} from "../terrain/guardCenters";
 import { drawSafeTower, preloadSafeTower } from "../terrain/safeTower";
 import { drawSafeBoundaryAura } from "../terrain/safeBarrier";
 import { preloadSafeBarrierAuraSprite } from "../animation/safeBarrierAuraSprite";
@@ -550,8 +551,10 @@ export class MainScene extends Phaser.Scene {
         this.personalMarkerGraphics.push({graphic:currentMarkerGraphic,expiresAt:currentMarkerRecord.expiresAt});
       }
       for (const currentGuardRecord of s.map.guardCenters ?? []) {
-        const currentGuardPosition = resolveGuardDisplayPosition(currentGuardRecord.position,s.map);
-        if (!s.map.safeTown) drawGuardCenterSprite(this,currentGuardRecord.cityId,this.project(currentGuardPosition))
+        if (s.map.safeTown) continue;
+        const currentGuardPlacement = resolveGuardDisplayPlacement(currentGuardRecord.position,s.map);
+        const currentGuardPosition = currentGuardPlacement.position;
+        if (!s.map.safeTown) drawGuardCenterSprite(this,currentGuardRecord.cityId,projectGuardDisplayCenter(currentGuardPlacement,this.project))
           .setDepth(this.depth(currentGuardPosition) + TERRAIN_DEPTH.overlay);
       }
       for (const gate of s.map.connections) {

@@ -149,13 +149,13 @@ test('측벽 이음선은 제외하고 높이차 끝과 계단 접합부는 유�
  assert.equal(buildFieldCliffEdges(currentMiddleCell,currentPartialSurface,currentMiddleFace.points).length,3);
 });
 
-test('바닥 재질 경계는 같은 높이에서 한 번 표시하고 도로·단차와 중복하지 않는다',()=>{
+test('바닥·도로 재질 경계는 같은 높이에서 한 번 표시하고 단차와 중복하지 않는다',()=>{
  const currentMapSurface={columns:2,rows:2,elevations:[[0,0],[0,0]]};
  const resolveGroundMaterial=currentCellPosition=>currentCellPosition.column===0?'grass':'flowers';
  assert.equal(buildFieldMaterialEdges({column:0,row:0},currentMapSurface,resolveGroundMaterial).length,0);
  assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveGroundMaterial).length,1);
  assert.equal(buildFieldMaterialEdges({column:1,row:1},currentMapSurface,()=> 'grass').length,0);
- assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,currentCellPosition=>currentCellPosition.column?'road':'grass').length,0);
+ assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,currentCellPosition=>currentCellPosition.column?'road':'grass').length,1);
  assert.equal(buildFieldMaterialEdges({column:1,row:0},{...currentMapSurface,elevations:[[0,1],[0,1]]},resolveGroundMaterial).length,0);
  for(const currentRotationValue of [0,1,2,3])assert.ok(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveGroundMaterial,{...FIELD_RENDER_METRICS,rotation:currentRotationValue}).flat().every(currentPoint=>Number.isFinite(currentPoint.x)&&Number.isFinite(currentPoint.y)));
 });
@@ -169,10 +169,10 @@ test('필드 공용 재질 선택은 맵별 도로와 바탕 재질 계약을 �
  const {resolveFieldTileTextures}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
  const currentMaterialReader=()=> 'grass';
  const currentMeadowTile=resolveFieldTileTextures({},'road',{column:0,row:0},'meadow',5,currentMaterialReader);
- assert.equal(currentMeadowTile.ground,'terrain-source-meadow-road');assert.equal(currentMeadowTile.fullTileRoad,true);
- assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'broken-quarry',5,currentMaterialReader).ground,'terrain-source-stone-road-5');
- assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road-5');
- assert.equal(resolveFieldTileTextures({},'road',{column:1,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-road-5');
+ assert.equal(currentMeadowTile.ground,'terrain-source-dirt-road');
+ assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'broken-quarry',5,currentMaterialReader).ground,'terrain-source-stone-road');
+ assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road');
+ assert.equal(resolveFieldTileTextures({},'road',{column:1,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road');
  assert.equal(resolveFieldTileTextures({},'flowers',{column:1,row:0},'meadow',0,currentMaterialReader).ground,'terrain-source-meadow-flowers');
  assert.equal(resolveFieldTileTextures({},'boulder',{column:1,row:0},'ash-edge',0,currentMaterialReader).underlay,'terrain-source-grass');
 });

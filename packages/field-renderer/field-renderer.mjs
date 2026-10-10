@@ -1,10 +1,11 @@
+export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
 import {TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
 import {FIELD_ELEVATION_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 export {FIELD_ELEVATION_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.26';
+export const FIELD_RENDERER_VERSION = '1.0.30';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
@@ -107,14 +108,13 @@ export function buildFieldElevationEdges(currentCellPosition,currentMapSurface,c
 export function buildFieldMaterialEdges(currentCellPosition,currentMapSurface,resolveGroundMaterial,currentRenderOptions=FIELD_RENDER_METRICS){
  if(findSurfaceStair(currentCellPosition,currentMapSurface))return [];
  const currentMaterialName=resolveGroundMaterial(currentCellPosition);
- if(currentMaterialName==='road')return [];
  const currentCellHeight=readSurfaceHeight(currentCellPosition,currentMapSurface);
  const currentCornerPoints=FIELD_CELL_CORNERS.map(([currentColumnOffset,currentRowOffset])=>projectSurfaceVertex({column:currentCellPosition.column+currentColumnOffset,row:currentCellPosition.row+currentRowOffset,height:currentCellHeight*currentRenderOptions.elevationHeight},currentRenderOptions));
  return FIELD_BOUNDARY_NEIGHBORS.filter(currentNeighborOffset=>currentNeighborOffset.column<0||currentNeighborOffset.row<0).flatMap(currentNeighborOffset=>{
   const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
   if(currentNeighborCell.column<0||currentNeighborCell.row<0||findSurfaceStair(currentNeighborCell,currentMapSurface)||readSurfaceHeight(currentNeighborCell,currentMapSurface)!==currentCellHeight)return [];
   const currentNeighborMaterial=resolveGroundMaterial(currentNeighborCell);
-  if(currentNeighborMaterial===currentMaterialName||currentNeighborMaterial==='road')return [];
+  if(currentNeighborMaterial===currentMaterialName)return [];
   return [currentNeighborOffset.edge.map(currentCornerIndex=>currentCornerPoints[currentCornerIndex])];
  });
 }
