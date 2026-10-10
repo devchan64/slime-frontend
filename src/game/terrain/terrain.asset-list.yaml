@@ -1,3 +1,6 @@
+uplandRockGrassSource: assets/tiles/terrain/non-road/upland-rock-grass-v1.png
+uplandGrassEarthSource: assets/tiles/terrain/non-road/upland-grass-earth-v1.png
+windSweptGrassSource: assets/tiles/terrain/non-road/wind-swept-grass-v1.png
 farmEmbankmentTileSource: assets/tiles/terrain/non-road/farm-embankment-v1.png
 tilledFurrowTileSource: assets/tiles/terrain/non-road/tilled-furrows-v1.png
 grainFieldTileSource: assets/tiles/terrain/non-road/golden-grain-field-v1.png
@@ -34,10 +37,10 @@ unifiedWoodWallSource: assets/tiles/buildings/wood/wood-wall-v2.png
 stonewarmRoofImageSource: assets/tiles/buildings/stone/stone-roof-v1.png
 stonewarmGuildRoofSource: assets/tiles/buildings/red-stone/red-stone-roof-v3.png
 extendedAshSource: assets/tiles/terrain/non-road/volcanic-ash-ground-v1.png
-extendedBoulderSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+extendedBoulderSource: assets/tiles/terrain/blocked/clustered-boulder-ground-v1.png
 extendedGravelSource: assets/tiles/terrain/non-road/pebble-shore-ground-v1.png
 extendedLeafLitterSource: assets/tiles/terrain/non-road/leaf-litter-v2.png
-extendedMossSource: assets/tiles/terrain/non-road/dark-humus-ground-v1.png
+extendedMossSource: assets/tiles/terrain/non-road/moss-cushion-ground-v1.png
 extendedMudSource: assets/tiles/terrain/non-road/dark-humus-ground-v1.png
 iseulonLimestoneRoadSource: assets/tiles/terrain/road/limestone-road-v3.png
 reedhavenDirtRoadSource: assets/tiles/terrain/road/limestone-road-v3.png
@@ -45,10 +48,10 @@ stonewarmGravelPavingSource: assets/tiles/terrain/road/limestone-road-v3.png
 stonewarmMarblePavingSource: assets/tiles/terrain/road/marble-circular-road-v1.png
 extendedReedBedSource: assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png
 extendedStoneSource: assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
-extendedTreeBaseSource: assets/tiles/terrain/non-road/leaf-litter-v2.png
+extendedTreeBaseSource: assets/tiles/terrain/blocked/rooted-tree-stump-v1.png
 cliffWallPatternSource: assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-grassTileImageSource: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-dew: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
+grassTileImageSource: assets/tiles/terrain/non-road/field-grass-clumps-v1.png
+dew: assets/tiles/terrain/non-road/dew-grass-clumps-v1.png
 road: assets/tiles/terrain/road/limestone-road-v3.png
 flowers: assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
 fallenOrchardFruitSource: assets/tiles/terrain/non-road/fallen-orchard-fruit-v1.png

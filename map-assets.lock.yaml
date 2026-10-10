@@ -193,3 +193,27 @@ files:
 - path: assets/terrain/fallen-orchard-fruit-v1.png
   source_path: assets/tiles/terrain/non-road/fallen-orchard-fruit-v1.png
   sha256: d60bf3ac6e7e54436ed13cbb475dbf6d16c5e9773b41a10caad31d14c1ec4fa7
+- path: assets/terrain/wind-swept-grass-v1.png
+  source_path: assets/tiles/terrain/non-road/wind-swept-grass-v1.png
+  sha256: 45663612c651ca77ab65d8ebef560101c299dd1a7e4de129795ada74f0063cd7
+- path: assets/terrain/upland-grass-earth-v1.png
+  source_path: assets/tiles/terrain/non-road/upland-grass-earth-v1.png
+  sha256: 05ddda9196f791150592d9964975c2eaae38220dd35a3113afdb6d6eb4c537cf
+- path: assets/terrain/upland-rock-grass-v1.png
+  source_path: assets/tiles/terrain/non-road/upland-rock-grass-v1.png
+  sha256: 91a8a73a3209043ec534e0b3471fd8e20700ef2df61412db9e2382811e012a91
+- path: assets/terrain/field-grass-clumps-v1.png
+  source_path: assets/tiles/terrain/non-road/field-grass-clumps-v1.png
+  sha256: c5b470057f2a395bd392fb518faef677202c4ff687f8502226bd07f95394c1ba
+- path: assets/terrain/dew-grass-clumps-v1.png
+  source_path: assets/tiles/terrain/non-road/dew-grass-clumps-v1.png
+  sha256: 5861401960263a52c5f76346f90c4deb4f466f06f5b35be7714a07b0a96a58b9
+- path: assets/terrain/moss-cushion-ground-v1.png
+  source_path: assets/tiles/terrain/non-road/moss-cushion-ground-v1.png
+  sha256: 96a1bf40128f18f99dd9868e1b4fbf04364400cabe7c31a550c791b62c7f8814
+- path: assets/terrain/clustered-boulder-ground-v1.png
+  source_path: assets/tiles/terrain/blocked/clustered-boulder-ground-v1.png
+  sha256: f42a9ab7fb056fb31ea831f6c20c50d0ebae7f07e1f11ad312592ccbead7854b
+- path: assets/terrain/rooted-tree-stump-v1.png
+  source_path: assets/tiles/terrain/blocked/rooted-tree-stump-v1.png
+  sha256: 7889c6fd46dfa15f1c17b241a077c52ed962deab1e15a7382cfac1041f6939eb

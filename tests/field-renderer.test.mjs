@@ -1,6 +1,6 @@
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {buildAssetListModule} from '../scripts/asset-list-module.mjs';
+import {buildAssetListModule,buildMaterialFrameModule} from '../scripts/asset-list-module.mjs';
 import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -163,22 +163,22 @@ test('바닥·도로 재질 경계는 같은 높이에서 한 번 표시하고 �
  for(const currentRotationValue of [0,1,2,3])assert.ok(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveGroundMaterial,{...FIELD_RENDER_METRICS,rotation:currentRotationValue}).flat().every(currentPoint=>Number.isFinite(currentPoint.x)&&Number.isFinite(currentPoint.y)));
 });
 
-test('필드 공용 재질 선택은 맵별 도로와 바탕 재질 계약을 유지한다',async()=>{
+test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다',async()=>{
  const {build}=await import('esbuild');
  const {outputFiles}=await build({entryPoints:['src/game/terrain/fieldTileRendering.ts'],bundle:true,write:false,platform:'node',format:'esm',loader:{'.png':'empty','.webp':'empty'},plugins:[{name:'texture-test',setup(currentBuildContext){
+ currentBuildContext.onLoad({filter:/field-material-frames\.yaml$/},async currentModuleArguments=>({contents:buildMaterialFrameModule(await readFile(currentModuleArguments.path,'utf8')),loader:'js'}));
  currentBuildContext.onLoad({filter:/\.asset-list\.yaml$/},async currentModuleArguments=>({contents:buildAssetListModule(await readFile(currentModuleArguments.path,'utf8'),resolve('../slime-assets')),loader:'js'}));
  currentBuildContext.onResolve({filter:/field-renderer\.mjs$/},()=>({path:'connected',namespace:'test-mock'}));
  currentBuildContext.onLoad({filter:/.*/,namespace:'test-mock'},()=>({contents:"export const prepareFieldConnectedTexture=(scene,source,grass,mask)=>source+'-'+mask;"}));
  }}]});
  const {resolveFieldTileTextures}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
  const currentMaterialReader=()=> 'grass';
- const currentMeadowTile=resolveFieldTileTextures({},'road',{column:0,row:0},'meadow',5,currentMaterialReader);
- assert.equal(currentMeadowTile.ground,'terrain-source-dirt-road');
- assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'broken-quarry',5,currentMaterialReader).ground,'terrain-source-stone-road');
- assert.equal(resolveFieldTileTextures({},'road',{column:0,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road');
- assert.equal(resolveFieldTileTextures({},'road',{column:1,row:0},'ash-edge',5,currentMaterialReader).ground,'terrain-source-dirt-road');
- assert.equal(resolveFieldTileTextures({},'flowers',{column:1,row:0},'meadow',0,currentMaterialReader).ground,'terrain-source-meadow-flowers');
- assert.equal(resolveFieldTileTextures({},'boulder',{column:1,row:0},'ash-edge',0,currentMaterialReader).underlay,'terrain-source-grass');
+ for(const currentMapIdentifier of ['meadow','broken-quarry','ash-edge','wind-hills','old-orchard','granary-flats']){
+  for(const [currentTerrainName,currentExpectedFrame] of [['road','road'],['dirt-road','dirt-road'],['stone-road','stone-road'],['flowers','flowers'],['wind-swept-grass','wind-swept-grass-v1'],['golden-grain-field','golden-grain-field-v1'],['fallen-orchard-fruit','fallen-orchard-fruit-v1']]){
+   assert.equal(resolveFieldTileTextures({},currentTerrainName,{column:0,row:0},currentMapIdentifier,5,currentMaterialReader).ground,'terrain-source-'+currentExpectedFrame);
+  }
+ }
+
 });
 
 

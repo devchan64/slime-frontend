@@ -18,3 +18,5 @@ export {resolveFieldTileTextures,resolveFieldTerrainFrame} from '../../src/game/
 export {drawWaypoint,waypointMarkerScale} from '../../src/game/terrain/waypoint';
 
 export {resolveTownGroundFrame} from "../../src/game/terrain/textures";
+
+export {isFieldRoadTerrain} from './road-materials.mjs';

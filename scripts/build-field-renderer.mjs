@@ -1,4 +1,4 @@
-import {buildAssetListModule} from './asset-list-module.mjs';
+import {buildAssetListModule,buildMaterialFrameModule} from './asset-list-module.mjs';
 import {build} from 'esbuild';
 import {mkdir,readFile,writeFile,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
@@ -14,6 +14,7 @@ const currentSourceEntries={'town-renderer.mjs':'packages/field-renderer/town-re
 function createSharedRuntimePlugin(){
  return {name:'shared-runtime-assets',setup(currentBuildContext){
   currentBuildContext.onLoad({filter:/\.asset-list\.yaml$/},async currentModuleArguments=>({contents:buildAssetListModule(await readFile(currentModuleArguments.path,'utf8'),path.resolve(currentProjectRoot,'../slime-assets')),loader:'js'}));
+  currentBuildContext.onLoad({filter:/field-material-frames\.yaml$/},async currentModuleArguments=>({contents:buildMaterialFrameModule(await readFile(currentModuleArguments.path,'utf8')),loader:'js'}));
   currentBuildContext.onResolve({filter:/^phaser$/},()=>({path:'shared-phaser',namespace:'shared-phaser'}));
   currentBuildContext.onLoad({filter:/.*/,namespace:'shared-phaser'},()=>({contents:"import * as Phaser from './phaser.mjs'; export default Phaser;",loader:'js'}));
   currentBuildContext.onResolve({filter:/^\.\/phaser\.mjs$/},()=>({path:'./phaser.mjs',external:true}));

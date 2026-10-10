@@ -1,5 +1,8 @@
 import terrainAssetPaths from "./terrain.asset-list.yaml";
 const {
+  uplandRockGrassSource,
+  uplandGrassEarthSource,
+  windSweptGrassSource,
   fallenOrchardFruitSource,
   farmEmbankmentTileSource,
   tilledFurrowTileSource,
@@ -56,7 +59,7 @@ const {
   flowers
 } = terrainAssetPaths;
 import Phaser from "phaser";
-import { FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
+import { BASE_FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { validateTerrainSourceDimensions } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
@@ -80,8 +83,11 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
-const SOURCE_KINDS = FIELD_TERRAIN_KINDS;
+const SOURCE_KINDS = BASE_FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "upland-rock-grass-v1", source: uplandRockGrassSource },
+  { frame: "upland-grass-earth-v1", source: uplandGrassEarthSource },
+  { frame: "wind-swept-grass-v1", source: windSweptGrassSource },
   { frame: "fallen-orchard-fruit-v1", source: fallenOrchardFruitSource },
   { frame: "farm-embankment-v1", source: farmEmbankmentTileSource },
   { frame: "tilled-furrows-v1", source: tilledFurrowTileSource },

@@ -1,3 +1,4 @@
+import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
 import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT} from "./renderMetrics";
 import {canStep, type Surface} from "./elevation";
 export type Position = { column: number; row: number };
@@ -21,7 +22,8 @@ export const TILE_W = MAP_TILE_WIDTH;
 export const TILE_H = MAP_TILE_HEIGHT;
 export const TEXTURE_SIZE = 128;
 export const TERRAIN_KINDS = ["grass", "dew", "road", "flowers"] as const;
-export const FIELD_TERRAIN_KINDS = [...TERRAIN_KINDS, "dry-soil-branches", "water", "shallow-water", "deep-water", "cactus", "ash", "boulder", "gravel", "leaf-litter", "moss", "mud", "paving", "reed-bed", "stone", "tree-base", "wall"] as const;
+export const BASE_FIELD_TERRAIN_KINDS = [...TERRAIN_KINDS, "dry-soil-branches", "water", "shallow-water", "deep-water", "cactus", "ash", "boulder", "gravel", "leaf-litter", "moss", "mud", "paving", "reed-bed", "stone", "tree-base", "wall"] as const;
+export const FIELD_TERRAIN_KINDS = [...BASE_FIELD_TERRAIN_KINDS, "wind-swept-grass", "upland-grass-earth", "upland-rock-grass", "golden-grain-field", "tilled-furrows", "farm-embankment", "fallen-orchard-fruit", "dirt-road", "stone-road"] as const;
 export type FieldTerrainKind = (typeof FIELD_TERRAIN_KINDS)[number];
 export type TerrainKind = (typeof TERRAIN_KINDS)[number];
 const DIRECTIONS = [[1, 0], [0, 1], [-1, 0], [0, -1]] as const;
@@ -48,7 +50,7 @@ export function buildMeadowRoad(map: TerrainMap): Set<string> {
   if(map.terrainRows){
     const serverRoadCells=new Set<string>();
     map.terrainRows.forEach((terrainRowString,terrainRowIndex)=>[...terrainRowString].forEach((terrainCodeValue,terrainColumnIndex)=>{
-      if(map.terrainCodes?.[terrainCodeValue]==='road')serverRoadCells.add(`${terrainColumnIndex},${terrainRowIndex}`);
+      if(isFieldRoadTerrain(map.terrainCodes?.[terrainCodeValue]))serverRoadCells.add(`${terrainColumnIndex},${terrainRowIndex}`);
     }));
     return serverRoadCells;
   }

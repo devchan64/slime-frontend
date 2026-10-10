@@ -38,7 +38,7 @@ test('수면은 같은 높이에서 이어지고 계단이 있어도 단차를 �
   assert.equal(waterConnections(center, map, water), 0);
 });
 
-test('26개 필드 도로는 좌표와 연결 마스크에 관계없이 지역 재질 전체 타일을 유지한다', () => {
+test('road 코드는 필드와 좌표에 관계없이 공통 전체 타일을 유지한다', () => {
   const expectedRoadFrameGroups = [
     ['dirt-road','meadow grove wind-hills mist-lake ash-edge cinder-path clover-bank dry-creek fallen-canopy lantern-wood moss-clearing old-orchard reed-crossing root-trail silver-marsh windrow-road granary-flats'],
     ['stone-road','boar-ridge broken-quarry crystal-cut dawn-overlook mill-ridge'],
@@ -48,12 +48,12 @@ test('26개 필드 도로는 좌표와 연결 마스크에 관계없이 지역 �
     for (const currentMapIdentifier of currentMapIdentifierList.split(' ')) {
       for (let currentConnectionMask=0;currentConnectionMask<16;currentConnectionMask++) {
         for (const currentColumnIndex of [0,1,2,31]) {
-          assert.equal(selectFieldRoadFrame(currentConnectionMask,{column:currentColumnIndex,row:7},false,currentMapIdentifier),expectedRoadFrameName);
+          assert.equal(selectFieldRoadFrame(currentConnectionMask,{column:currentColumnIndex,row:7},false,currentMapIdentifier),'road');
         }
       }
     }
   }
-  assert.throws(()=>selectFieldRoadFrame(0,center,false,'missing-map'),/등록되지/);
+  assert.equal(selectFieldRoadFrame(0,center,false,'any-field'),'road');
   for (let currentConnectionMask=0;currentConnectionMask<16;currentConnectionMask++) {
     assert.equal(selectFieldRoadFrame(currentConnectionMask,center,true,'iseulon'),`road-${currentConnectionMask}`);
   }

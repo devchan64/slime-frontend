@@ -1,3 +1,4 @@
+import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
 import {drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
@@ -646,7 +647,7 @@ export class MainScene extends Phaser.Scene {
     for(const object of this.terrainObjects)object.destroy();
     this.terrainObjects.clear();
     const cells = new Map(field?.cells?.map(cell => [`${cell.column},${cell.row}`, cell.terrain]));
-    const road=field ? new Set([...cells].filter(([,kind])=>kind==='road').map(([key])=>key)) : buildMeadowRoad(s.map);
+    const road=field ? new Set([...cells].filter(([,kind])=>isFieldRoadTerrain(kind)).map(([key])=>key)) : buildMeadowRoad(s.map);
     const blockedCells=new Set(blocked.map(p=>`${p.column},${p.row}`));
     const cityBuildingCellKeys = new Set((field?[]:s.map.buildings ?? []).flatMap(cityBuildingCells).map(currentCityCell=>`${currentCityCell.column},${currentCityCell.row}`));
     const waterCells = field ? new Set([...cells].filter(([, kind]) => kind === "water").map(([key]) => key))
@@ -677,7 +678,7 @@ export class MainScene extends Phaser.Scene {
       const kind=field && terrain==='rock' ? `battle-rock-${['a','b','c'][(column+row)%3]}` : field && terrain==='thicket' ? 'battle-thicket' : terrain;
       const currentCellIsWater=waterCells.has(`${column},${row}`);
       if(field||!s.map.safeTown){
-        const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):kind==='road'?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
+        const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
         const currentTileTextures=resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial);
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
         for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth))remember(currentRenderObject);

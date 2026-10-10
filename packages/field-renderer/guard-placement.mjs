@@ -1,6 +1,7 @@
+import {FIELD_ROAD_TERRAINS,isFieldRoadTerrain} from './road-materials.mjs';
 /** 경비센터는 도로 옆 평평한 2×2 지면을 차지하며 네 셀 중심에 표시한다. */
 export const GUARD_CENTER_FOOTPRINT_SIZE = 2;
-const GUARD_FORBIDDEN_TERRAIN = new Set(['road','water','shallow-water','deep-water','wall','boulder','tree-base']);
+const GUARD_FORBIDDEN_TERRAIN = new Set([...FIELD_ROAD_TERRAINS,'water','shallow-water','deep-water','wall','boulder','tree-base']);
 const GUARD_NEIGHBOR_OFFSETS = [[1,0],[-1,0],[0,1],[0,-1]];
 export function resolveGuardDisplayPlacement(currentGatePosition,currentMapRecord){
  if(!currentMapRecord.terrainRows||!currentMapRecord.terrainCodes)throw Error('경비센터 배치에 지형 데이터가 필요합니다.');
@@ -12,7 +13,7 @@ export function resolveGuardDisplayPlacement(currentGatePosition,currentMapRecor
   const currentFootprintCells=[{column:currentColumn,row:currentRow},{column:currentColumn+1,row:currentRow},{column:currentColumn,row:currentRow+1},{column:currentColumn+1,row:currentRow+1}];
   const currentBaseHeight=currentMapRecord.elevations?.[currentRow]?.[currentColumn]??0;
   if(currentFootprintCells.some(currentCell=>!readCurrentTerrain(currentCell.column,currentCell.row)||GUARD_FORBIDDEN_TERRAIN.has(readCurrentTerrain(currentCell.column,currentCell.row))||currentBlockedCells.has(`${currentCell.column},${currentCell.row}`)||currentStairCells.has(`${currentCell.column},${currentCell.row}`)||(currentMapRecord.elevations?.[currentCell.row]?.[currentCell.column]??0)!==currentBaseHeight))continue;
-  if(!currentFootprintCells.some(currentCell=>GUARD_NEIGHBOR_OFFSETS.some(([currentColumnOffset,currentRowOffset])=>readCurrentTerrain(currentCell.column+currentColumnOffset,currentCell.row+currentRowOffset)==='road'&&(currentMapRecord.elevations?.[currentCell.row+currentRowOffset]?.[currentCell.column+currentColumnOffset]??0)===currentBaseHeight)))continue;
+  if(!currentFootprintCells.some(currentCell=>GUARD_NEIGHBOR_OFFSETS.some(([currentColumnOffset,currentRowOffset])=>isFieldRoadTerrain(readCurrentTerrain(currentCell.column+currentColumnOffset,currentCell.row+currentRowOffset))&&(currentMapRecord.elevations?.[currentCell.row+currentRowOffset]?.[currentCell.column+currentColumnOffset]??0)===currentBaseHeight)))continue;
   const currentCenterPosition={column:currentColumn+.5,row:currentRow+.5};
   const currentGateDistance=Math.abs(currentCenterPosition.column-currentGatePosition.column)+Math.abs(currentCenterPosition.row-currentGatePosition.row);
   currentCandidateRecords.push({position:currentCenterPosition,cells:currentFootprintCells,width:GUARD_CENTER_FOOTPRINT_SIZE,height:GUARD_CENTER_FOOTPRINT_SIZE,distance:currentGateDistance});

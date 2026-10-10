@@ -32,15 +32,8 @@ export function roadConnections(cell: Position, map: Surface, road: Set<string>)
   return mask;
 }
 
-// 야외 도로는 지역별 한 재질의 전체 타일을 사용한다. 좌표별 임의 혼합을 하지 않는다.
-const FIELD_ROAD_FRAME_GROUPS: ReadonlyArray<readonly [string, readonly string[]]> = [
-  ["dirt-road", ["meadow", "grove", "wind-hills", "mist-lake", "ash-edge", "cinder-path", "clover-bank", "dry-creek", "fallen-canopy", "lantern-wood", "moss-clearing", "old-orchard", "reed-crossing", "root-trail", "silver-marsh", "windrow-road", "granary-flats"]],
-  ["stone-road", ["boar-ridge", "broken-quarry", "crystal-cut", "dawn-overlook", "mill-ridge"]],
-  ["road", ["pebble-shore", "brine-bank", "salt-causeway", "salt-flat"]],
-];
+// 야외 도로 재질은 지형 코드로 정하고 마을만 연결 프레임을 사용한다.
+
 export function selectFieldRoadFrame(connectionMaskValue:number,_currentCellPosition:Position,currentMapIsTown:boolean,currentMapIdentifier:string=""):string {
-  if (currentMapIsTown) return roadFrame(connectionMaskValue);
-  const selectedRoadFrameGroup = FIELD_ROAD_FRAME_GROUPS.find(([, currentMapIdentifiers]) => currentMapIdentifiers.includes(currentMapIdentifier));
-  if (!selectedRoadFrameGroup) throw new Error(`야외 도로 재질이 등록되지 않았습니다: ${currentMapIdentifier}`);
-  return selectedRoadFrameGroup[0];
+  return currentMapIsTown ? roadFrame(connectionMaskValue) : 'road';
 }
