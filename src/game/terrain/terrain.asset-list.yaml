@@ -1,3 +1,5 @@
+angularQuarryScreeSource: assets/tiles/terrain/non-road/angular-quarry-scree-v1.png
+fracturedBedrockTileSource: assets/tiles/terrain/non-road/fractured-bedrock-v1.png
 uplandRockGrassSource: assets/tiles/terrain/non-road/upland-rock-grass-v1.png
 uplandGrassEarthSource: assets/tiles/terrain/non-road/upland-grass-earth-v1.png
 windSweptGrassSource: assets/tiles/terrain/non-road/wind-swept-grass-v1.png
@@ -48,7 +50,6 @@ stonewarmGravelPavingSource: assets/tiles/terrain/road/limestone-road-v3.png
 stonewarmMarblePavingSource: assets/tiles/terrain/road/marble-circular-road-v1.png
 extendedReedBedSource: assets/tiles/terrain/non-road/marsh-reed-clumps-v1.png
 extendedStoneSource: assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
-extendedTreeBaseSource: assets/tiles/terrain/blocked/rooted-tree-stump-v1.png
 cliffWallPatternSource: assets/tiles/terrain/blocked/cliff-rock-face-v1.png
 grassTileImageSource: assets/tiles/terrain/non-road/field-grass-clumps-v1.png
 dew: assets/tiles/terrain/non-road/dew-grass-clumps-v1.png

@@ -1,5 +1,7 @@
 import terrainAssetPaths from "./terrain.asset-list.yaml";
 const {
+  angularQuarryScreeSource,
+  fracturedBedrockTileSource,
   uplandRockGrassSource,
   uplandGrassEarthSource,
   windSweptGrassSource,
@@ -51,7 +53,6 @@ const {
   stonewarmMarblePavingSource,
   extendedReedBedSource,
   extendedStoneSource,
-  extendedTreeBaseSource,
   cliffWallPatternSource,
   grassTileImageSource,
   dew,
@@ -82,9 +83,11 @@ export const ISEULON_GRASS_FRAME = "iseulon-grass-mud-frame";
 export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 // 이슬 지면은 통행 가능한 풀밭이며 수면 텍스처를 사용하지 않는다.
 // 서버의 wall 지형도 현재 절벽 재질로 표시하며 이동 불가 코드 자체는 유지한다.
-const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "tree-base": extendedTreeBaseSource, "wall": cliffWallPatternSource };
+const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = BASE_FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "angular-quarry-scree-v1", source: angularQuarryScreeSource },
+  { frame: "fractured-bedrock-v1", source: fracturedBedrockTileSource },
   { frame: "upland-rock-grass-v1", source: uplandRockGrassSource },
   { frame: "upland-grass-earth-v1", source: uplandGrassEarthSource },
   { frame: "wind-swept-grass-v1", source: windSweptGrassSource },
@@ -109,7 +112,7 @@ const SPECIAL_TERRAIN_SOURCES = [
   { frame: "stonewarm-granite-paving", source: stonewarmGranitePavingSource },
   { frame: STONEWARM_MARBLE_PAVING_FRAME, source: stonewarmMarblePavingSource },
 ];
-const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder", "tree-base"]);
+const TRANSPARENT_TERRAIN_KINDS = new Set<string>(["boulder"]);
 const FRAME_W = TEXTURE_SIZE;
 const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;

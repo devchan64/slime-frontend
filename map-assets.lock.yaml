@@ -214,6 +214,9 @@ files:
 - path: assets/terrain/clustered-boulder-ground-v1.png
   source_path: assets/tiles/terrain/blocked/clustered-boulder-ground-v1.png
   sha256: f42a9ab7fb056fb31ea831f6c20c50d0ebae7f07e1f11ad312592ccbead7854b
-- path: assets/terrain/rooted-tree-stump-v1.png
-  source_path: assets/tiles/terrain/blocked/rooted-tree-stump-v1.png
-  sha256: 7889c6fd46dfa15f1c17b241a077c52ed962deab1e15a7382cfac1041f6939eb
+- path: assets/terrain/fractured-bedrock-v1.png
+  source_path: assets/tiles/terrain/non-road/fractured-bedrock-v1.png
+  sha256: 0c96926e7dcccbc9d9735b92705fe9888a348973e7e5c174652df9605a2a8bb8
+- path: assets/terrain/angular-quarry-scree-v1.png
+  source_path: assets/tiles/terrain/non-road/angular-quarry-scree-v1.png
+  sha256: 2ba7874e6ee01981bda8d76ee94be6054038c9f4e074daca8aa659d6a84ef262

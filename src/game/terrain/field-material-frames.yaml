@@ -20,10 +20,11 @@ paving: paving
 reed-bed: reed-bed
 road: road
 stone: stone
-tree-base: tree-base
 wall: wall
 water: water
 cactus: cactus
 shallow-water: shallow-water
 deep-water: deep-water
 dry-soil-branches: dry-soil-branches
+fractured-bedrock: fractured-bedrock-v1
+angular-quarry-scree: angular-quarry-scree-v1

@@ -17,5 +17,5 @@ export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTe
  const currentSelectedFrame=currentTerrainName==='water'?`water-${currentConnectionMask}`:resolveFieldTerrainFrame(currentTerrainName,currentMapIdentifier);
  const currentConnectedFrame=/^(water)-(\d+)$/.exec(currentSelectedFrame);
  const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(currentGameScene,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
- return {ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder','tree-base'].includes(currentTerrainName)?'terrain-source-grass':undefined};
+ return {ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder'].includes(currentTerrainName)?'terrain-source-grass':undefined};
 }
