@@ -47,7 +47,7 @@ npm run build:review
 
 명령은 `.tmp/한국시간/ui-review/`에 HTML·번들·에셋과 `manifest.json`을 만든다. manifest에는 소스 커밋, 로컬 수정 포함 여부, 검수 페이지와 모든 파일 해시가 기록된다. 이 폴더를 `slime-workflow` 관리도구에 명시적으로 전달한다. 검수 중 UI는 실제 API 요청을 보내지 않는다.
 
-manifest v2의 `componentModules`는 직접 마운트할 페이지 ID와 해시가 등록된 JS 모듈을 연결한다. 디자인 시스템 모듈은 `mountReviewPage(host, {locale})`로 연결하고 반환된 `dispose()`로 해제한다. 독립 HTML과 같은 Preact 컴포넌트를 사용하며 Gradio에서는 게임 CSS의 루트 선택자를 Shadow DOM 호스트에 대응시켜 전역 스타일 충돌을 피한다. 모듈이나 해시가 없으면 관리도구가 명확한 오류로 중단하므로 이전 번들은 다시 빌드·전달한다. 전장 WebGL 컴포넌트의 iframe 제거는 후속 작업이다. 게임 배포·API·AWS 비용에는 변경이 없다.
+manifest v2의 `componentModules`는 직접 마운트할 페이지 ID와 해시가 등록된 JS 모듈을 연결한다. 디자인 시스템과 전장 모듈은 `mountReviewPage(host, {locale, field})`로 연결하고 반환된 `dispose()`로 해제한다. 전장의 `readState()`·`selectField(id)`는 Gradio 선택·렌더 상태와 연결한다. 독립 HTML과 같은 Preact 컴포넌트를 사용하며 Gradio에서는 게임 CSS의 루트 선택자를 Shadow DOM 호스트에 대응시켜 전역 스타일 충돌을 피한다. 모듈이나 해시가 없으면 관리도구가 명확한 오류로 중단하므로 이전 번들은 다시 빌드·전달한다. 전장 WebGL·타이머·게임 패널은 선택 변경과 화면 해제 때 정리한다. Phaser 3.90 시작 계약을 유지하는 검수 전용 Game은 부모 문서의 포커스 핸들러를 덮어쓰지 않으며 소유 이벤트를 해제한다. 게임 패널의 확인창은 실제 명령 전송 없이 검수 메시지만 갱신한다. 게임 배포·API·AWS 비용에는 변경이 없다.
 
 공개 API의 실제 스키마는 백엔드 `/openapi.json`에서 확인한다. 서버의 결과가 판정 원본이며 UI·그림 변경은 API 권한과 무관하다.
 

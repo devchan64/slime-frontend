@@ -192,12 +192,22 @@ export class MainScene extends Phaser.Scene {
     preloadBackdrop(this);
   }
   create() {
+    // 전장 검수의 Game 해제는 SHUTDOWN 없이 DESTROY로 끝날 수도 있다.
+    const registerSceneCleanup = (currentCleanupCallback: () => void) => {
+      const releaseSceneResources = () => {
+        this.events.off(Phaser.Scenes.Events.SHUTDOWN, releaseSceneResources);
+        this.events.off(Phaser.Scenes.Events.DESTROY, releaseSceneResources);
+        currentCleanupCallback();
+      };
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, releaseSceneResources);
+      this.events.once(Phaser.Scenes.Events.DESTROY, releaseSceneResources);
+    };
     this.buildingLayerSignature = "";
     this.buildingLayerObjects.clear();
     this.fieldCameraFollowPending = false;
     if (this.loadFailed) return;
     const releaseMapGestureListeners=bindMapGestureCancellation(this.game.canvas,document,window,()=>{this.panStart=null;});
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{
+    registerSceneCleanup(()=>{
       releaseMapGestureListeners();
       this.panStart=null;
     });
@@ -207,14 +217,14 @@ export class MainScene extends Phaser.Scene {
     const idleActivityEventNames = ['pointerdown', 'pointerup', 'keydown', 'keyup', 'wheel', 'visibilitychange'] as const;
     for (const activityEventName of idleActivityEventNames) document.addEventListener(activityEventName, resetFieldIdleAction, {capture:true, passive:true});
     document.addEventListener('pointermove', recordFieldPointerDrag, {capture:true, passive:true});
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    registerSceneCleanup(() => {
       for (const activityEventName of idleActivityEventNames) document.removeEventListener(activityEventName, resetFieldIdleAction, true);
       document.removeEventListener('pointermove', recordFieldPointerDrag, true);
     });
     // 화면 회전 후 새 캔버스 크기를 기준으로 전장을 다시 맞춘다.
     const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
     this.scale.on(Phaser.Scale.Events.RESIZE, resize);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    registerSceneCleanup(() => {
       this.actorCache?.clear();
       this.actorCache=null;
       this.actorEntries=[];

@@ -22,7 +22,7 @@ for(const currentReviewPage of reviewCatalogValue.pages){
 }
 mkdirSync(reviewOutputRoot,{recursive:true});
 console.log(`${reviewStartedTime}/ui-review/build ${reviewOutputRoot}`);
-const currentReviewBuild=await buildReviewBundle({configFile:false,plugins:[createAssetListPlugin()],base:'./',publicDir:false,esbuild:{jsx:'automatic',jsxImportSource:'preact'},build:{outDir:reviewOutputRoot,emptyOutDir:false,rollupOptions:{preserveEntrySignatures:'strict',input:['review/design-system.html','review/battlefield-preview.html','review/design-system-native.ts'].map(currentEntryPath=>resolveReviewPath(currentEntryPath))}}});
+const currentReviewBuild=await buildReviewBundle({configFile:false,plugins:[createAssetListPlugin()],base:'./',publicDir:false,esbuild:{jsx:'automatic',jsxImportSource:'preact'},build:{outDir:reviewOutputRoot,emptyOutDir:false,rollupOptions:{preserveEntrySignatures:'strict',input:['review/design-system.html','review/battlefield-preview.html','review/design-system-native.ts','review/battlefield-native.ts'].map(currentEntryPath=>resolveReviewPath(currentEntryPath))}}});
 function collectReviewFiles(currentDirectoryPath){
  return readdirSync(currentDirectoryPath,{withFileTypes:true}).flatMap(currentDirectoryEntry=>{
  const currentAbsolutePath=resolveReviewPath(currentDirectoryPath,currentDirectoryEntry.name);
@@ -33,6 +33,8 @@ const reviewSourceCommit=process.env.UI_REVIEW_SOURCE_COMMIT;
 if(!/^[a-f0-9]{40}$/.test(reviewSourceCommit??''))throw new Error('검수 빌드 Git 커밋을 확인할 수 없습니다.');
 const currentNativeEntry=currentReviewBuild.output.find(currentOutputChunk=>currentOutputChunk.type==='chunk'&&currentOutputChunk.facadeModuleId===resolveReviewPath('review/design-system-native.ts'));
 if(!currentNativeEntry)throw new Error('디자인 시스템 직접 마운트 모듈이 없습니다.');
-const reviewManifestValue={schemaVersion:2,componentModules:{'design-system':currentNativeEntry.fileName},kind:'slime-ui-review',sourceCommit:reviewSourceCommit,sourceDirty:process.env.UI_REVIEW_SOURCE_DIRTY==='true',createdAt:reviewStartedTime,pages:reviewCatalogValue.pages,files:collectReviewFiles(reviewOutputRoot)};
+const currentBattleEntry=currentReviewBuild.output.find(currentOutputChunk=>currentOutputChunk.type==='chunk'&&currentOutputChunk.facadeModuleId===resolveReviewPath('review/battlefield-native.ts'));
+if(!currentBattleEntry)throw new Error('전장 직접 마운트 모듈이 없습니다.');
+const reviewManifestValue={schemaVersion:2,componentModules:{'design-system':currentNativeEntry.fileName,'battlefield-layout':currentBattleEntry.fileName},kind:'slime-ui-review',sourceCommit:reviewSourceCommit,sourceDirty:process.env.UI_REVIEW_SOURCE_DIRTY==='true',createdAt:reviewStartedTime,pages:reviewCatalogValue.pages,files:collectReviewFiles(reviewOutputRoot)};
 writeFileSync(resolveReviewPath(reviewOutputRoot,'manifest.json'),JSON.stringify(reviewManifestValue,null,2)+'\n');
 console.log(`${new Date().toISOString()}/ui-review/complete ${reviewOutputRoot}`);

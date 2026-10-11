@@ -8,10 +8,11 @@ export function createGame(
   onSelect: (p: Position) => void,
   onReady: (location: string) => void,
   onFailure: (failureNoticeValue: Notice) => void,
+  currentGameConstructor: typeof Phaser.Game = Phaser.Game,
 ) {
   if (parent.clientWidth <= 0 || parent.clientHeight <= 0) throw new Error("맵 표시 영역의 크기가 올바르지 않습니다.");
   const scene = new MainScene(onSelect, onReady, onFailure);
-  const game = new Phaser.Game({
+  const game = new currentGameConstructor({
     type: Phaser.WEBGL,
     parent,
     backgroundColor: "#0d1d28",
