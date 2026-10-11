@@ -170,3 +170,17 @@ Vite 6.4.3·YAML 2.8.3을 고정하고 잠금 파일의 esbuild 0.25.12·PostCSS
 게임 캔버스는 CSS 표시 크기를 유지하고 내부 가로·세로 해상도를 2배로 렌더링합니다. 카메라 배율·줌 입력·드래그 임계값·화면 고정 표식을 함께 보정하며 리사이즈 시 Phaser 좌표 변환도 갱신합니다. 픽셀 수는 기존의 4배이므로 GPU 픽셀 처리량과 버퍼 메모리는 증가합니다. 서버·배포 구조 변경은 없습니다.
 
 사람 캐릭터는 월드 기준 1px 회갈색(#655D54) 형태선과 바깥 1px 밝은 분리선(#FFF2CC)을 사용하며 배율에 비례합니다. 대기·걷기·휴식의 현재 프레임과 앵커를 따라갑니다. 접지 그림자는 기존 크기와 중성 회색(#242424), 기존 contrast 프로필 대비 층별 불투명도 1.2배를 적용합니다. 설정 원본은 src/game/renderQuality.ts입니다.
+
+
+## 운영 로그 보관
+
+- 로컬 개발 서버와 셸 실행 로그(`.local/logs`): 일 단위 회전, 7일 보관. `scripts/script_logging.sh`가 시작 시와 실행 중 매시간 `logrotate`를 호출한다. Linux의 `logrotate`와 `flock`(util-linux)이 필요하다. 계속 실행 중인 서버도 다음 점검부터 회전하며, 기존 프로세스에는 다음 실행부터 새 로거가 적용된다.
+- `copytruncate`로 실행 중 로그 파일의 경로·열린 파일을 유지한다. 복사와 비우기 사이의 소량 로그가 유실될 수 있으므로 로컬 개발 로그에만 사용한다. 만료된 종료 실행의 로그도 같은 점검에서 정리한다. 서버를 중단한 동안에는 다음 시작 때 정리한다.
+- 배포환경의 백엔드·프론트엔드 운영 로그: **AWS CloudWatch Logs 30일**. 각 배포 로그 그룹에 아래 정책을 적용하고 IaC를 추가할 때 `RetentionInDays: 30`으로 고정한다. 프로필·리전·그룹은 실제 배포 대상을 명시한다. 로컬 Docker 엔진 자체의 stdout 로그에는 파일 로거의 7일 규칙이 자동 적용되지 않는다.
+
+```bash
+aws --profile <배포프로필> --region <리전> logs put-retention-policy --log-group-name <로그그룹> --retention-in-days 30
+aws --profile <배포프로필> --region <리전> logs describe-log-groups --log-group-name-prefix <로그그룹> --query 'logGroups[].{name:logGroupName,days:retentionInDays}'
+```
+
+CloudWatch의 만료 로그 실제 삭제에는 통상 최대 72시간이 추가로 걸릴 수 있다. [AWS 보관 정책 안내](https://docs.aws.amazon.com/cli/latest/reference/logs/put-retention-policy.html). 이 규칙은 게임 사건기록·채팅·DB 데이터 보존 기간을 변경하지 않는다. 로그 그룹의 수집·전송 방식이나 서비스 배포 구조는 변경하지 않으며 보관량을 제한해 저장 비용을 관리한다.

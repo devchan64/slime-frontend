@@ -24,7 +24,7 @@
 - Use serverless-first in early stages.
 - Avoid fixed-cost resources unless clearly required.
 - Maximize CDN cache hit ratio.
-- Keep log/monitoring retention to the minimum required period.
+- 운영 로그는 로컬 개발환경에서 일 단위 회전·7일 보관, 배포환경에서는 AWS CloudWatch Logs 30일 보관을 적용한다. 게임 사건기록·채팅·업무 데이터의 별도 보존 정책과 구분한다.
 - Remove idle resources regularly.
 ## Local Development Rules
 - Local backend stack: `FastAPI + uvicorn`, `DynamoDB Local (Docker)`, optional `SAM local`.
