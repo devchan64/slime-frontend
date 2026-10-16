@@ -671,6 +671,7 @@ export class MainScene extends Phaser.Scene {
       if(!currentTerrainName)throw new Error('바닥 타일 경계의 지형이 없습니다');
       return currentTerrainName;
     };
+    const currentBillboardRecords=(s.map.objects??[]).map(currentObjectRecord=>({...currentObjectRecord,position:this.viewPosition(currentObjectRecord.position)}));
     this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
       const objects:Phaser.GameObjects.GameObject[]=[];
       const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {
@@ -691,7 +692,7 @@ export class MainScene extends Phaser.Scene {
         const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
         const currentTileTextures=resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,field?[]:s.map.groundOverrides);
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
-        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth))remember(currentRenderObject);
+        for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth,false,currentBillboardRecords))remember(currentRenderObject);
       }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
       if(elevationTile){

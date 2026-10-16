@@ -1,11 +1,11 @@
 export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
-import {TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
+import {TERRAIN_DEPTH,TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
 import {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.50';
+export const FIELD_RENDERER_VERSION = '1.0.51';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
@@ -198,12 +198,33 @@ export function buildFieldCliffEdges(currentCellPosition,currentMapSurface,curre
  });
 }
 
-export function drawFieldCellObjects(currentGameScene,currentCellPosition,currentMapSurface,currentRenderOptions,currentTextureKeys,currentRenderDepth,currentShowMesh=false){
+/** 같은 높이의 겹치는 바닥만 빌보드 뒤로 보낸다. 절벽과 높은 지형은 기존 정렬을 유지한다. */
+export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurface,currentRenderOptions,currentRenderDepth,currentBillboardRecords=currentMapSurface.objects??[]){
+ const currentCellCenter=projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions);
+ const currentCellHeight=readSurfaceHeight(currentCellPosition,currentMapSurface);
+ let currentGroundDepth=currentRenderDepth;
+ for(const currentObjectRecord of currentBillboardRecords){
+  if(currentObjectRecord.kind!=='billboard'||readSurfaceHeight(currentObjectRecord.position,currentMapSurface)!==currentCellHeight)continue;
+  const currentObjectCenter=projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions);
+  const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentObjectCenter,currentRenderOptions);
+  const currentSpriteSize=currentObjectRecord.displayHeight;
+  const currentSpriteLeft=currentObjectPlacement.screen.x-currentSpriteSize*currentObjectRecord.anchorX;
+  const currentSpriteTop=currentObjectPlacement.screen.y-currentSpriteSize*currentObjectRecord.anchorY;
+  if(currentSpriteLeft>currentCellCenter.x+currentRenderOptions.tileWidth/2||currentSpriteLeft+currentSpriteSize<currentCellCenter.x-currentRenderOptions.tileWidth/2||currentSpriteTop>currentCellCenter.y+currentRenderOptions.tileHeight/2||currentSpriteTop+currentSpriteSize<currentCellCenter.y-currentRenderOptions.tileHeight/2)continue;
+  const currentViewPosition=rotateSurfacePosition(currentObjectPlacement.position,currentRenderOptions.rotation??0);
+  const currentObjectDepth=TERRAIN_DEPTH.base+(currentViewPosition.column+currentViewPosition.row)*TERRAIN_DEPTH.stride+TERRAIN_DEPTH.overlay;
+  currentGroundDepth=Math.min(currentGroundDepth,currentObjectDepth-1);
+ }
+ return currentGroundDepth;
+}
+
+export function drawFieldCellObjects(currentGameScene,currentCellPosition,currentMapSurface,currentRenderOptions,currentTextureKeys,currentRenderDepth,currentShowMesh=false,currentBillboardRecords=currentMapSurface.objects??[]){
+ const currentGroundDepth=resolveBillboardGroundDepth(currentCellPosition,currentMapSurface,currentRenderOptions,currentRenderDepth,currentBillboardRecords);
  const currentCellFaces=buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions);
  const currentTreadCount=currentCellFaces.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length;
  const currentRenderObjects=[];
  for(const [currentFaceIndex,currentFaceRecord] of currentCellFaces.entries()){
-  const currentFaceDepth=currentRenderDepth+currentFaceIndex/(currentCellFaces.length+1);
+  const currentFaceDepth=(currentFaceRecord.kind==='ground'?currentGroundDepth:currentRenderDepth)+currentFaceIndex/(currentCellFaces.length+1);
   const currentTextureKey=currentTextureKeys[currentFaceRecord.kind];
   if(!currentGameScene.textures.exists(currentTextureKey))throw Error('필드 텍스처 누락: '+currentTextureKey);
   if(currentFaceRecord.kind==='cliff'){
@@ -231,11 +252,11 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
  }
  if(currentTextureKeys.roadConnectionMask!==undefined&&!findSurfaceStair(currentCellPosition,currentMapSurface)){
   const currentRoadEdges=buildFieldRoadEdges(currentCellPosition,currentMapSurface,currentTextureKeys.roadConnectionMask,currentRenderOptions,currentTextureKeys.fullTileRoad);
-  if(currentRoadEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentRoadEdges,currentRenderDepth+.98,FIELD_GROUND_EDGE_STYLE));
+  if(currentRoadEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentRoadEdges,currentGroundDepth+.98,FIELD_GROUND_EDGE_STYLE));
  }
  if(TERRAIN_MATERIAL_BOUNDARY_ENABLED&&currentTextureKeys.resolveGroundMaterial){
   const currentMaterialEdges=buildFieldMaterialEdges(currentCellPosition,currentMapSurface,currentTextureKeys.resolveGroundMaterial,currentRenderOptions);
-  if(currentMaterialEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentMaterialEdges,currentRenderDepth+.99,FIELD_GROUND_EDGE_STYLE));
+  if(currentMaterialEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentMaterialEdges,currentGroundDepth+.99,FIELD_GROUND_EDGE_STYLE));
  }
  const currentElevationEdges=buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions);
  if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentRenderDepth+0.99));

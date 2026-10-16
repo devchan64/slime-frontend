@@ -232,3 +232,14 @@ test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 
  assert.deepEqual([...currentFrameRecords.values()],[[0,0,0,128,128],[0,128,0,128,128]]);
  assert.throws(()=>drawFieldSceneryObject(currentMockScene,{...currentObjectRecord,frameSize:64},{x:0,y:0},0),/2프레임/);
 });
+
+test('빌보드와 겹친 같은 높이 바닥은 뒤에 두고 높은 바닥은 유지한다',async()=>{
+ const {resolveBillboardGroundDepth}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentBillboardRecords=[{kind:'billboard',position:{column:3,row:3},tileAnchor:'center',displayHeight:80,anchorX:.5,anchorY:.75}];
+ const currentGroundDepth=resolveBillboardGroundDepth({column:4,row:3},currentFlatSurface,FIELD_RENDER_METRICS,800,currentBillboardRecords);
+ assert.ok(currentGroundDepth<710);
+ const currentRaisedSurface={...currentFlatSurface,elevations:currentFlatSurface.elevations.map(currentHeightRow=>[...currentHeightRow])};
+ currentRaisedSurface.elevations[3][4]=1;
+ assert.equal(resolveBillboardGroundDepth({column:4,row:3},currentRaisedSurface,FIELD_RENDER_METRICS,800,currentBillboardRecords),800);
+ assert.equal(resolveBillboardGroundDepth({column:8,row:8},currentFlatSurface,FIELD_RENDER_METRICS,1700,currentBillboardRecords),1700);
+});

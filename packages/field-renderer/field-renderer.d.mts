@@ -14,7 +14,7 @@ export function buildFieldCellGeometry(currentCellPosition:SurfacePosition,curre
 export function buildFieldPanelVertices(currentPanelPoints:SurfacePoint[]):{center:SurfacePoint;vertices:number[]};
 export function drawFieldMeshBoundary(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentRenderDepth:number):Phaser.GameObjects.Graphics;
 export function drawFieldTexturePanel(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentTextureKey:string,currentRenderDepth:number,currentUvCorners?:number[]):Phaser.GameObjects.Mesh;
-export function drawFieldCellObjects(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentTextureKeys:{ground:string;cliff:string;tread:string;underlay?:string;resolveGroundMaterial?:(currentCellPosition:SurfacePosition)=>string;roadConnectionMask?:number;fullTileRoad?:boolean},currentRenderDepth:number,currentShowMesh?:boolean):Phaser.GameObjects.GameObject[];
+export function drawFieldCellObjects(currentGameScene:Phaser.Scene,currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentTextureKeys:{ground:string;cliff:string;tread:string;underlay?:string;resolveGroundMaterial?:(currentCellPosition:SurfacePosition)=>string;roadConnectionMask?:number;fullTileRoad?:boolean},currentRenderDepth:number,currentShowMesh?:boolean,currentBillboardRecords?:FieldSceneryRecord[]):Phaser.GameObjects.GameObject[];
 export function buildFieldBoundaryPanels(currentCellPosition:SurfacePosition,currentSafeCenter:SurfacePosition,currentSafeRadius:number,currentScreenCenter:SurfacePoint,currentRenderOptions?:RenderOptions):SurfacePoint[][];
 export function resolveFieldAuraUvs(currentFrameIndex:number,currentImageWidth:number,currentImageHeight:number):number[];
 export function drawFieldAuraPanel(currentGameScene:Phaser.Scene,currentPanelPoints:SurfacePoint[],currentTextureKey:string,currentRenderDepth:number):Phaser.GameObjects.Mesh;
@@ -42,3 +42,5 @@ export function drawFieldSceneryObject(currentGameScene:Phaser.Scene,currentObje
 
 export const FIELD_SCENERY_TILE_ANCHORS:Readonly<Record<FieldSceneryTileAnchor,Readonly<{column:number;row:number}>>>;
 export function resolveFieldSceneryPlacement(currentObjectRecord:FieldSceneryRecord,currentTileCenter:SurfacePoint,currentRenderOptions?:{tileWidth:number;tileHeight:number;rotation?:number}):{position:{column:number;row:number};screen:SurfacePoint};
+
+export function resolveBillboardGroundDepth(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentRenderDepth:number,currentBillboardRecords?:FieldSceneryRecord[]):number;
