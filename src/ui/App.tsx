@@ -698,8 +698,6 @@ export function App() {
             <div class={`map-stage card ${battle ? "battle-map-card" : "field-map-card"}`} role="region" aria-label={battle ? t('app.battleMap') : state.map.safeTown ? t('app.townMap') : t('app.fieldMap')}>
               <nav class="map-camera-controls" aria-label={t('app.cameraControls')}>              <button class="secondary compact" aria-label={t('app.zoomOut')} onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
               <button class="secondary compact" aria-label={t('app.zoomIn')} onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
-              <button class="secondary compact" aria-label={t('app.rotateLeft')} onClick={() => renderer.current?.scene.rotateMap(-1)}>↶</button>
-              <button class="secondary compact" aria-label={t('app.rotateRight')} onClick={() => renderer.current?.scene.rotateMap(1)}>↷</button>
               <button
                 class="secondary compact"
                 aria-label={t('app.resetView')} title={t('app.resetView')}

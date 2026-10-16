@@ -251,3 +251,25 @@ test('표시 타일 덮어쓰기를 기준으로 재질 경계를 판정한다',
  currentGroundOverrides[1].textureKey='orchard-grass';
  assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveDisplayedMaterial).length,1);
 });
+
+
+test('앞쪽에서 배우와 겹치는 지형만 흐리게 하고 이동 후 복원한다',async()=>{
+ const {updateFieldActorOcclusion,FIELD_OCCLUSION_ALPHA}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentActorBounds={x:10,y:10,width:10,height:20};
+ const currentActorObject={visible:true,depth:10,getBounds:()=>currentActorBounds,getData:currentDataKey=>currentDataKey==='fieldActorVisibility'?true:undefined};
+ const createOccludingObject=(currentObjectDepth,currentObjectBounds)=>({visible:true,depth:currentObjectDepth,alpha:.8,getBounds:()=>currentObjectBounds,getData:currentDataKey=>currentDataKey==='fieldOcclusionBaseAlpha'?.8:undefined,setAlpha(currentAlphaValue){this.alpha=currentAlphaValue;}});
+ const currentFrontObject=createOccludingObject(11,{x:15,y:15,width:20,height:20});
+ const currentBehindObject=createOccludingObject(9,{x:15,y:15,width:20,height:20});
+ const currentDistantObject=createOccludingObject(12,{x:80,y:15,width:20,height:20});
+ const currentGameScene={children:{list:[currentActorObject,currentFrontObject,currentBehindObject,currentDistantObject]}};
+ updateFieldActorOcclusion(currentGameScene);
+ assert.equal(currentFrontObject.alpha,.8*FIELD_OCCLUSION_ALPHA);
+ assert.equal(currentBehindObject.alpha,.8);
+ assert.equal(currentDistantObject.alpha,.8);
+ currentActorBounds.x=100;
+ updateFieldActorOcclusion(currentGameScene);
+ assert.equal(currentFrontObject.alpha,.8);
+ currentActorObject.visible=false;
+ updateFieldActorOcclusion(currentGameScene);
+ assert.equal(currentDistantObject.alpha,.8);
+});

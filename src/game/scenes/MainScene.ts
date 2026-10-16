@@ -1,5 +1,5 @@
 import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
-import {drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
+import {updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveFieldTileTextures} from '../terrain/fieldTileRendering';
@@ -20,7 +20,7 @@ import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
 import {ActorWindowCache, type ActorEntry} from '../terrain/actorViewport';
 import { TerrainWindowCache, terrainWindow } from '../terrain/viewport';
-import { toView, fromView, nextRotation, rotateConnections, type MapRotation } from "../terrain/rotation";
+import { toView, fromView, rotateConnections, type MapRotation } from "../terrain/rotation";
 import { elevationTileAt, type Surface } from "../terrain/elevation";
 import { prepareTerrain, overlayCells, type TerrainPlan } from '../terrain/renderPlan';
 import Phaser from "phaser";
@@ -339,21 +339,6 @@ export class MainScene extends Phaser.Scene {
   adjustZoom(delta: number) {
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION,FIELD_ZOOM_MINIMUM,FIELD_ZOOM_MAXIMUM));
   }
-  rotateMap(direction: -1 | 1) {
-    if (!this.state || !this.sys.isActive()) return;
-    this.rotation = nextRotation(this.rotation, direction);
-    this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
-    this.viewSurface = this.terrainPlan.surface;
-    this.panStart = null;
-    this.syncFieldMotion();
-    this.draw();
-    // 회전 중 선택 좌표와 확대 배율을 유지한다.
-    const anchor = this.selected ?? (this.state.battle
-      ? { column: (this.surface().columns - 1) / 2, row: (this.surface().rows - 1) / 2 }
-      : this.state.me.position);
-    const point = this.project(anchor);
-    this.cameras.main.centerOn(point.x, point.y);
-  }
   setBattleMode(mode: "MOVE" | "ATTACK" | null) {
     this.battleMode = mode;
     if (this.sys.isActive()) this.draw();
@@ -398,6 +383,7 @@ export class MainScene extends Phaser.Scene {
     this.syncTerrainViewport();
     this.syncActorViewport();
     this.animateFieldActors();
+    updateFieldActorOcclusion(this);
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
     for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom / GAME_INTERNAL_RESOLUTION_SCALE));
@@ -415,6 +401,7 @@ export class MainScene extends Phaser.Scene {
       this.cameras.main.centerOn(point.x, point.y);
       this.syncActorViewport();
       this.animateFieldActors();
+    updateFieldActorOcclusion(this);
     }
   }
   private draw() {
@@ -598,6 +585,7 @@ export class MainScene extends Phaser.Scene {
     }
     this.rebuildActorViewport();
     this.animateFieldActors();
+    updateFieldActorOcclusion(this);
     const location = s.location.id;
     if (this.preparedLocation !== location) {
       this.preparedLocation = location;

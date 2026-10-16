@@ -226,6 +226,7 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
 export function drawFieldCellObjects(currentGameScene,currentCellPosition,currentMapSurface,currentRenderOptions,currentTextureKeys,currentRenderDepth,currentShowMesh=false,currentBillboardRecords=currentMapSurface.objects??[]){
  const currentGroundDepth=resolveBillboardGroundDepth(currentCellPosition,currentMapSurface,currentRenderOptions,currentRenderDepth,currentBillboardRecords);
  const currentCellFaces=buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions);
+ const currentHasElevation=readSurfaceHeight(currentCellPosition,currentMapSurface)>0;
  const currentTreadCount=currentCellFaces.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length;
  const currentRenderObjects=[];
  for(const [currentFaceIndex,currentFaceRecord] of currentCellFaces.entries()){
@@ -238,6 +239,7 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
    const currentMinimumX=Math.min(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.x)),currentMaximumX=Math.max(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.x));
    const currentMinimumY=Math.min(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.y)),currentMaximumY=Math.max(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.y));
    const currentWallSprite=currentGameScene.add.tileSprite(currentMinimumX,currentMinimumY,Math.max(1,currentMaximumX-currentMinimumX),Math.max(1,currentMaximumY-currentMinimumY),currentTextureKey).setOrigin(0).setDepth(currentFaceDepth);
+   markFieldOcclusionObject(currentWallSprite,currentFaceRecord.points);
    currentWallSprite.setTileScale(currentTextureScale.scaleX,currentTextureScale.scaleY);
    const currentWallMask=currentGameScene.add.graphics().setVisible(false);
    currentWallMask.fillPoints(currentFaceRecord.points,true);
@@ -245,8 +247,14 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
    currentRenderObjects.push(currentWallSprite,currentWallMask);
   }else{
    const currentUvCorners=currentFaceRecord.kind==='tread'?[0,0,1/currentTreadCount,0,1/currentTreadCount,1,0,1]:undefined;
-   if(currentFaceRecord.kind==='ground'&&currentTextureKeys.underlay)currentRenderObjects.push(drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentTextureKeys.underlay,currentFaceDepth));
-   currentRenderObjects.push(drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentTextureKey,currentFaceDepth+.001,currentUvCorners));
+   if(currentFaceRecord.kind==='ground'&&currentTextureKeys.underlay){
+    const currentUnderlayPanel=drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentTextureKeys.underlay,currentFaceDepth);
+    if(currentHasElevation)markFieldOcclusionObject(currentUnderlayPanel,currentFaceRecord.points);
+    currentRenderObjects.push(currentUnderlayPanel);
+   }
+   const currentTerrainPanel=drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentTextureKey,currentFaceDepth+.001,currentUvCorners);
+   if(currentHasElevation)markFieldOcclusionObject(currentTerrainPanel,currentFaceRecord.points);
+   currentRenderObjects.push(currentTerrainPanel);
   }
   if(currentFaceRecord.kind==='tread'||currentFaceRecord.kind==='cliff'){
    // 측벽과 디딤면의 경계는 각 면의 깊이를 따라 앞쪽 지형에 가려진다.
@@ -310,7 +318,7 @@ export function drawFieldAuraPanel(currentGameScene,currentPanelPoints,currentTe
 export function drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTextureKey,currentRenderDepth=0){
  if(!currentGameScene.textures.exists(currentTextureKey))throw Error('결계탑 텍스처 누락');
  const currentTowerImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentTextureKey);
- return currentTowerImage.setOrigin(FIELD_SAFE_TOWER_PROFILE.anchorX/currentTowerImage.width,FIELD_SAFE_TOWER_PROFILE.anchorY/currentTowerImage.height).setScale(FIELD_SAFE_TOWER_PROFILE.displayHeight/(FIELD_SAFE_TOWER_PROFILE.anchorY-FIELD_SAFE_TOWER_PROFILE.bodyTop)).setDepth(currentRenderDepth);
+ return markFieldOcclusionObject(currentTowerImage).setOrigin(FIELD_SAFE_TOWER_PROFILE.anchorX/currentTowerImage.width,FIELD_SAFE_TOWER_PROFILE.anchorY/currentTowerImage.height).setScale(FIELD_SAFE_TOWER_PROFILE.displayHeight/(FIELD_SAFE_TOWER_PROFILE.anchorY-FIELD_SAFE_TOWER_PROFILE.bodyTop)).setDepth(currentRenderDepth);
 }
 
 export {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint};
@@ -334,6 +342,7 @@ export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,curr
  if(currentObjectRecord.kind!=='decoration')throw Error('지원하지 않는 지형지물 종류');
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
+ markFieldOcclusionObject(currentSceneryImage);
  return currentSceneryImage.setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentSceneryImage.height).setDepth(currentRenderDepth);
 }
 
@@ -356,7 +365,7 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
  return ['back','front'].map((currentLayerName,currentLayerIndex)=>{
   const currentFrameName='billboard-'+currentLayerName;
   if(!currentSpriteTexture.has(currentFrameName))currentSpriteTexture.add(currentFrameName,0,currentLayerIndex*currentFrameSize,0,currentFrameSize,currentFrameSize);
-  return currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName)
+  return markFieldOcclusionObject(currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName))
    .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentFrameSize)
    .setDepth(currentRenderDepth+currentLayerIndex*BILLBOARD_FRONT_DEPTH_OFFSET);
  });
@@ -371,4 +380,26 @@ export function resolveFieldSceneryPlacement(currentObjectRecord,currentTileCent
  return {position:{column:currentObjectRecord.position.column+currentAnchorOffset.column,row:currentObjectRecord.position.row+currentAnchorOffset.row},
   screen:{x:currentTileCenter.x+(currentViewOffset.column-currentViewOffset.row)*currentRenderOptions.tileWidth/2,
    y:currentTileCenter.y+(currentViewOffset.column+currentViewOffset.row)*currentRenderOptions.tileHeight/2}};
+}
+
+
+/** 겹친 앞쪽 지형만 흐리게 하며 대상이 이동하거나 사라지면 원래 불투명도로 복원한다. */
+export const FIELD_OCCLUSION_ALPHA = 0.3;
+export function markFieldOcclusionObject(currentRenderObject,currentPanelPoints){
+ currentRenderObject.setData?.('fieldOcclusionBaseAlpha',currentRenderObject.alpha??1);
+ if(currentPanelPoints)currentRenderObject.setData?.('fieldOcclusionBounds',{x:Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.x)),y:Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.y)),width:Math.max(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.x))-Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.x)),height:Math.max(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.y))-Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.y))});
+ return currentRenderObject;
+}
+export function shouldFadeFieldOccluder(currentOccluderBounds,currentOccluderDepth,currentActorBounds,currentActorDepth){
+ return currentOccluderDepth>currentActorDepth&&currentOccluderBounds.x<currentActorBounds.x+currentActorBounds.width&&currentOccluderBounds.x+currentOccluderBounds.width>currentActorBounds.x&&currentOccluderBounds.y<currentActorBounds.y+currentActorBounds.height&&currentOccluderBounds.y+currentOccluderBounds.height>currentActorBounds.y;
+}
+export function updateFieldActorOcclusion(currentGameScene){
+ const currentActorRecords=currentGameScene.children.list.filter(currentSceneObject=>currentSceneObject.visible&&currentSceneObject.getBounds&&(currentSceneObject.getData?.('actorSelectionPosition')||currentSceneObject.getData?.('fieldActorVisibility'))).map(currentActorObject=>({bounds:currentActorObject.getBounds(),depth:currentActorObject.depth}));
+ for(const currentSceneObject of currentGameScene.children.list){
+  const currentBaseAlpha=currentSceneObject.getData?.('fieldOcclusionBaseAlpha');
+  if(currentBaseAlpha===undefined||!currentSceneObject.visible)continue;
+  const currentObjectBounds=currentSceneObject.getData('fieldOcclusionBounds')??currentSceneObject.getBounds();
+  const currentIsOccluded=currentActorRecords.some(currentActorRecord=>shouldFadeFieldOccluder(currentObjectBounds,currentSceneObject.depth,currentActorRecord.bounds,currentActorRecord.depth));
+  currentSceneObject.setAlpha(currentBaseAlpha*(currentIsOccluded?FIELD_OCCLUSION_ALPHA:1));
+ }
 }

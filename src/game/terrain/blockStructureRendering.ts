@@ -1,3 +1,4 @@
+import {markFieldOcclusionObject} from '../../../packages/field-renderer/field-renderer.mjs';
 import {drawFieldElevationOutline} from '../../../packages/field-renderer/field-renderer.mjs';
 import {RED_BRICK_WALL_TEXTURE,RED_BRICK_DOOR_TEXTURE,RED_BRICK_WINDOW_TEXTURE} from "./textures";
 import {CITY_BUILDING_STYLE,BUILDING_BOUNDARY_ENABLED,BUILDING_ROOF_TEXTURE_ROTATION_RADIANS} from '../../../packages/field-renderer/render-constants.mjs';
@@ -18,6 +19,7 @@ export type CityBuildingRegion = {position:Position;depth:number;polygons:Phaser
 export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuilding:CityBuilding,
   projectTerrainPosition:(currentCellPosition:Position)=>CityScreenPoint,
   calculateTerrainDepth:(currentCellPosition:Position)=>number,currentAnnotationDepth:number,currentBuildingSelected:boolean):CityBuildingRegion {
+  const currentBuildingFirstChild=currentMapScene.children.list.length;
   if(currentCityBuilding.blockSchemaVersion!==1)throw new Error('지원하지 않는 건물 블록 버전');
   const currentBuildingCorners = cityBuildingCells(currentCityBuilding).map(projectTerrainPosition);
   const currentBuildingDepth = Math.max(...cityBuildingCells(currentCityBuilding).map(calculateTerrainDepth))+TERRAIN_DEPTH.overlay;
@@ -184,6 +186,9 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
     {fontFamily:'sans-serif',fontSize:CITY_BUILDING_STYLE.labelFont,color:'#fff7de',stroke:'#39362d',strokeThickness:4})
     .setOrigin(CITY_HALF_TILE).setDepth(currentAnnotationDepth);
   const currentVisiblePoints = [...currentBuildingCorners,...currentRoofCorners];
+  for(const currentBuildingObject of currentMapScene.children.list.slice(currentBuildingFirstChild)){
+    if(currentBuildingObject instanceof Phaser.GameObjects.Image || currentBuildingObject instanceof Phaser.GameObjects.TileSprite)markFieldOcclusionObject(currentBuildingObject);
+  }
   return {position:currentCityBuilding.origin,depth:currentBuildingDepth,
     polygons:currentVisibleFaces.map(currentFaceValue=>new Phaser.Geom.Polygon(currentFaceValue.points)),
     left:Math.min(...currentVisiblePoints.map(currentPointValue=>currentPointValue.x)),right:Math.max(...currentVisiblePoints.map(currentPointValue=>currentPointValue.x)),
