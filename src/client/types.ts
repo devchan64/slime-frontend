@@ -146,6 +146,7 @@ export type State = {
     rows: number;
     startPoint: Position;
     safeRadius: number;
+    groundOverrides?: {position:Position;textureKey:string}[];
     objects?: import('../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[];
     terrainRows?: string[];
     terrainCodes?: Record<string, string>;

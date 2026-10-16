@@ -5,7 +5,7 @@ export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.36';
+export const FIELD_RENDERER_VERSION = '1.0.50';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
@@ -304,6 +304,7 @@ export function drawTownMaterialEdges(currentGameScene,currentCellPosition,resol
 /** 지형지물은 타일 중심의 투영 좌표에 접지하며 통행 데이터를 변경하지 않는다. */
 export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1'){
  if(currentObjectRecord.kind==='ward-tower')return drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth);
+ if(currentObjectRecord.kind==='billboard')return drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth);
  if(currentObjectRecord.kind!=='decoration')throw Error('지원하지 않는 지형지물 종류');
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
@@ -311,14 +312,29 @@ export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,curr
 }
 
 
-/** 맵의 열·행 방향에 고정한 네 모서리·변 중앙·중심. 이미지 접지점과 독립적이다. */
+/** 접지 앵커는 맵 기준 앞·중앙·뒤이며 카메라 회전에도 월드 위치를 유지한다. */
 export const FIELD_SCENERY_TILE_ANCHORS = Object.freeze({
- 'north-west':Object.freeze({column:-.5,row:-.5}), north:Object.freeze({column:0,row:-.5}),
- 'north-east':Object.freeze({column:.5,row:-.5}), west:Object.freeze({column:-.5,row:0}),
- center:Object.freeze({column:0,row:0}), east:Object.freeze({column:.5,row:0}),
- 'south-west':Object.freeze({column:-.5,row:.5}), south:Object.freeze({column:0,row:.5}),
- 'south-east':Object.freeze({column:.5,row:.5}),
+ back:Object.freeze({column:-.25,row:-.25}),
+ center:Object.freeze({column:0,row:0}),
+ front:Object.freeze({column:.25,row:.25}),
 });
+
+/** 두 프레임은 같은 캔버스 좌표를 공유하며 중앙 캐릭터 앞뒤로 정렬한다. */
+const BILLBOARD_FRONT_DEPTH_OFFSET = 20;
+export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth){
+ if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('빌보드 텍스처 누락: '+currentObjectRecord.textureKey);
+ const currentSpriteTexture=currentGameScene.textures.get(currentObjectRecord.textureKey);
+ const currentSourceImage=currentSpriteTexture.getSourceImage();
+ const currentFrameSize=currentObjectRecord.frameSize;
+ if(!Number.isInteger(currentFrameSize)||currentFrameSize<=0||currentSourceImage.width!==currentFrameSize*2||currentSourceImage.height!==currentFrameSize)throw Error('빌보드는 같은 크기의 정사각형 뒤·앞 2프레임 시트여야 합니다.');
+ return ['back','front'].map((currentLayerName,currentLayerIndex)=>{
+  const currentFrameName='billboard-'+currentLayerName;
+  if(!currentSpriteTexture.has(currentFrameName))currentSpriteTexture.add(currentFrameName,0,currentLayerIndex*currentFrameSize,0,currentFrameSize,currentFrameSize);
+  return currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName)
+   .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentFrameSize)
+   .setDepth(currentRenderDepth+currentLayerIndex*BILLBOARD_FRONT_DEPTH_OFFSET);
+ });
+}
 
 /** 소속 타일의 고도를 유지하고 선택한 접지 위치만 회전·투영한다. */
 export function resolveFieldSceneryPlacement(currentObjectRecord,currentTileCenter,currentRenderOptions=FIELD_RENDER_METRICS){

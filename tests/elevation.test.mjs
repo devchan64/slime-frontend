@@ -46,3 +46,12 @@ test('고도 없는 기존 평면 지면 선택과 이동을 유지한다',()=>{
  const d={columns:12,rows:10};const p={column:5,row:4};const s=project(p,d);
  assert.deepEqual(pickSurface(s.x,s.y,d,elevationRange(d)),p);assert.ok(canStep(p,{column:6,row:4},d));
 });
+
+
+test('새 이동 규칙은 상하 한 단계만 허용하며 과거 연결로 두 단계를 우회하지 않는다',()=>{
+ const currentMapSurface={columns:5,rows:5,terrainMovementVersion:2,elevations:Array.from({length:5},()=>[0,1,2,0,0]),ramps:[{start:{column:2,row:1},end:{column:3,row:1}}]};
+ for(const [currentStartColumn,currentEndColumn,currentAllowedValue] of [[0,1,true],[1,0,true],[1,2,true],[2,1,true],[2,3,false],[3,2,false],[0,2,false]])assert.equal(canStep({column:currentStartColumn,row:1},{column:currentEndColumn,row:1},currentMapSurface),currentAllowedValue);
+ assert.equal(canStep({column:0,row:1},{column:1,row:1},{...currentMapSurface,terrainMovementVersion:1}),false);
+ const currentLowerPoint=project({column:0,row:1},currentMapSurface),currentUpperPoint=project({column:1,row:1},currentMapSurface);
+ assert.equal(currentUpperPoint.y-currentLowerPoint.y,0);
+});

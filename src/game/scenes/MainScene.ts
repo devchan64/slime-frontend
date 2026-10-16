@@ -689,7 +689,7 @@ export class MainScene extends Phaser.Scene {
       const currentCellIsWater=waterCells.has(`${column},${row}`);
       if(field||!s.map.safeTown){
         const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
-        const currentTileTextures=resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial);
+        const currentTileTextures=resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,field?[]:s.map.groundOverrides);
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
         for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth))remember(currentRenderObject);
       }else{

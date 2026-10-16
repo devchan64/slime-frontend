@@ -7,7 +7,7 @@ import type { Position } from '../../client/types';
 export type TerrainLink = { start: Position; end: Position; id?: string;
   kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
-export type Surface = { columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
+export type Surface = { terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
@@ -36,6 +36,7 @@ function resolveSurfaceRenderOptions(currentMapSurface:Surface){
 export const project = (currentCellPosition:Position,currentMapSurface:Surface) => projectSurfaceCell(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
 // 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
 export function surfaceElevationTiles(map: Surface): ElevationTile[] {
+  if(map.terrainMovementVersion===2)return [];
   const tiles=map.elevationTiles ?? [];
   const defined=new Set(tiles.map(tile=>tile.id));
   return [...tiles, ...(map.ramps ?? []).filter(link=>!link.id || !defined.has(link.id)).map((link,index)=>{
@@ -49,6 +50,7 @@ export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSu
 }
 export function canStep(start: Position, end: Position, map: Surface) {
   if (!inBounds(start,map) || !inBounds(end,map) || Math.abs(start.column-end.column)+Math.abs(start.row-end.row) !== 1) return false;
+  if(map.terrainMovementVersion===2)return Math.abs(heightAt(start,map)-heightAt(end,map))<=1;
   return heightAt(start,map) === heightAt(end,map) || !!map.ramps?.some(e =>
     (same(e.start,start) && same(e.end,end)) || (same(e.start,end) && same(e.end,start)));
 }

@@ -220,3 +220,6 @@ files:
 - path: assets/terrain/angular-quarry-scree-v1.png
   source_path: assets/tiles/terrain/non-road/angular-quarry-scree-v1.png
   sha256: 2ba7874e6ee01981bda8d76ee94be6054038c9f4e074daca8aa659d6a84ef262
+- path: assets/terrain/bush-ground-v1.png
+  source_path: assets/tiles/terrain/non-road/bush-ground-v1.png
+  sha256: 650885693f27f06cca6de3a9de5f57a50841937773e595c1e649e3306fec1f9f

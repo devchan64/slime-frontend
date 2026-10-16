@@ -3,3 +3,5 @@ orchard_dead_tree_v1: assets/sprites/structures/orchard-dead-tree-v1.png
 orchard_autumn_tree_v1: assets/sprites/structures/orchard-autumn-tree-v1.png
 orchard_young_tree_v1: assets/sprites/structures/orchard-young-tree-v1.png
 orchard_old_tree_v1: assets/sprites/structures/orchard-old-tree-v1.png
+bush_billboard_v2: assets/sprites/structures/bush-billboard-v2.png
+bush_ground_v1: assets/tiles/terrain/non-road/bush-ground-v1.png
