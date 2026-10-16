@@ -223,3 +223,12 @@ files:
 - path: assets/terrain/bush-ground-v1.png
   source_path: assets/tiles/terrain/non-road/bush-ground-v1.png
   sha256: 650885693f27f06cca6de3a9de5f57a50841937773e595c1e649e3306fec1f9f
+- path: assets/terrain/orchard-soil-v1.png
+  source_path: assets/tiles/terrain/non-road/orchard-soil-v1.png
+  sha256: dd2ab7b120d9abfea5c74fb3536b0591cd1cf03caf6bd4675220870e43b75c74
+- path: assets/terrain/orchard-grass-v1.png
+  source_path: assets/tiles/terrain/non-road/orchard-grass-v1.png
+  sha256: 35d1c4decda530d9c19cb28fa96c12a30d77004f83ff0c0b7bf30652c1923be1
+- path: assets/terrain/orchard-grass-soil-v1.png
+  source_path: assets/tiles/terrain/non-road/orchard-grass-soil-v1.png
+  sha256: f896d071283929c1c599b029c335fb9bdcb263e741a9f639839976d86256b331

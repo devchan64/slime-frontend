@@ -2,7 +2,7 @@ import fieldMaterialFrames from './field-material-frames.yaml';
 /** 게임·관리도구의 필드 재질 선택과 연결 텍스처 계약. */
 import type Phaser from 'phaser';
 import type {Position} from '../../client/types';
-import {prepareFieldConnectedTexture} from '../../../packages/field-renderer/field-renderer.mjs';
+import {prepareFieldConnectedTexture,resolveFieldGroundMaterial} from '../../../packages/field-renderer/field-renderer.mjs';
 import {CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from './textures';
 
 
@@ -14,13 +14,14 @@ export function resolveFieldTerrainFrame(currentTerrainName:string,currentMapIde
 }
 
 export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string,currentGroundOverrides:readonly {position:Position;textureKey:string}[]=[]){
+ const resolveDisplayedGroundMaterial=(currentNeighborPosition:Position):string=>resolveFieldGroundMaterial(currentNeighborPosition,currentGroundOverrides,currentTerrainPosition=>resolveFieldTerrainFrame(resolveGroundMaterial(currentTerrainPosition),currentMapIdentifier));
  const currentOverrideRecord=currentGroundOverrides.find(currentGroundRecord=>currentGroundRecord.position.column===currentCellPosition.column&&currentGroundRecord.position.row===currentCellPosition.row);
  if(currentOverrideRecord){
   if(!currentGameScene.textures.exists(currentOverrideRecord.textureKey))throw new Error('등록 지면 텍스처 누락: '+currentOverrideRecord.textureKey);
-  return {ground:currentOverrideRecord.textureKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE};
+  return {ground:currentOverrideRecord.textureKey,resolveGroundMaterial:resolveDisplayedGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE};
  }
  const currentSelectedFrame=currentTerrainName==='water'?`water-${currentConnectionMask}`:resolveFieldTerrainFrame(currentTerrainName,currentMapIdentifier);
  const currentConnectedFrame=/^(water)-(\d+)$/.exec(currentSelectedFrame);
  const currentGroundKey=currentConnectedFrame?prepareFieldConnectedTexture(currentGameScene,`terrain-source-${currentConnectedFrame[1]}`,'terrain-source-grass',Number(currentConnectedFrame[2])):`terrain-source-${currentSelectedFrame}`;
- return {ground:currentGroundKey,resolveGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder'].includes(currentTerrainName)?'terrain-source-grass':undefined};
+ return {ground:currentGroundKey,resolveGroundMaterial:resolveDisplayedGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder'].includes(currentTerrainName)?'terrain-source-grass':undefined};
 }

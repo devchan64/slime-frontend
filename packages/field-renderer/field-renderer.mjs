@@ -105,6 +105,11 @@ export function buildFieldElevationEdges(currentCellPosition,currentMapSurface,c
 }
 
 /** 같은 높이에서 바닥 재질이 바뀌는 이음새를 뒤쪽 셀당 한 번만 반환한다. 도로·단차는 전용 경계를 유지한다. */
+export function resolveFieldGroundMaterial(currentCellPosition,currentGroundOverrides,resolveDefaultMaterial){
+ const currentOverrideRecord=currentGroundOverrides.find(currentGroundRecord=>currentGroundRecord.position.column===currentCellPosition.column&&currentGroundRecord.position.row===currentCellPosition.row);
+ return currentOverrideRecord?.textureKey??resolveDefaultMaterial(currentCellPosition);
+}
+
 export function buildFieldMaterialEdges(currentCellPosition,currentMapSurface,resolveGroundMaterial,currentRenderOptions=FIELD_RENDER_METRICS){
  if(findSurfaceStair(currentCellPosition,currentMapSurface))return [];
  const currentMaterialName=resolveGroundMaterial(currentCellPosition);
@@ -204,7 +209,7 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
  const currentCellHeight=readSurfaceHeight(currentCellPosition,currentMapSurface);
  let currentGroundDepth=currentRenderDepth;
  for(const currentObjectRecord of currentBillboardRecords){
-  if(currentObjectRecord.kind!=='billboard'||readSurfaceHeight(currentObjectRecord.position,currentMapSurface)!==currentCellHeight)continue;
+  if(!['billboard','decoration'].includes(currentObjectRecord.kind)||readSurfaceHeight(currentObjectRecord.position,currentMapSurface)!==currentCellHeight)continue;
   const currentObjectCenter=projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions);
   const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentObjectCenter,currentRenderOptions);
   const currentSpriteSize=currentObjectRecord.displayHeight;

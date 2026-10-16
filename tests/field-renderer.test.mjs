@@ -168,8 +168,6 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
  const {outputFiles}=await build({entryPoints:['src/game/terrain/fieldTileRendering.ts'],bundle:true,write:false,platform:'node',format:'esm',loader:{'.png':'empty','.webp':'empty'},plugins:[{name:'texture-test',setup(currentBuildContext){
  currentBuildContext.onLoad({filter:/field-material-frames\.yaml$/},async currentModuleArguments=>({contents:buildMaterialFrameModule(await readFile(currentModuleArguments.path,'utf8')),loader:'js'}));
  currentBuildContext.onLoad({filter:/\.asset-list\.yaml$/},async currentModuleArguments=>({contents:buildAssetListModule(await readFile(currentModuleArguments.path,'utf8'),resolve('../slime-assets')),loader:'js'}));
- currentBuildContext.onResolve({filter:/field-renderer\.mjs$/},()=>({path:'connected',namespace:'test-mock'}));
- currentBuildContext.onLoad({filter:/.*/,namespace:'test-mock'},()=>({contents:"export const prepareFieldConnectedTexture=(scene,source,grass,mask)=>source+'-'+mask;"}));
  }}]});
  const {resolveFieldTileTextures}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
  const currentMaterialReader=()=> 'grass';
@@ -242,4 +240,14 @@ test('빌보드와 겹친 같은 높이 바닥은 뒤에 두고 높은 바닥은
  currentRaisedSurface.elevations[3][4]=1;
  assert.equal(resolveBillboardGroundDepth({column:4,row:3},currentRaisedSurface,FIELD_RENDER_METRICS,800,currentBillboardRecords),800);
  assert.equal(resolveBillboardGroundDepth({column:8,row:8},currentFlatSurface,FIELD_RENDER_METRICS,1700,currentBillboardRecords),1700);
+});
+
+test('표시 타일 덮어쓰기를 기준으로 재질 경계를 판정한다',async()=>{
+ const {resolveFieldGroundMaterial}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentMapSurface={columns:2,rows:2,elevations:[[0,0],[0,0]],stairs:[]};
+ const currentGroundOverrides=[{position:{column:0,row:0},textureKey:'orchard-soil'},{position:{column:1,row:0},textureKey:'orchard-soil'}];
+ const resolveDisplayedMaterial=currentCellPosition=>resolveFieldGroundMaterial(currentCellPosition,currentGroundOverrides,currentTerrainPosition=>currentTerrainPosition.column===0?'grass':'moss');
+ assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveDisplayedMaterial).length,0);
+ currentGroundOverrides[1].textureKey='orchard-grass';
+ assert.equal(buildFieldMaterialEdges({column:1,row:0},currentMapSurface,resolveDisplayedMaterial).length,1);
 });

@@ -44,3 +44,5 @@ export const FIELD_SCENERY_TILE_ANCHORS:Readonly<Record<FieldSceneryTileAnchor,R
 export function resolveFieldSceneryPlacement(currentObjectRecord:FieldSceneryRecord,currentTileCenter:SurfacePoint,currentRenderOptions?:{tileWidth:number;tileHeight:number;rotation?:number}):{position:{column:number;row:number};screen:SurfacePoint};
 
 export function resolveBillboardGroundDepth(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions:RenderOptions,currentRenderDepth:number,currentBillboardRecords?:FieldSceneryRecord[]):number;
+
+export function resolveFieldGroundMaterial(currentCellPosition:SurfacePosition,currentGroundOverrides:readonly {position:SurfacePosition;textureKey:string}[],resolveDefaultMaterial:(currentCellPosition:SurfacePosition)=>string):string;
