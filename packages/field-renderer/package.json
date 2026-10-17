@@ -1,11 +1,18 @@
 {
   "name": "@slime/field-renderer",
-  "version": "1.0.65",
+  "version": "1.0.66",
   "type": "module",
   "private": true,
   "exports": {
-    "types": "./field-renderer.d.mts",
-    "import": "./field-renderer.mjs"
+    ".": {
+      "types": "./field-renderer.d.mts",
+      "import": "./field-renderer.mjs"
+    },
+    "./resources": {
+      "types": "./map-resource-loader.d.mts",
+      "import": "./map-resource-loader.mjs"
+    },
+    "./resource-plan": "./map-resource-plan.ts"
   },
   "peerDependencies": {
     "phaser": "3.90.0"

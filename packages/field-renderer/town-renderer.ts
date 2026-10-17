@@ -20,3 +20,12 @@ export {drawWaypoint,waypointMarkerScale} from '../../src/game/terrain/waypoint'
 export {resolveTownGroundFrame} from "../../src/game/terrain/textures";
 
 export {isFieldRoadTerrain} from './road-materials.mjs';
+
+export {collectMapResourceKeys,loadMapResourceImages} from './map-resource-plan';
+
+import {preloadFieldScenery} from '../../src/game/terrain/scenery';
+export function collectMapTextureSources():Record<string,string>{
+ const currentTextureSources=collectTerrainTextureSources();
+ preloadFieldScenery({load:{image(currentTextureKey:string,currentAssetPath:string){currentTextureSources[currentTextureKey]=currentAssetPath;}}} as unknown as Phaser.Scene);
+ return currentTextureSources;
+}

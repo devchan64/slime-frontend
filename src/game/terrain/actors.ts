@@ -14,8 +14,14 @@ export const HUMAN_HEIGHT = CHARACTER_BODY_HEIGHT;
 /** 시인성 검수에서 채택한 접지 대비 강화안을 모든 필드의 기본값으로 사용한다. */
 export const updateCharacterFacing = updateCharacterAnimationFrame;
 
-export function preloadActors(scene: Phaser.Scene) {
-  for (const { key, url } of [...ACTOR_IDLE_TEXTURES, DEFAULT_CHARACTER_WALK_ASSET]) scene.load.image(key, url);
+export function preloadActors(scene: Phaser.Scene,currentActorResourceKinds?:string[]) {
+  const currentSelectedAssets=currentActorResourceKinds?[...new Set(currentActorResourceKinds)].map(currentActorKind=>{
+    const currentActorAsset=ACTOR_IDLE_ASSETS[currentActorKind as IdleActorKind];
+    if(!currentActorAsset)throw Error('등록되지 않은 맵 액터: '+currentActorKind);
+    return currentActorAsset;
+  }):ACTOR_IDLE_TEXTURES;
+  const currentWalkingAssets=!currentActorResourceKinds||currentActorResourceKinds.includes('human')?[DEFAULT_CHARACTER_WALK_ASSET]:[];
+  for (const { key, url } of [...currentSelectedAssets,...currentWalkingAssets]) scene.load.image(key, url);
 }
 
 // 발밑 좌표가 논리 셀이다. 사람은 머리 1 : 몸통 2 : 다리 2의 5등신이다.

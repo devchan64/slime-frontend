@@ -1,3 +1,6 @@
+import {CLIFF_WALL_TEXTURE} from '../terrain/textures';
+import {resolveBattleTerrainResourceFrame} from '../../../packages/field-renderer/map-resource-plan';
+import {collectMapTextureSources} from '../../../packages/field-renderer/town-renderer';
 import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
 import {updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
@@ -147,6 +150,8 @@ export class MainScene extends Phaser.Scene {
     }
   }
   private selected: Position | null = null;
+  private currentMapResourceKeys?:Set<string>;
+  private currentActorResourceKinds?:string[];
   private rotation: MapRotation = 0;
   private viewSurface: Surface | null = null;
   private terrainPlan: TerrainPlan | null = null;
@@ -169,8 +174,10 @@ export class MainScene extends Phaser.Scene {
   private safeBarrierSprites: Phaser.GameObjects.Mesh[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   private waypointZoom = 0;
-  constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice) => void) {
+  constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice) => void,currentMapResourceKeys?:string[],currentActorResourceKinds?:string[]) {
     super("world");
+    this.currentActorResourceKinds=currentActorResourceKinds;
+    this.currentMapResourceKeys=currentMapResourceKeys?new Set(currentMapResourceKeys):undefined;
     this.onSelect = onSelect;
     this.onReady = onReady;
     this.onFailure = onFailure;
@@ -181,14 +188,20 @@ export class MainScene extends Phaser.Scene {
       this.loadFailed = true;
       this.onFailure({key:"app.mapAssetsFailed"});
     });
-    preloadTerrain(this);
+    if(this.currentMapResourceKeys){
+      const currentTextureSources=collectMapTextureSources();
+      for(const currentTextureKey of this.currentMapResourceKeys){
+        if(!currentTextureSources[currentTextureKey])throw Error('맵 리소스 원본 누락: '+currentTextureKey);
+        this.load.image(currentTextureKey,currentTextureSources[currentTextureKey]);
+      }
+    }else preloadTerrain(this);
 
-    preloadActors(this);
-    preloadFieldRestEffectSprite(this);
-    preloadSafeBarrierAuraSprite(this);
-    preloadSafeTower(this);
-    preloadFieldScenery(this);
-    preloadGuardCenterSprites(this);
+    preloadActors(this,this.currentActorResourceKinds);
+    if(!this.currentMapResourceKeys)preloadFieldRestEffectSprite(this);
+    if(!this.currentMapResourceKeys)preloadSafeBarrierAuraSprite(this);
+    if(!this.currentMapResourceKeys)preloadSafeTower(this);
+    if(!this.currentMapResourceKeys)preloadFieldScenery(this);
+    if(!this.currentMapResourceKeys)preloadGuardCenterSprites(this);
     preloadBackdrop(this);
   }
   create() {
@@ -237,7 +250,7 @@ export class MainScene extends Phaser.Scene {
       this.scale.off(Phaser.Scale.Events.RESIZE, resize);
       this.game.events.off(Phaser.Core.Events.POST_STEP, this.focus, this);
     });
-    try { createTerrainAtlas(this); }
+    try { createTerrainAtlas(this,this.currentMapResourceKeys); }
     catch (terrainInitializationError) {
       console.error(`[${new Date().toISOString()}/world/terrain-validation] 지형 초기화 실패`, terrainInitializationError);
       this.loadFailed = true;
@@ -674,11 +687,11 @@ export class MainScene extends Phaser.Scene {
       }
       const terrain=field ? cells.get(`${column},${row}`) : fieldTerrainAt(s.map,column,row,road);
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
-      const kind=field && terrain==='rock' ? `battle-rock-${['a','b','c'][(column+row)%3]}` : field && terrain==='thicket' ? 'battle-thicket' : terrain;
+      const kind=field ? resolveBattleTerrainResourceFrame(terrain,column,row) : terrain;
       const currentCellIsWater=waterCells.has(`${column},${row}`);
       if(field||!s.map.safeTown){
         const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
-        const currentTileTextures=resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,field?[]:s.map.groundOverrides);
+        const currentTileTextures=field?{ground:'terrain-source-'+kind,cliff:CLIFF_WALL_TEXTURE,tread:'terrain-source-'+kind,resolveGroundMaterial:(currentNeighborPosition:Position)=>resolveBattleTerrainResourceFrame(resolveGroundMaterial(currentNeighborPosition),currentNeighborPosition.column,currentNeighborPosition.row)}:resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,s.map.groundOverrides);
         const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
         for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth,false,currentBillboardRecords))remember(currentRenderObject);
       }else{

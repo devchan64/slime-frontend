@@ -9,9 +9,11 @@ export function createGame(
   onReady: (location: string) => void,
   onFailure: (failureNoticeValue: Notice) => void,
   currentGameConstructor: typeof Phaser.Game = Phaser.Game,
+  currentMapResourceKeys?:string[],
+  currentActorResourceKinds?:string[],
 ) {
   if (parent.clientWidth <= 0 || parent.clientHeight <= 0) throw new Error("맵 표시 영역의 크기가 올바르지 않습니다.");
-  const scene = new MainScene(onSelect, onReady, onFailure);
+  const scene = new MainScene(onSelect, onReady, onFailure,currentMapResourceKeys,currentActorResourceKinds);
   const game = new currentGameConstructor({
     type: Phaser.WEBGL,
     parent,

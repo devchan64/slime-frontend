@@ -183,19 +183,20 @@ export function resolvePavingFrameForMap(currentMapIdentifier: string) {
 }
 
 // 투명 여백을 둔 단일 아틀라스로 구성해 타일 간 텍스처 번짐을 방지한다.
-export function createTerrainAtlas(scene: Phaser.Scene) {
+export function createTerrainAtlas(scene: Phaser.Scene, currentSelectedKeys?:ReadonlySet<string>) {
+  const shouldCreateTexture=(currentTextureKey:string)=>!currentSelectedKeys||currentSelectedKeys.has(currentTextureKey);
   if (scene.textures.exists(TERRAIN_ATLAS)) return;
   const atlas = scene.textures.createCanvas(TERRAIN_ATLAS,
     FRAME_STRIDE * ATLAS_COLUMNS, (FRAME_H + FRAME_PADDING * 2) * Math.ceil(FRAME_COUNT / ATLAS_COLUMNS));
   if (!atlas) throw new Error("초원 타일 아틀라스를 만들 수 없습니다.");
   const ctx = atlas.getContext();
   const grassSource = readValidatedTileSource(scene, "terrain-source-grass");
-  readValidatedTileSource(scene, CLIFF_WALL_TEXTURE);
+  if(shouldCreateTexture(CLIFF_WALL_TEXTURE))readValidatedTileSource(scene, CLIFF_WALL_TEXTURE);
   const flowerPatch = document.createElement("canvas");
   flowerPatch.width = flowerPatch.height = TEXTURE_SIZE;
   const flowerContext = flowerPatch.getContext("2d");
   if (!flowerContext) throw new Error("꽃밭 경계 합성 캔버스를 만들 수 없습니다.");
-  flowerContext.drawImage(scene.textures.get("terrain-source-flowers").getSourceImage() as HTMLImageElement,
+  if(shouldCreateTexture("terrain-source-flowers"))flowerContext.drawImage(scene.textures.get("terrain-source-flowers").getSourceImage() as HTMLImageElement,
     0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
   flowerContext.globalCompositeOperation = "destination-in";
   const { center, radius, innerStop } = FLOWER_BLEND;
@@ -206,6 +207,7 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
   flowerContext.fillRect(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
   SOURCE_KINDS.forEach((kind, index) => {
     const sourceKey = `terrain-source-${kind}`;
+    if(!shouldCreateTexture(sourceKey))return;
     if (!scene.textures.exists(sourceKey)) throw new Error(`초원 타일 누락: ${kind}`);
     const source = readValidatedTileSource(scene, sourceKey);
     const { x, y } = framePosition(index);
@@ -224,6 +226,7 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     atlas.add(kind, 0, x, y, FRAME_W, FRAME_H);
   });
   SPECIAL_TERRAIN_SOURCES.forEach((specialSourceRecord, specialSourceIndex) => {
+    if(!shouldCreateTexture(`terrain-source-${specialSourceRecord.frame}`))return;
     const source = readValidatedTileSource(scene, `terrain-source-${specialSourceRecord.frame}`);
     const { x, y } = framePosition(SOURCE_KINDS.length + specialSourceIndex);
     ctx.save();
@@ -235,6 +238,7 @@ export function createTerrainAtlas(scene: Phaser.Scene) {
     atlas.add(specialSourceRecord.frame, 0, x, y, FRAME_W, FRAME_H);
   });
   for (const [surfaceIndex, surface] of ["road", "water", "dirt-road", "stone-road"].entries()) {
+    if(!shouldCreateTexture(`terrain-source-${surface}`))continue;
     const surfaceSource = (surface === "dirt-road" || surface === "stone-road")
       ? scene.textures.get(`terrain-source-${surface}`).getSourceImage() as HTMLImageElement
       : readValidatedTileSource(scene, `terrain-source-${surface}`);
