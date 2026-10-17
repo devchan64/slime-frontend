@@ -31,31 +31,6 @@ export function drawFieldActorContactShadow(currentShadowGraphics,currentScreenP
 }
 
 /** 도로·수면 연결 마스크도 양쪽 클라이언트가 동일하게 합성한다. */
-export function prepareFieldConnectedTexture(currentGameScene,currentSourceKey,currentGrassKey,currentConnectionMask){
- const currentTextureKey=`field-connected:${currentSourceKey}:${currentGrassKey}:${currentConnectionMask}`;
- if(currentGameScene.textures.exists(currentTextureKey))return currentTextureKey;
- const currentSourceImage=currentGameScene.textures.get(currentSourceKey).getSourceImage();
- const currentGrassImage=currentGameScene.textures.get(currentGrassKey).getSourceImage();
- const currentTextureSize=currentSourceImage.width;
- const currentCanvasTexture=currentGameScene.textures.createCanvas(currentTextureKey,currentTextureSize,currentTextureSize);
- if(!currentCanvasTexture)throw Error('필드 연결 텍스처 생성 실패');
- const currentDrawingContext=currentCanvasTexture.getContext();
- const currentInsetPixels=currentTextureSize*FIELD_CONNECTION_SHAPE.inset,currentHalfPixels=currentTextureSize*FIELD_CONNECTION_SHAPE.half,currentInnerWidth=currentTextureSize-currentInsetPixels*2;
- currentDrawingContext.drawImage(currentGrassImage,0,0,currentTextureSize,currentTextureSize);
- currentDrawingContext.save();currentDrawingContext.beginPath();
- currentDrawingContext.roundRect(currentInsetPixels,currentInsetPixels,currentInnerWidth,currentInnerWidth,currentTextureSize*FIELD_CONNECTION_SHAPE.radius);
- if(currentConnectionMask&1)currentDrawingContext.rect(currentInsetPixels,0,currentInnerWidth,currentHalfPixels);
- if(currentConnectionMask&2)currentDrawingContext.rect(currentHalfPixels,currentInsetPixels,currentHalfPixels,currentInnerWidth);
- if(currentConnectionMask&4)currentDrawingContext.rect(currentInsetPixels,currentHalfPixels,currentInnerWidth,currentHalfPixels);
- if(currentConnectionMask&8)currentDrawingContext.rect(0,currentInsetPixels,currentHalfPixels,currentInnerWidth);
- if((currentConnectionMask&3)===3)currentDrawingContext.rect(currentHalfPixels,0,currentHalfPixels,currentHalfPixels);
- if((currentConnectionMask&6)===6)currentDrawingContext.rect(currentHalfPixels,currentHalfPixels,currentHalfPixels,currentHalfPixels);
- if((currentConnectionMask&12)===12)currentDrawingContext.rect(0,currentHalfPixels,currentHalfPixels,currentHalfPixels);
- if((currentConnectionMask&9)===9)currentDrawingContext.rect(0,0,currentHalfPixels,currentHalfPixels);
- currentDrawingContext.clip();currentDrawingContext.drawImage(currentSourceImage,0,0,currentTextureSize,currentTextureSize);currentDrawingContext.restore();currentCanvasTexture.refresh();
- return currentTextureKey;
-}
-
 export function buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  const currentStairRecord=findSurfaceStair(currentCellPosition,currentMapSurface);
  if(currentStairRecord)return buildSurfaceStairs(currentStairRecord,currentMapSurface,currentRenderOptions).map(currentFaceRecord=>({...currentFaceRecord,kind:currentFaceRecord.top?'tread':'cliff'}));

@@ -212,8 +212,10 @@ export function createTerrainAtlas(scene: Phaser.Scene, currentSelectedKeys?:Rea
       ctx.translate(x + FRAME_W / 2, y);
       ctx.transform(FRAME_W / (2 * TEXTURE_SIZE), FRAME_H / (2 * TEXTURE_SIZE),
         -FRAME_W / (2 * TEXTURE_SIZE), FRAME_H / (2 * TEXTURE_SIZE), 0, 0);
-      ctx.drawImage(grassSource, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
-      clipRoad(ctx, mask);
+      if (surface !== "water") {
+        ctx.drawImage(grassSource, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
+        clipRoad(ctx, mask);
+      }
       ctx.drawImage(surfaceSource, 0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
       ctx.restore();
       atlas.add(surface === "road" ? roadFrame(mask) : `${surface}-${mask}`, 0, x, y, FRAME_W, FRAME_H);

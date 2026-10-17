@@ -33,7 +33,15 @@ function resolveSurfaceRenderOptions(currentMapSurface:Surface){
   const currentTileDimensions=resolveMapTileSize(currentMapSurface);
   return {tileWidth:currentTileDimensions.width,tileHeight:currentTileDimensions.height,elevationHeight:ELEVATION_STEP,baseThickness:BASE_THICKNESS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
 }
-export const project = (currentCellPosition:Position,currentMapSurface:Surface) => projectSurfaceCell(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
+export const project = (currentCellPosition:Position,currentMapSurface:Surface) => {
+  const currentProjectedPoint=projectSurfaceCell(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
+  // 도시 건물 모서리는 소수 좌표이므로 소속 타일의 고도를 적용한다.
+  if(currentMapSurface.safeTown&&(!Number.isInteger(currentCellPosition.column)||!Number.isInteger(currentCellPosition.row))){
+    const currentGroundPosition={column:Math.floor(currentCellPosition.column),row:Math.floor(currentCellPosition.row)};
+    currentProjectedPoint.y-=heightAt(currentGroundPosition,currentMapSurface)*ELEVATION_STEP;
+  }
+  return currentProjectedPoint;
+};
 // 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
 export function surfaceElevationTiles(map: Surface): ElevationTile[] {
   if(map.terrainMovementVersion===2)return [];

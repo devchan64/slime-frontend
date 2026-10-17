@@ -5,7 +5,7 @@ import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-material
 import {updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
-import {resolveFieldTileTextures} from '../terrain/fieldTileRendering';
+import {resolveCityTileTextures,resolveFieldTileTextures} from '../terrain/fieldTileRendering';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import {isHealthDepleted} from '../../client/health-state.mjs';
 import {bindMapGestureCancellation} from '../mapGestureCancellation';
@@ -689,10 +689,10 @@ export class MainScene extends Phaser.Scene {
       if(!terrain)throw new Error(`전장 지형이 없습니다: ${column},${row}`);
       const kind=field ? resolveBattleTerrainResourceFrame(terrain,column,row) : terrain;
       const currentCellIsWater=waterCells.has(`${column},${row}`);
-      if(field||!s.map.safeTown){
+      if(field||!s.map.safeTown||s.map.elevations?.some(currentHeightRow=>currentHeightRow.some(currentHeightValue=>currentHeightValue>0))){
         const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
-        const currentTileTextures=field?{ground:'terrain-source-'+kind,cliff:CLIFF_WALL_TEXTURE,tread:'terrain-source-'+kind,resolveGroundMaterial:(currentNeighborPosition:Position)=>resolveBattleTerrainResourceFrame(resolveGroundMaterial(currentNeighborPosition),currentNeighborPosition.column,currentNeighborPosition.row)}:resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,s.map.groundOverrides);
-        const currentRenderOptions={...FIELD_RENDER_METRICS,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
+        const currentTileTextures=field?{ground:'terrain-source-'+kind,cliff:CLIFF_WALL_TEXTURE,tread:'terrain-source-'+kind,resolveGroundMaterial:(currentNeighborPosition:Position)=>resolveBattleTerrainResourceFrame(resolveGroundMaterial(currentNeighborPosition),currentNeighborPosition.column,currentNeighborPosition.row)}:s.map.safeTown?resolveCityTileTextures(this,kind,s.map.id,currentConnectionMask):resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,s.map.groundOverrides);
+        const currentRenderOptions={...FIELD_RENDER_METRICS,tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
         for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth,false,currentBillboardRecords))remember(currentRenderObject);
       }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
