@@ -62,8 +62,6 @@ data:
     path: ../slime-assets/assets/tiles/buildings/marble/marble-roof-v3.png
   - managementId: image.frontend.src.assets.world.stonewarm.buildings.stone-wall-crossbar-v1.png
     path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
-  - managementId: image.terrain.stonewarm-mossy-ruin-ground-v2
-    path: ../slime-assets/assets/tiles/terrain/non-road/exposed-rock-ground-v2.png
   - managementId: tile.buildings.roof.red-stone-v3
     path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v3.png
   - managementId: tile.buildings.door.red-stone-brick-gate-v2
@@ -88,40 +86,12 @@ data:
     path: ../slime-assets/assets/tiles/terrain/road/granite-slab-road-v1.png
   - managementId: image.terrain.limestone-mosaic-road-v1
     path: ../slime-assets/assets/tiles/terrain/road/limestone-mosaic-road-v1.png
-  - managementId: image.terrain.ochre-pebble-road-v2
-    path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v2.png
   - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
     path: ../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png
   - managementId: tile.buildings.roof.wood
     path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v4.png
   - managementId: image.terrain.cliff-rock-face-v1
     path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-  - managementId: image.terrain.leaf-litter-v2
-    path: ../slime-assets/assets/tiles/terrain/non-road/leaf-litter-v2.png
-  - managementId: image.terrain.autumn-leaf-litter-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/autumn-leaf-litter-v1.png
-  - managementId: image.terrain.pebble-shore-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/pebble-shore-ground-v1.png
-  - managementId: image.terrain.mossy-ruin-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/mossy-ruin-ground-v1.png
-  - managementId: image.terrain.dark-humus-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/dark-humus-ground-v1.png
-  - managementId: image.terrain.frost-grass-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/frost-grass-ground-v1.png
-  - managementId: image.terrain.cracked-dry-earth-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/cracked-dry-earth-ground-v1.png
-  - managementId: image.terrain.wildflower-meadow-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/wildflower-meadow-ground-v1.png
-  - managementId: image.terrain.shallow-reed-water-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/shallow-reed-water-ground-v1.png
-  - managementId: image.terrain.volcanic-ash-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/volcanic-ash-ground-v1.png
-  - managementId: image.terrain.round-fieldstone-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/round-fieldstone-ground-v1.png
-  - managementId: image.terrain.frosted-grass-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/frosted-grass-ground-v1.png
-  - managementId: image.terrain.sandy-scrub-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/sandy-scrub-ground-v1.png
   - managementId: image.terrain.limestone-road
     path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png
   - managementId: image.terrain.ochre-pebble-road
@@ -136,8 +106,6 @@ data:
     path: ../slime-assets/assets/tiles/buildings/wood/wood-crossbar-wall-v1.png
   - managementId: image.terrain.sand-cactus-type-a
     path: ../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
-  - managementId: image.terrain.wind-swept-sand-ground-v1
-    path: ../slime-assets/assets/tiles/terrain/non-road/wind-swept-sand-ground-v1.png
   - managementId: image.terrain.transparent-shallow-water-v2
     path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
   - managementId: image.terrain.opaque-deep-water-v2
