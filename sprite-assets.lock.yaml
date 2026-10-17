@@ -811,3 +811,18 @@ files:
 - path: assets/structures/town-common-stone-house-v1.png
   source_path: assets/sprites/structures/town-common-stone-house-v1.png
   sha256: a0d39ba99b733feaeb0ca44a2f7b15d64334651f9e4b89910bf98a8661ecced7
+- path: assets/structures/town-reedhaven-reed-tall-v1.png
+  source_path: assets/billboards/town-reedhaven-reed-tall-v1.png
+  sha256: b6dc4b38f9a4a0a06f5ff28e3153e57b7075903132d181a57ae2c6428bf0343e
+- path: assets/structures/town-reedhaven-reed-young-v1.png
+  source_path: assets/billboards/town-reedhaven-reed-young-v1.png
+  sha256: 503363bc90703d3986dd8b6a3da22ad5539226ea97779ebfe159434adc6edb0a
+- path: assets/structures/town-reedhaven-reed-windswept-v1.png
+  source_path: assets/billboards/town-reedhaven-reed-windswept-v1.png
+  sha256: 316db7f77b45c75ec0a74f945b78d061df913b56a377808303b01b9b16c168cb
+- path: assets/structures/town-reedhaven-reed-autumn-v1.png
+  source_path: assets/billboards/town-reedhaven-reed-autumn-v1.png
+  sha256: ca37fd3883438f48478196c8b2aaed4bb7c5f0cc8936ffc3cb6b07f79ed4a35b
+- path: assets/structures/town-reedhaven-reed-silver-v1.png
+  source_path: assets/billboards/town-reedhaven-reed-silver-v1.png
+  sha256: 2b11714f359558bc8a1df755d1f98d233ae00e3531d1c7c21b04e51e6354be7a

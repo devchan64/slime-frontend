@@ -108,7 +108,6 @@ orchard_chunky_flower_v1: assets/billboards/orchard-chunky-flower-v1.png
 orchard_chunky_mushroom_v1: assets/billboards/orchard-chunky-mushroom-v1.png
 orchard_chunky_dryshrub_v1: assets/billboards/orchard-chunky-dryshrub-v1.png
 waypoint_guide_v1: assets/billboards/waypoint-guide-v3.png
-
 town_iseulon_guild_v1: assets/sprites/structures/town-iseulon-guild-v1.png
 town_iseulon_bookshop_v1: assets/sprites/structures/town-iseulon-bookshop-v1.png
 town_iseulon_inn_v1: assets/sprites/structures/town-iseulon-inn-v1.png
@@ -214,3 +213,8 @@ town_saltford_pale_coastal_heather_v1: assets/billboards/town-saltford-pale-coas
 town_saltford_wind_bent_sedge_v1: assets/billboards/town-saltford-wind-bent-sedge-v1.png
 town_common_timber_house_v1: assets/sprites/structures/town-common-timber-house-v1.png
 town_common_stone_house_v1: assets/sprites/structures/town-common-stone-house-v1.png
+town_reedhaven_reed_tall_v1: assets/billboards/town-reedhaven-reed-tall-v1.png
+town_reedhaven_reed_young_v1: assets/billboards/town-reedhaven-reed-young-v1.png
+town_reedhaven_reed_windswept_v1: assets/billboards/town-reedhaven-reed-windswept-v1.png
+town_reedhaven_reed_autumn_v1: assets/billboards/town-reedhaven-reed-autumn-v1.png
+town_reedhaven_reed_silver_v1: assets/billboards/town-reedhaven-reed-silver-v1.png
