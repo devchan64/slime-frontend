@@ -273,6 +273,15 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
  }
  const currentElevationEdges=buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions);
  if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentRenderDepth+0.99));
+ if(currentHasElevation){
+  const currentOcclusionSources=currentRenderObjects.filter(currentRenderObject=>currentRenderObject.getData?.('fieldOcclusionBaseAlpha')!==undefined);
+  for(const currentSourceObject of currentOcclusionSources)currentSourceObject.setData('fieldOcclusionCellSources',currentOcclusionSources);
+  for(const currentRenderObject of currentRenderObjects){
+   if(currentRenderObject.getData?.('fieldOcclusionBaseAlpha')!==undefined)continue;
+   currentRenderObject.setData?.('fieldOcclusionEdgeSources',currentOcclusionSources);
+   currentRenderObject.setData?.('fieldOcclusionEdgeBaseAlpha',currentRenderObject.alpha??1);
+  }
+ }
  return currentRenderObjects;
 }
 
@@ -384,22 +393,73 @@ export function resolveFieldSceneryPlacement(currentObjectRecord,currentTileCent
 
 
 /** 겹친 앞쪽 지형만 흐리게 하며 대상이 이동하거나 사라지면 원래 불투명도로 복원한다. */
-export const FIELD_OCCLUSION_ALPHA = 0.3;
+export const FIELD_OCCLUSION_ALPHA = 0.4;
 export function markFieldOcclusionObject(currentRenderObject,currentPanelPoints){
  currentRenderObject.setData?.('fieldOcclusionBaseAlpha',currentRenderObject.alpha??1);
+ if(currentPanelPoints)currentRenderObject.setData?.('fieldOcclusionPolygon',currentPanelPoints);
  if(currentPanelPoints)currentRenderObject.setData?.('fieldOcclusionBounds',{x:Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.x)),y:Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.y)),width:Math.max(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.x))-Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.x)),height:Math.max(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.y))-Math.min(...currentPanelPoints.map(currentPanelPoint=>currentPanelPoint.y))});
  return currentRenderObject;
 }
 export function shouldFadeFieldOccluder(currentOccluderBounds,currentOccluderDepth,currentActorBounds,currentActorDepth){
  return currentOccluderDepth>currentActorDepth&&currentOccluderBounds.x<currentActorBounds.x+currentActorBounds.width&&currentOccluderBounds.x+currentOccluderBounds.width>currentActorBounds.x&&currentOccluderBounds.y<currentActorBounds.y+currentActorBounds.height&&currentOccluderBounds.y+currentOccluderBounds.height>currentActorBounds.y;
 }
+const FIELD_OCCLUSION_SAMPLE_COUNT = 24;
+const FIELD_OCCLUSION_ALPHA_THRESHOLD = 32;
+
+/** 투명 여백과 지형 면 밖을 제외한 실제 겹침을 검사한다. */
+export function containsFieldOcclusionPoint(currentPolygonPoints,currentPointValue){
+ let currentInsideValue=false;
+ for(let currentPointIndex=0,currentPreviousIndex=currentPolygonPoints.length-1;currentPointIndex<currentPolygonPoints.length;currentPreviousIndex=currentPointIndex++){
+  const currentStartPoint=currentPolygonPoints[currentPointIndex],currentEndPoint=currentPolygonPoints[currentPreviousIndex];
+  if((currentStartPoint.y>currentPointValue.y)!==(currentEndPoint.y>currentPointValue.y)&&currentPointValue.x<(currentEndPoint.x-currentStartPoint.x)*(currentPointValue.y-currentStartPoint.y)/(currentEndPoint.y-currentStartPoint.y)+currentStartPoint.x)currentInsideValue=!currentInsideValue;
+ }
+ return currentInsideValue;
+}
+function containsFieldOpaquePixel(currentSceneObject,currentWorldPoint){
+ const currentOcclusionChildren=currentSceneObject.getData?.('fieldOcclusionChildren');
+ if(currentOcclusionChildren)return currentOcclusionChildren.some(currentChildObject=>containsFieldOpaquePixel(currentChildObject,currentWorldPoint));
+ const currentPolygonPoints=currentSceneObject.getData?.('fieldOcclusionPolygon');
+ if(currentPolygonPoints)return containsFieldOcclusionPoint(currentPolygonPoints,currentWorldPoint);
+ const currentLocalPoint=currentSceneObject.getWorldTransformMatrix().applyInverse(currentWorldPoint.x,currentWorldPoint.y);
+ const currentPixelColumn=Math.floor(currentLocalPoint.x+currentSceneObject.displayOriginX);
+ const currentPixelRow=Math.floor(currentLocalPoint.y+currentSceneObject.displayOriginY);
+ const currentPixelAlpha=currentSceneObject.scene.textures.getPixelAlpha(currentSceneObject.flipX?currentSceneObject.width-1-currentPixelColumn:currentPixelColumn,currentSceneObject.flipY?currentSceneObject.height-1-currentPixelRow:currentPixelRow,currentSceneObject.texture.key,currentSceneObject.frame.name);
+ return currentPixelAlpha!==null&&currentPixelAlpha>=FIELD_OCCLUSION_ALPHA_THRESHOLD;
+}
 export function updateFieldActorOcclusion(currentGameScene){
- const currentActorRecords=currentGameScene.children.list.filter(currentSceneObject=>currentSceneObject.visible&&currentSceneObject.getBounds&&(currentSceneObject.getData?.('actorSelectionPosition')||currentSceneObject.getData?.('fieldActorVisibility'))).map(currentActorObject=>({bounds:currentActorObject.getBounds(),depth:currentActorObject.depth}));
+ const currentActorRecords=currentGameScene.children.list.filter(currentSceneObject=>currentSceneObject.visible&&currentSceneObject.getBounds&&(currentSceneObject.getData?.('actorSelectionPosition')||currentSceneObject.getData?.('fieldActorVisibility'))).map(currentActorObject=>({object:currentActorObject,bounds:currentActorObject.getBounds(),depth:currentActorObject.depth}));
  for(const currentSceneObject of currentGameScene.children.list){
   const currentBaseAlpha=currentSceneObject.getData?.('fieldOcclusionBaseAlpha');
   if(currentBaseAlpha===undefined||!currentSceneObject.visible)continue;
   const currentObjectBounds=currentSceneObject.getData('fieldOcclusionBounds')??currentSceneObject.getBounds();
-  const currentIsOccluded=currentActorRecords.some(currentActorRecord=>shouldFadeFieldOccluder(currentObjectBounds,currentSceneObject.depth,currentActorRecord.bounds,currentActorRecord.depth));
+  const currentIsOccluded=currentActorRecords.some(currentActorRecord=>{
+   if(!shouldFadeFieldOccluder(currentObjectBounds,currentSceneObject.depth,currentActorRecord.bounds,currentActorRecord.depth))return false;
+   const currentOverlapLeft=Math.max(currentObjectBounds.x,currentActorRecord.bounds.x),currentOverlapTop=Math.max(currentObjectBounds.y,currentActorRecord.bounds.y);
+   const currentOverlapWidth=Math.min(currentObjectBounds.x+currentObjectBounds.width,currentActorRecord.bounds.x+currentActorRecord.bounds.width)-currentOverlapLeft;
+   const currentOverlapHeight=Math.min(currentObjectBounds.y+currentObjectBounds.height,currentActorRecord.bounds.y+currentActorRecord.bounds.height)-currentOverlapTop;
+   for(let currentSampleRow=0;currentSampleRow<FIELD_OCCLUSION_SAMPLE_COUNT;currentSampleRow++)for(let currentSampleColumn=0;currentSampleColumn<FIELD_OCCLUSION_SAMPLE_COUNT;currentSampleColumn++){
+    const currentWorldPoint={x:currentOverlapLeft+(currentSampleColumn+.5)*currentOverlapWidth/FIELD_OCCLUSION_SAMPLE_COUNT,y:currentOverlapTop+(currentSampleRow+.5)*currentOverlapHeight/FIELD_OCCLUSION_SAMPLE_COUNT};
+    if(containsFieldOpaquePixel(currentActorRecord.object,currentWorldPoint)&&containsFieldOpaquePixel(currentSceneObject,currentWorldPoint))return true;
+   }
+   return false;
+  });
   currentSceneObject.setAlpha(currentBaseAlpha*(currentIsOccluded?FIELD_OCCLUSION_ALPHA:1));
+ }
+ // 윗면·측벽 중 실제로 가리는 면이 있으면 같은 타일 전체를 함께 감쇠한다.
+ const currentFadedCellSources=new Set();
+ for(const currentSceneObject of currentGameScene.children.list){
+  const currentCellSources=currentSceneObject.getData?.('fieldOcclusionCellSources');
+  if(currentCellSources&&currentSceneObject.alpha<currentSceneObject.getData('fieldOcclusionBaseAlpha'))currentFadedCellSources.add(currentCellSources);
+ }
+ for(const currentCellSources of currentFadedCellSources)for(const currentSourceObject of currentCellSources)currentSourceObject.setAlpha(currentSourceObject.getData('fieldOcclusionBaseAlpha')*FIELD_OCCLUSION_ALPHA);
+ // 경계선은 별도 겹침 판정 없이 같은 타일 면의 감쇠율을 따른다.
+ for(const currentSceneObject of currentGameScene.children.list){
+  const currentEdgeSources=currentSceneObject.getData?.('fieldOcclusionEdgeSources');
+  if(!currentEdgeSources||!currentSceneObject.visible)continue;
+  const currentFadeRatio=Math.min(1,...currentEdgeSources.map(currentSourceObject=>{
+   const currentSourceAlpha=currentSourceObject.getData('fieldOcclusionBaseAlpha');
+   return currentSourceAlpha>0?currentSourceObject.alpha/currentSourceAlpha:1;
+  }));
+  currentSceneObject.setAlpha(currentSceneObject.getData('fieldOcclusionEdgeBaseAlpha')*currentFadeRatio);
  }
 }

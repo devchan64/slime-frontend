@@ -261,15 +261,45 @@ test('앞쪽에서 배우와 겹치는 지형만 흐리게 하고 이동 후 복
  const currentFrontObject=createOccludingObject(11,{x:15,y:15,width:20,height:20});
  const currentBehindObject=createOccludingObject(9,{x:15,y:15,width:20,height:20});
  const currentDistantObject=createOccludingObject(12,{x:80,y:15,width:20,height:20});
+ const currentPixelFixture={displayOriginX:0,displayOriginY:0,texture:{key:'fixture'},frame:{name:0},scene:{textures:{getPixelAlpha:()=>255}},getWorldTransformMatrix:()=>({applyInverse:(currentPointColumn,currentPointRow)=>({x:currentPointColumn,y:currentPointRow})})};
+ for(const currentTestObject of [currentActorObject,currentFrontObject,currentBehindObject,currentDistantObject])Object.assign(currentTestObject,currentPixelFixture);
  const currentGameScene={children:{list:[currentActorObject,currentFrontObject,currentBehindObject,currentDistantObject]}};
  updateFieldActorOcclusion(currentGameScene);
  assert.equal(currentFrontObject.alpha,.8*FIELD_OCCLUSION_ALPHA);
  assert.equal(currentBehindObject.alpha,.8);
  assert.equal(currentDistantObject.alpha,.8);
+ currentFrontObject.scene={textures:{getPixelAlpha:()=>0}};
+ updateFieldActorOcclusion(currentGameScene);
+ assert.equal(currentFrontObject.alpha,.8,'투명 여백만 겹치면 불투명 유지');
+ currentFrontObject.scene=currentPixelFixture.scene;
  currentActorBounds.x=100;
  updateFieldActorOcclusion(currentGameScene);
  assert.equal(currentFrontObject.alpha,.8);
  currentActorObject.visible=false;
  updateFieldActorOcclusion(currentGameScene);
  assert.equal(currentDistantObject.alpha,.8);
+});
+
+test('가리지 않는 발 앞 타일과 경계는 불투명을 유지한다',async()=>{
+ const {updateFieldActorOcclusion}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentActorObject={visible:true,depth:10,getBounds:()=>({x:-5,y:-20,width:10,height:20}),getData:currentDataKey=>currentDataKey==='fieldActorVisibility'?true:undefined,getWorldTransformMatrix:()=>({transformPoint:()=>({x:0,y:0})})};
+ const currentTerrainPolygon=[{x:-10,y:3},{x:10,y:3},{x:10,y:12},{x:-10,y:12}];
+ const currentTerrainObject={visible:true,depth:11,alpha:1,getBounds:()=>({x:-10,y:3,width:20,height:9}),getData:currentDataKey=>currentDataKey==='fieldOcclusionBaseAlpha'?1:currentDataKey==='fieldOcclusionPolygon'?currentTerrainPolygon:undefined,setAlpha(currentAlphaValue){this.alpha=currentAlphaValue;}};
+ const currentEdgeObject={visible:true,alpha:.7,getData:currentDataKey=>currentDataKey==='fieldOcclusionEdgeSources'?[currentTerrainObject]:currentDataKey==='fieldOcclusionEdgeBaseAlpha'?.7:undefined,setAlpha(currentAlphaValue){this.alpha=currentAlphaValue;}};
+ const currentTestScene={children:{list:[currentActorObject,currentTerrainObject,currentEdgeObject]}};
+ updateFieldActorOcclusion(currentTestScene);assert.equal(currentTerrainObject.alpha,1);assert.equal(currentEdgeObject.alpha,.7);
+ currentTerrainObject.depth=9;updateFieldActorOcclusion(currentTestScene);assert.equal(currentTerrainObject.alpha,1);assert.equal(currentEdgeObject.alpha,.7);
+ currentTerrainObject.depth=11;currentTerrainPolygon.forEach(currentPointValue=>currentPointValue.x+=100);
+ updateFieldActorOcclusion(currentTestScene);assert.equal(currentTerrainObject.alpha,1);assert.equal(currentEdgeObject.alpha,.7);
+});
+
+test('가리는 윗면과 같은 타일 벽면은 40%로 함께 감쇠하고 복원한다',async()=>{
+ const {updateFieldActorOcclusion}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentActorBounds={x:0,y:0,width:10,height:10};
+ const currentActorObject={visible:true,depth:10,getBounds:()=>currentActorBounds,getData:currentDataKey=>currentDataKey==='fieldActorVisibility'?true:undefined,displayOriginX:0,displayOriginY:0,texture:{key:'actor'},frame:{name:0},scene:{textures:{getPixelAlpha:()=>255}},getWorldTransformMatrix:()=>({applyInverse:(currentPointColumn,currentPointRow)=>({x:currentPointColumn,y:currentPointRow})})};
+ const currentCellSources=[];
+ for(const currentPanelRow of [5,15])currentCellSources.push({visible:true,depth:11,alpha:1,getBounds:()=>({x:0,y:currentPanelRow,width:10,height:10}),getData:currentDataKey=>({fieldOcclusionBaseAlpha:1,fieldOcclusionCellSources:currentCellSources,fieldOcclusionPolygon:[{x:0,y:currentPanelRow},{x:10,y:currentPanelRow},{x:10,y:currentPanelRow+10},{x:0,y:currentPanelRow+10}]}[currentDataKey]),setAlpha(currentAlphaValue){this.alpha=currentAlphaValue;}});
+ const currentTestScene={children:{list:[currentActorObject,...currentCellSources]}};
+ updateFieldActorOcclusion(currentTestScene);assert.deepEqual(currentCellSources.map(currentPanelObject=>currentPanelObject.alpha),[.4,.4]);
+ currentActorBounds.x=100;updateFieldActorOcclusion(currentTestScene);assert.deepEqual(currentCellSources.map(currentPanelObject=>currentPanelObject.alpha),[1,1]);
 });
