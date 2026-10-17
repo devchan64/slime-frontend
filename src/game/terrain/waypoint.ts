@@ -1,3 +1,4 @@
+import currentWaypointMetadata from '../../../../slime-assets/assets/billboards/waypoint-guide-v3.animation.json';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import Phaser from 'phaser';
 import type {Waypoint} from './meadow';
@@ -30,7 +31,13 @@ export function drawWaypoint(currentGameScene:Phaser.Scene,currentWaypointRecord
  const currentDestinationName=currentWaypointRecord.targetName??WAYPOINT_DESTINATION_NAMES[currentWaypointRecord.target];
  if(!currentDestinationName)throw Error('웨이포인트 목적지 이름이 없습니다: '+currentWaypointRecord.target);
  prepareWaypointGuideAnimation(currentGameScene);
- const currentGuideSprite=currentGameScene.add.sprite(0,-WAYPOINT_GUIDE_STYLE.lift,WAYPOINT_GUIDE_TEXTURE,'guide-0').setOrigin(.5,.94).setDisplaySize(WAYPOINT_GUIDE_STYLE.size,WAYPOINT_GUIDE_STYLE.size);
+ const currentGuideSprite=currentGameScene.add.sprite(0,-WAYPOINT_GUIDE_STYLE.lift,WAYPOINT_GUIDE_TEXTURE,'guide-0').setOrigin(currentWaypointMetadata.frames[0].anchor.x/currentWaypointMetadata.frames[0].rect.width,currentWaypointMetadata.frames[0].anchor.y/currentWaypointMetadata.frames[0].rect.height).setDisplaySize(WAYPOINT_GUIDE_STYLE.size,WAYPOINT_GUIDE_STYLE.size);
+ currentGuideSprite.on('animationupdate',(_currentAnimationValue:Phaser.Animations.Animation,currentAnimationFrame:Phaser.Animations.AnimationFrame)=>{
+  const currentFrameIndex=Number(String(currentAnimationFrame.textureFrame).replace('guide-',''));
+  const currentAnchorFrame=currentWaypointMetadata.frames[currentFrameIndex];
+  if(!currentAnchorFrame)throw Error('웨이포인트 앵커 프레임이 없습니다.');
+  currentGuideSprite.setOrigin(currentAnchorFrame.anchor.x/currentAnchorFrame.rect.width,currentAnchorFrame.anchor.y/currentAnchorFrame.rect.height);
+ });
  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)currentGuideSprite.play(WAYPOINT_GUIDE_ANIMATION);
  const currentGuideLabel=currentGameScene.add.text(0,WAYPOINT_GUIDE_STYLE.labelY,currentDestinationName,{fontFamily:'sans-serif',fontSize:WAYPOINT_GUIDE_STYLE.labelSize,color:'#fff3d6',backgroundColor:'#49331fee',padding:{x:WAYPOINT_GUIDE_STYLE.labelPadding,y:WAYPOINT_GUIDE_STYLE.labelPadding}}).setOrigin(.5,1);
  return currentGameScene.add.container(currentScreenColumn,currentScreenRow,[currentGuideSprite,currentGuideLabel]).setData('fieldOcclusionBaseAlpha',1).setData('fieldOcclusionChildren',[currentGuideSprite]).setDepth(WAYPOINT_GUIDE_STYLE.depth).setScale(waypointMarkerScale(currentGameScene.cameras.main.zoom/GAME_INTERNAL_RESOLUTION_SCALE));
