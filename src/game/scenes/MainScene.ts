@@ -50,7 +50,7 @@ import { drawCityBuildingSprite, type CityBuildingRegion } from "../terrain/city
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
 import { addRampWallPatterns, addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
-import {project, pickSurface, cellDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
+import {project, pickSurface, cellDepth, resolveCityGroundDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -708,8 +708,8 @@ export class MainScene extends Phaser.Scene {
         : kind === 'road' ? selectFieldRoadFrame(rotateConnections(roadConnections(cell, definition, road), this.rotation), cell, Boolean(s.map.safeTown), s.map.id)
           : kind === 'flowers' && s.map.id === 'meadow' ? 'meadow-flowers' : kind === 'reed-bed' ? resolveReedFrameForMap(s.map.id) : kind === 'paving' ? resolvePavingFrameForMap(s.map.id) : kind === 'grass' ? resolveGrassFrameForMap(s.map.id) : resolveTownGroundFrame(s.map.id,kind);
       remember(this.add.image(p.x,p.y,TERRAIN_ATLAS,frame)
-        .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(depth+TERRAIN_DEPTH.surface));
-      if(s.map.safeTown)for(const currentBoundaryGraphic of drawTownMaterialEdges(this,cell,currentCellPosition=>resolveGroundMaterial(this.viewPosition(currentCellPosition)),currentCellPosition=>this.project(currentCellPosition),currentCellPosition=>this.depth(currentCellPosition),TERRAIN_DEPTH.surface))remember(currentBoundaryGraphic);
+        .setDisplaySize(this.currentTileDimensions.width,this.currentTileDimensions.height).setDepth(resolveCityGroundDepth(depth,s.map)+TERRAIN_DEPTH.surface));
+      if(s.map.safeTown)for(const currentBoundaryGraphic of drawTownMaterialEdges(this,cell,currentCellPosition=>resolveGroundMaterial(this.viewPosition(currentCellPosition)),currentCellPosition=>this.project(currentCellPosition),currentCellPosition=>resolveCityGroundDepth(this.depth(currentCellPosition),s.map),TERRAIN_DEPTH.surface))remember(currentBoundaryGraphic);
       }
       if (!field && !currentCellIsWater && !['boulder','tree-base','cactus','shallow-water','deep-water'].includes(terrain) && !cityBuildingCellKeys.has(`${column},${row}`) && blockedCells.has(`${column},${row}`) && `${column},${row}` !== towerCenterCellKey) {
         const detail=remember(this.add.graphics().setDepth(depth+TERRAIN_DEPTH.surface+1));

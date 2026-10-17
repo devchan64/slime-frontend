@@ -1,7 +1,7 @@
 /** 게임 구현을 그대로 배포한다. 검수기는 등록 에셋을 아래 논리 경로에 연결한다. */
 export {drawCityBuildingSprite} from '../../src/game/terrain/citySpriteRendering';
 export {createTerrainAtlas,TERRAIN_ATLAS,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap} from '../../src/game/terrain/textures';
-export {cellDepth,TERRAIN_DEPTH,mapAnnotationDepth} from '../../src/game/terrain/elevation';
+export {cellDepth,resolveCityGroundDepth,TERRAIN_DEPTH,mapAnnotationDepth} from '../../src/game/terrain/elevation';
 export {resolveMapTileSize} from '../../src/game/terrain/renderMetrics';
 export {selectFieldRoadFrame,roadConnections,waterConnections} from '../../src/game/terrain/roadTiles';
 import {preloadTerrain} from '../../src/game/terrain/textures';

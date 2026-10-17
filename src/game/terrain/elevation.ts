@@ -96,3 +96,9 @@ export function pickSurface(x:number,y:number,map:Surface,heights:{min:number;ma
     }
   return null;
 }
+
+/** 높이가 없는 도시 바닥은 모든 건물·캐릭터보다 먼저 그린다. */
+export function resolveCityGroundDepth(currentCellDepth:number,currentMapSurface:Surface):number {
+  if(!currentMapSurface.safeTown || currentMapSurface.elevations?.some(currentElevationRow=>currentElevationRow.some(currentElevationValue=>currentElevationValue!==0)))return currentCellDepth;
+  return currentCellDepth-(currentMapSurface.columns+currentMapSurface.rows)*TERRAIN_DEPTH.stride-TERRAIN_DEPTH.base;
+}
