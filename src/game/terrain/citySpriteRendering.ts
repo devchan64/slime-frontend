@@ -32,6 +32,9 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  const currentImagePolygon=new Phaser.Geom.Polygon([
   {x:currentImageBounds.left,y:currentImageBounds.top},{x:currentImageBounds.right,y:currentImageBounds.top},
   {x:currentImageBounds.right,y:currentImageBounds.bottom},{x:currentImageBounds.left,y:currentImageBounds.bottom}]);
+ if(currentCityBuilding.facilityKind === 'residence') {
+ return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
+ }
  const currentEntrancePoint=projectTerrainPosition(currentCityBuilding.entrance);
  const currentEntranceMarker=currentMapScene.add.graphics().setDepth(currentAnnotationDepth);
  currentEntranceMarker.lineStyle(currentBuildingSelected?CITY_BUILDING_STYLE.selectedWidth:CITY_BUILDING_STYLE.outlineWidth,currentBuildingSelected?CITY_BUILDING_STYLE.selectedColor:CITY_BUILDING_STYLE.wallLight);

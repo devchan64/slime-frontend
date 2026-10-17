@@ -23,3 +23,12 @@ test('건물 내부 경로는 거부하고 출입구로 우회하며 도착 후 
  for(const currentRoutePosition of currentEntranceRoute) assert.ok(!currentCitySurface.blocked.some(currentBlockedPosition=>currentBlockedPosition.column===currentRoutePosition.column&&currentBlockedPosition.row===currentRoutePosition.row));
  assert.deepEqual(fieldRoute(currentTestBuilding.entrance,currentTestBuilding.entrance,currentCitySurface),[]);
 });
+test('일반 주택은 점유 타일 이동과 시설 메뉴 선택을 허용하지 않는다',()=>{
+ const currentResidentialBuilding={...currentTestBuilding,kind:'residence',facilityId:null,facilityKind:'residence'};
+ const currentResidentialSurface={columns:9,rows:9,blocked:cityBuildingCells(currentResidentialBuilding)};
+ for(const currentOccupiedPosition of currentResidentialSurface.blocked){
+  assert.equal(fieldRoute({column:4,row:0},currentOccupiedPosition,currentResidentialSurface),null);
+  assert.equal(findCityBuilding([currentResidentialBuilding],currentOccupiedPosition),undefined);
+ }
+ assert.equal(findCityBuilding([currentResidentialBuilding],currentResidentialBuilding.entrance),undefined);
+});
