@@ -805,3 +805,9 @@ files:
 - path: assets/structures/town-saltford-wind-bent-sedge-v1.png
   source_path: assets/billboards/town-saltford-wind-bent-sedge-v1.png
   sha256: 0c43ab2d9d2622a36aa2ef75631d0832b9c7209cc6fe548d3fa9569e9cee7d34
+- path: assets/structures/town-common-timber-house-v1.png
+  source_path: assets/sprites/structures/town-common-timber-house-v1.png
+  sha256: 89fac3070d68fad6b144f803d57f51ce00a88447bdd83b3d3cad52175071a6b2
+- path: assets/structures/town-common-stone-house-v1.png
+  source_path: assets/sprites/structures/town-common-stone-house-v1.png
+  sha256: a0d39ba99b733feaeb0ca44a2f7b15d64334651f9e4b89910bf98a8661ecced7
