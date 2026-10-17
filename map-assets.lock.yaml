@@ -40,51 +40,12 @@ files:
 - path: assets/terrain/road-v3.webp
   source_path: assets/tiles/terrain/road/limestone-road-v3.png
   sha256: 01b4a77f291c059096420a7a5af8deb30008c7f74a4d5a4efb9854ed96c6ef05
-- path: assets/world/isloon/buildings/marble-large-window-wall-v1.png
-  source_path: assets/tiles/buildings/stone/stone-large-window-wall-v1.png
-  sha256: 3393356fd9c31975e5155da5e381c8ad1c02e7bc04f2832891d84d97de4068ad
-- path: assets/world/isloon/buildings/marble-plain-wall-v1.png
-  source_path: assets/tiles/buildings/stone/stone-wall-v1.png
-  sha256: f4f5fb5c107bdfd3dba2c7d4242bb83a0b5adaa7452e7889922c476ba8aa4f44
-- path: assets/world/isloon/buildings/marble-roof-v3.png
-  source_path: assets/tiles/buildings/marble/marble-roof-v3.png
-  sha256: a653e26b0c9f2c8233a880cb1be2e486b1dab89b715755d2be2cb70ed04fc2ba
-- path: assets/world/isloon/buildings/marble-small-door-v1.png
-  source_path: assets/tiles/buildings/stone/stone-door-v1.png
-  sha256: 19d3d321953e8dab7d2e8658541c5618ea36286ee71372f7f43971011b0bc09b
-- path: assets/world/isloon/buildings/marble-small-window-wall-v1.png
-  source_path: assets/tiles/buildings/stone/stone-small-window-wall-v1.png
-  sha256: d334d14f30c3bfe4e64280b4568f07146912b46dfd06d327e6eead52b9226700
 - path: assets/world/isloon/terrain/limestone-road-v3.png
   source_path: assets/tiles/terrain/road/limestone-road-v3.png
   sha256: 01b4a77f291c059096420a7a5af8deb30008c7f74a4d5a4efb9854ed96c6ef05
 - path: assets/world/reedhaven/terrain/dirt-road-v1.png
   source_path: assets/tiles/terrain/road/limestone-road-v3.png
   sha256: 01b4a77f291c059096420a7a5af8deb30008c7f74a4d5a4efb9854ed96c6ef05
-- path: assets/world/stonewarm/buildings/stone-door-v1.png
-  source_path: assets/tiles/buildings/stone/stone-door-v1.png
-  sha256: 19d3d321953e8dab7d2e8658541c5618ea36286ee71372f7f43971011b0bc09b
-- path: assets/world/stonewarm/buildings/stone-large-window-wall-v1.png
-  source_path: assets/tiles/buildings/stone/stone-large-window-wall-v1.png
-  sha256: 3393356fd9c31975e5155da5e381c8ad1c02e7bc04f2832891d84d97de4068ad
-- path: assets/world/stonewarm/buildings/stone-roof-v1.png
-  source_path: assets/tiles/buildings/stone/stone-roof-v1.png
-  sha256: b9df367699d24583b0e80f29bd048f63ae57ecb6da9a77b7b47330e603f02dff
-- path: assets/world/stonewarm/buildings/stone-roof-v1.source.json
-  source_path: assets/tiles/buildings/stone/stone-roof-v1.source.json
-  sha256: 4c55e3a846ef143a861595655a625170be1a8474c100a0577a8ea0cfb7ea9dd3
-- path: assets/world/stonewarm/buildings/stone-small-window-wall-v1.png
-  source_path: assets/tiles/buildings/stone/stone-small-window-wall-v1.png
-  sha256: d334d14f30c3bfe4e64280b4568f07146912b46dfd06d327e6eead52b9226700
-- path: assets/world/stonewarm/buildings/stone-wall-crossbar-v1.png
-  source_path: assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
-  sha256: b3da143fbed722dbb134cd1953255bf7cfa88444042a99e37e0b80e6c7dd8ce4
-- path: assets/world/stonewarm/buildings/stone-wall-crossbar-v1.source.json
-  source_path: assets/tiles/buildings/stone/stone-wall-crossbar-v1.source.json
-  sha256: 9de6f11146ce4e2bc6ca06db21009bfe8e578148cc3025922995f661b608a122
-- path: assets/world/stonewarm/buildings/stone-wall-v1.png
-  source_path: assets/tiles/buildings/stone/stone-wall-v1.png
-  sha256: f4f5fb5c107bdfd3dba2c7d4242bb83a0b5adaa7452e7889922c476ba8aa4f44
 - path: assets/world/stonewarm/terrain/exposed-rock-ground-v2.png
   source_path: assets/tiles/terrain/non-road/exposed-rock-ground-v2.png
   sha256: 970f8c6a5a22747698df8f26af976306b12715540a8eed31b04d0387e795cd9b
@@ -94,24 +55,6 @@ files:
 - path: assets/world/stonewarm/terrain/marble-paving-v1.png
   source_path: assets/tiles/terrain/road/marble-circular-road-v1.png
   sha256: 4816d6fd3795932f02755099cb28f6d260224e0194ebd7e00c7dfa23c76ff0fc
-- path: assets/world/stonewarm/buildings/red-stone-roof-v3.png
-  source_path: assets/tiles/buildings/red-stone/red-stone-roof-v3.png
-  sha256: d0036e010f24f4ed3725d49b46a54413294b3488f42cece92ba9728a40068fb8
-- path: assets/world/common/buildings/wood-wall-v2.png
-  source_path: assets/tiles/buildings/wood/wood-wall-v2.png
-  sha256: 56c51c9a169a6dbc651c4826f4fb006bf2a769ed3cabcaef74bc29a0b2e8565f
-- path: assets/world/common/buildings/wood-window-wall-v1.png
-  source_path: assets/tiles/buildings/wood/wood-window-wall-v1.png
-  sha256: b9d78cb1550fd570bfe86a8ee3c09ae5cc1820cd00d29d0c4108e28fab68c060
-- path: assets/world/common/buildings/wood-door-wall-v1.png
-  source_path: assets/tiles/buildings/wood/wood-door-wall-v1.png
-  sha256: df65131b57d185567e5dc66eb0d2ea34b6d69e8008587934cb82b28139e58fb5
-- path: assets/world/common/buildings/wood-crossbar-wall-v1.png
-  source_path: assets/tiles/buildings/wood/wood-crossbar-wall-v1.png
-  sha256: 433d77a7c419182eae11282546b793c757af995c1ab5702d294bc7a5f16a0e4b
-- path: assets/world/common/buildings/wood-roof-v4.png
-  source_path: assets/tiles/buildings/wood/wood-roof-v4.png
-  sha256: 2b9351fff8a262cd9479ccffd5c98a393286c8642ad5d21a6ee60120cad919a2
 - path: assets/terrain/roads/packed-dirt-road-v1.png
   source_path: assets/tiles/terrain/road/ochre-pebble-road-v1.png
   sha256: 8a5706ccdb7ca4ffe01cdfe14f2756a7ab3050dc58aba80b530a2bfc6a6e1406
@@ -160,15 +103,6 @@ files:
 - path: assets/terrain/ramp-earth-stone-wall-v1.png
   source_path: assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
   sha256: 908700bc55fae722eaa8ca98a42be0a48099e3026880159bcb5d09a72dc9262f
-- path: assets/world/buildings/red-stone/red-stone-brick-wall-v1.png
-  source_path: assets/tiles/buildings/red-stone/red-stone-brick-wall-v1.png
-  sha256: f2ecd3430352093e8ee2ee0b5475d0b7cd571dd9217422142831d6aa7ef3dd99
-- path: assets/world/buildings/red-stone/red-stone-brick-gate-v3.png
-  source_path: assets/tiles/buildings/red-stone/red-stone-brick-gate-v3.png
-  sha256: 14d3e46c3c2f6e270f8352e3c1fe041b025242e9a5a86ceb912f18632e9bc46b
-- path: assets/world/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png
-  source_path: assets/tiles/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png
-  sha256: 11e8cc3fefd6c0237e398210e07c366029523131507ac87113d4124cb34e8357
 - path: assets/terrain/reedhaven-dry-embankment.png
   source_path: assets/tiles/terrain/non-road/dry-soil-grass-v1.png
   sha256: 9dedba99909ceb6eefbcdab89d69d72bfeee40e08224441845c33b6e4b0c82a9

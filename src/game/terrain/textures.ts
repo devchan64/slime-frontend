@@ -12,14 +12,8 @@ const {
   stonewarmPebbleGroundSource,
   stonewarmExposedGroundSource,
   stonewarmGranitePavingSource,
-  stoneBuildingWindowSource,
-  stoneBuildingDoorSource,
-  stoneBuildingWallSource,
   marshReedClumpsSource,
   reedhavenDryEmbankmentSource,
-  redBrickWindowSource,
-  redBrickDoorSource,
-  redBrickWallSource,
   iseulonCourtyardTileSource,
   rampTreadPatternSource,
   battleRockTypeASource,
@@ -34,13 +28,6 @@ const {
   cactusTileImageSource,
   stoneSlabRoadSource,
   packedDirtRoadSource,
-  unifiedWoodRoofSource,
-  woodCrossbarWallSource,
-  woodDoorWallSource,
-  woodWindowWallSource,
-  unifiedWoodWallSource,
-  stonewarmRoofImageSource,
-  stonewarmGuildRoofSource,
   extendedAshSource,
   extendedBoulderSource,
   extendedGravelSource,
@@ -64,16 +51,6 @@ import { BASE_FIELD_TERRAIN_KINDS, TEXTURE_SIZE } from "./meadow";
 import { validateTerrainSourceDimensions } from "./renderMetrics";
 import { ROAD_TILE_COUNT, roadFrame } from "./roadTiles";
 
-export const RED_BRICK_WALL_TEXTURE = "red-stone-brick-wall-v1";
-export const RED_BRICK_DOOR_TEXTURE = "red-stone-brick-gate-v3";
-export const RED_BRICK_WINDOW_TEXTURE = "red-stone-sky-blue-window-wall-v1";
-export const UNIFIED_WOOD_ROOF_TEXTURE = "wood-roof-v4";
-export const WOOD_CROSSBAR_WALL_TEXTURE = "wood-crossbar-wall-v1";
-export const WOOD_DOOR_WALL_TEXTURE = "wood-door-wall-v1";
-export const WOOD_WINDOW_WALL_TEXTURE = "wood-window-wall-v1";
-export const UNIFIED_WOOD_WALL_TEXTURE = "unified-wood-wall-v2";
-export const STONEWARM_ROOF_TEXTURE = "stonewarm-stone-roof";
-export const STONEWARM_GUILD_ROOF_TEXTURE = "stonewarm-guild-red-stone-roof-v3";
 export const TERRAIN_ATLAS = "meadow-terrain";
 export const RAMP_TREAD_TEXTURE = "ramp-tread-surface-v1";
 export const CLIFF_WALL_TEXTURE = "dew-meadow-cliff-face-v1";
@@ -148,21 +125,8 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 }
 
 export function preloadTerrain(scene: Phaser.Scene) {
-  scene.load.image("stone-building-wall",stoneBuildingWallSource);
-  scene.load.image("stone-building-door",stoneBuildingDoorSource);
-  scene.load.image("stone-building-window",stoneBuildingWindowSource);
-  scene.load.image(RED_BRICK_WINDOW_TEXTURE, redBrickWindowSource);
-  scene.load.image(RED_BRICK_DOOR_TEXTURE, redBrickDoorSource);
-  scene.load.image(RED_BRICK_WALL_TEXTURE, redBrickWallSource);
   scene.load.image("terrain-source-dirt-road", packedDirtRoadSource);
   scene.load.image("terrain-source-stone-road", stoneSlabRoadSource);
-  scene.load.image(UNIFIED_WOOD_WALL_TEXTURE, unifiedWoodWallSource);
-  scene.load.image(UNIFIED_WOOD_ROOF_TEXTURE, unifiedWoodRoofSource);
-  scene.load.image(WOOD_WINDOW_WALL_TEXTURE, woodWindowWallSource);
-  scene.load.image(WOOD_DOOR_WALL_TEXTURE, woodDoorWallSource);
-  scene.load.image(WOOD_CROSSBAR_WALL_TEXTURE, woodCrossbarWallSource);
-  scene.load.image(STONEWARM_GUILD_ROOF_TEXTURE, stonewarmGuildRoofSource);
-  scene.load.image(STONEWARM_ROOF_TEXTURE, stonewarmRoofImageSource);
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
   for (const specialSourceRecord of SPECIAL_TERRAIN_SOURCES) scene.load.image(`terrain-source-${specialSourceRecord.frame}`, specialSourceRecord.source);
   scene.load.image(RAMP_TREAD_TEXTURE, rampTreadPatternSource);

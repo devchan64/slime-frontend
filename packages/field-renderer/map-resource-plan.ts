@@ -1,7 +1,7 @@
 import {resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
-import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE,UNIFIED_WOOD_WALL_TEXTURE,UNIFIED_WOOD_ROOF_TEXTURE,WOOD_WINDOW_WALL_TEXTURE,WOOD_DOOR_WALL_TEXTURE,WOOD_CROSSBAR_WALL_TEXTURE,STONEWARM_ROOF_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE,RED_BRICK_WALL_TEXTURE,RED_BRICK_WINDOW_TEXTURE,RED_BRICK_DOOR_TEXTURE} from '../../src/game/terrain/textures';
+import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../../src/game/terrain/textures';
 export {loadMapResourceImages} from './map-resource-loader.mjs';
-export type MapResourceSurface={id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string}[];connections?:unknown[];stairs?:unknown[]};
+export type MapResourceSurface={id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
 /** 렌더러의 재질 선택 함수를 재사용하여 선택 맵의 텍스처 키를 산출한다. */
 export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,currentMapKind:'field'|'town'|'battle'){
  if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 종류');
@@ -26,8 +26,8 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
  for(const currentObjectRecord of [...currentMapRecord.objects??[],...currentMapRecord.groundOverrides??[]])if(currentObjectRecord.textureKey)currentTextureKeys.add(currentObjectRecord.textureKey);
  if(currentMapRecord.connections?.length)currentTextureKeys.add('waypoint-guide-v1');
  for(const currentBuildingRecord of currentMapRecord.buildings??[]){
-  const currentBuildingKeys=currentBuildingRecord.id==='iseulon-guild'?[RED_BRICK_WALL_TEXTURE,RED_BRICK_WINDOW_TEXTURE,RED_BRICK_DOOR_TEXTURE,STONEWARM_GUILD_ROOF_TEXTURE]:currentBuildingRecord.id.startsWith('stonewarm-')?['stone-building-wall','stone-building-window','stone-building-door',currentBuildingRecord.facilityKind==='guild'?STONEWARM_GUILD_ROOF_TEXTURE:STONEWARM_ROOF_TEXTURE]:[UNIFIED_WOOD_WALL_TEXTURE,WOOD_WINDOW_WALL_TEXTURE,WOOD_DOOR_WALL_TEXTURE,WOOD_CROSSBAR_WALL_TEXTURE,UNIFIED_WOOD_ROOF_TEXTURE];
-  currentBuildingKeys.forEach(currentTextureKey=>currentTextureKeys.add(currentTextureKey));
+  if(!currentBuildingRecord.sprite?.textureKey)throw Error('건물 스프라이트 지정이 없습니다: '+currentBuildingRecord.id);
+  currentTextureKeys.add(currentBuildingRecord.sprite.textureKey);
  }
  return [...currentTextureKeys].sort();
 }

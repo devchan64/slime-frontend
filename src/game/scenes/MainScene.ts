@@ -46,7 +46,7 @@ import { createFieldRestEffectSprite, preloadFieldRestEffectSprite } from "../an
 import type { Appearance } from "../../client/types";
 import { calculateActorPlacement } from "../terrain/actorPlacement";
 import { findCityBuilding, cityBuildingCells } from "../terrain/cityBuildings";
-import { drawBlockStructure, type CityBuildingRegion } from "../terrain/blockStructureRendering";
+import { drawCityBuildingSprite, type CityBuildingRegion } from "../terrain/citySpriteRendering";
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
 import { addRampWallPatterns, addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
@@ -733,7 +733,7 @@ export class MainScene extends Phaser.Scene {
     this.cityBuildingRegions = [];
     const previousSceneObjects = new Set(this.children.list);
     for (const currentBuildingRecord of currentBuildingRecords)
-      this.cityBuildingRegions.push(drawBlockStructure(this, currentBuildingRecord, this.project, this.depth,
+      this.cityBuildingRegions.push(drawCityBuildingSprite(this, currentBuildingRecord, this.project, this.depth,
         this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id));
     for (const currentSceneObject of this.children.list)
       if (!previousSceneObjects.has(currentSceneObject)) this.buildingLayerObjects.add(currentSceneObject);
