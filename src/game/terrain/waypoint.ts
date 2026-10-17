@@ -12,18 +12,18 @@ export function waypointMarkerScale(currentCameraZoom:number):number {
  return 1/currentCameraZoom;
 }
 
-/** 게임과 검수에서 같은 2×2 시트를 재생한다. */
+/** 게임과 검수에서 같은 3×2 6프레임 시트를 재생한다. */
 export function prepareWaypointGuideAnimation(currentGameScene:Phaser.Scene){
  if(!currentGameScene.textures.exists(WAYPOINT_GUIDE_TEXTURE))throw Error('웨이포인트 안내 스프라이트가 없습니다.');
  const currentGuideTexture=currentGameScene.textures.get(WAYPOINT_GUIDE_TEXTURE);
  const currentSourceImage=currentGuideTexture.getSourceImage() as HTMLImageElement;
- if(currentSourceImage.width!==currentSourceImage.height||currentSourceImage.width%2!==0)throw Error('웨이포인트 시트는 짝수 크기의 정사각형 2×2 프레임이어야 합니다.');
- const currentFrameSize=currentSourceImage.width/2;
- for(let currentFrameIndex=0;currentFrameIndex<4;currentFrameIndex++){
+ if(currentSourceImage.width%3!==0||currentSourceImage.height%2!==0||currentSourceImage.width/3!==currentSourceImage.height/2)throw Error('웨이포인트 시트는 정사각형 셀의 3×2 6프레임이어야 합니다.');
+ const currentFrameSize=currentSourceImage.width/3;
+ for(let currentFrameIndex=0;currentFrameIndex<6;currentFrameIndex++){
   const currentFrameName='guide-'+currentFrameIndex;
-  if(!currentGuideTexture.has(currentFrameName))currentGuideTexture.add(currentFrameName,0,(currentFrameIndex%2)*currentFrameSize,Math.floor(currentFrameIndex/2)*currentFrameSize,currentFrameSize,currentFrameSize);
+  if(!currentGuideTexture.has(currentFrameName))currentGuideTexture.add(currentFrameName,0,(currentFrameIndex%3)*currentFrameSize,Math.floor(currentFrameIndex/3)*currentFrameSize,currentFrameSize,currentFrameSize);
  }
- if(!currentGameScene.anims.exists(WAYPOINT_GUIDE_ANIMATION))currentGameScene.anims.create({key:WAYPOINT_GUIDE_ANIMATION,frames:Array.from({length:4},(_,currentFrameIndex)=>({key:WAYPOINT_GUIDE_TEXTURE,frame:'guide-'+currentFrameIndex})),frameRate:WAYPOINT_GUIDE_STYLE.frameRate,repeat:-1});
+ if(!currentGameScene.anims.exists(WAYPOINT_GUIDE_ANIMATION))currentGameScene.anims.create({key:WAYPOINT_GUIDE_ANIMATION,frames:Array.from({length:6},(_,currentFrameIndex)=>({key:WAYPOINT_GUIDE_TEXTURE,frame:'guide-'+currentFrameIndex})),frameRate:WAYPOINT_GUIDE_STYLE.frameRate,repeat:-1});
 }
 
 export function drawWaypoint(currentGameScene:Phaser.Scene,currentWaypointRecord:Waypoint,currentScreenColumn:number,currentScreenRow:number){
