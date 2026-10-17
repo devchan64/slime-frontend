@@ -14,12 +14,13 @@ import {TERRAIN_DEPTH} from './elevation';
 const CITY_HALF_TILE = 0.5;
 const WALL_ENTRANCE_POSITION_TOLERANCE = 0.01;
 type CityScreenPoint = {x:number;y:number};
-export type CityBuildingRegion = {position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
+export type CityBuildingRegion = {appliedTextureIdentifiers:string[];position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
 
 export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuilding:CityBuilding,
   projectTerrainPosition:(currentCellPosition:Position)=>CityScreenPoint,
   calculateTerrainDepth:(currentCellPosition:Position)=>number,currentAnnotationDepth:number,currentBuildingSelected:boolean):CityBuildingRegion {
   const currentBuildingFirstChild=currentMapScene.children.list.length;
+  const currentAppliedTextures = new Set<string>();
   if(currentCityBuilding.blockSchemaVersion!==1)throw new Error('지원하지 않는 건물 블록 버전');
   const currentBuildingCorners = cityBuildingCells(currentCityBuilding).map(projectTerrainPosition);
   const currentBuildingDepth = Math.max(...cityBuildingCells(currentCityBuilding).map(calculateTerrainDepth))+TERRAIN_DEPTH.overlay;
@@ -70,6 +71,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
         &&Math.abs(entranceAlongWall-(wallMinimumHorizontal+wallMaximumHorizontal)/2)<WALL_ENTRANCE_POSITION_TOLERANCE
         &&Math.abs(Math.abs(entranceAcrossWall-wallFixedCoordinate)-CITY_HALF_TILE)<WALL_ENTRANCE_POSITION_TOLERANCE;
       const wallSelectedTexture=currentStoneExterior?(wallUsesDoorTexture?"stone-building-door":wallUsesWindowTexture?"stone-building-window":"stone-building-wall"):usesRedBrickExterior?(wallUsesDoorTexture?RED_BRICK_DOOR_TEXTURE:wallUsesWindowTexture?RED_BRICK_WINDOW_TEXTURE:RED_BRICK_WALL_TEXTURE):wallMinimumHeight>=woodRoofBaseHeight?WOOD_CROSSBAR_WALL_TEXTURE:wallUsesDoorTexture?WOOD_DOOR_WALL_TEXTURE:wallUsesWindowTexture?WOOD_WINDOW_WALL_TEXTURE:UNIFIED_WOOD_WALL_TEXTURE;
+      currentAppliedTextures.add(wallSelectedTexture);
       const wallSourceImage=currentMapScene.textures.get(wallSelectedTexture).getSourceImage() as HTMLImageElement;
       const wallOriginPosition={column:currentCityBuilding.origin.column+(wallColumnVaries?wallMinimumHorizontal:wallVertexRecords[0].column),row:currentCityBuilding.origin.row+(wallColumnVaries?wallVertexRecords[0].row:wallMinimumHorizontal)};
       const wallOriginScreenPoint=projectTerrainPosition(wallOriginPosition);
@@ -97,6 +99,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
       if (!roofCanvasTexture) throw new Error('지붕 캔버스 생성 실패');
       const roofDrawingContext=roofCanvasTexture.getContext();
       const selectedRoofTextureIdentifier=usesRedBrickExterior?STONEWARM_GUILD_ROOF_TEXTURE:usesUnifiedWoodWall?UNIFIED_WOOD_ROOF_TEXTURE:currentCityBuilding.facilityKind==='guild'?STONEWARM_GUILD_ROOF_TEXTURE:STONEWARM_ROOF_TEXTURE;
+      currentAppliedTextures.add(selectedRoofTextureIdentifier);
       const roofSourceImage=currentMapScene.textures.get(selectedRoofTextureIdentifier).getSourceImage() as HTMLImageElement;
       for (const roofFaceRecord of roofSurfaceFaces) {
         const roofFacePoints=roofFaceRecord.points;
@@ -189,7 +192,7 @@ export function drawBlockStructure(currentMapScene:Phaser.Scene,currentCityBuild
   for(const currentBuildingObject of currentMapScene.children.list.slice(currentBuildingFirstChild)){
     if(currentBuildingObject instanceof Phaser.GameObjects.Image || currentBuildingObject instanceof Phaser.GameObjects.TileSprite)markFieldOcclusionObject(currentBuildingObject);
   }
-  return {position:currentCityBuilding.origin,depth:currentBuildingDepth,
+  return {appliedTextureIdentifiers:[...currentAppliedTextures].sort(),position:currentCityBuilding.origin,depth:currentBuildingDepth,
     polygons:currentVisibleFaces.map(currentFaceValue=>new Phaser.Geom.Polygon(currentFaceValue.points)),
     left:Math.min(...currentVisiblePoints.map(currentPointValue=>currentPointValue.x)),right:Math.max(...currentVisiblePoints.map(currentPointValue=>currentPointValue.x)),
     top:Math.min(...currentVisiblePoints.map(currentPointValue=>currentPointValue.y)),bottom:Math.max(...currentVisiblePoints.map(currentPointValue=>currentPointValue.y))};
