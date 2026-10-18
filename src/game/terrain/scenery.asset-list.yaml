@@ -123,10 +123,10 @@ town_stonewarm_bookshop_v3: assets/sprites/structures/town-stonewarm-bookshop-v3
 town_stonewarm_inn_v3: assets/sprites/structures/town-stonewarm-inn-v3.png
 town_stonewarm_workshop_v3: assets/sprites/structures/town-stonewarm-workshop-v3.png
 town_stonewarm_market_v3: assets/sprites/structures/town-stonewarm-market-v3.png
-town_grainstead_guild_v2: assets/sprites/structures/town-grainstead-guild-v2.png
+town_grainstead_guild_v3: assets/sprites/structures/town-grainstead-guild-v3.png
 town_grainstead_bookshop_v2: assets/sprites/structures/town-grainstead-bookshop-v2.png
 town_grainstead_inn_v2: assets/sprites/structures/town-grainstead-inn-v2.png
-town_grainstead_workshop_v2: assets/sprites/structures/town-grainstead-workshop-v2.png
+town_grainstead_workshop_v3: assets/sprites/structures/town-grainstead-workshop-v3.png
 town_grainstead_market_v2: assets/sprites/structures/town-grainstead-market-v2.png
 town_saltford_guild_v2: assets/sprites/structures/town-saltford-guild-v2.png
 town_saltford_bookshop_v2: assets/sprites/structures/town-saltford-bookshop-v2.png
@@ -177,8 +177,8 @@ town_reedhaven_reed_house_v3: assets/sprites/structures/town-reedhaven-reed-hous
 town_reedhaven_dike_house_v3: assets/sprites/structures/town-reedhaven-dike-house-v3.png
 town_stonewarm_mason_house_v3: assets/sprites/structures/town-stonewarm-mason-house-v3.png
 town_stonewarm_hearth_house_v3: assets/sprites/structures/town-stonewarm-hearth-house-v3.png
-town_grainstead_farm_house_v2: assets/sprites/structures/town-grainstead-farm-house-v2.png
-town_grainstead_mill_house_v2: assets/sprites/structures/town-grainstead-mill-house-v2.png
+town_grainstead_farm_house_v3: assets/sprites/structures/town-grainstead-farm-house-v3.png
+town_grainstead_mill_house_v3: assets/sprites/structures/town-grainstead-mill-house-v3.png
 town_saltford_shore_house_v2: assets/sprites/structures/town-saltford-shore-house-v2.png
 town_saltford_dry_house_v2: assets/sprites/structures/town-saltford-dry-house-v2.png
 town_iseulon_round_rose_shrub_v1: assets/billboards/town-iseulon-round-rose-shrub-v1.png
