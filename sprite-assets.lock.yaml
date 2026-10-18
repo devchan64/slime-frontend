@@ -606,19 +606,19 @@ files:
   sha256: ca0e0340288b11a43bc62e099eaededd8e84a8378e2372b796bfdb71e1a4df64
 - path: assets/structures/town-repair-rack-v1.png
   source_path: assets/billboards/town-repair-rack-v1.png
-  sha256: ce3eb938cbcefe1195cb70b818b200d3906609224971e855254d3f07d0c63f07
+  sha256: 553b17605eff9e3bc156c242a5d53b9360dca3e72e16208b2dedacb13c06f2de
 - path: assets/structures/town-grain-sacks-v1.png
   source_path: assets/billboards/town-grain-sacks-v1.png
-  sha256: 1e84a6d0994bbe50e59c7749fb1c73dc944d13344c7731e299222e8ebb5a9984
+  sha256: 4540bb44c561bce190bbc08bcf9e248e70b40c1bfffbd437e1db38b1a777863c
 - path: assets/structures/town-straw-sheaves-v1.png
   source_path: assets/billboards/town-straw-sheaves-v1.png
-  sha256: cee8b624207e31c2ddaf38ef6837f4b08157faa370817a424cbd6081592b06fe
+  sha256: 91563ee795b8c2d3c8ab8df243bdbac49d9985ad767dde076d275f8fdc0e9ec0
 - path: assets/structures/town-threshing-bench-v1.png
   source_path: assets/billboards/town-threshing-bench-v1.png
   sha256: 01b5b51cc114ece7fd00076cbc624a815befbdce9c097c05b6ed5365e8ad1768
 - path: assets/structures/town-harvest-cart-v1.png
   source_path: assets/billboards/town-harvest-cart-v1.png
-  sha256: 65d621594646aaf8034fae16ab736c964d91de7bec101f708ace7a0ec080fad4
+  sha256: 77f343e03b504c85d74c493965874a2603a3f30363dbff009c90aa9d2e60ca1c
 - path: assets/structures/town-salt-barrels-v1.png
   source_path: assets/billboards/town-salt-barrels-v1.png
   sha256: 8c456d85e2b29f980672fb041073e05af8a25a6c5151703674056102c5a05ddd
@@ -666,7 +666,7 @@ files:
   sha256: 38811d518d85d986189cdb54d0f18d833bfc200bd86b2c3550f35e72527bd8bb
 - path: assets/structures/town-grainstead-milling-dispatch-v1.png
   source_path: assets/billboards/town-grainstead-milling-dispatch-v1.png
-  sha256: 24e32ca325f28911a9b2db79413ec2f4cbb16283baafaa882e6ecef92616f00f
+  sha256: ed8afa8533264758e13d54eb634d312c0c7e48ad093055ae6fbd8f64491cd4a4
 - path: assets/structures/town-saltford-cargo-weighing-v1.png
   source_path: assets/billboards/town-saltford-cargo-weighing-v1.png
   sha256: 442b39ecbcd2913b54c447a963abe7c7d917d8a328f683fd44f75c572e962e6e
@@ -681,7 +681,7 @@ files:
   sha256: cef6d12507cd36482579e328b98cee517bffb0f0f8785774bfb8da7acb8df689
 - path: assets/structures/town-grainstead-grain-drying-v1.png
   source_path: assets/billboards/town-grainstead-grain-drying-v1.png
-  sha256: 48c24aa3eb31d99f4578b946b93ed7e10e2efa88b3535168b97196d543dc4a14
+  sha256: c7af3822ac69218aac2ae05afa586815504ef10cf28b6a2b525e0de8d7f2d7ca
 - path: assets/structures/town-saltford-wet-cargo-drying-v1.png
   source_path: assets/billboards/town-saltford-wet-cargo-drying-v1.png
   sha256: b5aa96ca7fcc8e08a7d58edba4957852d2c17ca09b49d5e6d87d77fcdc53ff40
