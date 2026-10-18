@@ -594,7 +594,7 @@ files:
   sha256: b4e44909072994bcd78c57f411cf726f0e51ebbd21d2b545256bf5fadd184a44
 - path: assets/structures/town-layered-sign-v1.png
   source_path: assets/billboards/town-layered-sign-v1.png
-  sha256: 8ba680fdcdc7e9217ecc3e048d31dd4157482456a7b2e96a4fe468889bdcb0f0
+  sha256: d6e3a9aba416cb2b5c3a7ef7dae10ff6838f750ac62fc6cc65bee27d19d7871c
 - path: assets/structures/town-grindstone-v1.png
   source_path: assets/billboards/town-grindstone-v1.png
   sha256: df7a2fec3eee1b1a92b1ffca0ed71a3407e6c0d7e09760908603042e36bcbba2
@@ -621,16 +621,16 @@ files:
   sha256: 77f343e03b504c85d74c493965874a2603a3f30363dbff009c90aa9d2e60ca1c
 - path: assets/structures/town-salt-barrels-v1.png
   source_path: assets/billboards/town-salt-barrels-v1.png
-  sha256: 8c456d85e2b29f980672fb041073e05af8a25a6c5151703674056102c5a05ddd
+  sha256: 5f56cd1d1d28bcd21743ecedb272a16fbfbbdf10d46a16f4bcad516d40945983
 - path: assets/structures/town-fish-rack-v1.png
   source_path: assets/billboards/town-fish-rack-v1.png
-  sha256: 9e14f40dc301cc87e8149ec69e61e2d4f12f7ffb88216d38142d9dd4c2e8f887
+  sha256: f2c18811b04b6c4b82da9364777c0dda14179cfa844eea78c7047b7dcb7d3ed6
 - path: assets/structures/town-rope-crates-v1.png
   source_path: assets/billboards/town-rope-crates-v1.png
-  sha256: 5afc46a5d4ba23e393b316c227fc0fb435a75d85d203d77ed65a67598c0fbd75
+  sha256: 0248202130fb5c7438c6c23aa7cafc4579e1857cc4d3a26bb3f2c5cf2a1aae1a
 - path: assets/structures/town-coastal-stall-v1.png
   source_path: assets/billboards/town-coastal-stall-v1.png
-  sha256: fac8ed91c0e45a6fb3d4af374b6c20bfc9045ae3ba50984dcaf15282595625ca
+  sha256: 8905ec9289dd663d6234f78a42dbe477fdd13837db2f862ed9ca56c801ef1489
 - path: assets/structures/town-wood-bench-v1.png
   source_path: assets/billboards/town-wood-bench-v1.png
   sha256: 8d6a48798aee9544df1c1f537e1d56f33fde3bc8296b412bc69b02913982bdec
@@ -669,7 +669,7 @@ files:
   sha256: ed8afa8533264758e13d54eb634d312c0c7e48ad093055ae6fbd8f64491cd4a4
 - path: assets/structures/town-saltford-cargo-weighing-v1.png
   source_path: assets/billboards/town-saltford-cargo-weighing-v1.png
-  sha256: 442b39ecbcd2913b54c447a963abe7c7d917d8a328f683fd44f75c572e962e6e
+  sha256: 452db1c7a7ae9bcf93d302fb2683da98eb2bb9c5e34f59e13d9765ea3c32dd55
 - path: assets/structures/town-iseulon-material-training-v1.png
   source_path: assets/billboards/town-iseulon-material-training-v1.png
   sha256: 3c71ad2bded6289c0e9125212da845c1dc74f5ae9342625544651cbf3d25476d
@@ -684,7 +684,7 @@ files:
   sha256: c7af3822ac69218aac2ae05afa586815504ef10cf28b6a2b525e0de8d7f2d7ca
 - path: assets/structures/town-saltford-wet-cargo-drying-v1.png
   source_path: assets/billboards/town-saltford-wet-cargo-drying-v1.png
-  sha256: b5aa96ca7fcc8e08a7d58edba4957852d2c17ca09b49d5e6d87d77fcdc53ff40
+  sha256: 04e39a6b24ed4dba3eb8856e2a39e7d0dcd2942f3c73d96cdb61b41cfe15482a
 - path: assets/structures/town-iseulon-garden-house-v2.png
   source_path: assets/buildings/town-iseulon-garden-house-v2.png
   sha256: 40428814683e332381cdfba9f86747e5e7ad56bb47cb0a53029b2a3f20f90b9f
