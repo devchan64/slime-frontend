@@ -6,7 +6,7 @@
 - `battle-cutins/`: 전투 컷인.
 - `emotion-cutins/`: 감정 컷인. 현재 등록 이미지가 없어 `.gitkeep`으로 유지한다.
 
-몬스터·구조물 원본은 기존 `assets/sprites/monsters/`·`assets/sprites/structures/`에 둔다. 모든 원본은 에셋 등록부의 관리 ID·불변 버전·SHA-256으로 확인한다.
+몬스터·구조물 원본은 기존 `assets/sprites/monsters/`·`assets/buildings/`에 둔다. 모든 원본은 에셋 등록부의 관리 ID·불변 버전·SHA-256으로 확인한다.
 
 `sprite-assets.lock.yaml`의 `path`는 논리 식별자이고 `source_path`가 실제 원본 위치다. `npm run prepare:sprite-assets`와 `npm run check:sprite-assets`는 원본·등록부·잠금 해시를 검증하며 사본을 만들지 않는다. Vite는 개발 중 원본을 제공하고 배포 빌드에서는 해시 파일명으로 번들링한다. 에셋 저장소가 인접 경로에 필요하며 누락·해시 불일치는 즉시 실패한다.
 

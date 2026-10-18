@@ -89,7 +89,7 @@ files:
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/stone-crab-idle-v1.png
   sha256: e09280a5bea57b83888c146ab550683bab52261af6d4bee35a33cd66f09941a0
 - path: assets/structures/ward-tower-v1.png
-  source_path: assets/sprites/structures/ward-tower-v1.png
+  source_path: assets/buildings/ward-tower-v1.png
   sha256: 9d238f84762a81d8d2dd4e9c766e02fa4c08bab3ad84125aa754af974554cc3e
 - path: assets/characters/default/cutins/default-punch-v1.png
   source_path: assets/characters/default/battle-cutins/default-punch-v1.png
@@ -161,13 +161,13 @@ files:
   source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.png
   sha256: b3afadc30eaf6fdb5e819521d617b5035539fb0e60a9632b2ccd8b53f6d02a35
 - path: assets/structures/guard-center-wood-v1.png
-  source_path: assets/sprites/structures/guard-center-wood-v1.png
+  source_path: assets/buildings/guard-center-wood-v1.png
   sha256: 7939334c25a963b7ae355fd35c0e3a5138a89647735283ffe7f5bad8ad9362b0
 - path: assets/structures/guard-center-red-tile-v1.png
-  source_path: assets/sprites/structures/guard-center-red-tile-v1.png
+  source_path: assets/buildings/guard-center-red-tile-v1.png
   sha256: f4e4a2de4d82348772fbf81a3c369f01c74d926178a4f603fbaaeaea88663490
 - path: assets/structures/guard-center-teal-v1.png
-  source_path: assets/sprites/structures/guard-center-teal-v1.png
+  source_path: assets/buildings/guard-center-teal-v1.png
   sha256: 85ed8eb8b442f8c74601de7ccf4ac496e6903ee03124b374e4a77cc0069297fe
 - path: assets/characters/female/cutins/female-roundhouse-kick-v1.png
   source_path: assets/characters/female-a/battle-cutins/female-roundhouse-kick-v1.png
@@ -497,79 +497,79 @@ files:
   source_path: assets/billboards/waypoint-guide-v3.animation.json
   sha256: db2e732a4724c704e030ae83ff112626c7730ad63f95f3efb1bb1a99f3b6c56f
 - path: assets/structures/town-iseulon-guild-v2.png
-  source_path: assets/sprites/structures/town-iseulon-guild-v2.png
+  source_path: assets/buildings/town-iseulon-guild-v2.png
   sha256: d7927010add6c3ff5b557820dcabf1a89fd6b8f641da1047743360e3e336564c
 - path: assets/structures/town-iseulon-bookshop-v2.png
-  source_path: assets/sprites/structures/town-iseulon-bookshop-v2.png
+  source_path: assets/buildings/town-iseulon-bookshop-v2.png
   sha256: f770b8b775b63638706a89fb2523d44d539ee19c20d1169cd47a4d75f98133fb
 - path: assets/structures/town-iseulon-inn-v2.png
-  source_path: assets/sprites/structures/town-iseulon-inn-v2.png
+  source_path: assets/buildings/town-iseulon-inn-v2.png
   sha256: 0f4a6f8668ce6cd73e4c65bed62c2deca35645d745f51e6c34b57d4e03af2d15
 - path: assets/structures/town-iseulon-workshop-v2.png
-  source_path: assets/sprites/structures/town-iseulon-workshop-v2.png
+  source_path: assets/buildings/town-iseulon-workshop-v2.png
   sha256: 6e02e9cccd4e6288c5462da83a0821f4fab734f6cc9bfe45dda15c58f5c32372
 - path: assets/structures/town-iseulon-market-v2.png
-  source_path: assets/sprites/structures/town-iseulon-market-v2.png
+  source_path: assets/buildings/town-iseulon-market-v2.png
   sha256: d08e3e8922050f5c705125d4e2aa59883c594d300317c4b1c575eda8e3662770
 - path: assets/structures/town-reedhaven-guild-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-guild-v3.png
+  source_path: assets/buildings/town-reedhaven-guild-v3.png
   sha256: 3d9e2e1bacada511fbf4d6a6a7c46c6e0d207ada0118dbfe7e5f9a1db292d7e8
 - path: assets/structures/town-reedhaven-bookshop-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-bookshop-v3.png
+  source_path: assets/buildings/town-reedhaven-bookshop-v3.png
   sha256: 89b0cc9fc89c7cfe9e0cbdbbf15c28f51d87c8e96ac2404ee41ce963fa240922
 - path: assets/structures/town-reedhaven-inn-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-inn-v3.png
+  source_path: assets/buildings/town-reedhaven-inn-v3.png
   sha256: fbe67164208bea9b8ba9c62cfbe679e82a0b3d82895da331e4b682151e606b04
 - path: assets/structures/town-reedhaven-workshop-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-workshop-v3.png
+  source_path: assets/buildings/town-reedhaven-workshop-v3.png
   sha256: 461b07dc44019435009afe46b8c1b057346e7627d2201074af90e754e9a1170e
 - path: assets/structures/town-reedhaven-market-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-market-v3.png
+  source_path: assets/buildings/town-reedhaven-market-v3.png
   sha256: 57480e1df4c5c538223765f89ab52984565d1c37df6cef8266f6359a64e49497
 - path: assets/structures/town-stonewarm-guild-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-guild-v3.png
+  source_path: assets/buildings/town-stonewarm-guild-v3.png
   sha256: 8d7ef140e2a0719ee1c0c951243341768a09db4949741a3d0b2b968a037bd5a4
 - path: assets/structures/town-stonewarm-bookshop-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-bookshop-v3.png
+  source_path: assets/buildings/town-stonewarm-bookshop-v3.png
   sha256: e420e7f6130ad059e5765cd9106836324ddd833ce680dbb8e15eb56c41e429df
 - path: assets/structures/town-stonewarm-inn-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-inn-v3.png
+  source_path: assets/buildings/town-stonewarm-inn-v3.png
   sha256: 6c6ffc822bd4eb7c01d2138615eb64f43d428b5dc8947f52c5503b8402de4bde
 - path: assets/structures/town-stonewarm-workshop-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-workshop-v3.png
+  source_path: assets/buildings/town-stonewarm-workshop-v3.png
   sha256: bc6df700def583993e084748cd75168e206cc4e49da1cecf43233865cd2c1fbc
 - path: assets/structures/town-stonewarm-market-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-market-v3.png
+  source_path: assets/buildings/town-stonewarm-market-v3.png
   sha256: fd0cfaa9bcd02d9114330181106399e9674f25d9bc8d70e246ceb96377f31002
 - path: assets/structures/town-grainstead-guild-v2.png
-  source_path: assets/sprites/structures/town-grainstead-guild-v3.png
+  source_path: assets/buildings/town-grainstead-guild-v3.png
   sha256: 39af20247199ee70393b9059f2ce95bcade639d0eefea01ad7dd734500526c59
 - path: assets/structures/town-grainstead-bookshop-v2.png
-  source_path: assets/sprites/structures/town-grainstead-bookshop-v2.png
+  source_path: assets/buildings/town-grainstead-bookshop-v2.png
   sha256: 5b4f0616ace12e3a1eda6cb56395bafac108387f6733b202b5491b0cec636397
 - path: assets/structures/town-grainstead-inn-v2.png
-  source_path: assets/sprites/structures/town-grainstead-inn-v2.png
+  source_path: assets/buildings/town-grainstead-inn-v2.png
   sha256: b5f9963cd54e6eb8828881cd07aa59eed237233817e0ea3fd9c8dd4178103b57
 - path: assets/structures/town-grainstead-workshop-v2.png
-  source_path: assets/sprites/structures/town-grainstead-workshop-v3.png
+  source_path: assets/buildings/town-grainstead-workshop-v3.png
   sha256: 479a54e91f83f51d8b05dfc657405a4904ed741935238a7a9f6bcdf13bb9ec01
 - path: assets/structures/town-grainstead-market-v2.png
-  source_path: assets/sprites/structures/town-grainstead-market-v2.png
+  source_path: assets/buildings/town-grainstead-market-v2.png
   sha256: 7390634bf18f367c5f7d181b535a2be7160faad9cb329fc60ae2b3d3ef3b44ef
 - path: assets/structures/town-saltford-guild-v2.png
-  source_path: assets/sprites/structures/town-saltford-guild-v2.png
+  source_path: assets/buildings/town-saltford-guild-v2.png
   sha256: f1f417c07a060b71392c3c02591afaa1e55ce827800b2a799f619b9dd6704b94
 - path: assets/structures/town-saltford-bookshop-v2.png
-  source_path: assets/sprites/structures/town-saltford-bookshop-v2.png
+  source_path: assets/buildings/town-saltford-bookshop-v2.png
   sha256: f86e45ef76f8d50556b7da14619b440ed4ef432697a90ad27b917dae183e2ab6
 - path: assets/structures/town-saltford-inn-v2.png
-  source_path: assets/sprites/structures/town-saltford-inn-v2.png
+  source_path: assets/buildings/town-saltford-inn-v2.png
   sha256: 18ecbb626e1e7ac414d89d48812d4de7a95d32bedae2e0744873e7f44c9dadd2
 - path: assets/structures/town-saltford-workshop-v2.png
-  source_path: assets/sprites/structures/town-saltford-workshop-v2.png
+  source_path: assets/buildings/town-saltford-workshop-v2.png
   sha256: 2d232a5b7894177aac976ff5b9293224134d1f97e58b8a519313f48427da0220
 - path: assets/structures/town-saltford-market-v2.png
-  source_path: assets/sprites/structures/town-saltford-market-v2.png
+  source_path: assets/buildings/town-saltford-market-v2.png
   sha256: 16dca786f80ce62b4397fa8b98e9e3b665fdcd5adcfb87ec3e614761e8e2f4fd
 - path: assets/structures/town-delivery-crates-v1.png
   source_path: assets/billboards/town-delivery-crates-v1.png
@@ -686,34 +686,34 @@ files:
   source_path: assets/billboards/town-saltford-wet-cargo-drying-v1.png
   sha256: b5aa96ca7fcc8e08a7d58edba4957852d2c17ca09b49d5e6d87d77fcdc53ff40
 - path: assets/structures/town-iseulon-garden-house-v2.png
-  source_path: assets/sprites/structures/town-iseulon-garden-house-v2.png
+  source_path: assets/buildings/town-iseulon-garden-house-v2.png
   sha256: 40428814683e332381cdfba9f86747e5e7ad56bb47cb0a53029b2a3f20f90b9f
 - path: assets/structures/town-iseulon-courtyard-house-v2.png
-  source_path: assets/sprites/structures/town-iseulon-courtyard-house-v2.png
+  source_path: assets/buildings/town-iseulon-courtyard-house-v2.png
   sha256: f167c07ba32eaa3390f387cca91ec455ab19e3740efa0e76a56b3f375a40a93d
 - path: assets/structures/town-reedhaven-reed-house-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-reed-house-v3.png
+  source_path: assets/buildings/town-reedhaven-reed-house-v3.png
   sha256: 961a4ecc3a12efade122c388dda581d52fc0cc1219a4db17c73eb11ec2bd7e8d
 - path: assets/structures/town-reedhaven-dike-house-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-dike-house-v3.png
+  source_path: assets/buildings/town-reedhaven-dike-house-v3.png
   sha256: 95e4b719893c1464d1bd611c8f7e6f9e98bb965df2cfc00409018c515dd01bda
 - path: assets/structures/town-stonewarm-mason-house-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-mason-house-v3.png
+  source_path: assets/buildings/town-stonewarm-mason-house-v3.png
   sha256: 127d783e3fa2a8b9979e07946b20cce92c2248e64a3cf8bf60e133e287cf38c7
 - path: assets/structures/town-stonewarm-hearth-house-v3.png
-  source_path: assets/sprites/structures/town-stonewarm-hearth-house-v3.png
+  source_path: assets/buildings/town-stonewarm-hearth-house-v3.png
   sha256: 8ab0ea840b281115212ed776423ffae4d378df8b090c764009205ce5e873fab8
 - path: assets/structures/town-grainstead-farm-house-v2.png
-  source_path: assets/sprites/structures/town-grainstead-farm-house-v3.png
+  source_path: assets/buildings/town-grainstead-farm-house-v3.png
   sha256: 08bf83d7559c16c746fee00f26b039571df9a70dc8a8d9a4320cb0ce5723ae99
 - path: assets/structures/town-grainstead-mill-house-v2.png
-  source_path: assets/sprites/structures/town-grainstead-mill-house-v3.png
+  source_path: assets/buildings/town-grainstead-mill-house-v3.png
   sha256: ae0e84c216ce027c5d977b50cd94f4bb9584d7238611c1741fbff47d0716fce8
 - path: assets/structures/town-saltford-shore-house-v2.png
-  source_path: assets/sprites/structures/town-saltford-shore-house-v2.png
+  source_path: assets/buildings/town-saltford-shore-house-v2.png
   sha256: fb47087d9d6e57ca0f134685fda9a22a5e4143809db92ddcb19daf0caae6db72
 - path: assets/structures/town-saltford-dry-house-v2.png
-  source_path: assets/sprites/structures/town-saltford-dry-house-v2.png
+  source_path: assets/buildings/town-saltford-dry-house-v2.png
   sha256: 70872229af4c454ef2fbe6bf96317d0730ef26fd40b9f86aba5c28998aaf5b60
 - path: assets/structures/town-iseulon-round-rose-shrub-v1.png
   source_path: assets/billboards/town-iseulon-round-rose-shrub-v1.png
@@ -806,10 +806,10 @@ files:
   source_path: assets/billboards/town-saltford-wind-bent-sedge-v1.png
   sha256: 8225bf9b16abdfec0db3791d9394271531e2fcc0ff3e2d1f869bbf38ae64f99d
 - path: assets/structures/town-common-timber-house-v2.png
-  source_path: assets/sprites/structures/town-common-timber-house-v2.png
+  source_path: assets/buildings/town-common-timber-house-v2.png
   sha256: e4d459b9c04519cd96119ca3468db0c65fe2eeb1ab2d12fc1ed201560113303b
 - path: assets/structures/town-common-stone-house-v2.png
-  source_path: assets/sprites/structures/town-common-stone-house-v2.png
+  source_path: assets/buildings/town-common-stone-house-v2.png
   sha256: 31582e1da951b32b7289bf89f8a06784cf8f7c362cb9c46c230105da2980ab75
 - path: assets/structures/town-reedhaven-reed-tall-v1.png
   source_path: assets/billboards/town-reedhaven-reed-tall-v1.png
@@ -827,8 +827,8 @@ files:
   source_path: assets/billboards/town-reedhaven-reed-silver-v1.png
   sha256: 3adeb2d19c220275ce709d07258fce0c3166e43514541bfdea3099af6bf7a880
 - path: assets/structures/town-reedhaven-woven-house-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-woven-house-v3.png
+  source_path: assets/buildings/town-reedhaven-woven-house-v3.png
   sha256: dd26d4216d83147bbc2bd7f3e5a26164b1e34f3aa92a7707870e09b634c1a32e
 - path: assets/structures/town-reedhaven-plank-house-v3.png
-  source_path: assets/sprites/structures/town-reedhaven-plank-house-v3.png
+  source_path: assets/buildings/town-reedhaven-plank-house-v3.png
   sha256: c420cfa525e277bb291d39b422ec2ab6b7030bcc0b79c06b7125e7b5aba822ad

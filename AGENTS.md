@@ -166,7 +166,7 @@
 - `map-assets.lock.yaml`·`sprite-assets.lock.yaml`에 등록된 전달 사본은 프론트 Git에 커밋하지 않는다. 원본은 `slime-assets`에서만 추적하며 `.gitignore`에 전달 경로를 등록한다. 개발·빌드·검수 준비 단계에서만 사본을 생성한다. 새 잠금 항목과 제외 경로를 함께 갱신한다.
 
 ## Structure Sprite Ownership
-- 구조물 스프라이트 원본은 `slime-assets/assets/sprites/structures/`에서 관리한다.
+- 구조물 스프라이트 원본은 `slime-assets/assets/buildings/`에서 관리한다.
 - `assets/structures/`의 등록 파일은 `sprite-assets.lock.yaml`로 해시를 고정한 빌드용 전달 사본이며 Git에서 제외한다. 기존 스프라이트 준비·검증 명령으로 가져온다.
 
 ## Direct Asset Consumption
@@ -175,7 +175,7 @@
 - Vite 개발 서버는 원본을 제공하고 배포 빌드는 해시 파일명으로 정적 파일을 번들링한다. 배포 후에는 로컬 저장소 경로에 의존하지 않는다.
 
 ## Building Sprite Standard
-- 건물용 벽·문·창문·지붕 타일은 폐기한다. 신규 건물은 `slime-assets/assets/sprites/structures/`의 완성형 스프라이트로 등록하고 사용한다.
+- 건물용 벽·문·창문·지붕 타일은 폐기한다. 신규 건물은 `slime-assets/assets/buildings/`의 완성형 스프라이트로 등록하고 사용한다.
 - 지형용 바닥·절벽 타일과 건물 스프라이트는 구분하며, 블록 조립용 건물 타일 카탈로그·프리팹·로딩을 재도입하지 않는다.
 
 ## Terrain Tile Organization

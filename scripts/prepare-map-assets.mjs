@@ -12,7 +12,7 @@ const selectedLogArea = interfaceAssetsSelected ? 'ui-assets' : spriteAssetsSele
 const selectedLockFilename = interfaceAssetsSelected ? 'ui-assets.lock.yaml' : spriteAssetsSelected ? 'sprite-assets.lock.yaml' : 'map-assets.lock.yaml';
 const selectedSourceDirectory = interfaceAssetsSelected ? 'assets/ui' : spriteAssetsSelected ? 'assets/sprites' : 'assets/tiles';
 const allowedTargetPattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters|effects|monsters|structures)\/[\w./-]+$/ : /^assets\/(terrain|world|backgrounds)\/[\w./-]+$/;
-const allowedSourcePattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters\/[\w-]+\/(animations|battle-cutins|emotion-cutins)|sprites\/(effects|monsters|structures)|billboards)\/[\w./-]+$/ : /^assets\/(tiles\/(terrain|buildings)|backgrounds)\/[\w./-]+$/;
+const allowedSourcePattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters\/[\w-]+\/(animations|battle-cutins|emotion-cutins)|sprites\/(effects|monsters|structures)|billboards|buildings)\/[\w./-]+$/ : /^assets\/(tiles\/(terrain|buildings)|backgrounds)\/[\w./-]+$/;
 
 const assetRepositoryDirectory = realpathSync(resolve(frontendRootDirectory, '../slime-assets'));
 function readUniqueDocument(documentFilePath) {
@@ -56,11 +56,11 @@ try {
     const currentRegistryRecord = registeredSourcePaths.get(currentLockRecord.source_path);
     if (!currentRegistryRecord || currentRegistryRecord.sha256 !== currentLockRecord.sha256) throw Error(`에셋 등록·잠금 불일치: ${currentLockRecord.source_path}`);
     const currentSourcePath = realpathSync(resolve(assetRepositoryDirectory, currentLockRecord.source_path));
-    const currentSourceDirectory = spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/billboards/') ? 'assets/billboards' : spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/characters/') ? 'assets/characters' : !interfaceAssetsSelected && !spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/backgrounds/') ? 'assets/backgrounds' : selectedSourceDirectory;
+    const currentSourceDirectory = spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/buildings/') ? 'assets/buildings' : spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/billboards/') ? 'assets/billboards' : spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/characters/') ? 'assets/characters' : !interfaceAssetsSelected && !spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/backgrounds/') ? 'assets/backgrounds' : selectedSourceDirectory;
     if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentSourceDirectory) + sep)) throw Error('에셋 원본 경로 이탈');
     const currentSourceBytes = readFileSync(currentSourcePath);
     if (createHash('sha256').update(currentSourceBytes).digest('hex') !== currentLockRecord.sha256) throw Error(`에셋 원본 해시 불일치: ${currentLockRecord.source_path}`);
-    if (spriteAssetsSelected && /\.png$/.test(currentLockRecord.source_path) && (currentLockRecord.source_path.startsWith('assets/billboards/') || currentLockRecord.source_path.startsWith('assets/sprites/structures/'))) {
+    if (spriteAssetsSelected && /\.png$/.test(currentLockRecord.source_path) && (currentLockRecord.source_path.startsWith('assets/billboards/') || currentLockRecord.source_path.startsWith('assets/buildings/'))) {
       const currentImageDimensions = readPngSourceDimensions(currentSourceBytes);
       if (currentRegistryRecord.width !== currentImageDimensions.width || currentRegistryRecord.height !== currentImageDimensions.height) throw Error(`스프라이트 등록 크기 불일치: ${currentLockRecord.source_path}`);
       const currentTextureKey = currentLockRecord.source_path.slice('assets/billboards/'.length, -'.png'.length);
@@ -70,9 +70,9 @@ try {
   }
   if (spriteAssetsSelected) {
     for (const currentRegistryRecord of registeredSourcePaths.values()) {
-      if (typeof currentRegistryRecord.path !== 'string' || !/\.png$/.test(currentRegistryRecord.path) || !(currentRegistryRecord.path.startsWith('assets/billboards/') || currentRegistryRecord.path.startsWith('assets/sprites/structures/'))) continue;
+      if (typeof currentRegistryRecord.path !== 'string' || !/\.png$/.test(currentRegistryRecord.path) || !(currentRegistryRecord.path.startsWith('assets/billboards/') || currentRegistryRecord.path.startsWith('assets/buildings/'))) continue;
       const currentSourcePath = realpathSync(resolve(assetRepositoryDirectory, currentRegistryRecord.path));
-      if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentRegistryRecord.path.startsWith('assets/billboards/') ? 'assets/billboards' : 'assets/sprites/structures') + sep)) throw Error('스프라이트 원본 경로 이탈');
+      if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentRegistryRecord.path.startsWith('assets/billboards/') ? 'assets/billboards' : 'assets/buildings') + sep)) throw Error('스프라이트 원본 경로 이탈');
       const currentImageDimensions = readPngSourceDimensions(readFileSync(currentSourcePath));
       if (currentRegistryRecord.width !== currentImageDimensions.width || currentRegistryRecord.height !== currentImageDimensions.height) throw Error(`스프라이트 등록 크기 불일치: ${currentRegistryRecord.path}`);
       const currentTextureKey = currentRegistryRecord.path.slice('assets/billboards/'.length, -'.png'.length);

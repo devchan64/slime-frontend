@@ -5,9 +5,9 @@ import {parseDocument} from 'yaml';
 import guardCenterCatalogSource from '../../../../slime-assets/assets/ui/guard-centers.yaml?raw';
 
 const GUARD_CENTER_IMAGE_URLS: Record<string,string> = {
-  wood: new URL('../../../../slime-assets/assets/sprites/structures/guard-center-wood-v1.png',import.meta.url).href,
-  'red-tile': new URL('../../../../slime-assets/assets/sprites/structures/guard-center-red-tile-v1.png',import.meta.url).href,
-  teal: new URL('../../../../slime-assets/assets/sprites/structures/guard-center-teal-v1.png',import.meta.url).href,
+  wood: new URL('../../../../slime-assets/assets/buildings/guard-center-wood-v1.png',import.meta.url).href,
+  'red-tile': new URL('../../../../slime-assets/assets/buildings/guard-center-red-tile-v1.png',import.meta.url).href,
+  teal: new URL('../../../../slime-assets/assets/buildings/guard-center-teal-v1.png',import.meta.url).href,
 };
 type GuardCenterStyleRecord = {path:string;anchorX:number;anchorY:number;displayWidth:number;offsetX:number;offsetY:number};
 function parseGuardCenterCatalog(currentCatalogSource:string): {cities:Record<string,string>;styles:Record<string,GuardCenterStyleRecord>} {
@@ -19,7 +19,7 @@ function parseGuardCenterCatalog(currentCatalogSource:string): {cities:Record<st
   if(Object.keys(currentCatalogRecord.styles).sort().join()!==Object.keys(GUARD_CENTER_IMAGE_URLS).sort().join()) throw new Error('경비센터 외형 목록 오류');
   for(const [currentStyleName,currentStyleValue] of Object.entries(currentCatalogRecord.styles)) {
     const currentStyleRecord = currentStyleValue as GuardCenterStyleRecord;
-    if(!currentStyleRecord || Object.keys(currentStyleRecord).sort().join()!=='anchorX,anchorY,displayWidth,offsetX,offsetY,path' || currentStyleRecord.path!==`assets/sprites/structures/guard-center-${currentStyleName}-v1.png`) throw new Error('경비센터 외형 필드 오류');
+    if(!currentStyleRecord || Object.keys(currentStyleRecord).sort().join()!=='anchorX,anchorY,displayWidth,offsetX,offsetY,path' || currentStyleRecord.path!==`assets/buildings/guard-center-${currentStyleName}-v1.png`) throw new Error('경비센터 외형 필드 오류');
     for(const currentNumericField of ['anchorX','anchorY','displayWidth','offsetX','offsetY'] as const) if(!Number.isFinite(currentStyleRecord[currentNumericField])) throw new Error('경비센터 표시 수치 오류');
     if(currentStyleRecord.displayWidth<=0 || currentStyleRecord.anchorX<0 || currentStyleRecord.anchorX>1 || currentStyleRecord.anchorY<0 || currentStyleRecord.anchorY>1) throw new Error('경비센터 표시 범위 오류');
   }

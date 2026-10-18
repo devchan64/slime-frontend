@@ -12,4 +12,4 @@ files:
   sha256: d0e0ee50f661b50812cc4560a26f60ff40eef65265756c7340d96495c5437490
 - path: assets/ui/guard-centers.yaml
   source_path: assets/ui/guard-centers.yaml
-  sha256: 7d14ea2406449c953cf733f2d30f22e15fb5f4b2dfc94c1312fb6dca3ad1333b
+  sha256: 7152f4b23fbd4bef7ebebeb34e70618c251b7d9e5a73247a28215af88456552c

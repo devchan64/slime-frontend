@@ -21,7 +21,7 @@ data:
   - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
     path: ../slime-assets/assets/backgrounds/meadow-backdrop-v2.webp
   - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
-    path: ../slime-assets/assets/sprites/structures/ward-tower-v1.png
+    path: ../slime-assets/assets/buildings/ward-tower-v1.png
   - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
     path: ../slime-assets/assets/characters/default/battle-cutins/default-punch-v1.png
   - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
@@ -137,8 +137,8 @@ data:
   - managementId: sprite.characters.default.walk-12frames-v1.walk-12frames-v1.png
     path: ../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.png
   - managementId: sprite.structures.guard-center-wood-v1.png
-    path: ../slime-assets/assets/sprites/structures/guard-center-wood-v1.png
+    path: ../slime-assets/assets/buildings/guard-center-wood-v1.png
   - managementId: sprite.structures.guard-center-red-tile-v1.png
-    path: ../slime-assets/assets/sprites/structures/guard-center-red-tile-v1.png
+    path: ../slime-assets/assets/buildings/guard-center-red-tile-v1.png
   - managementId: sprite.structures.guard-center-teal-v1.png
-    path: ../slime-assets/assets/sprites/structures/guard-center-teal-v1.png
+    path: ../slime-assets/assets/buildings/guard-center-teal-v1.png
