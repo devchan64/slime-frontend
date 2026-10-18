@@ -834,10 +834,10 @@ files:
   sha256: c420cfa525e277bb291d39b422ec2ab6b7030bcc0b79c06b7125e7b5aba822ad
 - path: assets/structures/ash-edge-charred-regrowth-v1.png
   source_path: assets/billboards/ash-edge-charred-regrowth-v1.png
-  sha256: 1838838613d3c51b18f16004b162ea884751619e04bf22e31171b8a0ab30eb19
+  sha256: 1cc2409262b2657aeda213b48dc7b3a493d149b7abd4b1d1cd8edc955daa507b
 - path: assets/structures/ash-edge-decomposer-log-v1.png
   source_path: assets/billboards/ash-edge-decomposer-log-v1.png
-  sha256: 9e870cb18b041f8d3dc5d9353784b510d84eec3c071d9f2cf4084c475209f9a6
+  sha256: 3b0b9c42a6ead982a3704bcc37d7530af4c583cad93923a131f60fa81ef8362c
 - path: assets/structures/ash-edge-scorched-waystone-v1.png
   source_path: assets/billboards/ash-edge-scorched-waystone-v1.png
-  sha256: 1975119c2b8b632ec7367062e314d7598f5c22de6060ca90f44886b761000900
+  sha256: 0349d66bc3ef486ad26794566540df50c870be9ebd1d5cda3721c76be8ac6009
