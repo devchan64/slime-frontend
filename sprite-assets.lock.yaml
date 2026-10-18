@@ -832,3 +832,12 @@ files:
 - path: assets/structures/town-reedhaven-plank-house-v3.png
   source_path: assets/buildings/town-reedhaven-plank-house-v3.png
   sha256: c420cfa525e277bb291d39b422ec2ab6b7030bcc0b79c06b7125e7b5aba822ad
+- path: assets/structures/ash-edge-charred-regrowth-v1.png
+  source_path: assets/billboards/ash-edge-charred-regrowth-v1.png
+  sha256: 1838838613d3c51b18f16004b162ea884751619e04bf22e31171b8a0ab30eb19
+- path: assets/structures/ash-edge-decomposer-log-v1.png
+  source_path: assets/billboards/ash-edge-decomposer-log-v1.png
+  sha256: 9e870cb18b041f8d3dc5d9353784b510d84eec3c071d9f2cf4084c475209f9a6
+- path: assets/structures/ash-edge-scorched-waystone-v1.png
+  source_path: assets/billboards/ash-edge-scorched-waystone-v1.png
+  sha256: 1975119c2b8b632ec7367062e314d7598f5c22de6060ca90f44886b761000900
