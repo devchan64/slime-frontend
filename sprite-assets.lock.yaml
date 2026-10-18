@@ -588,7 +588,7 @@ files:
   sha256: 129f0a59478828973c63f4ab6d4a0e0eaafec355b22523f6c151db30124d01de
 - path: assets/structures/town-herb-rack-v1.png
   source_path: assets/billboards/town-herb-rack-v1.png
-  sha256: d520c49501986a8fe9f4aacc28402dd103878eff0c8fcdc915b5a5445fe40c8f
+  sha256: 68e0410aee01a7ba463eb3a18703a614c6dfeffcc49fa0e03f30ac5227db193d
 - path: assets/structures/town-record-chest-v1.png
   source_path: assets/billboards/town-record-chest-v1.png
   sha256: b4e44909072994bcd78c57f411cf726f0e51ebbd21d2b545256bf5fadd184a44
@@ -630,7 +630,7 @@ files:
   sha256: 0248202130fb5c7438c6c23aa7cafc4579e1857cc4d3a26bb3f2c5cf2a1aae1a
 - path: assets/structures/town-coastal-stall-v1.png
   source_path: assets/billboards/town-coastal-stall-v1.png
-  sha256: 8905ec9289dd663d6234f78a42dbe477fdd13837db2f862ed9ca56c801ef1489
+  sha256: d35900f96436538a5f90c2552249c7b078cdf143b3aa7a63a64296963937e32a
 - path: assets/structures/town-wood-bench-v1.png
   source_path: assets/billboards/town-wood-bench-v1.png
   sha256: 8d6a48798aee9544df1c1f537e1d56f33fde3bc8296b412bc69b02913982bdec
@@ -675,7 +675,7 @@ files:
   sha256: 3c71ad2bded6289c0e9125212da845c1dc74f5ae9342625544651cbf3d25476d
 - path: assets/structures/town-reedhaven-fiber-workbench-v1.png
   source_path: assets/billboards/town-reedhaven-fiber-workbench-v1.png
-  sha256: 2cc5b7a2b945abc68c9750ca6fb3f8d3aae0cb2e5080bb2771ef7c9f8bcf98fc
+  sha256: 111dd587861185bce33ff7fcee93f2cf0cca7accb655ce28a4c85102581dc457
 - path: assets/structures/town-stonewarm-repair-handover-v1.png
   source_path: assets/billboards/town-stonewarm-repair-handover-v1.png
   sha256: cef6d12507cd36482579e328b98cee517bffb0f0f8785774bfb8da7acb8df689
