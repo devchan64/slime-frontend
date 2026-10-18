@@ -2,7 +2,7 @@ import {CLIFF_WALL_TEXTURE} from '../terrain/textures';
 import {resolveBattleTerrainResourceFrame} from '../../../packages/field-renderer/map-resource-plan';
 import {collectMapTextureSources} from '../../../packages/field-renderer/town-renderer';
 import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
-import {updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement} from '../../../packages/field-renderer/field-renderer.mjs';
+import {updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement,resolveFieldSurfaceDepth} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveCityTileTextures,resolveFieldTileTextures} from '../terrain/fieldTileRendering';
@@ -50,7 +50,7 @@ import { drawCityBuildingSprite, type CityBuildingRegion } from "../terrain/city
 import { actorSize } from "../terrain/sizes";
 import { roadConnections, selectFieldRoadFrame, waterConnections } from "../terrain/roadTiles";
 import { addRampWallPatterns, addCliffWallPatterns, drawCliffs, drawElevationTile } from "../terrain/terraces";
-import {project, pickSurface, cellDepth, resolveCityGroundDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
+import {project, pickSurface, resolveCityGroundDepth, mapAnnotationDepth, TERRAIN_DEPTH} from "../terrain/elevation";
 const COLORS = {
   ground: 0x172e3b,
   alternate: 0x1b3540,
@@ -616,7 +616,7 @@ export class MainScene extends Phaser.Scene {
   private get currentTileDimensions() { return resolveMapTileSize(this.viewSurface ?? {}); }
   private viewPosition = (p: Position) => toView(p, this.surface(), this.rotation);
   private project = (p: Position) => project(this.viewPosition(p), this.viewSurface!);
-  private depth = (p: Position) => cellDepth(this.viewPosition(p));
+  private depth = (p: Position) => resolveFieldSurfaceDepth(this.viewPosition(p),this.viewSurface!,FIELD_RENDER_METRICS);
   private calculateActorPlacement = (actorLogicalPosition: Position, actorAppearanceData?: Appearance) =>
     calculateActorPlacement(actorLogicalPosition, actorSize(actorAppearanceData).tiles, this.surface(), this.project, this.depth);
   private annotationDepth = () => mapAnnotationDepth(this.viewSurface!);

@@ -30,6 +30,18 @@ export function drawFieldActorContactShadow(currentShadowGraphics,currentScreenP
  return currentShadowMetrics;
 }
 
+/** 고도와 회전을 반영한 접지 화면 Y를 렌더 깊이의 유일한 기준으로 사용한다. */
+export function resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
+ const currentDepthUnitHeight=currentRenderOptions.tileHeight/2;
+ if(!Number.isFinite(currentDepthUnitHeight)||currentDepthUnitHeight<=0)throw Error('필드 깊이 계산의 타일 높이가 유효하지 않습니다.');
+ if(!Number.isFinite(currentCellPosition.column)||!Number.isFinite(currentCellPosition.row))throw Error('필드 깊이 계산의 접지 좌표가 유효하지 않습니다.');
+ const currentGroundCell={column:Math.floor(currentCellPosition.column),row:Math.floor(currentCellPosition.row)};
+ const currentGroundPoint=projectSurfaceCell(currentGroundCell,currentMapSurface,currentRenderOptions);
+ const currentFractionalOffset=rotateSurfacePosition({column:currentCellPosition.column-currentGroundCell.column,row:currentCellPosition.row-currentGroundCell.row},currentRenderOptions.rotation??0);
+ currentGroundPoint.y+=(currentFractionalOffset.column+currentFractionalOffset.row)*currentDepthUnitHeight;
+ return TERRAIN_DEPTH.base+(currentGroundPoint.y-(currentRenderOptions.originY??0))/currentDepthUnitHeight*TERRAIN_DEPTH.stride;
+}
+
 /** 도로·수면 연결 마스크도 양쪽 클라이언트가 동일하게 합성한다. */
 export function buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  const currentStairRecord=findSurfaceStair(currentCellPosition,currentMapSurface);

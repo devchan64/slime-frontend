@@ -34,3 +34,10 @@ test('엇갈린 높이의 네 타일을 모두 표시 중심 계산에 반영한
  assert.equal(actualActorPlacement.y,projectedCellCenters.reduce((totalProjectedValue,currentProjectedCell)=>totalProjectedValue+currentProjectedCell.y,0)/4);
  assert.equal(actualActorPlacement.y,68);
 });
+
+test('전면 접지점은 같은 점유 영역의 뒤쪽 셀보다 큰 깊이를 사용한다',()=>{
+ const currentFrontAnchorDepth=cellDepth({column:1.5,row:1.5});
+ const currentOccupiedCellDepth=Math.max(...[{column:0,row:0},{column:1,row:0},{column:0,row:1},{column:1,row:1}].map(cellDepth));
+ assert.ok(currentFrontAnchorDepth>currentOccupiedCellDepth);
+ assert.equal(currentFrontAnchorDepth,400);
+});

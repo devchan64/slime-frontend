@@ -5,12 +5,24 @@ import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
 const PhaserMatrixFour=currentNodeRequire('phaser/src/math/Matrix4.js');
 const currentFlatSurface={columns:9,rows:9,elevations:Array.from({length:9},()=>Array(9).fill(0))};
+
+test('인접 타일 깊이는 투영된 접지 Y와 고도를 함께 반영한다',()=>{
+ const currentRaisedSurface={columns:2,rows:2,elevations:[[0,1],[0,0]]};
+ const currentFlatDepth=resolveFieldSurfaceDepth({column:1,row:0},currentFlatSurface,FIELD_RENDER_METRICS);
+ const currentRaisedDepth=resolveFieldSurfaceDepth({column:1,row:0},currentRaisedSurface,FIELD_RENDER_METRICS);
+ const currentRaisedFrontAnchorDepth=resolveFieldSurfaceDepth({column:1.25,row:0.25},currentRaisedSurface,FIELD_RENDER_METRICS);
+ const currentFrontDepth=resolveFieldSurfaceDepth({column:1,row:1},currentRaisedSurface,FIELD_RENDER_METRICS);
+ assert.equal(currentFlatDepth,200);
+ assert.equal(currentRaisedDepth,150);
+ assert.equal(currentRaisedFrontAnchorDepth,200);
+ assert.ok(currentRaisedDepth<currentFrontDepth);
+});
 
 test('접지 그림자 기본값은 중형 사람의 0.4×0.32 타일 비율을 유지한다',()=>{
  const currentBaselineProfile=FIELD_ACTOR_CONTACT_SHADOW_PROFILES.baseline;

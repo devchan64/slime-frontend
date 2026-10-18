@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { parseDocument } from 'yaml';
+import { createBillboardCategoryMap, readPngSourceDimensions, validateMapSpriteDimensions } from './map-sprite-dimensions.mjs';
 
 const frontendRootDirectory = fileURLToPath(new URL('../', import.meta.url));
 const interfaceAssetsSelected = process.argv.includes('--ui');
@@ -18,6 +19,15 @@ if (assetLockDocument.errors.length) throw assetLockDocument.errors[0];
 const assetLockRecord = assetLockDocument.toJS();
 if (assetLockRecord.schema_version !== 1 || assetLockRecord.repository !== 'slime-assets' || !Array.isArray(assetLockRecord.files)
     || Object.keys(assetLockRecord).sort().join() !== 'files,repository,schema_version') throw new Error('에셋 잠금 파일 계약 오류');
+const assetRepositoryDirectory = resolve(frontendRootDirectory, '../slime-assets');
+const assetRegistryDocument = parseDocument(readFileSync(resolve(assetRepositoryDirectory, 'asset-registry.yaml'), 'utf8'), { uniqueKeys: true });
+if (assetRegistryDocument.errors.length) throw assetRegistryDocument.errors[0];
+const assetRegistryRecord = assetRegistryDocument.toJS();
+if (assetRegistryRecord.schema_version !== 1 || !Array.isArray(assetRegistryRecord.assets)) throw new Error('에셋 등록부 계약 오류');
+const registeredSourceAssets = new Map(assetRegistryRecord.assets.map(currentAssetRecord => [currentAssetRecord.path, currentAssetRecord]));
+const billboardCatalogDocument = spriteAssetsSelected ? parseDocument(readFileSync(resolve(assetRepositoryDirectory, 'assets/billboards/catalog.yaml'), 'utf8'), { uniqueKeys: true }) : null;
+if (billboardCatalogDocument?.errors.length) throw billboardCatalogDocument.errors[0];
+const billboardCategoryRecords = billboardCatalogDocument ? createBillboardCategoryMap(billboardCatalogDocument.toJS()) : new Map();
 const registeredAssetPaths = new Set();
 for (const currentAssetRecord of assetLockRecord.files) {
   if (Object.keys(currentAssetRecord).sort().join() !== 'path,sha256,source_path'
@@ -28,7 +38,26 @@ for (const currentAssetRecord of assetLockRecord.files) {
       || currentAssetRecord.source_path.split('/').includes('..')
       || !/^[a-f0-9]{64}$/.test(currentAssetRecord.sha256) || registeredAssetPaths.has(currentAssetRecord.path)) throw new Error('에셋 항목 계약 오류');
   registeredAssetPaths.add(currentAssetRecord.path);
-  const currentAssetDigest = createHash('sha256').update(readFileSync(resolve(frontendRootDirectory, '../slime-assets', currentAssetRecord.source_path))).digest('hex');
+  const currentSourceBytes = readFileSync(resolve(assetRepositoryDirectory, currentAssetRecord.source_path));
+  const currentAssetDigest = createHash('sha256').update(currentSourceBytes).digest('hex');
   if (currentAssetDigest !== currentAssetRecord.sha256) throw new Error(`slime-assets 원본 해시 불일치: ${currentAssetRecord.path}`);
+  if (spriteAssetsSelected && /\.png$/.test(currentAssetRecord.source_path) && (currentAssetRecord.source_path.startsWith('assets/billboards/') || currentAssetRecord.source_path.startsWith('assets/sprites/structures/'))) {
+    const currentRegistryAsset = registeredSourceAssets.get(currentAssetRecord.source_path);
+    if (!currentRegistryAsset || currentRegistryAsset.sha256 !== currentAssetRecord.sha256) throw new Error(`스프라이트 등록·잠금 불일치: ${currentAssetRecord.source_path}`);
+    const currentImageDimensions = readPngSourceDimensions(currentSourceBytes);
+    if (currentRegistryAsset.width !== currentImageDimensions.width || currentRegistryAsset.height !== currentImageDimensions.height) throw new Error(`스프라이트 등록 크기 불일치: ${currentAssetRecord.source_path}`);
+    const currentTextureKey = currentAssetRecord.source_path.slice('assets/billboards/'.length, -'.png'.length);
+    validateMapSpriteDimensions(currentRegistryAsset, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey));
+  }
+}
+if (spriteAssetsSelected) {
+  for (const currentRegistryAsset of registeredSourceAssets.values()) {
+    if (typeof currentRegistryAsset.path !== 'string' || !/\.png$/.test(currentRegistryAsset.path) || !(currentRegistryAsset.path.startsWith('assets/billboards/') || currentRegistryAsset.path.startsWith('assets/sprites/structures/'))) continue;
+    const currentSourceBytes = readFileSync(resolve(assetRepositoryDirectory, currentRegistryAsset.path));
+    const currentImageDimensions = readPngSourceDimensions(currentSourceBytes);
+    if (currentRegistryAsset.width !== currentImageDimensions.width || currentRegistryAsset.height !== currentImageDimensions.height) throw new Error(`스프라이트 등록 크기 불일치: ${currentRegistryAsset.path}`);
+    const currentTextureKey = currentRegistryAsset.path.slice('assets/billboards/'.length, -'.png'.length);
+    validateMapSpriteDimensions(currentRegistryAsset, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey));
+  }
 }
 console.log(`${new Date().toISOString()}/${selectedLogArea}/complete ${registeredAssetPaths.size}개 원본 검증 완료`);

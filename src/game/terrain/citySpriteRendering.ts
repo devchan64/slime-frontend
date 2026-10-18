@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
 import {markFieldOcclusionObject} from '../../../packages/field-renderer/field-renderer.mjs';
 import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
-import {cityBuildingCells} from './cityBuildings';
 import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
 
@@ -39,6 +38,11 @@ const BUILDING_FOOTPRINT_MARGIN = 1.04;
 type CityScreenPoint = {x:number;y:number};
 export type CityBuildingRegion = {appliedTextureIdentifiers:string[];position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
 
+/** 건물의 깊이는 점유 영역의 셀 최대값이 아니라 실제 전면 접지 앵커를 기준으로 정렬한다. */
+export function resolveCityBuildingFrontDepth(currentFrontPosition:Position,calculateTerrainDepth:(currentCellPosition:Position)=>number):number {
+ return calculateTerrainDepth(currentFrontPosition)+TERRAIN_DEPTH.overlay;
+}
+
 /** 건물 이미지는 단일 스프라이트, 점유·출입구는 서버의 논리 영역을 따른다. */
 export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityBuilding:CityBuilding,
  projectTerrainPosition:(currentCellPosition:Position)=>CityScreenPoint,
@@ -50,7 +54,7 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  const currentFrontPoint=projectTerrainPosition(currentFrontPosition);
  const currentLeftPoint=projectTerrainPosition({column:currentOriginPosition.column-BUILDING_HALF_CELL,row:currentFrontPosition.row});
  const currentRightPoint=projectTerrainPosition({column:currentFrontPosition.column,row:currentOriginPosition.row-BUILDING_HALF_CELL});
- const currentBuildingDepth=Math.max(...cityBuildingCells(currentCityBuilding).map(calculateTerrainDepth))+TERRAIN_DEPTH.overlay;
+ const currentBuildingDepth=resolveCityBuildingFrontDepth(currentFrontPosition,calculateTerrainDepth);
  const currentBuildingImage=currentMapScene.add.image(currentFrontPoint.x,currentFrontPoint.y,currentSpriteRecord.textureKey)
   .setOrigin(currentSpriteRecord.anchorX,currentSpriteRecord.anchorY).setDepth(currentBuildingDepth);
  const currentDisplayWidth=Math.abs(currentRightPoint.x-currentLeftPoint.x)*BUILDING_FOOTPRINT_MARGIN/currentSpriteRecord.contentWidth;

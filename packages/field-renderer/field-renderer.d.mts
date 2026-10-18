@@ -6,6 +6,7 @@ export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES:Readonly<Record<string,Readonly
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR:number;
 export function resolveFieldActorContactShadow(currentShadowProfileName?:string):{color:number;outer:{width:number;height:number;alpha:number};core:{width:number;height:number;alpha:number}};
 export function drawFieldActorContactShadow(currentShadowGraphics:Phaser.GameObjects.Graphics,currentScreenPosition:SurfacePoint,currentShadowProfileName?:string):{color:number;outer:{width:number;height:number;alpha:number};core:{width:number;height:number;alpha:number}};
+export function resolveFieldSurfaceDepth(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord,currentRenderOptions?:RenderOptions):number;
 export const FIELD_MESH_BOUNDARY_STYLE:Readonly<{color:number;width:number;alpha:number}>;
 export const FIELD_SAFE_TOWER_PROFILE:Readonly<{anchorX:number;anchorY:number;bodyTop:number;displayHeight:number}>;
 export const FIELD_SAFE_AURA_PROFILE:Readonly<{columns:number;rows:number;frames:number;height:number;alpha:number;frameDuration:number;horizontalCrop:number;topCrop:number;bottomCrop:number}>;

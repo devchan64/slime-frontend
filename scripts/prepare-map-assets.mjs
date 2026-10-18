@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve, sep } from 'node:path';
 import { parseDocument } from 'yaml';
+import { createBillboardCategoryMap, readPngSourceDimensions, validateMapSpriteDimensions } from './map-sprite-dimensions.mjs';
 
 const frontendRootDirectory = fileURLToPath(new URL('../', import.meta.url));
 const interfaceAssetsSelected = process.argv.includes('--ui');
@@ -35,6 +36,8 @@ try {
     registeredSourcePaths.set(currentAssetRecord.path, currentAssetRecord);
     registeredVersionPairs.add(currentVersionPair);
   }
+  const billboardCatalogRecord = spriteAssetsSelected ? readUniqueDocument(resolve(assetRepositoryDirectory, 'assets/billboards/catalog.yaml')) : null;
+  const billboardCategoryRecords = billboardCatalogRecord ? createBillboardCategoryMap(billboardCatalogRecord) : new Map();
   const verifiedAssetRecords = [];
   const registeredTargetPaths = new Set();
   for (const currentLockRecord of assetLockRecord.files) {
@@ -45,8 +48,26 @@ try {
     const currentSourcePath = realpathSync(resolve(assetRepositoryDirectory, currentLockRecord.source_path));
     const currentSourceDirectory = spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/billboards/') ? 'assets/billboards' : spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/characters/') ? 'assets/characters' : !interfaceAssetsSelected && !spriteAssetsSelected && currentLockRecord.source_path.startsWith('assets/backgrounds/') ? 'assets/backgrounds' : selectedSourceDirectory;
     if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentSourceDirectory) + sep)) throw Error('에셋 원본 경로 이탈');
-    if (createHash('sha256').update(readFileSync(currentSourcePath)).digest('hex') !== currentLockRecord.sha256) throw Error(`에셋 원본 해시 불일치: ${currentLockRecord.source_path}`);
+    const currentSourceBytes = readFileSync(currentSourcePath);
+    if (createHash('sha256').update(currentSourceBytes).digest('hex') !== currentLockRecord.sha256) throw Error(`에셋 원본 해시 불일치: ${currentLockRecord.source_path}`);
+    if (spriteAssetsSelected && /\.png$/.test(currentLockRecord.source_path) && (currentLockRecord.source_path.startsWith('assets/billboards/') || currentLockRecord.source_path.startsWith('assets/sprites/structures/'))) {
+      const currentImageDimensions = readPngSourceDimensions(currentSourceBytes);
+      if (currentRegistryRecord.width !== currentImageDimensions.width || currentRegistryRecord.height !== currentImageDimensions.height) throw Error(`스프라이트 등록 크기 불일치: ${currentLockRecord.source_path}`);
+      const currentTextureKey = currentLockRecord.source_path.slice('assets/billboards/'.length, -'.png'.length);
+      validateMapSpriteDimensions(currentRegistryRecord, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey));
+    }
     verifiedAssetRecords.push(currentSourcePath);
+  }
+  if (spriteAssetsSelected) {
+    for (const currentRegistryRecord of registeredSourcePaths.values()) {
+      if (typeof currentRegistryRecord.path !== 'string' || !/\.png$/.test(currentRegistryRecord.path) || !(currentRegistryRecord.path.startsWith('assets/billboards/') || currentRegistryRecord.path.startsWith('assets/sprites/structures/'))) continue;
+      const currentSourcePath = realpathSync(resolve(assetRepositoryDirectory, currentRegistryRecord.path));
+      if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentRegistryRecord.path.startsWith('assets/billboards/') ? 'assets/billboards' : 'assets/sprites/structures') + sep)) throw Error('스프라이트 원본 경로 이탈');
+      const currentImageDimensions = readPngSourceDimensions(readFileSync(currentSourcePath));
+      if (currentRegistryRecord.width !== currentImageDimensions.width || currentRegistryRecord.height !== currentImageDimensions.height) throw Error(`스프라이트 등록 크기 불일치: ${currentRegistryRecord.path}`);
+      const currentTextureKey = currentRegistryRecord.path.slice('assets/billboards/'.length, -'.png'.length);
+      validateMapSpriteDimensions(currentRegistryRecord, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey));
+    }
   }
   console.log(`${new Date().toISOString()}/${selectedLogArea}/complete ${verifiedAssetRecords.length}개 에셋 원본 ${process.argv.includes('--check') ? '검증' : '직접 참조 검증'} 완료`);
 } catch (currentPrepareError) {
