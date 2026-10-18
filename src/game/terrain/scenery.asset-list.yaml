@@ -113,11 +113,11 @@ town_iseulon_bookshop_v2: assets/sprites/structures/town-iseulon-bookshop-v2.png
 town_iseulon_inn_v2: assets/sprites/structures/town-iseulon-inn-v2.png
 town_iseulon_workshop_v2: assets/sprites/structures/town-iseulon-workshop-v2.png
 town_iseulon_market_v2: assets/sprites/structures/town-iseulon-market-v2.png
-town_reedhaven_guild_v2: assets/sprites/structures/town-reedhaven-guild-v2.png
-town_reedhaven_bookshop_v2: assets/sprites/structures/town-reedhaven-bookshop-v2.png
-town_reedhaven_inn_v2: assets/sprites/structures/town-reedhaven-inn-v2.png
-town_reedhaven_workshop_v2: assets/sprites/structures/town-reedhaven-workshop-v2.png
-town_reedhaven_market_v2: assets/sprites/structures/town-reedhaven-market-v2.png
+town_reedhaven_guild_v3: assets/sprites/structures/town-reedhaven-guild-v3.png
+town_reedhaven_bookshop_v3: assets/sprites/structures/town-reedhaven-bookshop-v3.png
+town_reedhaven_inn_v3: assets/sprites/structures/town-reedhaven-inn-v3.png
+town_reedhaven_workshop_v3: assets/sprites/structures/town-reedhaven-workshop-v3.png
+town_reedhaven_market_v3: assets/sprites/structures/town-reedhaven-market-v3.png
 town_stonewarm_guild_v3: assets/sprites/structures/town-stonewarm-guild-v3.png
 town_stonewarm_bookshop_v3: assets/sprites/structures/town-stonewarm-bookshop-v3.png
 town_stonewarm_inn_v3: assets/sprites/structures/town-stonewarm-inn-v3.png
@@ -173,8 +173,8 @@ town_grainstead_grain_drying_v1: assets/billboards/town-grainstead-grain-drying-
 town_saltford_wet_cargo_drying_v1: assets/billboards/town-saltford-wet-cargo-drying-v1.png
 town_iseulon_garden_house_v2: assets/sprites/structures/town-iseulon-garden-house-v2.png
 town_iseulon_courtyard_house_v2: assets/sprites/structures/town-iseulon-courtyard-house-v2.png
-town_reedhaven_reed_house_v2: assets/sprites/structures/town-reedhaven-reed-house-v2.png
-town_reedhaven_dike_house_v2: assets/sprites/structures/town-reedhaven-dike-house-v2.png
+town_reedhaven_reed_house_v3: assets/sprites/structures/town-reedhaven-reed-house-v3.png
+town_reedhaven_dike_house_v3: assets/sprites/structures/town-reedhaven-dike-house-v3.png
 town_stonewarm_mason_house_v3: assets/sprites/structures/town-stonewarm-mason-house-v3.png
 town_stonewarm_hearth_house_v3: assets/sprites/structures/town-stonewarm-hearth-house-v3.png
 town_grainstead_farm_house_v2: assets/sprites/structures/town-grainstead-farm-house-v2.png
@@ -218,3 +218,7 @@ town_reedhaven_reed_young_v1: assets/billboards/town-reedhaven-reed-young-v1.png
 town_reedhaven_reed_windswept_v1: assets/billboards/town-reedhaven-reed-windswept-v1.png
 town_reedhaven_reed_autumn_v1: assets/billboards/town-reedhaven-reed-autumn-v1.png
 town_reedhaven_reed_silver_v1: assets/billboards/town-reedhaven-reed-silver-v1.png
+
+town_reedhaven_plank_house_v3: assets/sprites/structures/town-reedhaven-plank-house-v3.png
+
+town_reedhaven_woven_house_v3: assets/sprites/structures/town-reedhaven-woven-house-v3.png
