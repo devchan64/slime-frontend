@@ -30,16 +30,11 @@ export function drawFieldActorContactShadow(currentShadowGraphics,currentScreenP
  return currentShadowMetrics;
 }
 
-/** 고도와 회전을 반영한 접지 화면 Y를 렌더 깊이의 유일한 기준으로 사용한다. */
+/** 높이는 투영에만 적용한다. 겹침 순서는 지면 좌표를 사용해 높은 벽이 뒤로 밀리지 않게 한다. */
 export function resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
- const currentDepthUnitHeight=currentRenderOptions.tileHeight/2;
- if(!Number.isFinite(currentDepthUnitHeight)||currentDepthUnitHeight<=0)throw Error('필드 깊이 계산의 타일 높이가 유효하지 않습니다.');
  if(!Number.isFinite(currentCellPosition.column)||!Number.isFinite(currentCellPosition.row))throw Error('필드 깊이 계산의 접지 좌표가 유효하지 않습니다.');
- const currentGroundCell={column:Math.floor(currentCellPosition.column),row:Math.floor(currentCellPosition.row)};
- const currentGroundPoint=projectSurfaceCell(currentGroundCell,currentMapSurface,currentRenderOptions);
- const currentFractionalOffset=rotateSurfacePosition({column:currentCellPosition.column-currentGroundCell.column,row:currentCellPosition.row-currentGroundCell.row},currentRenderOptions.rotation??0);
- currentGroundPoint.y+=(currentFractionalOffset.column+currentFractionalOffset.row)*currentDepthUnitHeight;
- return TERRAIN_DEPTH.base+(currentGroundPoint.y-(currentRenderOptions.originY??0))/currentDepthUnitHeight*TERRAIN_DEPTH.stride;
+ const currentRotatedPosition=rotateSurfacePosition(currentCellPosition,currentRenderOptions.rotation??0);
+ return TERRAIN_DEPTH.base+(currentRotatedPosition.column+currentRotatedPosition.row)*TERRAIN_DEPTH.stride;
 }
 
 /** 도로·수면 연결 마스크도 양쪽 클라이언트가 동일하게 합성한다. */
@@ -194,6 +189,8 @@ export function buildFieldCliffEdges(currentCellPosition,currentMapSurface,curre
 export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurface,currentRenderOptions,currentRenderDepth,currentBillboardRecords=currentMapSurface.objects??[]){
  const currentCellCenter=projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions);
  const currentCellHeight=readSurfaceHeight(currentCellPosition,currentMapSurface);
+ // 고도 지형은 바닥과 벽면의 정렬을 분리하면 이웃 벽이 윗면을 덮는다.
+ if(currentCellHeight>0)return currentRenderDepth;
  let currentGroundDepth=currentRenderDepth;
  for(const currentObjectRecord of currentBillboardRecords){
   if(!['billboard','decoration'].includes(currentObjectRecord.kind)||readSurfaceHeight(currentObjectRecord.position,currentMapSurface)!==currentCellHeight)continue;
@@ -221,17 +218,22 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
   const currentTextureKey=currentTextureKeys[currentFaceRecord.kind];
   if(!currentGameScene.textures.exists(currentTextureKey))throw Error('필드 텍스처 누락: '+currentTextureKey);
   if(currentFaceRecord.kind==='cliff'){
-   const currentSourceImage=currentGameScene.textures.get(currentTextureKey).getSourceImage();
-   const currentTextureScale=resolveCliffTextureScale(currentRenderOptions,currentSourceImage.width,currentSourceImage.height);
-   const currentMinimumX=Math.min(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.x)),currentMaximumX=Math.max(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.x));
-   const currentMinimumY=Math.min(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.y)),currentMaximumY=Math.max(...currentFaceRecord.points.map(currentPointValue=>currentPointValue.y));
-   const currentWallSprite=currentGameScene.add.tileSprite(currentMinimumX,currentMinimumY,Math.max(1,currentMaximumX-currentMinimumX),Math.max(1,currentMaximumY-currentMinimumY),currentTextureKey).setOrigin(0).setDepth(currentFaceDepth);
-   markFieldOcclusionObject(currentWallSprite,currentFaceRecord.points);
-   currentWallSprite.setTileScale(currentTextureScale.scaleX,currentTextureScale.scaleY);
-   const currentWallMask=currentGameScene.add.graphics().setVisible(false);
-   currentWallMask.fillPoints(currentFaceRecord.points,true);
-   currentWallSprite.setMask(currentWallMask.createGeometryMask());
-   currentRenderObjects.push(currentWallSprite,currentWallMask);
+   // 벽의 투영면에 직접 매핑하여 무늬가 벽의 기울기를 따르게 한다.
+   const [currentFirstPoint,currentSecondPoint,currentBottomPoint]=currentFaceRecord.points;
+   const currentWallHeight=currentBottomPoint.y-currentSecondPoint.y;
+   for(let currentLayerOffset=0;currentLayerOffset<currentWallHeight;currentLayerOffset+=currentRenderOptions.elevationHeight){
+    const currentLayerHeight=Math.min(currentRenderOptions.elevationHeight,currentWallHeight-currentLayerOffset);
+    const currentLayerPoints=[
+     {x:currentFirstPoint.x,y:currentFirstPoint.y+currentLayerOffset},
+     {x:currentSecondPoint.x,y:currentSecondPoint.y+currentLayerOffset},
+     {x:currentSecondPoint.x,y:currentSecondPoint.y+currentLayerOffset+currentLayerHeight},
+     {x:currentFirstPoint.x,y:currentFirstPoint.y+currentLayerOffset+currentLayerHeight}
+    ];
+    const currentLayerRatio=currentLayerHeight/currentRenderOptions.elevationHeight;
+    const currentWallPanel=drawFieldTexturePanel(currentGameScene,currentLayerPoints,currentTextureKey,currentFaceDepth,[0,0,1,0,1,currentLayerRatio,0,currentLayerRatio]);
+    markFieldOcclusionObject(currentWallPanel,currentLayerPoints);
+    currentRenderObjects.push(currentWallPanel);
+   }
   }else{
    const currentUvCorners=currentFaceRecord.kind==='tread'?[0,0,1/currentTreadCount,0,1/currentTreadCount,1,0,1]:undefined;
    if(currentFaceRecord.kind==='ground'&&currentTextureKeys.underlay){
@@ -259,7 +261,7 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
   if(currentMaterialEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentMaterialEdges,currentGroundDepth+.99,FIELD_GROUND_EDGE_STYLE));
  }
  const currentElevationEdges=buildFieldElevationEdges(currentCellPosition,currentMapSurface,currentRenderOptions);
- if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentRenderDepth+0.99));
+ if(currentElevationEdges.length)currentRenderObjects.push(drawFieldElevationOutline(currentGameScene,currentElevationEdges,currentGroundDepth+0.99));
  if(currentHasElevation){
   const currentOcclusionSources=currentRenderObjects.filter(currentRenderObject=>currentRenderObject.getData?.('fieldOcclusionBaseAlpha')!==undefined);
   for(const currentSourceObject of currentOcclusionSources)currentSourceObject.setData('fieldOcclusionCellSources',currentOcclusionSources);

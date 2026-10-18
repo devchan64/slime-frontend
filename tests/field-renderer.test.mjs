@@ -12,16 +12,18 @@ const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
 const PhaserMatrixFour=currentNodeRequire('phaser/src/math/Matrix4.js');
 const currentFlatSurface={columns:9,rows:9,elevations:Array.from({length:9},()=>Array(9).fill(0))};
 
-test('인접 타일 깊이는 투영된 접지 Y와 고도를 함께 반영한다',()=>{
+test('높이가 달라도 타일 깊이는 지면 좌표 순서를 유지한다',()=>{
  const currentRaisedSurface={columns:2,rows:2,elevations:[[0,1],[0,0]]};
  const currentFlatDepth=resolveFieldSurfaceDepth({column:1,row:0},currentFlatSurface,FIELD_RENDER_METRICS);
  const currentRaisedDepth=resolveFieldSurfaceDepth({column:1,row:0},currentRaisedSurface,FIELD_RENDER_METRICS);
  const currentRaisedFrontAnchorDepth=resolveFieldSurfaceDepth({column:1.25,row:0.25},currentRaisedSurface,FIELD_RENDER_METRICS);
  const currentFrontDepth=resolveFieldSurfaceDepth({column:1,row:1},currentRaisedSurface,FIELD_RENDER_METRICS);
  assert.equal(currentFlatDepth,200);
- assert.equal(currentRaisedDepth,150);
- assert.equal(currentRaisedFrontAnchorDepth,200);
+ assert.equal(currentRaisedDepth,200);
+ assert.equal(currentRaisedFrontAnchorDepth,250);
  assert.ok(currentRaisedDepth<currentFrontDepth);
+ currentRaisedSurface.elevations[0][1]=4;
+ assert.equal(resolveFieldSurfaceDepth({column:1,row:0},currentRaisedSurface,FIELD_RENDER_METRICS),currentFlatDepth);
 });
 
 test('접지 그림자 기본값은 중형 사람의 0.4×0.32 타일 비율을 유지한다',()=>{
@@ -92,7 +94,7 @@ test('오러 8프레임 UV가 각 셀 안에 있고 투영된 지면·계단은 
  const currentStairSurface={columns:2,rows:2,elevations:[[0,0],[1,1]],elevationTiles:[{cell:{column:1,row:1},lower:{column:1,row:0}}]};
  for(let currentRotationValue=0;currentRotationValue<4;currentRotationValue++){
   const currentFaceRecords=buildFieldCellGeometry({column:1,row:1},currentStairSurface,{...FIELD_RENDER_METRICS,rotation:currentRotationValue});
-  assert.equal(currentFaceRecords.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length,3);
+  assert.equal(currentFaceRecords.filter(currentFaceRecord=>currentFaceRecord.kind==='tread').length,0);
   assert.ok(currentFaceRecords.flatMap(currentFaceRecord=>currentFaceRecord.points).every(currentPointValue=>Number.isFinite(currentPointValue.x)&&Number.isFinite(currentPointValue.y)));
  }
 });
@@ -104,8 +106,8 @@ test('높은 평면의 단차 모서리만 표시하고 평면 내부는 제외�
  assert.deepEqual(buildFieldElevationEdges({column:0,row:0},currentRaisedSurface),[]);
  assert.deepEqual(buildFieldElevationEdges({column:1,row:1},{columns:3,rows:3,elevations:Array.from({length:3},()=>[1,1,1])}),[]);
  const currentStairSurface={...currentRaisedSurface,elevationTiles:[{cell:{column:1,row:1},lower:{column:1,row:0},kind:'stairs'}]};
- assert.deepEqual(buildFieldElevationEdges({column:1,row:1},currentStairSurface),[]);
- assert.equal(buildFieldElevationEdges({column:2,row:1},currentStairSurface).length,3);
+ assert.deepEqual(buildFieldElevationEdges({column:1,row:1},currentStairSurface),currentUpperEdges);
+ assert.equal(buildFieldElevationEdges({column:2,row:1},currentStairSurface).length,2);
  const currentUpperCenter=projectSurfaceCell({column:1,row:1},currentRaisedSurface,FIELD_RENDER_METRICS);
  assert.ok(currentUpperEdges.flat().every(currentPoint=>Math.abs(currentPoint.y-currentUpperCenter.y)<=FIELD_RENDER_METRICS.tileHeight/2));
 });
@@ -159,7 +161,7 @@ test('측벽 이음선은 제외하고 높이차 끝과 계단 접합부는 유�
  const currentMiddleFace=buildFieldCellGeometry(currentMiddleCell,currentWallSurface).find(currentFaceRecord=>currentFaceRecord.kind==='cliff');
  assert.equal(buildFieldCliffEdges(currentMiddleCell,currentWallSurface,currentMiddleFace.points).length,2);
  const currentStairSurface={...currentWallSurface,elevationTiles:[{cell:{column:2,row:0},lower:{column:2,row:1}}]};
- assert.equal(buildFieldCliffEdges(currentMiddleCell,currentStairSurface,currentMiddleFace.points).length,3);
+ assert.equal(buildFieldCliffEdges(currentMiddleCell,currentStairSurface,currentMiddleFace.points).length,2);
  const currentPartialSurface={...currentWallSurface,elevations:[[1,2,2],[0,0,0]]};
  assert.equal(buildFieldCliffEdges(currentMiddleCell,currentPartialSurface,currentMiddleFace.points).length,3);
 });

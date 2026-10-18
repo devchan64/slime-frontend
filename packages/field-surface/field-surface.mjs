@@ -19,7 +19,8 @@ export function projectSurfaceVertex(currentVertexPosition,currentRenderOptions)
  return {x:(currentRenderOptions.originX??0)+(currentRotatedPosition.column-currentRotatedPosition.row)*currentRenderOptions.tileWidth/2,y:(currentRenderOptions.originY??0)+(currentRotatedPosition.column+currentRotatedPosition.row)*currentRenderOptions.tileHeight/2-(currentVertexPosition.height??0)};
 }
 export function findSurfaceStair(currentCellPosition,currentMapSurface){
- return currentMapSurface.elevationTileIndex?currentMapSurface.elevationTileIndex.get(`${currentCellPosition.column},${currentCellPosition.row}`):currentMapSurface.elevationTiles?.find(currentStairRecord=>currentStairRecord.cell.column===currentCellPosition.column&&currentStairRecord.cell.row===currentCellPosition.row);
+ // 폐기된 경사·계단 메타데이터는 평면 고도를 변경하지 않는다.
+ return undefined;
 }
 export function projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions){
  return projectSurfaceVertex({...currentCellPosition,height:(readSurfaceHeight(currentCellPosition,currentMapSurface)-(findSurfaceStair(currentCellPosition,currentMapSurface)?0.5:0))*currentRenderOptions.elevationHeight},currentRenderOptions);

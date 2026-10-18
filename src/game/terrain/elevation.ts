@@ -44,13 +44,7 @@ export const project = (currentCellPosition:Position,currentMapSurface:Surface) 
 };
 // 이전 저장 전투의 연결 데이터도 별도 오브젝트 없이 높이 전환 타일로 읽는다.
 export function surfaceElevationTiles(map: Surface): ElevationTile[] {
-  if(map.terrainMovementVersion===2)return [];
-  const tiles=map.elevationTiles ?? [];
-  const defined=new Set(tiles.map(tile=>tile.id));
-  return [...tiles, ...(map.ramps ?? []).filter(link=>!link.id || !defined.has(link.id)).map((link,index)=>{
-    const [lower,cell]=heightAt(link.start,map)<heightAt(link.end,map)?[link.start,link.end]:[link.end,link.start];
-    return {id:link.id ?? `legacy-link-${index}`,kind:'stairs' as const,asset:'stone-step-tile' as const,cell,lower};
-  })];
+  return [];
 }
 export type TileFace = { points:{x:number;y:number}[]; top:boolean };
 export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSurface:Surface):TileFace[]{
@@ -58,9 +52,7 @@ export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSu
 }
 export function canStep(start: Position, end: Position, map: Surface) {
   if (!inBounds(start,map) || !inBounds(end,map) || Math.abs(start.column-end.column)+Math.abs(start.row-end.row) !== 1) return false;
-  if(map.terrainMovementVersion===2)return Math.abs(heightAt(start,map)-heightAt(end,map))<=1;
-  return heightAt(start,map) === heightAt(end,map) || !!map.ramps?.some(e =>
-    (same(e.start,start) && same(e.end,end)) || (same(e.start,end) && same(e.end,start)));
+  return Math.abs(heightAt(start,map)-heightAt(end,map))<=1;
 }
 export function cliffFaces(currentCellPosition:Position,currentMapSurface:Surface){
   return buildSurfaceCliffs(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
