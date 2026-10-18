@@ -492,10 +492,10 @@ files:
   sha256: 6653aa21971ad1b199ff09696ef8b03e2d974feeae96c48ef695b97eeee10b6b
 - path: assets/structures/waypoint-guide-v3.png
   source_path: assets/billboards/waypoint-guide-v3.png
-  sha256: d64ab1a7f6172095b9b03e98817b15cdc7b138ef56d7cbf06eb694ba95fd00c3
+  sha256: 3ace014d96dcd6678aa8366aa3d9a788033cf7b499d295925219049c01d2d2ff
 - path: assets/structures/waypoint-guide-v3.animation.json
   source_path: assets/billboards/waypoint-guide-v3.animation.json
-  sha256: 23921e543a29f3d9c3cd0e0c6989963f8108cf90cc4fff6cf11124e15ca54c91
+  sha256: db2e732a4724c704e030ae83ff112626c7730ad63f95f3efb1bb1a99f3b6c56f
 - path: assets/structures/town-iseulon-guild-v2.png
   source_path: assets/sprites/structures/town-iseulon-guild-v2.png
   sha256: d7927010add6c3ff5b557820dcabf1a89fd6b8f641da1047743360e3e336564c

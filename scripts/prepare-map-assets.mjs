@@ -38,6 +38,16 @@ try {
   }
   const billboardCatalogRecord = spriteAssetsSelected ? readUniqueDocument(resolve(assetRepositoryDirectory, 'assets/billboards/catalog.yaml')) : null;
   const billboardCategoryRecords = billboardCatalogRecord ? createBillboardCategoryMap(billboardCatalogRecord) : new Map();
+  // 잠금 목록에 채택된 애니메이션만 프레임 단위 크기 계약을 적용한다.
+  function readLockedAnimationMetadata(currentAssetPath) {
+    const currentMetadataPath = currentAssetPath.replace(/\.png$/, '.animation.json');
+    const currentMetadataLock = assetLockRecord.files.find(currentLockRecord => currentLockRecord.source_path === currentMetadataPath);
+    if (!currentMetadataLock) return undefined;
+    const currentMetadataRegistry = registeredSourcePaths.get(currentMetadataPath);
+    const currentMetadataBytes = readFileSync(resolve(assetRepositoryDirectory, currentMetadataPath));
+    if (!currentMetadataRegistry || currentMetadataRegistry.sha256 !== currentMetadataLock.sha256 || createHash('sha256').update(currentMetadataBytes).digest('hex') !== currentMetadataLock.sha256) throw Error(`애니메이션 메타데이터 해시 불일치: ${currentMetadataPath}`);
+    return JSON.parse(currentMetadataBytes.toString('utf8'));
+  }
   const verifiedAssetRecords = [];
   const registeredTargetPaths = new Set();
   for (const currentLockRecord of assetLockRecord.files) {
@@ -54,7 +64,7 @@ try {
       const currentImageDimensions = readPngSourceDimensions(currentSourceBytes);
       if (currentRegistryRecord.width !== currentImageDimensions.width || currentRegistryRecord.height !== currentImageDimensions.height) throw Error(`스프라이트 등록 크기 불일치: ${currentLockRecord.source_path}`);
       const currentTextureKey = currentLockRecord.source_path.slice('assets/billboards/'.length, -'.png'.length);
-      validateMapSpriteDimensions(currentRegistryRecord, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey));
+      validateMapSpriteDimensions(currentRegistryRecord, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey), readLockedAnimationMetadata(currentRegistryRecord.path));
     }
     verifiedAssetRecords.push(currentSourcePath);
   }
@@ -66,7 +76,7 @@ try {
       const currentImageDimensions = readPngSourceDimensions(readFileSync(currentSourcePath));
       if (currentRegistryRecord.width !== currentImageDimensions.width || currentRegistryRecord.height !== currentImageDimensions.height) throw Error(`스프라이트 등록 크기 불일치: ${currentRegistryRecord.path}`);
       const currentTextureKey = currentRegistryRecord.path.slice('assets/billboards/'.length, -'.png'.length);
-      validateMapSpriteDimensions(currentRegistryRecord, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey));
+      validateMapSpriteDimensions(currentRegistryRecord, currentImageDimensions, billboardCategoryRecords.get(currentTextureKey), readLockedAnimationMetadata(currentRegistryRecord.path));
     }
   }
   console.log(`${new Date().toISOString()}/${selectedLogArea}/complete ${verifiedAssetRecords.length}개 에셋 원본 ${process.argv.includes('--check') ? '검증' : '직접 참조 검증'} 완료`);

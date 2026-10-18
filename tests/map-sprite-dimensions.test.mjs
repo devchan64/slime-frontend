@@ -13,3 +13,14 @@ test('나무와 식생 빌보드는 각각 고정 원본 크기를 사용한다'
   assert.doesNotThrow(() => validateMapSpriteDimensions({ path: 'assets/billboards/fern-v1.png' }, { width: VEGETATION_BILLBOARD_SOURCE_SIZE, height: VEGETATION_BILLBOARD_SOURCE_SIZE }, 'vegetation'));
   assert.throws(() => validateMapSpriteDimensions({ path: 'assets/billboards/fern-v1.png' }, { width: TREE_BILLBOARD_SOURCE_SIZE, height: TREE_BILLBOARD_SOURCE_SIZE }, 'vegetation'), /식생 빌보드/);
 });
+
+test('애니메이션 시트는 개별 프레임 제한과 영역을 검증한다', () => {
+  const currentAssetRecord = { path: 'assets/billboards/waypoint-guide-v3.png' };
+  const currentSheetDimensions = { width: 768, height: 512 };
+  const currentAnimationMetadata = { sheet: currentSheetDimensions, frames: [{ rect: { x: 512, y: 256, width: 256, height: 256 } }] };
+  assert.doesNotThrow(() => validateMapSpriteDimensions(currentAssetRecord, currentSheetDimensions, undefined, currentAnimationMetadata));
+  assert.throws(() => validateMapSpriteDimensions(currentAssetRecord, { width: 1536, height: 1024 }, undefined), /512px/);
+  assert.throws(() => validateMapSpriteDimensions(currentAssetRecord, { width: 512, height: 341 }, undefined, currentAnimationMetadata), /시트 크기 불일치/);
+  currentAnimationMetadata.frames[0].rect.width = 257;
+  assert.throws(() => validateMapSpriteDimensions(currentAssetRecord, currentSheetDimensions, undefined, currentAnimationMetadata), /프레임 영역 오류/);
+});

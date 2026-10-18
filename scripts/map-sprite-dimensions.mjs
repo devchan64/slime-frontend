@@ -27,8 +27,18 @@ export function createBillboardCategoryMap(currentCatalogRecord) {
   return resolvedCategoryRecords;
 }
 
-export function validateMapSpriteDimensions(currentAssetRecord, currentImageDimensions, currentBillboardCategory) {
+export function validateMapSpriteDimensions(currentAssetRecord, currentImageDimensions, currentBillboardCategory, currentAnimationMetadata) {
   if (!currentAssetRecord || typeof currentAssetRecord.path !== 'string') throw new Error('스프라이트 등록 항목 계약 오류');
+  if (currentAnimationMetadata !== undefined) {
+    if (currentAnimationMetadata?.sheet?.width !== currentImageDimensions.width || currentAnimationMetadata?.sheet?.height !== currentImageDimensions.height) throw new Error(`애니메이션 시트 크기 불일치: ${currentAssetRecord.path}`);
+    if (!Array.isArray(currentAnimationMetadata.frames) || currentAnimationMetadata.frames.length === 0) throw new Error(`애니메이션 프레임 누락: ${currentAssetRecord.path}`);
+    for (const currentFrameRecord of currentAnimationMetadata.frames) {
+      const currentFrameRectangle = currentFrameRecord?.rect;
+      if (!currentFrameRectangle || !['x', 'y', 'width', 'height'].every(currentFieldName => Number.isInteger(currentFrameRectangle[currentFieldName])) || currentFrameRectangle.x < 0 || currentFrameRectangle.y < 0 || currentFrameRectangle.width <= 0 || currentFrameRectangle.height <= 0 || currentFrameRectangle.x + currentFrameRectangle.width > currentImageDimensions.width || currentFrameRectangle.y + currentFrameRectangle.height > currentImageDimensions.height) throw new Error(`애니메이션 프레임 영역 오류: ${currentAssetRecord.path}`);
+      validateMapSpriteDimensions(currentAssetRecord, currentFrameRectangle, currentBillboardCategory);
+    }
+    return;
+  }
   const { width: currentImageWidth, height: currentImageHeight } = currentImageDimensions;
   if (!Number.isInteger(currentImageWidth) || !Number.isInteger(currentImageHeight)) throw new Error(`스프라이트 PNG 크기 계약 오류: ${currentAssetRecord.path}`);
   if (currentImageWidth > MAXIMUM_MAP_SPRITE_SOURCE_SIZE || currentImageHeight > MAXIMUM_MAP_SPRITE_SOURCE_SIZE) throw new Error(`맵 빌보드·건물 원본은 ${MAXIMUM_MAP_SPRITE_SOURCE_SIZE}px를 초과할 수 없습니다: ${currentAssetRecord.path} (${currentImageWidth}×${currentImageHeight})`);
