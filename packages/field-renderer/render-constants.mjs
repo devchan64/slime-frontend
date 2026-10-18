@@ -26,7 +26,7 @@ export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
  broad:Object.freeze({width:0.44,height:0.34,alpha:0.32,coreAlpha:0.26,coreScale:0.65,scale:1.3,opacityScale:1.5}),
 });
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR = 0x18392e;
-export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:627,anchorY:1095,bodyTop:82,displayHeight:112});
+export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:256,anchorY:447,bodyTop:33,displayHeight:112});
 export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:15,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
 export const FIELD_CONNECTION_SHAPE = Object.freeze({inset:.08,radius:.2,half:.5});
 export const TERRAIN_STAIR_COUNT = 3;
