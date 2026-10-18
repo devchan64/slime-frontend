@@ -3,7 +3,7 @@ repository: slime-assets
 files:
 - path: assets/effects/safe-barrier/safe-barrier-aura-v2-source.png
   source_path: assets/sprites/effects/safe-barrier/safe-barrier-aura-v2-source.png
-  sha256: 4c5f78db08f5675da707adbeb9d7739dde5ffc8cde034ffe75a10e8601bdd43c
+  sha256: 11540dbeba073140fc427826cc434d1f77492b92cf23ddb365d1a80d0a186a1e
 - path: assets/effects/rest/rest-recovery-v1-source.png
   source_path: assets/sprites/effects/rest/rest-recovery-v1-source.png
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
@@ -90,7 +90,7 @@ files:
   sha256: e09280a5bea57b83888c146ab550683bab52261af6d4bee35a33cd66f09941a0
 - path: assets/structures/ward-tower-v1.png
   source_path: assets/buildings/ward-tower-v1.png
-  sha256: 9d238f84762a81d8d2dd4e9c766e02fa4c08bab3ad84125aa754af974554cc3e
+  sha256: deef1809ee1c41ef1c0d77c9d017e8baa85c2b542e88f1e217ff62b7fe701fdf
 - path: assets/characters/default/cutins/default-punch-v1.png
   source_path: assets/characters/default/battle-cutins/default-punch-v1.png
   sha256: a62577881f3ccbead5890553750f461015b1b519664a3f1d0782891c1dceaa1b
