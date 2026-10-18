@@ -576,13 +576,13 @@ files:
   sha256: eec119168fea7238f7be3ea29f976c72837ce9cfdf78256d848754880cebbe31
 - path: assets/structures/town-handcart-v1.png
   source_path: assets/billboards/town-handcart-v1.png
-  sha256: 9577c8a8c942457782d44bd6eca59540c2d442c58cbcf9af1ca2e2395db2e864
+  sha256: ef5b86f4716b74b902e08a7ae8737b6cf394b488aac1a241136a92a312b7664e
 - path: assets/structures/town-food-stall-v1.png
   source_path: assets/billboards/town-food-stall-v1.png
   sha256: 7c524f4e1b251473aa67a7fa1a1b3809a9a2c83a94c834952be516b78c74610a
 - path: assets/structures/town-notice-board-v1.png
   source_path: assets/billboards/town-notice-board-v1.png
-  sha256: 0a945f696c53c080f5480e4fff18f04308d2f37b4775c19fb1a0335c6c4661e1
+  sha256: a5ec95543880aa136fdeee514049b85f516ff4a8d6bd3db5349c7c40a756a680
 - path: assets/structures/town-reed-bundles-v1.png
   source_path: assets/billboards/town-reed-bundles-v1.png
   sha256: 285aaf5884cbbea6e07eb7bef439dad3d28ac13caa3fae83a73b67f8447e05ee
@@ -591,19 +591,19 @@ files:
   sha256: d520c49501986a8fe9f4aacc28402dd103878eff0c8fcdc915b5a5445fe40c8f
 - path: assets/structures/town-record-chest-v1.png
   source_path: assets/billboards/town-record-chest-v1.png
-  sha256: 43ca13ab6d357413aa851e8efc52b1c44a2d9033bfd8498d88a6c4cdcd27ba51
+  sha256: b4e44909072994bcd78c57f411cf726f0e51ebbd21d2b545256bf5fadd184a44
 - path: assets/structures/town-layered-sign-v1.png
   source_path: assets/billboards/town-layered-sign-v1.png
   sha256: 8ba680fdcdc7e9217ecc3e048d31dd4157482456a7b2e96a4fe468889bdcb0f0
 - path: assets/structures/town-grindstone-v1.png
   source_path: assets/billboards/town-grindstone-v1.png
-  sha256: 7fe7ecff8d506ac6d150fda27a777a9eb15d41ed66358dbee038e1afc5432ce9
+  sha256: df7a2fec3eee1b1a92b1ffca0ed71a3407e6c0d7e09760908603042e36bcbba2
 - path: assets/structures/town-metal-bin-v1.png
   source_path: assets/billboards/town-metal-bin-v1.png
-  sha256: 96aea4d44693907dc73aaef35f7e26fede0f4305addabe8bea1b05a61b9f1327
+  sha256: 2aa2ca1ba233f7484d80c71875de28e9298f1d53d683510dfff41954a053f74f
 - path: assets/structures/town-charcoal-stack-v1.png
   source_path: assets/billboards/town-charcoal-stack-v1.png
-  sha256: 0ebf860264088cce01e5c422d661eccb86403bfbefb6d73be57729f48fcb4522
+  sha256: ca0e0340288b11a43bc62e099eaededd8e84a8378e2372b796bfdb71e1a4df64
 - path: assets/structures/town-repair-rack-v1.png
   source_path: assets/billboards/town-repair-rack-v1.png
   sha256: 61393be82fe946fb6b3ef2ef8dfdb34f9d9d283c7fc7757ac9bf5a1dd8f22781
@@ -633,13 +633,13 @@ files:
   sha256: fac8ed91c0e45a6fb3d4af374b6c20bfc9045ae3ba50984dcaf15282595625ca
 - path: assets/structures/town-wood-bench-v1.png
   source_path: assets/billboards/town-wood-bench-v1.png
-  sha256: fe7caaa1b37e28fed2f01d0fc35f4b74895ab33e613c692604d32559c69695e1
+  sha256: 8d6a48798aee9544df1c1f537e1d56f33fde3bc8296b412bc69b02913982bdec
 - path: assets/structures/town-low-fence-v1.png
   source_path: assets/billboards/town-low-fence-v1.png
-  sha256: e0a8cbd2da944aa7a031b0b4050ee37f9e2a00080bb0b5030a7f01802d1ca535
+  sha256: bf43cfe34751d02eb65fc5e3750adec8c009cce73b593b66a38eafa21067d5f4
 - path: assets/structures/town-ground-lantern-v1.png
   source_path: assets/billboards/town-ground-lantern-v1.png
-  sha256: 11ba306c76543e6503185273023063e456e88bbccaca85783dcce158587fba48
+  sha256: d8e68ffbe6bcbb3a0224a0ff0fbc654ea9949b7b9f52ebf3a79564befc329810
 - path: assets/structures/town-herb-planter-v1.png
   source_path: assets/billboards/town-herb-planter-v1.png
   sha256: ab5c4f0c3900e877383ec25702507d69049c8c2fa290a1052e0fc5a6576e7dab
@@ -648,7 +648,7 @@ files:
   sha256: 487c8b0b5a4ba7fa13c02cdf584e51d06040579c60758eb672af564b675e8aa7
 - path: assets/structures/town-ore-basket-v1.png
   source_path: assets/billboards/town-ore-basket-v1.png
-  sha256: 60d519e3f5925d1311d54612cf5cb52b7c1efee0589b504c44acdc87487c0788
+  sha256: 6015061ac5b3d3e3505ed62a71f86b756b15d5c98d5b5249101dd00ea7128bf4
 - path: assets/structures/town-vegetable-planter-v1.png
   source_path: assets/billboards/town-vegetable-planter-v1.png
   sha256: a9daf0de75249794961564662a5ca1aae86b0c520608e63c5293a32f02429266
@@ -663,7 +663,7 @@ files:
   sha256: f0a102bedebc06e919106493f60a48c24835be58a96836dcc83a5b307d35fa8d
 - path: assets/structures/town-stonewarm-repair-process-v1.png
   source_path: assets/billboards/town-stonewarm-repair-process-v1.png
-  sha256: a14fda6a6fa89e97495e3ef06c1b8a5507a75149e8658cb66770845de0e37b57
+  sha256: 38811d518d85d986189cdb54d0f18d833bfc200bd86b2c3550f35e72527bd8bb
 - path: assets/structures/town-grainstead-milling-dispatch-v1.png
   source_path: assets/billboards/town-grainstead-milling-dispatch-v1.png
   sha256: 24e32ca325f28911a9b2db79413ec2f4cbb16283baafaa882e6ecef92616f00f
@@ -678,7 +678,7 @@ files:
   sha256: ce09ee97f3f2182d2eb058ab5ad6a8cb294f751a40fd5b5c25d0b06984d0d2a9
 - path: assets/structures/town-stonewarm-repair-handover-v1.png
   source_path: assets/billboards/town-stonewarm-repair-handover-v1.png
-  sha256: e27227f624be31bbc5a3b3b5266cf7544164032e753f35aaae8a094bee353a07
+  sha256: cef6d12507cd36482579e328b98cee517bffb0f0f8785774bfb8da7acb8df689
 - path: assets/structures/town-grainstead-grain-drying-v1.png
   source_path: assets/billboards/town-grainstead-grain-drying-v1.png
   sha256: 48c24aa3eb31d99f4578b946b93ed7e10e2efa88b3535168b97196d543dc4a14

@@ -198,6 +198,7 @@ test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타�
  const currentRecordedImages=[];
  const currentMockScene={textures:{exists:currentTextureKey=>['tree-sprite','tower-sprite'].includes(currentTextureKey)},add:{image(currentPositionX,currentPositionY,currentTextureKey){
   const currentImageRecord={x:currentPositionX,y:currentPositionY,key:currentTextureKey,width:200,height:300,
+   setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},
    setOrigin(currentAnchorX,currentAnchorY){this.origin=[currentAnchorX,currentAnchorY];return this;},
    setScale(currentScaleValue){this.scale=currentScaleValue;return this;},
    setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}};
@@ -207,6 +208,7 @@ test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타�
  const currentRenderedTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31);
  assert.deepEqual([currentRenderedTree.x,currentRenderedTree.y,currentRenderedTree.scale,currentRenderedTree.depth],[80,60,.4,31]);
  assert.deepEqual(currentRenderedTree.origin,[.5,.9]);
+ assert.deepEqual(currentRenderedTree.sceneryGroundPosition,{column:2,row:3});
  const currentRenderedTower=drawFieldSceneryObject(currentMockScene,{id:'tower',kind:'ward-tower',position:{column:0,row:0}},{x:10,y:20},5,'tower-sprite');
  assert.equal(currentRenderedTower.key,'tower-sprite');
  assert.equal(currentRenderedTower.depth,5);
@@ -235,8 +237,8 @@ test('타일 3점 앵커는 고도 중심을 유지하고 네 방향 회전과 �
 test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 두고 그린다',()=>{
  const currentFrameRecords=new Map();
  const currentTextureRecord={getSourceImage:()=>({width:256,height:128}),has:currentFrameName=>currentFrameRecords.has(currentFrameName),add:(...currentFrameArguments)=>currentFrameRecords.set(currentFrameArguments[0],currentFrameArguments.slice(1))};
- const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
- const currentObjectRecord={kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
+ const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
+ const currentObjectRecord={position:{column:1,row:1},kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
  const currentLayerImages=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110);
  assert.equal(currentLayerImages.length,2);
  assert.deepEqual(currentLayerImages.map(currentLayerImage=>[currentLayerImage.x,currentLayerImage.y,currentLayerImage.scale,currentLayerImage.origin]),[[100,200,.625,[.5,.65]],[100,200,.625,[.5,.65]]]);

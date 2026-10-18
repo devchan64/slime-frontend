@@ -341,6 +341,7 @@ export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,curr
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
  markFieldOcclusionObject(currentSceneryImage);
+ currentSceneryImage.setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
  return currentSceneryImage.setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentSceneryImage.height).setDepth(currentRenderDepth);
 }
 
@@ -365,7 +366,8 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
   if(!currentSpriteTexture.has(currentFrameName))currentSpriteTexture.add(currentFrameName,0,currentLayerIndex*currentFrameSize,0,currentFrameSize,currentFrameSize);
   return markFieldOcclusionObject(currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName))
    .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentFrameSize)
-   .setDepth(currentRenderDepth+currentLayerIndex*BILLBOARD_FRONT_DEPTH_OFFSET);
+   .setDepth(currentRenderDepth+currentLayerIndex*BILLBOARD_FRONT_DEPTH_OFFSET)
+   .setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
  });
 }
 

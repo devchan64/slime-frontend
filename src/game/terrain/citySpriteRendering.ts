@@ -61,6 +61,20 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  currentBuildingImage.setScale(currentDisplayWidth/currentBuildingImage.width);
  markFieldOcclusionObject(currentBuildingImage);
  const currentImageBounds=currentBuildingImage.getBounds();
+ // 건물 전면 양쪽 가장자리의 소품은 건물의 최전면 모서리 깊이보다 앞에 둔다.
+ for(const currentSceneObject of currentMapScene.children.list){
+  const currentSceneryPosition=currentSceneObject.getData('sceneryGroundPosition') as Position|undefined;
+  if(!currentSceneryPosition)continue;
+  const currentFrontColumn=currentOriginPosition.column+currentCityBuilding.width-BUILDING_HALF_CELL;
+  const currentFrontRow=currentOriginPosition.row+currentCityBuilding.height-BUILDING_HALF_CELL;
+  const currentBehindBuilding=currentSceneryPosition.column<currentOriginPosition.column-BUILDING_HALF_CELL||currentSceneryPosition.row<currentOriginPosition.row-BUILDING_HALF_CELL;
+  if(currentBehindBuilding||(currentSceneryPosition.column<=currentFrontColumn&&currentSceneryPosition.row<=currentFrontRow))continue;
+  const currentScenerySprite=currentSceneObject as Phaser.GameObjects.Image;
+  const currentSceneryBounds=currentScenerySprite.getBounds();
+  if(currentSceneryBounds.right<=currentImageBounds.left||currentSceneryBounds.left>=currentImageBounds.right||currentSceneryBounds.bottom<=currentImageBounds.top||currentSceneryBounds.top>=currentImageBounds.bottom)continue;
+  currentScenerySprite.setDepth(Math.max(currentScenerySprite.depth,currentBuildingDepth+1));
+ }
+
  const currentImagePolygon=new Phaser.Geom.Polygon([
   {x:currentImageBounds.left,y:currentImageBounds.top},{x:currentImageBounds.right,y:currentImageBounds.top},
   {x:currentImageBounds.right,y:currentImageBounds.bottom},{x:currentImageBounds.left,y:currentImageBounds.bottom}]);
