@@ -45,7 +45,7 @@ export function prepareTerrain(state: State, rotation: MapRotation, previous: Te
     validateBridgeSurfaces({...map,elevations:map.elevations});
   }
   const source = unchanged ? previous.source : {
-    terrainMovementVersion:map.terrainMovementVersion, columns: map.columns, rows: map.rows, safeTown: !state.battle && Boolean(state.map.safeTown),
+    renderKind:(state.battle?'battle':state.map.safeTown?'town':'field') as 'field'|'town'|'battle', terrainMovementVersion:map.terrainMovementVersion, columns: map.columns, rows: map.rows, safeTown: !state.battle && Boolean(state.map.safeTown),
     bridges:structuredClone(map.bridges), elevations: map.elevations?.map(row => row.slice()),
     ramps: structuredClone(map.ramps), elevationTiles: structuredClone(map.elevationTiles),
   };

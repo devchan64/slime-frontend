@@ -894,7 +894,7 @@ files:
   sha256: 2b1f6c436c056abd4096045c130296aa10bc572f97b554eeedac4af1dff44874
 - path: assets/structures/quarry-stone-cart-v1.png
   source_path: assets/billboards/quarry-stone-cart-v1.png
-  sha256: ccbb27c8e265a48a4e8562b36e1ef17b9da0225c086899e845db556516035a9e
+  sha256: 60ebf0dd942c64a3826e60f694b854f789962b462d61bdbc663ce45cce6b7e97
 - path: assets/structures/dawn-overlook-granite-ledge-v1.png
   source_path: assets/billboards/dawn-overlook-granite-ledge-v1.png
   sha256: 42c7a7e60264934e82bdd31a3163577ca41ab0b9199d0a085d776850e622ce52
@@ -919,3 +919,18 @@ files:
 - path: assets/structures/granary-flats-ripe-wheat-v1.png
   source_path: assets/billboards/granary-flats-ripe-wheat-v1.png
   sha256: 97340a2ec66ce7e5b17864f1a3a49ed884cda4713e61f27bc7f534a2af6a8b13
+- path: assets/structures/quarry-cut-blocks-v1.png
+  source_path: assets/billboards/quarry-cut-blocks-v1.png
+  sha256: 12d36ad4378d0676f76d0c340badf0aded227fc0a5e4b3dd7429713a96cd37ae
+- path: assets/structures/quarry-broken-slabs-v1.png
+  source_path: assets/billboards/quarry-broken-slabs-v1.png
+  sha256: ea9c48dade6c3528dd82faa71a95251a7bee2e277cdb3b868a8704dc659198dd
+- path: assets/structures/quarry-stone-chips-v1.png
+  source_path: assets/billboards/quarry-stone-chips-v1.png
+  sha256: 46a2ca8edcdbfeb8024495d7eb2e9bc23237f479ea4d1c5508f47169faab5a59
+- path: assets/structures/quarry-weathered-boulders-v1.png
+  source_path: assets/billboards/quarry-weathered-boulders-v1.png
+  sha256: 40821da26baad0d681a10468a23975d1633be5c4a8b70a2255b05c496c62ba95
+- path: assets/structures/quarry-collapse-fan-v1.png
+  source_path: assets/billboards/quarry-collapse-fan-v1.png
+  sha256: 018e70590b24b940b435281ce3e68540daf4a717dbe9799f0e3ede90dfb1ae18

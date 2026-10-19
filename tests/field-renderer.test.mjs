@@ -5,7 +5,7 @@ import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {resolveMapRenderOptions,buildFieldCliffTextureLayers,resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
@@ -38,9 +38,9 @@ test('접지 그림자는 게임과 검수에서 같은 두 겹 타원 계약을
  const currentMockGraphics={fillStyle:(...currentArguments)=>currentDrawingCalls.push(['style',...currentArguments]),fillEllipse:(...currentArguments)=>currentDrawingCalls.push(['ellipse',...currentArguments])};
   const currentShadowSize=drawFieldActorContactShadow(currentMockGraphics,{x:100,y:200});
  assert.equal(currentShadowSize.color,0x18392e);
- assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:41.6,height:16.64,alpha:.54});
- assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:27.04,height:10.816,alpha:.45});
- assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,41.6,16.64],['style',0x18392e,.45],['ellipse',100,200,27.04,10.816]]);
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:83.2,height:33.28,alpha:.54});
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:54.08,height:21.632,alpha:.45});
+ assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,83.2,33.28],['style',0x18392e,.45],['ellipse',100,200,54.08,21.632]]);
  assert.throws(()=>drawFieldActorContactShadow(currentMockGraphics,{x:0,y:0},'missing'));
 });
 
@@ -216,6 +216,12 @@ test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타�
  const currentObjectRecord={id:'tree-1',kind:'decoration',position:{column:2,row:3},textureKey:'tree-sprite',displayHeight:120,anchorX:.5,anchorY:.9};
  const currentRenderedTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31);
  assert.deepEqual([currentRenderedTree.x,currentRenderedTree.y,currentRenderedTree.scale,currentRenderedTree.depth],[80,60,.4,31]);
+ const currentOutdoorOptions=resolveMapRenderOptions({renderKind:'field'});
+ const currentOutdoorTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31,undefined,currentOutdoorOptions);
+ assert.equal(currentOutdoorTree.scale,.2);
+ assert.deepEqual(currentOutdoorTree.origin,[.5,.9]);
+ assert.equal(currentObjectRecord.displayHeight,120);
+ assert.throws(()=>drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31,undefined,{billboardScale:0}),/배율/);
  assert.deepEqual(currentRenderedTree.origin,[.5,.9]);
  assert.deepEqual(currentRenderedTree.sceneryGroundPosition,{column:2,row:3});
  const currentRenderedTower=drawFieldSceneryObject(currentMockScene,{id:'tower',kind:'ward-tower',position:{column:0,row:0}},{x:10,y:20},5,'tower-sprite');
@@ -249,6 +255,9 @@ test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 
  const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
  const currentObjectRecord={position:{column:1,row:1},kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
  const currentLayerImages=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110);
+ const currentOutdoorLayers=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110,undefined,resolveMapRenderOptions({renderKind:'field'}));
+ assert.deepEqual(currentOutdoorLayers.map(currentLayerImage=>currentLayerImage.scale),[.3125,.3125]);
+ assert.equal(currentObjectRecord.displayHeight,80);
  assert.equal(currentLayerImages.length,2);
  assert.deepEqual(currentLayerImages.map(currentLayerImage=>[currentLayerImage.x,currentLayerImage.y,currentLayerImage.scale,currentLayerImage.origin]),[[100,200,.625,[.5,.65]],[100,200,.625,[.5,.65]]]);
  assert.ok(currentLayerImages[0].depth<120&&currentLayerImages[1].depth>120);
@@ -327,4 +336,25 @@ test('가리는 윗면과 같은 타일 벽면은 40%로 함께 감쇠하고 복
  const currentTestScene={children:{list:[currentActorObject,...currentCellSources]}};
  updateFieldActorOcclusion(currentTestScene);assert.deepEqual(currentCellSources.map(currentPanelObject=>currentPanelObject.alpha),[.4,.4]);
  currentActorBounds.x=100;updateFieldActorOcclusion(currentTestScene);assert.deepEqual(currentCellSources.map(currentPanelObject=>currentPanelObject.alpha),[1,1]);
+});
+
+ test('측벽 무늬는 낮은 벽에서도 압축되지 않고 높은 벽의 마지막 구간만 잘린다',()=>{
+  for(const currentWallHeight of [10,16,40,60,95]){
+   const currentFacePoints=[{x:0,y:0},{x:40,y:20},{x:40,y:20+currentWallHeight},{x:0,y:currentWallHeight}];
+   const currentWallLayers=buildFieldCliffTextureLayers(currentFacePoints,128,128);
+   assert.equal(currentWallLayers.length,Math.ceil(currentWallHeight/40));
+   for(const currentWallLayer of currentWallLayers){
+    const currentLayerHeight=currentWallLayer.points[2].y-currentWallLayer.points[1].y;
+    assert.equal(currentLayerHeight/currentWallLayer.uvCorners[5],40);
+   }
+   assert.equal(currentWallLayers.at(-1).points[2].y,20+currentWallHeight);
+  }
+  const currentWideSource=buildFieldCliffTextureLayers([{x:0,y:0},{x:-40,y:20},{x:-40,y:50},{x:0,y:30}],256,128);
+  assert.equal(currentWideSource.length,2);
+  assert.equal(currentWideSource[1].uvCorners[5],.5);
+ });
+
+test('공통 타일은 160×80 지면으로 투영한다',()=>{
+ assert.equal(FIELD_RENDER_METRICS.tileWidth,160);
+ assert.equal(FIELD_RENDER_METRICS.tileHeight,80);
 });

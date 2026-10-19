@@ -12,7 +12,7 @@ test('게임과 라이브러리가 계단·절벽·캐릭터 높이를 같은 �
   assert.deepEqual(currentGameModule.cliffFaces(currentCellPosition,currentMapSurface),buildSurfaceCliffs(currentCellPosition,currentMapSurface,currentRenderOptions));
  }
  assert.deepEqual(currentGameModule.elevationTileFaces(currentMapSurface.elevationTiles[0],currentMapSurface),buildSurfaceStairs(currentMapSurface.elevationTiles[0],currentMapSurface,currentRenderOptions));
- assert.equal(projectSurfaceCell({column:2,row:2},currentMapSurface,FIELD_RENDER_METRICS).y,60);
+ assert.equal(projectSurfaceCell({column:2,row:2},currentMapSurface,FIELD_RENDER_METRICS).y,140);
 });
 test('4방향 회전에서 외곽 절벽 높이와 계단 상면 수를 유지한다',()=>{
  for(let currentRotationIndex=0;currentRotationIndex<4;currentRotationIndex++){
@@ -30,9 +30,9 @@ test('암벽 원본 한 장은 벽 한 칸 너비와 한 단계 층고에 맞는
  const {resolveCliffTextureScale}=await import('../packages/field-surface/field-surface.mjs');
  for(const currentSourceSize of [256,512]){
   const currentTextureScale=resolveCliffTextureScale(FIELD_RENDER_METRICS,currentSourceSize,currentSourceSize);
-  assert.equal(currentSourceSize*currentTextureScale.scaleX,40);
+  assert.equal(currentSourceSize*currentTextureScale.scaleX,80);
   assert.equal(currentSourceSize*currentTextureScale.scaleY,10);
-  assert.equal(40/(currentSourceSize*currentTextureScale.scaleY),4);
+  assert.equal(80/(currentSourceSize*currentTextureScale.scaleY),8);
  }
  assert.throws(()=>resolveCliffTextureScale(FIELD_RENDER_METRICS,0,256));
 });

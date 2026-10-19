@@ -7,8 +7,8 @@ export const CHARACTER_SEPARATOR_BASE_COLOR = 0xfff2cc;
 export const CHARACTER_CONTACT_SHADOW_COLOR = 0x242424;
 export const CHARACTER_CONTACT_SHADOW_ALPHA_SCALE = 1.2;
 export const MAP_DEFAULT_ZOOM = 2;
-export const MAP_TILE_WIDTH = 80;
-export const MAP_TILE_HEIGHT = 40;
+export const MAP_TILE_WIDTH = 160;
+export const MAP_TILE_HEIGHT = 80;
 export const GAME_TILE_SOURCE_SIZES = Object.freeze([64, 128, 256, 512]);
 export const CHARACTER_BODY_HEIGHT = 80;
 export const MAP_ELEVATION_HEIGHT = 10;
@@ -47,6 +47,15 @@ export const ACTOR_CONTACT_SHADOW_CONTRACT = Object.freeze({profile:'contrast'})
 export const SPRITE_DEPTH_OFFSET = 0.01;
 export const CHARACTER_OUTLINE_DEPTH_STEP = 0.0001;
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:MAP_TILE_WIDTH,tileHeight:MAP_TILE_HEIGHT,elevationHeight:MAP_ELEVATION_HEIGHT,baseThickness:MAP_BASE_THICKNESS});
+
+// 원본 속성은 160×80 기준으로 보존하고 야외필드만 렌더 단계에서 축소한다.
+export const OUTDOOR_MAP_RENDER_SCALE = 0.5;
+export function resolveMapRenderOptions(currentMapSurface={}){
+ const currentMapKind=currentMapSurface.renderKind??(currentMapSurface.safeTown===true?'town':currentMapSurface.safeTown===false?'field':'battle');
+ if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 렌더 종류: '+currentMapKind);
+ const currentWorldScale=currentMapKind==='field'?OUTDOOR_MAP_RENDER_SCALE:1;
+ return {...FIELD_RENDER_METRICS,tileWidth:MAP_TILE_WIDTH*currentWorldScale,tileHeight:MAP_TILE_HEIGHT*currentWorldScale,billboardScale:currentWorldScale};
+}
 
 /** 바닥 재질 영역 경계는 게임·검수에서 기본 표시한다. */
 export const TERRAIN_MATERIAL_BOUNDARY_ENABLED = true;

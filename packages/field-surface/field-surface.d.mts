@@ -3,7 +3,7 @@ export type SurfacePosition = {column:number;row:number};
 export type SurfacePoint = {x:number;y:number};
 export type SurfaceStair = {cell:SurfacePosition;lower:SurfacePosition};
 export type SurfaceRecord = {bridges?:TerrainBridge[];columns:number;rows:number;elevations?:number[][];heightSource?:{surface:SurfaceRecord;position:(currentCellPosition:SurfacePosition)=>SurfacePosition};elevationTiles?:SurfaceStair[];elevationTileIndex?:ReadonlyMap<string,SurfaceStair>};
-export type RenderOptions = {tileWidth:number;tileHeight:number;elevationHeight:number;baseThickness:number;originX?:number;originY?:number;rotation?:number};
+export type RenderOptions = {billboardScale?:number;tileWidth:number;tileHeight:number;elevationHeight:number;baseThickness:number;originX?:number;originY?:number;rotation?:number};
 export const FIELD_SURFACE_VERSION:string;
 export const FIELD_RENDER_METRICS:Readonly<RenderOptions>;
 export function readSurfaceHeight(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord):number;

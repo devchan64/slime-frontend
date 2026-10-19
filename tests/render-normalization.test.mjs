@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const compiledMetricsBundle=await build({stdin:{contents:`export * from './src/game/terrain/renderMetrics';export * from './src/game/terrain/elevation';export * from './src/game/terrain/rotation';export * from './src/game/terrain/renderPlan';export * from './src/game/terrain/viewport';`,resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm'});
 const normalizedRenderModule=await import(`data:text/javascript;base64,${Buffer.from(compiledMetricsBundle.outputFiles[0].text).toString('base64')}`);
-test('정수 크기로 필드·전투 80×40, 마을 160×80, 사람 높이 80을 사용한다',()=>{
+test('야외필드 80×40과 마을·전투 160×80을 구분하고 사람 높이 80을 유지한다',()=>{
  assert.equal(normalizedRenderModule.MAP_DEFAULT_ZOOM,2);
  assert.equal(normalizedRenderModule.CHARACTER_BODY_HEIGHT,80);
- assert.deepEqual(normalizedRenderModule.resolveMapTileSize({}),{width:80,height:40});
+ assert.deepEqual(normalizedRenderModule.resolveMapTileSize({}),{width:160,height:80});
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:true}),{width:160,height:80});
- assert.equal(normalizedRenderModule.MAP_ELEVATION_HEIGHT,32);
+ assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:false}),{width:80,height:40});
+ assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:false,renderKind:'battle'}),{width:160,height:80});
+ assert.equal(normalizedRenderModule.MAP_ELEVATION_HEIGHT,10);
  assert.equal(normalizedRenderModule.MAP_BASE_THICKNESS,16);
 });
 test('마을과 필드의 네 방향 회전·투영·클릭·화면 타일 범위가 같은 크기를 사용한다',()=>{
@@ -20,7 +22,7 @@ test('마을과 필드의 네 방향 회전·투영·클릭·화면 타일 범�
    const currentCellPosition={column:currentColumnIndex,row:currentRowIndex};
    const currentWorldPoint=normalizedRenderModule.project(currentCellPosition,currentTestSurface);
    assert.equal(currentWorldPoint.x-normalizedRenderModule.MAP_ORIGIN.x,(currentColumnIndex-currentRowIndex)*currentExpectedWidth/2);
-   assert.equal(currentWorldPoint.y-normalizedRenderModule.MAP_ORIGIN.y,(currentColumnIndex+currentRowIndex)*currentExpectedHeight/2-32);
+   assert.equal(currentWorldPoint.y-normalizedRenderModule.MAP_ORIGIN.y,(currentColumnIndex+currentRowIndex)*currentExpectedHeight/2-10);
    assert.deepEqual(normalizedRenderModule.pickSurface(currentWorldPoint.x,currentWorldPoint.y,currentTestSurface,{min:1,max:1}),currentCellPosition);
    const currentVisibleWindow=normalizedRenderModule.terrainWindow(currentTestSurface,{min:1,max:1},{left:currentWorldPoint.x-1,right:currentWorldPoint.x+1,top:currentWorldPoint.y-1,bottom:currentWorldPoint.y+1});
    assert.ok(currentVisibleWindow.firstColumn<=currentColumnIndex&&currentVisibleWindow.lastColumn>=currentColumnIndex);
@@ -35,7 +37,7 @@ test('마을에서 전투로 전환한 뒤 복귀하면 지형 크기와 캐시�
  currentGameState.battle={field:{columns:5,rows:3},blocked:[]};
  const currentBattlePlan=normalizedRenderModule.prepareTerrain(currentGameState,1,currentTownPlan);
  assert.notEqual(currentBattlePlan,currentTownPlan);
- assert.equal(normalizedRenderModule.resolveMapTileSize(currentBattlePlan.surface).width,80);
+ assert.equal(normalizedRenderModule.resolveMapTileSize(currentBattlePlan.surface).width,160);
  currentGameState.battle=null;
  const currentReturnPlan=normalizedRenderModule.prepareTerrain(currentGameState,1,currentBattlePlan);
  assert.equal(normalizedRenderModule.resolveMapTileSize(currentReturnPlan.surface).width,160);
@@ -48,4 +50,16 @@ test('등록된 64·128·256·512 정사각형 지형 원본을 허용하고 잘
  for(const [currentSourceWidth,currentSourceHeight] of [[0,0],[32,32],[512,256],[1024,1024]]) {
   assert.throws(()=>normalizedRenderModule.validateTerrainSourceDimensions('terrain-source-grass',currentSourceWidth,currentSourceHeight),/타일 원본 크기 오류: terrain-source-grass/);
  }
+});
+
+test('야외에서 전투로 진입하고 복귀해도 회전된 지형의 배율이 보존된다',()=>{
+ const currentGameState={map:{id:'field',safeTown:false,columns:5,rows:3,blocked:[],connections:[]},battle:null};
+ const currentOutdoorPlan=normalizedRenderModule.prepareTerrain(currentGameState,1,null);
+ assert.deepEqual(normalizedRenderModule.resolveMapTileSize(currentOutdoorPlan.surface),{width:80,height:40});
+ currentGameState.battle={field:{columns:5,rows:3},blocked:[]};
+ const currentBattlePlan=normalizedRenderModule.prepareTerrain(currentGameState,1,currentOutdoorPlan);
+ assert.deepEqual(normalizedRenderModule.resolveMapTileSize(currentBattlePlan.surface),{width:160,height:80});
+ currentGameState.battle=null;
+ const currentReturnPlan=normalizedRenderModule.prepareTerrain(currentGameState,1,currentBattlePlan);
+ assert.deepEqual(normalizedRenderModule.resolveMapTileSize(currentReturnPlan.surface),{width:80,height:40});
 });

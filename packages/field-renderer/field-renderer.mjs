@@ -9,7 +9,8 @@ export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.51';
+export const FIELD_RENDERER_VERSION = '1.0.127';
+export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
 const FIELD_QUAD_TRIANGLES = [0,1,2,0,2,3];
@@ -203,7 +204,7 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
   if(!['billboard','decoration'].includes(currentObjectRecord.kind)||readSurfaceHeight(currentObjectRecord.position,currentMapSurface)!==currentCellHeight)continue;
   const currentObjectCenter=projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions);
   const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentObjectCenter,currentRenderOptions);
-  const currentSpriteSize=currentObjectRecord.displayHeight;
+  const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
   const currentSpriteLeft=currentObjectPlacement.screen.x-currentSpriteSize*currentObjectRecord.anchorX;
   const currentSpriteTop=currentObjectPlacement.screen.y-currentSpriteSize*currentObjectRecord.anchorY;
   if(currentSpriteLeft>currentCellCenter.x+currentRenderOptions.tileWidth/2||currentSpriteLeft+currentSpriteSize<currentCellCenter.x-currentRenderOptions.tileWidth/2||currentSpriteTop>currentCellCenter.y+currentRenderOptions.tileHeight/2||currentSpriteTop+currentSpriteSize<currentCellCenter.y-currentRenderOptions.tileHeight/2)continue;
@@ -212,6 +213,27 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
   currentGroundDepth=Math.min(currentGroundDepth,currentObjectDepth-1);
  }
  return currentGroundDepth;
+}
+
+/** 측벽 폭과 원본 종횡비로 무늬 크기를 고정하고, 남는 높이는 압축 대신 잘라 표시한다. */
+export function buildFieldCliffTextureLayers(currentFacePoints,currentSourceWidth,currentSourceHeight){
+ const [currentFirstPoint,currentSecondPoint,currentBottomPoint]=currentFacePoints;
+ const currentWallWidth=Math.abs(currentSecondPoint.x-currentFirstPoint.x);
+ const currentWallHeight=currentBottomPoint.y-currentSecondPoint.y;
+ const currentRepeatHeight=currentWallWidth*currentSourceHeight/currentSourceWidth;
+ if(!Number.isFinite(currentRepeatHeight)||currentRepeatHeight<=0||!Number.isFinite(currentWallHeight)||currentWallHeight<=0)throw Error('측벽 텍스처 크기 또는 면 높이가 올바르지 않습니다.');
+ const currentWallLayers=[];
+ for(let currentLayerOffset=0;currentLayerOffset<currentWallHeight;currentLayerOffset+=currentRepeatHeight){
+  const currentLayerHeight=Math.min(currentRepeatHeight,currentWallHeight-currentLayerOffset);
+  const currentLayerRatio=currentLayerHeight/currentRepeatHeight;
+  currentWallLayers.push({points:[
+   {x:currentFirstPoint.x,y:currentFirstPoint.y+currentLayerOffset},
+   {x:currentSecondPoint.x,y:currentSecondPoint.y+currentLayerOffset},
+   {x:currentSecondPoint.x,y:currentSecondPoint.y+currentLayerOffset+currentLayerHeight},
+   {x:currentFirstPoint.x,y:currentFirstPoint.y+currentLayerOffset+currentLayerHeight}
+  ],uvCorners:[0,0,1,0,1,currentLayerRatio,0,currentLayerRatio]});
+ }
+ return currentWallLayers;
 }
 
 export function drawFieldCellObjects(currentGameScene,currentCellPosition,currentMapSurface,currentRenderOptions,currentTextureKeys,currentRenderDepth,currentShowMesh=false,currentBillboardRecords=currentMapSurface.objects??[]){
@@ -236,20 +258,11 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
   const currentTextureKey=currentTextureKeys[currentFaceRecord.kind];
   if(!currentGameScene.textures.exists(currentTextureKey))throw Error('필드 텍스처 누락: '+currentTextureKey);
   if(currentFaceRecord.kind==='cliff'){
-   // 벽의 투영면에 직접 매핑하여 무늬가 벽의 기울기를 따르게 한다.
-   const [currentFirstPoint,currentSecondPoint,currentBottomPoint]=currentFaceRecord.points;
-   const currentWallHeight=currentBottomPoint.y-currentSecondPoint.y;
-   for(let currentLayerOffset=0;currentLayerOffset<currentWallHeight;currentLayerOffset+=currentRenderOptions.elevationHeight){
-    const currentLayerHeight=Math.min(currentRenderOptions.elevationHeight,currentWallHeight-currentLayerOffset);
-    const currentLayerPoints=[
-     {x:currentFirstPoint.x,y:currentFirstPoint.y+currentLayerOffset},
-     {x:currentSecondPoint.x,y:currentSecondPoint.y+currentLayerOffset},
-     {x:currentSecondPoint.x,y:currentSecondPoint.y+currentLayerOffset+currentLayerHeight},
-     {x:currentFirstPoint.x,y:currentFirstPoint.y+currentLayerOffset+currentLayerHeight}
-    ];
-    const currentLayerRatio=currentLayerHeight/currentRenderOptions.elevationHeight;
-    const currentWallPanel=drawFieldTexturePanel(currentGameScene,currentLayerPoints,currentTextureKey,currentFaceDepth,[0,0,1,0,1,currentLayerRatio,0,currentLayerRatio]);
-    markFieldOcclusionObject(currentWallPanel,currentLayerPoints);
+   const currentSourceImage=currentGameScene.textures.get(currentTextureKey).getSourceImage();
+   const currentWallLayers=buildFieldCliffTextureLayers(currentFaceRecord.points,currentSourceImage.width,currentSourceImage.height);
+   for(const currentWallLayer of currentWallLayers){
+    const currentWallPanel=drawFieldTexturePanel(currentGameScene,currentWallLayer.points,currentTextureKey,currentFaceDepth,currentWallLayer.uvCorners);
+    markFieldOcclusionObject(currentWallPanel,currentWallLayer.points);
     currentRenderObjects.push(currentWallPanel);
    }
   }else{
@@ -352,15 +365,17 @@ export function drawTownMaterialEdges(currentGameScene,currentCellPosition,resol
 }
 
 /** 지형지물은 타일 중심의 투영 좌표에 접지하며 통행 데이터를 변경하지 않는다. */
-export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1'){
+export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1',currentRenderOptions={billboardScale:1}){
+ const currentBillboardScale=currentRenderOptions.billboardScale??1;
+ if(!Number.isFinite(currentBillboardScale)||currentBillboardScale<=0)throw Error('빌보드 렌더 배율은 양수여야 합니다.');
  if(currentObjectRecord.kind==='ward-tower')return drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth);
- if(currentObjectRecord.kind==='billboard')return drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth);
+ if(currentObjectRecord.kind==='billboard')return drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale);
  if(currentObjectRecord.kind!=='decoration')throw Error('지원하지 않는 지형지물 종류');
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
  markFieldOcclusionObject(currentSceneryImage);
  currentSceneryImage.setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
- return currentSceneryImage.setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentSceneryImage.height).setDepth(currentRenderDepth);
+ return currentSceneryImage.setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentSceneryImage.height).setDepth(currentRenderDepth);
 }
 
 
@@ -373,7 +388,7 @@ export const FIELD_SCENERY_TILE_ANCHORS = Object.freeze({
 
 /** 두 프레임은 같은 캔버스 좌표를 공유하며 중앙 캐릭터 앞뒤로 정렬한다. */
 const BILLBOARD_FRONT_DEPTH_OFFSET = 20;
-export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth){
+export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale=1){
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('빌보드 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSpriteTexture=currentGameScene.textures.get(currentObjectRecord.textureKey);
  const currentSourceImage=currentSpriteTexture.getSourceImage();
@@ -383,7 +398,7 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
   const currentFrameName='billboard-'+currentLayerName;
   if(!currentSpriteTexture.has(currentFrameName))currentSpriteTexture.add(currentFrameName,0,currentLayerIndex*currentFrameSize,0,currentFrameSize,currentFrameSize);
   return markFieldOcclusionObject(currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName))
-   .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight/currentFrameSize)
+   .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentFrameSize)
    .setDepth(currentRenderDepth+currentLayerIndex*BILLBOARD_FRONT_DEPTH_OFFSET)
    .setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
  });

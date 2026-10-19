@@ -5,7 +5,7 @@ import {CLIFF_WALL_TEXTURE} from '../terrain/textures';
 import {resolveBattleTerrainResourceFrame} from '../../../packages/field-renderer/map-resource-plan';
 import {collectMapTextureSources} from '../../../packages/field-renderer/town-renderer';
 import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
-import {updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement,resolveFieldSurfaceDepth} from '../../../packages/field-renderer/field-renderer.mjs';
+import {resolveMapRenderOptions,updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement,resolveFieldSurfaceDepth} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveCityTileTextures,resolveFieldTileTextures} from '../terrain/fieldTileRendering';
@@ -569,7 +569,7 @@ export class MainScene extends Phaser.Scene {
     }
       for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
         const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
-        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,this.depth(currentObjectPlacement.position)+TERRAIN_DEPTH.overlay);
+        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,this.depth(currentObjectPlacement.position)+TERRAIN_DEPTH.overlay,undefined,resolveMapRenderOptions(this.viewSurface!));
       }
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(
@@ -727,7 +727,7 @@ export class MainScene extends Phaser.Scene {
       if(field||!s.map.safeTown||s.map.elevations?.some(currentHeightRow=>currentHeightRow.some(currentHeightValue=>currentHeightValue>0))){
         const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
         const currentTileTextures=field?resolveFieldTileTextures(this,kind,cell,field.id,currentConnectionMask,currentNeighborPosition=>resolveBattleTerrainResourceFrame(resolveGroundMaterial(currentNeighborPosition),currentNeighborPosition.column,currentNeighborPosition.row),field.groundOverrides):s.map.safeTown?resolveCityTileTextures(this,kind,s.map.id,currentConnectionMask):resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,s.map.groundOverrides);
-        const currentRenderOptions={...FIELD_RENDER_METRICS,tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
+        const currentRenderOptions={...resolveMapRenderOptions(this.viewSurface!),tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
         for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth,false,currentBillboardRecords))remember(currentRenderObject);
       }else{
       const elevationTile=elevationTileAt(this.viewPosition(cell),this.viewSurface!);
