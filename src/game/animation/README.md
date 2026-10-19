@@ -69,6 +69,8 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 
 ### 필드 전투·소멸 표시
 
-`fieldBattleEffects.ts`는 서버가 제공한 `combatIndicator`를 금빛 이펙트와 번역된 상태 글자로 표시한다. `fieldBattleTimeline.ts`는 같은 채널의 `mapChatBattleEvents` 중 확정된 `ENDED/MONSTER_VANISH`만 처리한다. 서버 발생·만료 시각으로 남은 효과를 표시하고 중복 이벤트·오래된 응답으로 재생을 처음부터 시작하지 않는다. 채널 변경·씬 해제 시 정리하며 화면 재작성은 같은 이벤트의 남은 진행률을 유지한다. 전투 승패·몹 소멸·전투 가능 여부를 클라이언트에서 계산하지 않는다.
+`fieldBattleEffects.ts`는 서버가 제공한 `combatIndicator`를 금빛 이펙트와 번역된 상태 글자로 표시한다. `fieldBattleTimeline.ts`는 같은 채널의 `mapChatBattleEvents` 중 확정된 `ENDED/MONSTER_VANISH`만 처리한다. 서버 발생·만료 시각으로 남은 효과를 표시하고 중복 이벤트·오래된 응답으로 재생을 처음부터 시작하지 않는다. 채널·generation 변경 또는 씬 해제 시 정리하며 화면 재작성은 같은 이벤트의 남은 진행률을 유지한다. 전투 승패·몹 소멸·전투 가능 여부를 클라이언트에서 계산하지 않는다.
 
-이미지는 `slime-assets/assets/sprites/effects/field-battle/`의 ImageGen 투명 PNG 두 개를 등록 해시로 직접 참조한다. 효과 변화는 공용 6fps 간격을 따르며 움직임 줄이기 설정에서는 확대·상승을 생략한다. 원본은 단일 이미지이고 맥동·확대·페이드 재생은 브라우저에서 처리한다.
+이미지는 `slime-assets/assets/sprites/effects/field-battle/`의 ImageGen 투명 PNG 두 개를 등록 해시로 직접 참조한다. 전투 표시의 맥동과 소멸 효과의 확대·상승은 공용 6fps 간격을 따르며, 소멸 알파는 렌더 시각의 진행률을 따른다. 움직임 줄이기 설정에서는 전투 표시를 불투명하게 유지하고 소멸 효과의 확대·상승을 생략하되 페이드는 유지한다. 원본은 단일 이미지이고 맥동·확대·페이드 재생은 브라우저에서 처리한다.
+
+시작 이벤트의 만료는 전투 중 표시를 해제하지 않는다. 표시는 현재 서버 `combatIndicator`를 따르며 소멸은 확정 종료 이벤트에만 반응한다. 2초 만료 후 도착·재접속한 경우 소멸을 다시 재생하지 않는다. 사용자 검수는 기존 관리도구 진입점에 통합하며 별도 HTML·개발 서버 검수 페이지를 만들지 않는다. 현재 게임 표시 구현과 관리도구의 이펙트 검수 연동 완료 여부를 구분한다.
