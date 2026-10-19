@@ -14,7 +14,13 @@ export function resolveFieldTerrainFrame(currentTerrainName:string,currentMapIde
 }
 
 export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string,currentGroundOverrides:readonly {position:Position;textureKey:string}[]=[]){
- const resolveDisplayedGroundMaterial=(currentNeighborPosition:Position):string=>resolveFieldGroundMaterial(currentNeighborPosition,currentGroundOverrides,currentTerrainPosition=>resolveFieldTerrainFrame(resolveGroundMaterial(currentTerrainPosition),currentMapIdentifier));
+ const resolveDisplayedGroundMaterial=(currentNeighborPosition:Position):string=>{
+  const currentSourceTexture=resolveFieldGroundMaterial(currentNeighborPosition,currentGroundOverrides,currentTerrainPosition=>'terrain-source-'+resolveFieldTerrainFrame(resolveGroundMaterial(currentTerrainPosition),currentMapIdentifier));
+  if(!currentGameScene.textures.exists(currentSourceTexture))throw new Error('경계 판정용 지면 텍스처 누락: '+currentSourceTexture);
+  const currentSourceImage=currentGameScene.textures.get(currentSourceTexture).getSourceImage() as HTMLImageElement;
+  if(!currentSourceImage.src)throw new Error('경계 판정용 지면 원본 경로 누락: '+currentSourceTexture);
+  return currentSourceImage.src;
+ };
  const currentOverrideRecord=currentGroundOverrides.find(currentGroundRecord=>currentGroundRecord.position.column===currentCellPosition.column&&currentGroundRecord.position.row===currentCellPosition.row);
  if(currentOverrideRecord){
   if(!currentGameScene.textures.exists(currentOverrideRecord.textureKey))throw new Error('등록 지면 텍스처 누락: '+currentOverrideRecord.textureKey);

@@ -184,6 +184,15 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
  currentBuildContext.onLoad({filter:/\.asset-list\.yaml$/},async currentModuleArguments=>({contents:buildAssetListModule(await readFile(currentModuleArguments.path,'utf8'),resolve('../slime-assets')),loader:'js'}));
  }}]});
  const {resolveFieldTileTextures}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
+ // 프레임 이름이 달라도 같은 원본이면 평지의 경계가 없어야 한다. 단차는 별도 유지한다.
+ const currentSourceScene={textures:{exists:()=>true,get:currentTextureKey=>({getSourceImage:()=>({src:currentTextureKey.includes('grass')?'grass.png':'rock.png'})})}};
+ const currentAliasReader=currentCellPosition=>['stone','fractured-bedrock','angular-quarry-scree'][currentCellPosition.column];
+ const currentResolvedTextures=resolveFieldTileTextures(currentSourceScene,'stone',{column:1,row:1},'broken-quarry',0,currentAliasReader);
+ assert.deepEqual(buildFieldMaterialEdges({column:1,row:1},currentFlatSurface,currentResolvedTextures.resolveGroundMaterial),[]);
+ assert.equal(currentResolvedTextures.resolveGroundMaterial({column:0,row:1}),currentResolvedTextures.resolveGroundMaterial({column:2,row:1}));
+ const currentDifferentTextures=resolveFieldTileTextures(currentSourceScene,'stone',{column:1,row:1},'broken-quarry',0,currentCellPosition=>currentCellPosition.column===0?'grass':'stone');
+ assert.equal(buildFieldMaterialEdges({column:1,row:1},currentFlatSurface,currentDifferentTextures.resolveGroundMaterial).length,1);
+ assert.equal(buildFieldElevationEdges({column:1,row:1},{columns:3,rows:3,elevations:[[0,0,0],[0,2,0],[0,0,0]]}).length,4);
  const currentMaterialReader=()=> 'grass';
  for(const currentMapIdentifier of ['meadow','broken-quarry','ash-edge','wind-hills','old-orchard','granary-flats']){
   for(const [currentTerrainName,currentExpectedFrame] of [['battle-rock-a','battle-rock-a'],['battle-rock-b','battle-rock-b'],['battle-rock-c','battle-rock-c'],['battle-thicket','battle-thicket'],['road','road'],['dirt-road','dirt-road'],['stone-road','stone-road'],['flowers','flowers'],['wind-swept-grass','wind-swept-grass-v1'],['golden-grain-field','golden-grain-field-v1'],['fallen-orchard-fruit','fallen-orchard-fruit-v1']]){
