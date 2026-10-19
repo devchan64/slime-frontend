@@ -62,6 +62,8 @@ const COLORS = {
   enemy: 0xff8d77,
   passive: 0xe6c789,
 };
+const SPAWN_REGION_OPACITY=0.35;
+const SPAWN_REGION_LINE_WIDTH=2;
 const TEXT = {
   fontFamily: "sans-serif",
   fontSize: "17px",
@@ -89,6 +91,11 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
 export class MainScene extends Phaser.Scene {
+  private battleSpawnRegionsVisible=false;
+  setBattleSpawnRegions(currentRegionsVisible:boolean){
+    this.battleSpawnRegionsVisible=currentRegionsVisible;
+    if(this.sys.isActive())this.draw();
+  }
   private personalMarkerGraphics: {graphic: Phaser.GameObjects.Graphics; expiresAt: number}[] = [];
   private receivedStateTimestamp = 0;
   private state: State | null = null;
@@ -449,8 +456,10 @@ export class MainScene extends Phaser.Scene {
       return `${target.position.column},${target.position.row}`;
     }));
     const blockedKeys = new Set(blocked.map(p=>`${p.column},${p.row}`));
+    const currentAllySpawnKeys=new Set(this.battleSpawnRegionsVisible?(s.battle?.field.allySpawns??[]).map(currentSpawnPosition=>`${currentSpawnPosition.column},${currentSpawnPosition.row}`):[]);
+    const currentEnemySpawnKeys=new Set(this.battleSpawnRegionsVisible?(s.battle?.field.enemySpawns??[]).map(currentSpawnPosition=>`${currentSpawnPosition.column},${currentSpawnPosition.row}`):[]);
     for (const {column,row} of overlayCells(s,textured,this.selected,
-      [this.reachable,previewPath,arrivalRange,attackCells])) {
+      [this.reachable,previewPath,arrivalRange,attackCells,currentAllySpawnKeys,currentEnemySpawnKeys])) {
         const point = this.project({ column, row });
         const g = this.add.graphics().setDepth(this.depth({column,row}) + TERRAIN_DEPTH.overlay);
         const wall = blockedKeys.has(`${column},${row}`);
@@ -478,6 +487,14 @@ export class MainScene extends Phaser.Scene {
         if (!meadow) {
           g.fillStyle(color, textured ? 0 : 1);
           g.fillPoints(this.points(polygon), true);
+        }
+        if(currentAllySpawnKeys.has(cellKey)||currentEnemySpawnKeys.has(cellKey)){
+          const currentSpawnColor=currentAllySpawnKeys.has(cellKey)?COLORS.player:COLORS.enemy;
+          g.fillStyle(currentSpawnColor,SPAWN_REGION_OPACITY);
+          g.fillPoints(this.points(polygon),true);
+          g.lineStyle(SPAWN_REGION_LINE_WIDTH,currentSpawnColor);
+          g.strokePoints(this.points(polygon),true);
+          g.setData('battleSpawnRegion',currentAllySpawnKeys.has(cellKey)?'ally':'enemy');
         }
         if (isSafe && !s.map.safeTown) {
           drawSafeBoundaryAura(this, this.safeBarrierSprites, point, this.viewPosition({column, row}), this.viewPosition(s.map.startPoint), s.map.safeRadius, this.depth({column, row}) + TERRAIN_DEPTH.actor);

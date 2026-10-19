@@ -26,6 +26,8 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  let currentSelectionEpoch=0;
  let currentCameraAction:((currentActionName:string)=>void)|null=null;
  let currentCameraReady=false;
+ let currentSpawnRegionsVisible=false;
+ let currentSpawnRegionSetter:((currentRegionsVisible:boolean)=>void)|null=null;
  let currentReleaseCallbacks:(()=>void)[]=[];
  const currentGalleryElement=document.createElement('main');
  currentGalleryElement.id='gallery';
@@ -45,7 +47,7 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  function updateReviewStatus(currentStatusMessage:string){currentReviewStatus=currentStatusMessage;currentStatusElement.textContent=currentStatusMessage;}
  function releaseReviewSelection(){
   currentSelectionEpoch++;
-  currentCameraAction=null;currentCameraReady=false;
+  currentCameraAction=null;currentCameraReady=false;currentSpawnRegionSetter=null;
   for(const currentReleaseCallback of currentReleaseCallbacks)currentReleaseCallback();
   currentReleaseCallbacks=[];
   currentGalleryElement.replaceChildren();
@@ -84,6 +86,8 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
     currentCameraReady=true;
     updateReviewStatus(`${currentFieldRecord.name} 렌더링 완료 · ${currentFieldRecord.columns}×${currentFieldRecord.rows} 타일`);
    },currentFailureNotice=>reportReviewFailure(noticeText(currentFailureNotice,currentReviewOptions.locale,t)),BattlefieldReviewGame,collectMapResourceKeys(currentFieldRecord,'battle'),[...new Set(currentBattleRecord.units.map(currentUnitRecord=>currentUnitRecord.side==='enemy'?(currentUnitRecord.monsterTypeId??currentUnitRecord.appearance??'slime'):'human'))]);
+   currentSpawnRegionSetter=currentRegionsVisible=>currentSceneInstance.setBattleSpawnRegions(currentRegionsVisible);
+   currentSpawnRegionSetter(currentSpawnRegionsVisible);
    currentCameraAction=currentActionName=>{
     if(!currentCameraReady)throw new Error('전장을 불러온 뒤 화면 조정을 사용할 수 있습니다.');
     if(currentActionName==='zoom-out')currentSceneInstance.adjustZoom(-BATTLE_REVIEW_ZOOM_STEP);
@@ -113,8 +117,9 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  // 이전 전체 비교 링크는 첫 번째 개별 전장으로 전환한다.
  try{selectReviewField(currentReviewOptions.field==='all'?BATTLE_REVIEW_DEFAULT_FIELD:currentReviewOptions.field);}catch(currentMountError){releaseReviewSelection();throw currentMountError;}
  return {
-  readState:()=>({choices:BATTLE_REVIEW_CHOICES.map(currentChoiceRecord=>[...currentChoiceRecord]),field:currentSelectedField,status:currentReviewStatus,cameraReady:currentCameraReady}),
+  readState:()=>({choices:BATTLE_REVIEW_CHOICES.map(currentChoiceRecord=>[...currentChoiceRecord]),field:currentSelectedField,status:currentReviewStatus,cameraReady:currentCameraReady,spawnRegionsVisible:currentSpawnRegionsVisible}),
   selectField:selectReviewField,
+  setSpawnRegionsVisible(currentRegionsVisible:boolean){if(typeof currentRegionsVisible!=='boolean')throw new Error('스폰지역 표시 값은 참/거짓이어야 합니다.');currentSpawnRegionsVisible=currentRegionsVisible;currentSpawnRegionSetter?.(currentRegionsVisible);},
   adjustCamera(currentActionName:string){if(!currentCameraAction)throw new Error('전장을 먼저 불러오세요.');currentCameraAction(currentActionName);},
   dispose(){if(currentReviewDisposed)return;currentReviewDisposed=true;releaseReviewSelection();currentReviewRoot.replaceChildren();},
  };
