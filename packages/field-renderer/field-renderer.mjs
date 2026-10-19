@@ -1,3 +1,7 @@
+import {enumerateBridgeCells} from '../field-surface/terrain-bridges.mjs';
+import {buildBridgeCellGeometry} from './bridge-geometry.mjs';
+import {readGroundSurfaceHeight} from '../field-surface/field-surface.mjs';
+export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces,prepareBridgeTraversalSurface} from '../field-surface/terrain-bridges.mjs';
 export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
 import {TERRAIN_DEPTH,TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
 import {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
@@ -33,7 +37,10 @@ export function drawFieldActorContactShadow(currentShadowGraphics,currentScreenP
 /** 높이는 투영에만 적용한다. 겹침 순서는 지면 좌표를 사용해 높은 벽이 뒤로 밀리지 않게 한다. */
 export function resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  if(!Number.isFinite(currentCellPosition.column)||!Number.isFinite(currentCellPosition.row))throw Error('필드 깊이 계산의 접지 좌표가 유효하지 않습니다.');
- const currentRotatedPosition=rotateSurfacePosition(currentCellPosition,currentRenderOptions.rotation??0);
+ // 교량 내부의 지형·상판·캐릭터는 같은 기준 깊이를 공유한다.
+ const currentBridgeRecord=currentMapSurface.bridges?.find(currentBridgeCandidate=>currentBridgeCandidate.material==='stone'&&enumerateBridgeCells(currentBridgeCandidate).slice(1,-1).some(currentBridgeCell=>currentBridgeCell.column===currentCellPosition.column&&currentBridgeCell.row===currentCellPosition.row));
+ const currentDepthPositions=currentBridgeRecord?enumerateBridgeCells(currentBridgeRecord).slice(1,-1):[currentCellPosition];
+ const currentRotatedPosition=currentDepthPositions.map(currentDepthPosition=>rotateSurfacePosition(currentDepthPosition,currentRenderOptions.rotation??0)).reduce((currentFrontPosition,currentNextPosition)=>currentNextPosition.column+currentNextPosition.row>currentFrontPosition.column+currentFrontPosition.row?currentNextPosition:currentFrontPosition);
  return TERRAIN_DEPTH.base+(currentRotatedPosition.column+currentRotatedPosition.row)*TERRAIN_DEPTH.stride;
 }
 
@@ -41,9 +48,9 @@ export function resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,c
 export function buildFieldCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  const currentStairRecord=findSurfaceStair(currentCellPosition,currentMapSurface);
  if(currentStairRecord)return buildSurfaceStairs(currentStairRecord,currentMapSurface,currentRenderOptions).map(currentFaceRecord=>({...currentFaceRecord,kind:currentFaceRecord.top?'tread':'cliff'}));
- const currentScreenCenter=projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions);
+ const currentScreenCenter=projectSurfaceVertex({...currentCellPosition,height:readGroundSurfaceHeight(currentCellPosition,currentMapSurface)*currentRenderOptions.elevationHeight},currentRenderOptions);
  const currentGroundPoints=FIELD_CELL_CORNERS.map(([currentColumnOffset,currentRowOffset])=>({x:currentScreenCenter.x+(currentColumnOffset-currentRowOffset)*currentRenderOptions.tileWidth/2,y:currentScreenCenter.y+(currentColumnOffset+currentRowOffset)*currentRenderOptions.tileHeight/2}));
- return [...buildSurfaceCliffs(currentCellPosition,currentMapSurface,currentRenderOptions).map(currentFacePoints=>({points:currentFacePoints,top:false,kind:'cliff'})),{points:currentGroundPoints,top:true,kind:'ground'}];
+ return [...buildSurfaceCliffs(currentCellPosition,currentMapSurface,currentRenderOptions).map(currentFacePoints=>({points:currentFacePoints,top:false,kind:'cliff'})),{points:currentGroundPoints,top:true,kind:'ground'},...buildBridgeCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions)];
 }
 
 /** Phaser 메시의 Y축은 위쪽이다. 화면 좌표를 이 경계에서 한 번만 반전한다. */
@@ -215,6 +222,17 @@ export function drawFieldCellObjects(currentGameScene,currentCellPosition,curren
  const currentRenderObjects=[];
  for(const [currentFaceIndex,currentFaceRecord] of currentCellFaces.entries()){
   const currentFaceDepth=(currentFaceRecord.kind==='ground'?currentGroundDepth:currentRenderDepth)+currentFaceIndex/(currentCellFaces.length+1);
+  if(currentFaceRecord.kind==='bridge'){
+   if(!currentGameScene.textures.exists(currentFaceRecord.textureKey))throw Error('교량 스프라이트 누락: '+currentFaceRecord.textureKey);
+   const currentBridgeDepth=currentFaceRecord.depthAnchor
+    ?Math.max(currentRenderDepth,resolveFieldSurfaceDepth(currentFaceRecord.depthAnchor,currentMapSurface,currentRenderOptions))+currentFaceRecord.structureLayer
+    :currentFaceDepth+currentFaceRecord.depthOffset;
+   const currentBridgePanel=drawFieldTexturePanel(currentGameScene,currentFaceRecord.points,currentFaceRecord.textureKey,currentBridgeDepth,currentFaceRecord.uvCorners);
+   markFieldOcclusionObject(currentBridgePanel,currentFaceRecord.points);
+   currentRenderObjects.push(currentBridgePanel);
+   if(currentShowMesh)currentRenderObjects.push(drawFieldMeshBoundary(currentGameScene,currentFaceRecord.points,currentBridgeDepth+.002));
+   continue;
+  }
   const currentTextureKey=currentTextureKeys[currentFaceRecord.kind];
   if(!currentGameScene.textures.exists(currentTextureKey))throw Error('필드 텍스처 누락: '+currentTextureKey);
   if(currentFaceRecord.kind==='cliff'){
@@ -454,3 +472,6 @@ export function updateFieldActorOcclusion(currentGameScene){
   currentSceneObject.setAlpha(currentSceneObject.getData('fieldOcclusionEdgeBaseAlpha')*currentFadeRatio);
  }
 }
+
+export {buildLayeredTraversal,layeredPositionKey} from '../field-surface/layered-traversal.mjs';
+export {projectLayeredPosition,pickLayeredPosition} from '../field-surface/layered-projection.mjs';

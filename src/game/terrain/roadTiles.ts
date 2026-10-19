@@ -1,4 +1,5 @@
-import { canStep, heightAt, type Surface } from "./elevation";
+import {readGroundSurfaceHeight} from '../../../packages/field-surface/field-surface.mjs';
+import { canStep, type Surface } from "./elevation";
 import type { Position } from "../../client/types";
 
 // 탑뷰 기준 북·동·남·서. 투영 전 텍스처와 논리 셀의 방향을 일치시킨다.
@@ -16,8 +17,8 @@ export function waterConnections(cell: Position, map: Surface, water: Set<string
   let mask = 0;
   for (const { dc, dr, bit } of ROAD_CONNECTIONS) {
     const next = { column: cell.column + dc, row: cell.row + dr };
-    if (water.has(`${next.column},${next.row}`) && canStep(cell, next, map) &&
-      heightAt(cell, map) === heightAt(next, map)) mask |= bit;
+    if (water.has(`${next.column},${next.row}`) &&
+      readGroundSurfaceHeight(cell, map) === readGroundSurfaceHeight(next, map)) mask |= bit;
   }
   return mask;
 }

@@ -1,3 +1,4 @@
+import {validateBridgeSurfaces} from '../../../packages/field-surface/terrain-bridges.mjs';
 import type { Position, State } from '../../client/types';
 import { elevationRange } from './viewport';
 import { inBounds, type Surface } from './elevation';
@@ -6,7 +7,7 @@ import { rotatedSurface, type MapRotation } from './rotation';
 /** 표시 이름·잔고·턴 변경은 고정 지형을 다시 만들지 않는다. */
 export function terrainRenderSignature(state: State, rotation: number): string {
   const field=state.battle?.field, map=field ?? state.map;
-  return JSON.stringify([rotation, map.terrainMovementVersion, map.columns, map.rows, map.elevations, map.ramps, map.elevationTiles,
+  return JSON.stringify([rotation, map.terrainMovementVersion, map.columns, map.rows, map.bridges, map.elevations, map.ramps, map.elevationTiles,
     field?.cells, map.objects, map.groundOverrides, field ? null : [state.map.terrainRows, state.map.terrainCodes], state.battle?.blocked ?? state.map.blocked, field?.environment?.themeId ?? state.map.id,
     field ? null : [state.map.startPoint,state.map.safeRadius,state.map.safeTown,state.map.buildings,state.map.objects,state.map.groundOverrides,
       state.map.connections.map(({column,row})=>({column,row}))]]);
@@ -39,9 +40,13 @@ export function prepareTerrain(state: State, rotation: MapRotation, previous: Te
   const unchanged = previous?.signature === signature;
   if (unchanged && previous.rotation === rotation) return previous;
   const map = state.battle?.field ?? state.map;
+  if(!unchanged&&map.bridges?.length){
+    if(!map.elevations)throw new Error("교량 지면 고도가 없습니다.");
+    validateBridgeSurfaces({...map,elevations:map.elevations});
+  }
   const source = unchanged ? previous.source : {
     terrainMovementVersion:map.terrainMovementVersion, columns: map.columns, rows: map.rows, safeTown: !state.battle && Boolean(state.map.safeTown),
-    elevations: map.elevations?.map(row => row.slice()),
+    bridges:structuredClone(map.bridges), elevations: map.elevations?.map(row => row.slice()),
     ramps: structuredClone(map.ramps), elevationTiles: structuredClone(map.elevationTiles),
   };
   const surface=rotatedSurface(source, rotation);

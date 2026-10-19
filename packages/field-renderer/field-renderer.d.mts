@@ -51,3 +51,8 @@ export const FIELD_OCCLUSION_ALPHA:number;
 export function markFieldOcclusionObject<T>(currentRenderObject:T,currentPanelPoints?:SurfacePoint[]):T;
 export function updateFieldActorOcclusion(currentGameScene:Phaser.Scene):void;
 export function shouldFadeFieldOccluder(currentOccluderBounds:{x:number;y:number;width:number;height:number},currentOccluderDepth:number,currentActorBounds:{x:number;y:number;width:number;height:number},currentActorDepth:number):boolean;
+
+export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces,prepareBridgeTraversalSurface} from '../field-surface/terrain-bridges.mjs';
+
+export {buildLayeredTraversal,layeredPositionKey} from '../field-surface/layered-traversal.mjs';
+export {projectLayeredPosition,pickLayeredPosition} from '../field-surface/layered-projection.mjs';

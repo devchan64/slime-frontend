@@ -4,9 +4,15 @@ export {TERRAIN_STAIR_COUNT,CHARACTER_OUTLINE_STYLE} from '../field-renderer/ren
 export const FIELD_SURFACE_VERSION = '1.0.5';
 import {FIELD_RENDER_METRICS} from '../field-renderer/render-constants.mjs';
 export {FIELD_RENDER_METRICS} from '../field-renderer/render-constants.mjs';
+export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces} from './terrain-bridges.mjs';
+import {findBridgeSurface} from './terrain-bridges.mjs';
 export function readSurfaceHeight(currentCellPosition,currentMapSurface){
- if(currentCellPosition.column<0||currentCellPosition.row<0||currentCellPosition.column>=currentMapSurface.columns||currentCellPosition.row>=currentMapSurface.rows)return 0;
  if(currentMapSurface.heightSource)return readSurfaceHeight(currentMapSurface.heightSource.position(currentCellPosition),currentMapSurface.heightSource.surface);
+ return findBridgeSurface(currentCellPosition,currentMapSurface)?.elevation??readGroundSurfaceHeight(currentCellPosition,currentMapSurface);
+}
+export function readGroundSurfaceHeight(currentCellPosition,currentMapSurface){
+ if(currentCellPosition.column<0||currentCellPosition.row<0||currentCellPosition.column>=currentMapSurface.columns||currentCellPosition.row>=currentMapSurface.rows)return 0;
+ if(currentMapSurface.heightSource)return readGroundSurfaceHeight(currentMapSurface.heightSource.position(currentCellPosition),currentMapSurface.heightSource.surface);
  return currentMapSurface.elevations?.[currentCellPosition.row]?.[currentCellPosition.column]??0;
 }
 export function rotateSurfacePosition(currentCellPosition,currentQuarterTurns=0){
@@ -27,7 +33,7 @@ export function projectSurfaceCell(currentCellPosition,currentMapSurface,current
 }
 export function buildSurfaceCliffs(currentCellPosition,currentMapSurface,currentRenderOptions){
  if(!currentMapSurface.elevations&&!currentMapSurface.heightSource)return [];
- const currentCenterPoint=projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions),currentHeightValue=readSurfaceHeight(currentCellPosition,currentMapSurface);
+ const currentHeightValue=readGroundSurfaceHeight(currentCellPosition,currentMapSurface),currentCenterPoint=projectSurfaceVertex({...currentCellPosition,height:currentHeightValue*currentRenderOptions.elevationHeight},currentRenderOptions);
  const currentVisibleEdges=[{direction:{column:1,row:0},edge:[[0,currentRenderOptions.tileHeight/2],[currentRenderOptions.tileWidth/2,0]]},{direction:{column:0,row:1},edge:[[-currentRenderOptions.tileWidth/2,0],[0,currentRenderOptions.tileHeight/2]]}];
  return currentVisibleEdges.flatMap(currentEdgeRecord=>{
   const currentNeighborOffset=rotateSurfacePosition(currentEdgeRecord.direction,-(currentRenderOptions.rotation??0));
@@ -35,7 +41,7 @@ export function buildSurfaceCliffs(currentCellPosition,currentMapSurface,current
   const currentNeighborInside=currentNeighborCell.column>=0&&currentNeighborCell.row>=0&&currentNeighborCell.column<currentMapSurface.columns&&currentNeighborCell.row<currentMapSurface.rows;
   const currentNeighborStair=findSurfaceStair(currentNeighborCell,currentMapSurface);
   const currentRampSideWall=Boolean(currentNeighborStair&&(currentNeighborOffset.column*(currentNeighborStair.cell.column-currentNeighborStair.lower.column)+currentNeighborOffset.row*(currentNeighborStair.cell.row-currentNeighborStair.lower.row))===0);
-  const currentNeighborHeight=readSurfaceHeight(currentNeighborCell,currentMapSurface)-(currentRampSideWall?1:0);
+  const currentNeighborHeight=readGroundSurfaceHeight(currentNeighborCell,currentMapSurface)-(currentRampSideWall?1:0);
   const currentHeightDrop=currentNeighborInside?(currentHeightValue-currentNeighborHeight)*currentRenderOptions.elevationHeight:currentHeightValue*currentRenderOptions.elevationHeight+currentRenderOptions.baseThickness;
   if(currentHeightDrop<=0)return [];
   const [currentFirstPoint,currentSecondPoint]=currentEdgeRecord.edge.map(([currentOffsetX,currentOffsetY])=>({x:currentCenterPoint.x+currentOffsetX,y:currentCenterPoint.y+currentOffsetY}));

@@ -1,4 +1,5 @@
 import type {Position, State} from '../client/types';
+import {findBridgeSurface} from '../../packages/field-surface/terrain-bridges.mjs';
 import {canStep} from '../game/terrain/elevation';
 
 const MOVEMENT_NEIGHBOR_OFFSETS = [[0,-1],[-1,0],[1,0],[0,1]] as const;
@@ -26,7 +27,7 @@ export function fieldMovementEstimate(fieldMapDefinition:State['map'], selectedR
 
 function fieldTerrainCost(fieldMapDefinition:State['map'], targetCellPosition:Position) {
   const targetTerrainCode=fieldMapDefinition.terrainRows?.[targetCellPosition.row]?.[targetCellPosition.column];
-  const targetTerrainName=targetTerrainCode && fieldMapDefinition.terrainCodes?.[targetTerrainCode];
+  const targetTerrainName=findBridgeSurface(targetCellPosition,fieldMapDefinition)?'road':targetTerrainCode && fieldMapDefinition.terrainCodes?.[targetTerrainCode];
   const targetCostDefinition=fieldMapDefinition.movementCosts?.rows.find(terrainCostDefinition=>terrainCostDefinition.tileId===targetTerrainName)?.fp;
   if(!targetCostDefinition) throw new Error('필드 지형의 FP 비용 정의가 없습니다.');
   return fieldMapDefinition.safeTown ? CITY_FREE_MOVEMENT_COST : targetCostDefinition;
@@ -34,7 +35,7 @@ function fieldTerrainCost(fieldMapDefinition:State['map'], targetCellPosition:Po
 
 export function findExpectedFieldRoute(startCellPosition:Position,targetCellPositions:Position[],fieldMapDefinition:State['map']):Position[]|null {
   const routeCacheSignature=JSON.stringify([startCellPosition,targetCellPositions,fieldMapDefinition.columns,fieldMapDefinition.rows,
-    fieldMapDefinition.blocked,fieldMapDefinition.elevations,fieldMapDefinition.ramps,fieldMapDefinition.elevationTiles,
+    fieldMapDefinition.blocked,fieldMapDefinition.bridges,fieldMapDefinition.elevations,fieldMapDefinition.ramps,fieldMapDefinition.elevationTiles,
     fieldMapDefinition.terrainRows,fieldMapDefinition.terrainCodes,fieldMapDefinition.movementCosts,fieldMapDefinition.safeTown]);
   if(cachedFieldRouteResults.has(routeCacheSignature))return structuredClone(cachedFieldRouteResults.get(routeCacheSignature)!);
   const calculatedFieldRoute=computeExpectedFieldRoute(startCellPosition,targetCellPositions,fieldMapDefinition);

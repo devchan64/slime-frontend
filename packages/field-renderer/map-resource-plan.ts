@@ -1,7 +1,8 @@
+import {resolveBridgeTextureKeys} from './bridge-geometry.mjs';
 import {resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
 import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../../src/game/terrain/textures';
 export {loadMapResourceImages} from './map-resource-loader.mjs';
-export type MapResourceSurface={id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
+export type MapResourceSurface={bridges?:{material:'timber'|'stone'}[];id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
 /** 렌더러의 재질 선택 함수를 재사용하여 선택 맵의 텍스처 키를 산출한다. */
 export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,currentMapKind:'field'|'town'|'battle'){
  if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 종류');
@@ -14,6 +15,7 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
   for(const currentTerrainRow of currentMapRecord.terrainRows)for(const currentTerrainCode of currentTerrainRow){const currentTerrainName=currentMapRecord.terrainCodes[currentTerrainCode];if(!currentTerrainName)throw Error('등록되지 않은 지형 코드: '+currentTerrainCode);currentTerrainNames.add(currentTerrainName);}
  }
  const currentTextureKeys=new Set<string>();
+ for(const currentBridgeRecord of currentMapRecord.bridges??[])for(const currentTextureKey of resolveBridgeTextureKeys(currentBridgeRecord.material))currentTextureKeys.add(currentTextureKey);
  if(currentMapKind!=='field')currentTextureKeys.add('terrain-source-grass');
  for(const currentTerrainName of currentTerrainNames){
   const currentTerrainFrame=currentMapKind==='field'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentMapKind==='battle'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentTerrainName==='grass'?resolveGrassFrameForMap(currentMapRecord.id):currentTerrainName==='paving'?resolvePavingFrameForMap(currentMapRecord.id):currentTerrainName==='reed-bed'?resolveReedFrameForMap(currentMapRecord.id):resolveTownGroundFrame(currentMapRecord.id,currentTerrainName);

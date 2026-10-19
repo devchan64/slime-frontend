@@ -2,12 +2,14 @@ import {MAP_ORIGIN,TERRAIN_DEPTH} from '../../../packages/field-renderer/render-
 export {MAP_ORIGIN,TERRAIN_DEPTH} from '../../../packages/field-renderer/render-constants.mjs';
 import {projectSurfaceCell, buildSurfaceCliffs, buildSurfaceStairs} from "../../../packages/field-surface/field-surface.mjs";
 import {MAP_TILE_WIDTH, MAP_TILE_HEIGHT, MAP_ELEVATION_HEIGHT, MAP_BASE_THICKNESS, resolveMapTileSize} from "./renderMetrics";
+import {readSurfaceHeight} from '../../../packages/field-surface/field-surface.mjs';
+import {canTraverseBridgeEdge,type TerrainBridge} from '../../../packages/field-surface/terrain-bridges.mjs';
 import type { Position } from '../../client/types';
 
 export type TerrainLink = { start: Position; end: Position; id?: string;
   kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
-export type Surface = { terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
+export type Surface = { bridges?:TerrainBridge[]; terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
@@ -19,7 +21,7 @@ export const inBounds = (p: Position, map: Surface) => Number.isInteger(p.column
 export const heightAt = (p: Position, map: Surface): number => {
   if (!inBounds(p,map)) return 0;
   if (map.heightSource) return heightAt(map.heightSource.position(p), map.heightSource.surface);
-  return map.elevations ? map.elevations[p.row][p.column] : 0;
+  return readSurfaceHeight(p,map);
 };
 export const cellDepth = (p: Position) => TERRAIN_DEPTH.base + (p.column + p.row) * TERRAIN_DEPTH.stride;
 /** 안내 표시는 가장 앞쪽 셀의 지형·개체보다 위에 둔다. */
@@ -52,6 +54,7 @@ export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSu
 }
 export function canStep(currentStartPosition:Position,currentEndPosition:Position,currentMapSurface:Surface) {
   if (!inBounds(currentStartPosition,currentMapSurface) || !inBounds(currentEndPosition,currentMapSurface) || Math.abs(currentStartPosition.column-currentEndPosition.column)+Math.abs(currentStartPosition.row-currentEndPosition.row)!==1) return false;
+  if(!canTraverseBridgeEdge(currentStartPosition,currentEndPosition,currentMapSurface))return false;
   const currentMovementVersion=currentMapSurface.terrainMovementVersion??1;
   if(currentMovementVersion!==1&&currentMovementVersion!==2)throw new Error('지원하지 않는 지형 이동 규칙 버전');
   const currentElevationDifference=Math.abs(heightAt(currentStartPosition,currentMapSurface)-heightAt(currentEndPosition,currentMapSurface));
