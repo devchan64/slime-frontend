@@ -23,13 +23,13 @@ function createCharacterTestImage(actorIdleKindValue = 'human') {
     setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
   };
 }
-test('정면왼쪽 걷기는 12프레임을 125ms 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
+test('정면왼쪽 걷기는 12프레임을 6fps 간격으로 반복하고 정지 시 대기 크기·기준점을 복구한다',()=>{
   const renderedCharacterImage=createCharacterTestImage();
   renderedCharacterImage.scene.time.now=2371;
   for(const currentDirectionName of ['down_left']) {
     for(let frameColumnIndex=0;frameColumnIndex<=12;frameColumnIndex++) {
-      renderedCharacterImage.scene.time.now=2371+frameColumnIndex*125;
-      updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,frameColumnIndex*125);
+      renderedCharacterImage.scene.time.now=2371+Math.round(frameColumnIndex*1000/6);
+      updateCharacterAnimationFrame(renderedCharacterImage,currentDirectionName,undefined,Math.round(frameColumnIndex*1000/6));
       assert.equal(renderedCharacterImage.textureKey,DEFAULT_CHARACTER_WALK_ASSET.key);
       assert.ok(renderedCharacterImage.frame.name.endsWith(`${currentDirectionName}.${frameColumnIndex%12}`));
       assert.equal(renderedCharacterImage.originX,192/384);
@@ -61,10 +61,10 @@ test('화면 재생성 후에도 이동 경과 시간으로 같은 걷기 프레
  const recreatedCharacterImage=createCharacterTestImage();
  originalCharacterImage.scene.time.now=100;
  recreatedCharacterImage.scene.time.now=2000;
- updateCharacterAnimationFrame(originalCharacterImage,'down_left',undefined,875);
- updateCharacterAnimationFrame(recreatedCharacterImage,'down_left',undefined,875);
+ updateCharacterAnimationFrame(originalCharacterImage,'down_left',undefined,1167);
+ updateCharacterAnimationFrame(recreatedCharacterImage,'down_left',undefined,1167);
  assert.equal(originalCharacterImage.frame.name,recreatedCharacterImage.frame.name);
  assert.ok(recreatedCharacterImage.frame.name.endsWith('down_left.7'));
- updateCharacterAnimationFrame(recreatedCharacterImage,'down_left',undefined,1500);
+ updateCharacterAnimationFrame(recreatedCharacterImage,'down_left',undefined,2000);
  assert.ok(recreatedCharacterImage.frame.name.endsWith('down_left.0'));
 });

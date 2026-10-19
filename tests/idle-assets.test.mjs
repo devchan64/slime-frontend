@@ -43,7 +43,7 @@ test('첫 프레임이 이미 선택되어 있어도 발 기준점을 적용한�
  assert.equal(renderedCharacterImage.originY,initialIdleFrame.anchor.y/initialIdleFrame.rect.height);
 });
 
-test('정면왼쪽 대기 시트는 한 번 로드하고 8fps로 재생한다',()=>{
+test('정면왼쪽 대기 시트는 한 번 로드하고 6fps로 재생한다',()=>{
  assert.equal(ACTOR_IDLE_TEXTURES.length,17);
  assert.equal(new Set(ACTOR_IDLE_TEXTURES.map(currentAssetRecord=>currentAssetRecord.key)).size,17);
  const renderedCharacterImage={scene:{time:{now:0}},frame:{name:''},originX:0,originY:0,
@@ -52,23 +52,23 @@ test('정면왼쪽 대기 시트는 한 번 로드하고 8fps로 재생한다',(
   setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;}};
  for(const [currentDirectionName,currentDirectionAsset] of Object.entries(DEFAULT_IDLE_DIRECTION_ASSETS)) {
   assert.ok(existsSync(new URL(currentDirectionAsset.url)));
-  for(const currentFrameTime of [0,250,750,1750,2000]) {
+  for(const currentFrameTime of [0,1000,2000,3000]) {
    renderedCharacterImage.scene.time.now=currentFrameTime;
    updateActorIdleFrame(renderedCharacterImage,currentDirectionName);
    assert.equal(renderedCharacterImage.textureKey,currentDirectionAsset.key);
-   assert.match(renderedCharacterImage.frame.name,new RegExp(`${currentDirectionName}\\.${(currentFrameTime/125)%8}$`));
+   assert.match(renderedCharacterImage.frame.name,new RegExp(`${currentDirectionName}\\.${Math.floor((currentFrameTime % 1333)*6/1000)%8}$`));
   }
  }
  assert.throws(()=>resolveActorIdleAsset('human','invalid'));
 });
-test('정면왼쪽 대기 8프레임은 8열1행과 384px 셀 크기를 유지한다',()=>{
+test('정면왼쪽 대기 8프레임은 4열2행과 384px 셀 크기를 유지한다',()=>{
  const currentAnimationData=ACTOR_IDLE_ASSETS.human.animation.data;
  assert.equal(currentAnimationData.frames.length,8);
- assert.deepEqual(currentAnimationData.sheet,{width:3072,height:384});
+ assert.deepEqual(currentAnimationData.sheet,{width:1536,height:768});
  assert.deepEqual(Object.keys(DEFAULT_IDLE_DIRECTION_ASSETS),['down_left']);
  currentAnimationData.frames.forEach((currentFrameRecord,frameColumnIndex)=>{
   assert.equal(currentFrameRecord.frameId,`down_left.${frameColumnIndex}`);
-  assert.deepEqual(currentFrameRecord.rect,{x:frameColumnIndex*384,y:0,width:384,height:384});
+  assert.deepEqual(currentFrameRecord.rect,{x:(frameColumnIndex%4)*384,y:Math.floor(frameColumnIndex/4)*384,width:384,height:384});
  });
 });
 
@@ -79,9 +79,9 @@ test('휴식은 진입 13프레임 뒤 고정되고 해제 8프레임은 반복�
  assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===entryClipIdentifier).frames.length,13);
  assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===exitClipIdentifier).frames.length,8);
  for(const currentClipRecord of restAssetAnimation.data.clips) assert.equal(currentClipRecord.loop,false);
- for(const currentTimeValue of [1625,10000,3600000]) assert.equal(restAssetAnimation.sample(entryClipIdentifier,currentTimeValue).frame.frameId,'down_left.12');
- assert.equal(restAssetAnimation.sample(exitClipIdentifier,999).frame.frameId,'down_left.20');
- assert.equal(restAssetAnimation.sample(exitClipIdentifier,1000).frame.frameId,'down_left.20');
+ for(const currentTimeValue of [2167,10000,3600000]) assert.equal(restAssetAnimation.sample(entryClipIdentifier,currentTimeValue).frame.frameId,'down_left.12');
+ assert.equal(restAssetAnimation.sample(exitClipIdentifier,1332).frame.frameId,'down_left.20');
+ assert.equal(restAssetAnimation.sample(exitClipIdentifier,1333).frame.frameId,'down_left.20');
 });
 
 test('휴식 해제 완료 시 이미지의 대기 텍스처와 입식 배율을 복구한다',()=>{
@@ -94,10 +94,10 @@ test('휴식 해제 완료 시 이미지의 대기 텍스처와 입식 배율을
   setTexture(currentTextureKey,currentFrameName){this.textureKey=currentTextureKey;this.frame.name=currentFrameName;return this;},
   setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
   setScale(currentScaleValue){this.scaleValue=currentScaleValue;return this;}};
- assert.equal(calculateRestExitDuration(),1000);
+ assert.equal(calculateRestExitDuration(),1333);
  assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-entry',elapsedTimeValue:10000}),true);
  assert.match(renderedCharacterImage.frame.name,/down_left\.12$/);
- assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-exit',elapsedTimeValue:999}),true);
+ assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-exit',elapsedTimeValue:1332}),true);
  assert.match(renderedCharacterImage.frame.name,/down_left\.20$/);
  assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',null),false);
  updateActorIdleFrame(renderedCharacterImage,'down_left');
