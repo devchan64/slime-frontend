@@ -892,3 +892,6 @@ files:
 - path: assets/structures/crystal-cut-quartz-rubble-v1.png
   source_path: assets/billboards/crystal-cut-quartz-rubble-v1.png
   sha256: 2b1f6c436c056abd4096045c130296aa10bc572f97b554eeedac4af1dff44874
+- path: assets/structures/quarry-stone-cart-v1.png
+  source_path: assets/billboards/quarry-stone-cart-v1.png
+  sha256: ccbb27c8e265a48a4e8562b36e1ef17b9da0225c086899e845db556516035a9e
