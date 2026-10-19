@@ -1,14 +1,15 @@
 import {useEffect,useRef,useState} from 'preact/hooks';
 import type {Client} from '../client/api';
 import {useTranslation} from '../i18n';
+import registeredThumbnailUrls from '../../../slime-assets/assets/ui/world-map/thumbnails.yaml';
 import {MapKindIcon} from './MapKindIcon';
 import {noticeText,type Notice} from '../client/notice';
 import {parseWorldMapCatalog,type WorldMapNode} from '../client/worldMap';
 
-const WORLD_MAP_CELL_WIDTH=180;
-const WORLD_MAP_CELL_HEIGHT=110;
-const WORLD_MAP_NODE_WIDTH=150;
-const WORLD_MAP_NODE_HEIGHT=78;
+const WORLD_MAP_CELL_WIDTH=190;
+const WORLD_MAP_CELL_HEIGHT=210;
+const WORLD_MAP_NODE_WIDTH=160;
+const WORLD_MAP_NODE_HEIGHT=184;
 const WORLD_MAP_ZOOM_MINIMUM=0.6;
 const WORLD_MAP_ZOOM_MAXIMUM=1.8;
 const WORLD_MAP_ZOOM_STEP=0.2;
@@ -27,8 +28,9 @@ export function WorldMapPanel({gameSessionClient,currentMapIdentifier,initialSel
   useEffect(()=>{
     let worldRequestActive=true;
     setWorldRequestNotice('');setWorldMapNodes([]);
-    void gameSessionClient.request('/v1/maps/world').then(receivedWorldCatalog=>{
+    void gameSessionClient.request('/v2/maps/world').then(receivedWorldCatalog=>{
       const parsedWorldNodes=parseWorldMapCatalog(receivedWorldCatalog);
+      if(parsedWorldNodes.some(currentWorldNode=>!currentWorldNode.thumbnailId||!Object.hasOwn(registeredThumbnailUrls,currentWorldNode.thumbnailId)))throw new Error('등록된 월드맵 썸네일이 없습니다. 에셋 버전을 확인하세요.');
       if(worldRequestActive)setWorldMapNodes(parsedWorldNodes);
     }).catch(currentRequestError=>{if(worldRequestActive)setWorldRequestNotice(currentRequestError as Error);});
     return ()=>{worldRequestActive=false;};
@@ -110,14 +112,14 @@ export function WorldMapPanel({gameSessionClient,currentMapIdentifier,initialSel
             return <line x1={sourceNodeCenter.x} y1={sourceNodeCenter.y} x2={targetNodeCenter.x} y2={targetNodeCenter.y}/>;
           }))}</svg>
           {worldMapNodes.map(currentWorldNode=>{const currentNodeCenter=worldNodeCenter(currentWorldNode);return <button key={currentWorldNode.id} class={`world-map-node ${currentWorldNode.id===currentMapIdentifier?'is-current':''}`} aria-pressed={currentWorldNode.id===selectedMapIdentifier} onClick={currentClickEvent=>{if(dragSelectionSuppressed.current){currentClickEvent.preventDefault();return;}selectWorldMapRegion(currentWorldNode.id);}} style={{left:currentNodeCenter.x-WORLD_MAP_NODE_WIDTH/2,top:currentNodeCenter.y-WORLD_MAP_NODE_HEIGHT/2,width:WORLD_MAP_NODE_WIDTH,height:WORLD_MAP_NODE_HEIGHT}}>
-            <span><MapKindIcon targetMapSafeTown={currentWorldNode.safeTown}/>{currentWorldNode.nameTranslations[currentWorldLocale]}</span>
+            <img class="world-map-thumbnail" src={registeredThumbnailUrls[currentWorldNode.thumbnailId!]} alt="" width="128" height="128" draggable={false}/><span><MapKindIcon targetMapSafeTown={currentWorldNode.safeTown}/>{currentWorldNode.nameTranslations[currentWorldLocale]}</span>
             {currentWorldNode.id===currentMapIdentifier && <small>{translateWorldText('app.worldMapCurrent')}</small>}
           </button>;})}
           </div>
         </div>
       </div>
       {worldMapNodes.length>0&&!selectedWorldNode&&<p role="status">{translateWorldText('journal.destinationUnavailable')}</p>}
-      {selectedWorldNode && <div aria-live="polite"><h3>{selectedWorldNode.nameTranslations[currentWorldLocale]}</h3><p>{translateWorldText('app.worldMapConnections')}</p><div class="world-map-connections">{selectedWorldNode.connections.map(currentMapLink=>{const targetWorldNode=worldMapNodes.find(currentWorldNode=>currentWorldNode.id===currentMapLink.target)!;return <button class="secondary" key={currentMapLink.target} onClick={()=>selectWorldMapRegion(currentMapLink.target)}><MapKindIcon targetMapSafeTown={targetWorldNode.safeTown}/>{targetWorldNode.nameTranslations[currentWorldLocale]}</button>;})}</div></div>}
+      {selectedWorldNode && <div aria-live="polite"><h3>{selectedWorldNode.nameTranslations[currentWorldLocale]}</h3><img class="world-map-detail-thumbnail" src={registeredThumbnailUrls[selectedWorldNode.thumbnailId!]} alt={selectedWorldNode.nameTranslations[currentWorldLocale]} width="256" height="256"/><p>{translateWorldText('app.worldMapConnections')}</p><div class="world-map-connections">{selectedWorldNode.connections.map(currentMapLink=>{const targetWorldNode=worldMapNodes.find(currentWorldNode=>currentWorldNode.id===currentMapLink.target)!;return <button class="secondary" key={currentMapLink.target} onClick={()=>selectWorldMapRegion(currentMapLink.target)}><MapKindIcon targetMapSafeTown={targetWorldNode.safeTown}/>{targetWorldNode.nameTranslations[currentWorldLocale]}</button>;})}</div></div>}
     </>}
   </section>;
 }

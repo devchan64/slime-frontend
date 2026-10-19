@@ -22,3 +22,15 @@ test('공통 재질 매핑은 중복 코드·프레임과 잘못된 YAML을 거�
  const currentLoadedModule=await import('data:text/javascript;base64,'+Buffer.from(currentModuleText).toString('base64'));
  assert.deepEqual(currentLoadedModule.default,{grass:'grass',flowers:'flowers'});
 });
+
+
+test('월드맵 썸네일은 정적 import로 만들고 중복·경로 이탈·잘못된 규격을 거절한다',async()=>{
+ const {buildWorldThumbnailModule}=await import('../scripts/asset-list-module.mjs');
+ const currentValidDocument={schema_version:1,maps:{meadow:{managementId:'image.ui.world-map.meadow',version:'v1',path:'assets/ui/world-map/thumbnails/meadow-v1.png',sha256:'a'.repeat(64),width:256,height:256}}};
+ assert.match(buildWorldThumbnailModule(JSON.stringify(currentValidDocument),'/assets'),/import worldThumbnailImage0/);
+ for(const currentInvalidValues of [{path:'../escape.png'},{width:128},{managementId:'image.ui.world-map.other'},{unexpected:true}]){
+  const currentInvalidDocument=structuredClone(currentValidDocument);Object.assign(currentInvalidDocument.maps.meadow,currentInvalidValues);
+  assert.throws(()=>buildWorldThumbnailModule(JSON.stringify(currentInvalidDocument),'/assets'));
+ }
+ assert.throws(()=>buildWorldThumbnailModule('schema_version: 1\nschema_version: 1\nmaps: {}','/assets'));
+});

@@ -16,3 +16,13 @@ test('확장 월드맵의 가변 간격과 반대 방향 연결을 읽는다',()
   currentWorldFixture.maps[1].column=1;
   assert.throws(()=>parseWorldMapCatalog(currentWorldFixture));
 });
+
+function createThumbnailWorldFixture(){
+ const currentWorldFixture=createWorldMapFixture();currentWorldFixture.version=3;
+ for(const currentWorldNode of currentWorldFixture.maps){currentWorldNode.thumbnailId='image.ui.world-map.'+currentWorldNode.id;for(const currentMapLink of currentWorldNode.connections){currentMapLink.id=currentWorldNode.id+'-gate';currentMapLink.targetWaypointId=currentMapLink.target+'-gate';}}
+ return currentWorldFixture;
+}
+test('v2 API의 썸네일과 양방향 웨이포인트를 보존하고 잘못된 참조를 거부한다',()=>{
+ const currentValidFixture=createThumbnailWorldFixture();assert.deepEqual(parseWorldMapCatalog(currentValidFixture),currentValidFixture.maps);
+ for(const currentMutateFixture of [currentWorldFixture=>delete currentWorldFixture.maps[0].thumbnailId,currentWorldFixture=>currentWorldFixture.maps[0].thumbnailId='../image',currentWorldFixture=>currentWorldFixture.maps[0].connections[0].targetWaypointId='missing']){const currentWorldFixture=createThumbnailWorldFixture();currentMutateFixture(currentWorldFixture);assert.throws(()=>parseWorldMapCatalog(currentWorldFixture));}
+});

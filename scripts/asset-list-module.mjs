@@ -22,6 +22,7 @@ export function buildAssetListModule(currentSourceText,currentAssetRoot){
 
 export function createAssetListPlugin(){
  return {name:'registered-tile-yaml',async load(currentModuleId){
+  if(currentModuleId.endsWith('/world-map/thumbnails.yaml')){this.addWatchFile(currentModuleId);return buildWorldThumbnailModule(await readFile(currentModuleId,'utf8'),fileURLToPath(new URL('../../slime-assets',import.meta.url)));}
   if(currentModuleId.endsWith('/field-material-frames.yaml')){this.addWatchFile(currentModuleId);return buildMaterialFrameModule(await readFile(currentModuleId,'utf8'));}
   if(!currentModuleId.endsWith('.asset-list.yaml'))return null;
   this.addWatchFile(currentModuleId);
@@ -40,4 +41,22 @@ export function buildMaterialFrameModule(currentSourceText){
  }
  if(new Set(Object.values(currentMaterialRecords)).size!==Object.keys(currentMaterialRecords).length)throw Error('다른 지형 코드가 같은 프레임을 참조합니다.');
  return 'export default '+JSON.stringify(currentMaterialRecords)+';';
+}
+
+
+/** 등록된 정사각형 썸네일을 해시 파일명으로 번들링한다. */
+export function buildWorldThumbnailModule(currentSourceText,currentAssetRoot){
+ const currentYamlDocument=parseDocument(currentSourceText,{uniqueKeys:true});
+ if(currentYamlDocument.errors.length)throw Error('월드맵 썸네일 YAML 오류');
+ const currentCatalogRecord=currentYamlDocument.toJS();
+ if(!currentCatalogRecord||Object.keys(currentCatalogRecord).sort().join()!=='maps,schema_version'||currentCatalogRecord.schema_version!==1||!currentCatalogRecord.maps||Array.isArray(currentCatalogRecord.maps)||typeof currentCatalogRecord.maps!=='object'||!Object.keys(currentCatalogRecord.maps).length)throw Error('월드맵 썸네일 목록 오류');
+ const currentImportStatements=[],currentExportEntries=[],currentThumbnailIdentifiers=new Set();
+ for(const [currentMapIdentifier,currentThumbnailRecord] of Object.entries(currentCatalogRecord.maps)){
+  if(!/^[a-z0-9-]+$/.test(currentMapIdentifier)||!currentThumbnailRecord||Object.keys(currentThumbnailRecord).sort().join()!=='height,managementId,path,sha256,version,width'||currentThumbnailRecord.managementId!=='image.ui.world-map.'+currentMapIdentifier||typeof currentThumbnailRecord.version!=='string'||!currentThumbnailRecord.version||typeof currentThumbnailRecord.sha256!=='string'||!/^[a-f0-9]{64}$/.test(currentThumbnailRecord.sha256)||typeof currentThumbnailRecord.path!=='string'||!/^assets\/ui\/world-map\/thumbnails\/[a-z0-9-]+\.png$/.test(currentThumbnailRecord.path)||currentThumbnailRecord.width!==256||currentThumbnailRecord.height!==256||currentThumbnailIdentifiers.has(currentThumbnailRecord.managementId))throw Error('월드맵 썸네일 항목 오류: '+currentMapIdentifier);
+  currentThumbnailIdentifiers.add(currentThumbnailRecord.managementId);
+  const currentImportIdentifier='worldThumbnailImage'+currentExportEntries.length;
+  currentImportStatements.push('import '+currentImportIdentifier+' from '+JSON.stringify(currentAssetRoot+'/'+currentThumbnailRecord.path)+';');
+  currentExportEntries.push(JSON.stringify(currentThumbnailRecord.managementId)+':'+currentImportIdentifier);
+ }
+ return currentImportStatements.join('\n')+'\nexport default {'+currentExportEntries.join(',')+'};';
 }
