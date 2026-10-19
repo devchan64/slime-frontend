@@ -223,3 +223,10 @@ town_reedhaven_woven_house_v3: assets/buildings/town-reedhaven-woven-house-v3.pn
 ash_edge_charred_regrowth_v1: assets/billboards/ash-edge-charred-regrowth-v1.png
 ash_edge_decomposer_log_v1: assets/billboards/ash-edge-decomposer-log-v1.png
 ash_edge_scorched_waystone_v1: assets/billboards/ash-edge-scorched-waystone-v1.png
+cinder_path_cooled_rocks_v1: assets/billboards/cinder-path-cooled-rocks-v1.png
+cinder_path_buried_deadwood_v1: assets/billboards/cinder-path-buried-deadwood-v1.png
+cinder_path_ash_cargo_v1: assets/billboards/cinder-path-ash-cargo-v1.png
+cinder_path_gray_green_shoots_v1: assets/billboards/cinder-path-gray-green-shoots-v1.png
+cinder_path_basalt_outcrop_v1: assets/billboards/cinder-path-basalt-outcrop-v1.png
+cinder_ash_trail_v1: assets/tiles/terrain/road/cinder-ash-trail-v1.png
+cinder_ash_ground_v1: assets/tiles/terrain/non-road/cinder-ash-ground-v1.png

@@ -166,3 +166,9 @@ files:
 - path: assets/terrain/orchard-grass-soil-v1.png
   source_path: assets/tiles/terrain/non-road/orchard-grass-soil-v1.png
   sha256: f896d071283929c1c599b029c335fb9bdcb263e741a9f639839976d86256b331
+- path: assets/terrain/cinder-ash-trail-v1.png
+  source_path: assets/tiles/terrain/road/cinder-ash-trail-v1.png
+  sha256: 05c4e4869ad7403a16d3267f912216091bc2be130bc205b9c4c394eabcd4e0db
+- path: assets/terrain/cinder-ash-ground-v1.png
+  source_path: assets/tiles/terrain/non-road/cinder-ash-ground-v1.png
+  sha256: eb62eca43a044c4c09ffc0f32ed54beae74d2777c410d7ff21aa04e1e92a0fd1

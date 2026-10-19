@@ -856,3 +856,18 @@ files:
 - path: assets/structures/brine-bank-saltbush-v1.png
   source_path: assets/billboards/brine-bank-saltbush-v1.png
   sha256: 97c85b7f33eddc7a33f06202362f5b28a9918d8dfe2caa7496802e018f1c30d0
+- path: assets/structures/cinder-path-cooled-rocks-v1.png
+  source_path: assets/billboards/cinder-path-cooled-rocks-v1.png
+  sha256: bcdbafc83398e524b9e2ab58a174e271b38468385be7308ca00792f27ad9a0b9
+- path: assets/structures/cinder-path-buried-deadwood-v1.png
+  source_path: assets/billboards/cinder-path-buried-deadwood-v1.png
+  sha256: ac73b2845df92181cebe3fcae8aac9454adf4fc99889ca837c3e02dc843f8b6a
+- path: assets/structures/cinder-path-ash-cargo-v1.png
+  source_path: assets/billboards/cinder-path-ash-cargo-v1.png
+  sha256: e06c7981e20b6dad79fa6f00edb3a259bb38148384609b55ed43a7ec6bde4c9e
+- path: assets/structures/cinder-path-gray-green-shoots-v1.png
+  source_path: assets/billboards/cinder-path-gray-green-shoots-v1.png
+  sha256: f8a15c7c80a97b10b637f10a0c5ecbc49018f4debc6e1cea1b950d113ba353d2
+- path: assets/structures/cinder-path-basalt-outcrop-v1.png
+  source_path: assets/billboards/cinder-path-basalt-outcrop-v1.png
+  sha256: 5dffb45809a39949e8c0998b66da2aef093bc4bc2e415d9c36707814a83192bb
