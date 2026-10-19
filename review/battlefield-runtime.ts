@@ -9,6 +9,7 @@ import currentBattleFixtures from '../src/dev/battlefield-fixtures.json';
 const BATTLE_REVIEW_POLL_MS=50;
 const BATTLE_REVIEW_ZOOM_STEP=0.15;
 const BATTLE_REVIEW_PREPARE_MS=60000;
+const BATTLE_CANVAS_ASPECT_RATIO='4 / 3';
 const BATTLE_REVIEW_FIXTURES=currentBattleFixtures as unknown as State[];
 const BATTLE_REVIEW_CHOICES:[string,string][]=BATTLE_REVIEW_FIXTURES.map((currentFixtureRecord):[string,string]=>{
  const currentFieldRecord=currentFixtureRecord.battle?.field;
@@ -23,6 +24,8 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  let currentReviewStatus='화면 준비 중';
  let currentReviewDisposed=false;
  let currentSelectionEpoch=0;
+ let currentCameraAction:((currentActionName:string)=>void)|null=null;
+ let currentCameraReady=false;
  let currentReleaseCallbacks:(()=>void)[]=[];
  const currentGalleryElement=document.createElement('main');
  currentGalleryElement.id='gallery';
@@ -33,7 +36,6 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  for(const [currentFieldLabel,currentFieldIdentifier] of BATTLE_REVIEW_CHOICES){
   const currentFieldOption=document.createElement('option');currentFieldOption.value=currentFieldIdentifier;currentFieldOption.textContent=currentFieldLabel;currentFieldSelector.append(currentFieldOption);
  }
- currentReviewRoot.classList.add('single');
  if(currentReviewOptions.controls){
   const currentHeaderElement=document.createElement('header');
   const currentHeadingElement=document.createElement('h1');currentHeadingElement.textContent='전투필드 · 지형 검수';
@@ -43,6 +45,7 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  function updateReviewStatus(currentStatusMessage:string){currentReviewStatus=currentStatusMessage;currentStatusElement.textContent=currentStatusMessage;}
  function releaseReviewSelection(){
   currentSelectionEpoch++;
+  currentCameraAction=null;currentCameraReady=false;
   for(const currentReleaseCallback of currentReleaseCallbacks)currentReleaseCallback();
   currentReleaseCallbacks=[];
   currentGalleryElement.replaceChildren();
@@ -58,11 +61,17 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
   updateReviewStatus(`${currentFixtureRecord.battle!.field.name} 준비 중`);
    const currentBattleRecord=currentFixtureRecord.battle!;
    const currentFieldRecord=currentBattleRecord.field!;
-   const currentSectionElement=document.createElement('section');currentSectionElement.className='field';
-   const currentTitleElement=document.createElement('h2');currentTitleElement.className='world-title';currentTitleElement.textContent=(currentFieldRecord.selection==='random'?'랜덤 · ':'이벤트 고정 · ')+currentFieldRecord.name;
-   const currentCanvasElement=document.createElement('div');currentCanvasElement.className='canvas canvas-wrap field-preview-canvas';
-   const currentStageElement=document.createElement('div');currentStageElement.className='map-stage';
-   currentStageElement.append(currentCanvasElement);currentSectionElement.append(currentTitleElement,currentStageElement);
+   const currentSectionElement=document.createElement('section');
+   const currentTitleElement=document.createElement('h2');currentTitleElement.textContent=(currentFieldRecord.selection==='random'?'랜덤 · ':'이벤트 고정 · ')+currentFieldRecord.name;
+   const currentCanvasElement=document.createElement('div');currentCanvasElement.setAttribute('aria-label','전장 캔버스');
+   // WebGL 표시 영역의 종횡비·클리핑만 지정한다. UI 테마는 Gradio가 담당한다.
+   currentCanvasElement.style.aspectRatio=BATTLE_CANVAS_ASPECT_RATIO;
+   currentCanvasElement.style.position='relative';
+   currentCanvasElement.style.overflow='hidden';
+   const currentStageElement=document.createElement('div');
+   currentStageElement.append(currentCanvasElement);
+   if(currentReviewOptions.controls)currentSectionElement.append(currentTitleElement);
+   currentSectionElement.append(currentStageElement);
    currentGalleryElement.append(currentSectionElement);
    const currentSelectionActive=()=>!currentReviewDisposed&&currentSelectionEpoch===currentRenderEpoch;
    const reportReviewFailure=(currentFailureMessage:string)=>{
@@ -72,12 +81,24 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
    };
    const {game:currentGameInstance,scene:currentSceneInstance}=createGame(currentCanvasElement,()=>{},()=>{
     if(!currentSelectionActive())return;
+    currentCameraReady=true;
     updateReviewStatus(`${currentFieldRecord.name} 렌더링 완료 · ${currentFieldRecord.columns}×${currentFieldRecord.rows} 타일`);
    },currentFailureNotice=>reportReviewFailure(noticeText(currentFailureNotice,currentReviewOptions.locale,t)),BattlefieldReviewGame,collectMapResourceKeys(currentFieldRecord,'battle'),[...new Set(currentBattleRecord.units.map(currentUnitRecord=>currentUnitRecord.side==='enemy'?(currentUnitRecord.monsterTypeId??currentUnitRecord.appearance??'slime'):'human'))]);
-   const currentCameraMenu=document.createElement('nav');currentCameraMenu.className='map-camera-controls';currentCameraMenu.setAttribute('aria-label','맵 화면 조정');
-   const currentCameraActions:[string,string,()=>void][]=[['맵 축소','−',()=>currentSceneInstance.adjustZoom(-BATTLE_REVIEW_ZOOM_STEP)],['맵 확대','＋',()=>currentSceneInstance.adjustZoom(BATTLE_REVIEW_ZOOM_STEP)],['시점 복귀','복귀',()=>currentSceneInstance.focus()]];
-   for(const [currentButtonLabel,currentButtonText,currentCameraAction] of currentCameraActions){const currentActionButton=document.createElement('button');currentActionButton.textContent=currentButtonText;currentActionButton.setAttribute('aria-label',currentButtonLabel);currentActionButton.onclick=currentCameraAction;currentCameraMenu.append(currentActionButton);}
-   currentStageElement.append(currentCameraMenu);
+   currentCameraAction=currentActionName=>{
+    if(!currentCameraReady)throw new Error('전장을 불러온 뒤 화면 조정을 사용할 수 있습니다.');
+    if(currentActionName==='zoom-out')currentSceneInstance.adjustZoom(-BATTLE_REVIEW_ZOOM_STEP);
+    else if(currentActionName==='zoom-in')currentSceneInstance.adjustZoom(BATTLE_REVIEW_ZOOM_STEP);
+    else if(currentActionName==='reset')currentSceneInstance.focus();
+    else throw new Error('지원하지 않는 전장 화면 조정입니다.');
+   };
+   if(currentReviewOptions.controls){
+    const currentCameraMenu=document.createElement('nav');currentCameraMenu.setAttribute('aria-label','맵 화면 조정');
+    for(const [currentActionName,currentButtonLabel] of [['zoom-out','맵 축소'],['zoom-in','맵 확대'],['reset','시점 복귀']]){
+     const currentActionButton=document.createElement('button');currentActionButton.textContent=currentButtonLabel;
+     currentActionButton.onclick=()=>currentCameraAction?.(currentActionName);currentCameraMenu.append(currentActionButton);
+    }
+    currentSectionElement.prepend(currentCameraMenu);
+   }
    const currentPreparationStarted=performance.now();
    const currentPreparationTimer=setInterval(()=>{
     if(!currentSelectionActive())return;
@@ -92,8 +113,9 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  // 이전 전체 비교 링크는 첫 번째 개별 전장으로 전환한다.
  try{selectReviewField(currentReviewOptions.field==='all'?BATTLE_REVIEW_DEFAULT_FIELD:currentReviewOptions.field);}catch(currentMountError){releaseReviewSelection();throw currentMountError;}
  return {
-  readState:()=>({choices:BATTLE_REVIEW_CHOICES.map(currentChoiceRecord=>[...currentChoiceRecord]),field:currentSelectedField,status:currentReviewStatus}),
+  readState:()=>({choices:BATTLE_REVIEW_CHOICES.map(currentChoiceRecord=>[...currentChoiceRecord]),field:currentSelectedField,status:currentReviewStatus,cameraReady:currentCameraReady}),
   selectField:selectReviewField,
+  adjustCamera(currentActionName:string){if(!currentCameraAction)throw new Error('전장을 먼저 불러오세요.');currentCameraAction(currentActionName);},
   dispose(){if(currentReviewDisposed)return;currentReviewDisposed=true;releaseReviewSelection();currentReviewRoot.replaceChildren();},
  };
 }

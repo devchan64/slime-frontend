@@ -1,7 +1,5 @@
 import {setLocale} from '../src/i18n';
 import {mountBattlefieldReview,BATTLE_REVIEW_DEFAULT_FIELD} from './battlefield-runtime';
-import '../src/styles.css';
-import './battlefield-preview.css';
 
 const currentReviewParameters=new URLSearchParams(location.search);
 const currentReviewLocale=currentReviewParameters.get('locale')??'ko';
