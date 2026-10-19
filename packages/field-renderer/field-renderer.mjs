@@ -38,7 +38,7 @@ export function drawFieldActorContactShadow(currentShadowGraphics,currentScreenP
 export function resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  if(!Number.isFinite(currentCellPosition.column)||!Number.isFinite(currentCellPosition.row))throw Error('필드 깊이 계산의 접지 좌표가 유효하지 않습니다.');
  // 교량 내부의 지형·상판·캐릭터는 같은 기준 깊이를 공유한다.
- const currentBridgeRecord=currentMapSurface.bridges?.find(currentBridgeCandidate=>currentBridgeCandidate.material==='stone'&&enumerateBridgeCells(currentBridgeCandidate).slice(1,-1).some(currentBridgeCell=>currentBridgeCell.column===currentCellPosition.column&&currentBridgeCell.row===currentCellPosition.row));
+ const currentBridgeRecord=currentMapSurface.bridges?.find(currentBridgeCandidate=>enumerateBridgeCells(currentBridgeCandidate).slice(1,-1).some(currentBridgeCell=>currentBridgeCell.column===currentCellPosition.column&&currentBridgeCell.row===currentCellPosition.row));
  const currentDepthPositions=currentBridgeRecord?enumerateBridgeCells(currentBridgeRecord).slice(1,-1):[currentCellPosition];
  const currentRotatedPosition=currentDepthPositions.map(currentDepthPosition=>rotateSurfacePosition(currentDepthPosition,currentRenderOptions.rotation??0)).reduce((currentFrontPosition,currentNextPosition)=>currentNextPosition.column+currentNextPosition.row>currentFrontPosition.column+currentFrontPosition.row?currentNextPosition:currentFrontPosition);
  return TERRAIN_DEPTH.base+(currentRotatedPosition.column+currentRotatedPosition.row)*TERRAIN_DEPTH.stride;

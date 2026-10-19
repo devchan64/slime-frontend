@@ -86,7 +86,7 @@ test('석교 측면 아치는 전체 경간을 한 면으로 그리고 앞뒤·�
   const currentArchFaces=currentAllFaces.filter(currentPanelFace=>currentPanelFace.part==='beam');
   const currentVaultFaces=currentAllFaces.filter(currentPanelFace=>currentPanelFace.part==='vault');
   assert.equal(currentArchFaces.length,2);
-  assert.ok(currentArchFaces.every(currentPanelFace=>currentPanelFace.uvCorners[0]===0&&currentPanelFace.uvCorners[2]===1));
+  assert.ok(currentArchFaces.every(currentPanelFace=>currentPanelFace.uvCorners[0]===.02&&currentPanelFace.uvCorners[2]===.98));
   assert.ok(currentAllFaces.filter(currentPanelFace=>currentPanelFace.depthAnchor).every(currentPanelFace=>JSON.stringify(currentPanelFace.depthAnchor)===JSON.stringify(currentArchFaces[0].depthAnchor)));
   const currentArchLayers=currentArchFaces.map(currentPanelFace=>currentPanelFace.structureLayer).sort();
   assert.ok(currentVaultFaces.every(currentPanelFace=>currentPanelFace.structureLayer>currentArchLayers[0]&&currentPanelFace.structureLayer<currentArchLayers[1]));
@@ -119,7 +119,7 @@ test('진입 상판과 본체는 네 회전에서 틈·높이 단차 없이 같�
   }
  }
 });
-test('석교 아치 내부는 인접 타일과 이어지고 목교에는 추가되지 않는다',()=>{
+test('공통 아치 내부는 인접 타일과 연속된다',()=>{
  for(const currentRotationValue of [0,1,2,3]){
   const currentMapSurface=structuredClone(currentBridgeSurface);currentMapSurface.bridges[0].material='stone';
   const currentRenderOptions={...FIELD_RENDER_METRICS,rotation:currentRotationValue};
@@ -130,17 +130,17 @@ test('석교 아치 내부는 인접 타일과 이어지고 목교에는 추가�
   assert.deepEqual(currentFirstVaults.at(-1).points[2],currentNextVaults[0].points[3]);
   assert.equal(currentFirstVaults.at(-1).uvCorners[2],currentNextVaults[0].uvCorners[0]);
  }
- assert.ok(!buildBridgeCellGeometry({column:4,row:5},currentBridgeSurface,FIELD_RENDER_METRICS).some(currentPanelFace=>currentPanelFace.part==='vault'));
+ assert.ok(buildBridgeCellGeometry({column:4,row:5},currentBridgeSurface,FIELD_RENDER_METRICS).some(currentPanelFace=>currentPanelFace.part==='vault'));
 });
 
-test('석교 경간 깊이를 통일하고 목교 셀별 깊이는 유지한다',()=>{
+test('목교와 석교의 경간 깊이를 통일한다',()=>{
  const currentStoneSurface=structuredClone(currentBridgeSurface);
  currentStoneSurface.bridges[0].material='stone';
  for(const currentRotationValue of [0,1,2,3]){
   const currentRenderOptions={...FIELD_RENDER_METRICS,rotation:currentRotationValue};
   const currentCellPositions=[4,5,6].map(currentColumnIndex=>({column:currentColumnIndex,row:5}));
   assert.equal(new Set(currentCellPositions.map(currentCellPosition=>resolveFieldSurfaceDepth(currentCellPosition,currentStoneSurface,currentRenderOptions))).size,1);
-  assert.equal(new Set(currentCellPositions.map(currentCellPosition=>resolveFieldSurfaceDepth(currentCellPosition,currentBridgeSurface,currentRenderOptions))).size,3);
+  assert.equal(new Set(currentCellPositions.map(currentCellPosition=>resolveFieldSurfaceDepth(currentCellPosition,currentBridgeSurface,currentRenderOptions))).size,1);
   const currentBridgeFaces=currentCellPositions.flatMap(currentCellPosition=>buildFieldCellGeometry(currentCellPosition,currentStoneSurface,currentRenderOptions));
   assert.ok(currentBridgeFaces.filter(currentFaceRecord=>currentFaceRecord.depthAnchor).every(currentFaceRecord=>currentFaceRecord.structureLayer<1));
  }
@@ -190,4 +190,47 @@ test('육지 뒤쪽 교대 면이 앞쪽 지형 측벽을 덮지 않는다',()=>
  currentStoneSurface.bridges[0].material='stone';
  assert.equal(buildBridgeCellGeometry({column:7,row:5},currentStoneSurface,FIELD_RENDER_METRICS).filter(currentPanelFace=>currentPanelFace.part==='abutment').length,0);
  assert.equal(buildBridgeCellGeometry({column:3,row:5},currentStoneSurface,FIELD_RENDER_METRICS).filter(currentPanelFace=>currentPanelFace.part==='abutment').length,1);
+});
+
+test('교대 매립면과 뒷면 제외는 목교와 석교에 공통 적용한다',()=>{
+ for(const currentMaterialName of ['timber','stone'])for(const currentRotationValue of [0,1,2,3]){
+  const currentTestSurface=structuredClone(currentBridgeSurface);
+  currentTestSurface.bridges[0].material=currentMaterialName;
+  const currentEndFaces=[3,7].map(currentEndColumn=>buildBridgeCellGeometry({column:currentEndColumn,row:5},currentTestSurface,{...FIELD_RENDER_METRICS,rotation:currentRotationValue}));
+  assert.deepEqual(currentEndFaces.map(currentPanelFaces=>currentPanelFaces.filter(currentPanelFace=>currentPanelFace.part==='abutment').length).sort(),[0,1]);
+ }
+});
+test('목교 측면 아치는 경간 전체에서 두 면만 생성한다',()=>{
+ const currentBeamFaces=[4,5,6].flatMap(currentColumnIndex=>buildBridgeCellGeometry({column:currentColumnIndex,row:5},currentBridgeSurface,FIELD_RENDER_METRICS)).filter(currentPanelFace=>currentPanelFace.part==='beam');
+ const currentFaceKeys=currentBeamFaces.map(currentPanelFace=>JSON.stringify(currentPanelFace.points));
+ assert.equal(new Set(currentFaceKeys).size,currentFaceKeys.length);
+ assert.equal(currentBeamFaces.length,2);
+});
+test('목교 난간도 내부 접합 기둥은 절반씩 사용한다',()=>{
+ const currentRailFaces=buildBridgeCellGeometry({column:5,row:5},currentBridgeSurface,FIELD_RENDER_METRICS).filter(currentPanelFace=>currentPanelFace.part==='rail');
+ assert.ok(currentRailFaces.every(currentPanelFace=>currentPanelFace.uvCorners[0]===.05&&currentPanelFace.uvCorners[2]===.95));
+});
+
+test('목교와 석교는 네 회전에서 동일한 아치·접지·상판 형상을 공유한다',()=>{
+ for(const currentRotationValue of [0,1,2,3])for(const currentColumnIndex of [3,4,5,6,7]){
+  const currentStoneSurface=structuredClone(currentBridgeSurface);
+  currentStoneSurface.bridges[0].material='stone';
+  const currentRenderOptions={...FIELD_RENDER_METRICS,rotation:currentRotationValue};
+  const currentShapeFields=currentPanelFace=>({part:currentPanelFace.part,points:currentPanelFace.points,depthOffset:currentPanelFace.depthOffset,depthAnchor:currentPanelFace.depthAnchor,structureLayer:currentPanelFace.structureLayer});
+  assert.deepEqual(buildBridgeCellGeometry({column:currentColumnIndex,row:5},currentBridgeSurface,currentRenderOptions).map(currentShapeFields),buildBridgeCellGeometry({column:currentColumnIndex,row:5},currentStoneSurface,currentRenderOptions).map(currentShapeFields));
+ }
+});
+
+test('목교와 석교 아치의 투명 외곽을 제외하고 하단은 실체 픽셀에 매핑한다',()=>{
+ for(const currentMaterialName of ['timber','stone']){
+  const currentMapSurface=structuredClone(currentBridgeSurface);
+  currentMapSurface.bridges[0].material=currentMaterialName;
+  const currentArchFaces=buildBridgeCellGeometry({column:5,row:5},currentMapSurface,FIELD_RENDER_METRICS).filter(currentPanelFace=>currentPanelFace.part==='beam');
+  assert.equal(currentArchFaces.length,2);
+  for(const currentArchFace of currentArchFaces){
+   assert.equal(currentArchFace.uvCorners[0],.02);
+   assert.equal(currentArchFace.uvCorners[2],.98);
+   assert.equal(currentArchFace.uvCorners[5],617/1254);
+  }
+ }
 });

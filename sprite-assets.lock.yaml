@@ -913,3 +913,6 @@ files:
 - path: assets/structures/bridge-connection-details-v1.png
   source_path: assets/buildings/bridge-connection-details-v1.png
   sha256: 839d0e898b1c356895615ff240101681d73c74b8057ecda78ea27d4a05d9eea0
+- path: assets/structures/bridge-timber-components-v2.png
+  source_path: assets/buildings/bridge-timber-components-v2.png
+  sha256: 0cc949e770151b164c0972d677b1863821e68a5298557663cb56d03ff23bdffb
