@@ -358,3 +358,14 @@ test('공통 타일은 160×80 지면으로 투영한다',()=>{
  assert.equal(FIELD_RENDER_METRICS.tileWidth,160);
  assert.equal(FIELD_RENDER_METRICS.tileHeight,80);
 });
+
+test('공용 빌보드 상하 앵커는 기존 중앙값보다 우선하고 타일 Y 끝점에 접지한다',()=>{
+ const currentObjectRecord={id:'grass',position:{column:3,row:4},tileAnchor:'center'};
+ for(const [currentAnchorName,currentOffsetSign] of [['top',-1],['bottom',1]]){
+  for(const currentTileHeight of [40,80]){
+   const currentPlacement=resolveFieldSceneryPlacement({...currentObjectRecord,billboardPlacementAnchor:currentAnchorName},{x:100,y:200},{tileWidth:currentTileHeight*2,tileHeight:currentTileHeight});
+   assert.deepEqual(currentPlacement.screen,{x:100,y:200+currentOffsetSign*currentTileHeight/2});
+   assert.deepEqual(currentPlacement.position,{column:3+currentOffsetSign/2,row:4+currentOffsetSign/2});
+  }
+ }
+});

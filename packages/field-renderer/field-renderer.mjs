@@ -381,6 +381,8 @@ export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,curr
 
 /** 접지 앵커는 맵 기준 앞·중앙·뒤이며 카메라 회전에도 월드 위치를 유지한다. */
 export const FIELD_SCENERY_TILE_ANCHORS = Object.freeze({
+ top:Object.freeze({column:-.5,row:-.5}),
+ bottom:Object.freeze({column:.5,row:.5}),
  back:Object.freeze({column:-.25,row:-.25}),
  center:Object.freeze({column:0,row:0}),
  front:Object.freeze({column:.25,row:.25}),
@@ -406,7 +408,7 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
 
 /** 소속 타일의 고도를 유지하고 선택한 접지 위치만 회전·투영한다. */
 export function resolveFieldSceneryPlacement(currentObjectRecord,currentTileCenter,currentRenderOptions=FIELD_RENDER_METRICS){
- const currentAnchorName=currentObjectRecord.tileAnchor??'center';
+ const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
  if(!Object.hasOwn(FIELD_SCENERY_TILE_ANCHORS,currentAnchorName))throw Error('지원하지 않는 타일 앵커: '+currentAnchorName);
  const currentAnchorOffset=FIELD_SCENERY_TILE_ANCHORS[currentAnchorName];
  const currentViewOffset=rotateSurfacePosition(currentAnchorOffset,currentRenderOptions.rotation??0);
