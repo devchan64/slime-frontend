@@ -232,3 +232,6 @@ cinder_ash_trail_v1: assets/tiles/terrain/road/cinder-ash-trail-v1.png
 cinder_ash_ground_v1: assets/tiles/terrain/non-road/cinder-ash-ground-v1.png
 clover_bank_rabbit_burrow_v1: assets/billboards/clover-bank-rabbit-burrow-v1.png
 crystal_cut_quartz_outcrop_v1: assets/billboards/crystal-cut-quartz-outcrop-v1.png
+crystal_cut_quartz_shelf_v1: assets/billboards/crystal-cut-quartz-shelf-v1.png
+crystal_cut_quartz_spires_v1: assets/billboards/crystal-cut-quartz-spires-v1.png
+crystal_cut_quartz_rubble_v1: assets/billboards/crystal-cut-quartz-rubble-v1.png

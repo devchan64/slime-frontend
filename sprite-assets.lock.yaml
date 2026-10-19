@@ -883,3 +883,12 @@ files:
 - path: assets/effects/field-battle/field-monster-vanish-v1.png
   source_path: assets/sprites/effects/field-battle/field-monster-vanish-v1.png
   sha256: 8c83316fbccd839e954b98ed352c14774223a3b2f01db254795c45fb27c6e178
+- path: assets/structures/crystal-cut-quartz-shelf-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-shelf-v1.png
+  sha256: 9f7d28d6439f7a0507046b954ba1b6c62b76cea8f5fdc74f510eb68956592739
+- path: assets/structures/crystal-cut-quartz-spires-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-spires-v1.png
+  sha256: 4ab97e088343d9fbdc4e0c037622eb8482806b8d26de1d34ac5642de14a6edbc
+- path: assets/structures/crystal-cut-quartz-rubble-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-rubble-v1.png
+  sha256: 2b1f6c436c056abd4096045c130296aa10bc572f97b554eeedac4af1dff44874
