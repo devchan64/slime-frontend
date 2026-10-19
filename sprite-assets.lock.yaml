@@ -871,3 +871,6 @@ files:
 - path: assets/structures/cinder-path-basalt-outcrop-v1.png
   source_path: assets/billboards/cinder-path-basalt-outcrop-v1.png
   sha256: 5dffb45809a39949e8c0998b66da2aef093bc4bc2e415d9c36707814a83192bb
+- path: assets/structures/clover-bank-rabbit-burrow-v1.png
+  source_path: assets/billboards/clover-bank-rabbit-burrow-v1.png
+  sha256: 51b1f147125d7065fd7ca0b4ee1320643528e1aa689f28aa4a3e4c81ce33f1c3
