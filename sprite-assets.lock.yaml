@@ -874,3 +874,6 @@ files:
 - path: assets/structures/clover-bank-rabbit-burrow-v1.png
   source_path: assets/billboards/clover-bank-rabbit-burrow-v1.png
   sha256: 51b1f147125d7065fd7ca0b4ee1320643528e1aa689f28aa4a3e4c81ce33f1c3
+- path: assets/structures/crystal-cut-quartz-outcrop-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-outcrop-v1.png
+  sha256: 2a5f0627dd8ce9333f0d74ffbbaedce4b0c783670f9843bbcb94aa49e072960c
