@@ -841,3 +841,18 @@ files:
 - path: assets/structures/ash-edge-scorched-waystone-v1.png
   source_path: assets/billboards/ash-edge-scorched-waystone-v1.png
   sha256: 0349d66bc3ef486ad26794566540df50c870be9ebd1d5cda3721c76be8ac6009
+- path: assets/structures/quarry-hand-winch-v1.png
+  source_path: assets/billboards/quarry-hand-winch-v1.png
+  sha256: 441c93652703968e0b2ccee7855988eca033898a30e5c630f2c4b88690908544
+- path: assets/structures/quarry-mason-tools-v1.png
+  source_path: assets/billboards/quarry-mason-tools-v1.png
+  sha256: 0ec29256acfe2fee6f71c1c9b690aa4ca6efb89a40be5bde0d1fb40f2bab7e07
+- path: assets/structures/brine-bank-carrying-buckets-v1.png
+  source_path: assets/billboards/brine-bank-carrying-buckets-v1.png
+  sha256: 4a8623c177363d274683cde597ec666789a2c6bdf2d282e888c8d28618f20760
+- path: assets/structures/brine-bank-salt-drying-rack-v1.png
+  source_path: assets/billboards/brine-bank-salt-drying-rack-v1.png
+  sha256: c909b74c6fe33f8155a7492d0cde41dad5bac5a63a33b8657111f6961dfc2300
+- path: assets/structures/brine-bank-saltbush-v1.png
+  source_path: assets/billboards/brine-bank-saltbush-v1.png
+  sha256: 97c85b7f33eddc7a33f06202362f5b28a9918d8dfe2caa7496802e018f1c30d0
