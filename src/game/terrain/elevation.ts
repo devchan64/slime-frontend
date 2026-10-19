@@ -50,10 +50,18 @@ export type TileFace = { points:{x:number;y:number}[]; top:boolean };
 export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSurface:Surface):TileFace[]{
   return buildSurfaceStairs(currentStairRecord,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
 }
-export function canStep(start: Position, end: Position, map: Surface) {
-  if (!inBounds(start,map) || !inBounds(end,map) || Math.abs(start.column-end.column)+Math.abs(start.row-end.row) !== 1) return false;
-  return Math.abs(heightAt(start,map)-heightAt(end,map))<=1;
+export function canStep(currentStartPosition:Position,currentEndPosition:Position,currentMapSurface:Surface) {
+  if (!inBounds(currentStartPosition,currentMapSurface) || !inBounds(currentEndPosition,currentMapSurface) || Math.abs(currentStartPosition.column-currentEndPosition.column)+Math.abs(currentStartPosition.row-currentEndPosition.row)!==1) return false;
+  const currentMovementVersion=currentMapSurface.terrainMovementVersion??1;
+  if(currentMovementVersion!==1&&currentMovementVersion!==2)throw new Error('지원하지 않는 지형 이동 규칙 버전');
+  const currentElevationDifference=Math.abs(heightAt(currentStartPosition,currentMapSurface)-heightAt(currentEndPosition,currentMapSurface));
+  if(currentMovementVersion===2)return currentElevationDifference<=1;
+  if(currentElevationDifference===0)return true;
+  return (currentMapSurface.ramps??[]).some(currentTerrainLink=>
+    same(currentTerrainLink.start,currentStartPosition)&&same(currentTerrainLink.end,currentEndPosition)||
+    same(currentTerrainLink.end,currentStartPosition)&&same(currentTerrainLink.start,currentEndPosition));
 }
+
 export function cliffFaces(currentCellPosition:Position,currentMapSurface:Surface){
   return buildSurfaceCliffs(currentCellPosition,currentMapSurface,resolveSurfaceRenderOptions(currentMapSurface));
 }

@@ -533,6 +533,10 @@ export class MainScene extends Phaser.Scene {
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
+      for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
+        const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
+        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,this.depth(currentObjectPlacement.position)+TERRAIN_DEPTH.overlay);
+      }
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(
         (a, b) =>
@@ -574,10 +578,6 @@ export class MainScene extends Phaser.Scene {
       for (const gate of s.map.connections) {
         const p = this.project(gate);
         this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
-      }
-      for(const currentObjectRecord of s.map.objects??[]){
-        const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
-        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,this.depth(currentObjectPlacement.position)+TERRAIN_DEPTH.overlay);
       }
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
@@ -672,7 +672,7 @@ export class MainScene extends Phaser.Scene {
       if(!currentTerrainName)throw new Error('바닥 타일 경계의 지형이 없습니다');
       return currentTerrainName;
     };
-    const currentBillboardRecords=(s.map.objects??[]).map(currentObjectRecord=>({...currentObjectRecord,position:this.viewPosition(currentObjectRecord.position)}));
+    const currentBillboardRecords=(definition.objects??[]).map(currentObjectRecord=>({...currentObjectRecord,position:this.viewPosition(currentObjectRecord.position)}));
     this.terrainCache=new TerrainWindowCache((viewColumn,viewRow)=>{
       const objects:Phaser.GameObjects.GameObject[]=[];
       const remember = <T extends Phaser.GameObjects.GameObject>(object:T):T => {
@@ -691,7 +691,7 @@ export class MainScene extends Phaser.Scene {
       const currentCellIsWater=waterCells.has(`${column},${row}`);
       if(field||!s.map.safeTown||s.map.elevations?.some(currentHeightRow=>currentHeightRow.some(currentHeightValue=>currentHeightValue>0))){
         const currentConnectionMask=currentCellIsWater?rotateConnections(waterConnections(cell,definition,waterCells),this.rotation):isFieldRoadTerrain(kind)?rotateConnections(roadConnections(cell,definition,road),this.rotation):0;
-        const currentTileTextures=field?{ground:'terrain-source-'+kind,cliff:CLIFF_WALL_TEXTURE,tread:'terrain-source-'+kind,resolveGroundMaterial:(currentNeighborPosition:Position)=>resolveBattleTerrainResourceFrame(resolveGroundMaterial(currentNeighborPosition),currentNeighborPosition.column,currentNeighborPosition.row)}:s.map.safeTown?resolveCityTileTextures(this,kind,s.map.id,currentConnectionMask):resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,s.map.groundOverrides);
+        const currentTileTextures=field?resolveFieldTileTextures(this,kind,cell,field.id,currentConnectionMask,currentNeighborPosition=>resolveBattleTerrainResourceFrame(resolveGroundMaterial(currentNeighborPosition),currentNeighborPosition.column,currentNeighborPosition.row),field.groundOverrides):s.map.safeTown?resolveCityTileTextures(this,kind,s.map.id,currentConnectionMask):resolveFieldTileTextures(this,kind,cell,s.map.id,currentConnectionMask,resolveGroundMaterial,s.map.groundOverrides);
         const currentRenderOptions={...FIELD_RENDER_METRICS,tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,originX:MAP_ORIGIN.x,originY:MAP_ORIGIN.y};
         for(const currentRenderObject of drawFieldCellObjects(this,this.viewPosition(cell),this.viewSurface!,currentRenderOptions,currentTileTextures,depth,false,currentBillboardRecords))remember(currentRenderObject);
       }else{

@@ -34,5 +34,10 @@ test('야외·마을·전장은 실제 사용 지형과 해당 오브젝트만 �
  const currentTownKeys=collectMapResourceKeys({...currentFieldRecord,id:'iseulon',objects:[],buildings:[],connections:[{}]},'town');assert.ok(currentTownKeys.includes('terrain-source-iseulon-grass-mud-frame'));assert.ok(currentTownKeys.includes('waypoint-guide-v1'));assert.ok(!currentTownKeys.includes('orchard-tree'));
  const currentSpriteKeys=collectMapResourceKeys({...currentFieldRecord,id:'iseulon',objects:[],buildings:[{id:'iseulon-guild',facilityKind:'guild',sprite:{textureKey:'town-iseulon-guild-v1'}}]},'town');assert.ok(currentSpriteKeys.includes('town-iseulon-guild-v1'));assert.ok(!currentSpriteKeys.some(currentTextureKey=>/building-wall|wood-wall|stonewarm/.test(currentTextureKey)));assert.ok(!currentSpriteKeys.includes('town-reedhaven-guild-v1'));
  const currentBattleKeys=collectMapResourceKeys({id:'battle',cells:[{terrain:'grass',column:0,row:0},{terrain:'rock',column:1,row:0}]},'battle');assert.ok(currentBattleKeys.includes('terrain-source-battle-rock-b'));assert.ok(!currentBattleKeys.includes('orchard-tree'));
+ const currentSharedBattleKeys=collectMapResourceKeys({id:'battle',cells:[{terrain:'upland-grass-earth',column:0,row:0}],objects:[{kind:'billboard',textureKey:'orchard-tree'}],groundOverrides:[{textureKey:'orchard-floor'}]},'battle');
+ assert.ok(currentSharedBattleKeys.includes('terrain-source-upland-grass-earth-v1'));
+ assert.ok(currentSharedBattleKeys.includes('orchard-tree'));assert.ok(currentSharedBattleKeys.includes('orchard-floor'));
+ assert.ok(!currentSharedBattleKeys.includes('terrain-source-upland-grass-earth'));
+ assert.throws(()=>collectMapResourceKeys({id:'battle',cells:[{terrain:'unknown-material',column:0,row:0}]},'battle'),/재질 코드/);
  assert.throws(()=>collectMapResourceKeys({...currentFieldRecord,terrainRows:['x']},'field'),/지형 코드/);
 });

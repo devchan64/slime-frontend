@@ -55,3 +55,18 @@ test('지형 연결·전장 전환은 이전 계획을 무효화한다',()=>{
  }
  assert.equal(previous.surface.columns,5);assert.equal(previous.surface.rows,7);
 });
+
+
+test('전장은 공용 리소스를 자신의 배치로 사용하고 야외 배치 변경과 분리한다',()=>{
+ const currentBattleState=field();
+ currentBattleState.battle={field:{id:'battle',columns:5,rows:5,cells:[],objects:[{id:'tree',kind:'billboard',textureKey:'shared-tree',position:{column:1,row:1}}],groundOverrides:[]},blocked:[]};
+ const currentBattleSignature=terrainRenderSignature(currentBattleState,0);
+ currentBattleState.map.objects=[{textureKey:'shared-tree',position:{column:4,row:4}}];
+ currentBattleState.map.terrainRows=['gg'];currentBattleState.map.terrainCodes={g:'grass'};
+ assert.equal(terrainRenderSignature(currentBattleState,0),currentBattleSignature);
+ currentBattleState.battle.field.objects[0].position.column=2;
+ assert.notEqual(terrainRenderSignature(currentBattleState,0),currentBattleSignature);
+ const currentMovedSignature=terrainRenderSignature(currentBattleState,0);
+ currentBattleState.battle.field.groundOverrides.push({position:{column:2,row:1},textureKey:'shared-floor'});
+ assert.notEqual(terrainRenderSignature(currentBattleState,0),currentMovedSignature);
+});

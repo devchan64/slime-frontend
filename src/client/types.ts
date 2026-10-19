@@ -40,6 +40,8 @@ export type Unit = Appearance & {
 } & ({ side: "ally"; attack: number; defense: number; speed: number; move: number; range: number[] }
   | { side: "enemy"; attack?: number; defense?: number; speed?: number; move?: number; range?: number[] });
 export type Battlefield = Surface & {
+  objects?: import('../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[];
+  groundOverrides?: {position:Position;textureKey:string}[];
   id: string; version: string; name?: string; description?: string; columns: number; rows: number;
   sourceMapId?: string; sourceMapVersion?: string; selection?: "random" | "fixed"; eventId?: string | null;
   environment?: { themeId: string; backdrop: string; terrainPalette: string[] };

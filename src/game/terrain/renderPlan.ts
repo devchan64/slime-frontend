@@ -7,7 +7,7 @@ import { rotatedSurface, type MapRotation } from './rotation';
 export function terrainRenderSignature(state: State, rotation: number): string {
   const field=state.battle?.field, map=field ?? state.map;
   return JSON.stringify([rotation, map.terrainMovementVersion, map.columns, map.rows, map.elevations, map.ramps, map.elevationTiles,
-    field?.cells, state.map.terrainRows, state.map.terrainCodes, state.battle?.blocked ?? state.map.blocked, field?.environment?.themeId ?? state.map.id,
+    field?.cells, map.objects, map.groundOverrides, field ? null : [state.map.terrainRows, state.map.terrainCodes], state.battle?.blocked ?? state.map.blocked, field?.environment?.themeId ?? state.map.id,
     field ? null : [state.map.startPoint,state.map.safeRadius,state.map.safeTown,state.map.buildings,state.map.objects,state.map.groundOverrides,
       state.map.connections.map(({column,row})=>({column,row}))]]);
 }

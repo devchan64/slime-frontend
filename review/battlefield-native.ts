@@ -1,5 +1,5 @@
 import {setLocale} from '../src/i18n';
-import {mountBattlefieldReview} from './battlefield-runtime';
+import {mountBattlefieldReview,BATTLE_REVIEW_DEFAULT_FIELD} from './battlefield-runtime';
 import currentGameStyles from '../src/styles.css?inline';
 import currentBattleStyles from './battlefield-preview.css?inline';
 
@@ -12,6 +12,6 @@ export function mountReviewPage(currentReviewHost:HTMLElement,currentReviewOptio
  const currentReviewStyles=document.createElement('style');currentReviewStyles.textContent=BATTLE_REVIEW_STYLES;
  const currentReviewDocument=document.createElement('section');currentReviewDocument.setAttribute('data-review-document','');
  currentReviewShadow.append(currentReviewStyles,currentReviewDocument);
- const currentReviewController=mountBattlefieldReview(currentReviewDocument,{field:currentReviewOptions.field??'all',locale:currentReviewOptions.locale,overview:currentReviewOptions.overview??false,controls:false});
+ const currentReviewController=mountBattlefieldReview(currentReviewDocument,{field:currentReviewOptions.field??BATTLE_REVIEW_DEFAULT_FIELD,locale:currentReviewOptions.locale,overview:currentReviewOptions.overview??false,controls:false});
  return {...currentReviewController,dispose(){currentReviewController.dispose();currentReviewShadow.replaceChildren();}};
 }

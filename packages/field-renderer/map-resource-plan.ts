@@ -16,7 +16,7 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
  const currentTextureKeys=new Set<string>();
  if(currentMapKind!=='field')currentTextureKeys.add('terrain-source-grass');
  for(const currentTerrainName of currentTerrainNames){
-  const currentTerrainFrame=currentMapKind==='field'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentMapKind==='battle'?currentTerrainName:currentTerrainName==='grass'?resolveGrassFrameForMap(currentMapRecord.id):currentTerrainName==='paving'?resolvePavingFrameForMap(currentMapRecord.id):currentTerrainName==='reed-bed'?resolveReedFrameForMap(currentMapRecord.id):resolveTownGroundFrame(currentMapRecord.id,currentTerrainName);
+  const currentTerrainFrame=currentMapKind==='field'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentMapKind==='battle'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentTerrainName==='grass'?resolveGrassFrameForMap(currentMapRecord.id):currentTerrainName==='paving'?resolvePavingFrameForMap(currentMapRecord.id):currentTerrainName==='reed-bed'?resolveReedFrameForMap(currentMapRecord.id):resolveTownGroundFrame(currentMapRecord.id,currentTerrainName);
   currentTextureKeys.add('terrain-source-'+currentTerrainFrame);
   if(['water','boulder','flowers'].includes(currentTerrainName))currentTextureKeys.add('terrain-source-grass');
  }

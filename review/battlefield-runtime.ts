@@ -10,14 +10,16 @@ const BATTLE_REVIEW_POLL_MS=50;
 const BATTLE_REVIEW_ZOOM_STEP=0.15;
 const BATTLE_REVIEW_PREPARE_MS=60000;
 const BATTLE_REVIEW_FIXTURES=currentBattleFixtures as unknown as State[];
-const BATTLE_REVIEW_CHOICES:[string,string][]=[['전체 6종 비교 (랜덤 5 + 이벤트 1)','all'],...BATTLE_REVIEW_FIXTURES.map((currentFixtureRecord):[string,string]=>{
+const BATTLE_REVIEW_CHOICES:[string,string][]=BATTLE_REVIEW_FIXTURES.map((currentFixtureRecord):[string,string]=>{
  const currentFieldRecord=currentFixtureRecord.battle?.field;
  if(!currentFieldRecord||typeof currentFieldRecord.name!=='string'||!currentFieldRecord.name.trim()||typeof currentFieldRecord.id!=='string'||!currentFieldRecord.id.trim())throw new Error('검수 전장의 이름·ID가 없습니다.');
  return [currentFieldRecord.name,currentFieldRecord.id];
-})];
+});
+if(!BATTLE_REVIEW_CHOICES.length)throw new Error('등록된 검수 전장이 없습니다.');
+export const BATTLE_REVIEW_DEFAULT_FIELD=BATTLE_REVIEW_CHOICES[0][1];
 
 export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentReviewOptions:{field:string;locale:Locale;overview:boolean;controls:boolean}){
- let currentSelectedField='all';
+ let currentSelectedField=BATTLE_REVIEW_DEFAULT_FIELD;
  let currentReviewStatus='화면 준비 중';
  let currentReviewDisposed=false;
  let currentSelectionEpoch=0;
@@ -31,7 +33,7 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
  for(const [currentFieldLabel,currentFieldIdentifier] of BATTLE_REVIEW_CHOICES){
   const currentFieldOption=document.createElement('option');currentFieldOption.value=currentFieldIdentifier;currentFieldOption.textContent=currentFieldLabel;currentFieldSelector.append(currentFieldOption);
  }
- currentReviewRoot.classList.toggle('overview',currentReviewOptions.overview);
+ currentReviewRoot.classList.add('single');
  if(currentReviewOptions.controls){
   const currentHeaderElement=document.createElement('header');
   const currentHeadingElement=document.createElement('h1');currentHeadingElement.textContent='전투필드 · 지형 검수';
@@ -51,14 +53,9 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
   releaseReviewSelection();
   currentSelectedField=currentFieldIdentifier;
   currentFieldSelector.value=currentFieldIdentifier;
-  const currentSingleField=currentSelectedField!=='all';
-  currentReviewRoot.classList.toggle('single',currentSingleField);
-  currentGalleryElement.className='';
-  const currentShownFixtures=currentSingleField?BATTLE_REVIEW_FIXTURES.filter(currentFixtureRecord=>currentFixtureRecord.battle!.field!.id===currentSelectedField):BATTLE_REVIEW_FIXTURES;
+  const currentFixtureRecord=BATTLE_REVIEW_FIXTURES.find(currentFixtureRecord=>currentFixtureRecord.battle!.field.id===currentSelectedField)!;
   const currentRenderEpoch=currentSelectionEpoch;
-  const currentReadyFields=new Set<string>();
-  updateReviewStatus(`전장 0/${currentShownFixtures.length} 준비 중`);
-  for(const currentFixtureRecord of currentShownFixtures){
+  updateReviewStatus(`${currentFixtureRecord.battle!.field.name} 준비 중`);
    const currentBattleRecord=currentFixtureRecord.battle!;
    const currentFieldRecord=currentBattleRecord.field!;
    const currentSectionElement=document.createElement('section');currentSectionElement.className='field';
@@ -75,7 +72,7 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
    };
    const {game:currentGameInstance,scene:currentSceneInstance}=createGame(currentCanvasElement,()=>{},()=>{
     if(!currentSelectionActive())return;
-    currentReadyFields.add(currentFieldRecord.id);updateReviewStatus(`전장 ${currentReadyFields.size}/${currentShownFixtures.length} 렌더링 완료 · 12×10 타일`);
+    updateReviewStatus(`${currentFieldRecord.name} 렌더링 완료 · ${currentFieldRecord.columns}×${currentFieldRecord.rows} 타일`);
    },currentFailureNotice=>reportReviewFailure(noticeText(currentFailureNotice,currentReviewOptions.locale,t)),BattlefieldReviewGame,collectMapResourceKeys(currentFieldRecord,'battle'),[...new Set(currentBattleRecord.units.map(currentUnitRecord=>currentUnitRecord.side==='enemy'?(currentUnitRecord.monsterTypeId??currentUnitRecord.appearance??'slime'):'human'))]);
    const currentCameraMenu=document.createElement('nav');currentCameraMenu.className='map-camera-controls';currentCameraMenu.setAttribute('aria-label','맵 화면 조정');
    const currentCameraActions:[string,string,()=>void][]=[['맵 축소','−',()=>currentSceneInstance.adjustZoom(-BATTLE_REVIEW_ZOOM_STEP)],['맵 확대','＋',()=>currentSceneInstance.adjustZoom(BATTLE_REVIEW_ZOOM_STEP)],['시점 복귀','복귀',()=>currentSceneInstance.focus()]];
@@ -90,10 +87,10 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
     try{currentSceneInstance.setState(currentFixtureRecord);}catch(currentPreparationError){reportReviewFailure(currentPreparationError instanceof Error?currentPreparationError.message:String(currentPreparationError));}
    },BATTLE_REVIEW_POLL_MS);
    currentReleaseCallbacks.push(()=>{clearInterval(currentPreparationTimer);currentGameInstance.destroy(true);});
-  }
  }
  currentFieldSelector.onchange=()=>selectReviewField(currentFieldSelector.value);
- try{selectReviewField(currentReviewOptions.field);}catch(currentMountError){releaseReviewSelection();throw currentMountError;}
+ // 이전 전체 비교 링크는 첫 번째 개별 전장으로 전환한다.
+ try{selectReviewField(currentReviewOptions.field==='all'?BATTLE_REVIEW_DEFAULT_FIELD:currentReviewOptions.field);}catch(currentMountError){releaseReviewSelection();throw currentMountError;}
  return {
   readState:()=>({choices:BATTLE_REVIEW_CHOICES.map(currentChoiceRecord=>[...currentChoiceRecord]),field:currentSelectedField,status:currentReviewStatus}),
   selectField:selectReviewField,
