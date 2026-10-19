@@ -916,3 +916,6 @@ files:
 - path: assets/structures/bridge-timber-components-v2.png
   source_path: assets/buildings/bridge-timber-components-v2.png
   sha256: 0cc949e770151b164c0972d677b1863821e68a5298557663cb56d03ff23bdffb
+- path: assets/structures/granary-flats-ripe-wheat-v1.png
+  source_path: assets/billboards/granary-flats-ripe-wheat-v1.png
+  sha256: 97340a2ec66ce7e5b17864f1a3a49ed884cda4713e61f27bc7f534a2af6a8b13
