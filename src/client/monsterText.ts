@@ -15,6 +15,9 @@ export function localizedBattle(battle: Battle, locale: 'ko' | 'en'): Battle {
 }
 
 export function localizedMonsters(state: State, locale: 'ko' | 'en'): State {
-  return {...state, monsters: state.monsters.map(monster => localizedMonster(monster, locale)),
+  return {...state, monsters: state.monsters.map(currentMonsterRecord => ({...localizedMonster(currentMonsterRecord, locale),
+    ...(currentMonsterRecord.combatIndicator ? {combatIndicator: {...currentMonsterRecord.combatIndicator,
+      label: currentMonsterRecord.combatIndicator.labelTranslations[locale]}} : {}),
+  })),
     battle: state.battle ? localizedBattle(state.battle, locale) : state.battle};
 }

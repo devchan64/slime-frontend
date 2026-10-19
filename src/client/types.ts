@@ -1,3 +1,9 @@
+export type FieldCombatIndicator = {effect: 'BATTLE_ACTIVE'; labelTranslations: Record<'ko' | 'en', string>; label?: string};
+export type MapChatBattleEvent = {
+  schemaVersion: 1; eventId: string; channelId: string; mapId: string; battleId: string; monsterId: string;
+  phase: 'STARTED' | 'ENDED'; effect: 'BATTLE_ACTIVE' | 'MONSTER_VANISH' | 'NONE';
+  position: Position; occurredAt: number; expiresAt: number;
+};
 export type AutomaticBattleRule = {
   condition: 'ALWAYS' | 'SELF_HP' | 'ALLY_HP';
   hpPercent?: number | null;
@@ -163,7 +169,9 @@ export type State = {
       targetWaypointId?: string;
     })[];
   };
+  mapChatBattleEvents?: MapChatBattleEvent[];
   monsters: (Appearance & {
+    combatIndicator?: FieldCombatIndicator;
     name?: string;
     id: string;
     position: Position;

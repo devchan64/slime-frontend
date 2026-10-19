@@ -66,3 +66,9 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 걷기 프레임은 이미지 생성 시각이 아니라 필드·전투 이동 트래커의 경과 시간으로 선택한다. 상태 갱신·선택 변경·뷰포트 재진입으로 이미지가 재생성되어도 진행 중인 프레임을 유지한다.
 
 필드 이동 대기열은 각 위치 갱신에 포함된 서버 방향도 함께 보관한다. 좌우 반전은 현재 재생 구간의 방향을 따르며 방향이 없는 구형 응답을 좌표로 추측하지 않는다.
+
+### 필드 전투·소멸 표시
+
+`fieldBattleEffects.ts`는 서버가 제공한 `combatIndicator`를 금빛 이펙트와 번역된 상태 글자로 표시한다. `fieldBattleTimeline.ts`는 같은 채널의 `mapChatBattleEvents` 중 확정된 `ENDED/MONSTER_VANISH`만 처리한다. 서버 발생·만료 시각으로 남은 효과를 표시하고 중복 이벤트·오래된 응답으로 재생을 처음부터 시작하지 않는다. 채널 변경·씬 해제 시 정리하며 화면 재작성은 같은 이벤트의 남은 진행률을 유지한다. 전투 승패·몹 소멸·전투 가능 여부를 클라이언트에서 계산하지 않는다.
+
+이미지는 `slime-assets/assets/sprites/effects/field-battle/`의 ImageGen 투명 PNG 두 개를 등록 해시로 직접 참조한다. 효과 변화는 공용 6fps 간격을 따르며 움직임 줄이기 설정에서는 확대·상승을 생략한다. 원본은 단일 이미지이고 맥동·확대·페이드 재생은 브라우저에서 처리한다.

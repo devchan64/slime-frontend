@@ -1,3 +1,6 @@
+import {FieldBattleTimeline} from '../animation/fieldBattleTimeline';
+import {FieldBattleEffectLayer, preloadFieldBattleEffects, createFieldCombatIndicator, animateFieldCombatIndicator} from '../animation/fieldBattleEffects';
+import type {FieldCombatIndicator} from '../../client/types';
 import {CLIFF_WALL_TEXTURE} from '../terrain/textures';
 import {resolveBattleTerrainResourceFrame} from '../../../packages/field-renderer/map-resource-plan';
 import {collectMapTextureSources} from '../../../packages/field-renderer/town-renderer';
@@ -91,6 +94,8 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
 export class MainScene extends Phaser.Scene {
+  private fieldBattleTimeline = new FieldBattleTimeline();
+  private fieldBattleEffectLayer = new FieldBattleEffectLayer();
   private battleSpawnRegionsVisible=false;
   setBattleSpawnRegions(currentRegionsVisible:boolean){
     this.battleSpawnRegionsVisible=currentRegionsVisible;
@@ -151,6 +156,7 @@ export class MainScene extends Phaser.Scene {
           updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementElapsed);
         if (item.object.flipX) item.object.setOrigin(1 - item.object.originX, item.object.originY);
       }
+      if (item.object.getData("fieldCombatIndicator")) animateFieldCombatIndicator(item.object, now);
       item.object.setPosition(item.x+offset.x,item.y+offset.y);
       const currentActorDepth = item.depth+(item.depth<this.annotationDepth() ? offset.depth : 0);
       if (item.object.depth !== currentActorDepth) item.object.setDepth(currentActorDepth);
@@ -204,6 +210,7 @@ export class MainScene extends Phaser.Scene {
     }else preloadTerrain(this);
 
     preloadActors(this,this.currentActorResourceKinds);
+    preloadFieldBattleEffects(this);
     if(!this.currentMapResourceKeys)preloadFieldRestEffectSprite(this);
     if(!this.currentMapResourceKeys)preloadSafeBarrierAuraSprite(this);
     if(!this.currentMapResourceKeys)preloadSafeTower(this);
@@ -249,6 +256,8 @@ export class MainScene extends Phaser.Scene {
       this.actorCache=null;
       this.actorEntries=[];
       this.fieldRestAnimation.resetRestAnimations();
+      this.fieldBattleTimeline.clearBattleEvents();
+      this.fieldBattleEffectLayer.clearBattleEffects();
       this.fieldMotion.clear();
       this.battleMotion.clear();
       this.movingObjects=[];
@@ -384,6 +393,7 @@ export class MainScene extends Phaser.Scene {
     if (!this.state || this.state.location.id !== s.location.id || this.state.generation !== s.generation || this.state.epoch !== s.epoch ||
         Boolean(this.state.battle) !== Boolean(s.battle) || this.state.me.position.column !== s.me.position.column || this.state.me.position.row !== s.me.position.row)
       this.fieldIdleAction.resetIdleAction(performance.now());
+    this.fieldBattleTimeline.synchronizeBattleEvents(s, performance.now());
     this.state = s;
     this.receivedStateTimestamp = performance.now();
     this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
@@ -403,6 +413,7 @@ export class MainScene extends Phaser.Scene {
     this.syncTerrainViewport();
     this.syncActorViewport();
     this.animateFieldActors();
+    this.renderFieldBattleEffects();
     updateFieldActorOcclusion(this);
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
@@ -421,8 +432,14 @@ export class MainScene extends Phaser.Scene {
       this.cameras.main.centerOn(point.x, point.y);
       this.syncActorViewport();
       this.animateFieldActors();
-    updateFieldActorOcclusion(this);
+      this.renderFieldBattleEffects();
+      updateFieldActorOcclusion(this);
     }
+  }
+  private renderFieldBattleEffects() {
+    this.fieldBattleEffectLayer.renderBattleEffects(this,
+      this.state && !this.state.battle ? this.fieldBattleTimeline.sampleBattleEffects(performance.now()) : [],
+      currentFieldPosition => ({...this.calculateActorPlacement(currentFieldPosition), depth:this.annotationDepth()}));
   }
   private draw() {
     const s = this.state;
@@ -601,7 +618,7 @@ export class MainScene extends Phaser.Scene {
           m.position,
           m.disposition === "AGGRESSIVE" ? COLORS.enemy : COLORS.passive,
           m.name || "슬라임",
-          false, undefined, false, m, undefined, `monster:${m.id}`, m.facing,
+          false, undefined, false, m, undefined, `monster:${m.id}`, m.facing, false, m.combatIndicator,
         );
       for (const member of s.members)
         if (member.mode !== "IN_BATTLE")
@@ -615,6 +632,7 @@ export class MainScene extends Phaser.Scene {
     }
     this.rebuildActorViewport();
     this.animateFieldActors();
+    this.renderFieldBattleEffects();
     updateFieldActorOcclusion(this);
     const location = s.location.id;
     if (this.preparedLocation !== location) {
@@ -787,7 +805,7 @@ export class MainScene extends Phaser.Scene {
     const left=camera.scrollX+(camera.width-width)/2,top=camera.scrollY+(camera.height-height)/2;
     this.actorCache.sync({left,top,right:left+width,bottom:top+height});
   }
-  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string, actorWorldFacing?: WorldFacing, actorRestIsActive = false) {
+  private unit(pos: Position, color: number, label: string, active: boolean, rank?: number, completed = false, appearance?: Appearance, health?: Pick<Unit, "hp" | "maxHp" | "side" | "healthVisibility">, motionKey?: string, actorWorldFacing?: WorldFacing, actorRestIsActive = false, currentFieldCombatIndicator?: FieldCombatIndicator) {
     const firstChild=this.children.list.length;
     const p = this.calculateActorPlacement(pos, appearance),
       g = this.add.graphics();
@@ -809,6 +827,8 @@ export class MainScene extends Phaser.Scene {
     for (const createdActorChild of this.children.list.slice(firstChild)) {
       if (createdActorChild instanceof Phaser.GameObjects.Image && !createdActorChild.getData('characterOutlineLayer')) createdActorChild.setData('actorSelectionPosition', {...pos});
     }
+    if (currentFieldCombatIndicator && !this.state?.battle)
+      createFieldCombatIndicator(this, p, height, this.annotationDepth(), currentFieldCombatIndicator);
     const annotation = this.add.graphics().setDepth(this.annotationDepth());
     if (rank !== undefined) {
       annotation.fillStyle(active ? COLORS.player : completed ? COLORS.blocked : 0x10202a);
@@ -822,7 +842,7 @@ export class MainScene extends Phaser.Scene {
         fontFamily: "sans-serif", fontSize: "18px", fontStyle: "bold",
         color: active ? "#10202a" : completed ? "#8395a0" : "#ffffff",
       }).setOrigin(CENTER).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
-    } else if (active || (this.selected?.column === pos.column && this.selected.row === pos.row)) {
+    } else if (!currentFieldCombatIndicator && (active || (this.selected?.column === pos.column && this.selected.row === pos.row))) {
       this.add.text(p.x, p.y - height - LABEL_OFFSET / 2, label, appearance ? { ...TEXT, color: `#${color.toString(16).padStart(6, "0")}` } : TEXT).setOrigin(CENTER, 1).setDepth(this.annotationDepth() + ACTOR_DEPTH.labelOffset);
     }
     if(motionKey)for(const child of this.children.list.slice(firstChild)){
