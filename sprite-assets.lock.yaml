@@ -1582,3 +1582,27 @@ files:
 - path: assets/structures/field-salt-flat-salt-shrub-size-large-v1.png
   source_path: assets/billboards/field-salt-flat-salt-shrub-size-large-v1.png
   sha256: 844ec1222c1c40c99ad73324b7aaf1fffeb399f6e4e618a5ae88e7163d25ecbe
+- path: assets/structures/field-meadow-field-flowers-4-v1.png
+  source_path: assets/billboards/field-meadow-field-flowers-4-v1.png
+  sha256: 723b1ec377e721628d3c21d207ee365835ecdf82236ec025b7da729635ba9d4b
+- path: assets/structures/field-moss-clearing-moss-rock-5-v1.png
+  source_path: assets/billboards/field-moss-clearing-moss-rock-5-v1.png
+  sha256: eb365b6006209aba0111d4248e8e7dc34d95868e60dee9771605abd75fc2acef
+- path: assets/structures/field-silver-marsh-silver-sedge-size-small-v1.png
+  source_path: assets/billboards/field-silver-marsh-silver-sedge-size-small-v1.png
+  sha256: ca1b8bd681b723fe948fd86d5ed514902b0945de75d611c8f3670c39f03a9e62
+- path: assets/structures/field-pebble-shore-rope-coil-size-large-v1.png
+  source_path: assets/billboards/field-pebble-shore-rope-coil-size-large-v1.png
+  sha256: 5fa30ddeac325912a58888abee173c09acf4bb438b5dc0e0f011a4b3d6d82005
+- path: assets/structures/field-pebble-shore-twisted-driftwood-size-large-v1.png
+  source_path: assets/billboards/field-pebble-shore-twisted-driftwood-size-large-v1.png
+  sha256: 0ad75b007c07bae0bc9e49c82dbbc61314989ffd11bcbc42107ac03b18a96481
+- path: assets/structures/field-windrow-road-wild-grain-size-small-v1.png
+  source_path: assets/billboards/field-windrow-road-wild-grain-size-small-v1.png
+  sha256: 047f04020e854a9fae967a63ae9e2c6784420811774feafe28eaf0fb9e306668
+- path: assets/structures/field-windrow-road-hedgerow-shrub-size-large-v1.png
+  source_path: assets/billboards/field-windrow-road-hedgerow-shrub-size-large-v1.png
+  sha256: bc0bd241967775f674c9e4ea479687b933cdaecb1f4d9c8b0f438ab48e9a07db
+- path: assets/structures/field-root-trail-rooted-tree-1-v1.png
+  source_path: assets/billboards/field-root-trail-rooted-tree-1-v1.png
+  sha256: 0cc38b4c996afcfbe8eba3139abf859bf0b664df57a7926140df0b17c197edf2

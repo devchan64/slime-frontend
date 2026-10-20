@@ -59,3 +59,5 @@ export {buildLayeredTraversal,layeredPositionKey} from '../field-surface/layered
 export {projectLayeredPosition,pickLayeredPosition} from '../field-surface/layered-projection.mjs';
 
 export function buildFieldCliffTextureLayers(currentFacePoints:SurfacePoint[],currentSourceWidth:number,currentSourceHeight:number):{points:SurfacePoint[];uvCorners:number[]}[];
+
+export function resolveFieldSceneryDepth(currentObjectRecord:FieldSceneryRecord,currentMapSurface:SurfaceRecord,currentRenderOptions?:RenderOptions):number;

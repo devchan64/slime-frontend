@@ -5,7 +5,7 @@ import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {resolveMapRenderOptions,buildFieldCliffTextureLayers,resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {resolveFieldSceneryDepth,resolveMapRenderOptions,buildFieldCliffTextureLayers,resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
@@ -261,6 +261,14 @@ test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 
  assert.equal(currentLayerImages.length,2);
  assert.deepEqual(currentLayerImages.map(currentLayerImage=>[currentLayerImage.x,currentLayerImage.y,currentLayerImage.scale,currentLayerImage.origin]),[[100,200,.625,[.5,.65]],[100,200,.625,[.5,.65]]]);
  assert.ok(currentLayerImages[0].depth<120&&currentLayerImages[1].depth>120);
+ for(const currentAnchorName of ['top','bottom']){
+  const currentAnchoredObject={...currentObjectRecord,billboardPlacementAnchor:currentAnchorName};
+  const currentAnchoredDepth=resolveFieldSceneryDepth(currentAnchoredObject,currentFlatSurface);
+  const currentAnchoredLayers=drawFieldSceneryObject(currentMockScene,currentAnchoredObject,{x:100,y:200},currentAnchoredDepth);
+  const currentActorDepth=resolveFieldSurfaceDepth(currentObjectRecord.position,currentFlatSurface)+20;
+  assert.ok(currentAnchoredLayers.every(currentLayerImage=>currentAnchorName==='top'?currentLayerImage.depth<currentActorDepth:currentLayerImage.depth>currentActorDepth));
+ }
+
  assert.deepEqual([...currentFrameRecords.values()],[[0,0,0,128,128],[0,128,0,128,128]]);
  assert.throws(()=>drawFieldSceneryObject(currentMockScene,{...currentObjectRecord,frameSize:64},{x:0,y:0},0),/2프레임/);
 });
@@ -368,4 +376,41 @@ test('공용 빌보드 상하 앵커는 기존 중앙값보다 우선하고 타�
    assert.deepEqual(currentPlacement.position,{column:3+currentOffsetSign/2,row:4+currentOffsetSign/2});
   }
  }
+});
+
+test('공유 접지점의 앞 타일 빌보드는 배열 순서와 무관하게 뒤 타일을 덮는다',()=>{
+ const currentRearObject={position:{column:9,row:14},billboardPlacementAnchor:'bottom'};
+ const currentFrontObject={position:{column:10,row:15},billboardPlacementAnchor:'top'};
+ for(const currentRotationValue of [0,1,2,3]){
+  const currentRenderOptions={...resolveMapRenderOptions({renderKind:'field'}),rotation:currentRotationValue};
+  const currentRearPlacement=resolveFieldSceneryPlacement(currentRearObject,{x:0,y:0},currentRenderOptions);
+  const currentFrontPlacement=resolveFieldSceneryPlacement(currentFrontObject,{x:0,y:0},currentRenderOptions);
+  assert.deepEqual(currentRearPlacement.position,currentFrontPlacement.position);
+  const currentOwnerRear=rotateSurfacePosition(currentRearObject.position,currentRotationValue);
+  const currentOwnerFront=rotateSurfacePosition(currentFrontObject.position,currentRotationValue);
+  const currentOwnerDifference=currentOwnerFront.column+currentOwnerFront.row-currentOwnerRear.column-currentOwnerRear.row;
+  const currentDepthDifference=resolveFieldSceneryDepth(currentFrontObject,currentFlatSurface,currentRenderOptions)-resolveFieldSceneryDepth(currentRearObject,currentFlatSurface,currentRenderOptions);
+  assert.equal(Math.sign(currentDepthDifference),Math.sign(currentOwnerDifference));
+  assert.ok(Math.abs(currentDepthDifference)<300);
+ }
+ for(const currentObjectOrder of [[currentRearObject,currentFrontObject],[currentFrontObject,currentRearObject]]){
+  assert.equal([...currentObjectOrder].sort((currentLeftObject,currentRightObject)=>resolveFieldSceneryDepth(currentLeftObject,currentFlatSurface)-resolveFieldSceneryDepth(currentRightObject,currentFlatSurface)).at(-1),currentFrontObject);
+ }
+});
+
+
+test('첨부 구간의 앞 타일 그루터기는 뒤 타일 하단 통나무보다 앞에 그린다',()=>{
+ const currentRearObject={position:{column:11,row:11},billboardPlacementAnchor:'bottom'};
+ const currentFrontObject={position:{column:11,row:12},billboardPlacementAnchor:'top'};
+ for(const currentRotationValue of [0,1,2,3]){
+  const currentRenderOptions={...resolveMapRenderOptions({renderKind:'field'}),rotation:currentRotationValue};
+  const currentRearOwnerDepth=resolveFieldSurfaceDepth(currentRearObject.position,currentFlatSurface,currentRenderOptions);
+  const currentFrontOwnerDepth=resolveFieldSurfaceDepth(currentFrontObject.position,currentFlatSurface,currentRenderOptions);
+  const currentRearObjectDepth=resolveFieldSceneryDepth(currentRearObject,currentFlatSurface,currentRenderOptions);
+  const currentFrontObjectDepth=resolveFieldSceneryDepth(currentFrontObject,currentFlatSurface,currentRenderOptions);
+  assert.equal(Math.sign(currentFrontObjectDepth-currentRearObjectDepth),Math.sign(currentFrontOwnerDepth-currentRearOwnerDepth));
+ }
+ const currentActorDepth=resolveFieldSurfaceDepth(currentFrontObject.position,currentFlatSurface)+20;
+ assert.ok(resolveFieldSceneryDepth(currentFrontObject,currentFlatSurface)<currentActorDepth);
+ assert.ok(resolveFieldSceneryDepth({...currentFrontObject,billboardPlacementAnchor:'bottom'},currentFlatSurface)>currentActorDepth);
 });

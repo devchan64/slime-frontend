@@ -5,7 +5,7 @@ import {CLIFF_WALL_TEXTURE} from '../terrain/textures';
 import {resolveBattleTerrainResourceFrame} from '../../../packages/field-renderer/map-resource-plan';
 import {collectMapTextureSources} from '../../../packages/field-renderer/town-renderer';
 import {isFieldRoadTerrain} from '../../../packages/field-renderer/road-materials.mjs';
-import {resolveMapRenderOptions,updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement,resolveFieldSurfaceDepth} from '../../../packages/field-renderer/field-renderer.mjs';
+import {resolveMapRenderOptions,updateFieldActorOcclusion,drawFieldSceneryObject,resolveFieldSceneryPlacement,resolveFieldSceneryDepth,resolveFieldSurfaceDepth} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveGuardDisplayPlacement,projectGuardDisplayCenter} from '../../../packages/field-renderer/guard-placement.mjs';
 import {drawTownMaterialEdges} from '../../../packages/field-renderer/field-renderer.mjs';
 import {resolveCityTileTextures,resolveFieldTileTextures} from '../terrain/fieldTileRendering';
@@ -569,7 +569,7 @@ export class MainScene extends Phaser.Scene {
     }
       for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
         const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
-        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,this.depth(currentObjectPlacement.position)+TERRAIN_DEPTH.overlay,undefined,resolveMapRenderOptions(this.viewSurface!));
+        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,this.viewSurface!,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,resolveMapRenderOptions(this.viewSurface!));
       }
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(

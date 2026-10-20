@@ -9,7 +9,7 @@ export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.127';
+export const FIELD_RENDERER_VERSION = '1.0.130';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -208,8 +208,7 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
   const currentSpriteLeft=currentObjectPlacement.screen.x-currentSpriteSize*currentObjectRecord.anchorX;
   const currentSpriteTop=currentObjectPlacement.screen.y-currentSpriteSize*currentObjectRecord.anchorY;
   if(currentSpriteLeft>currentCellCenter.x+currentRenderOptions.tileWidth/2||currentSpriteLeft+currentSpriteSize<currentCellCenter.x-currentRenderOptions.tileWidth/2||currentSpriteTop>currentCellCenter.y+currentRenderOptions.tileHeight/2||currentSpriteTop+currentSpriteSize<currentCellCenter.y-currentRenderOptions.tileHeight/2)continue;
-  const currentViewPosition=rotateSurfacePosition(currentObjectPlacement.position,currentRenderOptions.rotation??0);
-  const currentObjectDepth=TERRAIN_DEPTH.base+(currentViewPosition.column+currentViewPosition.row)*TERRAIN_DEPTH.stride+TERRAIN_DEPTH.overlay;
+  const currentObjectDepth=resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions);
   currentGroundDepth=Math.min(currentGroundDepth,currentObjectDepth-1);
  }
  return currentGroundDepth;
@@ -390,6 +389,7 @@ export const FIELD_SCENERY_TILE_ANCHORS = Object.freeze({
 
 /** 두 프레임은 같은 캔버스 좌표를 공유하며 중앙 캐릭터 앞뒤로 정렬한다. */
 const BILLBOARD_FRONT_DEPTH_OFFSET = 20;
+const BILLBOARD_ANCHORED_LAYER_OFFSET = 1;
 export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale=1){
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('빌보드 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSpriteTexture=currentGameScene.textures.get(currentObjectRecord.textureKey);
@@ -401,9 +401,18 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
   if(!currentSpriteTexture.has(currentFrameName))currentSpriteTexture.add(currentFrameName,0,currentLayerIndex*currentFrameSize,0,currentFrameSize,currentFrameSize);
   return markFieldOcclusionObject(currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName))
    .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentFrameSize)
-   .setDepth(currentRenderDepth+currentLayerIndex*BILLBOARD_FRONT_DEPTH_OFFSET)
+   .setDepth(currentRenderDepth+currentLayerIndex*(currentObjectRecord.billboardPlacementAnchor?BILLBOARD_ANCHORED_LAYER_OFFSET:BILLBOARD_FRONT_DEPTH_OFFSET))
    .setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
  });
+}
+
+/** 화면 앵커 이동은 이웃 타일의 정렬 순서를 바꾸지 않는다. */
+export function resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
+ const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
+ if(!Object.hasOwn(FIELD_SCENERY_TILE_ANCHORS,currentAnchorName))throw Error('지원하지 않는 타일 앵커: '+currentAnchorName);
+ const currentAnchorOffset=rotateSurfacePosition(FIELD_SCENERY_TILE_ANCHORS[currentAnchorName],currentRenderOptions.rotation??0);
+ const currentActorSideOffset=currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0;
+ return resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+TERRAIN_DEPTH.overlay+currentActorSideOffset;
 }
 
 /** 소속 타일의 고도를 유지하고 선택한 접지 위치만 회전·투영한다. */
