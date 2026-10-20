@@ -12,7 +12,7 @@ const selectedLogArea = interfaceAssetsSelected ? 'ui-assets' : spriteAssetsSele
 const selectedLockFilename = interfaceAssetsSelected ? 'ui-assets.lock.yaml' : spriteAssetsSelected ? 'sprite-assets.lock.yaml' : 'map-assets.lock.yaml';
 const selectedSourceDirectory = interfaceAssetsSelected ? 'assets/ui' : spriteAssetsSelected ? 'assets' : 'assets/tiles';
 const allowedTargetPattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters|effects|monsters|structures)\/[\w./-]+$/ : /^assets\/(terrain|world|backgrounds)\/[\w./-]+$/;
-const allowedSourcePattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters\/[\w-]+\/(animations|battle-cutins|emotion-cutins)|sprites\/(effects|monsters|structures)|billboards|buildings)\/[\w./-]+$/ : /^assets\/(tiles\/(terrain|buildings)|backgrounds)\/[\w./-]+$/;
+const allowedSourcePattern = interfaceAssetsSelected ? /^assets\/ui\/[\w./-]+$/ : spriteAssetsSelected ? /^assets\/(characters\/[\w-]+\/(animations|battle-cutins|emotion-cutins)|sprites\/(effects|monsters|structures)|billboards|buildings)\/[\w./-]+$/ : /^assets\/(tiles\/(terrain|buildings|decals)|backgrounds)\/[\w./-]+$/;
 
 const assetLockDocument = parseDocument(readFileSync(resolve(frontendRootDirectory, selectedLockFilename), 'utf8'), { uniqueKeys: true });
 if (assetLockDocument.errors.length) throw assetLockDocument.errors[0];

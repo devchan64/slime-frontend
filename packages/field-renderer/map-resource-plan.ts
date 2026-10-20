@@ -2,7 +2,7 @@ import {resolveBridgeTextureKeys} from './bridge-geometry.mjs';
 import {resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
 import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../../src/game/terrain/textures';
 export {loadMapResourceImages} from './map-resource-loader.mjs';
-export type MapResourceSurface={bridges?:{material:'timber'|'stone'}[];id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
+export type MapResourceSurface={bridges?:{material:'timber'|'stone'}[];id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];groundDecals?:{textureKey:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
 /** 렌더러의 재질 선택 함수를 재사용하여 선택 맵의 텍스처 키를 산출한다. */
 export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,currentMapKind:'field'|'town'|'battle'){
  if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 종류');
@@ -25,7 +25,7 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
  // 고도 벽과 계단은 셀 렌더러의 명시적 종속성이다.
  currentTextureKeys.add(CLIFF_WALL_TEXTURE);
  if(currentMapRecord.stairs?.length)currentTextureKeys.add(RAMP_TREAD_TEXTURE);
- for(const currentObjectRecord of [...currentMapRecord.objects??[],...currentMapRecord.groundOverrides??[]])if(currentObjectRecord.textureKey)currentTextureKeys.add(currentObjectRecord.textureKey);
+ for(const currentObjectRecord of [...currentMapRecord.objects??[],...currentMapRecord.groundOverrides??[],...currentMapRecord.groundDecals??[]])if(currentObjectRecord.textureKey)currentTextureKeys.add(currentObjectRecord.textureKey);
  if(currentMapRecord.connections?.length)currentTextureKeys.add('waypoint-guide-v1');
  for(const currentBuildingRecord of currentMapRecord.buildings??[]){
   if(!currentBuildingRecord.sprite?.textureKey)throw Error('건물 스프라이트 지정이 없습니다: '+currentBuildingRecord.id);

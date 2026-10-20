@@ -172,3 +172,15 @@ files:
 - path: assets/terrain/cinder-ash-ground-v1.png
   source_path: assets/tiles/terrain/non-road/cinder-ash-ground-v1.png
   sha256: eb62eca43a044c4c09ffc0f32ed54beae74d2777c410d7ff21aa04e1e92a0fd1
+
+- path: assets/terrain/decals/boar-hoof-pair-v1.png
+  source_path: assets/tiles/decals/boar-hoof-pair-v1.png
+  sha256: 202ffc7b187b547c9963d07ee9274a5c39f97ee1e0876d03f0e541a5f71f124d
+
+- path: assets/terrain/decals/boar-hoof-trail-v1.png
+  source_path: assets/tiles/decals/boar-hoof-trail-v1.png
+  sha256: 990329a8f7d46c12ad9eb1feb7880ab3eb37f1d5feadf2fcab2944ab995ac1fe
+
+- path: assets/terrain/decals/boar-hoof-worn-v1.png
+  source_path: assets/tiles/decals/boar-hoof-worn-v1.png
+  sha256: 87343310d2a95082da7f9441591527bb02b50c1f9e1dd5d813a9390d6f9434fe

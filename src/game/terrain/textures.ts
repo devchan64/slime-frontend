@@ -127,6 +127,7 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 export function preloadTerrain(scene: Phaser.Scene) {
   scene.load.image("terrain-source-dirt-road", packedDirtRoadSource);
   scene.load.image("terrain-source-stone-road", stoneSlabRoadSource);
+  for(const [currentDecalKey,currentDecalSource] of Object.entries({ 'boar-hoof-pair-v1':terrainAssetPaths.boarHoofPairSource,'boar-hoof-trail-v1':terrainAssetPaths.boarHoofTrailSource,'boar-hoof-worn-v1':terrainAssetPaths.boarHoofWornSource }))scene.load.image(currentDecalKey,currentDecalSource);
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
   for (const specialSourceRecord of SPECIAL_TERRAIN_SOURCES) scene.load.image(`terrain-source-${specialSourceRecord.frame}`, specialSourceRecord.source);
   scene.load.image(RAMP_TREAD_TEXTURE, rampTreadPatternSource);

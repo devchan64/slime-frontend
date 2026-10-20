@@ -1,3 +1,4 @@
+import {composeGroundDecalTexture,type GroundDecalRecord} from './groundDecals';
 import fieldMaterialFrames from './field-material-frames.yaml';
 /** 게임·관리도구의 필드 재질 선택과 연결 텍스처 계약. */
 import type Phaser from 'phaser';
@@ -13,7 +14,7 @@ export function resolveFieldTerrainFrame(currentTerrainName:string,currentMapIde
  return currentMaterialFrame;
 }
 
-export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string,currentGroundOverrides:readonly {position:Position;textureKey:string}[]=[]){
+export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string,currentGroundOverrides:readonly {position:Position;textureKey:string}[]=[],currentGroundDecals:readonly GroundDecalRecord[]=[]){
  const resolveDisplayedGroundMaterial=(currentNeighborPosition:Position):string=>{
   const currentSourceTexture=resolveFieldGroundMaterial(currentNeighborPosition,currentGroundOverrides,currentTerrainPosition=>'terrain-source-'+resolveFieldTerrainFrame(resolveGroundMaterial(currentTerrainPosition),currentMapIdentifier));
   if(!currentGameScene.textures.exists(currentSourceTexture))throw new Error('경계 판정용 지면 텍스처 누락: '+currentSourceTexture);
@@ -24,10 +25,10 @@ export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTe
  const currentOverrideRecord=currentGroundOverrides.find(currentGroundRecord=>currentGroundRecord.position.column===currentCellPosition.column&&currentGroundRecord.position.row===currentCellPosition.row);
  if(currentOverrideRecord){
   if(!currentGameScene.textures.exists(currentOverrideRecord.textureKey))throw new Error('등록 지면 텍스처 누락: '+currentOverrideRecord.textureKey);
-  return {ground:currentOverrideRecord.textureKey,resolveGroundMaterial:resolveDisplayedGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE};
+  return {ground:composeGroundDecalTexture(currentGameScene,currentOverrideRecord.textureKey,currentCellPosition,currentGroundDecals),resolveGroundMaterial:resolveDisplayedGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE};
  }
  const currentGroundKey='terrain-source-'+resolveFieldTerrainFrame(currentTerrainName,currentMapIdentifier);
- return {ground:currentGroundKey,resolveGroundMaterial:resolveDisplayedGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder'].includes(currentTerrainName)?'terrain-source-grass':undefined};
+ return {ground:composeGroundDecalTexture(currentGameScene,currentGroundKey,currentCellPosition,currentGroundDecals),resolveGroundMaterial:resolveDisplayedGroundMaterial,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE,underlay:['boulder'].includes(currentTerrainName)?'terrain-source-grass':undefined};
 }
 
 export function resolveCityTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentMapIdentifier:string,currentConnectionMask:number){

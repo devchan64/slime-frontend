@@ -43,3 +43,7 @@ dew: assets/tiles/terrain/non-road/orchard-grass-v1.png
 road: assets/tiles/terrain/road/limestone-road-v3.png
 flowers: assets/tiles/terrain/non-road/orchard-grass-v1.png
 fallenOrchardFruitSource: assets/tiles/terrain/non-road/orchard-soil-v1.png
+
+boarHoofPairSource: assets/tiles/decals/boar-hoof-pair-v1.png
+boarHoofTrailSource: assets/tiles/decals/boar-hoof-trail-v1.png
+boarHoofWornSource: assets/tiles/decals/boar-hoof-worn-v1.png
