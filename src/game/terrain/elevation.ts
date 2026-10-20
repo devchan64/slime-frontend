@@ -9,7 +9,7 @@ import type { Position } from '../../client/types';
 export type TerrainLink = { start: Position; end: Position; id?: string;
   kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
-export type Surface = { renderKind?:'field'|'town'|'battle'; bridges?:TerrainBridge[]; terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
+export type Surface = { objects?:import('../../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[]; renderKind?:'field'|'town'|'battle'; bridges?:TerrainBridge[]; terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
@@ -54,6 +54,11 @@ export function elevationTileFaces(currentStairRecord:ElevationTile,currentMapSu
 }
 export function canStep(currentStartPosition:Position,currentEndPosition:Position,currentMapSurface:Surface) {
   if (!inBounds(currentStartPosition,currentMapSurface) || !inBounds(currentEndPosition,currentMapSurface) || Math.abs(currentStartPosition.column-currentEndPosition.column)+Math.abs(currentStartPosition.row-currentEndPosition.row)!==1) return false;
+  if((currentMapSurface.objects??[]).some(currentObjectRecord=>{
+    if(currentObjectRecord.groundFootprintColumns!==3||currentObjectRecord.groundFootprintRows!==2)return false;
+    const currentMiddleColumn=currentObjectRecord.position.column+1,currentFirstRow=currentObjectRecord.position.row;
+    return currentStartPosition.column===currentMiddleColumn&&currentEndPosition.column===currentMiddleColumn&&Math.min(currentStartPosition.row,currentEndPosition.row)===currentFirstRow;
+  }))return false;
   if(!canTraverseBridgeEdge(currentStartPosition,currentEndPosition,currentMapSurface))return false;
   const currentMovementVersion=currentMapSurface.terrainMovementVersion??1;
   if(currentMovementVersion!==1&&currentMovementVersion!==2)throw new Error('지원하지 않는 지형 이동 규칙 버전');

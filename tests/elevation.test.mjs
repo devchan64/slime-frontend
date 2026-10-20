@@ -56,3 +56,12 @@ test('새 이동 규칙은 상하 한 단계만 허용하며 과거 연결로 �
  // 공통 160×80 타일과 높이 단계 10: 인접 중심의 화면 높이 차이는 30이다.
  assert.equal(currentUpperPoint.y-currentLowerPoint.y,30);
 });
+
+{
+ const currentMapSurface={columns:5,rows:4,terrainMovementVersion:2,objects:[{position:{column:1,row:1},groundFootprintColumns:3,groundFootprintRows:2}]};
+ const currentStartPosition={column:2,row:1},currentEndPosition={column:2,row:2};
+ assert.equal(canStep(currentStartPosition,currentEndPosition,currentMapSurface),false);
+ assert.equal(canStep(currentEndPosition,currentStartPosition,currentMapSurface),false);
+ assert.equal(canStep({column:1,row:1},currentStartPosition,currentMapSurface),true);
+ assert.equal(canStep({column:1,row:2},currentEndPosition,currentMapSurface),true);
+}
