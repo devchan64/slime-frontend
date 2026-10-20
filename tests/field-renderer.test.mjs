@@ -457,7 +457,7 @@ test('그림자 중심은 모든 앵커와 회전에서 소속 타일 중앙이�
 test('에셋 그림자 이동과 크기 배율은 타일 중앙 기준으로 적용된다',()=>{
  const currentEllipseRecords=[];
  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
- drawBillboardContactShadow(currentMockScene,{displayHeight:100,shadowOffsetColumn:1,shadowOffsetRow:0,shadowScaleX:2,shadowScaleY:.5},{x:0,y:0},100,{tileWidth:80,tileHeight:40,billboardScale:.5});
+ drawBillboardContactShadow(currentMockScene,{displayHeight:100,shadowOffsetColumn:1,shadowOffsetRow:0,shadowScaleX:2,shadowScaleY:.25},{x:0,y:0},100,{tileWidth:80,tileHeight:40,billboardScale:.5});
  assert.deepEqual(currentEllipseRecords[0].slice(0,3),[40,20,76]);assert.ok(Math.abs(currentEllipseRecords[0][3]-3.8)<1e-10);
 });
 

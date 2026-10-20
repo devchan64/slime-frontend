@@ -9,7 +9,7 @@ export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.138';
+export const FIELD_RENDERER_VERSION = '1.0.139';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -375,12 +375,13 @@ function resolveBillboardAnchorOffset(currentObjectRecord){
  return FIELD_SCENERY_TILE_ANCHORS[currentAnchorName];
 }
 
+const BILLBOARD_SHADOW_VERTICAL_MULTIPLIER=2;
 const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,widthRatio:.76,heightRatio:.2,maxTileRatio:1.10,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.14},{scale:.78,alpha:.20},{scale:.5,alpha:.26}]});
 /** 긴 축은 화면이 아닌 점유 타일의 열·행 방향으로 정의한다. */
 export function buildBillboardShadowPolygon(currentColumnCount,currentRowCount,currentCenterPoint,currentRenderOptions,currentLayerScale=1){
  if(!Number.isInteger(currentColumnCount)||currentColumnCount<1||!Number.isInteger(currentRowCount)||currentRowCount<1)throw Error('그림자 점유 타일 수는 양의 정수여야 합니다');
  const currentHalfColumn=currentColumnCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale*(currentRenderOptions.shadowScaleX??1)/2;
- const currentHalfRow=currentRowCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale*(currentRenderOptions.shadowScaleY??1)/2;
+ const currentHalfRow=currentRowCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale*((currentRenderOptions.shadowScaleY??.5)*BILLBOARD_SHADOW_VERTICAL_MULTIPLIER)/2;
  const currentCornerRadius=Math.min(currentHalfColumn,currentHalfRow)*BILLBOARD_SHADOW_PROFILE.cornerRatio;
  const currentCornerCenters=[[currentHalfColumn-currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,-currentHalfRow+currentCornerRadius],[currentHalfColumn-currentCornerRadius,-currentHalfRow+currentCornerRadius]];
  return currentCornerCenters.flatMap(([currentColumnOffset,currentRowOffset],currentCornerIndex)=>Array.from({length:BILLBOARD_SHADOW_PROFILE.cornerSteps+1},(_,currentStepIndex)=>{
@@ -409,9 +410,9 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  for(const currentLayerProfile of BILLBOARD_SHADOW_PROFILE.layers){
   currentShadowGraphic.fillStyle(BILLBOARD_SHADOW_PROFILE.color,currentLayerProfile.alpha);
   if(currentColumnCount!==currentRowCount){
-   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??1,shadowScaleY:currentObjectRecord.shadowScaleY??1},currentLayerProfile.scale);
+   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??1,shadowScaleY:currentObjectRecord.shadowScaleY??.5},currentLayerProfile.scale);
    currentShadowGraphic.fillPoints(currentShadowPoints,true);
-  }else currentShadowGraphic.fillEllipse(currentShadowX,currentShadowY,currentShadowWidth*currentLayerProfile.scale*(currentObjectRecord.shadowScaleX??1),currentShadowHeight*currentLayerProfile.scale*(currentObjectRecord.shadowScaleY??1));
+  }else currentShadowGraphic.fillEllipse(currentShadowX,currentShadowY,currentShadowWidth*currentLayerProfile.scale*(currentObjectRecord.shadowScaleX??1),currentShadowHeight*currentLayerProfile.scale*((currentObjectRecord.shadowScaleY??.5)*BILLBOARD_SHADOW_VERTICAL_MULTIPLIER));
  }
  return currentShadowGraphic;
 }
