@@ -9,7 +9,7 @@ export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.130';
+export const FIELD_RENDERER_VERSION = '1.0.132';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -363,17 +363,64 @@ export function drawTownMaterialEdges(currentGameScene,currentCellPosition,resol
  });
 }
 
+/** 그림자는 소속 타일 안쪽의 접지점에만 그리며 입체 실루엣 정렬과 분리한다. */
+const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,widthRatio:.38,heightRatio:.2,maxTileRatio:.55,insetRatio:.22,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.06},{scale:.78,alpha:.09},{scale:.5,alpha:.12}]});
+/** 긴 축은 화면이 아닌 점유 타일의 열·행 방향으로 정의한다. */
+export function buildBillboardShadowPolygon(currentColumnCount,currentRowCount,currentCenterPoint,currentRenderOptions,currentLayerScale=1){
+ if(!Number.isInteger(currentColumnCount)||currentColumnCount<1||!Number.isInteger(currentRowCount)||currentRowCount<1)throw Error('그림자 점유 타일 수는 양의 정수여야 합니다');
+ const currentHalfColumn=currentColumnCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale/2;
+ const currentHalfRow=currentRowCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale/2;
+ const currentCornerRadius=Math.min(currentHalfColumn,currentHalfRow)*BILLBOARD_SHADOW_PROFILE.cornerRatio;
+ const currentCornerCenters=[[currentHalfColumn-currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,-currentHalfRow+currentCornerRadius],[currentHalfColumn-currentCornerRadius,-currentHalfRow+currentCornerRadius]];
+ return currentCornerCenters.flatMap(([currentColumnOffset,currentRowOffset],currentCornerIndex)=>Array.from({length:BILLBOARD_SHADOW_PROFILE.cornerSteps+1},(_,currentStepIndex)=>{
+  const currentArcAngle=(currentCornerIndex+currentStepIndex/BILLBOARD_SHADOW_PROFILE.cornerSteps)*Math.PI/2;
+  const currentWorldPoint=rotateSurfacePosition({column:currentColumnOffset+Math.cos(currentArcAngle)*currentCornerRadius,row:currentRowOffset+Math.sin(currentArcAngle)*currentCornerRadius},currentRenderOptions.rotation??0);
+  return {x:currentCenterPoint.x+(currentWorldPoint.column-currentWorldPoint.row)*currentRenderOptions.tileWidth/2,y:currentCenterPoint.y+(currentWorldPoint.column+currentWorldPoint.row)*currentRenderOptions.tileHeight/2};
+ }));
+}
+
+export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions={}){
+ if(currentRenderOptions.billboardShadows===false)return null;
+ const currentBillboardScale=currentRenderOptions.billboardScale??1;
+ const currentTileWidth=currentRenderOptions.tileWidth??FIELD_RENDER_METRICS.tileWidth*currentBillboardScale;
+ const currentTileHeight=currentRenderOptions.tileHeight??FIELD_RENDER_METRICS.tileHeight*currentBillboardScale;
+ const currentShadowWidth=Math.min(currentObjectRecord.displayHeight*currentBillboardScale*BILLBOARD_SHADOW_PROFILE.widthRatio,currentTileWidth*BILLBOARD_SHADOW_PROFILE.maxTileRatio);
+ const currentShadowHeight=currentShadowWidth*BILLBOARD_SHADOW_PROFILE.heightRatio;
+ const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
+ const currentAnchorOffset=rotateSurfacePosition(FIELD_SCENERY_TILE_ANCHORS[currentAnchorName],currentRenderOptions.rotation??0);
+ const currentShadowX=currentScreenPosition.x-(currentAnchorOffset.column-currentAnchorOffset.row)*currentTileWidth*BILLBOARD_SHADOW_PROFILE.insetRatio;
+ const currentShadowY=currentScreenPosition.y-(currentAnchorOffset.column+currentAnchorOffset.row)*currentTileHeight*BILLBOARD_SHADOW_PROFILE.insetRatio;
+ const currentShadowDepth=currentRenderDepth-(currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0)-TERRAIN_DEPTH.overlay+TERRAIN_DEPTH.surface+BILLBOARD_SHADOW_PROFILE.depthOffset;
+ const currentShadowGraphic=currentGameScene.add.graphics().setDepth(currentShadowDepth);
+ for(const currentLayerProfile of BILLBOARD_SHADOW_PROFILE.layers){
+  currentShadowGraphic.fillStyle(BILLBOARD_SHADOW_PROFILE.color,currentLayerProfile.alpha);
+  const currentColumnCount=currentObjectRecord.groundFootprintColumns??1,currentRowCount=currentObjectRecord.groundFootprintRows??1;
+  if(currentColumnCount!==currentRowCount){
+   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0},currentLayerProfile.scale);
+   currentShadowGraphic.fillPoints(currentShadowPoints,true);
+  }else currentShadowGraphic.fillEllipse(currentShadowX,currentShadowY,currentShadowWidth*currentLayerProfile.scale,currentShadowHeight*currentLayerProfile.scale);
+ }
+ return currentShadowGraphic;
+}
+
 /** 지형지물은 타일 중심의 투영 좌표에 접지하며 통행 데이터를 변경하지 않는다. */
 export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1',currentRenderOptions={billboardScale:1}){
  const currentBillboardScale=currentRenderOptions.billboardScale??1;
  if(!Number.isFinite(currentBillboardScale)||currentBillboardScale<=0)throw Error('빌보드 렌더 배율은 양수여야 합니다.');
  if(currentObjectRecord.kind==='ward-tower')return drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth);
- if(currentObjectRecord.kind==='billboard')return drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale);
+ if(currentObjectRecord.kind==='billboard'){
+  const currentLayerImages=drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale);
+  const currentContactShadow=drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions);
+  if(currentContactShadow)currentLayerImages[0].once('destroy',()=>currentContactShadow.destroy());
+  return currentLayerImages;
+ }
  if(currentObjectRecord.kind!=='decoration')throw Error('지원하지 않는 지형지물 종류');
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
  markFieldOcclusionObject(currentSceneryImage);
  currentSceneryImage.setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
+ const currentContactShadow=drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions);
+ if(currentContactShadow)currentSceneryImage.once('destroy',()=>currentContactShadow.destroy());
  return currentSceneryImage.setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentSceneryImage.height).setDepth(currentRenderDepth);
 }
 

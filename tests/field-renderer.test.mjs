@@ -5,7 +5,7 @@ import {EventEmitter} from 'node:events';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {resolveFieldSceneryDepth,resolveMapRenderOptions,buildFieldCliffTextureLayers,resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
+import {buildBillboardShadowPolygon,drawBillboardContactShadow,resolveFieldSceneryDepth,resolveMapRenderOptions,buildFieldCliffTextureLayers,resolveFieldSceneryPlacement,drawFieldSceneryObject,buildFieldMaterialEdges,drawFieldAuraPanel,buildFieldRoadEdges,drawFieldElevationOutline,buildFieldElevationEdges,buildFieldCellGeometry,buildFieldPanelVertices,buildFieldBoundaryPanels,drawFieldActorContactShadow,resolveFieldAuraUvs,resolveFieldSurfaceDepth,FIELD_RENDER_METRICS,FIELD_SAFE_AURA_PROFILE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,rotateSurfacePosition,projectSurfaceCell} from '../packages/field-renderer/field-renderer.mjs';
 
 const currentNodeRequire=createRequire(import.meta.url);
 const PhaserMeshVertex=currentNodeRequire('phaser/src/geom/mesh/Vertex.js');
@@ -205,9 +205,9 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
 
 test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타워도 같은 진입점을 사용한다',()=>{
  const currentRecordedImages=[];
- const currentMockScene={textures:{exists:currentTextureKey=>['tree-sprite','tower-sprite'].includes(currentTextureKey)},add:{image(currentPositionX,currentPositionY,currentTextureKey){
+ const currentMockScene={textures:{exists:currentTextureKey=>['tree-sprite','tower-sprite'].includes(currentTextureKey)},add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(){},destroy(){}}),image(currentPositionX,currentPositionY,currentTextureKey){
   const currentImageRecord={x:currentPositionX,y:currentPositionY,key:currentTextureKey,width:200,height:300,
-   setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},
+   once(){return this;},setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},
    setOrigin(currentAnchorX,currentAnchorY){this.origin=[currentAnchorX,currentAnchorY];return this;},
    setScale(currentScaleValue){this.scale=currentScaleValue;return this;},
    setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}};
@@ -252,7 +252,7 @@ test('타일 3점 앵커는 고도 중심을 유지하고 네 방향 회전과 �
 test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 두고 그린다',()=>{
  const currentFrameRecords=new Map();
  const currentTextureRecord={getSourceImage:()=>({width:256,height:128}),has:currentFrameName=>currentFrameRecords.has(currentFrameName),add:(...currentFrameArguments)=>currentFrameRecords.set(currentFrameArguments[0],currentFrameArguments.slice(1))};
- const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
+ const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(){},destroy(){}}),image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,once(){return this;},setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
  const currentObjectRecord={position:{column:1,row:1},kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
  const currentLayerImages=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110);
  const currentOutdoorLayers=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110,undefined,resolveMapRenderOptions({renderKind:'field'}));
@@ -413,4 +413,30 @@ test('첨부 구간의 앞 타일 그루터기는 뒤 타일 하단 통나무보
  const currentActorDepth=resolveFieldSurfaceDepth(currentFrontObject.position,currentFlatSurface)+20;
  assert.ok(resolveFieldSceneryDepth(currentFrontObject,currentFlatSurface)<currentActorDepth);
  assert.ok(resolveFieldSceneryDepth({...currentFrontObject,billboardPlacementAnchor:'bottom'},currentFlatSurface)>currentActorDepth);
+});
+
+test('빌보드 그림자는 배율·앞뒤 앵커·비활성 옵션을 공유한다',()=>{
+ const currentEllipseRecords=[];
+ const currentShadowGraphic={setDepth(currentDepthValue){this.depth=currentDepthValue;return this;},fillStyle(){},fillEllipse(...currentEllipseValues){currentEllipseRecords.push(currentEllipseValues);}};
+ const currentMockScene={add:{graphics:()=>currentShadowGraphic}};
+ const currentObjectRecord={displayHeight:150,billboardPlacementAnchor:'bottom'};
+ drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{billboardScale:1});
+ const currentFullEllipse=currentEllipseRecords[0];assert.ok(currentFullEllipse[1]<100);assert.equal(currentShadowGraphic.depth,101.5);
+ currentEllipseRecords.length=0;
+ drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{billboardScale:.5});
+ assert.equal(currentEllipseRecords[0][2],currentFullEllipse[2]/2);
+ assert.equal(drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:0,y:0},0,{billboardShadows:false}),null);
+});
+
+test('긴 점유 그림자는 열·행 축으로 투영하고 회전·축소한다',()=>{
+ const currentOptions={tileWidth:160,tileHeight:80};
+ const currentColumnPoints=buildBillboardShadowPolygon(3,1,{x:0,y:0},currentOptions);
+ const currentRowPoints=buildBillboardShadowPolygon(1,3,{x:0,y:0},currentOptions);
+ const currentCovariance=currentPoints=>currentPoints.reduce((currentSum,currentPoint)=>currentSum+currentPoint.x*currentPoint.y,0);
+ assert.ok(currentCovariance(currentColumnPoints)>0);assert.ok(currentCovariance(currentRowPoints)<0);
+ const currentRotatedPoints=buildBillboardShadowPolygon(3,1,{x:0,y:0},{...currentOptions,rotation:1});
+ assert.ok(currentCovariance(currentRotatedPoints)<0);
+ const currentSmallPoints=buildBillboardShadowPolygon(3,1,{x:0,y:0},{tileWidth:80,tileHeight:40});
+ assert.deepEqual(currentSmallPoints,currentColumnPoints.map(currentPoint=>({x:currentPoint.x/2,y:currentPoint.y/2})));
+ assert.throws(()=>buildBillboardShadowPolygon(0,1,{x:0,y:0},currentOptions),/양의 정수/);
 });

@@ -569,7 +569,7 @@ export class MainScene extends Phaser.Scene {
     }
       for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
         const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
-        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,this.viewSurface!,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,resolveMapRenderOptions(this.viewSurface!));
+        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,this.viewSurface!,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation});
       }
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(
