@@ -495,3 +495,16 @@ test('2×1 그림자는 행 방향을 두 배로 늘리지 않는다',()=>{
  assert.ok(Math.abs(Math.max(...currentColumnValues)-Math.min(...currentColumnValues)-2.2)<1e-10);
  assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-1.1)<1e-10);
 });
+
+// 수동 앵커 이동은 그림자 원점을 이동시키지 않는다.
+for(const currentTileCount of [1,2,3]){
+ const currentIntersectionDistance=currentTileCount===1?.5:currentTileCount-1;
+ const currentObjectRecord={position:{column:0,row:0},groundFootprintColumns:currentTileCount,groundFootprintRows:currentTileCount,displayHeight:100,billboardAnchorMode:'tile-intersection',anchorX:.2,anchorY:-.3};
+ const currentPlacementRecord=resolveFieldSceneryPlacement(currentObjectRecord,{x:0,y:0},{tileWidth:160,tileHeight:80});
+ assert.ok(Math.abs(currentPlacementRecord.screen.x-32)<1e-8);
+ assert.ok(Math.abs(currentPlacementRecord.screen.y-(currentIntersectionDistance-.3)*80)<1e-8);
+ const currentShadowCenters=[];
+ const currentGraphicsRecord={setDepth(){return this;},fillStyle(){},fillEllipse(currentCenterX,currentCenterY){currentShadowCenters.push([currentCenterX,currentCenterY]);}};
+ drawBillboardContactShadow({add:{graphics:()=>currentGraphicsRecord}},currentObjectRecord,currentPlacementRecord.screen,0,{tileWidth:160,tileHeight:80});
+ for(const currentShadowCenter of currentShadowCenters){assert.ok(Math.abs(currentShadowCenter[0])<1e-8);assert.ok(Math.abs(currentShadowCenter[1]-currentIntersectionDistance*80)<1e-8);}
+}
