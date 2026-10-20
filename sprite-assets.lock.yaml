@@ -187,12 +187,6 @@ files:
 - path: assets/structures/orchard-old-tree-v2.png
   source_path: assets/billboards/orchard-old-tree-v2.png
   sha256: 40a6b4479a5a1fd5f5397dbf7ed852c882863c6555a0b2cb1152b400e2ca9dcc
-- path: assets/structures/bush-billboard-v2.png
-  source_path: assets/billboards/bush-billboard-v2.png
-  sha256: bb2b85c32ace74726e9f2867ade6c53170d053412167fa127cc245da87ae4781
-- path: assets/structures/bush-billboard-v2.yaml
-  source_path: assets/sprites/structures/bush-billboard-v2.yaml
-  sha256: e4cf161f57b3e41643cc27058f123b177e3a22b90cc9b4f1ce00b9434d3db30c
 - path: assets/structures/grass-clump-v1.png
   source_path: assets/billboards/grass-clump-v1.png
   sha256: 1f7b8bc98930e86b1bf64cd3ce74fb61cf9f9a5b17e2c2b3d69d375592b2c448

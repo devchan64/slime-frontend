@@ -458,5 +458,17 @@ test('에셋 그림자 이동과 크기 배율은 타일 중앙 기준으로 적
  const currentEllipseRecords=[];
  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
  drawBillboardContactShadow(currentMockScene,{displayHeight:100,shadowOffsetColumn:1,shadowOffsetRow:0,shadowScaleX:2,shadowScaleY:.5},{x:0,y:0},100,{tileWidth:80,tileHeight:40,billboardScale:.5});
- assert.deepEqual(currentEllipseRecords[0].slice(0,3),[40,20,38]);assert.ok(Math.abs(currentEllipseRecords[0][3]-1.9)<1e-10);
+ assert.deepEqual(currentEllipseRecords[0].slice(0,3),[40,20,76]);assert.ok(Math.abs(currentEllipseRecords[0][3]-3.8)<1e-10);
+});
+
+test('타일 하단 중앙 앵커는 기존 이미지 위치를 보존하고 배치 선택값을 무시한다',()=>{
+ const currentOldRecord={position:{column:2,row:3},anchorX:.3,anchorY:.8,displayHeight:120,billboardPlacementAnchor:'top'};
+ const currentNewRecord={...currentOldRecord,billboardAnchorMode:'tile-bottom-center',anchorX:.5+(.5-.3)*120/160,anchorY:(1-.8)*120/80,billboardPlacementAnchor:'bottom'};
+ for(const currentScaleValue of [.5,1]){
+  const currentRenderOptions={tileWidth:160*currentScaleValue,tileHeight:80*currentScaleValue,billboardScale:currentScaleValue};
+  const currentOldPosition=resolveFieldSceneryPlacement(currentOldRecord,{x:100,y:200},currentRenderOptions).screen;
+  const currentNewPosition=resolveFieldSceneryPlacement(currentNewRecord,{x:100,y:200},currentRenderOptions).screen;
+  assert.ok(Math.abs((currentOldPosition.x-.3*120*currentScaleValue)-(currentNewPosition.x-.5*120*currentScaleValue))<1e-9);
+  assert.ok(Math.abs((currentOldPosition.y-.8*120*currentScaleValue)-(currentNewPosition.y-120*currentScaleValue))<1e-9);
+ }
 });

@@ -9,7 +9,7 @@ export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.134';
+export const FIELD_RENDERER_VERSION = '1.0.137';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -205,8 +205,8 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
   const currentObjectCenter=projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions);
   const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentObjectCenter,currentRenderOptions);
   const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
-  const currentSpriteLeft=currentObjectPlacement.screen.x-currentSpriteSize*currentObjectRecord.anchorX;
-  const currentSpriteTop=currentObjectPlacement.screen.y-currentSpriteSize*currentObjectRecord.anchorY;
+  const currentSpriteLeft=currentObjectPlacement.screen.x-currentSpriteSize*(currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?.5:currentObjectRecord.anchorX);
+  const currentSpriteTop=currentObjectPlacement.screen.y-currentSpriteSize*(currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?1:currentObjectRecord.anchorY);
   if(currentSpriteLeft>currentCellCenter.x+currentRenderOptions.tileWidth/2||currentSpriteLeft+currentSpriteSize<currentCellCenter.x-currentRenderOptions.tileWidth/2||currentSpriteTop>currentCellCenter.y+currentRenderOptions.tileHeight/2||currentSpriteTop+currentSpriteSize<currentCellCenter.y-currentRenderOptions.tileHeight/2)continue;
   const currentObjectDepth=resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions);
   currentGroundDepth=Math.min(currentGroundDepth,currentObjectDepth-1);
@@ -364,7 +364,18 @@ export function drawTownMaterialEdges(currentGameScene,currentCellPosition,resol
 }
 
 /** 그림자는 소속 타일 안쪽의 접지점에만 그리며 입체 실루엣 정렬과 분리한다. */
-const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,widthRatio:.38,heightRatio:.2,maxTileRatio:.55,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.06},{scale:.78,alpha:.09},{scale:.5,alpha:.12}]});
+/** 빌보드 이미지 아랫변 중앙의 위치를 타일 좌표로 변환한다. */
+function resolveBillboardAnchorOffset(currentObjectRecord){
+ if(currentObjectRecord.billboardAnchorMode==='tile-bottom-center'){
+  const currentHorizontalOffset=currentObjectRecord.anchorX-.5,currentVerticalOffset=currentObjectRecord.anchorY-.5;
+  return {column:currentHorizontalOffset+currentVerticalOffset,row:currentVerticalOffset-currentHorizontalOffset};
+ }
+ const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
+ if(!Object.hasOwn(FIELD_SCENERY_TILE_ANCHORS,currentAnchorName))throw Error('지원하지 않는 타일 앵커: '+currentAnchorName);
+ return FIELD_SCENERY_TILE_ANCHORS[currentAnchorName];
+}
+
+const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,widthRatio:.76,heightRatio:.2,maxTileRatio:1.10,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.14},{scale:.78,alpha:.20},{scale:.5,alpha:.26}]});
 /** 긴 축은 화면이 아닌 점유 타일의 열·행 방향으로 정의한다. */
 export function buildBillboardShadowPolygon(currentColumnCount,currentRowCount,currentCenterPoint,currentRenderOptions,currentLayerScale=1){
  if(!Number.isInteger(currentColumnCount)||currentColumnCount<1||!Number.isInteger(currentRowCount)||currentRowCount<1)throw Error('그림자 점유 타일 수는 양의 정수여야 합니다');
@@ -386,12 +397,12 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  const currentTileHeight=currentRenderOptions.tileHeight??FIELD_RENDER_METRICS.tileHeight*currentBillboardScale;
  const currentShadowWidth=Math.min(currentObjectRecord.displayHeight*currentBillboardScale*BILLBOARD_SHADOW_PROFILE.widthRatio,currentTileWidth*BILLBOARD_SHADOW_PROFILE.maxTileRatio);
  const currentShadowHeight=currentShadowWidth*BILLBOARD_SHADOW_PROFILE.heightRatio;
- const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
- const currentAnchorOffset=rotateSurfacePosition(FIELD_SCENERY_TILE_ANCHORS[currentAnchorName],currentRenderOptions.rotation??0);
+ const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
  const currentShadowOffset=rotateSurfacePosition({column:currentObjectRecord.shadowOffsetColumn??0,row:currentObjectRecord.shadowOffsetRow??0},currentRenderOptions.rotation??0);
  const currentShadowX=currentScreenPosition.x+(currentShadowOffset.column-currentShadowOffset.row)*currentTileWidth/2-(currentAnchorOffset.column-currentAnchorOffset.row)*currentTileWidth*BILLBOARD_SHADOW_PROFILE.insetRatio;
  const currentShadowY=currentScreenPosition.y+(currentShadowOffset.column+currentShadowOffset.row)*currentTileHeight/2-(currentAnchorOffset.column+currentAnchorOffset.row)*currentTileHeight*BILLBOARD_SHADOW_PROFILE.insetRatio;
- const currentShadowDepth=currentRenderDepth-(currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0)-TERRAIN_DEPTH.overlay+TERRAIN_DEPTH.surface+BILLBOARD_SHADOW_PROFILE.depthOffset;
+ const currentAnchorDepthOffset=currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
+ const currentShadowDepth=currentRenderDepth-currentAnchorDepthOffset-(currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0)-TERRAIN_DEPTH.overlay+TERRAIN_DEPTH.surface+BILLBOARD_SHADOW_PROFILE.depthOffset;
  const currentShadowGraphic=currentGameScene.add.graphics().setDepth(currentShadowDepth);
  for(const currentLayerProfile of BILLBOARD_SHADOW_PROFILE.layers){
   currentShadowGraphic.fillStyle(BILLBOARD_SHADOW_PROFILE.color,currentLayerProfile.alpha);
@@ -422,7 +433,7 @@ export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,curr
  currentSceneryImage.setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
  const currentContactShadow=drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions);
  if(currentContactShadow)currentSceneryImage.once('destroy',()=>currentContactShadow.destroy());
- return currentSceneryImage.setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentSceneryImage.height).setDepth(currentRenderDepth);
+ return currentSceneryImage.setOrigin(currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?.5:currentObjectRecord.anchorX,currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?1:currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentSceneryImage.height).setDepth(currentRenderDepth);
 }
 
 
@@ -448,7 +459,7 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
   const currentFrameName='billboard-'+currentLayerName;
   if(!currentSpriteTexture.has(currentFrameName))currentSpriteTexture.add(currentFrameName,0,currentLayerIndex*currentFrameSize,0,currentFrameSize,currentFrameSize);
   return markFieldOcclusionObject(currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName))
-   .setOrigin(currentObjectRecord.anchorX,currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentFrameSize)
+   .setOrigin(currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?.5:currentObjectRecord.anchorX,currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?1:currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentFrameSize)
    .setDepth(currentRenderDepth+currentLayerIndex*(currentObjectRecord.billboardPlacementAnchor?BILLBOARD_ANCHORED_LAYER_OFFSET:BILLBOARD_FRONT_DEPTH_OFFSET))
    .setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
  });
@@ -456,18 +467,15 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
 
 /** 화면 앵커 이동은 이웃 타일의 정렬 순서를 바꾸지 않는다. */
 export function resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
- const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
- if(!Object.hasOwn(FIELD_SCENERY_TILE_ANCHORS,currentAnchorName))throw Error('지원하지 않는 타일 앵커: '+currentAnchorName);
- const currentAnchorOffset=rotateSurfacePosition(FIELD_SCENERY_TILE_ANCHORS[currentAnchorName],currentRenderOptions.rotation??0);
+ const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
  const currentActorSideOffset=currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0;
- return resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+TERRAIN_DEPTH.overlay+currentActorSideOffset;
+ const currentAnchorDepthOffset=currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
+ return resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+currentAnchorDepthOffset+TERRAIN_DEPTH.overlay+currentActorSideOffset;
 }
 
 /** 소속 타일의 고도를 유지하고 선택한 접지 위치만 회전·투영한다. */
 export function resolveFieldSceneryPlacement(currentObjectRecord,currentTileCenter,currentRenderOptions=FIELD_RENDER_METRICS){
- const currentAnchorName=currentObjectRecord.billboardPlacementAnchor??currentObjectRecord.tileAnchor??'center';
- if(!Object.hasOwn(FIELD_SCENERY_TILE_ANCHORS,currentAnchorName))throw Error('지원하지 않는 타일 앵커: '+currentAnchorName);
- const currentAnchorOffset=FIELD_SCENERY_TILE_ANCHORS[currentAnchorName];
+ const currentAnchorOffset=resolveBillboardAnchorOffset(currentObjectRecord);
  const currentViewOffset=rotateSurfacePosition(currentAnchorOffset,currentRenderOptions.rotation??0);
  return {position:{column:currentObjectRecord.position.column+currentAnchorOffset.column,row:currentObjectRecord.position.row+currentAnchorOffset.row},
   screen:{x:currentTileCenter.x+(currentViewOffset.column-currentViewOffset.row)*currentRenderOptions.tileWidth/2,
