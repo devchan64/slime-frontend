@@ -889,15 +889,9 @@ files:
 - path: assets/structures/quarry-stone-cart-v1.png
   source_path: assets/billboards/quarry-stone-cart-v1.png
   sha256: 60ebf0dd942c64a3826e60f694b854f789962b462d61bdbc663ce45cce6b7e97
-- path: assets/structures/dawn-overlook-granite-ledge-v1.png
-  source_path: assets/billboards/dawn-overlook-granite-ledge-v1.png
-  sha256: 42c7a7e60264934e82bdd31a3163577ca41ab0b9199d0a085d776850e622ce52
 - path: assets/structures/dawn-overlook-split-granite-v1.png
   source_path: assets/billboards/dawn-overlook-split-granite-v1.png
   sha256: c9177af34382c8e640b46776445a9dd8c9120cec50bf118bab46a65f4124e720
-- path: assets/structures/dawn-overlook-weathered-slabs-v1.png
-  source_path: assets/billboards/dawn-overlook-weathered-slabs-v1.png
-  sha256: 36e7694205edfe4c197112b2e911b6b6b285e41cbbe57cade904aa38e6c18c8f
 - path: assets/structures/bridge-timber-components-v1.png
   source_path: assets/buildings/bridge-timber-components-v1.png
   sha256: 785058d1d920b29296245a6827a8f319d9c212ba29891a718235975634711663

@@ -486,3 +486,12 @@ test('타일 하단 중앙 앵커는 기존 이미지 위치를 보존하고 배
   assert.ok(Math.abs(currentEllipseRecords[0][1]-200-currentExpectedOffsets[1]*currentScaleValue)<1e-9);
  }
 });
+
+
+test('2×1 그림자는 행 방향을 두 배로 늘리지 않는다',()=>{
+ const currentShadowPoints=buildBillboardShadowPolygon(2,1,{x:0,y:0},{tileWidth:160,tileHeight:80});
+ const currentColumnValues=currentShadowPoints.map(currentPointValue=>currentPointValue.x/160+currentPointValue.y/80);
+ const currentRowValues=currentShadowPoints.map(currentPointValue=>currentPointValue.y/80-currentPointValue.x/160);
+ assert.ok(Math.abs(Math.max(...currentColumnValues)-Math.min(...currentColumnValues)-2.2)<1e-10);
+ assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-1.1)<1e-10);
+});
