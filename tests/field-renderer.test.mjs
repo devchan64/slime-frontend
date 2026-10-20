@@ -440,3 +440,23 @@ test('긴 점유 그림자는 열·행 축으로 투영하고 회전·축소한�
  assert.deepEqual(currentSmallPoints,currentColumnPoints.map(currentPoint=>({x:currentPoint.x/2,y:currentPoint.y/2})));
  assert.throws(()=>buildBillboardShadowPolygon(0,1,{x:0,y:0},currentOptions),/양의 정수/);
 });
+
+test('그림자 중심은 모든 앵커와 회전에서 소속 타일 중앙이다',()=>{
+ for(const currentRotationValue of [0,1,2,3])for(const currentAnchorName of ['top','bottom','center','front','back']){
+  const currentRenderOptions={tileWidth:80,tileHeight:40,billboardScale:.5,rotation:currentRotationValue};
+  const currentObjectRecord={position:{column:2,row:3},displayHeight:80,billboardPlacementAnchor:currentAnchorName};
+  const currentTileCenter={x:300,y:200};
+  const currentPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentTileCenter,currentRenderOptions);
+  const currentEllipseRecords=[];
+  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
+  drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPlacement.screen,100,currentRenderOptions);
+  assert.deepEqual(currentEllipseRecords[0].slice(0,2),[300,200]);
+ }
+});
+
+test('에셋 그림자 이동과 크기 배율은 타일 중앙 기준으로 적용된다',()=>{
+ const currentEllipseRecords=[];
+ const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
+ drawBillboardContactShadow(currentMockScene,{displayHeight:100,shadowOffsetColumn:1,shadowOffsetRow:0,shadowScaleX:2,shadowScaleY:.5},{x:0,y:0},100,{tileWidth:80,tileHeight:40,billboardScale:.5});
+ assert.deepEqual(currentEllipseRecords[0].slice(0,3),[40,20,38]);assert.ok(Math.abs(currentEllipseRecords[0][3]-1.9)<1e-10);
+});
