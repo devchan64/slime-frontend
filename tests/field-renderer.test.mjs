@@ -472,3 +472,17 @@ test('타일 하단 중앙 앵커는 기존 이미지 위치를 보존하고 배
   assert.ok(Math.abs((currentOldPosition.y-.8*120*currentScaleValue)-(currentNewPosition.y-120*currentScaleValue))<1e-9);
  }
 });
+
+ test('2×2 그림자는 회전과 배율에 관계없이 점유 네 칸의 중앙에 놓인다',()=>{
+ for(const currentRotationValue of [0,1,2,3])for(const currentScaleValue of [.5,1]){
+  const currentRenderOptions={tileWidth:160*currentScaleValue,tileHeight:80*currentScaleValue,billboardScale:currentScaleValue,rotation:currentRotationValue};
+  const currentObjectRecord={position:{column:2,row:3},displayHeight:150,groundFootprintColumns:2,groundFootprintRows:2,billboardAnchorMode:'tile-bottom-center',anchorX:.35,anchorY:1.2};
+  const currentPlacementValue=resolveFieldSceneryPlacement(currentObjectRecord,{x:300,y:200},currentRenderOptions);
+  const currentEllipseRecords=[];
+  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
+  drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPlacementValue.screen,100,currentRenderOptions);
+  const currentExpectedOffsets=[[0,40],[-80,0],[0,-40],[80,0]][currentRotationValue];
+  assert.ok(Math.abs(currentEllipseRecords[0][0]-300-currentExpectedOffsets[0]*currentScaleValue)<1e-9);
+  assert.ok(Math.abs(currentEllipseRecords[0][1]-200-currentExpectedOffsets[1]*currentScaleValue)<1e-9);
+ }
+});
