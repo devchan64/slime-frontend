@@ -988,3 +988,18 @@ files:
 - path: assets/structures/crystal-cut-twin-tall-quartz-2x1-v1.png
   source_path: assets/billboards/crystal-cut-twin-tall-quartz-2x1-v1.png
   sha256: 22de6a1ad6cb35a28df1b73968cb392b217dcf584402f5c649f77cb52ccd088a
+- path: assets/structures/crystal-cut-medium-quartz-2x1-v1.png
+  source_path: assets/billboards/crystal-cut-medium-quartz-2x1-v1.png
+  sha256: f935de8050f2f3aa5cf5ae428a4cf86291db342fa430224f2213bc5306d04020
+- path: assets/structures/crystal-cut-medium-quartz-1x2-v1.png
+  source_path: assets/billboards/crystal-cut-medium-quartz-1x2-v1.png
+  sha256: 3cff4c4808b4b1b264a79addd3f4dd2f3a1d362f1c80a30f6e0049f294dc9407
+- path: assets/structures/crystal-cut-low-quartz-2x1-v1.png
+  source_path: assets/billboards/crystal-cut-low-quartz-2x1-v1.png
+  sha256: e21593190b0d09021c604b2c5caedc0a65796b95158b35ff2a276cb7a94a177f
+- path: assets/structures/crystal-cut-low-quartz-1x2-v1.png
+  source_path: assets/billboards/crystal-cut-low-quartz-1x2-v1.png
+  sha256: 52609f87290e31861e40cbb46ba4af999819f080ce440394603077fed779c5ad
+- path: assets/structures/crystal-cut-twin-tall-quartz-1x2-v1.png
+  source_path: assets/billboards/crystal-cut-twin-tall-quartz-1x2-v1.png
+  sha256: 26c928f24b732eb5585e0207d72dbf6dd66bde104096a589a8cffb0ae2a8f7f4
