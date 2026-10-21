@@ -967,18 +967,9 @@ files:
 - path: assets/structures/quarry-crevice-plants-v1.png
   source_path: assets/billboards/quarry-crevice-plants-v1.png
   sha256: 2ae65bdcc6c5a1689a6a0989589125ce69bd9c4d3df9b212f9b6f4a68cecf49f
-- path: assets/structures/quarry-large-escarpment-v1.png
-  source_path: assets/billboards/quarry-large-escarpment-v1.png
-  sha256: 9f1f6af9ff122c4554cfe89d37ff0424a616d300382b6883a25b055d352f7b04
-- path: assets/structures/quarry-low-rock-ledge-v1.png
-  source_path: assets/billboards/quarry-low-rock-ledge-v1.png
-  sha256: a6af2a8e04ca5b3b2508bdc3580193d2ebf943aca7519189d395fd7be8c5d3ac
 - path: assets/structures/quarry-asymmetric-rockfall-v1.png
   source_path: assets/billboards/quarry-asymmetric-rockfall-v1.png
   sha256: 3acd011bd5bfe78b57ebfd2fde42cad9af1f039906481aaf454c484180a7490c
-- path: assets/structures/cinder-basalt-ridge-large-v1.png
-  source_path: assets/billboards/cinder-basalt-ridge-large-v1.png
-  sha256: 705be6a26c8d196aede2dcd99f2e8e15139f1a908c9149bd25c35dd16de37b29
 - path: assets/structures/crystal-cut-compact-veined-stone-v1.png
   source_path: assets/billboards/crystal-cut-compact-veined-stone-v1.png
   sha256: 956a2fa2846a1b4ed9fce03c5f9b0d9046341dbaccd3b4af9785c80b9e792d32
