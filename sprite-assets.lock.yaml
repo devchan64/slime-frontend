@@ -960,46 +960,64 @@ files:
   sha256: c15d4923a7734a24fd19df06e5419040fc6f0fb2a97cc6fa3b09dec197627f03
 - path: assets/structures/quarry-cut-rock-face-v1.png
   source_path: assets/billboards/quarry-cut-rock-face-v1.png
-  sha256: 8e388a946b5424c9dd76035f27a41480258a3fc4f7fd770d52143287160e855c
+  sha256: 5c9220f1b3a1fbf86ad69846ec604441a576351466446cf7394ec0e1b8fc5550
 - path: assets/structures/quarry-fallen-limestone-v1.png
   source_path: assets/billboards/quarry-fallen-limestone-v1.png
-  sha256: ede50b5630c35e47109731d1f84bf734a4568e37e2a5f36596cba2a7a22031cd
+  sha256: 7b6772fd74830f50fd18d3087a50894f6d9354ba3a1e6808496137699b06acdc
 - path: assets/structures/quarry-crevice-plants-v1.png
   source_path: assets/billboards/quarry-crevice-plants-v1.png
   sha256: 2ae65bdcc6c5a1689a6a0989589125ce69bd9c4d3df9b212f9b6f4a68cecf49f
 - path: assets/structures/quarry-asymmetric-rockfall-v1.png
   source_path: assets/billboards/quarry-asymmetric-rockfall-v1.png
-  sha256: 3acd011bd5bfe78b57ebfd2fde42cad9af1f039906481aaf454c484180a7490c
+  sha256: 9bb0e57be1e68578452d5395b9f054294a3bea43fe0f46c8ee77e519ff8c580e
 - path: assets/structures/crystal-cut-compact-veined-stone-v1.png
   source_path: assets/billboards/crystal-cut-compact-veined-stone-v1.png
-  sha256: 956a2fa2846a1b4ed9fce03c5f9b0d9046341dbaccd3b4af9785c80b9e792d32
+  sha256: 20eb5b2f1a179b2a920a97e6782e1429f7cfb656307485535adbb670eafa778a
 - path: assets/structures/crystal-cut-compact-dark-stone-v1.png
   source_path: assets/billboards/crystal-cut-compact-dark-stone-v1.png
-  sha256: a83bf4a4e1bb1663e9622bf9f8c78999a08c9bc45a67362b20b0198eb5d1b3ee
+  sha256: 1b3c3767a2bbd5f2abf7e04df24b8e89debd09434cb029879a61ca4d9fffc8d1
 - path: assets/structures/crystal-cut-compact-veined-chips-v1.png
   source_path: assets/billboards/crystal-cut-compact-veined-chips-v1.png
-  sha256: 9b7c230b78b319bfcff518938cfbf23e08cb873cf5730327aab6520290ee9d60
+  sha256: 65a622978a4c40d1ec738729f75039d4a1df69c2901261ecfd14d8d53f1522ea
 - path: assets/structures/crystal-cut-tall-quartz-v1.png
   source_path: assets/billboards/crystal-cut-tall-quartz-v1.png
-  sha256: d0fa51380d6b5d7cf4357281d4a3a55cb1124006611e5a07b4d6636b9185ef47
+  sha256: 96215357533f28d5a4ae5cb08bd90a92de6863a00d6da772455c62a27bac8ce3
 - path: assets/structures/crystal-cut-tall-quartz-variant-v1.png
   source_path: assets/billboards/crystal-cut-tall-quartz-variant-v1.png
-  sha256: 5d01d357b9952aba95c05cccc8c79ebc2872998ddc998a27eeac20031a0c63a6
+  sha256: 9e346c962079e364445bc346060578593546ad0d06ce1efca652bea7e08a25a4
 - path: assets/structures/crystal-cut-twin-tall-quartz-2x1-v1.png
   source_path: assets/billboards/crystal-cut-twin-tall-quartz-2x1-v1.png
-  sha256: 22de6a1ad6cb35a28df1b73968cb392b217dcf584402f5c649f77cb52ccd088a
+  sha256: 4557db2e5355d715fb982d2ce21ffadfa8d9e6f7e864e875df88e5bc329277e1
 - path: assets/structures/crystal-cut-medium-quartz-2x1-v1.png
   source_path: assets/billboards/crystal-cut-medium-quartz-2x1-v1.png
-  sha256: f935de8050f2f3aa5cf5ae428a4cf86291db342fa430224f2213bc5306d04020
+  sha256: 9a2f076232bbf11972ad5cfbbe3a309a74136c3dd1f9ed597b59d146b000f392
 - path: assets/structures/crystal-cut-medium-quartz-1x2-v1.png
   source_path: assets/billboards/crystal-cut-medium-quartz-1x2-v1.png
-  sha256: 3cff4c4808b4b1b264a79addd3f4dd2f3a1d362f1c80a30f6e0049f294dc9407
-- path: assets/structures/crystal-cut-low-quartz-2x1-v1.png
-  source_path: assets/billboards/crystal-cut-low-quartz-2x1-v1.png
-  sha256: e21593190b0d09021c604b2c5caedc0a65796b95158b35ff2a276cb7a94a177f
-- path: assets/structures/crystal-cut-low-quartz-1x2-v1.png
-  source_path: assets/billboards/crystal-cut-low-quartz-1x2-v1.png
-  sha256: 52609f87290e31861e40cbb46ba4af999819f080ce440394603077fed779c5ad
+  sha256: fb242904f8c7f2e490992c797f14613470484579157bc17555b5ee03ba67ab83
 - path: assets/structures/crystal-cut-twin-tall-quartz-1x2-v1.png
   source_path: assets/billboards/crystal-cut-twin-tall-quartz-1x2-v1.png
-  sha256: 26c928f24b732eb5585e0207d72dbf6dd66bde104096a589a8cffb0ae2a8f7f4
+  sha256: ce0b772a03e07b0151d47e482e5707060e1c23a86f62cb96b399665013154bdd
+- path: assets/structures/crystal-cut-veined-boulder-1-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-1-v1.png
+  sha256: 188d4ad054a060cdc6ba345f60f9d0dff0aa4a73b114a544bf653e020b1b8d2c
+- path: assets/structures/crystal-cut-veined-boulder-2-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-2-v1.png
+  sha256: cb786b3bb1a3b0d3f14eef40ca02038d1e7927fd63e41a55070afe3a43c34af4
+- path: assets/structures/crystal-cut-veined-boulder-3-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-3-v1.png
+  sha256: 0540ac5f72206dbe30ab69dccf7b968a2e20c90a6a02a68abd8d3d10f1d13eea
+- path: assets/structures/crystal-cut-veined-boulder-4-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-4-v1.png
+  sha256: 7dd0bb2f3946ad471d3653114b7f6ac5f4da061c8d435ae1d7d3e39d11ddecf4
+- path: assets/structures/crystal-cut-veined-boulder-reverse-1-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-reverse-1-v1.png
+  sha256: 6c162052459f53d6f010911ec7cd7cfeb098e7849c36a29d26614ffb66a047c2
+- path: assets/structures/crystal-cut-veined-boulder-reverse-2-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-reverse-2-v1.png
+  sha256: 7b215847e1b3e142d597fb495452eb8d13ccd99fbe63d84fe6a40309ccd836e0
+- path: assets/structures/crystal-cut-veined-boulder-reverse-3-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-reverse-3-v1.png
+  sha256: 21e8c8b11336294114031605704f93dd8476b68efc23be549f87a0f6a5887f5f
+- path: assets/structures/crystal-cut-veined-boulder-reverse-4-v1.png
+  source_path: assets/billboards/crystal-cut-veined-boulder-reverse-4-v1.png
+  sha256: 03ba389202afcdce47134c42941c53500147b212d7e523748a56f547e4ee94cf
