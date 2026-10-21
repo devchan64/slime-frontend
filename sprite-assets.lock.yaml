@@ -853,21 +853,12 @@ files:
 - path: assets/structures/clover-bank-rabbit-burrow-v1.png
   source_path: assets/billboards/clover-bank-rabbit-burrow-v1.png
   sha256: 51b1f147125d7065fd7ca0b4ee1320643528e1aa689f28aa4a3e4c81ce33f1c3
-- path: assets/structures/crystal-cut-quartz-outcrop-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-outcrop-v1.png
-  sha256: 2a5f0627dd8ce9333f0d74ffbbaedce4b0c783670f9843bbcb94aa49e072960c
 - path: assets/effects/field-battle/field-battle-active-v1.png
   source_path: assets/sprites/effects/field-battle/field-battle-active-v1.png
   sha256: 797a2ae0cf59ddc53531e974f762ea74c429d8768dbe45f13dac0a8562a9c863
 - path: assets/effects/field-battle/field-monster-vanish-v1.png
   source_path: assets/sprites/effects/field-battle/field-monster-vanish-v1.png
   sha256: 8c83316fbccd839e954b98ed352c14774223a3b2f01db254795c45fb27c6e178
-- path: assets/structures/crystal-cut-quartz-shelf-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-shelf-v1.png
-  sha256: 9f7d28d6439f7a0507046b954ba1b6c62b76cea8f5fdc74f510eb68956592739
-- path: assets/structures/crystal-cut-quartz-rubble-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-rubble-v1.png
-  sha256: 2b1f6c436c056abd4096045c130296aa10bc572f97b554eeedac4af1dff44874
 - path: assets/structures/dawn-overlook-split-granite-v1.png
   source_path: assets/billboards/dawn-overlook-split-granite-v1.png
   sha256: c9177af34382c8e640b46776445a9dd8c9120cec50bf118bab46a65f4124e720
@@ -988,51 +979,15 @@ files:
 - path: assets/structures/cinder-basalt-ridge-large-v1.png
   source_path: assets/billboards/cinder-basalt-ridge-large-v1.png
   sha256: 705be6a26c8d196aede2dcd99f2e8e15139f1a908c9149bd25c35dd16de37b29
-- path: assets/structures/crystal-cut-low-quartz-vein-v1.png
-  source_path: assets/billboards/crystal-cut-low-quartz-vein-v1.png
-  sha256: 70774c29f25775964168ddeae5cffd7d5bf716202313edee45b7debcf9c248a7
-- path: assets/structures/crystal-cut-fissured-boulder-v1.png
-  source_path: assets/billboards/crystal-cut-fissured-boulder-v1.png
-  sha256: 5c20742f6b2e1434f1d5d3865beb936967fe988132b2cfe1b9b8e02d18a4ac08
-- path: assets/structures/crystal-cut-quartz-fragments-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-fragments-v1.png
-  sha256: c632a92febdb2f45ed8a80bbe5bb87842acdb1ae7eb01acad3defbb7098381f4
-- path: assets/structures/crystal-cut-curved-quartz-vein-v1.png
-  source_path: assets/billboards/crystal-cut-curved-quartz-vein-v1.png
-  sha256: edc3875d9d30bfec949b8567e2e1b1d791564b1f0816d39b6ea657d3b2f0f5c3
-- path: assets/structures/crystal-cut-veined-rock-face-v1.png
-  source_path: assets/billboards/crystal-cut-veined-rock-face-v1.png
-  sha256: 3f407d4bd03574d3aa6642f87e68a205bc19c69cf9f2c118eff2e507a03ae6f1
 - path: assets/structures/crystal-cut-flat-quartz-slab-v1.png
   source_path: assets/billboards/crystal-cut-flat-quartz-slab-v1.png
-  sha256: baf0dcd6bef096872c8e632d267b68df7c3b714bb0ce1a961dc5227ae50bc96c
-- path: assets/structures/crystal-cut-straight-quartz-segment-v1.png
-  source_path: assets/billboards/crystal-cut-straight-quartz-segment-v1.png
-  sha256: be2a5d5807221c794b8d6dcb1ff002606407ed36e637bebd591c67e161d40165
-- path: assets/structures/crystal-cut-quartz-single-spire-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-single-spire-v1.png
-  sha256: ac48f9efa0403d67ee491d526163655b1cff9b8edb9a51ae140059715a89e1d2
-- path: assets/structures/crystal-cut-quartz-paired-spires-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-paired-spires-v1.png
-  sha256: 6d25bb38dc77600bf878ed71c624011a015301f6a3fa843b9e7d1596f1581b17
-- path: assets/structures/crystal-cut-quartz-needle-spire-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-needle-spire-v1.png
-  sha256: ef13db616fd7aad9bc877491c7affca7d39bbf10e2c43796ba222ba3a2ab5e11
-- path: assets/structures/crystal-cut-quartz-short-spire-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-short-spire-v1.png
-  sha256: e1e456d3ac6a13673fbf768c9ee4015219fb5d4c237051e78b6310f32cda4969
-- path: assets/structures/crystal-cut-quartz-floor-patch-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-floor-patch-v1.png
-  sha256: 7ee6508eecea4d679ab73497dce85aef5d5c6c8368c2c72e821eaad9d768046d
-- path: assets/structures/crystal-cut-quartz-floor-ribbon-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-floor-ribbon-v1.png
-  sha256: c088f090c95433aa161c6197004557437829b120d7a7e49bfa1a83bfc28a2355
-- path: assets/structures/crystal-cut-quartz-floor-mosaic-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-floor-mosaic-v1.png
-  sha256: b31be8c853ed4faf7a3276e87decef0262fa5682f29a2ed501c6d471ca5016a6
-- path: assets/structures/crystal-cut-quartz-rounded-rock-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-rounded-rock-v1.png
-  sha256: 5ca7ccdf43d14c84c3b8010e3d42467e96d4a165c62a112d59806def98258c88
-- path: assets/structures/crystal-cut-quartz-angular-rock-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-angular-rock-v1.png
-  sha256: 11f96621e265a06890aded538fb0523b8ca1623366e5d7904a5270886622b403
+  sha256: 6a87323c4ebfbbb81dea72bca039fb9194071bd385d5cfcebc03cf7d437735c4
+- path: assets/structures/crystal-cut-compact-veined-stone-v1.png
+  source_path: assets/billboards/crystal-cut-compact-veined-stone-v1.png
+  sha256: 956a2fa2846a1b4ed9fce03c5f9b0d9046341dbaccd3b4af9785c80b9e792d32
+- path: assets/structures/crystal-cut-compact-dark-stone-v1.png
+  source_path: assets/billboards/crystal-cut-compact-dark-stone-v1.png
+  sha256: a83bf4a4e1bb1663e9622bf9f8c78999a08c9bc45a67362b20b0198eb5d1b3ee
+- path: assets/structures/crystal-cut-compact-veined-chips-v1.png
+  source_path: assets/billboards/crystal-cut-compact-veined-chips-v1.png
+  sha256: 9b7c230b78b319bfcff518938cfbf23e08cb873cf5730327aab6520290ee9d60
