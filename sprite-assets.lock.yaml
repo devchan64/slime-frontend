@@ -991,3 +991,24 @@ files:
 - path: assets/structures/cinder-basalt-ridge-large-v1.png
   source_path: assets/billboards/cinder-basalt-ridge-large-v1.png
   sha256: 705be6a26c8d196aede2dcd99f2e8e15139f1a908c9149bd25c35dd16de37b29
+- path: assets/structures/crystal-cut-low-quartz-vein-v1.png
+  source_path: assets/billboards/crystal-cut-low-quartz-vein-v1.png
+  sha256: 70774c29f25775964168ddeae5cffd7d5bf716202313edee45b7debcf9c248a7
+- path: assets/structures/crystal-cut-fissured-boulder-v1.png
+  source_path: assets/billboards/crystal-cut-fissured-boulder-v1.png
+  sha256: 5c20742f6b2e1434f1d5d3865beb936967fe988132b2cfe1b9b8e02d18a4ac08
+- path: assets/structures/crystal-cut-quartz-fragments-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-fragments-v1.png
+  sha256: c632a92febdb2f45ed8a80bbe5bb87842acdb1ae7eb01acad3defbb7098381f4
+- path: assets/structures/crystal-cut-curved-quartz-vein-v1.png
+  source_path: assets/billboards/crystal-cut-curved-quartz-vein-v1.png
+  sha256: edc3875d9d30bfec949b8567e2e1b1d791564b1f0816d39b6ea657d3b2f0f5c3
+- path: assets/structures/crystal-cut-veined-rock-face-v1.png
+  source_path: assets/billboards/crystal-cut-veined-rock-face-v1.png
+  sha256: 3f407d4bd03574d3aa6642f87e68a205bc19c69cf9f2c118eff2e507a03ae6f1
+- path: assets/structures/crystal-cut-flat-quartz-slab-v1.png
+  source_path: assets/billboards/crystal-cut-flat-quartz-slab-v1.png
+  sha256: baf0dcd6bef096872c8e632d267b68df7c3b714bb0ce1a961dc5227ae50bc96c
+- path: assets/structures/crystal-cut-straight-quartz-segment-v1.png
+  source_path: assets/billboards/crystal-cut-straight-quartz-segment-v1.png
+  sha256: be2a5d5807221c794b8d6dcb1ff002606407ed36e637bebd591c67e161d40165
