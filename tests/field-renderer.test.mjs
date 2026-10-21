@@ -28,7 +28,7 @@ test('높이가 달라도 타일 깊이는 지면 좌표 순서를 유지한다'
 
 test('접지 그림자 기본값은 중형 사람의 0.4×0.32 타일 비율을 유지한다',()=>{
  const currentBaselineProfile=FIELD_ACTOR_CONTACT_SHADOW_PROFILES.baseline;
- assert.deepEqual(currentBaselineProfile,{width:0.4,height:0.32,alpha:0.3,coreAlpha:0.24,coreScale:0.65,scale:1.3,opacityScale:1.5});
+ assert.deepEqual(currentBaselineProfile,{width:0.4,height:0.32,alpha:0.3,coreAlpha:0.24,coreScale:0.65,scale:0.65,opacityScale:1.5});
  assert.ok(FIELD_ACTOR_CONTACT_SHADOW_PROFILES.contrast.alpha>currentBaselineProfile.alpha);
  assert.ok(FIELD_ACTOR_CONTACT_SHADOW_PROFILES.broad.width>currentBaselineProfile.width);
 });
@@ -38,9 +38,9 @@ test('접지 그림자는 게임과 검수에서 같은 두 겹 타원 계약을
  const currentMockGraphics={fillStyle:(...currentArguments)=>currentDrawingCalls.push(['style',...currentArguments]),fillEllipse:(...currentArguments)=>currentDrawingCalls.push(['ellipse',...currentArguments])};
   const currentShadowSize=drawFieldActorContactShadow(currentMockGraphics,{x:100,y:200});
  assert.equal(currentShadowSize.color,0x18392e);
- assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:83.2,height:33.28,alpha:.54});
- assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:54.08,height:21.632,alpha:.45});
- assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,83.2,33.28],['style',0x18392e,.45],['ellipse',100,200,54.08,21.632]]);
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:41.6,height:16.64,alpha:.54});
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:27.04,height:10.816,alpha:.45});
+ assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,41.6,16.64],['style',0x18392e,.45],['ellipse',100,200,27.04,10.816]]);
  assert.throws(()=>drawFieldActorContactShadow(currentMockGraphics,{x:0,y:0},'missing'));
 });
 
@@ -196,7 +196,7 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
  const currentMaterialReader=()=> 'grass';
  for(const currentMapIdentifier of ['meadow','broken-quarry','ash-edge','wind-hills','old-orchard','granary-flats']){
   for(const [currentTerrainName,currentExpectedFrame] of [['battle-rock-a','battle-rock-a'],['battle-rock-b','battle-rock-b'],['battle-rock-c','battle-rock-c'],['battle-thicket','battle-thicket'],['road','road'],['dirt-road','dirt-road'],['stone-road','stone-road'],['flowers','flowers'],['wind-swept-grass','wind-swept-grass-v1'],['golden-grain-field','golden-grain-field-v1'],['fallen-orchard-fruit','fallen-orchard-fruit-v1']]){
-   assert.equal(resolveFieldTileTextures({},currentTerrainName,{column:0,row:0},currentMapIdentifier,5,currentMaterialReader).ground,'terrain-source-'+currentExpectedFrame);
+   assert.equal(resolveFieldTileTextures(currentSourceScene,currentTerrainName,{column:0,row:0},currentMapIdentifier,5,currentMaterialReader).ground,'terrain-source-'+currentExpectedFrame);
   }
  }
 

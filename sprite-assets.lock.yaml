@@ -979,9 +979,6 @@ files:
 - path: assets/structures/cinder-basalt-ridge-large-v1.png
   source_path: assets/billboards/cinder-basalt-ridge-large-v1.png
   sha256: 705be6a26c8d196aede2dcd99f2e8e15139f1a908c9149bd25c35dd16de37b29
-- path: assets/structures/crystal-cut-flat-quartz-slab-v1.png
-  source_path: assets/billboards/crystal-cut-flat-quartz-slab-v1.png
-  sha256: 6a87323c4ebfbbb81dea72bca039fb9194071bd385d5cfcebc03cf7d437735c4
 - path: assets/structures/crystal-cut-compact-veined-stone-v1.png
   source_path: assets/billboards/crystal-cut-compact-veined-stone-v1.png
   sha256: 956a2fa2846a1b4ed9fce03c5f9b0d9046341dbaccd3b4af9785c80b9e792d32
@@ -991,3 +988,12 @@ files:
 - path: assets/structures/crystal-cut-compact-veined-chips-v1.png
   source_path: assets/billboards/crystal-cut-compact-veined-chips-v1.png
   sha256: 9b7c230b78b319bfcff518938cfbf23e08cb873cf5730327aab6520290ee9d60
+- path: assets/structures/crystal-cut-tall-quartz-v1.png
+  source_path: assets/billboards/crystal-cut-tall-quartz-v1.png
+  sha256: d0fa51380d6b5d7cf4357281d4a3a55cb1124006611e5a07b4d6636b9185ef47
+- path: assets/structures/crystal-cut-tall-quartz-variant-v1.png
+  source_path: assets/billboards/crystal-cut-tall-quartz-variant-v1.png
+  sha256: 5d01d357b9952aba95c05cccc8c79ebc2872998ddc998a27eeac20031a0c63a6
+- path: assets/structures/crystal-cut-twin-tall-quartz-2x1-v1.png
+  source_path: assets/billboards/crystal-cut-twin-tall-quartz-2x1-v1.png
+  sha256: 22de6a1ad6cb35a28df1b73968cb392b217dcf584402f5c649f77cb52ccd088a

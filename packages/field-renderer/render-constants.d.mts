@@ -46,3 +46,5 @@ export const OUTDOOR_MAP_RENDER_SCALE:number;
 export function resolveMapRenderOptions(currentMapSurface?:{safeTown?:boolean;renderKind?:'field'|'town'|'battle'}):{tileWidth:number;tileHeight:number;elevationHeight:number;baseThickness:number;billboardScale:number};
 
 export const FIELD_GROUND_EDGE_STYLE:Readonly<{color:number;width:number;alpha:number}>;
+
+export const FIELD_TILE_BOUNDARY_ALPHA:number;

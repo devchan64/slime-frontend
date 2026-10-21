@@ -4,8 +4,8 @@ import {readGroundSurfaceHeight} from '../field-surface/field-surface.mjs';
 export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces,prepareBridgeTraversalSurface} from '../field-surface/terrain-bridges.mjs';
 export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
 import {TERRAIN_DEPTH,TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
-import {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
-export {FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
+import {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
+export {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */

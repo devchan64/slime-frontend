@@ -67,3 +67,5 @@ export function drawBillboardContactShadow(currentGameScene:Phaser.Scene,current
 export function buildBillboardShadowPolygon(currentColumnCount:number,currentRowCount:number,currentCenterPoint:SurfacePoint,currentRenderOptions:{tileWidth:number;tileHeight:number;rotation?:number},currentLayerScale?:number):SurfacePoint[];
 
 export function resolveBillboardIntersectionOffset(currentObjectRecord:FieldSceneryRecord):{column:number;row:number};
+
+export const FIELD_TILE_BOUNDARY_ALPHA:number;

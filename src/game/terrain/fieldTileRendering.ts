@@ -14,7 +14,8 @@ export function resolveFieldTerrainFrame(currentTerrainName:string,currentMapIde
  return currentMaterialFrame;
 }
 
-export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string,currentGroundOverrides:readonly {position:Position;textureKey:string}[]=[],currentGroundDecals:readonly GroundDecalRecord[]=[],currentCliffTextureKey:string=CLIFF_WALL_TEXTURE){
+export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentCellPosition:Position,currentMapIdentifier:string,currentConnectionMask:number,resolveGroundMaterial:(currentCellPosition:Position)=>string,currentGroundOverrides:readonly {position:Position;textureKey:string}[]=[],currentGroundDecals:readonly GroundDecalRecord[]=[],currentCliffTextureKey:string=CLIFF_WALL_TEXTURE,currentCliffOverrides:readonly {position:Position;textureKey:string}[]=[]){
+ currentCliffTextureKey=currentCliffOverrides.find(currentWallRecord=>currentWallRecord.position.column===currentCellPosition.column&&currentWallRecord.position.row===currentCellPosition.row)?.textureKey??currentCliffTextureKey;
  if(!currentGameScene.textures.exists(currentCliffTextureKey))throw new Error("등록 벽면 텍스처 누락: "+currentCliffTextureKey);
  const resolveDisplayedGroundMaterial=(currentNeighborPosition:Position):string=>{
   const currentSourceTexture=resolveFieldGroundMaterial(currentNeighborPosition,currentGroundOverrides,currentTerrainPosition=>'terrain-source-'+resolveFieldTerrainFrame(resolveGroundMaterial(currentTerrainPosition),currentMapIdentifier));
