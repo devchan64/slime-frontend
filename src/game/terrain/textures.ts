@@ -1,3 +1,4 @@
+import wallAssetPaths from './wall.asset-list.yaml';
 import terrainAssetPaths from "./terrain.asset-list.yaml";
 const {
   angularQuarryScreeSource,
@@ -125,6 +126,7 @@ function clipRoad(ctx: CanvasRenderingContext2D, mask: number) {
 }
 
 export function preloadTerrain(scene: Phaser.Scene) {
+  for(const [currentWallName,currentWallSource] of Object.entries(wallAssetPaths))scene.load.image(currentWallName.replaceAll("_","-"),currentWallSource);
   scene.load.image("terrain-source-dirt-road", packedDirtRoadSource);
   scene.load.image("terrain-source-stone-road", stoneSlabRoadSource);
   for(const [currentDecalKey,currentDecalSource] of Object.entries({ 'boar-hoof-pair-v1':terrainAssetPaths.boarHoofPairSource,'boar-hoof-trail-v1':terrainAssetPaths.boarHoofTrailSource,'boar-hoof-worn-v1':terrainAssetPaths.boarHoofWornSource }))scene.load.image(currentDecalKey,currentDecalSource);

@@ -48,6 +48,7 @@ export type Unit = Appearance & {
 export type Battlefield = Surface & {
   objects?: import('../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[];
   groundDecals?: import("../game/terrain/groundDecals").GroundDecalRecord[];
+  cliffTextureKey?: string;
   groundOverrides?: {position:Position;textureKey:string}[];
   id: string; version: string; name?: string; description?: string; columns: number; rows: number;
   sourceMapId?: string; sourceMapVersion?: string; selection?: "random" | "fixed"; eventId?: string | null;
@@ -156,6 +157,7 @@ export type State = {
     startPoint: Position;
     safeRadius: number;
     groundDecals?: import("../game/terrain/groundDecals").GroundDecalRecord[];
+  cliffTextureKey?: string;
   groundOverrides?: {position:Position;textureKey:string}[];
     objects?: import('../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[];
     terrainRows?: string[];

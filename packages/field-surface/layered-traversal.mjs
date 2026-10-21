@@ -1,3 +1,4 @@
+const TERRAIN_MAXIMUM_ELEVATION=20;
 import {enumerateBridgeCells, validateBridgeSurfaces} from './terrain-bridges.mjs';
 
 const LAYERED_CARDINAL_OFFSETS = [[0,-1],[-1,0],[1,0],[0,1]];
@@ -7,7 +8,7 @@ export function layeredPositionKey(currentCellPosition){
 }
 /** 기존 단층 맵과 독립된 보행면 그래프. 입력은 지면 차단 목록을 보존한다. */
 export function buildLayeredTraversal(currentMapSurface){
- if(!Number.isInteger(currentMapSurface.columns)||!Number.isInteger(currentMapSurface.rows)||currentMapSurface.columns<1||currentMapSurface.rows<1||currentMapSurface.elevations?.length!==currentMapSurface.rows||currentMapSurface.elevations.some(currentHeightRow=>currentHeightRow.length!==currentMapSurface.columns||currentHeightRow.some(currentHeightValue=>!Number.isInteger(currentHeightValue)||currentHeightValue<0||currentHeightValue>9)))throw Error('다층 지면 크기·고도 오류');
+ if(!Number.isInteger(currentMapSurface.columns)||!Number.isInteger(currentMapSurface.rows)||currentMapSurface.columns<1||currentMapSurface.rows<1||currentMapSurface.elevations?.length!==currentMapSurface.rows||currentMapSurface.elevations.some(currentHeightRow=>currentHeightRow.length!==currentMapSurface.columns||currentHeightRow.some(currentHeightValue=>!Number.isInteger(currentHeightValue)||currentHeightValue<0||currentHeightValue>TERRAIN_MAXIMUM_ELEVATION)))throw Error('다층 지면 크기·고도 오류');
  validateBridgeSurfaces(currentMapSurface);
  const currentSurfaceNodes=new Map(),currentBlockedKeys=new Set();
  const validateCellPosition=currentCellPosition=>{

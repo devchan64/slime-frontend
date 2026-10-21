@@ -961,3 +961,30 @@ files:
 - path: assets/structures/field-lantern-wood-lantern-stand-size-large-v1.png
   source_path: assets/billboards/field-lantern-wood-lantern-stand-size-large-v1.png
   sha256: 0f681007ef48efbf3c80ad9718f79883c95c4f24f0bd936107d64ed300d32202
+- path: assets/structures/quarry-wooden-derrick-v1.png
+  source_path: assets/billboards/quarry-wooden-derrick-v1.png
+  sha256: 0bb0f4cd2cda3e69ece5e39912f9e93eaf4086676a5e687df6a8c6787c12ad1a
+- path: assets/structures/quarry-stone-bearers-v1.png
+  source_path: assets/billboards/quarry-stone-bearers-v1.png
+  sha256: 3c3fd22c71376054e8d36b5b1ded3158cd1515617b367b590caabbafdd47614e
+- path: assets/structures/quarry-splitting-tools-v1.png
+  source_path: assets/billboards/quarry-splitting-tools-v1.png
+  sha256: c15d4923a7734a24fd19df06e5419040fc6f0fb2a97cc6fa3b09dec197627f03
+- path: assets/structures/quarry-cut-rock-face-v1.png
+  source_path: assets/billboards/quarry-cut-rock-face-v1.png
+  sha256: 8e388a946b5424c9dd76035f27a41480258a3fc4f7fd770d52143287160e855c
+- path: assets/structures/quarry-fallen-limestone-v1.png
+  source_path: assets/billboards/quarry-fallen-limestone-v1.png
+  sha256: ede50b5630c35e47109731d1f84bf734a4568e37e2a5f36596cba2a7a22031cd
+- path: assets/structures/quarry-crevice-plants-v1.png
+  source_path: assets/billboards/quarry-crevice-plants-v1.png
+  sha256: 2ae65bdcc6c5a1689a6a0989589125ce69bd9c4d3df9b212f9b6f4a68cecf49f
+- path: assets/structures/quarry-large-escarpment-v1.png
+  source_path: assets/billboards/quarry-large-escarpment-v1.png
+  sha256: 9f1f6af9ff122c4554cfe89d37ff0424a616d300382b6883a25b055d352f7b04
+- path: assets/structures/quarry-low-rock-ledge-v1.png
+  source_path: assets/billboards/quarry-low-rock-ledge-v1.png
+  sha256: a6af2a8e04ca5b3b2508bdc3580193d2ebf943aca7519189d395fd7be8c5d3ac
+- path: assets/structures/quarry-asymmetric-rockfall-v1.png
+  source_path: assets/billboards/quarry-asymmetric-rockfall-v1.png
+  sha256: 3acd011bd5bfe78b57ebfd2fde42cad9af1f039906481aaf454c484180a7490c
