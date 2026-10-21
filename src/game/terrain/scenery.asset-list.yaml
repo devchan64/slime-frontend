@@ -227,7 +227,6 @@ cinder_ash_ground_v1: assets/tiles/terrain/non-road/cinder-ash-ground-v1.png
 clover_bank_rabbit_burrow_v1: assets/billboards/clover-bank-rabbit-burrow-v1.png
 crystal_cut_quartz_outcrop_v1: assets/billboards/crystal-cut-quartz-outcrop-v1.png
 crystal_cut_quartz_shelf_v1: assets/billboards/crystal-cut-quartz-shelf-v1.png
-crystal_cut_quartz_spires_v1: assets/billboards/crystal-cut-quartz-spires-v1.png
 crystal_cut_quartz_rubble_v1: assets/billboards/crystal-cut-quartz-rubble-v1.png
 dawn_overlook_split_granite_v1: assets/billboards/dawn-overlook-split-granite-v1.png
 bridge_timber_components_v1: assets/buildings/bridge-timber-components-v1.png
@@ -272,3 +271,12 @@ crystal_cut_curved_quartz_vein_v1: assets/billboards/crystal-cut-curved-quartz-v
 crystal_cut_veined_rock_face_v1: assets/billboards/crystal-cut-veined-rock-face-v1.png
 crystal_cut_flat_quartz_slab_v1: assets/billboards/crystal-cut-flat-quartz-slab-v1.png
 crystal_cut_straight_quartz_segment_v1: assets/billboards/crystal-cut-straight-quartz-segment-v1.png
+crystal_cut_quartz_single_spire_v1: assets/billboards/crystal-cut-quartz-single-spire-v1.png
+crystal_cut_quartz_paired_spires_v1: assets/billboards/crystal-cut-quartz-paired-spires-v1.png
+crystal_cut_quartz_needle_spire_v1: assets/billboards/crystal-cut-quartz-needle-spire-v1.png
+crystal_cut_quartz_short_spire_v1: assets/billboards/crystal-cut-quartz-short-spire-v1.png
+crystal_cut_quartz_floor_patch_v1: assets/billboards/crystal-cut-quartz-floor-patch-v1.png
+crystal_cut_quartz_floor_ribbon_v1: assets/billboards/crystal-cut-quartz-floor-ribbon-v1.png
+crystal_cut_quartz_floor_mosaic_v1: assets/billboards/crystal-cut-quartz-floor-mosaic-v1.png
+crystal_cut_quartz_rounded_rock_v1: assets/billboards/crystal-cut-quartz-rounded-rock-v1.png
+crystal_cut_quartz_angular_rock_v1: assets/billboards/crystal-cut-quartz-angular-rock-v1.png

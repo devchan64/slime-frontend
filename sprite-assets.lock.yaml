@@ -865,9 +865,6 @@ files:
 - path: assets/structures/crystal-cut-quartz-shelf-v1.png
   source_path: assets/billboards/crystal-cut-quartz-shelf-v1.png
   sha256: 9f7d28d6439f7a0507046b954ba1b6c62b76cea8f5fdc74f510eb68956592739
-- path: assets/structures/crystal-cut-quartz-spires-v1.png
-  source_path: assets/billboards/crystal-cut-quartz-spires-v1.png
-  sha256: 4ab97e088343d9fbdc4e0c037622eb8482806b8d26de1d34ac5642de14a6edbc
 - path: assets/structures/crystal-cut-quartz-rubble-v1.png
   source_path: assets/billboards/crystal-cut-quartz-rubble-v1.png
   sha256: 2b1f6c436c056abd4096045c130296aa10bc572f97b554eeedac4af1dff44874
@@ -1012,3 +1009,30 @@ files:
 - path: assets/structures/crystal-cut-straight-quartz-segment-v1.png
   source_path: assets/billboards/crystal-cut-straight-quartz-segment-v1.png
   sha256: be2a5d5807221c794b8d6dcb1ff002606407ed36e637bebd591c67e161d40165
+- path: assets/structures/crystal-cut-quartz-single-spire-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-single-spire-v1.png
+  sha256: ac48f9efa0403d67ee491d526163655b1cff9b8edb9a51ae140059715a89e1d2
+- path: assets/structures/crystal-cut-quartz-paired-spires-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-paired-spires-v1.png
+  sha256: 6d25bb38dc77600bf878ed71c624011a015301f6a3fa843b9e7d1596f1581b17
+- path: assets/structures/crystal-cut-quartz-needle-spire-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-needle-spire-v1.png
+  sha256: ef13db616fd7aad9bc877491c7affca7d39bbf10e2c43796ba222ba3a2ab5e11
+- path: assets/structures/crystal-cut-quartz-short-spire-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-short-spire-v1.png
+  sha256: e1e456d3ac6a13673fbf768c9ee4015219fb5d4c237051e78b6310f32cda4969
+- path: assets/structures/crystal-cut-quartz-floor-patch-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-floor-patch-v1.png
+  sha256: 7ee6508eecea4d679ab73497dce85aef5d5c6c8368c2c72e821eaad9d768046d
+- path: assets/structures/crystal-cut-quartz-floor-ribbon-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-floor-ribbon-v1.png
+  sha256: c088f090c95433aa161c6197004557437829b120d7a7e49bfa1a83bfc28a2355
+- path: assets/structures/crystal-cut-quartz-floor-mosaic-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-floor-mosaic-v1.png
+  sha256: b31be8c853ed4faf7a3276e87decef0262fa5682f29a2ed501c6d471ca5016a6
+- path: assets/structures/crystal-cut-quartz-rounded-rock-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-rounded-rock-v1.png
+  sha256: 5ca7ccdf43d14c84c3b8010e3d42467e96d4a165c62a112d59806def98258c88
+- path: assets/structures/crystal-cut-quartz-angular-rock-v1.png
+  source_path: assets/billboards/crystal-cut-quartz-angular-rock-v1.png
+  sha256: 11f96621e265a06890aded538fb0523b8ca1623366e5d7904a5270886622b403
