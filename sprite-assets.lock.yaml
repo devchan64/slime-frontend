@@ -988,3 +988,6 @@ files:
 - path: assets/structures/quarry-asymmetric-rockfall-v1.png
   source_path: assets/billboards/quarry-asymmetric-rockfall-v1.png
   sha256: 3acd011bd5bfe78b57ebfd2fde42cad9af1f039906481aaf454c484180a7490c
+- path: assets/structures/cinder-basalt-ridge-large-v1.png
+  source_path: assets/billboards/cinder-basalt-ridge-large-v1.png
+  sha256: 705be6a26c8d196aede2dcd99f2e8e15139f1a908c9149bd25c35dd16de37b29

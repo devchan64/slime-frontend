@@ -184,3 +184,6 @@ files:
 - path: assets/terrain/cliffs/quarry-limestone-wall-v1.png
   source_path: assets/tiles/terrain/blocked/quarry-limestone-wall-v1.png
   sha256: e944ab0eefc3a6f43cb63ecc5133e965b326313bc6f146b3cc891c389ed7d4eb
+- path: assets/terrain/cliffs/cinder-basalt-wall-v1.png
+  source_path: assets/tiles/terrain/blocked/cinder-basalt-wall-v1.png
+  sha256: 6f1d1bc3a49ff00221de040fb1b8703ddf797b53f1f1d7bf49596ad50b6e2d29
