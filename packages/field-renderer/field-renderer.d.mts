@@ -39,7 +39,7 @@ export const FIELD_GROUND_EDGE_STYLE:Readonly<{color:number;width:number;alpha:n
 
 export type FieldSceneryTileAnchor = 'back'|'center'|'front';
 export type FieldSceneryRecord = {billboardAnchorMode?:'tile-bottom-center'|'tile-intersection';shadowOffsetColumn?:number;shadowOffsetRow?:number;shadowScaleX?:number;shadowScaleY?:number;billboardPlacementAnchor?:'top'|'bottom';billboardBlocksMovement?:boolean;tileAnchor?:FieldSceneryTileAnchor;groundFootprintColumns?:number;groundFootprintRows?:number;id:string;position:{column:number;row:number}} & ({kind:'ward-tower'} | {kind:'decoration';textureKey:string;displayHeight:number;anchorX:number;anchorY:number;frameSize?:null} | {kind:'billboard';textureKey:string;displayHeight:number;anchorX:number;anchorY:number;frameSize:number});
-export function drawFieldSceneryObject(currentGameScene:Phaser.Scene,currentObjectRecord:FieldSceneryRecord,currentScreenPosition:SurfacePoint,currentRenderDepth:number,currentTowerTextureKey?:string,currentRenderOptions?:{billboardScale?:number;billboardShadows?:boolean;tileWidth?:number;tileHeight?:number;rotation?:number}):Phaser.GameObjects.Image|Phaser.GameObjects.Image[];
+export function drawFieldSceneryObject(currentGameScene:Phaser.Scene,currentObjectRecord:FieldSceneryRecord,currentScreenPosition:SurfacePoint,currentRenderDepth:number,currentTowerTextureKey?:string,currentRenderOptions?:{billboardScale?:number;billboardShadows?:boolean;tileWidth?:number;tileHeight?:number;rotation?:number;shadowSurface?:SurfaceRecord}):Phaser.GameObjects.Image|Phaser.GameObjects.Image[];
 
 export const FIELD_SCENERY_TILE_ANCHORS:Readonly<Record<FieldSceneryTileAnchor,Readonly<{column:number;row:number}>>>;
 export function resolveFieldSceneryPlacement(currentObjectRecord:FieldSceneryRecord,currentTileCenter:SurfacePoint,currentRenderOptions?:{tileWidth:number;tileHeight:number;rotation?:number}):{position:{column:number;row:number};screen:SurfacePoint};
@@ -62,10 +62,11 @@ export function buildFieldCliffTextureLayers(currentFacePoints:SurfacePoint[],cu
 
 export function resolveFieldSceneryDepth(currentObjectRecord:FieldSceneryRecord,currentMapSurface:SurfaceRecord,currentRenderOptions?:RenderOptions):number;
 
-export function drawBillboardContactShadow(currentGameScene:Phaser.Scene,currentObjectRecord:FieldSceneryRecord,currentScreenPosition:SurfacePoint,currentRenderDepth:number,currentRenderOptions?:{billboardScale?:number;billboardShadows?:boolean;tileWidth?:number;tileHeight?:number;rotation?:number}):Phaser.GameObjects.Graphics|null;
+export function drawBillboardContactShadow(currentGameScene:Phaser.Scene,currentObjectRecord:FieldSceneryRecord,currentScreenPosition:SurfacePoint,currentRenderDepth:number,currentRenderOptions?:{billboardScale?:number;billboardShadows?:boolean;tileWidth?:number;tileHeight?:number;rotation?:number;shadowSurface?:SurfaceRecord}):{destroy():void}|null;
 
 export function buildBillboardShadowPolygon(currentColumnCount:number,currentRowCount:number,currentCenterPoint:SurfacePoint,currentRenderOptions:{tileWidth:number;tileHeight:number;rotation?:number},currentLayerScale?:number):SurfacePoint[];
 
 export function resolveBillboardIntersectionOffset(currentObjectRecord:FieldSceneryRecord):{column:number;row:number};
 
 export const FIELD_TILE_BOUNDARY_ALPHA:number;
+export function clipBillboardShadowPolygon(currentShadowPoints:SurfacePoint[],currentGroundPoints:SurfacePoint[]):SurfacePoint[];

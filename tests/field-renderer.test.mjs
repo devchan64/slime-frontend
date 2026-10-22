@@ -508,3 +508,25 @@ for(const currentTileCount of [1,2,3]){
  drawBillboardContactShadow({add:{graphics:()=>currentGraphicsRecord}},currentObjectRecord,currentPlacementRecord.screen,0,{tileWidth:160,tileHeight:80});
  for(const currentShadowCenter of currentShadowCenters){assert.ok(Math.abs(currentShadowCenter[0])<1e-8);assert.ok(Math.abs(currentShadowCenter[1]-currentIntersectionDistance*80)<1e-8);}
 }
+
+test('여러 칸 그림자는 각 지면 깊이에서 이어지고 다른 고도에는 투영하지 않는다',()=>{
+ for(const currentFootprintSize of [[2,1],[1,2],[2,2]])for(const currentRotationValue of [0,1,2,3]){
+  const currentMapSurface={columns:7,rows:7,elevations:Array.from({length:7},()=>Array(7).fill(0))};
+  const currentObjectRecord={position:{column:3,row:3},displayHeight:300,anchorX:0,anchorY:0,billboardAnchorMode:'tile-intersection',groundFootprintColumns:currentFootprintSize[0],groundFootprintRows:currentFootprintSize[1],shadowScaleX:1.8,shadowScaleY:1.8};
+  const currentRenderOptions={tileWidth:80,tileHeight:40,billboardScale:.5,rotation:currentRotationValue,shadowSurface:currentMapSurface};
+  const currentPlacementValue=resolveFieldSceneryPlacement(currentObjectRecord,{x:0,y:0},currentRenderOptions);
+  const currentGraphicRecords=[];
+  const currentMockScene={add:{graphics(){const currentGraphicRecord={polygons:[],setDepth(currentDepthValue){this.depth=currentDepthValue;return this;},fillStyle(){},fillPoints(currentPointValues){this.polygons.push(currentPointValues);},destroy(){this.destroyed=true;}};currentGraphicRecords.push(currentGraphicRecord);return currentGraphicRecord;}}};
+  const currentShadowHandle=drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPlacementValue.screen,100,currentRenderOptions);
+  assert.ok(currentGraphicRecords.length>1,'시작 셀 이외의 그림자도 그린다');
+  assert.ok(new Set(currentGraphicRecords.map(currentGraphicRecord=>currentGraphicRecord.depth)).size>1,'앞 셀의 지면보다 앞에 그린다');
+  const calculatePolygonArea=currentPointValues=>Math.abs(currentPointValues.reduce((currentAreaValue,currentPointValue,currentPointIndex)=>{const currentNextPoint=currentPointValues[(currentPointIndex+1)%currentPointValues.length];return currentAreaValue+currentPointValue.x*currentNextPoint.y-currentNextPoint.x*currentPointValue.y;},0))/2;
+  const currentFullArea=currentGraphicRecords.reduce((currentAreaValue,currentGraphicRecord)=>currentAreaValue+calculatePolygonArea(currentGraphicRecord.polygons[0]),0);
+  assert.ok(currentFullArea>1000,'다중 타일 면적이 보존된다');
+  currentShadowHandle.destroy();assert.ok(currentGraphicRecords.every(currentGraphicRecord=>currentGraphicRecord.destroyed));
+  currentMapSurface.elevations[3][4]=5;currentGraphicRecords.length=0;
+  drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPlacementValue.screen,100,currentRenderOptions);
+  const currentClippedArea=currentGraphicRecords.reduce((currentAreaValue,currentGraphicRecord)=>currentAreaValue+calculatePolygonArea(currentGraphicRecord.polygons[0]),0);
+  assert.ok(currentClippedArea<currentFullArea,'고도가 다른 셀로 그림자가 번지지 않는다');
+ }
+});
