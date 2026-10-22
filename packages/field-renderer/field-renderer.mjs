@@ -9,7 +9,7 @@ export {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.157';
+export const FIELD_RENDERER_VERSION = '1.0.161';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -523,12 +523,47 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
  });
 }
 
+/** 앵커는 그림의 표시 위치다. 높은 지형의 가림은 실제 점유 범위와 카메라 방향으로 판정한다. */
+function constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,currentBaseDepth){
+ if(!['decoration','billboard'].includes(currentObjectRecord.kind)||!Number.isFinite(currentObjectRecord.displayHeight))return currentBaseDepth;
+ const currentOwnerPosition=currentObjectRecord.position;
+ const currentOwnerHeight=readSurfaceHeight(currentOwnerPosition,currentMapSurface);
+ const currentFootprintColumns=currentObjectRecord.groundFootprintColumns??1;
+ const currentFootprintRows=currentObjectRecord.groundFootprintRows??1;
+ const currentFootprintCorners=[[0,0],[currentFootprintColumns-1,0],[0,currentFootprintRows-1],[currentFootprintColumns-1,currentFootprintRows-1]].map(([currentColumnOffset,currentRowOffset])=>rotateSurfacePosition({column:currentOwnerPosition.column+currentColumnOffset,row:currentOwnerPosition.row+currentRowOffset},currentRenderOptions.rotation??0));
+ const currentMinimumColumn=Math.min(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.column));
+ const currentMaximumColumn=Math.max(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.column));
+ const currentMinimumRow=Math.min(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.row));
+ const currentMaximumRow=Math.max(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.row));
+ const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
+ const currentSpritePosition=resolveFieldSceneryPlacement(currentObjectRecord,projectSurfaceCell(currentOwnerPosition,currentMapSurface,currentRenderOptions),currentRenderOptions).screen;
+ const currentCenteredAnchor=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode);
+ const currentSpriteLeft=currentSpritePosition.x-currentSpriteSize*(currentCenteredAnchor?.5:currentObjectRecord.anchorX);
+ const currentSpriteTop=currentSpritePosition.y-currentSpriteSize*(currentCenteredAnchor?1:currentObjectRecord.anchorY);
+ let currentConstrainedDepth=currentBaseDepth;
+ for(let currentCellRow=0;currentCellRow<currentMapSurface.rows;currentCellRow++)for(let currentCellColumn=0;currentCellColumn<currentMapSurface.columns;currentCellColumn++){
+  const currentCellPosition={column:currentCellColumn,row:currentCellRow};
+  if(readSurfaceHeight(currentCellPosition,currentMapSurface)<=currentOwnerHeight)continue;
+  const currentViewPosition=rotateSurfacePosition(currentCellPosition,currentRenderOptions.rotation??0);
+  // 두 축 중 하나라도 뒤에 있는 대각선 이웃은 앞쪽 장애물로 간주하지 않는다.
+  if(currentViewPosition.column<currentMinimumColumn||currentViewPosition.row<currentMinimumRow)continue;
+  if(currentViewPosition.column<=currentMaximumColumn&&currentViewPosition.row<=currentMaximumRow)continue;
+  const currentCellCenter=projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions);
+  if(currentCellCenter.x+currentRenderOptions.tileWidth/2<=currentSpriteLeft||currentCellCenter.x-currentRenderOptions.tileWidth/2>=currentSpriteLeft+currentSpriteSize||currentCellCenter.y+currentRenderOptions.tileHeight/2<=currentSpriteTop||currentCellCenter.y-currentRenderOptions.tileHeight/2>=currentSpriteTop+currentSpriteSize)continue;
+  const currentTerrainDepth=resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,currentRenderOptions);
+  const currentLayerPadding=currentObjectRecord.kind==='billboard'?(currentObjectRecord.billboardPlacementAnchor?BILLBOARD_ANCHORED_LAYER_OFFSET:BILLBOARD_FRONT_DEPTH_OFFSET):0;
+  currentConstrainedDepth=Math.min(currentConstrainedDepth,currentTerrainDepth-currentLayerPadding-1);
+ }
+ return currentConstrainedDepth;
+}
+
 /** 화면 앵커 이동은 이웃 타일의 정렬 순서를 바꾸지 않는다. */
 export function resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
  const currentActorSideOffset=currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0;
  const currentAnchorDepthOffset=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
- return resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+currentAnchorDepthOffset+TERRAIN_DEPTH.overlay+currentActorSideOffset;
+ const currentBaseDepth=resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+currentAnchorDepthOffset+TERRAIN_DEPTH.overlay+currentActorSideOffset;
+ return constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,currentBaseDepth);
 }
 
 /** 소속 타일의 고도를 유지하고 선택한 접지 위치만 회전·투영한다. */

@@ -530,3 +530,22 @@ test('여러 칸 그림자는 각 지면 깊이에서 이어지고 다른 고도
   assert.ok(currentClippedArea<currentFullArea,'고도가 다른 셀로 그림자가 번지지 않는다');
  }
 });
+
+
+test('고지대는 카메라 앞쪽일 때만 저지대 빌보드를 가린다',()=>{
+ const currentMapSurface={columns:32,rows:32,elevations:Array.from({length:32},()=>Array(32).fill(0))};
+ const currentRenderOptions={...FIELD_RENDER_METRICS,tileWidth:80,tileHeight:40,billboardScale:.5};
+ const currentCases=[
+  {object:{position:{column:22,row:11},groundFootprintColumns:2,groundFootprintRows:3,anchorX:.26,anchorY:1.15,displayHeight:352},terrain:{column:24,row:12},height:5,behind:false},
+  {object:{position:{column:11,row:14},groundFootprintColumns:1,groundFootprintRows:2,anchorX:-.019,anchorY:.23,displayHeight:330},terrain:{column:10,row:15},height:3,behind:true},
+  {object:{position:{column:11,row:6},groundFootprintColumns:3,groundFootprintRows:1,anchorX:-.25,anchorY:.37,displayHeight:360},terrain:{column:13,row:5},height:8,behind:true},
+ ];
+ for(const currentCaseRecord of currentCases){
+  currentMapSurface.elevations[currentCaseRecord.terrain.row][currentCaseRecord.terrain.column]=currentCaseRecord.height;
+  const currentObjectRecord={...currentCaseRecord.object,kind:'decoration',billboardAnchorMode:'tile-intersection'};
+  const currentObjectDepth=resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions);
+  const currentTerrainDepth=resolveFieldSurfaceDepth(currentCaseRecord.terrain,currentMapSurface,currentRenderOptions);
+  assert.equal(currentTerrainDepth<currentObjectDepth,currentCaseRecord.behind);
+  currentMapSurface.elevations[currentCaseRecord.terrain.row][currentCaseRecord.terrain.column]=0;
+ }
+});
