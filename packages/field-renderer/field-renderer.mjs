@@ -383,6 +383,12 @@ function resolveBillboardAnchorOffset(currentObjectRecord){
  return FIELD_SCENERY_TILE_ANCHORS[currentAnchorName];
 }
 
+/** 이미지 여백 보정은 제외하고 실제 점유 기준점으로 정렬한다. */
+function resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions){
+ const currentDepthPosition=currentObjectRecord.billboardAnchorMode==='tile-intersection'?resolveBillboardIntersectionOffset(currentObjectRecord):currentObjectRecord.billboardAnchorMode==='tile-bottom-center'?{column:0,row:0}:resolveBillboardAnchorOffset(currentObjectRecord);
+ return rotateSurfacePosition(currentDepthPosition,currentRenderOptions.rotation??0);
+}
+
 const BILLBOARD_SHADOW_VERTICAL_MULTIPLIER=2;
 const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,widthRatio:.76,heightRatio:.2,maxTileRatio:1.10,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.14},{scale:.78,alpha:.20},{scale:.5,alpha:.26}]});
 /** 긴 축은 화면이 아닌 점유 타일의 열·행 방향으로 정의한다. */
@@ -433,8 +439,9 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  const currentShadowOffset=rotateSurfacePosition({column:currentShadowOrigin.column+(currentObjectRecord.shadowOffsetColumn??0),row:currentShadowOrigin.row+(currentObjectRecord.shadowOffsetRow??0)},currentRenderOptions.rotation??0);
  const currentShadowX=currentScreenPosition.x+(currentShadowOffset.column-currentShadowOffset.row)*currentTileWidth/2-(currentAnchorOffset.column-currentAnchorOffset.row)*currentTileWidth*BILLBOARD_SHADOW_PROFILE.insetRatio;
  const currentShadowY=currentScreenPosition.y+(currentShadowOffset.column+currentShadowOffset.row)*currentTileHeight/2-(currentAnchorOffset.column+currentAnchorOffset.row)*currentTileHeight*BILLBOARD_SHADOW_PROFILE.insetRatio;
- const currentAnchorDepthOffset=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
- const currentShadowDepth=currentRenderDepth-currentAnchorDepthOffset-(currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0)-TERRAIN_DEPTH.overlay+TERRAIN_DEPTH.surface+BILLBOARD_SHADOW_PROFILE.depthOffset;
+ const currentDepthAnchorOffset=resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions);
+ const currentAnchorDepthOffset=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?(currentDepthAnchorOffset.column+currentDepthAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
+ const currentShadowDepth=currentRenderDepth-currentAnchorDepthOffset-(currentDepthAnchorOffset.column+currentDepthAnchorOffset.row>0?TERRAIN_DEPTH.actor:0)-TERRAIN_DEPTH.overlay+TERRAIN_DEPTH.surface+BILLBOARD_SHADOW_PROFILE.depthOffset;
  const currentMapSurface=currentRenderOptions.shadowSurface;
  if(currentMapSurface){
   const currentShadowGraphics=[];
@@ -559,7 +566,7 @@ function constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,cu
 
 /** 화면 앵커 이동은 이웃 타일의 정렬 순서를 바꾸지 않는다. */
 export function resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
- const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
+ const currentAnchorOffset=resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions);
  const currentActorSideOffset=currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0;
  const currentAnchorDepthOffset=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
  const currentBaseDepth=resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+currentAnchorDepthOffset+TERRAIN_DEPTH.overlay+currentActorSideOffset;

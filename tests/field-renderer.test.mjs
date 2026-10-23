@@ -549,3 +549,17 @@ test('고지대는 카메라 앞쪽일 때만 저지대 빌보드를 가린다',
   currentMapSurface.elevations[currentCaseRecord.terrain.row][currentCaseRecord.terrain.column]=0;
  }
 });
+
+
+test('PNG 여백 보정은 빌보드 접지 깊이와 앞뒤 순서를 바꾸지 않는다',()=>{
+ const currentRearObject={kind:'decoration',position:{column:23,row:12},billboardAnchorMode:'tile-intersection',groundFootprintColumns:2,groundFootprintRows:1,anchorX:0,anchorY:.4686,displayHeight:314.65};
+ for(const currentRotationValue of [0,1,2,3]){
+  const currentRenderOptions={...FIELD_RENDER_METRICS,rotation:currentRotationValue};
+  const currentOriginalDepth=resolveFieldSceneryDepth(currentRearObject,currentFlatSurface,currentRenderOptions);
+  for(const currentPaddingOffset of [0,.2,1.2971,2]){
+   assert.equal(resolveFieldSceneryDepth({...currentRearObject,anchorY:currentPaddingOffset},currentFlatSurface,currentRenderOptions),currentOriginalDepth);
+  }
+ }
+ const currentFrontObject={...currentRearObject,position:{column:23,row:13},anchorY:0};
+ assert.ok(resolveFieldSceneryDepth(currentFrontObject,currentFlatSurface)>resolveFieldSceneryDepth({...currentRearObject,anchorY:2},currentFlatSurface));
+});
