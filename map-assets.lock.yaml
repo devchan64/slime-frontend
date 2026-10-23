@@ -187,3 +187,6 @@ files:
 - path: assets/terrain/cliffs/cinder-basalt-wall-v1.png
   source_path: assets/tiles/terrain/blocked/cinder-basalt-wall-v1.png
   sha256: 6f1d1bc3a49ff00221de040fb1b8703ddf797b53f1f1d7bf49596ad50b6e2d29
+- path: assets/terrain/quartz-dust-road-v1.png
+  source_path: assets/tiles/terrain/road/quartz-dust-road-v1.png
+  sha256: 27e5335ef0d65d02b9bd5ee602f06db5cd886cd0fd750cdd9ba567932d0129b0
