@@ -567,9 +567,10 @@ export class MainScene extends Phaser.Scene {
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
+      const currentSceneryDepthSurface={...this.viewSurface!,objects:(s.battle?.field ?? s.map).objects??[]};
       for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
         const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
-        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,this.viewSurface!,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation,shadowSurface:this.viewSurface!});
+        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,currentSceneryDepthSurface,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation,shadowSurface:this.viewSurface!});
       }
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(

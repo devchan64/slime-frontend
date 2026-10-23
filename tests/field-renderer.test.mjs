@@ -563,3 +563,13 @@ test('PNG 여백 보정은 빌보드 접지 깊이와 앞뒤 순서를 바꾸지
  const currentFrontObject={...currentRearObject,position:{column:23,row:13},anchorY:0};
  assert.ok(resolveFieldSceneryDepth(currentFrontObject,currentFlatSurface)>resolveFieldSceneryDepth({...currentRearObject,anchorY:2},currentFlatSurface));
 });
+
+test('긴 판형의 앞 행에 있는 작은 파편은 판형의 먼 끝 기준점보다 먼저 그려지지 않는다',()=>{
+ const currentLongObject={id:'long',kind:'decoration',position:{column:22,row:13},billboardAnchorMode:'tile-intersection',groundFootprintColumns:3,groundFootprintRows:1,anchorX:-.2465,anchorY:1.2971,displayHeight:415.06};
+ const currentFrontObject={id:'front',kind:'decoration',position:{column:22,row:14},billboardAnchorMode:'tile-intersection',groundFootprintColumns:1,groundFootprintRows:1,anchorX:.0058,anchorY:.1587,displayHeight:158.5};
+ const currentRenderOptions={...FIELD_RENDER_METRICS,tileWidth:80,tileHeight:40,billboardScale:.5};
+ for(const currentObjectOrder of [[currentLongObject,currentFrontObject],[currentFrontObject,currentLongObject]]){
+  const currentMapSurface={...currentFlatSurface,objects:currentObjectOrder};
+  assert.ok(resolveFieldSceneryDepth(currentFrontObject,currentMapSurface,currentRenderOptions)>resolveFieldSceneryDepth(currentLongObject,currentMapSurface,currentRenderOptions));
+ }
+});

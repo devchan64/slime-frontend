@@ -9,7 +9,7 @@ export {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.161';
+export const FIELD_RENDERER_VERSION = '1.0.165';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -565,12 +565,60 @@ function constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,cu
 }
 
 /** 화면 앵커 이동은 이웃 타일의 정렬 순서를 바꾸지 않는다. */
-export function resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
+function resolveSceneryBaseDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  const currentAnchorOffset=resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions);
  const currentActorSideOffset=currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0;
  const currentAnchorDepthOffset=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
  const currentBaseDepth=resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+currentAnchorDepthOffset+TERRAIN_DEPTH.overlay+currentActorSideOffset;
  return constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,currentBaseDepth);
+}
+
+const BILLBOARD_ORDER_DEPTH_GAP = 0.01;
+
+/** 점유 사각형과 화면 범위를 함께 사용해 서로 가릴 수 있는 빌보드만 비교한다. */
+function measureSceneryOrderBounds(currentObjectRecord,currentMapSurface,currentRenderOptions){
+ const currentColumnCount=currentObjectRecord.groundFootprintColumns??1,currentRowCount=currentObjectRecord.groundFootprintRows??1;
+ const currentCornerPositions=[[0,0],[currentColumnCount-1,0],[0,currentRowCount-1],[currentColumnCount-1,currentRowCount-1]].map(([currentColumnOffset,currentRowOffset])=>rotateSurfacePosition({column:currentObjectRecord.position.column+currentColumnOffset,row:currentObjectRecord.position.row+currentRowOffset},currentRenderOptions.rotation??0));
+ const currentSpritePoint=resolveFieldSceneryPlacement(currentObjectRecord,projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions),currentRenderOptions).screen;
+ const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
+ const currentCenteredAnchor=['tile-intersection','tile-bottom-center'].includes(currentObjectRecord.billboardAnchorMode);
+ const currentSpriteLeft=currentSpritePoint.x-currentSpriteSize*(currentCenteredAnchor?.5:currentObjectRecord.anchorX);
+ const currentSpriteTop=currentSpritePoint.y-currentSpriteSize*(currentCenteredAnchor?1:currentObjectRecord.anchorY);
+ return {minColumn:Math.min(...currentCornerPositions.map(currentCornerPosition=>currentCornerPosition.column)),maxColumn:Math.max(...currentCornerPositions.map(currentCornerPosition=>currentCornerPosition.column)),minRow:Math.min(...currentCornerPositions.map(currentCornerPosition=>currentCornerPosition.row)),maxRow:Math.max(...currentCornerPositions.map(currentCornerPosition=>currentCornerPosition.row)),left:currentSpriteLeft,right:currentSpriteLeft+currentSpriteSize,top:currentSpriteTop,bottom:currentSpriteTop+currentSpriteSize,height:readSurfaceHeight(currentObjectRecord.position,currentMapSurface)};
+}
+
+/** 긴 점유의 먼 끝이 앞 행·열의 작은 개체를 덮지 않도록 선후 관계를 적용한다. */
+export function resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
+ const currentBaseDepth=resolveSceneryBaseDepth(currentObjectRecord,currentMapSurface,currentRenderOptions);
+ if(!Number.isFinite(currentObjectRecord.displayHeight)||!['decoration','billboard'].includes(currentObjectRecord.kind))return currentBaseDepth;
+ const currentCandidateObjects=(currentMapSurface.objects??[]).filter(currentCandidateRecord=>['decoration','billboard'].includes(currentCandidateRecord.kind)&&Number.isFinite(currentCandidateRecord.displayHeight)&&currentCandidateRecord!==currentObjectRecord&&(!currentObjectRecord.id||currentCandidateRecord.id!==currentObjectRecord.id));
+ currentCandidateObjects.push(currentObjectRecord);
+ const currentBoundsRecords=currentCandidateObjects.map(currentCandidateRecord=>measureSceneryOrderBounds(currentCandidateRecord,currentMapSurface,currentRenderOptions));
+ const currentResolvedDepths=new Map(),currentVisitingIndices=new Set();
+ const resolveOrderedObjectDepth=currentTargetIndex=>{
+  if(currentResolvedDepths.has(currentTargetIndex))return currentResolvedDepths.get(currentTargetIndex);
+  if(currentVisitingIndices.has(currentTargetIndex))throw Error('빌보드 점유 정렬에 순환 관계가 있습니다.');
+  currentVisitingIndices.add(currentTargetIndex);
+  const currentTargetRecord=currentCandidateObjects[currentTargetIndex],currentTargetBounds=currentBoundsRecords[currentTargetIndex];
+  let currentTargetDepth=resolveSceneryBaseDepth(currentTargetRecord,currentMapSurface,currentRenderOptions);
+  for(let currentOtherIndex=0;currentOtherIndex<currentCandidateObjects.length;currentOtherIndex++){
+   if(currentOtherIndex===currentTargetIndex)continue;
+   const currentOtherBounds=currentBoundsRecords[currentOtherIndex];
+   if(currentTargetBounds.height!==currentOtherBounds.height||currentTargetBounds.left>=currentOtherBounds.right||currentOtherBounds.left>=currentTargetBounds.right||currentTargetBounds.top>=currentOtherBounds.bottom||currentOtherBounds.top>=currentTargetBounds.bottom)continue;
+   const currentColumnOverlap=currentTargetBounds.minColumn<=currentOtherBounds.maxColumn&&currentOtherBounds.minColumn<=currentTargetBounds.maxColumn;
+   const currentRowOverlap=currentTargetBounds.minRow<=currentOtherBounds.maxRow&&currentOtherBounds.minRow<=currentTargetBounds.maxRow;
+   if((currentColumnOverlap&&currentTargetBounds.minRow>currentOtherBounds.maxRow)||(currentRowOverlap&&currentTargetBounds.minColumn>currentOtherBounds.maxColumn)){
+    const currentOtherRecord=currentCandidateObjects[currentOtherIndex];
+    const currentLayerPadding=currentOtherRecord.kind==='billboard'?(currentOtherRecord.billboardPlacementAnchor?BILLBOARD_ANCHORED_LAYER_OFFSET:BILLBOARD_FRONT_DEPTH_OFFSET):0;
+    currentTargetDepth=Math.max(currentTargetDepth,resolveOrderedObjectDepth(currentOtherIndex)+currentLayerPadding+BILLBOARD_ORDER_DEPTH_GAP);
+   }
+  }
+  currentVisitingIndices.delete(currentTargetIndex);
+  currentTargetDepth=constrainBillboardTerrainDepth(currentTargetRecord,currentMapSurface,currentRenderOptions,currentTargetDepth);
+  currentResolvedDepths.set(currentTargetIndex,currentTargetDepth);
+  return currentTargetDepth;
+ };
+ return resolveOrderedObjectDepth(currentCandidateObjects.length-1);
 }
 
 /** 소속 타일의 고도를 유지하고 선택한 접지 위치만 회전·투영한다. */
