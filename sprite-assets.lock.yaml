@@ -1087,3 +1087,18 @@ files:
 - path: assets/structures/conifer-tree-open-v1.png
   source_path: assets/billboards/conifer-tree-open-v1.png
   sha256: 6ebdb288fe29e326ae90b9e21dde5d142393cf15a5d3899241db6e8c6fd7a5cb
+- path: assets/structures/fallen-canopy-whole-fallen-tree-v1.png
+  source_path: assets/billboards/fallen-canopy-whole-fallen-tree-v1.png
+  sha256: bc3b50ff251897dd7b20603aaf29cb2c29e546d525990ef9314878996c8c8480
+- path: assets/structures/fallen-canopy-debris-branches-1x1-v1.png
+  source_path: assets/billboards/fallen-canopy-debris-branches-1x1-v1.png
+  sha256: 1bb48ebbaa8ce5fb0881ac846f190b0de277c8ba48cb2d47eb2c064d71b871d3
+- path: assets/structures/fallen-canopy-debris-thin-branches-1x1-v1.png
+  source_path: assets/billboards/fallen-canopy-debris-thin-branches-1x1-v1.png
+  sha256: 502f4fd02d313ef6a76278d81cb324e3361507ccf829794ff1dcc6d05d8036a6
+- path: assets/structures/fallen-canopy-debris-thick-break-1x1-v1.png
+  source_path: assets/billboards/fallen-canopy-debris-thick-break-1x1-v1.png
+  sha256: 610b5eaf7a114214876b0f6eee932d1328df0a1583ca31ededccbb7e4e8a8306
+- path: assets/structures/fallen-canopy-debris-flat-decay-1x1-v1.png
+  source_path: assets/billboards/fallen-canopy-debris-flat-decay-1x1-v1.png
+  sha256: fc36bc3af26a32696e204ec0f4826af8e18f13fd1fa662ae52c8f5476cd94707

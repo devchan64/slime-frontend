@@ -298,3 +298,8 @@ dawn_overlook_conifer_tree_tall_v2: assets/billboards/dawn-overlook-conifer-tree
 dawn_overlook_conifer_tree_medium_v2: assets/billboards/dawn-overlook-conifer-tree-medium-v2.png
 conifer_tree_compact_v1: assets/billboards/conifer-tree-compact-v1.png
 conifer_tree_open_v1: assets/billboards/conifer-tree-open-v1.png
+fallen_canopy_whole_fallen_tree_v1: assets/billboards/fallen-canopy-whole-fallen-tree-v1.png
+fallen_canopy_debris_branches_1x1_v1: assets/billboards/fallen-canopy-debris-branches-1x1-v1.png
+fallen_canopy_debris_thin_branches_1x1_v1: assets/billboards/fallen-canopy-debris-thin-branches-1x1-v1.png
+fallen_canopy_debris_thick_break_1x1_v1: assets/billboards/fallen-canopy-debris-thick-break-1x1-v1.png
+fallen_canopy_debris_flat_decay_1x1_v1: assets/billboards/fallen-canopy-debris-flat-decay-1x1-v1.png
