@@ -205,7 +205,7 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
 
 test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타워도 같은 진입점을 사용한다',()=>{
  const currentRecordedImages=[];
- const currentMockScene={textures:{exists:currentTextureKey=>['tree-sprite','tower-sprite'].includes(currentTextureKey)},add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(){},destroy(){}}),image(currentPositionX,currentPositionY,currentTextureKey){
+ const currentMockScene={textures:{exists:currentTextureKey=>['tree-sprite','tower-sprite'].includes(currentTextureKey)},add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(){},fillEllipse(){},destroy(){}}),image(currentPositionX,currentPositionY,currentTextureKey){
   const currentImageRecord={x:currentPositionX,y:currentPositionY,key:currentTextureKey,width:200,height:300,
    once(){return this;},setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},
    setOrigin(currentAnchorX,currentAnchorY){this.origin=[currentAnchorX,currentAnchorY];return this;},
@@ -252,7 +252,7 @@ test('타일 3점 앵커는 고도 중심을 유지하고 네 방향 회전과 �
 test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 두고 그린다',()=>{
  const currentFrameRecords=new Map();
  const currentTextureRecord={getSourceImage:()=>({width:256,height:128}),has:currentFrameName=>currentFrameRecords.has(currentFrameName),add:(...currentFrameArguments)=>currentFrameRecords.set(currentFrameArguments[0],currentFrameArguments.slice(1))};
- const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(){},destroy(){}}),image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,once(){return this;},setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
+ const currentMockScene={textures:{exists:()=>true,get:()=>currentTextureRecord},add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(){},fillEllipse(){},destroy(){}}),image:(currentPositionX,currentPositionY,currentTextureKey,currentFrameName)=>({x:currentPositionX,y:currentPositionY,frame:currentFrameName,once(){return this;},setData(currentDataKey,currentDataValue){this[currentDataKey]=currentDataValue;return this;},setOrigin(...currentOriginValues){this.origin=currentOriginValues;return this;},setScale(currentScaleValue){this.scale=currentScaleValue;return this;},setDepth(currentDepthValue){this.depth=currentDepthValue;return this;}})}};
  const currentObjectRecord={position:{column:1,row:1},kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
  const currentLayerImages=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110);
  const currentOutdoorLayers=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110,undefined,resolveMapRenderOptions({renderKind:'field'}));
@@ -417,7 +417,7 @@ test('첨부 구간의 앞 타일 그루터기는 뒤 타일 하단 통나무보
 
 test('빌보드 그림자는 배율·앞뒤 앵커·비활성 옵션을 공유한다',()=>{
  const currentEllipseRecords=[];
- const currentShadowGraphic={setDepth(currentDepthValue){this.depth=currentDepthValue;return this;},fillStyle(){},fillEllipse(...currentEllipseValues){currentEllipseRecords.push(currentEllipseValues);}};
+ const currentShadowGraphic={setDepth(currentDepthValue){this.depth=currentDepthValue;return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentEllipseRecords.push(measureShadowPolygonBounds(currentPolygonPoints));}};
  const currentMockScene={add:{graphics:()=>currentShadowGraphic}};
  const currentObjectRecord={displayHeight:150,billboardPlacementAnchor:'bottom'};
  drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{billboardScale:1});
@@ -448,7 +448,7 @@ test('그림자 중심은 모든 앵커와 회전에서 소속 타일 중앙이�
   const currentTileCenter={x:300,y:200};
   const currentPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentTileCenter,currentRenderOptions);
   const currentEllipseRecords=[];
-  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
+  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentEllipseRecords.push(measureShadowPolygonBounds(currentPolygonPoints));}})}};
   drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPlacement.screen,100,currentRenderOptions);
   assert.deepEqual(currentEllipseRecords[0].slice(0,2),[300,200]);
  }
@@ -456,9 +456,9 @@ test('그림자 중심은 모든 앵커와 회전에서 소속 타일 중앙이�
 
 test('에셋 그림자 이동과 크기 배율은 타일 중앙 기준으로 적용된다',()=>{
  const currentEllipseRecords=[];
- const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
+ const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentEllipseRecords.push(measureShadowPolygonBounds(currentPolygonPoints));}})}};
  drawBillboardContactShadow(currentMockScene,{displayHeight:100,shadowOffsetColumn:1,shadowOffsetRow:0,shadowScaleX:2,shadowScaleY:.25},{x:0,y:0},100,{tileWidth:80,tileHeight:40,billboardScale:.5});
- assert.deepEqual(currentEllipseRecords[0].slice(0,3),[40,20,76]);assert.ok(Math.abs(currentEllipseRecords[0][3]-3.8)<1e-10);
+ assert.deepEqual(currentEllipseRecords[0],measureShadowPolygonBounds(buildBillboardShadowPolygon(1,1,{x:40,y:20},{tileWidth:80,tileHeight:40,shadowScaleX:2,shadowScaleY:.25})));
 });
 
 test('타일 하단 중앙 앵커는 기존 이미지 위치를 보존하고 배치 선택값을 무시한다',()=>{
@@ -479,7 +479,7 @@ test('타일 하단 중앙 앵커는 기존 이미지 위치를 보존하고 배
   const currentObjectRecord={position:{column:2,row:3},displayHeight:150,groundFootprintColumns:2,groundFootprintRows:2,billboardAnchorMode:'tile-bottom-center',anchorX:.35,anchorY:1.2};
   const currentPlacementValue=resolveFieldSceneryPlacement(currentObjectRecord,{x:300,y:200},currentRenderOptions);
   const currentEllipseRecords=[];
-  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillEllipse(...currentArguments){currentEllipseRecords.push(currentArguments);}})}};
+  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentEllipseRecords.push(measureShadowPolygonBounds(currentPolygonPoints));}})}};
   drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPlacementValue.screen,100,currentRenderOptions);
   const currentExpectedOffsets=[[0,40],[-80,0],[0,-40],[80,0]][currentRotationValue];
   assert.ok(Math.abs(currentEllipseRecords[0][0]-300-currentExpectedOffsets[0]*currentScaleValue)<1e-9);
@@ -492,8 +492,8 @@ test('2×1 그림자는 행 방향을 두 배로 늘리지 않는다',()=>{
  const currentShadowPoints=buildBillboardShadowPolygon(2,1,{x:0,y:0},{tileWidth:160,tileHeight:80});
  const currentColumnValues=currentShadowPoints.map(currentPointValue=>currentPointValue.x/160+currentPointValue.y/80);
  const currentRowValues=currentShadowPoints.map(currentPointValue=>currentPointValue.y/80-currentPointValue.x/160);
- assert.ok(Math.abs(Math.max(...currentColumnValues)-Math.min(...currentColumnValues)-2.2)<1e-10);
- assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-1.1)<1e-10);
+ assert.ok(Math.abs(Math.max(...currentColumnValues)-Math.min(...currentColumnValues)-2)<1e-10);
+ assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-1)<1e-10);
 });
 
 // 수동 앵커 이동은 그림자 원점을 이동시키지 않는다.
@@ -504,7 +504,7 @@ for(const currentTileCount of [1,2,3]){
  assert.ok(Math.abs(currentPlacementRecord.screen.x-32)<1e-8);
  assert.ok(Math.abs(currentPlacementRecord.screen.y-(currentIntersectionDistance-.3)*80)<1e-8);
  const currentShadowCenters=[];
- const currentGraphicsRecord={setDepth(){return this;},fillStyle(){},fillEllipse(currentCenterX,currentCenterY){currentShadowCenters.push([currentCenterX,currentCenterY]);}};
+ const currentGraphicsRecord={setDepth(){return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentShadowCenters.push(measureShadowPolygonBounds(currentPolygonPoints).slice(0,2));}};
  drawBillboardContactShadow({add:{graphics:()=>currentGraphicsRecord}},currentObjectRecord,currentPlacementRecord.screen,0,{tileWidth:160,tileHeight:80});
  for(const currentShadowCenter of currentShadowCenters){assert.ok(Math.abs(currentShadowCenter[0])<1e-8);assert.ok(Math.abs(currentShadowCenter[1]-currentIntersectionDistance*80)<1e-8);}
 }
@@ -572,4 +572,29 @@ test('긴 판형의 앞 행에 있는 작은 파편은 판형의 먼 끝 기준�
   const currentMapSurface={...currentFlatSurface,objects:currentObjectOrder};
   assert.ok(resolveFieldSceneryDepth(currentFrontObject,currentMapSurface,currentRenderOptions)>resolveFieldSceneryDepth(currentLongObject,currentMapSurface,currentRenderOptions));
  }
+});
+
+function measureShadowPolygonBounds(currentPolygonPoints){
+ const currentHorizontalValues=currentPolygonPoints.map(currentPointValue=>currentPointValue.x);
+ const currentVerticalValues=currentPolygonPoints.map(currentPointValue=>currentPointValue.y);
+ const currentMinimumHorizontal=Math.min(...currentHorizontalValues),currentMaximumHorizontal=Math.max(...currentHorizontalValues);
+ const currentMinimumVertical=Math.min(...currentVerticalValues),currentMaximumVertical=Math.max(...currentVerticalValues);
+ return [(currentMinimumHorizontal+currentMaximumHorizontal)/2,(currentMinimumVertical+currentMaximumVertical)/2,currentMaximumHorizontal-currentMinimumHorizontal,currentMaximumVertical-currentMinimumVertical];
+}
+
+test('그림자 크기는 점유 수와 무관하게 타일 열·행 길이이다',()=>{
+ for(const currentFootprintSize of [[1,1],[2,2],[3,1]]){
+  const currentPolygonPoints=buildBillboardShadowPolygon(...currentFootprintSize,{x:0,y:0},{tileWidth:160,tileHeight:80,shadowScaleX:2,shadowScaleY:.5});
+  const currentColumnValues=currentPolygonPoints.map(currentPointValue=>currentPointValue.x/160+currentPointValue.y/80);
+  const currentRowValues=currentPolygonPoints.map(currentPointValue=>currentPointValue.y/80-currentPointValue.x/160);
+  assert.ok(Math.abs(Math.max(...currentColumnValues)-Math.min(...currentColumnValues)-2)<1e-10);
+  assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-.5)<1e-10);
+ }
+});
+
+test('빌보드 높이가 바뀌어도 타일 단위 그림자 크기는 유지된다',()=>{
+ const currentPolygonRecords=[];
+ const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentPolygonRecords.push(currentPolygonPoints);}})}};
+ for(const currentDisplayHeight of [40,400])drawBillboardContactShadow(currentMockScene,{displayHeight:currentDisplayHeight,groundFootprintColumns:2,groundFootprintRows:1,shadowScaleX:2,shadowScaleY:1,billboardAnchorMode:'tile-intersection',anchorX:0,anchorY:0},{x:0,y:0},100,{tileWidth:160,tileHeight:80});
+ assert.deepEqual(currentPolygonRecords.slice(0,3),currentPolygonRecords.slice(3));
 });

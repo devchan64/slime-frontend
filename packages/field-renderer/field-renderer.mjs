@@ -389,13 +389,12 @@ function resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions){
  return rotateSurfacePosition(currentDepthPosition,currentRenderOptions.rotation??0);
 }
 
-const BILLBOARD_SHADOW_VERTICAL_MULTIPLIER=2;
-const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,widthRatio:.76,heightRatio:.2,maxTileRatio:1.10,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.14},{scale:.78,alpha:.20},{scale:.5,alpha:.26}]});
-/** 긴 축은 화면이 아닌 점유 타일의 열·행 방향으로 정의한다. */
+const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.14},{scale:.78,alpha:.20},{scale:.5,alpha:.26}]});
+/** 크기 1은 타일 한 칸의 열·행 길이이며 이미지 높이와 점유 수를 다시 곱하지 않는다. */
 export function buildBillboardShadowPolygon(currentColumnCount,currentRowCount,currentCenterPoint,currentRenderOptions,currentLayerScale=1){
  if(!Number.isInteger(currentColumnCount)||currentColumnCount<1||!Number.isInteger(currentRowCount)||currentRowCount<1)throw Error('그림자 점유 타일 수는 양의 정수여야 합니다');
- const currentHalfColumn=currentColumnCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale*(currentRenderOptions.shadowScaleX??1)/2;
- const currentHalfRow=currentRowCount*BILLBOARD_SHADOW_PROFILE.maxTileRatio*currentLayerScale*(currentRenderOptions.shadowScaleY??1)/2;
+ const currentHalfColumn=currentLayerScale*(currentRenderOptions.shadowScaleX??currentColumnCount)/2;
+ const currentHalfRow=currentLayerScale*(currentRenderOptions.shadowScaleY??currentRowCount)/2;
  const currentCornerRadius=Math.min(currentHalfColumn,currentHalfRow)*BILLBOARD_SHADOW_PROFILE.cornerRatio;
  const currentCornerCenters=[[currentHalfColumn-currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,-currentHalfRow+currentCornerRadius],[currentHalfColumn-currentCornerRadius,-currentHalfRow+currentCornerRadius]];
  return currentCornerCenters.flatMap(([currentColumnOffset,currentRowOffset],currentCornerIndex)=>Array.from({length:BILLBOARD_SHADOW_PROFILE.cornerSteps+1},(_,currentStepIndex)=>{
@@ -405,7 +404,6 @@ export function buildBillboardShadowPolygon(currentColumnCount,currentRowCount,c
  }));
 }
 
-const BILLBOARD_SHADOW_ELLIPSE_STEPS=48;
 /** 볼록한 지면 경계로 그림자를 자른다. 타일마다 깊이를 부여해 앞 타일의 덮임을 방지한다. */
 export function clipBillboardShadowPolygon(currentShadowPoints,currentGroundPoints){
  let currentClippedPoints=currentShadowPoints;
@@ -431,8 +429,6 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  const currentBillboardScale=currentRenderOptions.billboardScale??1;
  const currentTileWidth=currentRenderOptions.tileWidth??FIELD_RENDER_METRICS.tileWidth*currentBillboardScale;
  const currentTileHeight=currentRenderOptions.tileHeight??FIELD_RENDER_METRICS.tileHeight*currentBillboardScale;
- const currentShadowWidth=Math.min(currentObjectRecord.displayHeight*currentBillboardScale*BILLBOARD_SHADOW_PROFILE.widthRatio,currentTileWidth*BILLBOARD_SHADOW_PROFILE.maxTileRatio);
- const currentShadowHeight=currentShadowWidth*BILLBOARD_SHADOW_PROFILE.heightRatio;
  const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
  const currentColumnCount=currentObjectRecord.groundFootprintColumns??1,currentRowCount=currentObjectRecord.groundFootprintRows??1;
  const currentShadowOrigin=currentObjectRecord.billboardAnchorMode==='tile-intersection'?resolveBillboardIntersectionOffset(currentObjectRecord):{column:(currentColumnCount-1)/2,row:(currentRowCount-1)/2};
@@ -446,9 +442,7 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  if(currentMapSurface){
   const currentShadowGraphics=[];
   const currentOriginHeight=readGroundSurfaceHeight(currentObjectRecord.position,currentMapSurface);
-  const currentLayerPolygons=BILLBOARD_SHADOW_PROFILE.layers.map(currentLayerProfile=>({alpha:currentLayerProfile.alpha,points:currentColumnCount!==currentRowCount
-   ?buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??1,shadowScaleY:currentObjectRecord.shadowScaleY??1},currentLayerProfile.scale)
-   :Array.from({length:BILLBOARD_SHADOW_ELLIPSE_STEPS},(_,currentPointIndex)=>{const currentPointAngle=currentPointIndex*Math.PI*2/BILLBOARD_SHADOW_ELLIPSE_STEPS;return {x:currentShadowX+Math.cos(currentPointAngle)*currentShadowWidth*currentLayerProfile.scale*(currentObjectRecord.shadowScaleX??1)/2,y:currentShadowY+Math.sin(currentPointAngle)*currentShadowHeight*currentLayerProfile.scale*(currentObjectRecord.shadowScaleY??1)*BILLBOARD_SHADOW_VERTICAL_MULTIPLIER/2};})}));
+  const currentLayerPolygons=BILLBOARD_SHADOW_PROFILE.layers.map(currentLayerProfile=>({alpha:currentLayerProfile.alpha,points:buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??currentColumnCount,shadowScaleY:currentObjectRecord.shadowScaleY??currentRowCount},currentLayerProfile.scale)}));
   const currentOuterPoints=currentLayerPolygons[0].points;
   const currentShadowBounds={left:Math.min(...currentOuterPoints.map(currentPointValue=>currentPointValue.x)),right:Math.max(...currentOuterPoints.map(currentPointValue=>currentPointValue.x)),top:Math.min(...currentOuterPoints.map(currentPointValue=>currentPointValue.y)),bottom:Math.max(...currentOuterPoints.map(currentPointValue=>currentPointValue.y))};
   for(let currentRowIndex=0;currentRowIndex<currentMapSurface.rows;currentRowIndex++)for(let currentColumnIndex=0;currentColumnIndex<currentMapSurface.columns;currentColumnIndex++){
@@ -472,10 +466,10 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  const currentShadowGraphic=currentGameScene.add.graphics().setDepth(currentShadowDepth);
  for(const currentLayerProfile of BILLBOARD_SHADOW_PROFILE.layers){
   currentShadowGraphic.fillStyle(BILLBOARD_SHADOW_PROFILE.color,currentLayerProfile.alpha);
-  if(currentColumnCount!==currentRowCount){
-   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??1,shadowScaleY:currentObjectRecord.shadowScaleY??1},currentLayerProfile.scale);
+  {
+   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??currentColumnCount,shadowScaleY:currentObjectRecord.shadowScaleY??currentRowCount},currentLayerProfile.scale);
    currentShadowGraphic.fillPoints(currentShadowPoints,true);
-  }else currentShadowGraphic.fillEllipse(currentShadowX,currentShadowY,currentShadowWidth*currentLayerProfile.scale*(currentObjectRecord.shadowScaleX??1),currentShadowHeight*currentLayerProfile.scale*((currentObjectRecord.shadowScaleY??1)*BILLBOARD_SHADOW_VERTICAL_MULTIPLIER));
+  }
  }
  return currentShadowGraphic;
 }
