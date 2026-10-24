@@ -1068,13 +1068,22 @@ files:
   sha256: c51543221a129b14bc7929c9e180b552d84f5c8c7391f037d723b647f5d2ee16
 - path: assets/structures/crystal-cut-low-branch-2x1-v1.png
   source_path: assets/billboards/crystal-cut-low-branch-2x1-v1.png
-  sha256: 26833401dfceeaa9648812f8364f72715ece86fb295ea1ccb062188d847cc869
+  sha256: 87b87d34b32adf5493331d72c06cdc4b290fe784d98f9ad23c78753647adc1b4
 - path: assets/structures/crystal-cut-low-split-2x1-v1.png
   source_path: assets/billboards/crystal-cut-low-split-2x1-v1.png
-  sha256: 5e482d3693cf42a5e16db6352408f07a4e7d957fec8290702e29817dd5d2aa3f
+  sha256: 4b917667d71b70cbd601a37bc1490ed39a5a5b2de5c6d54b5f2b5ccef6d6d741
 - path: assets/structures/crystal-cut-low-lenses-3x1-v1.png
   source_path: assets/billboards/crystal-cut-low-lenses-3x1-v1.png
-  sha256: bfbc59f0b88073000a61e1fb0a4ad69d316921412f0f332591a15f4dc7dc12fd
+  sha256: 679e83a5a86517c417a7d748a1718b235c8b508d7ab082a3c3f3d92f3c8e994d
 - path: assets/structures/crystal-cut-low-rubble-3x1-v1.png
   source_path: assets/billboards/crystal-cut-low-rubble-3x1-v1.png
-  sha256: 99c65fe2e3e2e28981bf51609d57f01c6bf3462606ec9a88b715181d3ad9ab71
+  sha256: 33812de491ee775962704854581821fcaac9ad6197025903081e84b8c5cea473
+- path: assets/structures/dawn-overlook-conifer-tree-tall-v1.png
+  source_path: assets/billboards/dawn-overlook-conifer-tree-tall-v1.png
+  sha256: 53ec5852f426152ab5b91c8ddd7fd8680b05d89f136b4e6554b6711ad00f8ef3
+- path: assets/structures/dawn-overlook-conifer-tree-medium-v1.png
+  source_path: assets/billboards/dawn-overlook-conifer-tree-medium-v1.png
+  sha256: b64e1242fe74ab4c8c3f5bf697f4d3730096ce245dc17ad8197c988a5f9c8236
+- path: assets/structures/dawn-overlook-pine-tree-windswept-v1.png
+  source_path: assets/billboards/dawn-overlook-pine-tree-windswept-v1.png
+  sha256: 45605eea4a3abacf9133cfc08956517256274886225740115e4363e43d7cb44f

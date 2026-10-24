@@ -7,9 +7,12 @@ test('맵 빌보드와 건물 원본은 512px 이하만 허용한다', () => {
   assert.throws(() => validateMapSpriteDimensions({ path: 'assets/buildings/town-house-v1.png' }, { width: MAXIMUM_MAP_SPRITE_SOURCE_SIZE + 1, height: 410 }), /512px/);
 });
 
-test('나무와 식생 빌보드는 각각 고정 원본 크기를 사용한다', () => {
+test('나무와 식생 빌보드는 크롭된 비정사각 원본을 크기 상한 내에서 허용한다', () => {
   assert.doesNotThrow(() => validateMapSpriteDimensions({ path: 'assets/billboards/orchard-tree-v1.png' }, { width: TREE_BILLBOARD_SOURCE_SIZE, height: TREE_BILLBOARD_SOURCE_SIZE }, 'tree'));
-  assert.throws(() => validateMapSpriteDimensions({ path: 'assets/billboards/orchard-tree-v1.png' }, { width: VEGETATION_BILLBOARD_SOURCE_SIZE, height: VEGETATION_BILLBOARD_SOURCE_SIZE }, 'tree'), /나무 빌보드/);
+  assert.doesNotThrow(() => validateMapSpriteDimensions({ path: 'assets/billboards/orchard-tree-v1.png' }, { width: 110, height: 240 }, 'tree'));
+  assert.throws(() => validateMapSpriteDimensions({ path: 'assets/billboards/orchard-tree-v1.png' }, { width: 257, height: 240 }, 'tree'), /나무 빌보드/);
+  assert.doesNotThrow(() => validateMapSpriteDimensions({ path: 'assets/billboards/fern-v1.png' }, { width: 80, height: 90 }, 'vegetation'));
+  assert.throws(() => validateMapSpriteDimensions({ path: 'assets/billboards/fern-v1.png' }, { width: 0, height: 90 }, 'vegetation'), /크기 계약 오류/);
   assert.doesNotThrow(() => validateMapSpriteDimensions({ path: 'assets/billboards/fern-v1.png' }, { width: VEGETATION_BILLBOARD_SOURCE_SIZE, height: VEGETATION_BILLBOARD_SOURCE_SIZE }, 'vegetation'));
   assert.throws(() => validateMapSpriteDimensions({ path: 'assets/billboards/fern-v1.png' }, { width: TREE_BILLBOARD_SOURCE_SIZE, height: TREE_BILLBOARD_SOURCE_SIZE }, 'vegetation'), /식생 빌보드/);
 });
