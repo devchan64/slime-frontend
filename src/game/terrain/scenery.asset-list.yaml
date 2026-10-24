@@ -254,10 +254,8 @@ field_lantern_wood_lantern_stand_size_large_v1: assets/billboards/field-lantern-
 quarry_wooden_derrick_v1: assets/billboards/quarry-wooden-derrick-v1.png
 quarry_stone_bearers_v1: assets/billboards/quarry-stone-bearers-v1.png
 quarry_splitting_tools_v1: assets/billboards/quarry-splitting-tools-v1.png
-quarry_cut_rock_face_v1: assets/billboards/quarry-cut-rock-face-v1.png
 quarry_fallen_limestone_v1: assets/billboards/quarry-fallen-limestone-v1.png
 quarry_crevice_plants_v1: assets/billboards/quarry-crevice-plants-v1.png
-quarry_asymmetric_rockfall_v1: assets/billboards/quarry-asymmetric-rockfall-v1.png
 crystal_cut_guide_3x1_tall_v1: assets/billboards/crystal-cut-guide-3x1-tall-v1.png
 crystal_cut_guide_2x1_tall_v1: assets/billboards/crystal-cut-guide-2x1-tall-v1.png
 crystal_cut_guide_1x2_tall_v1: assets/billboards/crystal-cut-guide-1x2-tall-v1.png
@@ -265,7 +263,6 @@ crystal_cut_guide_1x3_tall_v1: assets/billboards/crystal-cut-guide-1x3-tall-v1.p
 crystal_cut_guide_2x2_low_v1: assets/billboards/crystal-cut-guide-2x2-low-v1.png
 crystal_cut_guide_2x3_low_v1: assets/billboards/crystal-cut-guide-2x3-low-v1.png
 crystal_cut_guide_3x2_low_v1: assets/billboards/crystal-cut-guide-3x2-low-v1.png
-crystal_cut_guide_1x1_low_v1: assets/billboards/crystal-cut-guide-1x1-low-v1.png
 crystal_cut_quartz_1x1_parallel_v1: assets/billboards/crystal-cut-quartz-1x1-parallel-v1.png
 crystal_cut_quartz_1x1_inclusions_v1: assets/billboards/crystal-cut-quartz-1x1-inclusions-v1.png
 crystal_cut_quartz_1x1_branch_v1: assets/billboards/crystal-cut-quartz-1x1-branch-v1.png
