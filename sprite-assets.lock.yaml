@@ -1078,3 +1078,6 @@ files:
 - path: assets/structures/dawn-overlook-pine-tree-windswept-v1.png
   source_path: assets/billboards/dawn-overlook-pine-tree-windswept-v1.png
   sha256: 818406347680ac247e80ea4033601381dc6d0de5e2723d33ecd9e57480597353
+- path: assets/structures/fallen-canopy-giant-hollow-trunk-v1.png
+  source_path: assets/billboards/fallen-canopy-giant-hollow-trunk-v1.png
+  sha256: 855f57c06fd38605e666830061de546ceaa707a45a494fea0a8120c8b0ebda1f
