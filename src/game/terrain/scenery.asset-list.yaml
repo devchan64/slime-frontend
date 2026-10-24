@@ -59,7 +59,6 @@ stump_variant_3_v1: assets/billboards/stump-variant-3-v1.png
 log_variant_1_v1: assets/billboards/log-variant-1-v1.png
 log_variant_2_v1: assets/billboards/log-variant-2-v1.png
 log_variant_3_v1: assets/billboards/log-variant-3-v1.png
-mushroom_variant_1_v1: assets/billboards/mushroom-variant-1-v1.png
 mushroom_variant_2_v1: assets/billboards/mushroom-variant-2-v1.png
 mushroom_variant_3_v1: assets/billboards/mushroom-variant-3-v1.png
 leaves_variant_1_v1: assets/billboards/leaves-variant-1-v1.png
@@ -292,7 +291,10 @@ crystal_cut_low_branch_2x1_v1: assets/billboards/crystal-cut-low-branch-2x1-v1.p
 crystal_cut_low_split_2x1_v1: assets/billboards/crystal-cut-low-split-2x1-v1.png
 crystal_cut_low_lenses_3x1_v1: assets/billboards/crystal-cut-low-lenses-3x1-v1.png
 crystal_cut_low_rubble_3x1_v1: assets/billboards/crystal-cut-low-rubble-3x1-v1.png
-dawn_overlook_conifer_tree_tall_v1: assets/billboards/dawn-overlook-conifer-tree-tall-v1.png
-dawn_overlook_conifer_tree_medium_v1: assets/billboards/dawn-overlook-conifer-tree-medium-v1.png
 dawn_overlook_pine_tree_windswept_v1: assets/billboards/dawn-overlook-pine-tree-windswept-v1.png
 fallen_canopy_giant_hollow_trunk_v1: assets/billboards/fallen-canopy-giant-hollow-trunk-v1.png
+orchard_young_tree_variant_1_v3: assets/billboards/orchard-young-tree-variant-1-v3.png
+dawn_overlook_conifer_tree_tall_v2: assets/billboards/dawn-overlook-conifer-tree-tall-v2.png
+dawn_overlook_conifer_tree_medium_v2: assets/billboards/dawn-overlook-conifer-tree-medium-v2.png
+conifer_tree_compact_v1: assets/billboards/conifer-tree-compact-v1.png
+conifer_tree_open_v1: assets/billboards/conifer-tree-open-v1.png

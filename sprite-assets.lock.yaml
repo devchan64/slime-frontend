@@ -358,9 +358,6 @@ files:
 - path: assets/structures/log-variant-3-v1.png
   source_path: assets/billboards/log-variant-3-v1.png
   sha256: 4403f57988b6fae7a128cc85e1ae2f62c7eee676df091c7069b96f889265f1a1
-- path: assets/structures/mushroom-variant-1-v1.png
-  source_path: assets/billboards/mushroom-variant-1-v1.png
-  sha256: 5a96fa6821630319931722dc31e31768842185e565448278d33cdcec03a98473
 - path: assets/structures/mushroom-variant-2-v1.png
   source_path: assets/billboards/mushroom-variant-2-v1.png
   sha256: f3f10d78c95d3614e4a1b79042653b8975ea32d3da4585210e860f395298d31e
@@ -1069,15 +1066,24 @@ files:
 - path: assets/structures/crystal-cut-low-rubble-3x1-v1.png
   source_path: assets/billboards/crystal-cut-low-rubble-3x1-v1.png
   sha256: 52d2d60558290a33741ad454849e9d7ba0f1e4e153b73f60afdae0e212ebdf3c
-- path: assets/structures/dawn-overlook-conifer-tree-tall-v1.png
-  source_path: assets/billboards/dawn-overlook-conifer-tree-tall-v1.png
-  sha256: 1688a01f2d5781b7898309f2d24f37349b65889e7d5c18e69a4b36a0b49dbff1
-- path: assets/structures/dawn-overlook-conifer-tree-medium-v1.png
-  source_path: assets/billboards/dawn-overlook-conifer-tree-medium-v1.png
-  sha256: 7091028cbd21c8f75ad661579193a7dae00026551f4b9b3811c5510d6279e2db
 - path: assets/structures/dawn-overlook-pine-tree-windswept-v1.png
   source_path: assets/billboards/dawn-overlook-pine-tree-windswept-v1.png
   sha256: 818406347680ac247e80ea4033601381dc6d0de5e2723d33ecd9e57480597353
 - path: assets/structures/fallen-canopy-giant-hollow-trunk-v1.png
   source_path: assets/billboards/fallen-canopy-giant-hollow-trunk-v1.png
   sha256: 855f57c06fd38605e666830061de546ceaa707a45a494fea0a8120c8b0ebda1f
+- path: assets/structures/orchard-young-tree-variant-1-v3.png
+  source_path: assets/billboards/orchard-young-tree-variant-1-v3.png
+  sha256: 364a2cbf7fbe248bb01245dccffdb632ab2726609c5cc969fd4a923011b84dbd
+- path: assets/structures/dawn-overlook-conifer-tree-tall-v2.png
+  source_path: assets/billboards/dawn-overlook-conifer-tree-tall-v2.png
+  sha256: 0df50fc46dc4cc4d8d055d37fe780d4deaec7d79eb51c9c2acd93d47c2105684
+- path: assets/structures/dawn-overlook-conifer-tree-medium-v2.png
+  source_path: assets/billboards/dawn-overlook-conifer-tree-medium-v2.png
+  sha256: 295e5c0e6d5632d512b02b76bfdb9ef65f834d60d97ba56e29646cfdd0b41e21
+- path: assets/structures/conifer-tree-compact-v1.png
+  source_path: assets/billboards/conifer-tree-compact-v1.png
+  sha256: b01c40b236e7c80846e77e1b2e4101a360d932f0d13b0b7484ebd1abe6cf08cc
+- path: assets/structures/conifer-tree-open-v1.png
+  source_path: assets/billboards/conifer-tree-open-v1.png
+  sha256: 6ebdb288fe29e326ae90b9e21dde5d142393cf15a5d3899241db6e8c6fd7a5cb
