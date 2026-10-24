@@ -990,28 +990,28 @@ files:
   sha256: bb7cc69c75a1a8839b25125c1ebc8ff753b55299faaecbb4233c9681cca49107
 - path: assets/structures/crystal-cut-quartz-1x1-inclusions-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-inclusions-v1.png
-  sha256: c4179f31a732f35b76d20f4292d1f0668fa49d99b0ac9f7f2650131b7e3c6636
+  sha256: 41b41828215d711d17856169b8f02c675cfd5c4bd7b111900ed8b1deea27a312
 - path: assets/structures/crystal-cut-quartz-1x1-branch-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-branch-v1.png
-  sha256: abf8371b7c47c4d0e304680155c779e4a00f128281c0e4da0860eabda765a765
+  sha256: d7dd14e9ca8be04acb4645361c2c4cb3df24ecd5ce3edeaa669a3d1dce013030
 - path: assets/structures/crystal-cut-quartz-1x1-web-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-web-v1.png
-  sha256: 3aa289310dd4eddb36ab1c96751bd4927de55c42daf3d2c01c690fd3bfd2a575
+  sha256: 097cdd0130860aa98506dfedab4c69635bfe97bc7cfe349edd81280edbca540d
 - path: assets/structures/crystal-cut-quartz-1x1-lens-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-lens-v1.png
-  sha256: 1fb7d003024d881c6513fa3328e2f31d10bdd6d278a38b9c1468276647854543
+  sha256: 691865c1deab723a683038501a048283639a8c89bd732a9276762e916ca157fc
 - path: assets/structures/crystal-cut-quartz-1x1-paired-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-paired-v1.png
-  sha256: 8962ec775763fada8fd91d9dfd04876cc8b1547067ba37703062b626b8477f6e
+  sha256: 1fc410419e86007d226462a016d346859ddeec0150c768ad6707805bfdf947f6
 - path: assets/structures/crystal-cut-quartz-1x1-band-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-band-v1.png
-  sha256: f6a8f05befaf160f77d457babfc0a88a9a2dcbae6c3146c0ae480d575c8c830a
+  sha256: 20a15ab88f097d9d756dba690401c6fc4a311ea440403e6b0df142405d0ced2d
 - path: assets/structures/crystal-cut-quartz-1x1-vertical-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-vertical-v1.png
-  sha256: 64eed008aeb0c726595459e20369ab5ef013b156e8ee4c325b65a335dd450486
+  sha256: 899f840a55704e0b91e98ed2cdabc5665463ca48b6ebbb189523f698cf93a641
 - path: assets/structures/crystal-cut-quartz-1x1-fissure-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-fissure-v1.png
-  sha256: fd9692962f7c06eea49d5571e0d9becb787cfc95ddb3aac2e922e02daf23dbb0
+  sha256: 23c55a17f82d4f1ea944a599f569a1e507d10ed821bdc3c071e19b2877e98d1c
 - path: assets/structures/crystal-cut-quartz-1x1-patches-v1.png
   source_path: assets/billboards/crystal-cut-quartz-1x1-patches-v1.png
   sha256: 7240f3b95ec78e858f1fff8e122a547e22ae650cae5aff0007a908640bdd4d97
