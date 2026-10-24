@@ -1,8 +1,6 @@
 const PNG_SIGNATURE_BYTES = Object.freeze([137, 80, 78, 71, 13, 10, 26, 10]);
 const PNG_HEADER_LENGTH = 24;
 export const MAXIMUM_MAP_SPRITE_SOURCE_SIZE = 512;
-export const TREE_BILLBOARD_SOURCE_SIZE = 256;
-export const VEGETATION_BILLBOARD_SOURCE_SIZE = 128;
 
 export function readPngSourceDimensions(currentImageBytes) {
   if (!Buffer.isBuffer(currentImageBytes) || currentImageBytes.length < PNG_HEADER_LENGTH) throw new Error('PNG 원본 헤더가 없습니다.');
@@ -42,6 +40,4 @@ export function validateMapSpriteDimensions(currentAssetRecord, currentImageDime
   const { width: currentImageWidth, height: currentImageHeight } = currentImageDimensions;
   if (!Number.isInteger(currentImageWidth) || !Number.isInteger(currentImageHeight) || currentImageWidth <= 0 || currentImageHeight <= 0) throw new Error(`스프라이트 PNG 크기 계약 오류: ${currentAssetRecord.path}`);
   if (currentImageWidth > MAXIMUM_MAP_SPRITE_SOURCE_SIZE || currentImageHeight > MAXIMUM_MAP_SPRITE_SOURCE_SIZE) throw new Error(`맵 빌보드·건물 원본은 ${MAXIMUM_MAP_SPRITE_SOURCE_SIZE}px를 초과할 수 없습니다: ${currentAssetRecord.path} (${currentImageWidth}×${currentImageHeight})`);
-  if (currentAssetRecord.path.startsWith('assets/billboards/') && currentBillboardCategory === 'tree' && (currentImageWidth > TREE_BILLBOARD_SOURCE_SIZE || currentImageHeight > TREE_BILLBOARD_SOURCE_SIZE)) throw new Error(`나무 빌보드 원본은 ${TREE_BILLBOARD_SOURCE_SIZE}×${TREE_BILLBOARD_SOURCE_SIZE}px 이하여야 합니다: ${currentAssetRecord.path} (${currentImageWidth}×${currentImageHeight})`);
-  if (currentAssetRecord.path.startsWith('assets/billboards/') && currentBillboardCategory === 'vegetation' && (currentImageWidth > VEGETATION_BILLBOARD_SOURCE_SIZE || currentImageHeight > VEGETATION_BILLBOARD_SOURCE_SIZE)) throw new Error(`식생 빌보드 원본은 ${VEGETATION_BILLBOARD_SOURCE_SIZE}×${VEGETATION_BILLBOARD_SOURCE_SIZE}px 이하여야 합니다: ${currentAssetRecord.path} (${currentImageWidth}×${currentImageHeight})`);
 }
