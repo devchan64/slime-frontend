@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const compiledMetricsBundle=await build({stdin:{contents:`export * from './src/game/terrain/renderMetrics';export * from './src/game/terrain/elevation';export * from './src/game/terrain/rotation';export * from './src/game/terrain/renderPlan';export * from './src/game/terrain/viewport';`,resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm'});
 const normalizedRenderModule=await import(`data:text/javascript;base64,${Buffer.from(compiledMetricsBundle.outputFiles[0].text).toString('base64')}`);
-test('야외·마을·전투를 160×80로 통일하고 사람 높이 80을 유지한다',()=>{
+test('야외·마을·전투를 160×80로 통일하고 사람 높이 160을 유지한다',()=>{
  assert.equal(normalizedRenderModule.MAP_DEFAULT_ZOOM,2);
- assert.equal(normalizedRenderModule.CHARACTER_BODY_HEIGHT,80);
+ assert.equal(normalizedRenderModule.CHARACTER_BODY_HEIGHT,160);
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({}),{width:160,height:80});
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:true}),{width:160,height:80});
  assert.deepEqual(normalizedRenderModule.resolveMapTileSize({safeTown:false}),{width:160,height:80});
