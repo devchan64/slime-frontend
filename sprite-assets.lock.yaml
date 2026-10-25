@@ -1071,7 +1071,7 @@ files:
   sha256: 818406347680ac247e80ea4033601381dc6d0de5e2723d33ecd9e57480597353
 - path: assets/structures/fallen-canopy-giant-hollow-trunk-v1.png
   source_path: assets/billboards/fallen-canopy-giant-hollow-trunk-v1.png
-  sha256: 855f57c06fd38605e666830061de546ceaa707a45a494fea0a8120c8b0ebda1f
+  sha256: 560c38ad0a2bbb588d0e29042532712e1d837833c6fdfc3e0f1097d0cca22bfe
 - path: assets/structures/orchard-young-tree-variant-1-v3.png
   source_path: assets/billboards/orchard-young-tree-variant-1-v3.png
   sha256: 364a2cbf7fbe248bb01245dccffdb632ab2726609c5cc969fd4a923011b84dbd
@@ -1089,16 +1089,16 @@ files:
   sha256: 6ebdb288fe29e326ae90b9e21dde5d142393cf15a5d3899241db6e8c6fd7a5cb
 - path: assets/structures/fallen-canopy-whole-fallen-tree-v1.png
   source_path: assets/billboards/fallen-canopy-whole-fallen-tree-v1.png
-  sha256: bc3b50ff251897dd7b20603aaf29cb2c29e546d525990ef9314878996c8c8480
+  sha256: 395f0fb23cbff63ea7a6a39128e278bfd3209162a62ad9a13c29f9e7897fc43c
 - path: assets/structures/fallen-canopy-debris-branches-1x1-v1.png
   source_path: assets/billboards/fallen-canopy-debris-branches-1x1-v1.png
-  sha256: 1bb48ebbaa8ce5fb0881ac846f190b0de277c8ba48cb2d47eb2c064d71b871d3
+  sha256: 1af1a36f9b8a29656b039a1c3eb7ae829ff23b34a170c771738f6dc977ce2138
 - path: assets/structures/fallen-canopy-debris-thin-branches-1x1-v1.png
   source_path: assets/billboards/fallen-canopy-debris-thin-branches-1x1-v1.png
-  sha256: 502f4fd02d313ef6a76278d81cb324e3361507ccf829794ff1dcc6d05d8036a6
+  sha256: 2ec2648b2a33255efef8e8dbb265beda05e66eab7c8a70778839982d6ac93faf
 - path: assets/structures/fallen-canopy-debris-thick-break-1x1-v1.png
   source_path: assets/billboards/fallen-canopy-debris-thick-break-1x1-v1.png
-  sha256: 610b5eaf7a114214876b0f6eee932d1328df0a1583ca31ededccbb7e4e8a8306
+  sha256: 9d2dd9fee67ab969ecf1dbef0e654c13d1d0a534cdbcf991f4829bc49f615b2c
 - path: assets/structures/fallen-canopy-debris-flat-decay-1x1-v1.png
   source_path: assets/billboards/fallen-canopy-debris-flat-decay-1x1-v1.png
-  sha256: fc36bc3af26a32696e204ec0f4826af8e18f13fd1fa662ae52c8f5476cd94707
+  sha256: 6d527352ed569f680011d39ca3b62a5390c9405ced87ee08946a67049ff48f08
