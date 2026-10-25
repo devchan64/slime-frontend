@@ -1,3 +1,4 @@
+import {createMapMusicPlugin} from './scripts/map-bgm-module.mjs';
 import {createAssetListPlugin} from "./scripts/asset-list-module.mjs";
 import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
@@ -8,7 +9,7 @@ const LOCAL_WATCH_POLL_INTERVAL = 500;
 const LOCAL_WATCH_BINARY_INTERVAL = 1000;
 const LOCAL_WATCH_IGNORED_PATHS = ["**/.local/**", "**/.tmp/**", "**/report/**"];
 export default defineConfig({
-  plugins: [createAssetListPlugin()],
+  plugins: [createAssetListPlugin(), createMapMusicPlugin()],
   server: {
     fs: { allow: [FRONTEND_PROJECT_ROOT, SHARED_ASSET_ROOT] },
     host: "127.0.0.1",

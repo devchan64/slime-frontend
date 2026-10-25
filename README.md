@@ -192,3 +192,9 @@ CloudWatch의 만료 로그 실제 삭제에는 통상 최대 72시간이 추가
 ### 월드맵 썸네일
 
 월드맵은 `/v2/maps/world`의 표시 좌표·관리 ID·이동 연결을 읽는다. `slime-assets/assets/ui/world-map/thumbnails.yaml`과 PNG를 `ui-assets.lock.yaml`로 검증하고 정적 import로 번들링한다. 이미지 파일은 해시 파일명으로 배포되며 런타임에 인접 저장소를 읽지 않는다. 모든 노드는 정사각형 썸네일·이름·도시/필드 구분을 표시하고 선택 상세에는 256px 원본을 표시한다. 확대·축소·드래그·연결 맵 이동은 유지한다. 에셋 또는 관리 ID 누락은 오류로 표시한다. 서버 v2 배포 후 클라이언트를 배포하고, 이전 클라이언트는 v1로 계속 동작한다. 신규 AWS 자원·DB 마이그레이션은 없다.
+
+### 맵 배경음악
+
+`slime-assets/assets/audio/map-bgm.yaml`의 schema 2에서 맵별 `instrumental`·`vocal` MP3를 읽습니다. `scripts/map-bgm-module.mjs`가 등록부 버전·경로·SHA-256을 검증하며 Vite가 해시 파일명으로 번들링합니다. 미등록 맵·없는 버전은 무음입니다. 게임 설정에서 버전과 음량을 변경하며 브라우저에 저장합니다. 기본값은 MR·50%이고, 사용자 입력 후 자동재생 제한을 해제하며 숨겨진 탭은 일시 정지합니다. 별도 백엔드 API나 고정 운영 자원은 추가하지 않습니다.
+
+재생 전환 회귀검사: `node scripts/run-regression.mjs --with-checks tests/map-background-music.test.mjs`.

@@ -1,0 +1,12 @@
+title: Background music
+variant: Version
+instrumental: Instrumental (MR)
+vocal: Original with vocals
+volume: 'Volume {volume}%'
+help: Volume 0 mutes music. Settings are saved in this browser and music follows the current map.
+unassigned: This map has no music for the selected version and remains silent.
+play: Allow music playback
+error: Music could not be loaded. Check the audio connection and enter again.
+invalid: Saved music settings could not be read. Music is muted.
+reset: Restore default music settings
+storage: Settings could not be saved and apply only to this session.

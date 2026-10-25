@@ -1,3 +1,4 @@
+import {useMapBackgroundMusic, MapMusicSettingsControl} from './MapBackgroundMusic';
 import {DeveloperToolsPanel} from './DeveloperToolsPanel';
 import {AutomaticBattlePatternPanel} from './AutomaticBattlePatternPanel';
 import {DirectMessages} from './DirectMessages';
@@ -246,6 +247,7 @@ export function App() {
     setSelected(null);
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
+  const currentMusicController = useMapBackgroundMusic(state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY" ? state.map.id : null);
   const battleReportIsReady = !!battleReport && pendingActionCutinEvents.length === 0;
   const inWorld = !battleReportIsReady && !menuPage && !userTermsPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
@@ -625,6 +627,7 @@ export function App() {
           <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
           <ActionCutinSettingsControl currentSettingState={actionCutinSettingState} updateSettingDuration={updateActionCutinSetting}/>
+          <MapMusicSettingsControl currentMusicController={currentMusicController}/>
         </section></main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">
