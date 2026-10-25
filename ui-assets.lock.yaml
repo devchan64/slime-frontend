@@ -15,7 +15,7 @@ files:
   sha256: 7152f4b23fbd4bef7ebebeb34e70618c251b7d9e5a73247a28215af88456552c
 - path: assets/ui/world-map/thumbnails.yaml
   source_path: assets/ui/world-map/thumbnails.yaml
-  sha256: 5987aea84ca81e3050be86b383fb4bd10670c3fa784477e0617419c4409dcf5e
+  sha256: 750bf272bd89fd4b203df3d000adc874655319bf7d1302bd183f32f900ae28a4
 - path: assets/ui/world-map/thumbnails/grainstead-v1.png
   source_path: assets/ui/world-map/thumbnails/grainstead-v1.png
   sha256: 5d0cb1210b26d4a4258741d55dc1c46b2798d13e17b7f47fe29b3d7f9c309451
@@ -109,3 +109,6 @@ files:
 - path: assets/ui/world-map/thumbnails/stonewarm-v1.png
   source_path: assets/ui/world-map/thumbnails/stonewarm-v1.png
   sha256: 602f3b91883870ef8105845f240087fe68063f4f994fb03121129b269f535375
+- path: assets/ui/world-map/thumbnails/old-boundary-gate-v1.png
+  sha256: f11aba973eacc3260571a7e4f59b492b08603d10a386e96c3184bf7490d44b5b
+  source_path: assets/ui/world-map/thumbnails/old-boundary-gate-v1.png
