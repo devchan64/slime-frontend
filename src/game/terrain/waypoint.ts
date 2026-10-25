@@ -1,4 +1,4 @@
-import currentWaypointMetadata from '../../../../slime-assets/assets/billboards/waypoint-guide-v3.animation.json';
+import currentWaypointMetadata from '../../../../slime-assets/assets/sprites/effects/waypoint/waypoint-guide-v3.animation.json';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import Phaser from 'phaser';
 import type {Waypoint} from './meadow';

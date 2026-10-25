@@ -467,10 +467,10 @@ files:
   source_path: assets/billboards/orchard-chunky-dryshrub-v1.png
   sha256: fd69479ca05a0e220876f4b3e25a8a1fa8b62edd6b1c7aa81baad8686cea08b2
 - path: assets/structures/waypoint-guide-v3.png
-  source_path: assets/billboards/waypoint-guide-v3.png
+  source_path: assets/sprites/effects/waypoint/waypoint-guide-v3.png
   sha256: 3ace014d96dcd6678aa8366aa3d9a788033cf7b499d295925219049c01d2d2ff
 - path: assets/structures/waypoint-guide-v3.animation.json
-  source_path: assets/billboards/waypoint-guide-v3.animation.json
+  source_path: assets/sprites/effects/waypoint/waypoint-guide-v3.animation.json
   sha256: db2e732a4724c704e030ae83ff112626c7730ad63f95f3efb1bb1a99f3b6c56f
 - path: assets/structures/town-iseulon-guild-v2.png
   source_path: assets/buildings/town-iseulon-guild-v2.png
