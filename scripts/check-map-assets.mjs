@@ -1,3 +1,4 @@
+import { loadBillboardCatalogRecord } from './billboard-catalog.mjs';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -25,9 +26,8 @@ if (assetRegistryDocument.errors.length) throw assetRegistryDocument.errors[0];
 const assetRegistryRecord = assetRegistryDocument.toJS();
 if (assetRegistryRecord.schema_version !== 1 || !Array.isArray(assetRegistryRecord.assets)) throw new Error('에셋 등록부 계약 오류');
 const registeredSourceAssets = new Map(assetRegistryRecord.assets.map(currentAssetRecord => [currentAssetRecord.path, currentAssetRecord]));
-const billboardCatalogDocument = spriteAssetsSelected ? parseDocument(readFileSync(resolve(assetRepositoryDirectory, 'assets/billboards/catalog.yaml'), 'utf8'), { uniqueKeys: true }) : null;
-if (billboardCatalogDocument?.errors.length) throw billboardCatalogDocument.errors[0];
-const billboardCategoryRecords = billboardCatalogDocument ? createBillboardCategoryMap(billboardCatalogDocument.toJS()) : new Map();
+const billboardCatalogDocument = spriteAssetsSelected ? loadBillboardCatalogRecord(assetRepositoryDirectory) : null;
+const billboardCategoryRecords = billboardCatalogDocument ? createBillboardCategoryMap(billboardCatalogDocument) : new Map();
   function readLockedAnimationMetadata(currentAssetPath) {
     const currentMetadataPath = currentAssetPath.replace(/\.png$/, '.animation.json');
     const currentMetadataLock = assetLockRecord.files.find(currentLockRecord => currentLockRecord.source_path === currentMetadataPath);

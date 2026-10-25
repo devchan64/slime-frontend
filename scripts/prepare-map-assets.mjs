@@ -1,3 +1,4 @@
+import { loadBillboardCatalogRecord } from './billboard-catalog.mjs';
 import { readFileSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ try {
     registeredSourcePaths.set(currentAssetRecord.path, currentAssetRecord);
     registeredVersionPairs.add(currentVersionPair);
   }
-  const billboardCatalogRecord = spriteAssetsSelected ? readUniqueDocument(resolve(assetRepositoryDirectory, 'assets/billboards/catalog.yaml')) : null;
+  const billboardCatalogRecord = spriteAssetsSelected ? loadBillboardCatalogRecord(assetRepositoryDirectory) : null;
   const billboardCategoryRecords = billboardCatalogRecord ? createBillboardCategoryMap(billboardCatalogRecord) : new Map();
   // 잠금 목록에 채택된 애니메이션만 프레임 단위 크기 계약을 적용한다.
   function readLockedAnimationMetadata(currentAssetPath) {
