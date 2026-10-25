@@ -1102,3 +1102,9 @@ files:
 - path: assets/structures/fallen-canopy-debris-flat-decay-1x1-v1.png
   source_path: assets/billboards/fallen-canopy-debris-flat-decay-1x1-v1.png
   sha256: 6d527352ed569f680011d39ca3b62a5390c9405ced87ee08946a67049ff48f08
+- path: assets/structures/old-boundary-gate-pillar-left-v1.png
+  source_path: assets/billboards/old-boundary-gate-pillar-left-v1.png
+  sha256: cfffc6ca507221fc65947207dd77e1fd3802d29853b986dd501ed6e20e127e5d
+- path: assets/structures/old-boundary-gate-pillar-right-v1.png
+  source_path: assets/billboards/old-boundary-gate-pillar-right-v1.png
+  sha256: 7e3a0cc14f16dbb0cc072441450e769218c4ec46b80f643c76ccfc9ccc83b37b
