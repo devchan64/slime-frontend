@@ -49,13 +49,11 @@ export const SPRITE_DEPTH_OFFSET = 0.01;
 export const CHARACTER_OUTLINE_DEPTH_STEP = 0.0001;
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:MAP_TILE_WIDTH,tileHeight:MAP_TILE_HEIGHT,elevationHeight:MAP_ELEVATION_HEIGHT,baseThickness:MAP_BASE_THICKNESS});
 
-// 원본 속성은 160×80 기준으로 보존하고 야외필드만 렌더 단계에서 축소한다.
-export const OUTDOOR_MAP_RENDER_SCALE = 0.5;
+// 모든 맵은 동일한 160×80 타일과 공용 에셋 크기를 사용한다.
 export function resolveMapRenderOptions(currentMapSurface={}){
  const currentMapKind=currentMapSurface.renderKind??(currentMapSurface.safeTown===true?'town':currentMapSurface.safeTown===false?'field':'battle');
  if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 렌더 종류: '+currentMapKind);
- const currentWorldScale=currentMapKind==='field'?OUTDOOR_MAP_RENDER_SCALE:1;
- return {...FIELD_RENDER_METRICS,tileWidth:MAP_TILE_WIDTH*currentWorldScale,tileHeight:MAP_TILE_HEIGHT*currentWorldScale,billboardScale:currentWorldScale};
+ return {...FIELD_RENDER_METRICS,billboardScale:1};
 }
 
 /** 바닥 재질 영역 경계는 게임·검수에서 기본 표시한다. */

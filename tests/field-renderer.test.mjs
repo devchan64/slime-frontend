@@ -218,7 +218,9 @@ test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타�
  assert.deepEqual([currentRenderedTree.x,currentRenderedTree.y,currentRenderedTree.scale,currentRenderedTree.depth],[80,60,.4,31]);
  const currentOutdoorOptions=resolveMapRenderOptions({renderKind:'field'});
  const currentOutdoorTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31,undefined,currentOutdoorOptions);
- assert.equal(currentOutdoorTree.scale,.2);
+ assert.equal(currentOutdoorTree.scale,.4);
+ assert.deepEqual(currentOutdoorOptions,resolveMapRenderOptions({renderKind:'town'}));
+ assert.deepEqual(currentOutdoorOptions,resolveMapRenderOptions({renderKind:'battle'}));
  assert.deepEqual(currentOutdoorTree.origin,[.5,.9]);
  assert.equal(currentObjectRecord.displayHeight,120);
  assert.throws(()=>drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31,undefined,{billboardScale:0}),/배율/);
@@ -256,7 +258,7 @@ test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 
  const currentObjectRecord={position:{column:1,row:1},kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
  const currentLayerImages=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110);
  const currentOutdoorLayers=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110,undefined,resolveMapRenderOptions({renderKind:'field'}));
- assert.deepEqual(currentOutdoorLayers.map(currentLayerImage=>currentLayerImage.scale),[.3125,.3125]);
+ assert.deepEqual(currentOutdoorLayers.map(currentLayerImage=>currentLayerImage.scale),[.625,.625]);
  assert.equal(currentObjectRecord.displayHeight,80);
  assert.equal(currentLayerImages.length,2);
  assert.deepEqual(currentLayerImages.map(currentLayerImage=>[currentLayerImage.x,currentLayerImage.y,currentLayerImage.scale,currentLayerImage.origin]),[[100,200,.625,[.5,.65]],[100,200,.625,[.5,.65]]]);
