@@ -598,3 +598,40 @@ test('빌보드 높이가 바뀌어도 타일 단위 그림자 크기는 유지�
  for(const currentDisplayHeight of [40,400])drawBillboardContactShadow(currentMockScene,{displayHeight:currentDisplayHeight,groundFootprintColumns:2,groundFootprintRows:1,shadowScaleX:2,shadowScaleY:1,billboardAnchorMode:'tile-intersection',anchorX:0,anchorY:0},{x:0,y:0},100,{tileWidth:160,tileHeight:80});
  assert.deepEqual(currentPolygonRecords.slice(0,3),currentPolygonRecords.slice(3));
 });
+
+
+test('그림자 중심 좌표 v2 변환은 점유·회전·배율별 기존 외곽을 보존한다',()=>{
+ for(const currentColumns of [1,2,3,4,8])for(const currentRows of [1,2,3,4,8])for(const currentRotation of [0,1,2,3])for(const currentScale of [.5,1]){
+  const currentOldRecord={position:{column:3,row:4},displayHeight:128,billboardAnchorMode:'tile-intersection',anchorX:.17,anchorY:-.32,groundFootprintColumns:currentColumns,groundFootprintRows:currentRows,shadowOffsetColumn:-.6,shadowOffsetRow:.2,shadowScaleX:1.3,shadowScaleY:.7};
+  const currentNewRecord={...currentOldRecord,shadowCoordinateVersion:2,shadowOffsetColumn:currentOldRecord.shadowOffsetColumn+(currentColumns===1?.5:currentColumns-1)-(currentColumns-1)/2,shadowOffsetRow:currentOldRecord.shadowOffsetRow+(currentRows===1?.5:currentRows-1)-(currentRows-1)/2};
+  const currentRenderOptions={rotation:currentRotation,tileWidth:160*currentScale,tileHeight:80*currentScale,billboardScale:currentScale};
+  const currentCaptureShape=(currentObjectRecord)=>{
+   const currentPolygonRecords=[];
+   const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(currentPoints){currentPolygonRecords.push(currentPoints);}})}};
+   const currentPositionValue=resolveFieldSceneryPlacement(currentObjectRecord,{x:300,y:200},currentRenderOptions).screen;
+   drawBillboardContactShadow(currentMockScene,currentObjectRecord,currentPositionValue,100,currentRenderOptions);
+   return currentPolygonRecords;
+  };
+  const currentOldPolygons=currentCaptureShape(currentOldRecord),currentNewPolygons=currentCaptureShape(currentNewRecord);
+  currentOldPolygons.forEach((currentPolygon,currentLayerIndex)=>currentPolygon.forEach((currentPoint,currentPointIndex)=>{
+   assert.ok(Math.abs(currentPoint.x-currentNewPolygons[currentLayerIndex][currentPointIndex].x)<1e-8);
+   assert.ok(Math.abs(currentPoint.y-currentNewPolygons[currentLayerIndex][currentPointIndex].y)<1e-8);
+  }));
+ }
+});
+
+test('그림자 크기 v2의 1·1은 점유 전체를 채우며 이전 타일 길이와 호환된다',()=>{
+ for(const [currentColumnCount,currentRowCount] of [[1,1],[2,3],[3,2],[8,8]])for(const currentScaleRatio of [.5,1]){
+  const currentPolygonRecords=[];
+  const currentMockScene={add:{graphics:()=>({setDepth(){return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentPolygonRecords.push(currentPolygonPoints);}})}};
+  const currentObjectRecord={anchorX:0,anchorY:0,billboardAnchorMode:'tile-intersection',shadowCoordinateVersion:2,groundFootprintColumns:currentColumnCount,groundFootprintRows:currentRowCount};
+  const currentRenderOptions={tileWidth:160*currentScaleRatio,tileHeight:80*currentScaleRatio,billboardScale:currentScaleRatio};
+  drawBillboardContactShadow(currentMockScene,{...currentObjectRecord,shadowSizeVersion:2,shadowScaleX:1,shadowScaleY:1},{x:0,y:0},0,currentRenderOptions);
+  drawBillboardContactShadow(currentMockScene,{...currentObjectRecord,shadowScaleX:currentColumnCount,shadowScaleY:currentRowCount},{x:0,y:0},0,currentRenderOptions);
+  assert.deepEqual(currentPolygonRecords.slice(0,3),currentPolygonRecords.slice(3));
+  const currentColumnValues=currentPolygonRecords[0].map(currentPointValue=>currentPointValue.x/currentRenderOptions.tileWidth+currentPointValue.y/currentRenderOptions.tileHeight);
+  const currentRowValues=currentPolygonRecords[0].map(currentPointValue=>currentPointValue.y/currentRenderOptions.tileHeight-currentPointValue.x/currentRenderOptions.tileWidth);
+  assert.ok(Math.abs(Math.max(...currentColumnValues)-Math.min(...currentColumnValues)-currentColumnCount)<1e-8);
+  assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-currentRowCount)<1e-8);
+ }
+});

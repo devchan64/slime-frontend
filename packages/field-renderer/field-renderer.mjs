@@ -431,7 +431,13 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  const currentTileHeight=currentRenderOptions.tileHeight??FIELD_RENDER_METRICS.tileHeight*currentBillboardScale;
  const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
  const currentColumnCount=currentObjectRecord.groundFootprintColumns??1,currentRowCount=currentObjectRecord.groundFootprintRows??1;
- const currentShadowOrigin=currentObjectRecord.billboardAnchorMode==='tile-intersection'?resolveBillboardIntersectionOffset(currentObjectRecord):{column:(currentColumnCount-1)/2,row:(currentRowCount-1)/2};
+ const currentShadowSizeVersion=currentObjectRecord.shadowSizeVersion??1;
+ if(![1,2].includes(currentShadowSizeVersion))throw new Error('지원하지 않는 그림자 크기 버전');
+ const currentShadowColumnLength=currentShadowSizeVersion===2?(currentObjectRecord.shadowScaleX??1)*currentColumnCount:(currentObjectRecord.shadowScaleX??currentColumnCount);
+ const currentShadowRowLength=currentShadowSizeVersion===2?(currentObjectRecord.shadowScaleY??1)*currentRowCount:(currentObjectRecord.shadowScaleY??currentRowCount);
+ const currentShadowVersion=currentObjectRecord.shadowCoordinateVersion??1;
+ if(![1,2].includes(currentShadowVersion))throw new Error('지원하지 않는 그림자 좌표 버전');
+ const currentShadowOrigin=currentShadowVersion===1&&currentObjectRecord.billboardAnchorMode==='tile-intersection'?resolveBillboardIntersectionOffset(currentObjectRecord):{column:(currentColumnCount-1)/2,row:(currentRowCount-1)/2};
  const currentShadowOffset=rotateSurfacePosition({column:currentShadowOrigin.column+(currentObjectRecord.shadowOffsetColumn??0),row:currentShadowOrigin.row+(currentObjectRecord.shadowOffsetRow??0)},currentRenderOptions.rotation??0);
  const currentShadowX=currentScreenPosition.x+(currentShadowOffset.column-currentShadowOffset.row)*currentTileWidth/2-(currentAnchorOffset.column-currentAnchorOffset.row)*currentTileWidth*BILLBOARD_SHADOW_PROFILE.insetRatio;
  const currentShadowY=currentScreenPosition.y+(currentShadowOffset.column+currentShadowOffset.row)*currentTileHeight/2-(currentAnchorOffset.column+currentAnchorOffset.row)*currentTileHeight*BILLBOARD_SHADOW_PROFILE.insetRatio;
@@ -442,7 +448,7 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  if(currentMapSurface){
   const currentShadowGraphics=[];
   const currentOriginHeight=readGroundSurfaceHeight(currentObjectRecord.position,currentMapSurface);
-  const currentLayerPolygons=BILLBOARD_SHADOW_PROFILE.layers.map(currentLayerProfile=>({alpha:currentLayerProfile.alpha,points:buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??currentColumnCount,shadowScaleY:currentObjectRecord.shadowScaleY??currentRowCount},currentLayerProfile.scale)}));
+  const currentLayerPolygons=BILLBOARD_SHADOW_PROFILE.layers.map(currentLayerProfile=>({alpha:currentLayerProfile.alpha,points:buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentShadowColumnLength,shadowScaleY:currentShadowRowLength},currentLayerProfile.scale)}));
   const currentOuterPoints=currentLayerPolygons[0].points;
   const currentShadowBounds={left:Math.min(...currentOuterPoints.map(currentPointValue=>currentPointValue.x)),right:Math.max(...currentOuterPoints.map(currentPointValue=>currentPointValue.x)),top:Math.min(...currentOuterPoints.map(currentPointValue=>currentPointValue.y)),bottom:Math.max(...currentOuterPoints.map(currentPointValue=>currentPointValue.y))};
   for(let currentRowIndex=0;currentRowIndex<currentMapSurface.rows;currentRowIndex++)for(let currentColumnIndex=0;currentColumnIndex<currentMapSurface.columns;currentColumnIndex++){
@@ -467,7 +473,7 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  for(const currentLayerProfile of BILLBOARD_SHADOW_PROFILE.layers){
   currentShadowGraphic.fillStyle(BILLBOARD_SHADOW_PROFILE.color,currentLayerProfile.alpha);
   {
-   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentObjectRecord.shadowScaleX??currentColumnCount,shadowScaleY:currentObjectRecord.shadowScaleY??currentRowCount},currentLayerProfile.scale);
+   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentShadowColumnLength,shadowScaleY:currentShadowRowLength},currentLayerProfile.scale);
    currentShadowGraphic.fillPoints(currentShadowPoints,true);
   }
  }
