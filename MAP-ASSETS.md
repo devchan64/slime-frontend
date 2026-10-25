@@ -32,3 +32,7 @@ SLIME_CONTENT_SNAPSHOT_ROOT=/absolute/slime-assets/snapshots/content npm run bui
 ```
 
 개발 서버는 `/registered-assets/assets/billboards/versions/<sha256>.png`의 새 이미지도 해시를 검사해 제공하므로 편집 직후 다음 스냅샷을 기다리지 않습니다. 기존 이름의 이미지 응답은 `no-cache`, SHA-256 파일명은 1년 불변 캐시를 사용합니다. 배포 CDN에도 이 경로별 정책을 적용해야 합니다. 배포 환경에서 DB 이미지 버전을 바꾸기 전 해당 해시 파일을 정적 저장소에 게시해야 하며, 개발 서버의 즉시 파일 조회를 배포 서버 기능으로 간주하지 않습니다.
+
+## 콘텐츠 원장 지연 동기화 정정
+
+콘텐츠 이미지 플러그인은 `slime-assets/asset-registry.yaml`의 빌보드 경로와 SHA-256을 검증하여 게시합니다. 세대별 스냅샷 및 `SLIME_CONTENT_SNAPSHOT_ROOT`는 이미지 게시에 사용하지 않습니다. DB 편집 정보는 관리 주기 작업자가 에셋 원장·타입별 카탈로그에 지연 동기화하며, 원장을 Git으로 관리합니다. 앞의 스냅샷 기반 개발·빌드 설명보다 이 절을 우선합니다.

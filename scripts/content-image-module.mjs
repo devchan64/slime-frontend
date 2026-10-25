@@ -5,7 +5,7 @@ import {parseDocument} from 'yaml';
 
 function parseContentImageDocument(currentSourceBytes){
  const currentYamlDocument=parseDocument(currentSourceBytes.toString(),{uniqueKeys:true});
- if(currentYamlDocument.errors.length)throw Error('콘텐츠 스냅샷 YAML 오류');
+ if(currentYamlDocument.errors.length)throw Error('에셋 원장 YAML 오류');
  return currentYamlDocument.toJS({maxAliasCount:0});
 }
 async function readBoundedContentFile(currentRootPath,currentRelativePath){
@@ -15,42 +15,32 @@ async function readBoundedContentFile(currentRootPath,currentRelativePath){
  return readFile(currentRealPath);
 }
 function verifyContentImageHash(currentSourceBytes,currentExpectedHash){
- if(!/^[a-f0-9]{64}$/.test(currentExpectedHash)||createHash('sha256').update(currentSourceBytes).digest('hex')!==currentExpectedHash)throw Error('콘텐츠 이미지·스냅샷 해시 불일치');
+ if(!/^[a-f0-9]{64}$/.test(currentExpectedHash)||createHash('sha256').update(currentSourceBytes).digest('hex')!==currentExpectedHash)throw Error('콘텐츠 이미지 해시 불일치');
 }
-export async function collectContentImageFiles(currentAssetRoot,currentSnapshotRoot){
- const currentManifestRecord=parseContentImageDocument(await readBoundedContentFile(currentSnapshotRoot,'current.yaml'));
- if(currentManifestRecord.schema_version!==1||!Number.isSafeInteger(currentManifestRecord.generation)||!Array.isArray(currentManifestRecord.files))throw Error('콘텐츠 스냅샷 manifest 오류');
+export async function collectContentImageFiles(currentAssetRoot){
+ const currentRegistryRecord=parseContentImageDocument(await readBoundedContentFile(currentAssetRoot,'asset-registry.yaml'));
+ if(!Array.isArray(currentRegistryRecord.assets))throw Error('에셋 원장 등록부 오류');
  const currentPublishedImages=new Map();
- const currentGenerationPrefix='generation-'+currentManifestRecord.generation+'-'+currentManifestRecord.payloadHash?.slice(0,16)+'/';
- for(const currentFileRecord of currentManifestRecord.files){
-  if(!currentFileRecord.path.startsWith(currentGenerationPrefix))throw Error('콘텐츠 스냅샷 세대 불일치');
-  const currentFileBytes=await readBoundedContentFile(currentSnapshotRoot,currentFileRecord.path);
-  verifyContentImageHash(currentFileBytes,currentFileRecord.sha256);
-  if(!currentFileRecord.path.startsWith(currentGenerationPrefix+'billboards/'))continue;
-  const currentAssetPartition=parseContentImageDocument(currentFileBytes);
-  if(currentAssetPartition.schema_version!==1||!Array.isArray(currentAssetPartition.assets))throw Error('콘텐츠 이미지 분류 오류');
-  for(const currentAssetRecord of currentAssetPartition.assets){
-   const currentImageRecord=currentAssetRecord.image;
-   if(!/^\/registered-assets\/[a-zA-Z0-9_./-]+\.png$/.test(currentImageRecord.publishedPath)||!currentImageRecord.path.startsWith('assets/billboards/'))throw Error('지원하지 않는 콘텐츠 이미지 게시 경로');
-   if(currentImageRecord.publishedPath.split('/').some(currentPathPart=>currentPathPart==='..'||currentPathPart==='.'))throw Error('이미지 게시 경로 이탈');
-   const currentImageBytes=await readBoundedContentFile(currentAssetRoot,currentImageRecord.path);
-   verifyContentImageHash(currentImageBytes,currentImageRecord.sha256);
-   const currentPreviousImage=currentPublishedImages.get(currentImageRecord.publishedPath);
-   if(currentPreviousImage&&currentPreviousImage.sha256!==currentImageRecord.sha256)throw Error('동일 게시 경로의 이미지 충돌');
-   currentPublishedImages.set(currentImageRecord.publishedPath,{bytes:currentImageBytes,sha256:currentImageRecord.sha256});
-  }
+ for(const currentImageRecord of currentRegistryRecord.assets){
+  if(!currentImageRecord.path.startsWith('assets/billboards/')||!currentImageRecord.path.endsWith('.png'))continue;
+  const currentImageBytes=await readBoundedContentFile(currentAssetRoot,currentImageRecord.path);
+  verifyContentImageHash(currentImageBytes,currentImageRecord.sha256);
+  const currentPublicPath='/registered-assets/'+currentImageRecord.path;
+  const currentPreviousImage=currentPublishedImages.get(currentPublicPath);
+  if(currentPreviousImage&&currentPreviousImage.sha256!==currentImageRecord.sha256)throw Error('동일 게시 경로의 이미지 충돌');
+  currentPublishedImages.set(currentPublicPath,{bytes:currentImageBytes,sha256:currentImageRecord.sha256});
  }
  if(!currentPublishedImages.size)throw Error('게시할 콘텐츠 이미지가 없습니다.');
  return currentPublishedImages;
 }
 
-export function createContentImagePlugin(currentAssetRoot,currentSnapshotRoot){
+export function createContentImagePlugin(currentAssetRoot){
  let currentCachedSignature='',currentCachedImages=null;
  async function loadCurrentPublishedImages(){
-  const currentPointerStatus=await stat(resolve(currentSnapshotRoot,'current.yaml'));
+  const currentPointerStatus=await stat(resolve(currentAssetRoot,'asset-registry.yaml'));
   const currentPointerSignature=currentPointerStatus.mtimeMs+':'+currentPointerStatus.size;
   if(currentCachedSignature!==currentPointerSignature){
-   currentCachedImages=await collectContentImageFiles(currentAssetRoot,currentSnapshotRoot);
+   currentCachedImages=await collectContentImageFiles(currentAssetRoot);
    currentCachedSignature=currentPointerSignature;
   }
   return currentCachedImages;
@@ -67,7 +57,7 @@ export function createContentImagePlugin(currentAssetRoot,currentSnapshotRoot){
     try{
      if(!['GET','HEAD'].includes(currentRequest.method)){currentResponse.statusCode=405;currentResponse.end();return;}
      let currentImageRecord=(await loadCurrentPublishedImages()).get(currentRequestPath);
-     // 편집 직후의 해시 파일은 다음 스냅샷을 기다리지 않고 같은 원본에서 읽는다.
+     // 편집 직후의 해시 파일은 원장 동기화을 기다리지 않고 같은 원본에서 읽는다.
      const currentVersionMatch=/^\/registered-assets\/assets\/billboards\/versions\/([a-f0-9]{64})\.png$/.exec(currentRequestPath);
      if(!currentImageRecord&&currentVersionMatch){
       const currentImageBytes=await readBoundedContentFile(currentAssetRoot,'assets/billboards/versions/'+currentVersionMatch[1]+'.png');
