@@ -3,7 +3,7 @@ import {buildBridgeCellGeometry} from './bridge-geometry.mjs';
 import {readGroundSurfaceHeight} from '../field-surface/field-surface.mjs';
 export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces,prepareBridgeTraversalSurface} from '../field-surface/terrain-bridges.mjs';
 export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
-import {TERRAIN_DEPTH,TERRAIN_MATERIAL_BOUNDARY_ENABLED} from './render-constants.mjs';
+import {TERRAIN_DEPTH,TERRAIN_MATERIAL_BOUNDARY_ENABLED,resolveMapRenderOptions,BILLBOARD_RENDER_SCALE} from './render-constants.mjs';
 import {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 export {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_STYLE,FIELD_MESH_BOUNDARY_STYLE,FIELD_ACTOR_CONTACT_SHADOW_PROFILES,FIELD_ACTOR_CONTACT_SHADOW_COLOR,FIELD_SAFE_TOWER_PROFILE,FIELD_SAFE_AURA_PROFILE,FIELD_CONNECTION_SHAPE} from './render-constants.mjs';
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
@@ -204,7 +204,7 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
   if(!['billboard','decoration'].includes(currentObjectRecord.kind)||readSurfaceHeight(currentObjectRecord.position,currentMapSurface)!==currentCellHeight)continue;
   const currentObjectCenter=projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions);
   const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,currentObjectCenter,currentRenderOptions);
-  const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
+  const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE);
   const currentSpriteLeft=currentObjectPlacement.screen.x-currentSpriteSize*(['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?.5:currentObjectRecord.anchorX);
   const currentSpriteTop=currentObjectPlacement.screen.y-currentSpriteSize*(['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?1:currentObjectRecord.anchorY);
   if(currentSpriteLeft>currentCellCenter.x+currentRenderOptions.tileWidth/2||currentSpriteLeft+currentSpriteSize<currentCellCenter.x-currentRenderOptions.tileWidth/2||currentSpriteTop>currentCellCenter.y+currentRenderOptions.tileHeight/2||currentSpriteTop+currentSpriteSize<currentCellCenter.y-currentRenderOptions.tileHeight/2)continue;
@@ -426,9 +426,9 @@ export function clipBillboardShadowPolygon(currentShadowPoints,currentGroundPoin
 
 export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions={}){
  if(currentRenderOptions.billboardShadows===false)return null;
- const currentBillboardScale=currentRenderOptions.billboardScale??1;
- const currentTileWidth=currentRenderOptions.tileWidth??FIELD_RENDER_METRICS.tileWidth*currentBillboardScale;
- const currentTileHeight=currentRenderOptions.tileHeight??FIELD_RENDER_METRICS.tileHeight*currentBillboardScale;
+ const currentBillboardScale=currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE;
+ const currentTileWidth=currentRenderOptions.tileWidth??FIELD_RENDER_METRICS.tileWidth;
+ const currentTileHeight=currentRenderOptions.tileHeight??FIELD_RENDER_METRICS.tileHeight;
  const currentAnchorOffset=rotateSurfacePosition(resolveBillboardAnchorOffset(currentObjectRecord),currentRenderOptions.rotation??0);
  const currentColumnCount=currentObjectRecord.groundFootprintColumns??1,currentRowCount=currentObjectRecord.groundFootprintRows??1;
  const currentShadowSizeVersion=currentObjectRecord.shadowSizeVersion??1;
@@ -481,8 +481,8 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
 }
 
 /** 지형지물은 타일 중심의 투영 좌표에 접지하며 통행 데이터를 변경하지 않는다. */
-export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1',currentRenderOptions={billboardScale:1}){
- const currentBillboardScale=currentRenderOptions.billboardScale??1;
+export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1',currentRenderOptions=resolveMapRenderOptions()){
+ const currentBillboardScale=currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE;
  if(!Number.isFinite(currentBillboardScale)||currentBillboardScale<=0)throw Error('빌보드 렌더 배율은 양수여야 합니다.');
  if(currentObjectRecord.kind==='ward-tower')return drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth);
  if(currentObjectRecord.kind==='billboard'){
@@ -542,7 +542,7 @@ function constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,cu
  const currentMaximumColumn=Math.max(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.column));
  const currentMinimumRow=Math.min(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.row));
  const currentMaximumRow=Math.max(...currentFootprintCorners.map(currentCornerPosition=>currentCornerPosition.row));
- const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
+ const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE);
  const currentSpritePosition=resolveFieldSceneryPlacement(currentObjectRecord,projectSurfaceCell(currentOwnerPosition,currentMapSurface,currentRenderOptions),currentRenderOptions).screen;
  const currentCenteredAnchor=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode);
  const currentSpriteLeft=currentSpritePosition.x-currentSpriteSize*(currentCenteredAnchor?.5:currentObjectRecord.anchorX);
@@ -580,7 +580,7 @@ function measureSceneryOrderBounds(currentObjectRecord,currentMapSurface,current
  const currentColumnCount=currentObjectRecord.groundFootprintColumns??1,currentRowCount=currentObjectRecord.groundFootprintRows??1;
  const currentCornerPositions=[[0,0],[currentColumnCount-1,0],[0,currentRowCount-1],[currentColumnCount-1,currentRowCount-1]].map(([currentColumnOffset,currentRowOffset])=>rotateSurfacePosition({column:currentObjectRecord.position.column+currentColumnOffset,row:currentObjectRecord.position.row+currentRowOffset},currentRenderOptions.rotation??0));
  const currentSpritePoint=resolveFieldSceneryPlacement(currentObjectRecord,projectSurfaceCell(currentObjectRecord.position,currentMapSurface,currentRenderOptions),currentRenderOptions).screen;
- const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??1);
+ const currentSpriteSize=currentObjectRecord.displayHeight*(currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE);
  const currentCenteredAnchor=['tile-intersection','tile-bottom-center'].includes(currentObjectRecord.billboardAnchorMode);
  const currentSpriteLeft=currentSpritePoint.x-currentSpriteSize*(currentCenteredAnchor?.5:currentObjectRecord.anchorX);
  const currentSpriteTop=currentSpritePoint.y-currentSpriteSize*(currentCenteredAnchor?1:currentObjectRecord.anchorY);

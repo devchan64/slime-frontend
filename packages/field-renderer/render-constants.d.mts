@@ -1,3 +1,4 @@
+export const BILLBOARD_RENDER_SCALE:number;
 export const ACTOR_CONTACT_SHADOW_CONTRACT:{profile:string};
 export const BUILDING_RENDER_BLOCK_HEIGHT:number;
 export const CHARACTER_BODY_HEIGHT:number;

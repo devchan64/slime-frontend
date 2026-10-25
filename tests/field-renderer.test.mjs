@@ -38,17 +38,17 @@ test('접지 그림자는 게임과 검수에서 같은 두 겹 타원 계약을
  const currentMockGraphics={fillStyle:(...currentArguments)=>currentDrawingCalls.push(['style',...currentArguments]),fillEllipse:(...currentArguments)=>currentDrawingCalls.push(['ellipse',...currentArguments])};
   const currentShadowSize=drawFieldActorContactShadow(currentMockGraphics,{x:100,y:200});
  assert.equal(currentShadowSize.color,0x18392e);
- assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:41.6,height:16.64,alpha:.54});
- assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:27.04,height:10.816,alpha:.45});
- assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,41.6,16.64],['style',0x18392e,.45],['ellipse',100,200,27.04,10.816]]);
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.outer).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:20.8,height:8.32,alpha:.54});
+ assert.deepEqual(Object.fromEntries(Object.entries(currentShadowSize.core).map(([currentKey,currentValue])=>[currentKey,Number(currentValue.toFixed(4))])),{width:13.52,height:5.408,alpha:.45});
+ assert.deepEqual(currentDrawingCalls.map(currentDrawingCall=>[currentDrawingCall[0],currentDrawingCall[1],...currentDrawingCall.slice(2).map(currentValue=>typeof currentValue==='number'?Number(currentValue.toFixed(4)):currentValue)]),[['style',0x18392e,.54],['ellipse',100,200,20.8,8.32],['style',0x18392e,.45],['ellipse',100,200,13.52,5.408]]);
  assert.throws(()=>drawFieldActorContactShadow(currentMockGraphics,{x:0,y:0},'missing'));
 });
 
-test('결계 패널은 Phaser 실제 직교 투영 후에도 엣지 전체 너비와 위쪽 15px을 유지한다',()=>{
+test('결계 패널은 Phaser 실제 직교 투영 후에도 엣지 전체 너비와 위쪽 7.5px을 유지한다',()=>{
  const currentBoundaryPanels=buildFieldBoundaryPanels({column:4,row:4},{column:4,row:4},0,{x:500,y:400});
  for(const currentPanelPoints of currentBoundaryPanels){
-  assert.equal(currentPanelPoints[3].y-currentPanelPoints[0].y,15);
-  assert.equal(currentPanelPoints[2].y-currentPanelPoints[1].y,15);
+  assert.equal(currentPanelPoints[3].y-currentPanelPoints[0].y,7.5);
+  assert.equal(currentPanelPoints[2].y-currentPanelPoints[1].y,7.5);
   const currentPanelGeometry=buildFieldPanelVertices(currentPanelPoints);
   for(const [currentViewportWidth,currentViewportHeight] of [[800,600],[1260,1034]]){
    const currentProjectionMatrix=new PhaserMatrixFour().ortho(-currentViewportWidth,currentViewportWidth,-currentViewportHeight,currentViewportHeight,-1000,1000);
@@ -113,19 +113,19 @@ test('높은 평면의 단차 모서리만 표시하고 평면 내부는 제외�
 });
 
 
-test('윗면 선은 내부 해상도와 확대 배율에 관계없이 화면 4px를 유지하고 정리한다',()=>{
+test('윗면 선은 내부 해상도와 확대 배율에 관계없이 화면 2px를 유지하고 정리한다',()=>{
  const currentSceneEvents=new (currentNodeRequire('node:events').EventEmitter)();
  const currentGraphicEvents=new (currentNodeRequire('node:events').EventEmitter)();
  const currentStrokeWidths=[];
  const currentMockGraphic=Object.assign(currentGraphicEvents,{setDepth(){return this;},clear(){},lineStyle(currentLineWidth){currentStrokeWidths.push(currentLineWidth);},lineBetween(){}});
  const currentMockScene={add:{graphics:()=>currentMockGraphic},events:currentSceneEvents,scale:{displayScale:{x:2}},cameras:{main:{zoom:4}}};
  drawFieldElevationOutline(currentMockScene,[[{x:0,y:0},{x:10,y:10}]],1);
- assert.equal(currentStrokeWidths.at(-1)*4/2,4);
+ assert.equal(currentStrokeWidths.at(-1)*4/2,2);
  currentSceneEvents.emit('postupdate');assert.equal(currentStrokeWidths.length,1);
  currentMockScene.cameras.main.zoom=2;currentSceneEvents.emit('postupdate');
- assert.equal(currentStrokeWidths.at(-1)*2/2,4);
+ assert.equal(currentStrokeWidths.at(-1)*2/2,2);
  currentMockScene.scale.displayScale.x=1;currentSceneEvents.emit('postupdate');
- assert.equal(currentStrokeWidths.at(-1)*2,4);
+ assert.equal(currentStrokeWidths.at(-1)*2,2);
  currentGraphicEvents.emit('destroy');assert.equal(currentSceneEvents.listenerCount('postupdate'),0);
 });
 
@@ -215,10 +215,10 @@ test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타�
  }}};
  const currentObjectRecord={id:'tree-1',kind:'decoration',position:{column:2,row:3},textureKey:'tree-sprite',displayHeight:120,anchorX:.5,anchorY:.9};
  const currentRenderedTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31);
- assert.deepEqual([currentRenderedTree.x,currentRenderedTree.y,currentRenderedTree.scale,currentRenderedTree.depth],[80,60,.4,31]);
+ assert.deepEqual([currentRenderedTree.x,currentRenderedTree.y,currentRenderedTree.scale,currentRenderedTree.depth],[80,60,.2,31]);
  const currentOutdoorOptions=resolveMapRenderOptions({renderKind:'field'});
  const currentOutdoorTree=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:80,y:60},31,undefined,currentOutdoorOptions);
- assert.equal(currentOutdoorTree.scale,.4);
+ assert.equal(currentOutdoorTree.scale,.2);
  assert.deepEqual(currentOutdoorOptions,resolveMapRenderOptions({renderKind:'town'}));
  assert.deepEqual(currentOutdoorOptions,resolveMapRenderOptions({renderKind:'battle'}));
  assert.deepEqual(currentOutdoorTree.origin,[.5,.9]);
@@ -258,10 +258,10 @@ test('수풀 두 프레임은 동일 위치에서 캐릭터 깊이를 사이에 
  const currentObjectRecord={position:{column:1,row:1},kind:'billboard',textureKey:'bush',frameSize:128,displayHeight:80,anchorX:.5,anchorY:.65};
  const currentLayerImages=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110);
  const currentOutdoorLayers=drawFieldSceneryObject(currentMockScene,currentObjectRecord,{x:100,y:200},110,undefined,resolveMapRenderOptions({renderKind:'field'}));
- assert.deepEqual(currentOutdoorLayers.map(currentLayerImage=>currentLayerImage.scale),[.625,.625]);
+ assert.deepEqual(currentOutdoorLayers.map(currentLayerImage=>currentLayerImage.scale),[.3125,.3125]);
  assert.equal(currentObjectRecord.displayHeight,80);
  assert.equal(currentLayerImages.length,2);
- assert.deepEqual(currentLayerImages.map(currentLayerImage=>[currentLayerImage.x,currentLayerImage.y,currentLayerImage.scale,currentLayerImage.origin]),[[100,200,.625,[.5,.65]],[100,200,.625,[.5,.65]]]);
+ assert.deepEqual(currentLayerImages.map(currentLayerImage=>[currentLayerImage.x,currentLayerImage.y,currentLayerImage.scale,currentLayerImage.origin]),[[100,200,.3125,[.5,.65]],[100,200,.3125,[.5,.65]]]);
  assert.ok(currentLayerImages[0].depth<120&&currentLayerImages[1].depth>120);
  for(const currentAnchorName of ['top','bottom']){
   const currentAnchoredObject={...currentObjectRecord,billboardPlacementAnchor:currentAnchorName};
@@ -364,9 +364,9 @@ test('가리는 윗면과 같은 타일 벽면은 40%로 함께 감쇠하고 복
   assert.equal(currentWideSource[1].uvCorners[5],.5);
  });
 
-test('공통 타일은 160×80 지면으로 투영한다',()=>{
- assert.equal(FIELD_RENDER_METRICS.tileWidth,160);
- assert.equal(FIELD_RENDER_METRICS.tileHeight,80);
+test('공통 타일은 80×40 지면으로 투영한다',()=>{
+ assert.equal(FIELD_RENDER_METRICS.tileWidth,80);
+ assert.equal(FIELD_RENDER_METRICS.tileHeight,40);
 });
 
 test('공용 빌보드 상하 앵커는 기존 중앙값보다 우선하고 타일 Y 끝점에 접지한다',()=>{
@@ -422,10 +422,10 @@ test('빌보드 그림자는 배율·앞뒤 앵커·비활성 옵션을 공유�
  const currentShadowGraphic={setDepth(currentDepthValue){this.depth=currentDepthValue;return this;},fillStyle(){},fillPoints(currentPolygonPoints){currentEllipseRecords.push(measureShadowPolygonBounds(currentPolygonPoints));}};
  const currentMockScene={add:{graphics:()=>currentShadowGraphic}};
  const currentObjectRecord={displayHeight:150,billboardPlacementAnchor:'bottom'};
- drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{billboardScale:1});
+ drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{tileWidth:160,tileHeight:80,billboardScale:1});
  const currentFullEllipse=currentEllipseRecords[0];assert.ok(currentFullEllipse[1]<100);assert.equal(currentShadowGraphic.depth,101.5);
  currentEllipseRecords.length=0;
- drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{billboardScale:.5});
+ drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:100,y:100},130,{tileWidth:80,tileHeight:40,billboardScale:.5});
  assert.equal(currentEllipseRecords[0][2],currentFullEllipse[2]/2);
  assert.equal(drawBillboardContactShadow(currentMockScene,currentObjectRecord,{x:0,y:0},0,{billboardShadows:false}),null);
 });

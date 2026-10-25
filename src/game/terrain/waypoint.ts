@@ -5,7 +5,7 @@ import type {Waypoint} from './meadow';
 
 const WAYPOINT_GUIDE_TEXTURE = 'waypoint-guide-v1';
 const WAYPOINT_GUIDE_ANIMATION = 'waypoint-guide-loop-v1';
-const WAYPOINT_GUIDE_STYLE = {size:80,lift:0,labelY:-82,labelSize:'12px',labelPadding:4,depth:100,frameRate:4};
+const WAYPOINT_GUIDE_STYLE = {size:40,lift:0,labelY:-41,labelSize:'12px',labelPadding:4,depth:100,frameRate:4};
 const WAYPOINT_DESTINATION_NAMES: Record<string,string> = {meadow:'이슬 초원',grove:'푸른 숲','mist-lake':'안개 호수','wind-hills':'바람 구릉'};
 
 export function waypointMarkerScale(currentCameraZoom:number):number {

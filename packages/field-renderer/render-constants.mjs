@@ -7,34 +7,36 @@ export const CHARACTER_SEPARATOR_BASE_COLOR = 0xfff2cc;
 export const CHARACTER_CONTACT_SHADOW_COLOR = 0x242424;
 export const CHARACTER_CONTACT_SHADOW_ALPHA_SCALE = 1.2;
 export const MAP_DEFAULT_ZOOM = 2;
-export const MAP_TILE_WIDTH = 160;
-export const MAP_TILE_HEIGHT = 80;
+// 원장 표시 크기는 보존하고 모든 맵에 동일한 픽셀 변환을 적용한다.
+export const BILLBOARD_RENDER_SCALE = 0.5;
+export const MAP_TILE_WIDTH = 80;
+export const MAP_TILE_HEIGHT = 40;
 export const GAME_TILE_SOURCE_SIZES = Object.freeze([64, 128, 256, 512]);
-export const CHARACTER_BODY_HEIGHT = 160;
-export const MAP_ELEVATION_HEIGHT = 10;
-export const MAP_BASE_THICKNESS = 16;
+export const CHARACTER_BODY_HEIGHT = 80;
+export const MAP_ELEVATION_HEIGHT = 5;
+export const MAP_BASE_THICKNESS = 8;
 export const WORLD_UNIT_MIGRATION = 1.3;
-export const TOWN_TILE_WIDTH = 160;
-export const TOWN_TILE_HEIGHT = 80;
+export const TOWN_TILE_WIDTH = 80;
+export const TOWN_TILE_HEIGHT = 40;
 export const FIELD_TILE_BOUNDARY_ALPHA = 0.7;
-export const FIELD_ELEVATION_EDGE_STYLE = Object.freeze({color:0x303030,width:4,alpha:FIELD_TILE_BOUNDARY_ALPHA});
+export const FIELD_ELEVATION_EDGE_STYLE = Object.freeze({color:0x303030,width:2,alpha:FIELD_TILE_BOUNDARY_ALPHA});
 // 바닥 재질 경계는 높이·측벽 경계와 별도로 관리한다.
-export const FIELD_GROUND_EDGE_STYLE = Object.freeze({color:0x5a5a5a,width:2,alpha:0.22});
-export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:1,alpha:FIELD_TILE_BOUNDARY_ALPHA});
+export const FIELD_GROUND_EDGE_STYLE = Object.freeze({color:0x5a5a5a,width:1,alpha:0.22});
+export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:0.5,alpha:FIELD_TILE_BOUNDARY_ALPHA});
 export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
  baseline:Object.freeze({width:0.4,height:0.32,alpha:0.3,coreAlpha:0.24,coreScale:0.65,scale:0.65,opacityScale:1.5}),
  contrast:Object.freeze({width:0.4,height:0.32,alpha:0.36,coreAlpha:0.3,coreScale:0.65,scale:0.65,opacityScale:1.5}),
  broad:Object.freeze({width:0.44,height:0.34,alpha:0.32,coreAlpha:0.26,coreScale:0.65,scale:0.65,opacityScale:1.5}),
 });
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR = 0x18392e;
-export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:128,anchorY:223.5,bodyTop:16.5,displayHeight:112});
-export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:15,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
+export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:128,anchorY:223.5,bodyTop:16.5,displayHeight:56});
+export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:7.5,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
 export const FIELD_CONNECTION_SHAPE = Object.freeze({inset:.08,radius:.2,half:.5});
 export const TERRAIN_STAIR_COUNT = 3;
-export const CHARACTER_OUTLINE_STYLE = Object.freeze({color:0xfff3c4,cssColor:'#fff3c4',width:5,outerStrength:4,quality:0.1});
-export const MAP_ORIGIN = { x: 1040, y: 80 };
+export const CHARACTER_OUTLINE_STYLE = Object.freeze({color:0xfff3c4,cssColor:'#fff3c4',width:2.5,outerStrength:2,quality:0.1});
+export const MAP_ORIGIN = { x: 520, y: 40 };
 export const TERRAIN_DEPTH = { stride: 100, base: 100, surface: 1, overlay: 10, actor: 20, annotation: 10000 };
-export const BUILDING_RENDER_BLOCK_HEIGHT = 80;
+export const BUILDING_RENDER_BLOCK_HEIGHT = 40;
 export const CITY_BUILDING_STYLE = {
   wallLight:0xc8b68d, wallDark:0x8f8067,
   outlineColor:0x453d35, outlineWidth:2, selectedColor:0xffdd78, selectedWidth:4,
@@ -49,11 +51,11 @@ export const SPRITE_DEPTH_OFFSET = 0.01;
 export const CHARACTER_OUTLINE_DEPTH_STEP = 0.0001;
 export const FIELD_RENDER_METRICS = Object.freeze({tileWidth:MAP_TILE_WIDTH,tileHeight:MAP_TILE_HEIGHT,elevationHeight:MAP_ELEVATION_HEIGHT,baseThickness:MAP_BASE_THICKNESS});
 
-// 모든 맵은 동일한 160×80 타일과 공용 에셋 크기를 사용한다.
+// 모든 맵은 동일한 80×40 타일과 공용 에셋 크기를 사용한다.
 export function resolveMapRenderOptions(currentMapSurface={}){
  const currentMapKind=currentMapSurface.renderKind??(currentMapSurface.safeTown===true?'town':currentMapSurface.safeTown===false?'field':'battle');
  if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 렌더 종류: '+currentMapKind);
- return {...FIELD_RENDER_METRICS,billboardScale:1};
+ return {...FIELD_RENDER_METRICS,billboardScale:BILLBOARD_RENDER_SCALE};
 }
 
 /** 바닥 재질 영역 경계는 게임·검수에서 기본 표시한다. */
