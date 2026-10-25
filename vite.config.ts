@@ -1,3 +1,4 @@
+import {createContentImagePlugin} from './scripts/content-image-module.mjs';
 import {createMapMusicPlugin} from './scripts/map-bgm-module.mjs';
 import {createAssetListPlugin} from "./scripts/asset-list-module.mjs";
 import { defineConfig } from "vite";
@@ -8,8 +9,8 @@ const FRONTEND_PROJECT_ROOT = fileURLToPath(new URL(".", import.meta.url));
 const LOCAL_WATCH_POLL_INTERVAL = 500;
 const LOCAL_WATCH_BINARY_INTERVAL = 1000;
 const LOCAL_WATCH_IGNORED_PATHS = ["**/.local/**", "**/.tmp/**", "**/report/**"];
-export default defineConfig({
-  plugins: [createAssetListPlugin(), createMapMusicPlugin()],
+export default defineConfig(({command: currentBuildCommand}) => ({
+  plugins: [createAssetListPlugin(), createMapMusicPlugin(), ...((process.env.SLIME_CONTENT_SNAPSHOT_ROOT || currentBuildCommand === 'serve') ? [createContentImagePlugin(fileURLToPath(new URL('../slime-assets',import.meta.url)),process.env.SLIME_CONTENT_SNAPSHOT_ROOT || fileURLToPath(new URL('../slime-assets/snapshots/content',import.meta.url)))] : [])],
   server: {
     fs: { allow: [FRONTEND_PROJECT_ROOT, SHARED_ASSET_ROOT] },
     host: "127.0.0.1",
@@ -30,4 +31,4 @@ export default defineConfig({
   build: {
     rollupOptions: { output: { manualChunks: { phaser: ["phaser"] } } },
   },
-});
+}));

@@ -147,6 +147,8 @@ export type State = {
     lastResult: { dissection?: {operatorId:string;usableLevel:number}; rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}> } | null;
   };
   map: Surface & {
+    contentGeneration?: number;
+    imageManifest?: Record<string,{url:string;sha256:string;width:number;height:number}>;
     safeTown?: boolean;
     buildings?: CityBuilding[];
     guardCenters?: import("./travelerIssuance").GuardCenterRecord[];

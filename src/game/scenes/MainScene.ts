@@ -1,3 +1,4 @@
+import {loadMapResourceImages} from '../../../packages/field-renderer/map-resource-loader.mjs';
 import {FieldBattleTimeline} from '../animation/fieldBattleTimeline';
 import {FieldBattleEffectLayer, preloadFieldBattleEffects, createFieldCombatIndicator, animateFieldCombatIndicator} from '../animation/fieldBattleEffects';
 import type {FieldCombatIndicator} from '../../client/types';
@@ -179,6 +180,9 @@ export class MainScene extends Phaser.Scene {
   private reachable = new Set<string>();
   private terrainObjects = new Set<Phaser.GameObjects.GameObject>();
   private backdropLayer: Phaser.GameObjects.Image | null = null;
+  private currentImageLoadController: AbortController | null = null;
+  private currentImageRequestSignature = "";
+  private currentImageVersionRecords = new Map<string,string>();
   private terrainSignature = "";
   private buildingLayerSignature = "";
   private buildingLayerObjects = new Set<Phaser.GameObjects.GameObject>();
@@ -252,6 +256,8 @@ export class MainScene extends Phaser.Scene {
     const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
     this.scale.on(Phaser.Scale.Events.RESIZE, resize);
     registerSceneCleanup(() => {
+      this.currentImageLoadController?.abort();
+      this.currentImageLoadController=null;
       this.actorCache?.clear();
       this.actorCache=null;
       this.actorEntries=[];
@@ -441,9 +447,58 @@ export class MainScene extends Phaser.Scene {
       this.state && !this.state.battle ? this.fieldBattleTimeline.sampleBattleEffects(performance.now()) : [],
       currentFieldPosition => ({...this.calculateActorPlacement(currentFieldPosition), depth:this.annotationDepth()}));
   }
+  private prepareCurrentMapImages(currentSceneState: State): boolean {
+    const currentImageManifest=currentSceneState.map.imageManifest ?? {};
+    const currentRequiredImages=Object.entries(currentImageManifest).filter(([currentTextureKey,currentImageRecord])=>
+      this.currentImageVersionRecords.get(currentTextureKey)!==currentImageRecord.sha256);
+    const currentRequestSignature=JSON.stringify(currentRequiredImages);
+    if(!currentRequiredImages.length){
+      this.currentImageLoadController?.abort();
+      this.currentImageLoadController=null;
+      this.currentImageRequestSignature="";
+      return true;
+    }
+    if(this.currentImageLoadController && this.currentImageRequestSignature===currentRequestSignature)return false;
+    this.currentImageLoadController?.abort();
+    const currentLoadController=new AbortController();
+    this.currentImageLoadController=currentLoadController;
+    this.currentImageRequestSignature=currentRequestSignature;
+    void loadMapResourceImages(currentRequiredImages.map(([currentTextureKey,currentImageRecord])=>({key:currentTextureKey,url:currentImageRecord.url})),{signal:currentLoadController.signal})
+      .then(currentLoadedImages=>{
+        if(currentLoadController.signal.aborted || !this.sys.isActive())return;
+        for(const [currentTextureKey,currentImageRecord] of currentRequiredImages){
+          const currentLoadedImage=currentLoadedImages[currentTextureKey];
+          if(currentLoadedImage.naturalWidth!==currentImageRecord.width || currentLoadedImage.naturalHeight!==currentImageRecord.height)
+            throw Error('DB 이미지 크기 불일치: '+currentTextureKey);
+        }
+        this.terrainCache?.clear();
+        this.terrainCache=null;
+        for(const currentTerrainObject of this.terrainObjects)currentTerrainObject.destroy();
+        this.terrainObjects.clear();
+        for(const currentBuildingObject of this.buildingLayerObjects)currentBuildingObject.destroy();
+        this.buildingLayerObjects.clear();
+        this.terrainSignature="";
+        this.buildingLayerSignature="";
+        for(const [currentTextureKey,currentImageRecord] of currentRequiredImages){
+          if(this.textures.exists(currentTextureKey))this.textures.remove(currentTextureKey);
+          this.textures.addImage(currentTextureKey,currentLoadedImages[currentTextureKey]);
+          this.currentImageVersionRecords.set(currentTextureKey,currentImageRecord.sha256);
+        }
+        this.currentImageLoadController=null;
+        this.draw();
+      }).catch(currentImageError=>{
+        if(currentLoadController.signal.aborted)return;
+        console.error('맵 DB 이미지 로딩 실패',currentImageError);
+        this.loadFailed=true;
+        this.onFailure({key:"app.mapAssetsFailed"});
+      });
+    return false;
+  }
+
   private draw() {
     const s = this.state;
     if (!s || this.loadFailed) return;
+    if (!this.prepareCurrentMapImages(s)) return;
     this.actorCache?.clear();
     this.actorCache=null;
     this.actorEntries=[];

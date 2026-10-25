@@ -39,6 +39,7 @@ function loadBrowserResourceImage(currentResourceUrl,currentAbortSignal){
   currentResourceImage.onerror=()=>{releaseImageListeners();rejectImageLoad(Error('맵 리소스 로드 실패: '+currentResourceUrl));};
   currentAbortSignal.addEventListener('abort',abortImageLoad,{once:true});
   if(currentAbortSignal.aborted){abortImageLoad();return;}
+  currentResourceImage.crossOrigin='anonymous';
   currentResourceImage.src=currentResourceUrl;
  });
 }
