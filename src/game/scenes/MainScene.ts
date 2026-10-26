@@ -1,4 +1,4 @@
-import {mountTerrainEffectLayer} from '../../../packages/field-renderer/field-renderer.mjs';
+import {applyTerrainAmbientTint,mountTerrainEffectLayer} from '../../../packages/field-renderer/field-renderer.mjs';
 import {loadMapResourceImages} from '../../../packages/field-renderer/map-resource-loader.mjs';
 import {FieldBattleTimeline} from '../animation/fieldBattleTimeline';
 import {FieldBattleEffectLayer, preloadFieldBattleEffects, createFieldCombatIndicator, animateFieldCombatIndicator} from '../animation/fieldBattleEffects';
@@ -95,6 +95,9 @@ const MOVE_OVERLAY = {
 };
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
+const TERRAIN_GLOW_CORE_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-core-cyan-sheet-v1.png',import.meta.url).href;
+const TERRAIN_GLOW_HALO_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-halo-lime-sheet-v1.png',import.meta.url).href;
+const TERRAIN_GLOW_SPORE_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-spore-amber-sheet-v1.png',import.meta.url).href;
 export class MainScene extends Phaser.Scene {
   private fieldBattleTimeline = new FieldBattleTimeline();
   private fieldBattleEffectLayer = new FieldBattleEffectLayer();
@@ -201,6 +204,10 @@ export class MainScene extends Phaser.Scene {
     this.onFailure = onFailure;
   }
   preload() {
+    this.load.image('safe-terrain-glow-core',TERRAIN_GLOW_CORE_SOURCE);
+    this.load.image('safe-terrain-glow-halo',TERRAIN_GLOW_HALO_SOURCE);
+    this.load.image('safe-terrain-glow-spore',TERRAIN_GLOW_SPORE_SOURCE);
+
     this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, (failedAssetFile: Phaser.Loader.File) => {
       console.error(`[${new Date().toISOString()}/world/asset-load] 에셋 로딩 실패`, {key: failedAssetFile.key, type: failedAssetFile.type, src: failedAssetFile.src});
       this.loadFailed = true;
@@ -623,12 +630,12 @@ export class MainScene extends Phaser.Scene {
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
-      mountTerrainEffectLayer(this,s.battle?.field??s.map,currentCellPosition=>this.project(currentCellPosition));
       const currentSceneryDepthSurface={...this.viewSurface!,objects:(s.battle?.field ?? s.map).objects??[]};
       for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
         const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
         drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,currentSceneryDepthSurface,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation,shadowSurface:this.viewSurface!});
       }
+      mountTerrainEffectLayer(this,s.battle?.field??s.map,currentCellPosition=>this.project(currentCellPosition));
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(
         (a, b) =>
@@ -664,8 +671,8 @@ export class MainScene extends Phaser.Scene {
         if (s.map.safeTown) continue;
         const currentGuardPlacement = resolveGuardDisplayPlacement(currentGuardRecord.position,s.map);
         const currentGuardPosition = currentGuardPlacement.position;
-        if (!s.map.safeTown) drawGuardCenterSprite(this,currentGuardRecord.cityId,projectGuardDisplayCenter(currentGuardPlacement,this.project))
-          .setDepth(this.depth(currentGuardPosition) + TERRAIN_DEPTH.overlay);
+        if (!s.map.safeTown) applyTerrainAmbientTint(drawGuardCenterSprite(this,currentGuardRecord.cityId,projectGuardDisplayCenter(currentGuardPlacement,this.project))
+          .setDepth(this.depth(currentGuardPosition) + TERRAIN_DEPTH.overlay),s.map);
       }
       for (const gate of s.map.connections) {
         const p = this.project(gate);
@@ -827,7 +834,7 @@ export class MainScene extends Phaser.Scene {
     const previousSceneObjects = new Set(this.children.list);
     for (const currentBuildingRecord of currentBuildingRecords)
       this.cityBuildingRegions.push(drawCityBuildingSprite(this, currentBuildingRecord, this.project, this.depth,
-        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id));
+        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id,this.surface()));
     for (const currentSceneObject of this.children.list)
       if (!previousSceneObjects.has(currentSceneObject)) this.buildingLayerObjects.add(currentSceneObject);
     this.buildingLayerSignature = currentLayerSignature;
@@ -873,6 +880,7 @@ export class MainScene extends Phaser.Scene {
     const height = drawActor(g, p.x, p.y, color, appearance ? appearance.appearance ?? "slime" : "human",
       size.scale, size.tiles, screenFacing(actorWorldFacing ?? "row_positive", this.rotation), appearance?.monsterTypeId, motionKey, 0, actorRestIsActive);
     for (const createdActorImage of this.children.list.slice(firstChild)) {
+      if (createdActorImage instanceof Phaser.GameObjects.Image && !createdActorImage.getData("characterOutlineLayer")) applyTerrainAmbientTint(createdActorImage,this.surface());
       if (createdActorImage instanceof Phaser.GameObjects.Image && createdActorImage.getData("actorIdleKind")) {
         createdActorImage.setData("actorWorldFacing", actorWorldFacing ?? "row_positive");
         createdActorImage.setFlipX(shouldMirrorActorSprite(actorWorldFacing ?? "row_positive", this.rotation));

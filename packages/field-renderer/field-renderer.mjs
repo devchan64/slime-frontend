@@ -10,7 +10,7 @@ export {FIELD_TILE_BOUNDARY_ALPHA,FIELD_ELEVATION_EDGE_STYLE,FIELD_GROUND_EDGE_S
 import {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint,readSurfaceHeight,findSurfaceStair,buildSurfaceCliffs,buildSurfaceStairs,resolveCliffTextureScale} from '../field-surface/field-surface.mjs';
 
 /** 게임과 검수가 동일하게 실행하는 Phaser 렌더러. URL·로그인·서비스 상태를 소유하지 않는다. */
-export const FIELD_RENDERER_VERSION = '1.0.177';
+export const FIELD_RENDERER_VERSION = '1.0.180';
 export {resolveMapRenderOptions} from './render-constants.mjs';
 /** 필드 종류와 액터 종류가 달라도 공유하는 접지 그림자 검수 계약이다. */
 const FIELD_EDGE_COORDINATE_EPSILON=.000001;
@@ -245,6 +245,7 @@ export function resolveTerrainAmbientTint(currentMapSurface){
 }
 export function applyTerrainAmbientTint(currentRenderObject,currentMapSurface){
  const currentAmbientTint=resolveTerrainAmbientTint(currentMapSurface);
+ currentRenderObject.setData?.('terrainAmbientTint',currentAmbientTint);
  if(currentAmbientTint===0xffffff)return currentRenderObject;
  if(currentRenderObject.type==='Mesh'){
   for(const currentMeshVertex of currentRenderObject.vertices)currentMeshVertex.color=currentAmbientTint;
@@ -502,17 +503,18 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
 export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1',currentRenderOptions=resolveMapRenderOptions()){
  const currentBillboardScale=currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE;
  if(!Number.isFinite(currentBillboardScale)||currentBillboardScale<=0)throw Error('빌보드 렌더 배율은 양수여야 합니다.');
- if(currentObjectRecord.kind==='ward-tower')return drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth);
+ if(currentObjectRecord.kind==='ward-tower')return applyTerrainAmbientTint(drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth),currentRenderOptions.shadowSurface);
  if(currentObjectRecord.kind==='billboard'){
   const currentLayerImages=drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale);
   const currentContactShadow=drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions);
   if(currentContactShadow)currentLayerImages[0].once('destroy',()=>currentContactShadow.destroy());
-  for(const currentLayerImage of currentLayerImages)applyTerrainAmbientTint(currentLayerImage,currentRenderOptions.shadowSurface);
+  for(const currentLayerImage of currentLayerImages){currentLayerImage.setData('terrainEffectObjectId',currentObjectRecord.id);applyTerrainAmbientTint(currentLayerImage,currentRenderOptions.shadowSurface);}
   return currentLayerImages;
  }
  if(currentObjectRecord.kind!=='decoration')throw Error('지원하지 않는 지형지물 종류');
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
+ currentSceneryImage.setData('terrainEffectObjectId',currentObjectRecord.id);
  applyTerrainAmbientTint(currentSceneryImage,currentRenderOptions.shadowSurface);
  markFieldOcclusionObject(currentSceneryImage);
  currentSceneryImage.setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);

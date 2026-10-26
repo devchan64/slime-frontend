@@ -17,9 +17,13 @@ export function attachCharacterOutlineLayers(currentActorImage: Phaser.GameObjec
     horizontal: currentOffsetHorizontal * currentLayerStyle.radius,
     vertical: currentOffsetVertical * currentLayerStyle.radius,
     depth: currentLayerStyle.depth,
+    color: currentLayerStyle.color,
   })));
   const synchronizeCharacterOutlineLayers = () => {
+    const currentAmbientTint=currentActorImage.getData('terrainAmbientTint')??0xffffff;
     for (const currentOutlineLayer of currentOutlineLayers) {
+      const currentOutlineTint=[16,8,0].reduce((currentPackedColor,currentChannelShift)=>currentPackedColor|(Math.round(((currentOutlineLayer.color>>currentChannelShift)&255)*((currentAmbientTint>>currentChannelShift)&255)/255)<<currentChannelShift),0);
+      currentOutlineLayer.image.setTintFill(currentOutlineTint);
       currentOutlineLayer.image.setTexture(currentActorImage.texture.key,currentActorImage.frame.name)
         .setOrigin(currentActorImage.originX,currentActorImage.originY)
         .setScale(currentActorImage.scaleX,currentActorImage.scaleY)

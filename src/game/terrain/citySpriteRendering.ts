@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
-import {markFieldOcclusionObject} from '../../../packages/field-renderer/field-renderer.mjs';
+import {applyTerrainAmbientTint,markFieldOcclusionObject} from '../../../packages/field-renderer/field-renderer.mjs';
 import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
 import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
@@ -46,7 +46,7 @@ export function resolveCityBuildingFrontDepth(currentFrontPosition:Position,calc
 /** 건물 이미지는 단일 스프라이트, 점유·출입구는 서버의 논리 영역을 따른다. */
 export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityBuilding:CityBuilding,
  projectTerrainPosition:(currentCellPosition:Position)=>CityScreenPoint,
- calculateTerrainDepth:(currentCellPosition:Position)=>number,currentAnnotationDepth:number,currentBuildingSelected:boolean):CityBuildingRegion {
+ calculateTerrainDepth:(currentCellPosition:Position)=>number,currentAnnotationDepth:number,currentBuildingSelected:boolean,currentAmbientSurface?:{ambientTint?:string}):CityBuildingRegion {
  const currentSpriteRecord=currentCityBuilding.sprite;
  if(!currentSpriteRecord || !currentMapScene.textures.exists(currentSpriteRecord.textureKey))throw Error('도시 건물 스프라이트 누락: '+currentCityBuilding.id);
  const currentOriginPosition=currentCityBuilding.origin;
@@ -60,6 +60,7 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  const currentDisplayWidth=Math.abs(currentRightPoint.x-currentLeftPoint.x)*BUILDING_FOOTPRINT_MARGIN/currentSpriteRecord.contentWidth;
  currentBuildingImage.setScale(currentDisplayWidth/currentBuildingImage.width);
  markFieldOcclusionObject(currentBuildingImage);
+ applyTerrainAmbientTint(currentBuildingImage,currentAmbientSurface);
  const currentImageBounds=currentBuildingImage.getBounds();
  // 건물 전면 양쪽 가장자리의 소품은 건물의 최전면 모서리 깊이보다 앞에 둔다.
  for(const currentSceneObject of currentMapScene.children.list){

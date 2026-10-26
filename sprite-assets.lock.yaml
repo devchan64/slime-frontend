@@ -1111,3 +1111,12 @@ files:
 - path: assets/structures/bridge-farm-timber-components-v1.png
   source_path: assets/buildings/bridge-farm-timber-components-v1.png
   sha256: 727d5f52e01a640ce79c3f25c9124d02942e36fc43da8fbf8446264ad440a645
+- path: assets/effects/terrain/glow-core-cyan-sheet-v1.png
+  source_path: assets/sprites/effects/terrain/glow-core-cyan-sheet-v1.png
+  sha256: 6b4aaedb6ce24bd55c02a5cab6d4c61176a2e3356aeeacc068c44fd8aed962dc
+- path: assets/effects/terrain/glow-halo-lime-sheet-v1.png
+  source_path: assets/sprites/effects/terrain/glow-halo-lime-sheet-v1.png
+  sha256: 3c0dabc0e8f5604c50ebdd6055c5b75a8de1ab5f7aa07e75fc7b04f0aba79c37
+- path: assets/effects/terrain/glow-spore-amber-sheet-v1.png
+  source_path: assets/sprites/effects/terrain/glow-spore-amber-sheet-v1.png
+  sha256: 5146b7e1f735846cefb34a37dbafb82d703f24f79d1ee4d4f70dfbfdcf2ceb2e
