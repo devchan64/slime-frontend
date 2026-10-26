@@ -1,3 +1,4 @@
+export {sampleTerrainEffectFrame,mountTerrainEffectLayer} from './terrain-effects.mjs';
 import {enumerateBridgeCells} from '../field-surface/terrain-bridges.mjs';
 import {buildBridgeCellGeometry} from './bridge-geometry.mjs';
 import {readGroundSurfaceHeight} from '../field-surface/field-surface.mjs';

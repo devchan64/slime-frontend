@@ -1,6 +1,6 @@
 {
   "name": "@slime/field-renderer",
-  "version": "1.0.173",
+  "version": "1.0.176",
   "type": "module",
   "private": true,
   "exports": {

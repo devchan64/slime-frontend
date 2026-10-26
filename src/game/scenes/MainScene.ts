@@ -1,3 +1,4 @@
+import {mountTerrainEffectLayer} from '../../../packages/field-renderer/field-renderer.mjs';
 import {loadMapResourceImages} from '../../../packages/field-renderer/map-resource-loader.mjs';
 import {FieldBattleTimeline} from '../animation/fieldBattleTimeline';
 import {FieldBattleEffectLayer, preloadFieldBattleEffects, createFieldCombatIndicator, animateFieldCombatIndicator} from '../animation/fieldBattleEffects';
@@ -622,6 +623,7 @@ export class MainScene extends Phaser.Scene {
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
+      mountTerrainEffectLayer(this,s.battle?.field??s.map,currentCellPosition=>this.project(currentCellPosition));
       const currentSceneryDepthSurface={...this.viewSurface!,objects:(s.battle?.field ?? s.map).objects??[]};
       for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
         const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});

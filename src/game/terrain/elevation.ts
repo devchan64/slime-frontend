@@ -9,7 +9,7 @@ import type { Position } from '../../client/types';
 export type TerrainLink = { start: Position; end: Position; id?: string;
   kind?: 'stairs' | 'ladder'; asset?: 'stone-stairs' | 'timber-ladder' };
 export type ElevationTile = {id:string;kind:'stairs';asset:'stone-step-tile';cell:Position;lower:Position};
-export type Surface = { objects?:import('../../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[]; renderKind?:'field'|'town'|'battle'; bridges?:TerrainBridge[]; terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
+export type Surface = { terrainEffects?:import('../../../packages/field-renderer/field-renderer.mjs').TerrainEffectRecord[]; objects?:import('../../../packages/field-renderer/field-renderer.mjs').FieldSceneryRecord[]; renderKind?:'field'|'town'|'battle'; bridges?:TerrainBridge[]; terrainMovementVersion?:1|2; columns: number; rows: number; safeTown?: boolean; elevations?: number[][];
   heightSource?: { surface: Surface; position: (p: Position) => Position };
   ramps?: TerrainLink[]; elevationTiles?: ElevationTile[];
   elevationTileIndex?: ReadonlyMap<string, ElevationTile> };
