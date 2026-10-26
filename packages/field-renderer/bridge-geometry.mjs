@@ -32,7 +32,7 @@ function resolveBridgeArchRatio(currentSpanFraction){
 }
 const BRIDGE_CONNECTION_ATLAS=Object.freeze({textureKey:'bridge-connection-details-v1',size:1254,threshold:[0,313],abutment:[317,624],bearing:[628,925],splice:[934,1253],vault:[317,624]});
 const BRIDGE_ATLAS_PROFILES=Object.freeze({
- 'farm-timber':{textureKey:'bridge-farm-timber-components-v1',size:1254,deck:[75,480],beam:[550,645],rail:[690,960],cornice:[1000,1170],abutment:[1000,1170],threshold:[75,480],vault:[1000,1170],thickness:.3,railHeight:1.2,straight:true},
+ 'farm-timber':{textureKey:'bridge-farm-timber-components-v1',size:1254,deck:[75,480],beam:[550,645],rail:[690,960],cornice:[1000,1170],abutment:[1000,1170],threshold:[75,480],vault:[1000,1170],thickness:.8,railHeight:3.6,straight:true},
  timber:{textureKey:'bridge-timber-components-v2',size:1254,deck:[17,307],beam:[326,617],rail:[640,892],cornice:[908,1236],abutment:[908,1236],threshold:[17,307],vault:[908,1236],thickness:4},
  stone:{textureKey:'bridge-stone-components-v1',size:1254,deck:[17,307],beam:[326,617],rail:[640,892],cornice:[908,1236],abutment:[908,1236],threshold:[17,307],thickness:4},
 });
