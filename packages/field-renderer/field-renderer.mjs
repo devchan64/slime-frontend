@@ -727,3 +727,5 @@ export function updateFieldActorOcclusion(currentGameScene){
 
 export {buildLayeredTraversal,layeredPositionKey} from '../field-surface/layered-traversal.mjs';
 export {projectLayeredPosition,pickLayeredPosition} from '../field-surface/layered-projection.mjs';
+
+export {calculateEffectFramePlacement} from './terrain-effects.mjs';
