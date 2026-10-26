@@ -637,3 +637,18 @@ test('그림자 크기 v2의 1·1은 점유 전체를 채우며 이전 타일 �
   assert.ok(Math.abs(Math.max(...currentRowValues)-Math.min(...currentRowValues)-currentRowCount)<1e-8);
  }
 });
+
+
+test('맵 정적 색상 보정은 메시와 식생 색상만 바꾸고 알파·기본 맵을 유지한다',async()=>{
+ const {applyTerrainAmbientTint,resolveTerrainAmbientTint}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentMeshObject={type:'Mesh',vertices:[{color:0xffffff},{color:0xffffff}],alpha:.6};
+ applyTerrainAmbientTint(currentMeshObject,{});
+ assert.equal(currentMeshObject.vertices[0].color,0xffffff);
+ applyTerrainAmbientTint(currentMeshObject,{ambientTint:'#607c90'});
+ assert.deepEqual(currentMeshObject.vertices.map(currentVertexRecord=>currentVertexRecord.color),[0x607c90,0x607c90]);
+ assert.equal(currentMeshObject.alpha,.6);
+ const currentImageObject={alpha:.8,setTint(currentColorValue){this.tint=currentColorValue;}};
+ applyTerrainAmbientTint(currentImageObject,{ambientTint:'#607c90'});
+ assert.equal(currentImageObject.tint,0x607c90);assert.equal(currentImageObject.alpha,.8);
+ for(const currentInvalidColor of [null,12,'red','#fff','#1234567'])assert.throws(()=>resolveTerrainAmbientTint({ambientTint:currentInvalidColor}),/ambientTint/);
+});

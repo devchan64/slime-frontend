@@ -2,6 +2,8 @@ export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOT
 import type Phaser from 'phaser';
 import type {SurfacePosition,SurfacePoint,SurfaceRecord,RenderOptions} from '../field-surface/field-surface.mjs';
 export const FIELD_RENDERER_VERSION:string;
+export function resolveTerrainAmbientTint(currentMapSurface?:{ambientTint?:string}):number;
+export function applyTerrainAmbientTint<T>(currentRenderObject:T,currentMapSurface?:{ambientTint?:string}):T;
 export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES:Readonly<Record<string,Readonly<{width:number;height:number;alpha:number;coreAlpha:number;coreScale:number;scale:number;opacityScale:number}>>>;
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR:number;
 export function resolveFieldActorContactShadow(currentShadowProfileName?:string):{color:number;outer:{width:number;height:number;alpha:number};core:{width:number;height:number;alpha:number}};

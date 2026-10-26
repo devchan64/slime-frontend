@@ -7,7 +7,7 @@ import { rotatedSurface, type MapRotation } from './rotation';
 /** 표시 이름·잔고·턴 변경은 고정 지형을 다시 만들지 않는다. */
 export function terrainRenderSignature(state: State, rotation: number): string {
   const field=state.battle?.field, map=field ?? state.map;
-  return JSON.stringify([rotation, map.terrainMovementVersion, map.columns, map.rows, map.bridges, map.elevations, map.ramps, map.elevationTiles,
+  return JSON.stringify([rotation, map.ambientTint, map.terrainMovementVersion, map.columns, map.rows, map.bridges, map.elevations, map.ramps, map.elevationTiles,
     field?.cells, map.objects, map.groundOverrides,map.groundDecals,map.cliffTextureKey,map.cliffOverrides, field ? null : [state.map.terrainRows, state.map.terrainCodes], state.battle?.blocked ?? state.map.blocked, field?.environment?.themeId ?? state.map.id,
     field ? null : [state.map.startPoint,state.map.safeRadius,state.map.safeTown,state.map.buildings,state.map.objects,state.map.groundOverrides,map.groundDecals,map.cliffTextureKey,map.cliffOverrides,
       state.map.connections.map(({column,row})=>({column,row}))]]);
@@ -46,7 +46,7 @@ export function prepareTerrain(state: State, rotation: MapRotation, previous: Te
   }
   const source = unchanged ? previous.source : {
     renderKind:(state.battle?'battle':state.map.safeTown?'town':'field') as 'field'|'town'|'battle', terrainMovementVersion:map.terrainMovementVersion, columns: map.columns, rows: map.rows, safeTown: !state.battle && Boolean(state.map.safeTown),
-    bridges:structuredClone(map.bridges), elevations: map.elevations?.map(row => row.slice()),
+    ambientTint:map.ambientTint, bridges:structuredClone(map.bridges), elevations: map.elevations?.map(row => row.slice()),
     ramps: structuredClone(map.ramps), elevationTiles: structuredClone(map.elevationTiles),
   };
   const surface=rotatedSurface(source, rotation);

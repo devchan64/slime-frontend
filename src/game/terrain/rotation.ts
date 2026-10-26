@@ -31,7 +31,7 @@ export function rotatedSurface(map: Surface, rotation: MapRotation): Surface {
     // 이전 목록 조회와 같이 같은 좌표의 첫 정의를 사용한다.
     if(!elevationTileIndex.has(key))elevationTileIndex.set(key,tile);
   }
-  return { bridges:map.bridges?.map(currentBridgeRecord=>({...currentBridgeRecord,start:toView(currentBridgeRecord.start,map,rotation),end:toView(currentBridgeRecord.end,map,rotation)})), terrainMovementVersion:map.terrainMovementVersion, columns, rows, safeTown: map.safeTown, renderKind:map.renderKind, heightSource, elevationTiles, elevationTileIndex, ramps: map.ramps?.map(ramp => ({ ...ramp,
+  return { ambientTint:map.ambientTint, bridges:map.bridges?.map(currentBridgeRecord=>({...currentBridgeRecord,start:toView(currentBridgeRecord.start,map,rotation),end:toView(currentBridgeRecord.end,map,rotation)})), terrainMovementVersion:map.terrainMovementVersion, columns, rows, safeTown: map.safeTown, renderKind:map.renderKind, heightSource, elevationTiles, elevationTileIndex, ramps: map.ramps?.map(ramp => ({ ...ramp,
     start: toView(ramp.start, map, rotation), end: toView(ramp.end, map, rotation),
   })) };
 }
