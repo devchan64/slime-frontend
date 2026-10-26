@@ -1108,3 +1108,6 @@ files:
 - path: assets/structures/old-boundary-gate-pillar-right-v1.png
   source_path: assets/billboards/old-boundary-gate-pillar-right-v1.png
   sha256: 7e3a0cc14f16dbb0cc072441450e769218c4ec46b80f643c76ccfc9ccc83b37b
+- path: assets/structures/bridge-farm-timber-components-v1.png
+  source_path: assets/buildings/bridge-farm-timber-components-v1.png
+  sha256: 727d5f52e01a640ce79c3f25c9124d02942e36fc43da8fbf8446264ad440a645

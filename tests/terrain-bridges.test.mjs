@@ -67,7 +67,7 @@ test('다리 아래 수면 연결은 상판 높이와 난간 이동에 영향받
 });
 import {buildBridgeCellGeometry,resolveBridgeTextureKey,resolveBridgeTextureKeys} from '../packages/field-renderer/bridge-geometry.mjs';
 test('교량 재질별 스프라이트·상판·투명 난간·접속부를 분리한다',()=>{
- for(const currentMaterialName of ['timber','stone'])for(const currentRotationValue of [0,1,2,3]){
+ for(const currentMaterialName of ['timber','stone','farm-timber'])for(const currentRotationValue of [0,1,2,3]){
   const currentMapSurface=structuredClone(currentBridgeSurface);currentMapSurface.bridges[0].material=currentMaterialName;
   const currentPanelFaces=buildBridgeCellGeometry({column:5,row:5},currentMapSurface,{...FIELD_RENDER_METRICS,rotation:currentRotationValue});
   assert.equal(currentPanelFaces.filter(currentPanelFace=>currentPanelFace.part==='deck').length,1);
@@ -153,9 +153,9 @@ test('석교 아치 양끝은 서로 다른 하상 높이의 기초까지 이어
  const currentBridgeFaces=[4,5,6].flatMap(currentColumnIndex=>buildFieldCellGeometry({column:currentColumnIndex,row:5},currentStoneSurface,FIELD_RENDER_METRICS));
  const currentArchPanels=currentBridgeFaces.filter(currentFaceRecord=>currentFaceRecord.part==='beam');
  for(const currentArchPanel of currentArchPanels){
-  const currentSideOffset=currentArchPanel.points[0].x===projectSurfaceVertex({column:3.5,row:4.58,height:80},FIELD_RENDER_METRICS).x?-.42:.42;
-  assert.deepEqual(currentArchPanel.points[3],projectSurfaceVertex({column:3.5,row:5+currentSideOffset,height:(8-8.2)*10},FIELD_RENDER_METRICS));
-  assert.deepEqual(currentArchPanel.points[2],projectSurfaceVertex({column:6.5,row:5+currentSideOffset,height:(8-6.2)*10},FIELD_RENDER_METRICS));
+  const currentSideOffset=currentArchPanel.points[0].x===projectSurfaceVertex({column:3.5,row:4.58,height:8*FIELD_RENDER_METRICS.elevationHeight},FIELD_RENDER_METRICS).x?-.42:.42;
+  assert.deepEqual(currentArchPanel.points[3],projectSurfaceVertex({column:3.5,row:5+currentSideOffset,height:(8-8.2)*FIELD_RENDER_METRICS.elevationHeight},FIELD_RENDER_METRICS));
+  assert.deepEqual(currentArchPanel.points[2],projectSurfaceVertex({column:6.5,row:5+currentSideOffset,height:(8-6.2)*FIELD_RENDER_METRICS.elevationHeight},FIELD_RENDER_METRICS));
  }
 });
 

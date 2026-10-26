@@ -32,6 +32,7 @@ function resolveBridgeArchRatio(currentSpanFraction){
 }
 const BRIDGE_CONNECTION_ATLAS=Object.freeze({textureKey:'bridge-connection-details-v1',size:1254,threshold:[0,313],abutment:[317,624],bearing:[628,925],splice:[934,1253],vault:[317,624]});
 const BRIDGE_ATLAS_PROFILES=Object.freeze({
+ 'farm-timber':{textureKey:'bridge-farm-timber-components-v1',size:1254,deck:[75,480],beam:[550,645],rail:[690,960],cornice:[1000,1170],abutment:[1000,1170],threshold:[75,480],vault:[1000,1170],thickness:.3,railHeight:1.2,straight:true},
  timber:{textureKey:'bridge-timber-components-v2',size:1254,deck:[17,307],beam:[326,617],rail:[640,892],cornice:[908,1236],abutment:[908,1236],threshold:[17,307],vault:[908,1236],thickness:4},
  stone:{textureKey:'bridge-stone-components-v1',size:1254,deck:[17,307],beam:[326,617],rail:[640,892],cornice:[908,1236],abutment:[908,1236],threshold:[17,307],thickness:4},
 });
@@ -41,7 +42,7 @@ export function resolveBridgeTextureKey(currentMaterialName){
  return currentAtlasProfile.textureKey;
 }
 export function resolveBridgeTextureKeys(currentMaterialName){
- return [resolveBridgeTextureKey(currentMaterialName),BRIDGE_CONNECTION_ATLAS.textureKey];
+ return currentMaterialName==='farm-timber'?[resolveBridgeTextureKey(currentMaterialName)]:[resolveBridgeTextureKey(currentMaterialName),BRIDGE_CONNECTION_ATLAS.textureKey];
 }
 /** 지면과 통행 고도를 유지하고 분할 스프라이트를 보행면·측면·난간에 투영한다. */
 export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions){
@@ -49,6 +50,7 @@ export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,cu
  if(!currentBridgeRecord)return [];
  const currentAtlasProfile=BRIDGE_ATLAS_PROFILES[currentBridgeRecord.material];
  if(!currentAtlasProfile)throw Error('지원하지 않는 교량 재질');
+ const currentRailHeight=currentAtlasProfile.railHeight??BRIDGE_RAIL_HEIGHT;
  const currentBridgeCells=enumerateBridgeCells(currentBridgeRecord);
  const currentCellIndex=currentBridgeCells.findIndex(currentBridgeCell=>currentBridgeCell.column===currentCellPosition.column&&currentBridgeCell.row===currentCellPosition.row);
  const currentAlongColumn=Math.sign(currentBridgeRecord.end.column-currentBridgeRecord.start.column),currentAlongRow=Math.sign(currentBridgeRecord.end.row-currentBridgeRecord.start.row);
@@ -60,12 +62,12 @@ export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,cu
   const currentCandidateView=rotateSurfacePosition(currentCandidateCell,currentRenderOptions.rotation??0);
   return currentCandidateView.column+currentCandidateView.row>currentFrontView.column+currentFrontView.row?currentCandidateCell:currentFrontCell;
  });
- const currentArchDepthStart=Math.max(currentAtlasProfile.thickness,currentBridgeRecord.elevation-currentMapSurface.elevations[currentStructuralCells[0].row][currentStructuralCells[0].column]+BRIDGE_PIER_FOOTING_DEPTH);
- const currentArchDepthEnd=Math.max(currentAtlasProfile.thickness,currentBridgeRecord.elevation-currentMapSurface.elevations[currentStructuralCells.at(-1).row][currentStructuralCells.at(-1).column]+BRIDGE_PIER_FOOTING_DEPTH);
+ const currentArchDepthStart=currentAtlasProfile.straight?currentAtlasProfile.thickness:Math.max(currentAtlasProfile.thickness,currentBridgeRecord.elevation-currentMapSurface.elevations[currentStructuralCells[0].row][currentStructuralCells[0].column]+BRIDGE_PIER_FOOTING_DEPTH);
+ const currentArchDepthEnd=currentAtlasProfile.straight?currentAtlasProfile.thickness:Math.max(currentAtlasProfile.thickness,currentBridgeRecord.elevation-currentMapSurface.elevations[currentStructuralCells.at(-1).row][currentStructuralCells.at(-1).column]+BRIDGE_PIER_FOOTING_DEPTH);
  const resolveBridgeSpanDepth=currentSpanFraction=>currentArchDepthStart+(currentArchDepthEnd-currentArchDepthStart)*currentSpanFraction;
  const currentBridgeFaces=[];
  const appendBridgePanel=(currentPanelPart,currentPanelPoints,currentDepthOffset=0,currentStartU=0,currentEndU=1)=>{
-  const currentPanelAtlas=currentPanelPart==='vault'&&currentBridgeRecord.material==='timber'?currentAtlasProfile:currentPanelPart in BRIDGE_CONNECTION_ATLAS?BRIDGE_CONNECTION_ATLAS:currentAtlasProfile;
+  const currentPanelAtlas=currentAtlasProfile.straight?currentAtlasProfile:currentPanelPart==='vault'&&currentBridgeRecord.material==='timber'?currentAtlasProfile:currentPanelPart in BRIDGE_CONNECTION_ATLAS?BRIDGE_CONNECTION_ATLAS:currentAtlasProfile;
   const [currentTopPixel,currentBottomPixel]=currentPanelAtlas[currentPanelPart];
   currentBridgeFaces.push({kind:'bridge',part:currentPanelPart,top:currentPanelPart==='deck'||currentPanelPart==='threshold'||currentPanelPart==='bearing',textureKey:currentPanelAtlas.textureKey,depthOffset:currentDepthOffset,points:currentPanelPoints,uvCorners:[currentStartU,currentTopPixel/currentPanelAtlas.size,currentEndU,currentTopPixel/currentPanelAtlas.size,currentEndU,currentBottomPixel/currentPanelAtlas.size,currentStartU,currentBottomPixel/currentPanelAtlas.size]});
  };
@@ -84,7 +86,7 @@ export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,cu
   // 진입 문턱은 길 위에 낮게 놓고 구조 기초는 보 밑에서 시작한다.
   appendBridgePanel('threshold',[projectBridgeVertex(currentThresholdOffset,-BRIDGE_APPROACH_WIDTH,currentInnerHeight+BRIDGE_THRESHOLD_LIFT),projectBridgeVertex(currentInnerOffset,-BRIDGE_APPROACH_WIDTH,currentInnerHeight+BRIDGE_THRESHOLD_LIFT),projectBridgeVertex(currentInnerOffset,BRIDGE_APPROACH_WIDTH,currentInnerHeight+BRIDGE_THRESHOLD_LIFT),projectBridgeVertex(currentThresholdOffset,BRIDGE_APPROACH_WIDTH,currentInnerHeight+BRIDGE_THRESHOLD_LIFT)],1);
   // 흙이 섞인 가장자리는 육지 쪽, 다듬은 포장은 다리 쪽으로 배치한다.
-  currentBridgeFaces[currentBridgeFaces.length-1].uvCorners=[0,0,0,313/1254,1,313/1254,1,0];
+  if(!currentAtlasProfile.straight)currentBridgeFaces[currentBridgeFaces.length-1].uvCorners=[0,0,0,313/1254,1,313/1254,1,0];
   // 육지 쪽 폭을 넓히고 기존 진입 고도 차이를 연속 경사면으로 연결한다.
   appendBridgePanel('deck',[projectBridgeVertex(currentInnerOffset,-BRIDGE_APPROACH_WIDTH,currentInnerHeight),projectBridgeVertex(currentContactOffset,-BRIDGE_HALF_WIDTH,0),projectBridgeVertex(currentContactOffset,BRIDGE_HALF_WIDTH,0),projectBridgeVertex(currentInnerOffset,BRIDGE_APPROACH_WIDTH,currentInnerHeight)],1,0,BRIDGE_APPROACH_LENGTH);
   // 수면 방향의 전면과 양쪽 날개벽으로 교대를 지형 안에 정착시킨다.
@@ -100,7 +102,7 @@ export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,cu
    if(Math.max(currentInnerBankHeight,currentBankTopHeight)>currentWingBottomHeight){
     appendBridgePanel('abutment',[projectBridgeVertex(currentWingInnerOffset,currentInnerAcross,Math.max(currentInnerBankHeight,currentWingBottomHeight)),projectBridgeVertex(currentContactOffset,currentAcrossOffset,Math.max(currentBankTopHeight,currentWingBottomHeight)),projectBridgeVertex(currentContactOffset,currentAcrossOffset,currentWingBottomHeight),projectBridgeVertex(currentWingInnerOffset,currentInnerAcross,currentWingBottomHeight)]);
    }
-   appendBridgePanel('rail',[projectBridgeVertex(currentInnerOffset,currentInnerAcross,currentInnerHeight+BRIDGE_RAIL_HEIGHT),projectBridgeVertex(currentContactOffset,currentAcrossOffset,BRIDGE_RAIL_HEIGHT),projectBridgeVertex(currentContactOffset,currentAcrossOffset,0),projectBridgeVertex(currentInnerOffset,currentInnerAcross,currentInnerHeight)],currentFrontFacing?BRIDGE_FRONT_RAIL_DEPTH:BRIDGE_REAR_RAIL_DEPTH,0,1-BRIDGE_RAIL_HALF_POST);
+   appendBridgePanel('rail',[projectBridgeVertex(currentInnerOffset,currentInnerAcross,currentInnerHeight+currentRailHeight),projectBridgeVertex(currentContactOffset,currentAcrossOffset,currentRailHeight),projectBridgeVertex(currentContactOffset,currentAcrossOffset,0),projectBridgeVertex(currentInnerOffset,currentInnerAcross,currentInnerHeight)],currentFrontFacing?BRIDGE_FRONT_RAIL_DEPTH:BRIDGE_REAR_RAIL_DEPTH,0,1-BRIDGE_RAIL_HALF_POST);
   }
   // 양안 교대가 보를 받치므로 별도 돌출 받침기둥은 중복 배치하지 않는다.
   {
@@ -122,7 +124,7 @@ export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,cu
    }
   }
  }
- {
+ if(!currentAtlasProfile.straight){
   // 양쪽 아치 개구부 사이를 분할 곡면으로 연결한다. 전면 아치보다 뒤에 그린다.
   const currentBridgeSpan=currentBridgeCells.length-2;
   for(let currentSegmentIndex=0;currentSegmentIndex<BRIDGE_VAULT_CELL_SEGMENTS;currentSegmentIndex++){
@@ -143,7 +145,7 @@ export function buildBridgeCellGeometry(currentCellPosition,currentMapSurface,cu
  appendBridgePanel('deck',[projectBridgeVertex(-.5,-BRIDGE_HALF_WIDTH,0),projectBridgeVertex(.5,-BRIDGE_HALF_WIDTH,0),projectBridgeVertex(.5,BRIDGE_HALF_WIDTH,0),projectBridgeVertex(-.5,BRIDGE_HALF_WIDTH,0)],1);
  for(const currentAcrossOffset of [-BRIDGE_HALF_WIDTH,BRIDGE_HALF_WIDTH]){
   const currentFrontFacing=currentAcrossOffset*(currentAcrossView.column+currentAcrossView.row)>0;
-  appendBridgePanel('rail',[projectBridgeVertex(-.5,currentAcrossOffset,BRIDGE_RAIL_HEIGHT),projectBridgeVertex(.5,currentAcrossOffset,BRIDGE_RAIL_HEIGHT),projectBridgeVertex(.5,currentAcrossOffset,0),projectBridgeVertex(-.5,currentAcrossOffset,0)],currentFrontFacing?BRIDGE_FRONT_RAIL_DEPTH:BRIDGE_REAR_RAIL_DEPTH,BRIDGE_RAIL_HALF_POST,1-BRIDGE_RAIL_HALF_POST);
+  appendBridgePanel('rail',[projectBridgeVertex(-.5,currentAcrossOffset,currentRailHeight),projectBridgeVertex(.5,currentAcrossOffset,currentRailHeight),projectBridgeVertex(.5,currentAcrossOffset,0),projectBridgeVertex(-.5,currentAcrossOffset,0)],currentFrontFacing?BRIDGE_FRONT_RAIL_DEPTH:BRIDGE_REAR_RAIL_DEPTH,BRIDGE_RAIL_HALF_POST,1-BRIDGE_RAIL_HALF_POST);
  }
  return currentBridgeFaces;
 }

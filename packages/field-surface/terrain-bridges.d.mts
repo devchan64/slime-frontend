@@ -1,5 +1,5 @@
 export type BridgePosition = {column:number;row:number};
-export type TerrainBridge = {id:string;start:BridgePosition;end:BridgePosition;elevation:number;material:'timber'|'stone'};
+export type TerrainBridge = {id:string;start:BridgePosition;end:BridgePosition;elevation:number;material:'timber'|'stone'|'farm-timber'};
 export function enumerateBridgeCells(currentBridgeRecord:TerrainBridge):BridgePosition[];
 export function findBridgeSurface(currentCellPosition:BridgePosition,currentMapSurface:{bridges?:TerrainBridge[]}):TerrainBridge|undefined;
 export function canTraverseBridgeEdge(currentStartPosition:BridgePosition,currentEndPosition:BridgePosition,currentMapSurface:{bridges?:TerrainBridge[]}):boolean;

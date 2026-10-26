@@ -20,7 +20,7 @@ export function canTraverseBridgeEdge(currentStartPosition,currentEndPosition,cu
 export function validateBridgeSurfaces(currentMapSurface){
  const currentSeenIdentifiers=new Set(),currentSeenPositions=new Set();
  for(const currentBridgeRecord of currentMapSurface.bridges??[]){
-  if(!currentBridgeRecord||Object.keys(currentBridgeRecord).sort().join(',')!=='elevation,end,id,material,start'||!['timber','stone'].includes(currentBridgeRecord.material)||!Number.isInteger(currentBridgeRecord.elevation)||currentBridgeRecord.elevation<1||currentBridgeRecord.elevation>TERRAIN_MAXIMUM_ELEVATION||!(/^[a-z][a-z0-9-]*$/).test(currentBridgeRecord.id))throw Error('교량 필드·재질·상판 고도가 올바르지 않습니다.');
+  if(!currentBridgeRecord||Object.keys(currentBridgeRecord).sort().join(',')!=='elevation,end,id,material,start'||!['timber','stone','farm-timber'].includes(currentBridgeRecord.material)||!Number.isInteger(currentBridgeRecord.elevation)||currentBridgeRecord.elevation<1||currentBridgeRecord.elevation>TERRAIN_MAXIMUM_ELEVATION||!(/^[a-z][a-z0-9-]*$/).test(currentBridgeRecord.id))throw Error('교량 필드·재질·상판 고도가 올바르지 않습니다.');
   if(currentSeenIdentifiers.has(currentBridgeRecord.id))throw Error('교량 ID 중복');currentSeenIdentifiers.add(currentBridgeRecord.id);
   for(const currentEndpointRecord of [currentBridgeRecord.start,currentBridgeRecord.end]){
    if(!currentEndpointRecord||Object.keys(currentEndpointRecord).sort().join(',')!=='column,row'||!Number.isInteger(currentEndpointRecord.column)||!Number.isInteger(currentEndpointRecord.row)||currentEndpointRecord.column<0||currentEndpointRecord.row<0||currentEndpointRecord.column>=currentMapSurface.columns||currentEndpointRecord.row>=currentMapSurface.rows)throw Error('교량 진입점 좌표 오류');

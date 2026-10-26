@@ -2,7 +2,7 @@ import {resolveBridgeTextureKeys} from './bridge-geometry.mjs';
 import {resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
 import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../../src/game/terrain/textures';
 export {loadMapResourceImages} from './map-resource-loader.mjs';
-export type MapResourceSurface={bridges?:{material:'timber'|'stone'}[];id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];cliffOverrides?:{position:{column:number;row:number};textureKey:string}[];cliffTextureKey?:string;groundDecals?:{textureKey:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
+export type MapResourceSurface={bridges?:{material:'timber'|'stone'|'farm-timber'}[];id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];cliffOverrides?:{position:{column:number;row:number};textureKey:string}[];cliffTextureKey?:string;groundDecals?:{textureKey:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
 /** 렌더러의 재질 선택 함수를 재사용하여 선택 맵의 텍스처 키를 산출한다. */
 export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,currentMapKind:'field'|'town'|'battle'){
  if(!['field','town','battle'].includes(currentMapKind))throw Error('지원하지 않는 맵 종류');
