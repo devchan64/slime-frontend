@@ -363,7 +363,7 @@ files:
   sha256: f3f10d78c95d3614e4a1b79042653b8975ea32d3da4585210e860f395298d31e
 - path: assets/structures/mushroom-variant-3-v1.png
   source_path: assets/billboards/mushroom-variant-3-v1.png
-  sha256: 9e43f727b8ea1622abd2a806aba50ae362a62082400791fa411bc488b744b53e
+  sha256: 8024a3049573ad06bee5aec74973c97d36dc4024fe1a7fd3bea7452ffdbec3e5
 - path: assets/structures/leaves-variant-1-v1.png
   source_path: assets/billboards/leaves-variant-1-v1.png
   sha256: 5cb6d6cc94be3d664b1844dbc069cfc8bc3e5dcaec9167c5b5572277751393a1
@@ -1137,4 +1137,4 @@ files:
 
 - path: assets/effects/terrain/glow-mushroom-group-sheet-v1.png
   source_path: assets/sprites/effects/terrain/glow-mushroom-group-sheet-v1.png
-  sha256: 646b22def5b86b4d561d99884823e69e93e07d1338da3e7c725882aaa027cb54
+  sha256: a95044dde702557edf0724838811aeb78fdb15bd15b0d2f9df19fb9e49cb0524
