@@ -30,7 +30,9 @@ export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
 });
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR = 0x18392e;
 export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:128,anchorY:223.5,bodyTop:16.5,displayHeight:56});
-export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:7.5,alpha:0.7,frameDuration:120,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
+export const EFFECT_ANIMATION_FRAME_RATE = 6;
+export const EFFECT_ANIMATION_FRAME_DURATION = 1000 / EFFECT_ANIMATION_FRAME_RATE;
+export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:7.5,alpha:0.7,frameDuration:EFFECT_ANIMATION_FRAME_DURATION,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});
 export const FIELD_CONNECTION_SHAPE = Object.freeze({inset:.08,radius:.2,half:.5});
 export const TERRAIN_STAIR_COUNT = 3;
 export const CHARACTER_OUTLINE_STYLE = Object.freeze({color:0xfff3c4,cssColor:'#fff3c4',width:2.5,outerStrength:2,quality:0.1});

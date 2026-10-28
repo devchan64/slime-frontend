@@ -1,6 +1,6 @@
 /** 맵의 장식 애니메이션. 점유·통행이나 원본 이미지에는 영향을 주지 않는다. */
 import {clipBillboardShadowPolygon,resolveFieldSurfaceDepth} from './field-renderer.mjs';
-import {BILLBOARD_RENDER_SCALE,MAP_TILE_WIDTH,MAP_TILE_HEIGHT,TERRAIN_DEPTH} from './render-constants.mjs';
+import {BILLBOARD_RENDER_SCALE,MAP_TILE_WIDTH,MAP_TILE_HEIGHT,TERRAIN_DEPTH,EFFECT_ANIMATION_FRAME_RATE} from './render-constants.mjs';
 const TERRAIN_EFFECT_RENDER_SCALE = BILLBOARD_RENDER_SCALE;
 const TERRAIN_EFFECT_TILE_WIDTH = MAP_TILE_WIDTH;
 const TERRAIN_EFFECT_TILE_HEIGHT = MAP_TILE_HEIGHT;
@@ -10,6 +10,9 @@ const TERRAIN_GLOW_DEPTH_OFFSET = .01;
 const TERRAIN_GLOW_FRAME_COUNT = 8;
 const TERRAIN_GLOW_COLUMN_COUNT = 4;
 const TERRAIN_GLOW_ROW_COUNT = 2;
+
+const TERRAIN_MOTH_DRIFT_RATIO = .065;
+const TERRAIN_MOTH_BOB_RATIO = .035;
 
 
 const TERRAIN_DIFFUSE_RING_COUNT = 24;
@@ -53,6 +56,18 @@ function mountTerrainGroundGlow(currentSceneInstance,currentMapRecord,currentEff
  return {destroy(){currentSceneInstance.events.off('update',renderTerrainGroundPulse);for(const currentTileGraphic of currentTileGraphics)currentTileGraphic.destroy();}};
 }
 
+/** 모든 발광 시트는 초당 6프레임으로 재생한다. 비행·맥동 주기는 별도다. */
+export function sampleEffectAnimationFrame(currentElapsedMilliseconds,currentSeedValue=0){
+ return Math.floor(currentElapsedMilliseconds*EFFECT_ANIMATION_FRAME_RATE/1000+currentSeedValue*.61803398875*TERRAIN_GLOW_FRAME_COUNT)%TERRAIN_GLOW_FRAME_COUNT;
+}
+
+/** 좌표 검수와 맵에서 같은 날갯짓·정규화 비행 궤적을 사용한다. */
+export function sampleMothAnimationFrame(currentElapsedMilliseconds,currentFlightPeriod=4000,currentSeedValue=0){
+ const currentFlightPhase=currentElapsedMilliseconds/currentFlightPeriod*Math.PI*2+currentSeedValue;
+ return {frame:sampleEffectAnimationFrame(currentElapsedMilliseconds,currentSeedValue),
+  offsetX:Math.sin(currentFlightPhase)*TERRAIN_MOTH_DRIFT_RATIO,offsetY:Math.sin(currentFlightPhase*2)*TERRAIN_MOTH_BOB_RATIO};
+}
+
 function mountTerrainGlowSprite(currentSceneInstance,currentMapRecord,currentEffectRecord,currentAnchorScreen){
  const currentHostSprite=currentAnchorScreen.hostSprite;
  const currentHostRecord=currentMapRecord.objects?.find(currentObjectRecord=>currentObjectRecord.id===currentEffectRecord.objectId);
@@ -75,7 +90,9 @@ function mountTerrainGlowSprite(currentSceneInstance,currentMapRecord,currentEff
  currentGlowSprite.setDepth(currentAnchorScreen.depth+TERRAIN_GLOW_DEPTH_OFFSET);
  currentGlowSprite.setData('terrainEffectId',currentEffectRecord.id);
  const renderTerrainGlowFrame=()=>{
-  const currentFrameIndex=Math.floor((currentSceneInstance.time.now/currentEffectRecord.periodMs+currentEffectRecord.seed*.61803398875)*TERRAIN_GLOW_FRAME_COUNT)%TERRAIN_GLOW_FRAME_COUNT;
+  const currentMothSwarmEnabled=currentEffectRecord.version===2&&currentEffectRecord.kind==='moths';
+  const currentMothMotion=currentMothSwarmEnabled?sampleMothAnimationFrame(currentSceneInstance.time.now,currentEffectRecord.periodMs,currentEffectRecord.seed):null;
+  const currentFrameIndex=currentMothMotion?.frame??sampleEffectAnimationFrame(currentSceneInstance.time.now,currentEffectRecord.seed);
   // 연결된 발광도 시트 전체를 반복 재생한다. 밝기 변화만으로 애니메이션을 대체하지 않는다.
   const currentAttachedGlow=currentEffectRecord.kind==='glow'&&Boolean(currentEffectRecord.objectId);
   currentGlowSprite.setFrame(currentFrameIndex);
@@ -89,7 +106,9 @@ function mountTerrainGlowSprite(currentSceneInstance,currentMapRecord,currentEff
   }else if(currentSwarmProfile){
    const currentFramePlacement=calculateEffectFramePlacement(currentSwarmProfile.target,currentSwarmProfile.frames[currentFrameIndex]);
    const currentSwarmSize=currentEffectRecord.radius*TERRAIN_EFFECT_TILE_WIDTH;
-   currentGlowSprite.setOrigin(0,0).setPosition(currentAnchorScreen.x+(currentFramePlacement.left-.5)*currentSwarmSize,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE+(currentFramePlacement.top-.5)*currentSwarmSize);
+   const currentFlightOffsetX=(currentMothMotion?.offsetX??0)*currentSwarmSize;
+   const currentFlightOffsetY=(currentMothMotion?.offsetY??0)*currentSwarmSize;
+   currentGlowSprite.setOrigin(0,0).setPosition(currentAnchorScreen.x+(currentFramePlacement.left-.5)*currentSwarmSize+currentFlightOffsetX,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE+(currentFramePlacement.top-.5)*currentSwarmSize+currentFlightOffsetY);
    currentGlowSprite.setDisplaySize(currentSwarmSize*currentFramePlacement.width,currentSwarmSize*currentFramePlacement.height);
   }else currentGlowSprite.setDisplaySize(currentEffectRecord.radius*TERRAIN_EFFECT_TILE_WIDTH*currentSheetProfile.width,currentEffectRecord.radius*TERRAIN_EFFECT_TILE_WIDTH*currentSheetProfile.height);
  };

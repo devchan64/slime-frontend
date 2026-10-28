@@ -76,3 +76,6 @@ export function clipBillboardShadowPolygon(currentShadowPoints:SurfacePoint[],cu
 export type TerrainEffectRecord = {version:1|2;id:string;kind:'glow'|'moths'|'fireflies';position?:{column:number;row:number};objectId?:string;color:string;radius:number;intensity:number;periodMs:number;height:number;seed:number;count?:number};
 export function mountTerrainEffectLayer(currentSceneInstance:any,currentMapRecord:{columns:number;rows:number;terrainEffects?:TerrainEffectRecord[];objects?:any[]},currentProjectPosition:(currentCellPosition:{column:number;row:number})=>{x:number;y:number}):any[];
 export function sampleTerrainEffectFrame(currentEffectRecord:TerrainEffectRecord,currentElapsedMilliseconds:number):{column:number;row:number;height:number;alpha:number;wing:number}[];
+
+export function sampleEffectAnimationFrame(currentElapsedMilliseconds: number, currentSeedValue?: number): number;
+export function sampleMothAnimationFrame(currentElapsedMilliseconds: number, currentFlightPeriod?: number, currentSeedValue?: number): {frame: number; offsetX: number; offsetY: number};

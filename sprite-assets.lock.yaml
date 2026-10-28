@@ -1122,10 +1122,10 @@ files:
   sha256: 5146b7e1f735846cefb34a37dbafb82d703f24f79d1ee4d4f70dfbfdcf2ceb2e
 - path: assets/effects/terrain/firefly-swarm-sheet-v1.png
   source_path: assets/sprites/effects/terrain/firefly-swarm-sheet-v1.png
-  sha256: 82701191fd787000459e7bb410320d4719f09e66dcbf8ac5c115124b29e83b50
+  sha256: 5613408c992483707bc1ed296228d3deab8f9fd0a7a6b52f2a7a094c2b29183e
 - path: assets/effects/terrain/moth-swarm-sheet-v1.png
   source_path: assets/sprites/effects/terrain/moth-swarm-sheet-v1.png
-  sha256: c1845941effd55eb8eecf1e6e98d8562e2ab0bf8c901f231e419d7264a998592
+  sha256: 8a0cc4f84f9468989dd88c34a4be92e9ecd5302c1a4aaa83935b394f2e637387
 
 - path: assets/effects/terrain/glow-mushroom-single-sheet-v1.png
   source_path: assets/sprites/effects/terrain/glow-mushroom-single-sheet-v1.png
@@ -1137,4 +1137,4 @@ files:
 
 - path: assets/effects/terrain/glow-mushroom-group-sheet-v1.png
   source_path: assets/sprites/effects/terrain/glow-mushroom-group-sheet-v1.png
-  sha256: a95044dde702557edf0724838811aeb78fdb15bd15b0d2f9df19fb9e49cb0524
+  sha256: e8e40188be507d1798173acc16d9503f6edc8859ff9afdb40063525c8e40d03f

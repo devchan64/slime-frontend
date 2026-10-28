@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
-import {sampleTerrainEffectFrame,mountTerrainEffectLayer} from '../packages/field-renderer/terrain-effects.mjs';
+import {sampleTerrainEffectFrame,mountTerrainEffectLayer,sampleEffectAnimationFrame} from '../packages/field-renderer/terrain-effects.mjs';
 const currentEffectRecord={version:1,id:'moths',kind:'moths',position:{column:2,row:3},color:'#ffe8a3',radius:1,intensity:.7,periodMs:4000,height:40,count:6,seed:1};
 test('나방은 결정적 궤적과 반배율 높이를 사용하고 프레임마다 움직인다',()=>{
  const currentFirstFrame=sampleTerrainEffectFrame(currentEffectRecord,0);
@@ -46,7 +46,7 @@ test('발광 시트는 8프레임으로 순환하고 제거 시 갱신을 해제
  const currentGlowRecord={...currentEffectRecord,kind:'glow',seed:0};
  mountTerrainEffectLayer(currentSceneRecord,{columns:10,rows:10,terrainEffects:[currentGlowRecord]},()=>({x:100,y:100}));
  assert.equal(currentBlendMode,'ADD');assert.equal(currentSheetFrames.size,8);assert.equal(currentFrameIndex,0);
- currentSceneRecord.time.now=500;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,1);
+ currentSceneRecord.time.now=500;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,3);
  currentSceneRecord.time.now=4000;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,0);
  for(const [currentFrameNumber,currentFrameBounds] of currentSheetFrames){
   assert.ok(currentFrameBounds[1]+currentFrameBounds[3]<=1774);
@@ -65,7 +65,7 @@ test('버섯 발광은 본체 복제 없이 시트를 반복 재생한다',()=>{
  let currentCreatedImages=0;
  const currentSceneRecord={children:{list:[currentHostSprite]},time:{now:0},events:currentSceneEvents,textures:{exists:()=>true,get:()=>({getSourceImage:()=>({width:1774,height:887}),has:()=>true})},add:{image:(...currentImageValues)=>{currentCreatedImages++;assert.equal(currentImageValues[2],'safe-terrain-glow-mushroom-single');return currentHaloSprite;}}};
  mountTerrainEffectLayer(currentSceneRecord,{effectProfiles:{'mushroom-variant-2-v1':{key:'safe-terrain-glow-mushroom-single',alpha:.65,target:[.1,.2,.9,.6],frames:Array.from({length:8},()=>[.2,.3,.8,.7])}},objects:[{id:'cap',textureKey:'mushroom-variant-2-v1',position:{column:2,row:3}}],terrainEffects:[{...currentEffectRecord,kind:'glow',objectId:'cap',position:undefined}]},()=>({x:100,y:100}));
- const currentInitialFrame=currentHaloSprite.setFrameValues[0];currentSceneRecord.time.now=2000;currentSceneEvents.emit('update');
+ const currentInitialFrame=currentHaloSprite.setFrameValues[0];currentSceneRecord.time.now=500;currentSceneEvents.emit('update');
  assert.deepEqual(currentHaloSprite.setDisplaySizeValues.map(currentValue=>Math.round(currentValue)),[107,70]);
  assert.notEqual(currentHaloSprite.setFrameValues[0],currentInitialFrame);assert.equal(currentCreatedImages,1);assert.ok(currentHaloSprite.setDisplaySizeValues.every(Number.isFinite));assert.ok(currentHaloSprite.setPositionValues.every(Number.isFinite));
  currentHaloSprite.emit('destroy');assert.equal(currentSceneEvents.listenerCount('update'),0);
@@ -85,8 +85,8 @@ test('나방 시트는 발광 합성으로 8프레임을 반복하고 리스너�
  const currentGlowRecord={...currentEffectRecord,kind:'moths',version:2,count:3,seed:0};
  mountTerrainEffectLayer(currentSceneRecord,{columns:10,rows:10,terrainEffects:[currentGlowRecord]},()=>({x:100,y:100}));
  assert.equal(currentBlendMode,'ADD');assert.equal(currentSheetFrames.size,8);assert.equal(currentFrameIndex,0);
- currentSceneRecord.time.now=500;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,1);
- currentSceneRecord.time.now=4000;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,0);
+ currentSceneRecord.time.now=167;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,1);
+ currentSceneRecord.time.now=1334;currentSceneEvents.emit('update');assert.equal(currentFrameIndex,0);
  for(const [currentFrameNumber,currentFrameBounds] of currentSheetFrames){
   assert.ok(currentFrameBounds[1]+currentFrameBounds[3]<=1774);
   assert.ok(currentFrameBounds[2]+currentFrameBounds[4]<=887);
@@ -132,4 +132,13 @@ test('나방·반딧불 DB 정렬값이 위치·크기·밝기에 반영된다',
   assert.deepEqual(currentSpriteRecord.setAlphaValues,[.2]);
   assert.deepEqual(currentSpriteRecord.setBlendModeValues,[currentEffectKind==='moths'?'ADD':'NORMAL']);
  }
+});
+
+test('발광 시트는 6fps 경계와 8프레임 순환을 지킨다',()=>{
+ assert.equal(sampleEffectAnimationFrame(0),0);
+ assert.equal(sampleEffectAnimationFrame(166),0);
+ assert.equal(sampleEffectAnimationFrame(167),1);
+ assert.equal(sampleEffectAnimationFrame(1000),6);
+ assert.equal(sampleEffectAnimationFrame(1333),7);
+ assert.equal(sampleEffectAnimationFrame(1334),0);
 });
