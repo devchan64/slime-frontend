@@ -1144,3 +1144,18 @@ files:
 - path: assets/structures/meadow-daisy-small-v1.png
   source_path: assets/billboards/meadow-daisy-small-v1.png
   sha256: 7903a453a6109aafdcebb7c6edf5690dbefbd55a4fbc97ee31c140d9eb062272
+- path: assets/structures/mill-ridge-dry-grass-mass-v1.png
+  source_path: assets/billboards/mill-ridge-dry-grass-mass-v1.png
+  sha256: 961b8ebda819b2dc19f436a0fe589fe26e9c3e419768d0984d3e97953c4382d0
+- path: assets/structures/mill-ridge-weathered-shelf-v1.png
+  source_path: assets/billboards/mill-ridge-weathered-shelf-v1.png
+  sha256: c55e4aef2ef5ca79b7096e89da8bb4ec7040db011184aa9177bf0573df86f14d
+- path: assets/structures/mill-ridge-rooted-grass-v1.png
+  source_path: assets/billboards/mill-ridge-rooted-grass-v1.png
+  sha256: 48732cd4817d10a9be3f05f9c273cc772727d27fef8d73f66cd5894f3f16b5e0
+- path: assets/structures/mill-ridge-weathered-rock-v1.png
+  source_path: assets/billboards/mill-ridge-weathered-rock-v1.png
+  sha256: a83d2b092218042847820a758c3c856ceb2beaf8f2c1fb09b8d511f96faffcfa
+- path: assets/structures/mill-ridge-golden-grass-cover-v1.png
+  source_path: assets/billboards/mill-ridge-golden-grass-cover-v1.png
+  sha256: 4f27b8e1042862faed0539fd55ef809794059c72e7984bb407674938856bb3e2
