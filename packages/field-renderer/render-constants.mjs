@@ -19,7 +19,7 @@ export const WORLD_UNIT_MIGRATION = 1.3;
 export const TOWN_TILE_WIDTH = 80;
 export const TOWN_TILE_HEIGHT = 40;
 export const FIELD_TILE_BOUNDARY_ALPHA = 0.7;
-export const FIELD_ELEVATION_EDGE_STYLE = Object.freeze({color:0x303030,width:2,alpha:FIELD_TILE_BOUNDARY_ALPHA});
+export const FIELD_ELEVATION_EDGE_STYLE = Object.freeze({color:0x303030,width:1,alpha:0.25});
 // 바닥 재질 경계는 높이·측벽 경계와 별도로 관리한다.
 export const FIELD_GROUND_EDGE_STYLE = Object.freeze({color:0x5a5a5a,width:1,alpha:0.22});
 export const FIELD_MESH_BOUNDARY_STYLE = Object.freeze({color:0xdce5ef,width:0.5,alpha:FIELD_TILE_BOUNDARY_ALPHA});
