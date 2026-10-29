@@ -1153,3 +1153,6 @@ files:
 - path: assets/structures/mill-ridge-weathered-rock-v1.png
   source_path: assets/billboards/mill-ridge-weathered-rock-v1.png
   sha256: a83d2b092218042847820a758c3c856ceb2beaf8f2c1fb09b8d511f96faffcfa
+- path: assets/structures/moss-clearing-ancient-stump-v1.png
+  source_path: assets/billboards/moss-clearing-ancient-stump-v1.png
+  sha256: 319cb7607f22d390f9da5083e9039c8473e16c2ee0dc1a8ae8d60cbc52b20809
