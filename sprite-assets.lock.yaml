@@ -1126,15 +1126,21 @@ files:
 - path: assets/effects/terrain/moth-swarm-sheet-v1.png
   source_path: assets/sprites/effects/terrain/moth-swarm-sheet-v1.png
   sha256: 8a0cc4f84f9468989dd88c34a4be92e9ecd5302c1a4aaa83935b394f2e637387
-
 - path: assets/effects/terrain/glow-mushroom-single-sheet-v1.png
   source_path: assets/sprites/effects/terrain/glow-mushroom-single-sheet-v1.png
   sha256: b58b5cd8fd5a8e845cdd700194db85f8d517b73bb9f70d3f3b38b1289ef52269
-
 - path: assets/effects/terrain/glow-mushroom-cluster-sheet-v1.png
   source_path: assets/sprites/effects/terrain/glow-mushroom-cluster-sheet-v1.png
   sha256: 76f3c9dcf2833887c5f877a87f7397db6dbb8ccde568c6a172818823b11c9d9f
-
 - path: assets/effects/terrain/glow-mushroom-group-sheet-v1.png
   source_path: assets/sprites/effects/terrain/glow-mushroom-group-sheet-v1.png
   sha256: e8e40188be507d1798173acc16d9503f6edc8859ff9afdb40063525c8e40d03f
+- path: assets/structures/meadow-daisy-groundcover-v1.png
+  source_path: assets/billboards/meadow-daisy-groundcover-v1.png
+  sha256: 5ff75636233dc7845b051804578cbb3402e431a3e262f5a2cf3bfa1f21029132
+- path: assets/structures/meadow-daisy-fringe-v1.png
+  source_path: assets/billboards/meadow-daisy-fringe-v1.png
+  sha256: d520229dab17e5416029f610cc50c98d3a582803ff3d9b34442556f9262cfd07
+- path: assets/structures/meadow-daisy-small-v1.png
+  source_path: assets/billboards/meadow-daisy-small-v1.png
+  sha256: 7903a453a6109aafdcebb7c6edf5690dbefbd55a4fbc97ee31c140d9eb062272

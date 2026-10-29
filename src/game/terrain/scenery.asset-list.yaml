@@ -306,3 +306,6 @@ fallen_canopy_debris_flat_decay_1x1_v1: assets/billboards/fallen-canopy-debris-f
 old_boundary_gate_pillar_left_v1: assets/billboards/old-boundary-gate-pillar-left-v1.png
 old_boundary_gate_pillar_right_v1: assets/billboards/old-boundary-gate-pillar-right-v1.png
 bridge_farm_timber_components_v1: assets/buildings/bridge-farm-timber-components-v1.png
+meadow_daisy_groundcover_v1: assets/billboards/meadow-daisy-groundcover-v1.png
+meadow_daisy_fringe_v1: assets/billboards/meadow-daisy-fringe-v1.png
+meadow_daisy_small_v1: assets/billboards/meadow-daisy-small-v1.png
