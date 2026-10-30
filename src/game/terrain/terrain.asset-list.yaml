@@ -1,3 +1,16 @@
+pebbleSubmergedRoundedSource: assets/tiles/terrain/blocked/pebble-submerged-rounded-v1.png
+pebbleNaturalRoundedSource: assets/tiles/terrain/non-road/pebble-natural-rounded-v1.png
+pebbleCoarse2Source: assets/tiles/terrain/non-road/pebble-coarse-2-v1.png
+pebbleCoarse1Source: assets/tiles/terrain/non-road/pebble-coarse-1-v1.png
+pebbleCoarse0Source: assets/tiles/terrain/non-road/pebble-coarse-0-v1.png
+pebbleLakeBlueSource: assets/tiles/terrain/blocked/pebble-lake-blue-v1.png
+pebbleLakeCalmSource: assets/tiles/terrain/blocked/pebble-lake-calm-v1.png
+pebbleLakeClearSource: assets/tiles/terrain/blocked/pebble-lake-clear-v1.png
+pebbleLakeShallowSource: assets/tiles/terrain/blocked/pebble-lake-shallow-v1.png
+pebbleSandBaseSource: assets/tiles/terrain/non-road/pebble-sand-base-v1.png
+pebbleSandSparseSource: assets/tiles/terrain/non-road/pebble-sand-sparse-v1.png
+pebbleSandMediumSource: assets/tiles/terrain/non-road/pebble-sand-medium-v1.png
+pebbleSandScatteredSource: assets/tiles/terrain/non-road/pebble-sand-scattered-v1.png
 angularQuarryScreeSource: assets/tiles/terrain/non-road/rock-ground-v1.png
 fracturedBedrockTileSource: assets/tiles/terrain/non-road/rock-ground-v1.png
 uplandRockGrassSource: assets/tiles/terrain/non-road/orchard-grass-soil-v1.png
@@ -47,3 +60,4 @@ fallenOrchardFruitSource: assets/tiles/terrain/non-road/orchard-soil-v1.png
 boarHoofPairSource: assets/tiles/decals/boar-hoof-pair-v1.png
 boarHoofTrailSource: assets/tiles/decals/boar-hoof-trail-v1.png
 boarHoofWornSource: assets/tiles/decals/boar-hoof-worn-v1.png
+pebbleSubmergedStonesSource: assets/tiles/decals/pebble-submerged-stones-v1.png

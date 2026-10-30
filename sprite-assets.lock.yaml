@@ -1156,3 +1156,18 @@ files:
 - path: assets/structures/moss-clearing-ancient-stump-v1.png
   source_path: assets/billboards/moss-clearing-ancient-stump-v1.png
   sha256: 319cb7607f22d390f9da5083e9039c8473e16c2ee0dc1a8ae8d60cbc52b20809
+- path: assets/structures/pebble-shore-rounded-boulders-v1.png
+  source_path: assets/billboards/pebble-shore-rounded-boulders-v1.png
+  sha256: 4039a96fce6930fd1ca15699f13f97724c9c1dd072d08b01aa77bb69923b4f09
+- path: assets/structures/pebble-shore-pebble-scatter-v1.png
+  source_path: assets/billboards/pebble-shore-pebble-scatter-v1.png
+  sha256: 745f95bdf329f14f50cbe63f17c57978bb226dfe2945b43866e70647c33e95c2
+- path: assets/structures/pebble-shore-pebble-crescent-v1.png
+  source_path: assets/billboards/pebble-shore-pebble-crescent-v1.png
+  sha256: 194396affebb7a809a3db55654f438a7c36e1ae5270f2d961b23682552a782a1
+- path: assets/structures/pebble-shore-pebble-carpet-v1.png
+  source_path: assets/billboards/pebble-shore-pebble-carpet-v1.png
+  sha256: bd4e68736ebe380dc15eb2fc13185711a19b9f3c77a7a840d62056863150d554
+- path: assets/structures/pebble-shore-rounded-pair-v1.png
+  source_path: assets/billboards/pebble-shore-rounded-pair-v1.png
+  sha256: a6f3f35bc22bbf7f4b96c980302504f556840a4f5db231340ce5067e6db3546f

@@ -1,6 +1,19 @@
 import wallAssetPaths from './wall.asset-list.yaml';
 import terrainAssetPaths from "./terrain.asset-list.yaml";
 const {
+  pebbleSubmergedRoundedSource,
+  pebbleNaturalRoundedSource,
+  pebbleCoarse2Source,
+  pebbleCoarse1Source,
+  pebbleCoarse0Source,
+  pebbleLakeBlueSource,
+  pebbleLakeCalmSource,
+  pebbleLakeClearSource,
+  pebbleLakeShallowSource,
+  pebbleSandBaseSource,
+  pebbleSandSparseSource,
+  pebbleSandMediumSource,
+  pebbleSandScatteredSource,
   angularQuarryScreeSource,
   fracturedBedrockTileSource,
   uplandRockGrassSource,
@@ -64,6 +77,19 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = BASE_FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "pebble-submerged-rounded-v1", source: pebbleSubmergedRoundedSource },
+  { frame: "pebble-natural-rounded-v1", source: pebbleNaturalRoundedSource },
+  { frame: "pebble-coarse-2-v1", source: pebbleCoarse2Source },
+  { frame: "pebble-coarse-1-v1", source: pebbleCoarse1Source },
+  { frame: "pebble-coarse-0-v1", source: pebbleCoarse0Source },
+  { frame: "pebble-lake-blue-v1", source: pebbleLakeBlueSource },
+  { frame: "pebble-lake-calm-v1", source: pebbleLakeCalmSource },
+  { frame: "pebble-lake-clear-v1", source: pebbleLakeClearSource },
+  { frame: "pebble-lake-shallow-v1", source: pebbleLakeShallowSource },
+  { frame: "pebble-sand-base-v1", source: pebbleSandBaseSource },
+  { frame: "pebble-sand-sparse-v1", source: pebbleSandSparseSource },
+  { frame: "pebble-sand-medium-v1", source: pebbleSandMediumSource },
+  { frame: "pebble-sand-scattered-v1", source: pebbleSandScatteredSource },
   { frame: "angular-quarry-scree-v1", source: angularQuarryScreeSource },
   { frame: "fractured-bedrock-v1", source: fracturedBedrockTileSource },
   { frame: "upland-rock-grass-v1", source: uplandRockGrassSource },
@@ -129,7 +155,7 @@ export function preloadTerrain(scene: Phaser.Scene) {
   for(const [currentWallName,currentWallSource] of Object.entries(wallAssetPaths))scene.load.image(currentWallName.replaceAll("_","-"),currentWallSource);
   scene.load.image("terrain-source-dirt-road", packedDirtRoadSource);
   scene.load.image("terrain-source-stone-road", stoneSlabRoadSource);
-  for(const [currentDecalKey,currentDecalSource] of Object.entries({ 'boar-hoof-pair-v1':terrainAssetPaths.boarHoofPairSource,'boar-hoof-trail-v1':terrainAssetPaths.boarHoofTrailSource,'boar-hoof-worn-v1':terrainAssetPaths.boarHoofWornSource }))scene.load.image(currentDecalKey,currentDecalSource);
+  for(const [currentDecalKey,currentDecalSource] of Object.entries({ 'pebble-submerged-stones-v1':terrainAssetPaths.pebbleSubmergedStonesSource,'boar-hoof-pair-v1':terrainAssetPaths.boarHoofPairSource,'boar-hoof-trail-v1':terrainAssetPaths.boarHoofTrailSource,'boar-hoof-worn-v1':terrainAssetPaths.boarHoofWornSource }))scene.load.image(currentDecalKey,currentDecalSource);
   for (const kind of SOURCE_KINDS) scene.load.image(`terrain-source-${kind}`, SOURCES[kind]);
   for (const specialSourceRecord of SPECIAL_TERRAIN_SOURCES) scene.load.image(`terrain-source-${specialSourceRecord.frame}`, specialSourceRecord.source);
   scene.load.image(RAMP_TREAD_TEXTURE, rampTreadPatternSource);
