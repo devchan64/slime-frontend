@@ -238,3 +238,6 @@ files:
 - path: assets/terrain/reed-crossing-calm-water-v1.png
   source_path: assets/tiles/terrain/blocked/reed-crossing-calm-water-v1.png
   sha256: e37377303a310049a7bc032a9bfd1a173f6c6dcf4d2107b4306c14eb78d18d14
+- path: assets/terrain/dry-creek-eroded-sand-v1.png
+  source_path: assets/tiles/terrain/non-road/dry-creek-eroded-sand-v1.png
+  sha256: d1796bb516bb9212251b509479217ab771926271597a958a7b61ed3d57739652
