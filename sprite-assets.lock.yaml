@@ -1171,3 +1171,12 @@ files:
 - path: assets/structures/pebble-shore-rounded-pair-v1.png
   source_path: assets/billboards/pebble-shore-rounded-pair-v1.png
   sha256: a6f3f35bc22bbf7f4b96c980302504f556840a4f5db231340ce5067e6db3546f
+- path: assets/structures/wind-hills-windswept-grass-v1.png
+  source_path: assets/billboards/wind-hills-windswept-grass-v1.png
+  sha256: 7bebe06d09eeb0f0c1d683c943b953a400696a514759bc818eafcc8406f64afa
+- path: assets/structures/wind-hills-low-stone-ridge-v1.png
+  source_path: assets/billboards/wind-hills-low-stone-ridge-v1.png
+  sha256: 685508fa5cc14393ef7dbd38a2027a743fd989347341db4187c989d6abe7fc1b
+- path: assets/structures/wind-hills-low-stone-ridge-variant-v1.png
+  source_path: assets/billboards/wind-hills-low-stone-ridge-variant-v1.png
+  sha256: c2f50fffd43d03886f6967417a7385765b83c7dfa33d27b5220d028ea844053a
