@@ -1180,3 +1180,6 @@ files:
 - path: assets/structures/wind-hills-low-stone-ridge-variant-v1.png
   source_path: assets/billboards/wind-hills-low-stone-ridge-variant-v1.png
   sha256: c2f50fffd43d03886f6967417a7385765b83c7dfa33d27b5220d028ea844053a
+- path: assets/structures/silver-marsh-silver-reed-v1.png
+  source_path: assets/billboards/silver-marsh-silver-reed-v1.png
+  sha256: 88146d2d005ee74d9f09efa8bf2b6c1ea9c509198c274b053a31cf00aa17b4cf
