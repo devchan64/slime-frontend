@@ -235,3 +235,6 @@ files:
 - path: assets/terrain/silver-marsh-muddy-grass-v1.png
   source_path: assets/tiles/terrain/non-road/silver-marsh-muddy-grass-v1.png
   sha256: f259ec4f526ddb1889bb3b6569a1a99e6cb3a020aec6853b4f4748df94baf9b4
+- path: assets/terrain/reed-crossing-calm-water-v1.png
+  source_path: assets/tiles/terrain/blocked/reed-crossing-calm-water-v1.png
+  sha256: e37377303a310049a7bc032a9bfd1a173f6c6dcf4d2107b4306c14eb78d18d14
