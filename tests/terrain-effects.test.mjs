@@ -142,3 +142,24 @@ test('발광 시트는 6fps 경계와 8프레임 순환을 지킨다',()=>{
  assert.equal(sampleEffectAnimationFrame(1333),7);
  assert.equal(sampleEffectAnimationFrame(1334),0);
 });
+
+test('안개는 6fps 이웃 프레임을 부드럽게 혼합하고 두 스프라이트를 정리한다',()=>{
+ const currentSceneEvents=new EventEmitter();
+ const currentSpriteRecords=[];
+ const currentSceneRecord={time:{now:0},events:currentSceneEvents,textures:{exists:()=>true,get:()=>({getSourceImage:()=>({width:1774,height:887}),has:()=>true})},add:{image:()=>{
+  const currentSpriteRecord=new EventEmitter();currentSpriteRecord.depth=0;currentSpriteRecord.destroy=()=>{currentSpriteRecord.destroyed=true;currentSpriteRecord.emit('destroy');};
+  for(const currentMethodName of ['setOrigin','setPosition','setTint','setBlendMode','setAlpha','setDepth','setData','setFrame','setDisplaySize'])currentSpriteRecord[currentMethodName]=(...currentCallValues)=>{currentSpriteRecord[currentMethodName+'Values']=currentCallValues;if(currentMethodName==='setDepth')currentSpriteRecord.depth=currentCallValues[0];return currentSpriteRecord;};
+  currentSpriteRecords.push(currentSpriteRecord);return currentSpriteRecord;
+ }}};
+ const currentFogRecord={version:2,id:'lake-fog',kind:'fog',position:{column:3,row:3},color:'#ffffff',radius:3,intensity:.6,periodMs:24000,height:16,seed:0};
+ const currentMapRecord={columns:10,rows:10,effectProfiles:{fog:{key:'safe-terrain-lake-fog',alpha:.5,target:[0,0,1,1],frames:Array.from({length:8},()=>[0,0,1,1])}},terrainEffects:[currentFogRecord]};
+ mountTerrainEffectLayer(currentSceneRecord,currentMapRecord,()=>({x:100,y:100,depth:20}));
+ const [currentFirstSprite,currentSecondSprite]=currentSpriteRecords;
+ assert.equal(currentSpriteRecords.length,2);assert.deepEqual(currentFirstSprite.setDisplaySizeValues,[240,120]);assert.deepEqual(currentSecondSprite.setBlendModeValues,['NORMAL']);
+ assert.deepEqual(currentFirstSprite.setAlphaValues,[.3]);assert.deepEqual(currentSecondSprite.setAlphaValues,[0]);
+ currentSceneRecord.time.now=1000/12;currentSceneEvents.emit('update');
+ assert.equal(currentFirstSprite.setFrameValues[0],0);assert.equal(currentSecondSprite.setFrameValues[0],1);
+ assert.ok(Math.abs(currentFirstSprite.setAlphaValues[0]-.15)<1e-9);assert.ok(Math.abs(currentSecondSprite.setAlphaValues[0]-.15)<1e-9);
+ currentSceneRecord.time.now=1000/6;currentSceneEvents.emit('update');assert.equal(currentFirstSprite.setFrameValues[0],1);assert.equal(currentSecondSprite.setFrameValues[0],2);
+ currentFirstSprite.destroy();assert.ok(currentSecondSprite.destroyed);assert.equal(currentSceneEvents.listenerCount('update'),0);
+});

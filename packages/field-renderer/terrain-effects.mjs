@@ -11,6 +11,7 @@ const TERRAIN_GLOW_FRAME_COUNT = 8;
 const TERRAIN_GLOW_COLUMN_COUNT = 4;
 const TERRAIN_GLOW_ROW_COUNT = 2;
 
+const TERRAIN_FOG_DRIFT_RATIO = .04;
 const TERRAIN_MOTH_DRIFT_RATIO = .065;
 const TERRAIN_MOTH_BOB_RATIO = .035;
 
@@ -61,6 +62,13 @@ export function sampleEffectAnimationFrame(currentElapsedMilliseconds,currentSee
  return Math.floor(currentElapsedMilliseconds*EFFECT_ANIMATION_FRAME_RATE/1000+currentSeedValue*.61803398875*TERRAIN_GLOW_FRAME_COUNT)%TERRAIN_GLOW_FRAME_COUNT;
 }
 
+/** 안개 시트는 초당 여섯 프레임을 유지하면서 이웃 프레임을 연속 혼합한다. */
+export function sampleFogAnimationFrame(currentElapsedMilliseconds,currentSeedValue=0){
+ const currentFramePosition=currentElapsedMilliseconds*EFFECT_ANIMATION_FRAME_RATE/1000+currentSeedValue*.61803398875*TERRAIN_GLOW_FRAME_COUNT;
+ const currentFrameWhole=Math.floor(currentFramePosition);
+ return {frame:currentFrameWhole%TERRAIN_GLOW_FRAME_COUNT,nextFrame:(currentFrameWhole+1)%TERRAIN_GLOW_FRAME_COUNT,mix:currentFramePosition-currentFrameWhole};
+}
+
 /** 좌표 검수와 맵에서 같은 날갯짓·정규화 비행 궤적을 사용한다. */
 export function sampleMothAnimationFrame(currentElapsedMilliseconds,currentFlightPeriod=4000,currentSeedValue=0){
  const currentFlightPhase=currentElapsedMilliseconds/currentFlightPeriod*Math.PI*2+currentSeedValue;
@@ -69,10 +77,12 @@ export function sampleMothAnimationFrame(currentElapsedMilliseconds,currentFligh
 }
 
 function mountTerrainGlowSprite(currentSceneInstance,currentMapRecord,currentEffectRecord,currentAnchorScreen){
+ const currentFogEnabled=currentEffectRecord.kind==='fog';
  const currentHostSprite=currentAnchorScreen.hostSprite;
  const currentHostRecord=currentMapRecord.objects?.find(currentObjectRecord=>currentObjectRecord.id===currentEffectRecord.objectId);
  const currentMushroomProfile=currentMapRecord.effectProfiles?.[currentHostRecord?.textureKey];
  const currentSwarmProfile=currentEffectRecord.version===2?currentMapRecord.effectProfiles?.[currentEffectRecord.kind]:null;
+ if(currentFogEnabled&&!currentSwarmProfile)throw Error('안개 이펙트 정렬 원장이 없습니다.');
  const currentSheetProfile=currentSwarmProfile??currentMushroomProfile??(currentEffectRecord.version===2?{key:currentEffectRecord.kind==='moths'?'safe-terrain-moth-swarm':'safe-terrain-firefly-swarm',width:1,height:1,alpha:1}:currentEffectRecord.objectId?TERRAIN_GLOW_CAP_PROFILE:TERRAIN_GLOW_AREA_PROFILE);
  if(!currentSceneInstance.textures.exists(currentSheetProfile.key))throw Error('발광 시트가 로드되지 않았습니다: '+currentSheetProfile.key);
  const currentSheetTexture=currentSceneInstance.textures.get(currentSheetProfile.key);
@@ -87,12 +97,21 @@ function mountTerrainGlowSprite(currentSceneInstance,currentMapRecord,currentEff
  const currentGlowSprite=currentSceneInstance.add.image(currentAnchorScreen.x,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE,currentSheetProfile.key,0);
  currentGlowSprite.setTint(Number.parseInt(currentEffectRecord.color.slice(1),16));
  currentGlowSprite.setBlendMode(currentEffectRecord.version===2&&currentEffectRecord.kind!=='moths'?'NORMAL':'ADD').setAlpha(currentEffectRecord.intensity*currentSheetProfile.alpha);
- currentGlowSprite.setDepth(currentAnchorScreen.depth+TERRAIN_GLOW_DEPTH_OFFSET);
+ currentGlowSprite.setDepth(currentFogEnabled?TERRAIN_DEPTH.base+(currentMapRecord.columns+currentMapRecord.rows)*TERRAIN_DEPTH.stride+TERRAIN_DEPTH.overlay:currentAnchorScreen.depth+TERRAIN_GLOW_DEPTH_OFFSET);
  currentGlowSprite.setData('terrainEffectId',currentEffectRecord.id);
+ const currentFogNextSprite=currentFogEnabled?currentSceneInstance.add.image(currentAnchorScreen.x,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE,currentSheetProfile.key,0):null;
+ if(currentFogNextSprite){
+  currentFogNextSprite.setTint(Number.parseInt(currentEffectRecord.color.slice(1),16)).setBlendMode('NORMAL').setDepth(currentGlowSprite.depth+TERRAIN_GLOW_DEPTH_OFFSET).setData('terrainEffectId',currentEffectRecord.id);
+ }
  const renderTerrainGlowFrame=()=>{
   const currentMothSwarmEnabled=currentEffectRecord.version===2&&currentEffectRecord.kind==='moths';
   const currentMothMotion=currentMothSwarmEnabled?sampleMothAnimationFrame(currentSceneInstance.time.now,currentEffectRecord.periodMs,currentEffectRecord.seed):null;
-  const currentFrameIndex=currentMothMotion?.frame??sampleEffectAnimationFrame(currentSceneInstance.time.now,currentEffectRecord.seed);
+  const currentFogMotion=currentFogEnabled?sampleFogAnimationFrame(currentSceneInstance.time.now,currentEffectRecord.seed):null;
+  const currentFrameIndex=currentFogMotion?.frame??currentMothMotion?.frame??sampleEffectAnimationFrame(currentSceneInstance.time.now,currentEffectRecord.seed);
+  if(currentFogMotion){
+   currentGlowSprite.setAlpha(currentEffectRecord.intensity*currentSheetProfile.alpha*(1-currentFogMotion.mix));
+   currentFogNextSprite.setFrame(currentFogMotion.nextFrame).setAlpha(currentEffectRecord.intensity*currentSheetProfile.alpha*currentFogMotion.mix);
+  }
   // 연결된 발광도 시트 전체를 반복 재생한다. 밝기 변화만으로 애니메이션을 대체하지 않는다.
   const currentAttachedGlow=currentEffectRecord.kind==='glow'&&Boolean(currentEffectRecord.objectId);
   currentGlowSprite.setFrame(currentFrameIndex);
@@ -106,15 +125,22 @@ function mountTerrainGlowSprite(currentSceneInstance,currentMapRecord,currentEff
   }else if(currentSwarmProfile){
    const currentFramePlacement=calculateEffectFramePlacement(currentSwarmProfile.target,currentSwarmProfile.frames[currentFrameIndex]);
    const currentSwarmSize=currentEffectRecord.radius*TERRAIN_EFFECT_TILE_WIDTH;
-   const currentFlightOffsetX=(currentMothMotion?.offsetX??0)*currentSwarmSize;
+   const currentFogPhase=currentSceneInstance.time.now/currentEffectRecord.periodMs*Math.PI*2+currentEffectRecord.seed;
+   const currentFlightOffsetX=(currentFogEnabled?Math.sin(currentFogPhase)*TERRAIN_FOG_DRIFT_RATIO:(currentMothMotion?.offsetX??0))*currentSwarmSize;
+   const currentSwarmHeight=currentFogEnabled?currentEffectRecord.radius*TERRAIN_EFFECT_TILE_HEIGHT:currentSwarmSize;
    const currentFlightOffsetY=(currentMothMotion?.offsetY??0)*currentSwarmSize;
-   currentGlowSprite.setOrigin(0,0).setPosition(currentAnchorScreen.x+(currentFramePlacement.left-.5)*currentSwarmSize+currentFlightOffsetX,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE+(currentFramePlacement.top-.5)*currentSwarmSize+currentFlightOffsetY);
-   currentGlowSprite.setDisplaySize(currentSwarmSize*currentFramePlacement.width,currentSwarmSize*currentFramePlacement.height);
+   currentGlowSprite.setOrigin(0,0).setPosition(currentAnchorScreen.x+(currentFramePlacement.left-.5)*currentSwarmSize+currentFlightOffsetX,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE+(currentFramePlacement.top-.5)*currentSwarmHeight+currentFlightOffsetY);
+   currentGlowSprite.setDisplaySize(currentSwarmSize*currentFramePlacement.width,currentSwarmHeight*currentFramePlacement.height);
+   if(currentFogMotion){
+    const currentNextPlacement=calculateEffectFramePlacement(currentSwarmProfile.target,currentSwarmProfile.frames[currentFogMotion.nextFrame]);
+    currentFogNextSprite.setOrigin(0,0).setPosition(currentAnchorScreen.x+(currentNextPlacement.left-.5)*currentSwarmSize+currentFlightOffsetX,currentAnchorScreen.y-currentEffectRecord.height*TERRAIN_EFFECT_RENDER_SCALE+(currentNextPlacement.top-.5)*currentSwarmHeight+currentFlightOffsetY);
+    currentFogNextSprite.setDisplaySize(currentSwarmSize*currentNextPlacement.width,currentSwarmHeight*currentNextPlacement.height);
+   }
   }else currentGlowSprite.setDisplaySize(currentEffectRecord.radius*TERRAIN_EFFECT_TILE_WIDTH*currentSheetProfile.width,currentEffectRecord.radius*TERRAIN_EFFECT_TILE_WIDTH*currentSheetProfile.height);
  };
  renderTerrainGlowFrame();
  currentSceneInstance.events.on('update',renderTerrainGlowFrame);
- currentGlowSprite.once('destroy',()=>currentSceneInstance.events.off('update',renderTerrainGlowFrame));
+ currentGlowSprite.once('destroy',()=>{currentSceneInstance.events.off('update',renderTerrainGlowFrame);if(currentFogNextSprite)currentFogNextSprite.destroy();});
  return currentGlowSprite;
 }
 const TERRAIN_EFFECT_FULL_CIRCLE = Math.PI * 2;

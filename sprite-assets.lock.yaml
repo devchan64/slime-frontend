@@ -1183,3 +1183,6 @@ files:
 - path: assets/structures/silver-marsh-silver-reed-v1.png
   source_path: assets/billboards/silver-marsh-silver-reed-v1.png
   sha256: 88146d2d005ee74d9f09efa8bf2b6c1ea9c509198c274b053a31cf00aa17b4cf
+- path: assets/effects/terrain/lake-fog-sheet-v2.png
+  source_path: assets/sprites/effects/terrain/lake-fog-sheet-v2.png
+  sha256: f0c85c42282e6467a5e01d60d53d57381660aa18312c6ad70a779efd37d15a91

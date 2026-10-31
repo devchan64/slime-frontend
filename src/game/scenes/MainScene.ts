@@ -96,6 +96,7 @@ const MOVE_OVERLAY = {
 const ACTOR_DEPTH = { labelOffset: 0.01 };
 const ACTOR_PICK_ALPHA_MINIMUM = 1;
 const TERRAIN_FIREFLY_SHEET_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/firefly-swarm-sheet-v1.png',import.meta.url).href;
+const TERRAIN_FOG_SHEET_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/lake-fog-sheet-v2.png',import.meta.url).href;
 const TERRAIN_MOTH_SHEET_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/moth-swarm-sheet-v1.png',import.meta.url).href;
 const TERRAIN_GLOW_CORE_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-core-cyan-sheet-v1.png',import.meta.url).href;
 const TERRAIN_GLOW_HALO_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-halo-lime-sheet-v1.png',import.meta.url).href;
@@ -211,6 +212,7 @@ export class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('safe-terrain-firefly-swarm',TERRAIN_FIREFLY_SHEET_SOURCE);
     this.load.image('safe-terrain-moth-swarm',TERRAIN_MOTH_SHEET_SOURCE);
+    this.load.image('safe-terrain-lake-fog',TERRAIN_FOG_SHEET_SOURCE);
     this.load.image('safe-terrain-glow-core',TERRAIN_GLOW_CORE_SOURCE);
     this.load.image('safe-terrain-glow-mushroom-single',TERRAIN_MUSHROOM_SINGLE_SOURCE);
     this.load.image('safe-terrain-glow-mushroom-cluster',TERRAIN_MUSHROOM_CLUSTER_SOURCE);

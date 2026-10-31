@@ -241,3 +241,9 @@ files:
 - path: assets/terrain/dry-creek-eroded-sand-v1.png
   source_path: assets/tiles/terrain/non-road/dry-creek-eroded-sand-v1.png
   sha256: d1796bb516bb9212251b509479217ab771926271597a958a7b61ed3d57739652
+- path: assets/terrain/mist-lake-silver-water-v2.png
+  source_path: assets/tiles/terrain/blocked/mist-lake-silver-water-v2.png
+  sha256: 1ae0c0fd61b41fca5fd5eaa591af4996e2f42a5efbab196d23023ac59071ff5a
+- path: assets/terrain/mist-lake-moss-bank-wall-v1.png
+  source_path: assets/tiles/terrain/blocked/mist-lake-moss-bank-wall-v1.png
+  sha256: 82522c7314e8512c8216151fcc6044a7d9eb2ce7b08a5e4a5a447984873e66a2
