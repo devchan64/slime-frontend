@@ -247,3 +247,6 @@ files:
 - path: assets/terrain/mist-lake-moss-bank-wall-v1.png
   source_path: assets/tiles/terrain/blocked/mist-lake-moss-bank-wall-v1.png
   sha256: 82522c7314e8512c8216151fcc6044a7d9eb2ce7b08a5e4a5a447984873e66a2
+- path: assets/terrain/mist-lake-deep-water-v1.png
+  source_path: assets/tiles/terrain/blocked/mist-lake-deep-water-v1.png
+  sha256: 079fb5871187a7e4f9399485ae2b88b019a8f83ba362b293e1c30118fd20fbcf
