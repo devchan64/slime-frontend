@@ -250,3 +250,9 @@ files:
 - path: assets/terrain/mist-lake-deep-water-v1.png
   source_path: assets/tiles/terrain/blocked/mist-lake-deep-water-v1.png
   sha256: 079fb5871187a7e4f9399485ae2b88b019a8f83ba362b293e1c30118fd20fbcf
+- path: assets/terrain/salt-flat-crust-v2.png
+  source_path: assets/tiles/terrain/non-road/salt-flat-crust-v2.png
+  sha256: 7448a5f067191129b49ec46c96597720c5dfa65b0ce9affc55e4b4ec449dfd29
+- path: assets/terrain/salt-flat-mixed-soil-v1.png
+  source_path: assets/tiles/terrain/non-road/salt-flat-mixed-soil-v1.png
+  sha256: 3beb170c383c41ebc93781a38a8b42ea71cabf47d9faaf2e663f90d9b11ea419

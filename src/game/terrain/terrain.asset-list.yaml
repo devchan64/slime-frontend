@@ -66,3 +66,5 @@ reedCrossingCalmWaterSource: assets/tiles/terrain/blocked/reed-crossing-calm-wat
 dryCreekErodedSandSource: assets/tiles/terrain/non-road/dry-creek-eroded-sand-v1.png
 mistLakeSilverCalmWaterSource: assets/tiles/terrain/blocked/mist-lake-silver-water-v2.png
 mistLakeDeepWaterSource: assets/tiles/terrain/blocked/mist-lake-deep-water-v1.png
+saltFlatCrustV2Source: assets/tiles/terrain/non-road/salt-flat-crust-v2.png
+saltFlatMixedSoilSource: assets/tiles/terrain/non-road/salt-flat-mixed-soil-v1.png
