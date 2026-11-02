@@ -151,15 +151,6 @@ files:
 - path: assets/characters/female/walk-v1/walk-v1.png
   source_path: assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/walk-v1.png
   sha256: 25e4a4cc54180aba8f4a52636ec762786fb0aaac7ef828b0a01da36c8da08709
-- path: assets/characters/default/walk-12frames-v1/source.yaml
-  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/source.yaml
-  sha256: 4a484452d3614d759d1466e4dec0afdbd8e2407c2d9cc843c9322b80d560b080
-- path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.animation.json
-  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.animation.json
-  sha256: 6367e933eca98e86a183d5583e2d21ad186452f916cb4705c76644b9d7b4a8ae
-- path: assets/characters/default/walk-12frames-v1/walk-12frames-v1.png
-  source_path: assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.png
-  sha256: b3afadc30eaf6fdb5e819521d617b5035539fb0e60a9632b2ccd8b53f6d02a35
 - path: assets/structures/guard-center-wood-v1.png
   source_path: assets/buildings/guard-center-wood-v1.png
   sha256: 7939334c25a963b7ae355fd35c0e3a5138a89647735283ffe7f5bad8ad9362b0
@@ -1186,3 +1177,12 @@ files:
 - path: assets/effects/terrain/lake-fog-sheet-v2.png
   source_path: assets/sprites/effects/terrain/lake-fog-sheet-v2.png
   sha256: f0c85c42282e6467a5e01d60d53d57381660aa18312c6ad70a779efd37d15a91
+- path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
+  source_path: assets/characters/default/animations/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
+  sha256: a8ea5a2e817097c06bbcd5375bf2fc3f5b57d536e7bad4a1899602412218bb6c
+- path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.yaml
+  source_path: assets/characters/default/animations/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.yaml
+  sha256: c1964bdeb20da1293d7b4ed4c24e872900fe97bfdff78ed7936accb48191834e
+- path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
+  source_path: assets/characters/default/animations/walk-light-leather-v1/walk-light-leather-v1.animation.json
+  sha256: 410d16056ea80a6a7211e6a4764dc700a0d7053d053ec498828287a88a83fc49

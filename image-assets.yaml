@@ -134,8 +134,8 @@ data:
     path: ../slime-assets/assets/characters/female-a/animations/rest-v1/down-left-entry-exit-v2/rest-v1.png
   - managementId: sprite.characters.female.walk-v1.walk-v1.png
     path: ../slime-assets/assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/walk-v1.png
-  - managementId: sprite.characters.default.walk-12frames-v1.walk-12frames-v1.png
-    path: ../slime-assets/assets/characters/default/animations/walk-12frames-v1/down-left-12frames-v3/walk-12frames-v1.png
+  - managementId: sprite.image.characters.default.walk-light-leather.front-left
+    path: ../slime-assets/assets/characters/default/animations/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
   - managementId: sprite.structures.guard-center-wood-v1.png
     path: ../slime-assets/assets/buildings/guard-center-wood-v1.png
   - managementId: sprite.structures.guard-center-red-tile-v1.png
