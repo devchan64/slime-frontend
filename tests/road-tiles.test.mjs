@@ -42,7 +42,7 @@ test('road 코드는 필드와 좌표에 관계없이 공통 전체 타일을 �
   const expectedRoadFrameGroups = [
     ['dirt-road','meadow grove wind-hills mist-lake ash-edge cinder-path clover-bank dry-creek fallen-canopy lantern-wood moss-clearing old-orchard reed-crossing root-trail silver-marsh windrow-road granary-flats'],
     ['stone-road','boar-ridge broken-quarry crystal-cut dawn-overlook mill-ridge'],
-    ['road','pebble-shore brine-bank salt-causeway salt-flat'],
+    ['road','pebble-shore brine-bank salt-flat'],
   ];
   for (const [expectedRoadFrameName,currentMapIdentifierList] of expectedRoadFrameGroups) {
     for (const currentMapIdentifier of currentMapIdentifierList.split(' ')) {

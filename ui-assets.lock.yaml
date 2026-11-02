@@ -15,7 +15,7 @@ files:
   sha256: 7152f4b23fbd4bef7ebebeb34e70618c251b7d9e5a73247a28215af88456552c
 - path: assets/ui/world-map/thumbnails.yaml
   source_path: assets/ui/world-map/thumbnails.yaml
-  sha256: 750bf272bd89fd4b203df3d000adc874655319bf7d1302bd183f32f900ae28a4
+  sha256: 9695ff9cb1d0fd268d2e1877df9230fb0694be79d4a35827cd6567d7d3326a68
 - path: assets/ui/world-map/thumbnails/grainstead-v1.png
   source_path: assets/ui/world-map/thumbnails/grainstead-v1.png
   sha256: 5d0cb1210b26d4a4258741d55dc1c46b2798d13e17b7f47fe29b3d7f9c309451
@@ -94,9 +94,6 @@ files:
 - path: assets/ui/world-map/thumbnails/brine-bank-v1.png
   source_path: assets/ui/world-map/thumbnails/brine-bank-v1.png
   sha256: c7ff7a4a636155b0d38d041f520c64d8794e26411d833de9f210c6b835d0382a
-- path: assets/ui/world-map/thumbnails/salt-causeway-v1.png
-  source_path: assets/ui/world-map/thumbnails/salt-causeway-v1.png
-  sha256: 680a309d02877074e43b145b622a94d69a0e9d6b33fb57768afc52f8accfa60e
 - path: assets/ui/world-map/thumbnails/salt-flat-v1.png
   source_path: assets/ui/world-map/thumbnails/salt-flat-v1.png
   sha256: d09aa163b2bc8676b01516d6ff49ac64798d5531a32b4dc6c9ebf5f523ad5efb
