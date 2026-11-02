@@ -256,3 +256,6 @@ files:
 - path: assets/terrain/salt-flat-mixed-soil-v1.png
   source_path: assets/tiles/terrain/non-road/salt-flat-mixed-soil-v1.png
   sha256: 3beb170c383c41ebc93781a38a8b42ea71cabf47d9faaf2e663f90d9b11ea419
+- path: assets/terrain/salt-flat-calm-brine-v1.png
+  source_path: assets/tiles/terrain/blocked/salt-flat-calm-brine-v1.png
+  sha256: 8c5e53b52b5b4804b05f8485b87f83c41a680e7aaaed898a219ac4f1c454d947
