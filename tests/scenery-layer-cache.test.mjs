@@ -1,0 +1,22 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+import ts from 'typescript';
+const currentSource=ts.createSourceFile('MainScene.ts',await readFile('src/game/scenes/MainScene.ts','utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
+const currentClass=currentSource.statements.find(currentNode=>ts.isClassDeclaration(currentNode)&&currentNode.name?.text==='MainScene');
+const currentMethod=currentClass.members.find(currentNode=>ts.isMethodDeclaration(currentNode)&&currentNode.name.getText(currentSource)==='syncSceneryRenderLayer');
+assert.ok(currentMethod);
+const currentJavascript=ts.transpileModule('class CacheTest { '+currentMethod.getText(currentSource).replace('private ','')+' }; this.CacheTest=CacheTest;', {compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+test('이동 갱신은 소품·이펙트를 재사용하고 설정과 맵 변경은 다시 만든다',()=>{
+ let currentMountCount=0,currentDestroyCount=0;
+ const currentContext={resolveFieldSceneryPlacement:()=>({screen:{x:1,y:2}}),resolveFieldSceneryDepth:()=>1,resolveMapRenderOptions:()=>({}),drawFieldSceneryObject(currentScene){currentScene.children.list.push({destroy(){currentDestroyCount++;}});},mountTerrainEffectLayer(currentScene,currentMap){if(currentMap.terrainEffects.length){currentMountCount++;currentScene.children.list.push({destroy(){currentDestroyCount++;}});}}};
+ vm.runInNewContext(currentJavascript,currentContext);const currentScene=new currentContext.CacheTest();
+ Object.assign(currentScene,{terrainSignature:'map-a',sceneryLayerSignature:'',sceneryLayerObjects:new Set(),children:{list:[]},viewSurface:{},currentTileDimensions:{width:80,height:40},rotation:0,project:()=>({x:0,y:0})});
+ const currentState={map:{objects:[{id:'a',position:{column:1,row:1}}],terrainEffects:[{id:'effect'}],effectProfiles:{a:1}},battle:null};
+ currentScene.syncSceneryRenderLayer(currentState);assert.equal(currentMountCount,1);assert.equal(currentScene.sceneryLayerObjects.size,2);
+ for(let currentIteration=0;currentIteration<20;currentIteration++)currentScene.syncSceneryRenderLayer(structuredClone(currentState));
+ assert.equal(currentMountCount,1);assert.equal(currentDestroyCount,0);
+ currentState.map.effectProfiles.a=2;currentScene.children.list=[];currentScene.syncSceneryRenderLayer(currentState);assert.equal(currentMountCount,2);assert.equal(currentDestroyCount,2);
+ currentScene.terrainSignature='map-b';currentScene.children.list=[];currentScene.syncSceneryRenderLayer(currentState);assert.equal(currentMountCount,3);assert.equal(currentDestroyCount,4);
+});

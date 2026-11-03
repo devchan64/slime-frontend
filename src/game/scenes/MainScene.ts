@@ -196,6 +196,8 @@ export class MainScene extends Phaser.Scene {
   private terrainSignature = "";
   private buildingLayerSignature = "";
   private buildingLayerObjects = new Set<Phaser.GameObjects.GameObject>();
+  private sceneryLayerSignature = "";
+  private sceneryLayerObjects = new Set<Phaser.GameObjects.GameObject>();
   private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
   private safeBarrierSprites: Phaser.GameObjects.Mesh[] = [];
@@ -256,6 +258,8 @@ export class MainScene extends Phaser.Scene {
     };
     this.buildingLayerSignature = "";
     this.buildingLayerObjects.clear();
+    this.sceneryLayerSignature = "";
+    this.sceneryLayerObjects.clear();
     this.fieldCameraFollowPending = false;
     if (this.loadFailed) return;
     const releaseMapGestureListeners=bindMapGestureCancellation(this.game.canvas,document,window,()=>{this.panStart=null;});
@@ -498,6 +502,9 @@ export class MainScene extends Phaser.Scene {
         this.terrainObjects.clear();
         for(const currentBuildingObject of this.buildingLayerObjects)currentBuildingObject.destroy();
         this.buildingLayerObjects.clear();
+        for(const currentSceneryObject of this.sceneryLayerObjects)currentSceneryObject.destroy();
+        this.sceneryLayerObjects.clear();
+        this.sceneryLayerSignature="";
         this.terrainSignature="";
         this.buildingLayerSignature="";
         for(const [currentTextureKey,currentImageRecord] of currentRequiredImages){
@@ -525,7 +532,7 @@ export class MainScene extends Phaser.Scene {
     this.actorEntries=[];
     this.movingObjects=[];
     for (const child of [...this.children.list])
-      if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
+      if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && !this.sceneryLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.waypointMarkers = [];
     this.personalMarkerGraphics = [];
     this.safeBarrierSprites = [];
@@ -643,12 +650,7 @@ export class MainScene extends Phaser.Scene {
         }).setOrigin(CENTER).setDepth(this.annotationDepth());
       }
     }
-      const currentSceneryDepthSurface={...this.viewSurface!,objects:(s.battle?.field ?? s.map).objects??[]};
-      for(const currentObjectRecord of (s.battle?.field ?? s.map).objects??[]){
-        const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
-        drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,currentSceneryDepthSurface,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation,shadowSurface:this.viewSurface!});
-      }
-      mountTerrainEffectLayer(this,s.battle?.field??s.map,currentCellPosition=>this.project(currentCellPosition));
+    this.syncSceneryRenderLayer(s);
     if (s.battle) {
       for (const unit of [...s.battle.units].sort(
         (a, b) =>
@@ -833,6 +835,24 @@ export class MainScene extends Phaser.Scene {
     }, objects=>{for(const object of objects){this.terrainObjects.delete(object);object.destroy();}});
     this.terrainSignature=signature;
     this.syncTerrainViewport();
+  }
+
+  /** 고정 소품과 이펙트는 맵·투영·에셋이 변할 때만 다시 만든다. */
+  private syncSceneryRenderLayer(currentSceneState: State) {
+    const currentMapRecord = currentSceneState.battle?.field ?? currentSceneState.map;
+    const currentLayerSignature = JSON.stringify([this.terrainSignature, currentMapRecord.objects ?? [], currentMapRecord.terrainEffects ?? [], (currentMapRecord as {effectProfiles?:unknown}).effectProfiles ?? null]);
+    if(currentLayerSignature === this.sceneryLayerSignature)return;
+    for(const currentSceneryObject of this.sceneryLayerObjects)currentSceneryObject.destroy();
+    this.sceneryLayerObjects.clear();
+    const previousSceneObjects = new Set(this.children.list);
+    const currentSceneryDepthSurface={...this.viewSurface!,objects:currentMapRecord.objects??[]};
+    for(const currentObjectRecord of currentMapRecord.objects??[]){
+      const currentObjectPlacement=resolveFieldSceneryPlacement(currentObjectRecord,this.project(currentObjectRecord.position),{tileWidth:this.currentTileDimensions.width,tileHeight:this.currentTileDimensions.height,rotation:this.rotation});
+      drawFieldSceneryObject(this,currentObjectRecord,currentObjectPlacement.screen,resolveFieldSceneryDepth(currentObjectRecord,currentSceneryDepthSurface,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation}),undefined,{...resolveMapRenderOptions(this.viewSurface!),rotation:this.rotation,shadowSurface:this.viewSurface!});
+    }
+    mountTerrainEffectLayer(this,currentMapRecord,currentCellPosition=>this.project(currentCellPosition));
+    for(const currentSceneObject of this.children.list)if(!previousSceneObjects.has(currentSceneObject))this.sceneryLayerObjects.add(currentSceneObject);
+    this.sceneryLayerSignature=currentLayerSignature;
   }
 
   private syncBuildingRenderLayer(currentSceneState: State) {
