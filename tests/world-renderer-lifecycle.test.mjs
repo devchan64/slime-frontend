@@ -34,7 +34,7 @@ function createRendererHarness(){
  const recordCurrentEvent=currentEventName=>(...currentEventValues)=>currentRecordedEvents.push([currentEventName,...currentEventValues]);
  const currentEffectContext={inWorld:true,container:{current:{}},renderer:{current:null},stopWalking:{current:false},
   battleReport:null,battleReportSceneSnapshot:{current:null},stateRef:{current:null},
-  loadRendererModule:()=>currentModulePromise,client:{disconnect:recordCurrentEvent('disconnect')},console:{error:recordCurrentEvent('error')}};
+  loadRendererModule:()=>currentModulePromise,client:{disconnect:recordCurrentEvent('disconnect')},reportFrontendError:recordCurrentEvent('reportFrontendError'),console:{error:recordCurrentEvent('error')}};
  for(const currentSetterName of ['setRenderFailed','setRenderError','setRenderedLocation','setConnected','setStatus','setSelected','setBattleSelectionIntent'])currentEffectContext[currentSetterName]=recordCurrentEvent(currentSetterName);
  const cleanupCurrentEffect=vm.runInNewContext(currentEffectJavaScript+'\nexecuteWorldEffect();',currentEffectContext);
  const currentRendererModule={createGame(currentParentElement,currentSelectCallback,currentReadyCallback,currentFailureCallback){
