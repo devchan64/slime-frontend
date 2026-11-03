@@ -7,7 +7,7 @@ export function createGame(
   parent: HTMLElement,
   onSelect: (p: Position) => void,
   onReady: (location: string) => void,
-  onFailure: (failureNoticeValue: Notice) => void,
+  onFailure: (failureNoticeValue: Notice, currentFailureDetail?: {stage:"terrain-validation"|"asset-load"; error:unknown}) => void,
   currentGameConstructor: typeof Phaser.Game = Phaser.Game,
   currentMapResourceKeys?:string[],
   currentActorResourceKinds?:string[],

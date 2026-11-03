@@ -186,7 +186,7 @@ export class MainScene extends Phaser.Scene {
   private preparedLocation = "";
   private onReady: (location: string) => void;
   private loadFailed = false;
-  private onFailure: (failureNoticeValue: Notice) => void;
+  private onFailure: (failureNoticeValue: Notice, currentFailureDetail?: {stage:"terrain-validation"|"asset-load"; error:unknown}) => void;
   private reachable = new Set<string>();
   private terrainObjects = new Set<Phaser.GameObjects.GameObject>();
   private backdropLayer: Phaser.GameObjects.Image | null = null;
@@ -201,7 +201,7 @@ export class MainScene extends Phaser.Scene {
   private safeBarrierSprites: Phaser.GameObjects.Mesh[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   private waypointZoom = 0;
-  constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice) => void,currentMapResourceKeys?:string[],currentActorResourceKinds?:string[]) {
+  constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice, currentFailureDetail?: {stage:"terrain-validation"|"asset-load"; error:unknown}) => void,currentMapResourceKeys?:string[],currentActorResourceKinds?:string[]) {
     super("world");
     this.currentActorResourceKinds=currentActorResourceKinds;
     this.currentMapResourceKeys=currentMapResourceKeys?new Set(currentMapResourceKeys):undefined;
@@ -224,7 +224,7 @@ export class MainScene extends Phaser.Scene {
     this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, (failedAssetFile: Phaser.Loader.File) => {
       console.error(`[${new Date().toISOString()}/world/asset-load] 에셋 로딩 실패`, {key: failedAssetFile.key, type: failedAssetFile.type, src: failedAssetFile.src});
       this.loadFailed = true;
-      this.onFailure({key:"app.mapAssetsFailed"});
+      this.onFailure({key:"app.mapAssetsFailed"},{stage:"asset-load",error:new Error(`에셋 로딩 실패: ${failedAssetFile.key}`)});
     });
     if(this.currentMapResourceKeys){
       const currentTextureSources=collectMapTextureSources();
@@ -297,7 +297,7 @@ export class MainScene extends Phaser.Scene {
     catch (terrainInitializationError) {
       console.error(`[${new Date().toISOString()}/world/terrain-validation] 지형 초기화 실패`, terrainInitializationError);
       this.loadFailed = true;
-      this.onFailure({key:"app.mapSceneFailed"});
+      this.onFailure({key:"app.mapSceneFailed"},{stage:"terrain-validation",error:terrainInitializationError});
       return;
     }
     this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
@@ -511,7 +511,7 @@ export class MainScene extends Phaser.Scene {
         if(currentLoadController.signal.aborted)return;
         console.error('맵 DB 이미지 로딩 실패',currentImageError);
         this.loadFailed=true;
-        this.onFailure({key:"app.mapAssetsFailed"});
+        this.onFailure({key:"app.mapAssetsFailed"},{stage:"asset-load",error:currentImageError});
       });
     return false;
   }

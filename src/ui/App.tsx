@@ -54,8 +54,27 @@ const RESULT_NAMES: Record<string, string> = {
 };
 const MAP_ZOOM_STEP = 0.15;
 const client = new Client();
+let lastFrontendErrorTime = 0;
+function reportFrontendError(currentErrorStage:"terrain-validation"|"renderer-init"|"asset-load"|"runtime",currentErrorValue:unknown,currentMapIdentifier?:string) {
+  const currentReportTime=Date.now();
+  if(!client.tokens || currentReportTime-lastFrontendErrorTime<5000)return;
+  lastFrontendErrorTime=currentReportTime;
+  const currentErrorObject=currentErrorValue instanceof Error?currentErrorValue:new Error('알 수 없는 오류');
+  const currentErrorMessage=currentErrorObject.message.replace(/https?:\/\/\S+/g,'[주소 제거]').replace(/[\r\n]/g,' ').slice(0,500) || '오류 내용 없음';
+  const currentErrorType=/^[A-Za-z][A-Za-z0-9]{0,79}$/.test(currentErrorObject.name)?currentErrorObject.name:'Error';
+  void client.request('/v1/client-errors',{stage:currentErrorStage,mapId:currentMapIdentifier || "unknown",errorType:currentErrorType,message:currentErrorMessage}).catch(()=>{});
+}
+
 export function App() {
   const { t, locale } = useTranslation();
+  useEffect(() => {
+    const handleWindowError = (currentErrorEvent:ErrorEvent) => reportFrontendError("runtime",currentErrorEvent.error || new Error(currentErrorEvent.message),client.state?.map.id);
+    const handleUnhandledRejection = (currentRejectionEvent:PromiseRejectionEvent) => reportFrontendError("runtime",currentRejectionEvent.reason,client.state?.map.id);
+    window.addEventListener("error",handleWindowError);
+    window.addEventListener("unhandledrejection",handleUnhandledRejection);
+    return () => {window.removeEventListener("error",handleWindowError);window.removeEventListener("unhandledrejection",handleUnhandledRejection);};
+  }, []);
+
   const [actionCutinSettingState, setActionCutinSettingState] = useState(() => loadActionCutinPreference(() => localStorage));
   const actionCutinDurationSeconds = actionCutinSettingState.durationSeconds ?? 0;
   const actionCutinEnabledReference = useRef(actionCutinDurationSeconds > 0);
@@ -275,8 +294,9 @@ export function App() {
           setSelected(position); setBattleSelectionIntent(value => value + 1);
         }, currentReadyLocation => {
           if (!disposed) setRenderedLocation(currentReadyLocation);
-        }, message => {
+        }, (message,currentFailureDetail) => {
           if (disposed) return;
+          if(currentFailureDetail) reportFrontendError(currentFailureDetail.stage,currentFailureDetail.error,stateRef.current?.map.id);
           stopWalking.current = true;
           setRenderFailed(true);
           setRenderError(message);
@@ -291,6 +311,7 @@ export function App() {
       .catch((worldInitializationError) => {
         if (disposed) return;
         console.error(`[${new Date().toISOString()}/world/renderer-init] 월드 렌더러 초기화 실패`, worldInitializationError);
+        reportFrontendError("renderer-init",worldInitializationError,stateRef.current?.map.id);
         stopWalking.current = true;
         setRenderFailed(true);
         client.disconnect();
