@@ -183,7 +183,16 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
  currentBuildContext.onLoad({filter:/field-material-frames\.yaml$/},async currentModuleArguments=>({contents:buildMaterialFrameModule(await readFile(currentModuleArguments.path,'utf8')),loader:'js'}));
  currentBuildContext.onLoad({filter:/\.asset-list\.yaml$/},async currentModuleArguments=>({contents:buildAssetListModule(await readFile(currentModuleArguments.path,'utf8'),resolve('../slime-assets')),loader:'js'}));
  }}]});
- const {resolveFieldTileTextures}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
+ const {resolveFieldTileTextures,resolveBrineGravelSheetTexture}=await import('data:text/javascript;base64,'+Buffer.from(outputFiles[0].text).toString('base64'));
+ const currentSheetDrawCalls=[],currentSheetCache=new Map();
+ const currentSheetScene={textures:{exists:key=>currentSheetCache.has(key),get:()=>({getSourceImage:()=>({width:512,height:512})}),createCanvas:(key,width,height)=>{assert.equal(width,128);assert.equal(height,128);const texture={context:{drawImage:(...args)=>currentSheetDrawCalls.push(args)},refresh:()=>{}};currentSheetCache.set(key,texture);return texture;}}};
+ for(let row=0;row<4;row++)for(let column=0;column<4;column++){const key=resolveBrineGravelSheetTexture(currentSheetScene,'brine-bank-gravel-sheet-a-v1',{column,row});assert.equal(key,`brine-bank-gravel-sheet-a-v1-cell-${column}-${row}`);assert.deepEqual(currentSheetDrawCalls.at(-1).slice(1,5),[column*128,row*128,128,128]);}
+ assert.equal(resolveBrineGravelSheetTexture(currentSheetScene,'brine-bank-gravel-sheet-a-v1',{column:4,row:4}),'brine-bank-gravel-sheet-a-v1-cell-0-0');assert.equal(currentSheetDrawCalls.length,16);
+ const currentWideCalls=[],currentWideCache=new Map();
+ const currentWideScene={textures:{exists:key=>currentWideCache.has(key),get:()=>({getSourceImage:()=>({width:1024,height:1024})}),createCanvas:(key,width,height)=>{assert.equal(width,128);assert.equal(height,128);const currentTexture={context:{drawImage:(...args)=>currentWideCalls.push(args)},refresh:()=>{}};currentWideCache.set(key,currentTexture);return currentTexture;}}};
+ for(let row=0;row<8;row++)for(let column=0;column<8;column++){resolveBrineGravelSheetTexture(currentWideScene,'brine-bank-gravel-wide-sheet-v1',{column,row});assert.deepEqual(currentWideCalls.at(-1).slice(1,5),[column*128,row*128,128,128]);}
+ assert.equal(resolveBrineGravelSheetTexture(currentWideScene,'brine-bank-gravel-wide-sheet-v1',{column:8,row:8}),'brine-bank-gravel-wide-sheet-v1-cell-0-0');assert.equal(currentWideCalls.length,64);
+ assert.throws(()=>resolveBrineGravelSheetTexture({textures:{exists:()=>false,get:()=>({getSourceImage:()=>({width:128,height:128})})}},'brine-bank-gravel-sheet-b-v1',{column:0,row:0}));
  // 프레임 이름이 달라도 같은 원본이면 평지의 경계가 없어야 한다. 단차는 별도 유지한다.
  const currentSourceScene={textures:{exists:()=>true,get:currentTextureKey=>({getSourceImage:()=>({src:currentTextureKey.includes('grass')?'grass.png':'rock.png'})})}};
  const currentAliasReader=currentCellPosition=>['stone','fractured-bedrock','angular-quarry-scree'][currentCellPosition.column];
@@ -193,6 +202,14 @@ test('같은 지형 코드는 모든 필드에서 같은 재질을 선택한다'
  const currentDifferentTextures=resolveFieldTileTextures(currentSourceScene,'stone',{column:1,row:1},'broken-quarry',0,currentCellPosition=>currentCellPosition.column===0?'grass':'stone');
  assert.equal(buildFieldMaterialEdges({column:1,row:1},currentFlatSurface,currentDifferentTextures.resolveGroundMaterial).length,1);
  assert.equal(buildFieldElevationEdges({column:1,row:1},{columns:3,rows:3,elevations:[[0,0,0],[0,2,0],[0,0,0]]}).length,4);
+ const currentBrineOverrides=[{position:{column:0,row:1},textureKey:'brine-bank-saline-gravel-v1'},{position:{column:1,row:1},textureKey:'brine-bank-saline-gravel-variant-v1'},{position:{column:1,row:0},textureKey:'brine-bank-saline-gravel-v1'}];
+ const currentBrineTextures=resolveFieldTileTextures(currentSourceScene,'stone',{column:1,row:1},'brine-bank',0,currentAliasReader,currentBrineOverrides);
+ assert.equal(buildFieldMaterialEdges({column:1,row:1},currentFlatSurface,currentBrineTextures.resolveGroundMaterial).length,0);
+ currentBrineOverrides[1].textureKey='salt-flat-calm-brine-v1';
+ assert.equal(buildFieldMaterialEdges({column:1,row:1},currentFlatSurface,currentBrineTextures.resolveGroundMaterial).length,2);
+ currentBrineOverrides[0].textureKey='brine-bank-shallow-water-v1';
+ assert.equal(currentBrineTextures.resolveGroundMaterial({column:0,row:1}),currentBrineTextures.resolveGroundMaterial({column:1,row:1}));
+ assert.notEqual(currentBrineTextures.resolveGroundMaterial({column:1,row:0}),currentBrineTextures.resolveGroundMaterial({column:1,row:1}));
  const currentMaterialReader=()=> 'grass';
  for(const currentMapIdentifier of ['meadow','broken-quarry','ash-edge','wind-hills','old-orchard','granary-flats']){
   for(const [currentTerrainName,currentExpectedFrame] of [['battle-rock-a','battle-rock-a'],['battle-rock-b','battle-rock-b'],['battle-rock-c','battle-rock-c'],['battle-thicket','battle-thicket'],['road','road'],['dirt-road','dirt-road'],['stone-road','stone-road'],['flowers','flowers'],['wind-swept-grass','wind-swept-grass-v1'],['golden-grain-field','golden-grain-field-v1'],['fallen-orchard-fruit','fallen-orchard-fruit-v1']]){

@@ -259,3 +259,27 @@ files:
 - path: assets/terrain/salt-flat-calm-brine-v1.png
   source_path: assets/tiles/terrain/blocked/salt-flat-calm-brine-v1.png
   sha256: 8c5e53b52b5b4804b05f8485b87f83c41a680e7aaaed898a219ac4f1c454d947
+- path: assets/terrain/brine-bank-saline-gravel-v1.png
+  source_path: assets/tiles/terrain/non-road/brine-bank-saline-gravel-v1.png
+  sha256: 57d66bf47af2ea477017ab0063ac1d0d5f3a8007366a7bd645bac1cc261290f9
+- path: assets/terrain/brine-bank-saline-gravel-variant-v1.png
+  source_path: assets/tiles/terrain/non-road/brine-bank-saline-gravel-variant-v1.png
+  sha256: 00a53bb9dd31d000bc4070961d39a0087758abf8b54281bd12ef95f49033725e
+- path: assets/terrain/brine-bank-gravel-sheet-a-v1.png
+  source_path: assets/tiles/terrain/non-road/brine-bank-gravel-sheet-a-v1.png
+  sha256: 3a443d80ec6d7e4e09009cfce3d4197fdbf1dc9456f8236aed85771ccf692717
+- path: assets/terrain/brine-bank-gravel-sheet-b-v1.png
+  source_path: assets/tiles/terrain/non-road/brine-bank-gravel-sheet-b-v1.png
+  sha256: b00e92e4543c3e845d011682b8d31a2b785a6f9b8b5639ddb044781ea981accd
+- path: assets/terrain/brine-bank-road-sheet-v1.png
+  source_path: assets/tiles/terrain/road/brine-bank-road-sheet-v1.png
+  sha256: 30668647fc720cf78c5e3f1b726f1cf09c5f3e54fdc78b27e96b5b9946448c6c
+- path: assets/terrain/brine-bank-gravel-sparse-sheet-v1.png
+  source_path: assets/tiles/terrain/non-road/brine-bank-gravel-sparse-sheet-v1.png
+  sha256: 531b68ff99f779f1b6e9847e1692f7ea3f89178f8577e6c82ee18335ca9bd8a0
+- path: assets/terrain/brine-bank-shallow-water-v1.png
+  source_path: assets/tiles/terrain/blocked/brine-bank-shallow-water-v1.png
+  sha256: bbd5bb64e7cd9eb93523d4657dc48e5bcb8731f97e7d9129b361dfd799092af0
+- path: assets/terrain/brine-bank-gravel-wide-sheet-v1.png
+  source_path: assets/tiles/terrain/non-road/brine-bank-gravel-wide-sheet-v1.png
+  sha256: 971d3fcc5ab5efaf5bd0321c3a501600dae3e9da88be31a0976e1be576393ee8

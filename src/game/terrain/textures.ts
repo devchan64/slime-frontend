@@ -1,6 +1,14 @@
 import wallAssetPaths from './wall.asset-list.yaml';
 import terrainAssetPaths from "./terrain.asset-list.yaml";
 const {
+  brineBankRoadSheetSource,
+  brineBankGravelSparseSheetSource,
+  brineBankShallowWaterSource,
+  brineBankGravelWideSheetSource,
+  brineBankGravelSheetASource,
+  brineBankGravelSheetBSource,
+  brineBankSalineGravelVariantSource,
+  brineBankSalineGravelSource,
   pebbleSubmergedRoundedSource,
   pebbleNaturalRoundedSource,
   pebbleCoarse2Source,
@@ -85,6 +93,14 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = BASE_FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "brine-bank-road-sheet-v1", source: brineBankRoadSheetSource },
+  { frame: "brine-bank-gravel-sparse-sheet-v1", source: brineBankGravelSparseSheetSource },
+  { frame: "brine-bank-shallow-water-v1", source: brineBankShallowWaterSource },
+  { frame: "brine-bank-gravel-wide-sheet-v1", source: brineBankGravelWideSheetSource },
+  { frame: "brine-bank-gravel-sheet-a-v1", source: brineBankGravelSheetASource },
+  { frame: "brine-bank-gravel-sheet-b-v1", source: brineBankGravelSheetBSource },
+  { frame: "brine-bank-saline-gravel-variant-v1", source: brineBankSalineGravelVariantSource },
+  { frame: "brine-bank-saline-gravel-v1", source: brineBankSalineGravelSource },
   { frame: "pebble-submerged-rounded-v1", source: pebbleSubmergedRoundedSource },
   { frame: "pebble-natural-rounded-v1", source: pebbleNaturalRoundedSource },
   { frame: "pebble-coarse-2-v1", source: pebbleCoarse2Source },

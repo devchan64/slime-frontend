@@ -1177,6 +1177,12 @@ files:
 - path: assets/effects/terrain/lake-fog-sheet-v2.png
   source_path: assets/sprites/effects/terrain/lake-fog-sheet-v2.png
   sha256: f0c85c42282e6467a5e01d60d53d57381660aa18312c6ad70a779efd37d15a91
+- path: assets/structures/brine-bank-saline-pebble-mound-v1.png
+  source_path: assets/billboards/brine-bank-saline-pebble-mound-v1.png
+  sha256: cbfdd219a0ccf0ffba2fb04dbbeabedc32a0a7772ad83bf8529fc1750f06e3c7
+- path: assets/structures/brine-bank-gravel-slope-v1.png
+  source_path: assets/billboards/brine-bank-gravel-slope-v1.png
+  sha256: a3e4448d4f6325ee58d3daaff678b01a7be10f20619831e9becae7116a9aad41
 - path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
   source_path: assets/characters/default/animations/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
   sha256: a8ea5a2e817097c06bbcd5375bf2fc3f5b57d536e7bad4a1899602412218bb6c
@@ -1186,3 +1192,15 @@ files:
 - path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
   source_path: assets/characters/default/animations/walk-light-leather-v1/walk-light-leather-v1.animation.json
   sha256: 410d16056ea80a6a7211e6a4764dc700a0d7053d053ec498828287a88a83fc49
+- path: assets/structures/brine-bank-painted-hill-v1.png
+  source_path: assets/billboards/brine-bank-painted-hill-v1.png
+  sha256: a177e079b1bd8d7fc2ffc3e431e2b9c8fedc5052fc7818bcaf52979791a37cf2
+- path: assets/structures/brine-bank-painted-stones-v1.png
+  source_path: assets/billboards/brine-bank-painted-stones-v1.png
+  sha256: 2c87a0f6f411dcb4c01ca44df48cdd706695accfab84b2959e512827fb7eb92a
+- path: assets/structures/brine-bank-salt-crust-v1.png
+  source_path: assets/billboards/brine-bank-salt-crust-v1.png
+  sha256: f9d13b30241e7f1aa4c17833fb602a7305b9c80ffafd5ab91cd91486955a67f0
+- path: assets/structures/brine-bank-painted-low-bank-v1.png
+  source_path: assets/billboards/brine-bank-painted-low-bank-v1.png
+  sha256: 04fccf5c3fd1719fb92062107c5d82b8848dbe92799146b22e625e96de7bf2e7

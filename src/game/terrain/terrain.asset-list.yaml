@@ -1,3 +1,11 @@
+brineBankGravelWideSheetSource: assets/tiles/terrain/non-road/brine-bank-gravel-wide-sheet-v1.png
+brineBankShallowWaterSource: assets/tiles/terrain/blocked/brine-bank-shallow-water-v1.png
+brineBankGravelSparseSheetSource: assets/tiles/terrain/non-road/brine-bank-gravel-sparse-sheet-v1.png
+brineBankRoadSheetSource: assets/tiles/terrain/road/brine-bank-road-sheet-v1.png
+brineBankGravelSheetASource: assets/tiles/terrain/non-road/brine-bank-gravel-sheet-a-v1.png
+brineBankGravelSheetBSource: assets/tiles/terrain/non-road/brine-bank-gravel-sheet-b-v1.png
+brineBankSalineGravelVariantSource: assets/tiles/terrain/non-road/brine-bank-saline-gravel-variant-v1.png
+brineBankSalineGravelSource: assets/tiles/terrain/non-road/brine-bank-saline-gravel-v1.png
 pebbleSubmergedRoundedSource: assets/tiles/terrain/blocked/pebble-submerged-rounded-v1.png
 pebbleNaturalRoundedSource: assets/tiles/terrain/non-road/pebble-natural-rounded-v1.png
 pebbleCoarse2Source: assets/tiles/terrain/non-road/pebble-coarse-2-v1.png
