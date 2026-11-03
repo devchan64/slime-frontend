@@ -16,7 +16,8 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
  }
  const currentTextureKeys=new Set<string>();
  for(const currentBridgeRecord of currentMapRecord.bridges??[])for(const currentTextureKey of resolveBridgeTextureKeys(currentBridgeRecord.material))currentTextureKeys.add(currentTextureKey);
- if(currentMapKind!=='field')currentTextureKeys.add('terrain-source-grass');
+ // 지형 아틀라스가 모든 맵에서 풀 타일을 기본 합성 원본으로 사용한다.
+ currentTextureKeys.add('terrain-source-grass');
  for(const currentTerrainName of currentTerrainNames){
   const currentTerrainFrame=currentMapKind==='field'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentMapKind==='battle'?resolveFieldTerrainFrame(currentTerrainName,currentMapRecord.id):currentTerrainName==='grass'?resolveGrassFrameForMap(currentMapRecord.id):currentTerrainName==='paving'?resolvePavingFrameForMap(currentMapRecord.id):currentTerrainName==='reed-bed'?resolveReedFrameForMap(currentMapRecord.id):resolveTownGroundFrame(currentMapRecord.id,currentTerrainName);
   currentTextureKeys.add('terrain-source-'+currentTerrainFrame);
