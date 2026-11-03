@@ -8,22 +8,22 @@ files:
   source_path: assets/sprites/effects/rest/rest-recovery-v1-source.png
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
 - path: assets/characters/default/idle-v6/idle-v6.animation.json
-  source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v4/idle-v6-anchor-v3.animation.json
-  sha256: 9deb4f003fac61f5e9e1c2cfcbe7c8b4158fcc44b2cdae9516babac5f9e4d126
+  source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/idle-v6-anchor-v3.animation.json
+  sha256: ce6645976ee1b4b8ed2baada2ec3b60299e6fdddc95e0949e715d392f1ac30e1
 - path: assets/characters/default/idle-v6/idle-v6.png
-  source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v4/idle-v6.png
-  sha256: 8e3ce9c2f340638f431ef286cc409adfa88b2cfcbe3f2143c47c94c91fa52f3a
+  source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/idle-v6.png
+  sha256: 33a084171cebee4342bc66e09b48df10da24fec01110b9e8a79e4b9fea64f69b
 - path: assets/characters/default/idle-v6/source.json
-  source_path: assets/characters/default/animations/idle-v6/down-left-8frames-v4/source.json
-  sha256: bf830a4b37a899b9c8825da0443099580af2102902dee0b46abc41646588969f
+  source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/source.json
+  sha256: eab5f8b6066004b3a912cf33713869ad9b1f4863d71881eaa33d422b9a7a8a3f
 - path: assets/characters/default/rest-v2/rest-v2.animation.json
-  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/rest-v2.animation.json
+  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v2/rest-v2.animation.json
   sha256: 639073b0c41a2a61e027bb4dfd8248ffaa1b386e4d665e8bdadff8d39af4be48
 - path: assets/characters/default/rest-v2/rest-v2.png
-  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/rest-v2.png
+  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v2/rest-v2.png
   sha256: 8db749f3adfc8e6646df750edb352aa383da67d3e4dd38542ebbbc4f698b9542
 - path: assets/characters/default/rest-v2/source.json
-  source_path: assets/characters/default/animations/rest-v2/down-left-entry-exit-v2/source.json
+  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v2/source.json
   sha256: b907b536fc58f44062cd26d9e2b50f81e5ae6f0736c9a8199705b7262db7eca1
 - path: assets/monsters/standing-v1/ash-fox-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/ash-fox-idle-v1.animation.json
@@ -1184,13 +1184,13 @@ files:
   source_path: assets/billboards/brine-bank-gravel-slope-v1.png
   sha256: a3e4448d4f6325ee58d3daaff678b01a7be10f20619831e9becae7116a9aad41
 - path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
-  source_path: assets/characters/default/animations/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
+  source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/character-default-light-leather-walk-front-left-sprite-v1.png
   sha256: a8ea5a2e817097c06bbcd5375bf2fc3f5b57d536e7bad4a1899602412218bb6c
-- path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.yaml
-  source_path: assets/characters/default/animations/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.yaml
-  sha256: c1964bdeb20da1293d7b4ed4c24e872900fe97bfdff78ed7936accb48191834e
+- path: assets/characters/default/walk-light-leather-v1/source.yaml
+  source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/source.yaml
+  sha256: e67ca0da4c5396499478027443e3cf01e76f26f4bb7499067ac769f73113c7a2
 - path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
-  source_path: assets/characters/default/animations/walk-light-leather-v1/walk-light-leather-v1.animation.json
+  source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/walk-light-leather-v1.animation.json
   sha256: 410d16056ea80a6a7211e6a4764dc700a0d7053d053ec498828287a88a83fc49
 - path: assets/structures/brine-bank-painted-hill-v1.png
   source_path: assets/billboards/brine-bank-painted-hill-v1.png
