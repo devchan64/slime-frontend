@@ -471,7 +471,7 @@ files:
   sha256: f6f5e0fd5f285b829b0f141c9c6e9555a125cbb550b0c3d955c42531f6799fa9
 - path: assets/structures/town-iseulon-inn-v2.png
   source_path: assets/buildings/town-iseulon-inn-v2.png
-  sha256: 36110c1c981c50ea1d5ac36bea3d61a5f7985431e72ba7ddba3daf86aa835c98
+  sha256: bccba9e9bc31976927b2f3089596fd9f3f46d33beeb6a24e07c26c2ee2b98737
 - path: assets/structures/town-iseulon-workshop-v2.png
   source_path: assets/buildings/town-iseulon-workshop-v2.png
   sha256: 37925c3f5857db4bd8aa644354e0335e41bad08b9d78f300f97cc18270ca1032
