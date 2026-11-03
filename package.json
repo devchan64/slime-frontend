@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "check:i18n": "node scripts/check-locales.mjs",
     "check:images": "node scripts/check-images.mjs",
+    "check:terrain-atlas": "node --test tests/terrain-atlas-audit.test.mjs",
     "build:review": "bash scripts/build_ui_review.sh",
     "check:map-assets": "node scripts/prepare-map-assets.mjs --check && node scripts/check-map-assets.mjs",
     "prepare:map-assets": "node scripts/prepare-map-assets.mjs",

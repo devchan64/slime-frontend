@@ -154,6 +154,7 @@ const FRAME_H = TEXTURE_SIZE / 2;
 const FRAME_PADDING = 2;
 const FRAME_STRIDE = FRAME_W + FRAME_PADDING * 2;
 const ATLAS_COLUMNS = 8;
+const RAW_GROUND_ONLY_FRAMES = new Set(["brine-bank-gravel-wide-sheet-v1", "salt-flat-calm-brine-v1", "salt-flat-mixed-soil-v1", "salt-flat-crust-v2", "mist-lake-deep-water-v1", "mist-lake-silver-water-v2", "dry-creek-eroded-sand-v1", "reed-crossing-calm-water-v1"]);
 const FRAME_COUNT = SOURCE_KINDS.length + SPECIAL_TERRAIN_SOURCES.length + ROAD_TILE_COUNT * 4;
 const framePosition = (index: number) => ({ x: (index % ATLAS_COLUMNS) * FRAME_STRIDE + FRAME_PADDING,
   y: Math.floor(index / ATLAS_COLUMNS) * (FRAME_H + FRAME_PADDING * 2) + FRAME_PADDING });
@@ -251,6 +252,8 @@ export function createTerrainAtlas(scene: Phaser.Scene, currentSelectedKeys?:Rea
     atlas.add(kind, 0, x, y, FRAME_W, FRAME_H);
   });
   SPECIAL_TERRAIN_SOURCES.forEach((specialSourceRecord, specialSourceIndex) => {
+    // 대형 시트와 지면 오버라이드는 원본 텍스처로 사용하며 단일 타일 아틀라스에 넣지 않는다.
+    if(RAW_GROUND_ONLY_FRAMES.has(specialSourceRecord.frame))return;
     if(!shouldCreateTexture(`terrain-source-${specialSourceRecord.frame}`))return;
     const source = readValidatedTileSource(scene, `terrain-source-${specialSourceRecord.frame}`);
     const { x, y } = framePosition(SOURCE_KINDS.length + specialSourceIndex);
