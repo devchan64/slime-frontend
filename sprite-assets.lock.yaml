@@ -1105,3 +1105,11 @@ files:
 - path: assets/structures/brine-bank-painted-low-bank-v1.png
   source_path: assets/billboards/brine-bank-painted-low-bank-v1.png
   sha256: 04fccf5c3fd1719fb92062107c5d82b8848dbe92799146b22e625e96de7bf2e7
+
+- path: assets/structures/town-iseulon-residence-green-v1.png
+  source_path: assets/buildings/town-iseulon-residence-green-v1.png
+  sha256: c83e696ab2864c9962b4056b0f2862511be7a03099611e903e09789ce6211d27
+
+- path: assets/structures/town-iseulon-residence-golden-v1.png
+  source_path: assets/buildings/town-iseulon-residence-golden-v1.png
+  sha256: 468682e6adcf987f6b9322963819d0e193551f3bb98a448b713dda70c9fc29aa
