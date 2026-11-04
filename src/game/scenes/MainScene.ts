@@ -37,7 +37,7 @@ import {MAP_ORIGIN} from '../terrain/elevation';
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolveTownGroundFrame,resolveReedFrameForMap,resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
-import { drawWaypoint, waypointMarkerScale } from "../terrain/waypoint";
+import { drawWaypoint, setWaypointMarkerZoom, preloadWaypointGuide } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import {drawGuardCenterSprite, preloadGuardCenterSprites} from "../terrain/guardCenters";
 import { preloadFieldScenery } from "../terrain/scenery";
@@ -242,6 +242,7 @@ export class MainScene extends Phaser.Scene {
     if(!this.currentMapResourceKeys)preloadSafeBarrierAuraSprite(this);
     if(!this.currentMapResourceKeys)preloadSafeTower(this);
     if(!this.currentMapResourceKeys)preloadFieldScenery(this);
+    if(!this.currentMapResourceKeys)preloadWaypointGuide(this);
     if(!this.currentMapResourceKeys)preloadGuardCenterSprites(this);
     preloadBackdrop(this);
   }
@@ -448,7 +449,7 @@ export class MainScene extends Phaser.Scene {
     updateFieldActorOcclusion(this);
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
-    for (const marker of this.waypointMarkers) marker.setScale(waypointMarkerScale(zoom / GAME_INTERNAL_RESOLUTION_SCALE));
+    for (const marker of this.waypointMarkers) setWaypointMarkerZoom(marker, zoom / GAME_INTERNAL_RESOLUTION_SCALE);
     this.waypointZoom = zoom;
   }
   resetCameraView() {

@@ -15,7 +15,7 @@ export {BUILDING_RENDER_BLOCK_HEIGHT,buildRenderedBlockFaces} from '../../src/ga
 
 export {resolveCityTileTextures,resolveFieldTileTextures,resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
 
-export {drawWaypoint,waypointMarkerScale} from '../../src/game/terrain/waypoint';
+export {drawWaypoint,waypointMarkerScale,setWaypointMarkerZoom} from '../../src/game/terrain/waypoint';
 
 export {resolveTownGroundFrame} from "../../src/game/terrain/textures";
 
@@ -24,8 +24,11 @@ export {isFieldRoadTerrain} from './road-materials.mjs';
 export {collectMapResourceKeys,loadMapResourceImages} from './map-resource-plan';
 
 import {preloadFieldScenery} from '../../src/game/terrain/scenery';
+import {preloadWaypointGuide} from '../../src/game/terrain/waypoint';
 export function collectMapTextureSources():Record<string,string>{
  const currentTextureSources=collectTerrainTextureSources();
- preloadFieldScenery({load:{image(currentTextureKey:string,currentAssetPath:string){currentTextureSources[currentTextureKey]=currentAssetPath;}}} as unknown as Phaser.Scene);
+ const currentSourceCollector={load:{image(currentTextureKey:string,currentAssetPath:string){currentTextureSources[currentTextureKey]=currentAssetPath;}}} as unknown as Phaser.Scene;
+ preloadFieldScenery(currentSourceCollector);
+ preloadWaypointGuide(currentSourceCollector);
  return currentTextureSources;
 }

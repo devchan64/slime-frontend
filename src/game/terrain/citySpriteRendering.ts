@@ -5,35 +5,10 @@ import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-const
 import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
 import {calculateBuildingDisplaySize} from './buildingDisplaySize';
+import {MAP_LABEL_FONT_SIZE} from './mapLabelStyle';
 
-const BUILDING_LABEL_STYLE = {fontFamily:'sans-serif',fontSize:'20px',color:'#fff7de',backgroundColor:'#39362d',padding:{x:8,y:4},resolution:2};
-const BUILDING_LABEL_GAP = 8;
-const BUILDING_ALPHA_THRESHOLD = 16;
-const BUILDING_VISIBLE_BOUNDS = new WeakMap<Phaser.Textures.Texture,{centerX:number;top:number}>();
-
-/** 투명 여백을 제외한 그림의 상단 중앙을 텍스처당 한 번 계산한다. */
-function readBuildingVisibleBounds(currentBuildingTexture:Phaser.Textures.Texture):{centerX:number;top:number} {
- const currentCachedBounds=BUILDING_VISIBLE_BOUNDS.get(currentBuildingTexture);
- if(currentCachedBounds)return currentCachedBounds;
- const currentSourceImage=currentBuildingTexture.getSourceImage();
- const currentMeasureCanvas=document.createElement('canvas');
- currentMeasureCanvas.width=currentSourceImage.width;currentMeasureCanvas.height=currentSourceImage.height;
- const currentMeasureContext=currentMeasureCanvas.getContext('2d',{willReadFrequently:true});
- if(!currentMeasureContext)throw Error('건물 라벨의 투명 영역 측정 캔버스를 준비하지 못했습니다.');
- currentMeasureContext.drawImage(currentSourceImage as CanvasImageSource,0,0);
- const currentImagePixels=currentMeasureContext.getImageData(0,0,currentMeasureCanvas.width,currentMeasureCanvas.height).data;
- let currentLeftPixel=currentMeasureCanvas.width,currentRightPixel=-1,currentTopPixel=currentMeasureCanvas.height;
- for(let currentRowIndex=0;currentRowIndex<currentMeasureCanvas.height;currentRowIndex++){
-  for(let currentColumnIndex=0;currentColumnIndex<currentMeasureCanvas.width;currentColumnIndex++){
-   if(currentImagePixels[(currentRowIndex*currentMeasureCanvas.width+currentColumnIndex)*4+3]<=BUILDING_ALPHA_THRESHOLD)continue;
-   currentLeftPixel=Math.min(currentLeftPixel,currentColumnIndex);currentRightPixel=Math.max(currentRightPixel,currentColumnIndex);currentTopPixel=Math.min(currentTopPixel,currentRowIndex);
-  }
- }
- if(currentRightPixel<0)throw Error('건물 스프라이트에 표시할 픽셀이 없습니다.');
- const currentVisibleBounds={centerX:(currentLeftPixel+currentRightPixel+1)/2,top:currentTopPixel};
- BUILDING_VISIBLE_BOUNDS.set(currentBuildingTexture,currentVisibleBounds);
- return currentVisibleBounds;
-}
+const BUILDING_LABEL_STYLE = {fontFamily:'sans-serif',fontSize:MAP_LABEL_FONT_SIZE,color:'#fff7de',backgroundColor:'#39362d',padding:{x:8,y:4},resolution:2};
+const BUILDING_LABEL_ANCHOR_OFFSET = 100;
 const BUILDING_HALF_CELL = 0.5;
 const BUILDING_FOOTPRINT_MARGIN = 1.04;
 type CityScreenPoint = {x:number;y:number};
@@ -88,9 +63,8 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  const currentEntranceMarker=currentMapScene.add.graphics().setDepth(currentAnnotationDepth);
  currentEntranceMarker.lineStyle(currentBuildingSelected?CITY_BUILDING_STYLE.selectedWidth:CITY_BUILDING_STYLE.outlineWidth,currentBuildingSelected?CITY_BUILDING_STYLE.selectedColor:CITY_BUILDING_STYLE.wallLight);
  currentEntranceMarker.strokeCircle(currentEntrancePoint.x,currentEntrancePoint.y,CITY_BUILDING_STYLE.entranceRadius);
- const currentVisibleBounds=readBuildingVisibleBounds(currentBuildingImage.texture);
- const currentLabelPositionX=currentBuildingImage.x+(currentVisibleBounds.centerX-currentBuildingImage.displayOriginX)*currentBuildingImage.scaleX;
- const currentLabelPositionY=currentBuildingImage.y+(currentVisibleBounds.top-currentBuildingImage.displayOriginY)*currentBuildingImage.scaleY-BUILDING_LABEL_GAP;
+ const currentLabelPositionX=currentFrontPoint.x;
+ const currentLabelPositionY=currentFrontPoint.y-BUILDING_LABEL_ANCHOR_OFFSET;
  currentMapScene.add.text(currentLabelPositionX,currentLabelPositionY,t(`city.${currentCityBuilding.facilityKind}`),BUILDING_LABEL_STYLE)
   .setOrigin(BUILDING_HALF_CELL,1).setDepth(currentAnnotationDepth);
  return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
