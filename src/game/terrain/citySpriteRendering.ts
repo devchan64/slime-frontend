@@ -6,9 +6,10 @@ import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
 import {calculateBuildingDisplaySize} from './buildingDisplaySize';
 import {MAP_LABEL_FONT_SIZE} from './mapLabelStyle';
+import {preserveSceneryDepthOrder} from './sceneryDepthOrder';
 
 const BUILDING_LABEL_STYLE = {fontFamily:'sans-serif',fontSize:MAP_LABEL_FONT_SIZE,color:'#fff7de',backgroundColor:'#39362d',padding:{x:8,y:4},resolution:2};
-const BUILDING_LABEL_ANCHOR_OFFSET = 100;
+const BUILDING_LABEL_ANCHOR_OFFSET = 200;
 const BUILDING_HALF_CELL = 0.5;
 const BUILDING_FOOTPRINT_MARGIN = 1.04;
 type CityScreenPoint = {x:number;y:number};
@@ -40,6 +41,7 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  applyTerrainAmbientTint(currentBuildingImage,currentAmbientSurface);
  const currentImageBounds=currentBuildingImage.getBounds();
  // 건물 전면 양쪽 가장자리의 소품은 건물의 최전면 모서리 깊이보다 앞에 둔다.
+ let currentSceneryPromoted=false;
  for(const currentSceneObject of currentMapScene.children.list){
   const currentSceneryPosition=currentSceneObject.getData('sceneryGroundPosition') as Position|undefined;
   if(!currentSceneryPosition)continue;
@@ -50,8 +52,9 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
   const currentScenerySprite=currentSceneObject as Phaser.GameObjects.Image;
   const currentSceneryBounds=currentScenerySprite.getBounds();
   if(currentSceneryBounds.right<=currentImageBounds.left||currentSceneryBounds.left>=currentImageBounds.right||currentSceneryBounds.bottom<=currentImageBounds.top||currentSceneryBounds.top>=currentImageBounds.bottom)continue;
-  currentScenerySprite.setDepth(Math.max(currentScenerySprite.depth,currentBuildingDepth+1));
+  if(currentScenerySprite.depth<currentBuildingDepth+1){currentScenerySprite.setDepth(currentBuildingDepth+1);currentSceneryPromoted=true;}
  }
+ if(currentSceneryPromoted)preserveSceneryDepthOrder(currentMapScene.children.list.filter((currentSceneObject):currentSceneObject is Phaser.GameObjects.Image=>currentSceneObject instanceof Phaser.GameObjects.Image));
 
  const currentImagePolygon=new Phaser.Geom.Polygon([
   {x:currentImageBounds.left,y:currentImageBounds.top},{x:currentImageBounds.right,y:currentImageBounds.top},

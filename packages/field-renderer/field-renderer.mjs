@@ -515,6 +515,7 @@ export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,curr
  if(!currentGameScene.textures.exists(currentObjectRecord.textureKey))throw Error('지형지물 텍스처 누락: '+currentObjectRecord.textureKey);
  const currentSceneryImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey);
  currentSceneryImage.setData('terrainEffectObjectId',currentObjectRecord.id);
+ currentSceneryImage.setData('sceneryOriginalDepth',currentRenderDepth);
  applyTerrainAmbientTint(currentSceneryImage,currentRenderOptions.shadowSurface);
  markFieldOcclusionObject(currentSceneryImage);
  currentSceneryImage.setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
@@ -548,7 +549,8 @@ export function drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,c
   return markFieldOcclusionObject(currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentObjectRecord.textureKey,currentFrameName))
    .setOrigin(['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?.5:currentObjectRecord.anchorX,['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?1:currentObjectRecord.anchorY).setScale(currentObjectRecord.displayHeight*currentBillboardScale/currentFrameSize)
    .setDepth(currentRenderDepth+currentLayerIndex*(currentObjectRecord.billboardPlacementAnchor?BILLBOARD_ANCHORED_LAYER_OFFSET:BILLBOARD_FRONT_DEPTH_OFFSET))
-   .setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position);
+   .setData('sceneryGroundPosition',resolveFieldSceneryPlacement(currentObjectRecord,currentScreenPosition).position)
+   .setData('sceneryOriginalDepth',currentRenderDepth+currentLayerIndex*(currentObjectRecord.billboardPlacementAnchor?BILLBOARD_ANCHORED_LAYER_OFFSET:BILLBOARD_FRONT_DEPTH_OFFSET));
  });
 }
 
