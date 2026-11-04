@@ -4,6 +4,7 @@ import {applyTerrainAmbientTint,markFieldOcclusionObject} from '../../../package
 import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
 import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
+import {calculateBuildingDisplaySize} from './buildingDisplaySize';
 
 const BUILDING_LABEL_STYLE = {fontFamily:'sans-serif',fontSize:'20px',color:'#fff7de',backgroundColor:'#39362d',padding:{x:8,y:4},resolution:2};
 const BUILDING_LABEL_GAP = 8;
@@ -58,7 +59,8 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  const currentBuildingImage=currentMapScene.add.image(currentFrontPoint.x,currentFrontPoint.y,currentSpriteRecord.textureKey)
   .setOrigin(currentSpriteRecord.anchorX,currentSpriteRecord.anchorY).setDepth(currentBuildingDepth);
  const currentDisplayWidth=Math.abs(currentRightPoint.x-currentLeftPoint.x)*BUILDING_FOOTPRINT_MARGIN/currentSpriteRecord.contentWidth;
- currentBuildingImage.setScale(currentDisplayWidth/currentBuildingImage.width);
+ const currentAdjustedSize=calculateBuildingDisplaySize(currentDisplayWidth,currentBuildingImage.width,currentBuildingImage.height,currentSpriteRecord.displayWidthAdjustment,currentSpriteRecord.displayHeightAdjustment);
+ currentBuildingImage.setScale(currentAdjustedSize.width/currentBuildingImage.width,currentAdjustedSize.height/currentBuildingImage.height);
  markFieldOcclusionObject(currentBuildingImage);
  applyTerrainAmbientTint(currentBuildingImage,currentAmbientSurface);
  const currentImageBounds=currentBuildingImage.getBounds();
