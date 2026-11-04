@@ -45,7 +45,7 @@ data:
   - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
     path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png
   - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v2.rest-v2.png
-    path: ../slime-assets/assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v1/rest-v2.png
+    path: ../slime-assets/assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v3/rest-v2.png
   - managementId: image.world.stonewarm.stone-wall-v1
     path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-v1.png
   - managementId: image.world.stonewarm.stone-small-window-wall-v1
@@ -110,8 +110,8 @@ data:
     path: ../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
   - managementId: image.terrain.ramp-earth-stone-wall-v1
     path: ../slime-assets/assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
-  - managementId: image.character.default.rest-v2.down-left-entry-exit-v2
-    path: ../slime-assets/assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v2/rest-v2.png
+  - managementId: image.character.default.rest-v2.down-left-entry-exit-v3
+    path: ../slime-assets/assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v3/rest-v2.png
   - managementId: image.monsters.moss-turtle.idle
     path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png
   - managementId: image.monsters.mist-frog.idle

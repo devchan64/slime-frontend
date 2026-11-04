@@ -55,7 +55,7 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 
 ### 휴식 전환
 
-휴식 원본은 `rest-v2/down-left-entry-exit-v2`의 384px 셀 시트다. 좌하 방향으로 진입 13프레임·해제 8프레임을 6fps로 한 번 재생한다. 진입 완료 후 마지막 앉은 프레임을 유지하며, 해제 1333ms 완료 후 기본 대기로 돌아간다. `FieldRestAnimation`은 개체 ID별 전환 시각을 보관하여 서버 상태 재수신이나 화면 재생성으로 재시작하지 않는다. 장면·지역 전환 시 정리한다.
+휴식 원본은 `rest/light-leather/down-left-entry-exit-v3`의 384px 셀 시트다. 좌하 방향으로 진입 12프레임·해제 12프레임을 6fps로 한 번 재생한다. 진입 완료 후 마지막 앉은 프레임을 유지하며, 해제 2000ms 완료 후 기본 대기로 돌아간다. `FieldRestAnimation`은 개체 ID별 전환 시각을 보관하여 서버 상태 재수신이나 화면 재생성으로 재시작하지 않는다. 장면·지역 전환 시 정리한다.
 
 ### 휴식 효과 스프라이트
 
