@@ -61,7 +61,7 @@ export function drawWaypointMarker(currentGameScene:Phaser.Scene,currentDestinat
   currentGuideSprite.setOrigin(currentAnchorFrame.anchor.x/currentAnchorFrame.rect.width,currentAnchorFrame.anchor.y/currentAnchorFrame.rect.height);
  });
  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)currentGuideSprite.play(WAYPOINT_GUIDE_ANIMATION);
- const currentGuideLabel=currentGameScene.add.text(0,WAYPOINT_GUIDE_STYLE.labelY,currentDestinationName,{fontFamily:'sans-serif',fontSize:WAYPOINT_GUIDE_STYLE.labelSize,color:'#fff3d6',backgroundColor:'#49331fee',padding:{x:WAYPOINT_GUIDE_STYLE.labelPadding,y:WAYPOINT_GUIDE_STYLE.labelPadding}}).setOrigin(.5,1);
+ const currentGuideLabel=currentGameScene.add.text(0,WAYPOINT_GUIDE_STYLE.labelY,currentDestinationName,{fontFamily:'sans-serif',fontSize:WAYPOINT_GUIDE_STYLE.labelSize,align:'center',color:'#fff3d6',backgroundColor:'#49331fee',padding:{x:WAYPOINT_GUIDE_STYLE.labelPadding,y:WAYPOINT_GUIDE_STYLE.labelPadding}}).setOrigin(.5,1);
  const currentWaypointMarker=currentGameScene.add.container(currentScreenColumn,currentScreenRow,[currentGuideSprite,currentGuideLabel]).setData('fieldOcclusionBaseAlpha',1).setData('fieldOcclusionChildren',[currentGuideSprite]).setData('waypointLabel',currentGuideLabel).setDepth(WAYPOINT_GUIDE_STYLE.depth);
  setWaypointMarkerZoom(currentWaypointMarker,currentGameScene.cameras.main.zoom/GAME_INTERNAL_RESOLUTION_SCALE);
  return currentWaypointMarker;
