@@ -1,5 +1,4 @@
 import currentWaypointMetadata from '../../../../slime-assets/assets/sprites/effects/waypoint/waypoint-guide-v4.animation.json';
-import {GAME_INTERNAL_RESOLUTION_SCALE} from '../renderQuality';
 import Phaser from 'phaser';
 import type {Waypoint} from './meadow';
 import {MAP_LABEL_FONT_SIZE} from './mapLabelStyle';
@@ -13,20 +12,6 @@ const WAYPOINT_DESTINATION_NAMES: Record<string,string> = {meadow:'이슬 초원
 /** 맵 이동 표시는 빌보드와 별도의 이펙트 원본으로 불러온다. */
 export function preloadWaypointGuide(currentGameScene:Phaser.Scene) {
  currentGameScene.load.image(WAYPOINT_GUIDE_TEXTURE,WAYPOINT_GUIDE_SOURCE);
-}
-
-export function waypointMarkerScale(currentCameraZoom:number):number {
- if(!Number.isFinite(currentCameraZoom)||currentCameraZoom<=0)throw Error('웨이포인트 줌 배율이 유효하지 않습니다.');
- return 1/currentCameraZoom;
-}
-
-/** 마커는 화면 크기를 유지하고 라벨은 건물 라벨과 같은 배율로 표시한다. */
-export function setWaypointMarkerZoom(currentWaypointMarker:Phaser.GameObjects.Container,currentCameraZoom:number):void {
- const currentMarkerScale=waypointMarkerScale(currentCameraZoom);
- currentWaypointMarker.setScale(currentMarkerScale);
- const currentWaypointLabel=currentWaypointMarker.getData('waypointLabel') as Phaser.GameObjects.Text|undefined;
- if(!currentWaypointLabel)throw Error('웨이포인트 라벨이 없습니다.');
- currentWaypointLabel.setScale(currentCameraZoom).setY(WAYPOINT_GUIDE_STYLE.labelY*currentCameraZoom);
 }
 
 /** 게임과 검수에서 같은 4×2 8프레임 시트를 재생한다. */
@@ -62,7 +47,6 @@ export function drawWaypointMarker(currentGameScene:Phaser.Scene,currentDestinat
  });
  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)currentGuideSprite.play(WAYPOINT_GUIDE_ANIMATION);
  const currentGuideLabel=currentGameScene.add.text(0,WAYPOINT_GUIDE_STYLE.labelY,currentDestinationName,{fontFamily:'sans-serif',fontSize:WAYPOINT_GUIDE_STYLE.labelSize,align:'center',color:'#fff3d6',backgroundColor:'#49331fee',padding:{x:WAYPOINT_GUIDE_STYLE.labelPadding,y:WAYPOINT_GUIDE_STYLE.labelPadding}}).setOrigin(.5,1);
- const currentWaypointMarker=currentGameScene.add.container(currentScreenColumn,currentScreenRow,[currentGuideSprite,currentGuideLabel]).setData('fieldOcclusionBaseAlpha',1).setData('fieldOcclusionChildren',[currentGuideSprite]).setData('waypointLabel',currentGuideLabel).setDepth(WAYPOINT_GUIDE_STYLE.depth);
- setWaypointMarkerZoom(currentWaypointMarker,currentGameScene.cameras.main.zoom/GAME_INTERNAL_RESOLUTION_SCALE);
+ const currentWaypointMarker=currentGameScene.add.container(currentScreenColumn,currentScreenRow,[currentGuideSprite,currentGuideLabel]).setData('fieldOcclusionBaseAlpha',1).setData('fieldOcclusionChildren',[currentGuideSprite]).setDepth(WAYPOINT_GUIDE_STYLE.depth);
  return currentWaypointMarker;
 }

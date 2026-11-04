@@ -1,3 +1,4 @@
+import {findNearestWalkableTile} from '../terrain/nearestWalkableTile';
 import {applyTerrainAmbientTint,mountTerrainEffectLayer} from '../../../packages/field-renderer/field-renderer.mjs';
 import {loadMapResourceImages} from '../../../packages/field-renderer/map-resource-loader.mjs';
 import {FieldBattleTimeline} from '../animation/fieldBattleTimeline';
@@ -37,7 +38,7 @@ import {MAP_ORIGIN} from '../terrain/elevation';
 import type { State, Position, Unit } from "../../client/types";
 import { buildMeadowRoad, fieldTerrainAt } from "../terrain/meadow";
 import { createTerrainAtlas, preloadTerrain, resolveGrassFrameForMap, resolveTownGroundFrame,resolveReedFrameForMap,resolvePavingFrameForMap, TERRAIN_ATLAS } from "../terrain/textures";
-import { drawWaypoint, setWaypointMarkerZoom, preloadWaypointGuide } from "../terrain/waypoint";
+import { drawWaypoint, preloadWaypointGuide } from "../terrain/waypoint";
 import { drawPersonalMarker } from '../terrain/personalMarkers';
 import {drawGuardCenterSprite, preloadGuardCenterSprites} from "../terrain/guardCenters";
 import { preloadFieldScenery } from "../terrain/scenery";
@@ -120,7 +121,6 @@ export class MainScene extends Phaser.Scene {
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
-  private cityBuildingRegions: CityBuildingRegion[] = [];
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
   private queueUnit(id:string,...args:Parameters<MainScene['unit']>) {
     this.actorEntries.push({id,...this.calculateActorPlacement(args[0], args[6]),create:()=>this.unit(...args)});
@@ -199,11 +199,9 @@ export class MainScene extends Phaser.Scene {
   private sceneryLayerSignature = "";
   private sceneryLayerObjects = new Set<Phaser.GameObjects.GameObject>();
   private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
-  private waypointMarkers: Phaser.GameObjects.Container[] = [];
-  private buildingEntranceMarkers: Phaser.GameObjects.Container[] = [];
+  private cityBuildingRegions: CityBuildingRegion[] = [];
   private safeBarrierSprites: Phaser.GameObjects.Mesh[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-  private waypointZoom = 0;
   constructor(onSelect: (p: Position) => void, onReady: (location: string) => void, onFailure: (failureNoticeValue: Notice, currentFailureDetail?: {stage:"terrain-validation"|"asset-load"; error:unknown}) => void,currentMapResourceKeys?:string[],currentActorResourceKinds?:string[]) {
     super("world");
     this.currentActorResourceKinds=currentActorResourceKinds;
@@ -348,12 +346,12 @@ export class MainScene extends Phaser.Scene {
           left: renderedImageBounds.left, right: renderedImageBounds.right,
           top: renderedImageBounds.top, bottom: renderedImageBounds.bottom});
       }
-      for(const currentBuildingRegion of this.cityBuildingRegions) {
-        if(currentBuildingRegion.polygons.some(currentFacePolygon=>Phaser.Geom.Polygon.Contains(currentFacePolygon,at.x,at.y)))
-          visibleActorRegions.push(currentBuildingRegion);
-      }
+      const currentSurfaceCell = picked ? fromView(picked, this.surface(), this.rotation) : null;
+      const currentBuildingHit = this.cityBuildingRegions.some(currentBuildingRegion => currentBuildingRegion.polygons.some(currentBuildingPolygon => Phaser.Geom.Polygon.Contains(currentBuildingPolygon, at.x, at.y)));
       const cell = pickActorPosition(at, visibleActorRegions, this.selected)
-        ?? (picked ? fromView(picked, this.surface(), this.rotation) : null);
+        ?? ((currentSurfaceCell || currentBuildingHit) && this.state.map.safeTown && !this.state.battle
+          ? findNearestWalkableTile(at, this.state.map, this.project)
+          : currentSurfaceCell);
       if (cell) {
         this.selected = cell;
         this.draw();
@@ -448,10 +446,6 @@ export class MainScene extends Phaser.Scene {
     this.animateFieldActors();
     this.renderFieldBattleEffects();
     updateFieldActorOcclusion(this);
-    const zoom = this.cameras.main.zoom;
-    if (zoom === this.waypointZoom) return;
-    for (const marker of [...this.waypointMarkers, ...this.buildingEntranceMarkers]) setWaypointMarkerZoom(marker, zoom / GAME_INTERNAL_RESOLUTION_SCALE);
-    this.waypointZoom = zoom;
   }
   resetCameraView() {
     this.focus();
@@ -535,7 +529,6 @@ export class MainScene extends Phaser.Scene {
     this.movingObjects=[];
     for (const child of [...this.children.list])
       if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && !this.sceneryLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
-    this.waypointMarkers = [];
     this.personalMarkerGraphics = [];
     this.safeBarrierSprites = [];
     const meadow = !s.battle;
@@ -693,7 +686,7 @@ export class MainScene extends Phaser.Scene {
       }
       for (const gate of s.map.connections) {
         const p = this.project(gate);
-        this.waypointMarkers.push(drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth()));
+        drawWaypoint(this, gate, p.x, p.y).setDepth(this.annotationDepth());
       }
       for (const m of s.monsters.filter(monster => monster.state !== "COOLDOWN"))
         this.queueUnit(`monster:${m.id}`,
@@ -866,13 +859,11 @@ export class MainScene extends Phaser.Scene {
     for (const currentBuildingObject of this.buildingLayerObjects) currentBuildingObject.destroy();
     this.buildingLayerObjects.clear();
     this.cityBuildingRegions = [];
-    this.buildingEntranceMarkers = [];
     const previousSceneObjects = new Set(this.children.list);
     for (const currentBuildingRecord of currentBuildingRecords) {
       const currentBuildingRegion = drawCityBuildingSprite(this, currentBuildingRecord, this.project, this.depth,
         this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id,this.surface());
       this.cityBuildingRegions.push(currentBuildingRegion);
-      if (currentBuildingRegion.entranceMarker) this.buildingEntranceMarkers.push(currentBuildingRegion.entranceMarker);
     }
     for (const currentSceneObject of this.children.list)
       if (!previousSceneObjects.has(currentSceneObject)) this.buildingLayerObjects.add(currentSceneObject);

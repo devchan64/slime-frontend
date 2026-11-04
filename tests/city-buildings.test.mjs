@@ -4,11 +4,12 @@ import {build} from 'esbuild';
 const compiledCityModule = await build({stdin:{contents:"export * from './src/game/terrain/cityBuildings'; export * from './src/ui/fieldNavigation';",resolveDir:process.cwd()},bundle:true,write:false,platform:'node',format:'esm'});
 const {findCityBuilding,cityBuildingCells,fieldRoute} = await import(`data:text/javascript;base64,${Buffer.from(compiledCityModule.outputFiles[0].text).toString('base64')}`);
 const currentTestBuilding = {id:'test-guild',facilityId:'test-guild',facilityKind:'guild',name:'길드',origin:{column:2,row:2},width:4,height:3,entrance:{column:4,row:5},facing:'south'};
-test('전체 점유 셀과 출입구는 같은 시설을 선택하고 외부 타일은 선택하지 않는다',()=>{
+test('건물 출입구에서만 시설을 선택한다',()=>{
  const currentBuildingCells=cityBuildingCells(currentTestBuilding);
  assert.equal(currentBuildingCells.length,12);
  assert.equal(new Set(currentBuildingCells.map(currentCellPosition=>`${currentCellPosition.column},${currentCellPosition.row}`)).size,12);
- for(const currentCellPosition of [...currentBuildingCells,currentTestBuilding.entrance]) assert.equal(findCityBuilding([currentTestBuilding],currentCellPosition),currentTestBuilding);
+ for(const currentCellPosition of currentBuildingCells) assert.equal(findCityBuilding([currentTestBuilding],currentCellPosition),undefined);
+ assert.equal(findCityBuilding([currentTestBuilding],currentTestBuilding.entrance),currentTestBuilding);
  assert.equal(findCityBuilding([currentTestBuilding],{column:6,row:4}),undefined);
  assert.equal(findCityBuilding(undefined,currentTestBuilding.origin),undefined);
  assert.equal(findCityBuilding([currentTestBuilding],null),undefined);

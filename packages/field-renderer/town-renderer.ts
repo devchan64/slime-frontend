@@ -15,7 +15,7 @@ export {BUILDING_RENDER_BLOCK_HEIGHT,buildRenderedBlockFaces} from '../../src/ga
 
 export {resolveCityTileTextures,resolveFieldTileTextures,resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
 
-export {drawWaypoint,waypointMarkerScale,setWaypointMarkerZoom} from '../../src/game/terrain/waypoint';
+export {drawWaypoint} from '../../src/game/terrain/waypoint';
 
 export {resolveTownGroundFrame} from "../../src/game/terrain/textures";
 

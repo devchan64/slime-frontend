@@ -3,9 +3,7 @@ import type {CityBuilding, Position} from '../../client/types';
 export function findCityBuilding(currentCityBuildings: CityBuilding[] | undefined, selectedCityPosition: Position | null) {
   if (!selectedCityPosition) return undefined;
   return currentCityBuildings?.filter(currentCityBuilding => currentCityBuilding.facilityKind !== 'residence').find(currentCityBuilding =>
-    (selectedCityPosition.column >= currentCityBuilding.origin.column && selectedCityPosition.column < currentCityBuilding.origin.column+currentCityBuilding.width
-      && selectedCityPosition.row >= currentCityBuilding.origin.row && selectedCityPosition.row < currentCityBuilding.origin.row+currentCityBuilding.height)
-    || (selectedCityPosition.column === currentCityBuilding.entrance.column && selectedCityPosition.row === currentCityBuilding.entrance.row));
+    selectedCityPosition.column === currentCityBuilding.entrance.column && selectedCityPosition.row === currentCityBuilding.entrance.row);
 }
 
 export function cityBuildingCells(currentCityBuilding: CityBuilding): Position[] {
