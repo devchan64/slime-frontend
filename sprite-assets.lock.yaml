@@ -1086,13 +1086,13 @@ files:
   sha256: f0c85c42282e6467a5e01d60d53d57381660aa18312c6ad70a779efd37d15a91
 - path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
   source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/character-default-light-leather-walk-front-left-sprite-v1.png
-  sha256: a74df2e3e35516a69fe9cf539126d95e69a38721a5767a46f3c6dc1fae2023d2
+  sha256: bc6f2c4969cb84f79f4936840cdce9ec8ceb6d71c6d563dc3d28ee685a446cda
 - path: assets/characters/default/walk-light-leather-v1/source.yaml
   source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/source.yaml
   sha256: e67ca0da4c5396499478027443e3cf01e76f26f4bb7499067ac769f73113c7a2
 - path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
   source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/walk-light-leather-v1.animation.json
-  sha256: b0b0bbde5f5f18492b7409ff7b4c082c669e6d6c34ea502b8fdf2332798dedaa
+  sha256: ed72ce14199b3c4a7c9ee0d5b5bde60276514225ad86770075c0f60c22d5c8cd
 - path: assets/structures/brine-bank-painted-hill-v1.png
   source_path: assets/billboards/brine-bank-painted-hill-v1.png
   sha256: a177e079b1bd8d7fc2ffc3e431e2b9c8fedc5052fc7818bcaf52979791a37cf2
