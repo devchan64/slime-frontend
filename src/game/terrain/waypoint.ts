@@ -1,9 +1,12 @@
 import currentWaypointMetadata from '../../../../slime-assets/assets/sprites/effects/waypoint/waypoint-guide-v4.animation.json';
 import Phaser from 'phaser';
+import currentWaypointSource from '../../../../slime-assets/assets/sprites/effects/waypoint/waypoint-guide-v4.png';
 import type {Waypoint} from './meadow';
 import {MAP_LABEL_FONT_SIZE} from './mapLabelStyle';
 
-const WAYPOINT_GUIDE_SOURCE = 'assets/sprites/effects/waypoint/waypoint-guide-v4.png';
+// 시트의 바닥 고리 중심을 타일 좌표에 맞춘다. 상승 입자의 외곽은 기준에서 제외한다.
+const WAYPOINT_RING_CENTER = {x:0.5,y:0.62};
+const WAYPOINT_GUIDE_SOURCE = currentWaypointSource;
 const WAYPOINT_GUIDE_TEXTURE = 'waypoint-guide-v1';
 const WAYPOINT_GUIDE_ANIMATION = 'waypoint-guide-loop-v1';
 const WAYPOINT_GUIDE_STYLE = {size:90,lift:0,labelY:-50,labelSize:MAP_LABEL_FONT_SIZE,labelPadding:4,depth:100,frameRate:6};
@@ -38,13 +41,7 @@ export function drawWaypoint(currentGameScene:Phaser.Scene,currentWaypointRecord
 export function drawWaypointMarker(currentGameScene:Phaser.Scene,currentDestinationName:string,currentScreenColumn:number,currentScreenRow:number){
  if(!currentDestinationName.trim())throw Error('웨이포인트 라벨이 없습니다.');
  prepareWaypointGuideAnimation(currentGameScene);
- const currentGuideSprite=currentGameScene.add.sprite(0,-WAYPOINT_GUIDE_STYLE.lift,WAYPOINT_GUIDE_TEXTURE,'guide-0').setOrigin(currentWaypointMetadata.frames[0].anchor.x/currentWaypointMetadata.frames[0].rect.width,currentWaypointMetadata.frames[0].anchor.y/currentWaypointMetadata.frames[0].rect.height).setDisplaySize(WAYPOINT_GUIDE_STYLE.size,WAYPOINT_GUIDE_STYLE.size);
- currentGuideSprite.on('animationupdate',(_currentAnimationValue:Phaser.Animations.Animation,currentAnimationFrame:Phaser.Animations.AnimationFrame)=>{
-  const currentFrameIndex=Number(String(currentAnimationFrame.textureFrame).replace('guide-',''));
-  const currentAnchorFrame=currentWaypointMetadata.frames[currentFrameIndex];
-  if(!currentAnchorFrame)throw Error('웨이포인트 앵커 프레임이 없습니다.');
-  currentGuideSprite.setOrigin(currentAnchorFrame.anchor.x/currentAnchorFrame.rect.width,currentAnchorFrame.anchor.y/currentAnchorFrame.rect.height);
- });
+ const currentGuideSprite=currentGameScene.add.sprite(0,-WAYPOINT_GUIDE_STYLE.lift,WAYPOINT_GUIDE_TEXTURE,'guide-0').setOrigin(WAYPOINT_RING_CENTER.x,WAYPOINT_RING_CENTER.y).setDisplaySize(WAYPOINT_GUIDE_STYLE.size,WAYPOINT_GUIDE_STYLE.size);
  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)currentGuideSprite.play(WAYPOINT_GUIDE_ANIMATION);
  const currentGuideLabel=currentGameScene.add.text(0,WAYPOINT_GUIDE_STYLE.labelY,currentDestinationName,{fontFamily:'sans-serif',fontSize:WAYPOINT_GUIDE_STYLE.labelSize,align:'center',color:'#fff3d6',backgroundColor:'#49331fee',padding:{x:WAYPOINT_GUIDE_STYLE.labelPadding,y:WAYPOINT_GUIDE_STYLE.labelPadding}}).setOrigin(.5,1);
  const currentWaypointMarker=currentGameScene.add.container(currentScreenColumn,currentScreenRow,[currentGuideSprite,currentGuideLabel]).setData('fieldOcclusionBaseAlpha',1).setData('fieldOcclusionChildren',[currentGuideSprite]).setDepth(WAYPOINT_GUIDE_STYLE.depth);

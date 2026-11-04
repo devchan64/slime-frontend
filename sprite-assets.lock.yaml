@@ -17,14 +17,14 @@ files:
   source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/source.json
   sha256: 58ca30570d7fe45959cb1f2bfe6b4e756520bcefcdccd917f4351ece6e71d1f1
 - path: assets/characters/default/rest-v2/rest-v2.animation.json
-  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v3/rest-v2.animation.json
-  sha256: a0fd3a158dfa11ae8f70cc610fb3fece77c65ca704332c7fdee2b78111fc5b52
+  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v4/rest-v2.animation.json
+  sha256: ee31af9502975b71f564cf3d496e95262325686642aa8ec9921cf312156d065a
 - path: assets/characters/default/rest-v2/rest-v2.png
-  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v3/rest-v2.png
-  sha256: 4bdad858c7f5e4b75a77afdfbb559a365471b5f33f31e25b638f7c5afb855d9e
+  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v4/rest-v2.png
+  sha256: cbc1a0dc8e9c17cf6581ea87a507a0df80e36a907e12f5932e510b5e2e77e4f9
 - path: assets/characters/default/rest-v2/source.json
-  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v3/source.json
-  sha256: 1664add377837be8c79dcc90a322c14317d2723b6ad815fb167cd29e5e65067e
+  source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v4/source.json
+  sha256: 0b66a2fd610e86e404d2bb1038c2077ed284c5c9f187f7eb92cc81f8ab9878a0
 - path: assets/monsters/standing-v1/ash-fox-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/ash-fox-idle-v1.animation.json
   sha256: 45b7d18d9fe74a63d00dc88874beae17a0ed334baec88b8f6bbef548fa591ca0
@@ -1105,11 +1105,9 @@ files:
 - path: assets/structures/brine-bank-painted-low-bank-v1.png
   source_path: assets/billboards/brine-bank-painted-low-bank-v1.png
   sha256: 04fccf5c3fd1719fb92062107c5d82b8848dbe92799146b22e625e96de7bf2e7
-
 - path: assets/structures/town-iseulon-residence-green-v1.png
   source_path: assets/buildings/town-iseulon-residence-green-v1.png
   sha256: c83e696ab2864c9962b4056b0f2862511be7a03099611e903e09789ce6211d27
-
 - path: assets/structures/town-iseulon-residence-golden-v1.png
   source_path: assets/buildings/town-iseulon-residence-golden-v1.png
   sha256: 468682e6adcf987f6b9322963819d0e193551f3bb98a448b713dda70c9fc29aa

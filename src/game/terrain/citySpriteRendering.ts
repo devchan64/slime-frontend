@@ -5,6 +5,7 @@ import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
 import {calculateBuildingDisplaySize} from './buildingDisplaySize';
 import {drawWaypointMarker} from './waypoint';
+import {resolveBuildingEntranceMarker} from './buildingEntranceMarker';
 import {preserveSceneryDepthOrder} from './sceneryDepthOrder';
 
 const BUILDING_HALF_CELL = 0.5;
@@ -59,7 +60,7 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  if(currentCityBuilding.facilityKind === 'residence') {
  return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
  }
- const currentEntrancePoint=projectTerrainPosition(currentCityBuilding.entrance);
+ const currentEntrancePoint=resolveBuildingEntranceMarker(currentSpriteRecord.textureKey,currentImageBounds,projectTerrainPosition(currentCityBuilding.entrance));
  const currentEntranceMarker=drawWaypointMarker(currentMapScene,t(`city.${currentCityBuilding.facilityKind}`),currentEntrancePoint.x,currentEntrancePoint.y).setDepth(currentAnnotationDepth);
  return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],entranceMarker:currentEntranceMarker,left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
 }
