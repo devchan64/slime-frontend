@@ -76,9 +76,6 @@ files:
 - path: assets/terrain/deep-water-v1.png
   source_path: assets/tiles/terrain/blocked/transparent-deep-water-v2.png
   sha256: 3982b3fac2ddf0145b2bac111b37b7b7a029344f05834c0c23ac59612e9091b3
-- path: assets/terrain/swamp-water-v2.png
-  source_path: assets/tiles/terrain/blocked/swamp-water-v2.png
-  sha256: 21efb8b2ec0b733c3265e432d10c78dd80132db3c8117eac7724000785edbe2a
 - path: assets/terrain/wildflowers-v1.png
   source_path: assets/tiles/terrain/non-road/orchard-grass-v1.png
   sha256: 35d1c4decda530d9c19cb28fa96c12a30d77004f83ff0c0b7bf30652c1923be1
