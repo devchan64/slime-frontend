@@ -200,6 +200,7 @@ export class MainScene extends Phaser.Scene {
   private sceneryLayerObjects = new Set<Phaser.GameObjects.GameObject>();
   private terrainCache: TerrainWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
+  private buildingEntranceMarkers: Phaser.GameObjects.Container[] = [];
   private safeBarrierSprites: Phaser.GameObjects.Mesh[] = [];
   private reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   private waypointZoom = 0;
@@ -449,7 +450,7 @@ export class MainScene extends Phaser.Scene {
     updateFieldActorOcclusion(this);
     const zoom = this.cameras.main.zoom;
     if (zoom === this.waypointZoom) return;
-    for (const marker of this.waypointMarkers) setWaypointMarkerZoom(marker, zoom / GAME_INTERNAL_RESOLUTION_SCALE);
+    for (const marker of [...this.waypointMarkers, ...this.buildingEntranceMarkers]) setWaypointMarkerZoom(marker, zoom / GAME_INTERNAL_RESOLUTION_SCALE);
     this.waypointZoom = zoom;
   }
   resetCameraView() {
@@ -865,10 +866,14 @@ export class MainScene extends Phaser.Scene {
     for (const currentBuildingObject of this.buildingLayerObjects) currentBuildingObject.destroy();
     this.buildingLayerObjects.clear();
     this.cityBuildingRegions = [];
+    this.buildingEntranceMarkers = [];
     const previousSceneObjects = new Set(this.children.list);
-    for (const currentBuildingRecord of currentBuildingRecords)
-      this.cityBuildingRegions.push(drawCityBuildingSprite(this, currentBuildingRecord, this.project, this.depth,
-        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id,this.surface()));
+    for (const currentBuildingRecord of currentBuildingRecords) {
+      const currentBuildingRegion = drawCityBuildingSprite(this, currentBuildingRecord, this.project, this.depth,
+        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id,this.surface());
+      this.cityBuildingRegions.push(currentBuildingRegion);
+      if (currentBuildingRegion.entranceMarker) this.buildingEntranceMarkers.push(currentBuildingRegion.entranceMarker);
+    }
     for (const currentSceneObject of this.children.list)
       if (!previousSceneObjects.has(currentSceneObject)) this.buildingLayerObjects.add(currentSceneObject);
     this.buildingLayerSignature = currentLayerSignature;

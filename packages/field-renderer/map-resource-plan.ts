@@ -28,7 +28,7 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
  if(currentMapRecord.stairs?.length)currentTextureKeys.add(RAMP_TREAD_TEXTURE);
  if(currentMapRecord.cliffTextureKey)currentTextureKeys.add(currentMapRecord.cliffTextureKey);
  for(const currentObjectRecord of [...currentMapRecord.objects??[],...currentMapRecord.groundOverrides??[],...currentMapRecord.groundDecals??[],...currentMapRecord.cliffOverrides??[]])if(currentObjectRecord.textureKey)currentTextureKeys.add(currentObjectRecord.textureKey);
- if(currentMapRecord.connections?.length)currentTextureKeys.add('waypoint-guide-v1');
+ if(currentMapRecord.connections?.length||currentMapRecord.buildings?.some(currentBuildingRecord=>currentBuildingRecord.facilityKind!=='residence'))currentTextureKeys.add('waypoint-guide-v1');
  for(const currentBuildingRecord of currentMapRecord.buildings??[]){
   if(!currentBuildingRecord.sprite?.textureKey)throw Error('건물 스프라이트 지정이 없습니다: '+currentBuildingRecord.id);
   currentTextureKeys.add(currentBuildingRecord.sprite.textureKey);

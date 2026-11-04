@@ -46,6 +46,12 @@ export function prepareWaypointGuideAnimation(currentGameScene:Phaser.Scene){
 export function drawWaypoint(currentGameScene:Phaser.Scene,currentWaypointRecord:Waypoint,currentScreenColumn:number,currentScreenRow:number){
  const currentDestinationName=currentWaypointRecord.targetName??WAYPOINT_DESTINATION_NAMES[currentWaypointRecord.target];
  if(!currentDestinationName)throw Error('웨이포인트 목적지 이름이 없습니다: '+currentWaypointRecord.target);
+ return drawWaypointMarker(currentGameScene,currentDestinationName,currentScreenColumn,currentScreenRow);
+}
+
+/** 입구와 맵 이동 지점에서 동일한 애니메이션과 라벨을 사용한다. */
+export function drawWaypointMarker(currentGameScene:Phaser.Scene,currentDestinationName:string,currentScreenColumn:number,currentScreenRow:number){
+ if(!currentDestinationName.trim())throw Error('웨이포인트 라벨이 없습니다.');
  prepareWaypointGuideAnimation(currentGameScene);
  const currentGuideSprite=currentGameScene.add.sprite(0,-WAYPOINT_GUIDE_STYLE.lift,WAYPOINT_GUIDE_TEXTURE,'guide-0').setOrigin(currentWaypointMetadata.frames[0].anchor.x/currentWaypointMetadata.frames[0].rect.width,currentWaypointMetadata.frames[0].anchor.y/currentWaypointMetadata.frames[0].rect.height).setDisplaySize(WAYPOINT_GUIDE_STYLE.size,WAYPOINT_GUIDE_STYLE.size);
  currentGuideSprite.on('animationupdate',(_currentAnimationValue:Phaser.Animations.Animation,currentAnimationFrame:Phaser.Animations.AnimationFrame)=>{

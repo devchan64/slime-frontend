@@ -1,19 +1,16 @@
 import Phaser from 'phaser';
 import type {CityBuilding,Position} from '../../client/types';
 import {applyTerrainAmbientTint,markFieldOcclusionObject} from '../../../packages/field-renderer/field-renderer.mjs';
-import {CITY_BUILDING_STYLE} from '../../../packages/field-renderer/render-constants.mjs';
 import {TERRAIN_DEPTH} from './elevation';
 import {t} from '../../i18n';
 import {calculateBuildingDisplaySize} from './buildingDisplaySize';
-import {MAP_LABEL_FONT_SIZE} from './mapLabelStyle';
+import {drawWaypointMarker} from './waypoint';
 import {preserveSceneryDepthOrder} from './sceneryDepthOrder';
 
-const BUILDING_LABEL_STYLE = {fontFamily:'sans-serif',fontSize:MAP_LABEL_FONT_SIZE,color:'#fff7de',backgroundColor:'#39362d',padding:{x:8,y:4},resolution:2};
-const BUILDING_LABEL_ANCHOR_OFFSET = 200;
 const BUILDING_HALF_CELL = 0.5;
 const BUILDING_FOOTPRINT_MARGIN = 1.04;
 type CityScreenPoint = {x:number;y:number};
-export type CityBuildingRegion = {appliedTextureIdentifiers:string[];position:Position;depth:number;polygons:Phaser.Geom.Polygon[];left:number;right:number;top:number;bottom:number};
+export type CityBuildingRegion = {appliedTextureIdentifiers:string[];position:Position;depth:number;polygons:Phaser.Geom.Polygon[];entranceMarker?:Phaser.GameObjects.Container;left:number;right:number;top:number;bottom:number};
 
 /** 건물의 깊이는 점유 영역의 셀 최대값이 아니라 실제 전면 접지 앵커를 기준으로 정렬한다. */
 export function resolveCityBuildingFrontDepth(currentFrontPosition:Position,calculateTerrainDepth:(currentCellPosition:Position)=>number):number {
@@ -23,7 +20,7 @@ export function resolveCityBuildingFrontDepth(currentFrontPosition:Position,calc
 /** 건물 이미지는 단일 스프라이트, 점유·출입구는 서버의 논리 영역을 따른다. */
 export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityBuilding:CityBuilding,
  projectTerrainPosition:(currentCellPosition:Position)=>CityScreenPoint,
- calculateTerrainDepth:(currentCellPosition:Position)=>number,currentAnnotationDepth:number,currentBuildingSelected:boolean,currentAmbientSurface?:{ambientTint?:string}):CityBuildingRegion {
+ calculateTerrainDepth:(currentCellPosition:Position)=>number,currentAnnotationDepth:number,_currentBuildingSelected:boolean,currentAmbientSurface?:{ambientTint?:string}):CityBuildingRegion {
  const currentSpriteRecord=currentCityBuilding.sprite;
  if(!currentSpriteRecord || !currentMapScene.textures.exists(currentSpriteRecord.textureKey))throw Error('도시 건물 스프라이트 누락: '+currentCityBuilding.id);
  const currentOriginPosition=currentCityBuilding.origin;
@@ -63,12 +60,6 @@ export function drawCityBuildingSprite(currentMapScene:Phaser.Scene,currentCityB
  return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
  }
  const currentEntrancePoint=projectTerrainPosition(currentCityBuilding.entrance);
- const currentEntranceMarker=currentMapScene.add.graphics().setDepth(currentAnnotationDepth);
- currentEntranceMarker.lineStyle(currentBuildingSelected?CITY_BUILDING_STYLE.selectedWidth:CITY_BUILDING_STYLE.outlineWidth,currentBuildingSelected?CITY_BUILDING_STYLE.selectedColor:CITY_BUILDING_STYLE.wallLight);
- currentEntranceMarker.strokeCircle(currentEntrancePoint.x,currentEntrancePoint.y,CITY_BUILDING_STYLE.entranceRadius);
- const currentLabelPositionX=currentFrontPoint.x;
- const currentLabelPositionY=currentFrontPoint.y-BUILDING_LABEL_ANCHOR_OFFSET;
- currentMapScene.add.text(currentLabelPositionX,currentLabelPositionY,t(`city.${currentCityBuilding.facilityKind}`),BUILDING_LABEL_STYLE)
-  .setOrigin(BUILDING_HALF_CELL,1).setDepth(currentAnnotationDepth);
- return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
+ const currentEntranceMarker=drawWaypointMarker(currentMapScene,t(`city.${currentCityBuilding.facilityKind}`),currentEntrancePoint.x,currentEntrancePoint.y).setDepth(currentAnnotationDepth);
+ return {appliedTextureIdentifiers:[currentSpriteRecord.textureKey],position:currentOriginPosition,depth:currentBuildingDepth,polygons:[currentImagePolygon],entranceMarker:currentEntranceMarker,left:currentImageBounds.left,right:currentImageBounds.right,top:currentImageBounds.top,bottom:currentImageBounds.bottom};
 }
