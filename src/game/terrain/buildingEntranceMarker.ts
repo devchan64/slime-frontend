@@ -1,5 +1,10 @@
 /** 건물 원본의 이미지 크기에 대한 출입문 바닥 위치. */
 const BUILDING_ENTRANCE_IMAGE_POINTS: Record<string, {x:number;y:number}> = {
+  'town-stonewarm-guild-guide-v1': {x:0.32,y:0.91},
+  'town-stonewarm-bookshop-guide-v1': {x:0.29,y:0.84},
+  'town-stonewarm-inn-guide-v1': {x:0.67,y:0.92},
+  'town-stonewarm-market-guide-v1': {x:0.30,y:0.78},
+  'town-stonewarm-workshop-guide-v1': {x:0.65,y:0.80},
   'town-stonewarm-guild-v5': {x:0.32,y:0.88},
   'town-stonewarm-bookshop-v5': {x:0.30,y:0.89},
   'town-stonewarm-inn-v5': {x:0.31,y:0.87},
