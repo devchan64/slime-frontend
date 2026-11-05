@@ -204,7 +204,7 @@ export function resolvePavingFrameForMap(currentMapIdentifier: string) {
   if (currentMapIdentifier === "stonewarm") return "iseulon-courtyard-paving";
   if (currentMapIdentifier === "saltford") return STONEWARM_PAVING_FRAME;
   if (currentMapIdentifier === "reedhaven") return "stonewarm-granite-paving";
-  if (currentMapIdentifier === "grainstead") return REEDHAVEN_DIRT_ROAD_FRAME;
+  if (currentMapIdentifier === "grainstead") return "pebble-sand-base-v1";
   return "paving";
 }
 
@@ -293,6 +293,7 @@ export function resolveReedFrameForMap(currentMapIdentifier: string) {
 }
 
 export function resolveTownGroundFrame(currentMapIdentifier: string,currentTerrainName: string) {
+ if(currentMapIdentifier==="grainstead" && ["dry-soil-branches","gravel","stone"].includes(currentTerrainName))return "pebble-sand-base-v1";
  if(currentMapIdentifier==="saltford")return ({gravel:"stonewarm-pebble-ground",stone:"stonewarm-exposed-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
  if(currentMapIdentifier!=="stonewarm")return currentTerrainName;
  return ({gravel:"stonewarm-exposed-ground",stone:"stonewarm-pebble-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;

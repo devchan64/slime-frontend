@@ -15,10 +15,10 @@ files:
   sha256: 7152f4b23fbd4bef7ebebeb34e70618c251b7d9e5a73247a28215af88456552c
 - path: assets/ui/world-map/thumbnails.yaml
   source_path: assets/ui/world-map/thumbnails.yaml
-  sha256: 9695ff9cb1d0fd268d2e1877df9230fb0694be79d4a35827cd6567d7d3326a68
-- path: assets/ui/world-map/thumbnails/grainstead-v1.png
-  source_path: assets/ui/world-map/thumbnails/grainstead-v1.png
-  sha256: 5d0cb1210b26d4a4258741d55dc1c46b2798d13e17b7f47fe29b3d7f9c309451
+  sha256: 2807421fe2444bcb8890fded2a9d729610d09b527e5c6585627220d09451461c
+- path: assets/ui/world-map/thumbnails/grainstead-v2.png
+  source_path: assets/ui/world-map/thumbnails/grainstead-v2.png
+  sha256: b8d8ef10985b7bb1ecb2bc307270ea7d19dde39959b5cbbf31a333f4fd1a7e84
 - path: assets/ui/world-map/thumbnails/saltford-v1.png
   source_path: assets/ui/world-map/thumbnails/saltford-v1.png
   sha256: 8b1b7d6d09d83cdad3715044701524f30137e23e8acb60664f0b92ac1004bcb4
