@@ -1,5 +1,10 @@
 /** 건물 원본의 이미지 크기에 대한 출입문 바닥 위치. */
 const BUILDING_ENTRANCE_IMAGE_POINTS: Record<string, {x:number;y:number}> = {
+  'town-reedhaven-guild-guide-v1': {x:0.32,y:0.74},
+  'town-reedhaven-bookshop-guide-v1': {x:0.32,y:0.79},
+  'town-reedhaven-inn-guide-v1': {x:0.70,y:0.79},
+  'town-reedhaven-market-guide-v1': {x:0.34,y:0.71},
+  'town-reedhaven-workshop-guide-v1': {x:0.635,y:0.81},
   'town-stonewarm-guild-guide-v1': {x:0.32,y:0.91},
   'town-stonewarm-bookshop-guide-v1': {x:0.29,y:0.84},
   'town-stonewarm-inn-guide-v1': {x:0.67,y:0.92},

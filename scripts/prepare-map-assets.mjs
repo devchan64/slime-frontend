@@ -71,6 +71,8 @@ try {
   }
   if (spriteAssetsSelected) {
     for (const currentRegistryRecord of registeredSourcePaths.values()) {
+      // 폐기 원본은 이력 보존 대상이며 활성 스프라이트 해상도 검증에서 제외한다.
+      if (currentRegistryRecord.source.lifecycle_status === 'retired') continue;
       if (typeof currentRegistryRecord.path !== 'string' || !/\.png$/.test(currentRegistryRecord.path) || !(currentRegistryRecord.path.startsWith('assets/billboards/') || currentRegistryRecord.path.startsWith('assets/buildings/'))) continue;
       const currentSourcePath = realpathSync(resolve(assetRepositoryDirectory, currentRegistryRecord.path));
       if (!currentSourcePath.startsWith(resolve(assetRepositoryDirectory, currentRegistryRecord.path.startsWith('assets/billboards/') ? 'assets/billboards' : 'assets/buildings') + sep)) throw Error('스프라이트 원본 경로 이탈');

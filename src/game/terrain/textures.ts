@@ -203,7 +203,7 @@ export function resolvePavingFrameForMap(currentMapIdentifier: string) {
   if (currentMapIdentifier === "iseulon") return "iseulon-courtyard-paving";
   if (currentMapIdentifier === "stonewarm") return "iseulon-courtyard-paving";
   if (currentMapIdentifier === "saltford") return STONEWARM_PAVING_FRAME;
-  if (currentMapIdentifier === "reedhaven") return "reedhaven-dry-embankment";
+  if (currentMapIdentifier === "reedhaven") return "stonewarm-granite-paving";
   if (currentMapIdentifier === "grainstead") return REEDHAVEN_DIRT_ROAD_FRAME;
   return "paving";
 }
