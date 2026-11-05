@@ -669,3 +669,23 @@ test('맵 정적 색상 보정은 메시와 식생 색상만 바꾸고 알파·�
  assert.equal(currentImageObject.tint,0x607c90);assert.equal(currentImageObject.alpha,.8);
  for(const currentInvalidColor of [null,12,'red','#fff','#1234567'])assert.throws(()=>resolveTerrainAmbientTint({ambientTint:currentInvalidColor}),/ambientTint/);
 });
+
+test('높은 둑의 저울 받침은 이동한 접지점의 윗면에 잘리지 않는다',async()=>{
+ const {resolveBillboardGroundDepth}=await import('../packages/field-renderer/field-renderer.mjs');
+ const currentMapSurface={columns:32,rows:32,elevations:Array.from({length:32},()=>Array(32).fill(6))};
+ const currentObjectRecord={kind:'decoration',position:{column:11,row:18},billboardAnchorMode:'tile-intersection',groundFootprintColumns:2,groundFootprintRows:1,anchorX:0,anchorY:.45,displayHeight:320};
+ currentMapSurface.objects=[currentObjectRecord];
+ for(const currentRotationValue of [0,1,2,3]){
+  const currentRenderOptions={...FIELD_RENDER_METRICS,tileWidth:80,tileHeight:40,rotation:currentRotationValue};
+  const currentObjectDepth=resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,currentRenderOptions);
+  for(const currentCellColumn of [12,13])for(const currentCellRow of [18,19]){
+   const currentCellPosition={column:currentCellColumn,row:currentCellRow};
+   const currentTerrainDepth=resolveFieldSurfaceDepth(currentCellPosition,currentMapSurface,currentRenderOptions);
+   assert.ok(currentObjectDepth>currentTerrainDepth,'접지 주변 윗면이 받침을 덮지 않는다');
+   assert.equal(resolveBillboardGroundDepth(currentCellPosition,currentMapSurface,currentRenderOptions,currentTerrainDepth),currentTerrainDepth,'지형 윗면과 측벽의 순서는 바꾸지 않는다');
+  }
+ }
+ currentMapSurface.elevations[19][13]=8;
+ const currentRaisedPosition={column:13,row:19};
+ assert.ok(resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,FIELD_RENDER_METRICS)<resolveFieldSurfaceDepth(currentRaisedPosition,currentMapSurface,FIELD_RENDER_METRICS),'앞쪽의 더 높은 지형은 여전히 저울을 가린다');
+});

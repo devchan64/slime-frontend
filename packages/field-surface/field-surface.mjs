@@ -6,6 +6,7 @@ import {FIELD_RENDER_METRICS} from '../field-renderer/render-constants.mjs';
 export {FIELD_RENDER_METRICS} from '../field-renderer/render-constants.mjs';
 export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces} from './terrain-bridges.mjs';
 import {findBridgeSurface} from './terrain-bridges.mjs';
+const SMOOTH_CITY_ROAD_MAPS=new Set(['saltford']);
 export function readSurfaceHeight(currentCellPosition,currentMapSurface){
  if(currentMapSurface.heightSource)return readSurfaceHeight(currentMapSurface.heightSource.position(currentCellPosition),currentMapSurface.heightSource.surface);
  return findBridgeSurface(currentCellPosition,currentMapSurface)?.elevation??readGroundSurfaceHeight(currentCellPosition,currentMapSurface);
@@ -31,21 +32,44 @@ export function findSurfaceStair(currentCellPosition,currentMapSurface){
 export function projectSurfaceCell(currentCellPosition,currentMapSurface,currentRenderOptions){
  return projectSurfaceVertex({...currentCellPosition,height:(readSurfaceHeight(currentCellPosition,currentMapSurface)-(findSurfaceStair(currentCellPosition,currentMapSurface)?0.5:0))*currentRenderOptions.elevationHeight},currentRenderOptions);
 }
+// 소금여울 운송로는 기존 정수 고도·통행을 유지하고 포장면만 연속 경사로 연결한다.
+export function readRoadSurfaceVertexHeight(currentCellPosition,currentColumnOffset,currentRowOffset,currentMapSurface){
+ if(currentMapSurface.heightSource){
+  const currentSourceCell=currentMapSurface.heightSource.position(currentCellPosition);
+  const currentSourceVertex=currentMapSurface.heightSource.position({column:currentCellPosition.column+currentColumnOffset,row:currentCellPosition.row+currentRowOffset});
+  return readRoadSurfaceVertexHeight(currentSourceCell,currentSourceVertex.column-currentSourceCell.column,currentSourceVertex.row-currentSourceCell.row,currentMapSurface.heightSource.surface);
+ }
+ const currentBaseHeight=readGroundSurfaceHeight(currentCellPosition,currentMapSurface);
+ const isPavedRoadCell=currentRoadCell=>currentMapSurface.terrainCodes?.[currentMapSurface.terrainRows?.[currentRoadCell.row]?.[currentRoadCell.column]]==='paving';
+ if(!SMOOTH_CITY_ROAD_MAPS.has(currentMapSurface.id)||!isPavedRoadCell(currentCellPosition))return currentBaseHeight;
+ const currentVertexHeights=[];
+ for(const currentColumnStep of [0,Math.sign(currentColumnOffset)])for(const currentRowStep of [0,Math.sign(currentRowOffset)]){
+  const currentNeighborCell={column:currentCellPosition.column+currentColumnStep,row:currentCellPosition.row+currentRowStep};
+  if(!isPavedRoadCell(currentNeighborCell))continue;
+  const currentNeighborHeight=readGroundSurfaceHeight(currentNeighborCell,currentMapSurface);
+  if(Math.abs(currentNeighborHeight-currentBaseHeight)<=1)currentVertexHeights.push(currentNeighborHeight);
+ }
+ return currentVertexHeights.reduce((currentHeightSum,currentHeightValue)=>currentHeightSum+currentHeightValue,0)/currentVertexHeights.length;
+}
+
 export function buildSurfaceCliffs(currentCellPosition,currentMapSurface,currentRenderOptions){
  if(!currentMapSurface.elevations&&!currentMapSurface.heightSource)return [];
- const currentHeightValue=readGroundSurfaceHeight(currentCellPosition,currentMapSurface),currentCenterPoint=projectSurfaceVertex({...currentCellPosition,height:currentHeightValue*currentRenderOptions.elevationHeight},currentRenderOptions);
- const currentVisibleEdges=[{direction:{column:1,row:0},edge:[[0,currentRenderOptions.tileHeight/2],[currentRenderOptions.tileWidth/2,0]]},{direction:{column:0,row:1},edge:[[-currentRenderOptions.tileWidth/2,0],[0,currentRenderOptions.tileHeight/2]]}];
+ const currentVisibleEdges=[{direction:{column:1,row:0},corners:[[.5,.5],[.5,-.5]]},{direction:{column:0,row:1},corners:[[-.5,.5],[.5,.5]]}];
  return currentVisibleEdges.flatMap(currentEdgeRecord=>{
   const currentNeighborOffset=rotateSurfacePosition(currentEdgeRecord.direction,-(currentRenderOptions.rotation??0));
   const currentNeighborCell={column:currentCellPosition.column+currentNeighborOffset.column,row:currentCellPosition.row+currentNeighborOffset.row};
   const currentNeighborInside=currentNeighborCell.column>=0&&currentNeighborCell.row>=0&&currentNeighborCell.column<currentMapSurface.columns&&currentNeighborCell.row<currentMapSurface.rows;
-  const currentNeighborStair=findSurfaceStair(currentNeighborCell,currentMapSurface);
-  const currentRampSideWall=Boolean(currentNeighborStair&&(currentNeighborOffset.column*(currentNeighborStair.cell.column-currentNeighborStair.lower.column)+currentNeighborOffset.row*(currentNeighborStair.cell.row-currentNeighborStair.lower.row))===0);
-  const currentNeighborHeight=readGroundSurfaceHeight(currentNeighborCell,currentMapSurface)-(currentRampSideWall?1:0);
-  const currentHeightDrop=currentNeighborInside?(currentHeightValue-currentNeighborHeight)*currentRenderOptions.elevationHeight:currentHeightValue*currentRenderOptions.elevationHeight+currentRenderOptions.baseThickness;
-  if(currentHeightDrop<=0)return [];
-  const [currentFirstPoint,currentSecondPoint]=currentEdgeRecord.edge.map(([currentOffsetX,currentOffsetY])=>({x:currentCenterPoint.x+currentOffsetX,y:currentCenterPoint.y+currentOffsetY}));
-  return [Object.assign([currentFirstPoint,currentSecondPoint,{x:currentSecondPoint.x,y:currentSecondPoint.y+currentHeightDrop},{x:currentFirstPoint.x,y:currentFirstPoint.y+currentHeightDrop}],{rampWall:currentRampSideWall})];
+  const currentTopPoints=[],currentBottomPoints=[];
+  for(const [currentColumnOffset,currentRowOffset] of currentEdgeRecord.corners){
+   const currentWorldOffset=rotateSurfacePosition({column:currentColumnOffset,row:currentRowOffset},-(currentRenderOptions.rotation??0));
+   const currentTopHeight=readRoadSurfaceVertexHeight(currentCellPosition,currentWorldOffset.column,currentWorldOffset.row,currentMapSurface);
+   const currentBottomHeight=readRoadSurfaceVertexHeight(currentNeighborCell,currentWorldOffset.column-currentNeighborOffset.column,currentWorldOffset.row-currentNeighborOffset.row,currentMapSurface);
+   const currentVertexPosition={column:currentCellPosition.column+currentWorldOffset.column,row:currentCellPosition.row+currentWorldOffset.row};
+   currentTopPoints.push(projectSurfaceVertex({...currentVertexPosition,height:currentTopHeight*currentRenderOptions.elevationHeight},currentRenderOptions));
+   currentBottomPoints.push(projectSurfaceVertex({...currentVertexPosition,height:Math.min(currentTopHeight,currentBottomHeight)*currentRenderOptions.elevationHeight-(currentNeighborInside?0:currentRenderOptions.baseThickness)},currentRenderOptions));
+  }
+  if(currentTopPoints.every((currentTopPoint,currentPointIndex)=>Math.abs(currentTopPoint.y-currentBottomPoints[currentPointIndex].y)<.000001))return [];
+  return [Object.assign([currentTopPoints[0],currentTopPoints[1],currentBottomPoints[1],currentBottomPoints[0]],{rampWall:false})];
  });
 }
 export function buildSurfaceStairs(currentStairRecord,currentMapSurface,currentRenderOptions){

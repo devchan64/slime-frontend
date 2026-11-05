@@ -1,7 +1,7 @@
 export {sampleTerrainEffectFrame,mountTerrainEffectLayer} from './terrain-effects.mjs';
 import {enumerateBridgeCells} from '../field-surface/terrain-bridges.mjs';
 import {buildBridgeCellGeometry} from './bridge-geometry.mjs';
-import {readGroundSurfaceHeight} from '../field-surface/field-surface.mjs';
+import {readRoadSurfaceVertexHeight,readGroundSurfaceHeight} from '../field-surface/field-surface.mjs';
 export {findBridgeSurface,canTraverseBridgeEdge,validateBridgeSurfaces,prepareBridgeTraversalSurface} from '../field-surface/terrain-bridges.mjs';
 export {resolveGuardDisplayPlacement,projectGuardDisplayCenter,GUARD_CENTER_FOOTPRINT_SIZE} from './guard-placement.mjs';
 import {TERRAIN_DEPTH,TERRAIN_MATERIAL_BOUNDARY_ENABLED,resolveMapRenderOptions,BILLBOARD_RENDER_SCALE} from './render-constants.mjs';
@@ -51,7 +51,11 @@ export function buildFieldCellGeometry(currentCellPosition,currentMapSurface,cur
  const currentStairRecord=findSurfaceStair(currentCellPosition,currentMapSurface);
  if(currentStairRecord)return buildSurfaceStairs(currentStairRecord,currentMapSurface,currentRenderOptions).map(currentFaceRecord=>({...currentFaceRecord,kind:currentFaceRecord.top?'tread':'cliff'}));
  const currentScreenCenter=projectSurfaceVertex({...currentCellPosition,height:readGroundSurfaceHeight(currentCellPosition,currentMapSurface)*currentRenderOptions.elevationHeight},currentRenderOptions);
- const currentGroundPoints=FIELD_CELL_CORNERS.map(([currentColumnOffset,currentRowOffset])=>({x:currentScreenCenter.x+(currentColumnOffset-currentRowOffset)*currentRenderOptions.tileWidth/2,y:currentScreenCenter.y+(currentColumnOffset+currentRowOffset)*currentRenderOptions.tileHeight/2}));
+ const currentGroundPoints=FIELD_CELL_CORNERS.map(([currentColumnOffset,currentRowOffset])=>{
+  const currentWorldOffset=rotateSurfacePosition({column:currentColumnOffset,row:currentRowOffset},-(currentRenderOptions.rotation??0));
+  const currentHeightOffset=readRoadSurfaceVertexHeight(currentCellPosition,currentWorldOffset.column,currentWorldOffset.row,currentMapSurface)-readGroundSurfaceHeight(currentCellPosition,currentMapSurface);
+  return {x:currentScreenCenter.x+(currentColumnOffset-currentRowOffset)*currentRenderOptions.tileWidth/2,y:currentScreenCenter.y+(currentColumnOffset+currentRowOffset)*currentRenderOptions.tileHeight/2-currentHeightOffset*currentRenderOptions.elevationHeight};
+ });
  return [...buildSurfaceCliffs(currentCellPosition,currentMapSurface,currentRenderOptions).map(currentFacePoints=>({points:currentFacePoints,top:false,kind:'cliff'})),{points:currentGroundPoints,top:true,kind:'ground'},...buildBridgeCellGeometry(currentCellPosition,currentMapSurface,currentRenderOptions)];
 }
 
@@ -218,6 +222,9 @@ export function resolveBillboardGroundDepth(currentCellPosition,currentMapSurfac
 /** 측벽 폭과 원본 종횡비로 무늬 크기를 고정하고, 남는 높이는 압축 대신 잘라 표시한다. */
 export function buildFieldCliffTextureLayers(currentFacePoints,currentSourceWidth,currentSourceHeight){
  const [currentFirstPoint,currentSecondPoint,currentBottomPoint]=currentFacePoints;
+ const currentLeftHeight=currentFacePoints[3].y-currentFacePoints[0].y;
+ const currentRightHeight=currentFacePoints[2].y-currentFacePoints[1].y;
+ if(Math.abs(currentLeftHeight-currentRightHeight)>.000001)return [{points:currentFacePoints,uvCorners:[0,0,1,0,1,1,0,1]}];
  const currentWallWidth=Math.abs(currentSecondPoint.x-currentFirstPoint.x);
  const currentWallHeight=currentBottomPoint.y-currentSecondPoint.y;
  const currentRepeatHeight=currentWallWidth*currentSourceHeight/currentSourceWidth;
@@ -588,13 +595,31 @@ function constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,cu
  return currentConstrainedDepth;
 }
 
-/** 화면 앵커 이동은 이웃 타일의 정렬 순서를 바꾸지 않는다. */
+/** 높은 지면에서는 실제 접지점 주변의 같은 높이 윗면보다 앞에 그린다.
+ * 바닥·측벽의 순서는 유지하고 더 높은 지형의 가림은 이후 제약에서 처리한다. */
+function resolveRaisedContactDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,currentBaseDepth){
+ const currentOwnerHeight=readSurfaceHeight(currentObjectRecord.position,currentMapSurface);
+ if(currentOwnerHeight<=0||!['decoration','billboard'].includes(currentObjectRecord.kind)||!['tile-intersection','tile-bottom-center'].includes(currentObjectRecord.billboardAnchorMode))return currentBaseDepth;
+ const currentContactOffset=resolveBillboardAnchorOffset(currentObjectRecord);
+ const currentContactColumn=currentObjectRecord.position.column+currentContactOffset.column;
+ const currentContactRow=currentObjectRecord.position.row+currentContactOffset.row;
+ let currentContactDepth=currentBaseDepth;
+ for(const currentCellColumn of new Set([Math.floor(currentContactColumn),Math.ceil(currentContactColumn)]))for(const currentCellRow of new Set([Math.floor(currentContactRow),Math.ceil(currentContactRow)])){
+  if(currentCellColumn<0||currentCellRow<0||currentCellColumn>=currentMapSurface.columns||currentCellRow>=currentMapSurface.rows)continue;
+  const currentContactPosition={column:currentCellColumn,row:currentCellRow};
+  if(readSurfaceHeight(currentContactPosition,currentMapSurface)!==currentOwnerHeight)continue;
+  currentContactDepth=Math.max(currentContactDepth,resolveFieldSurfaceDepth(currentContactPosition,currentMapSurface,currentRenderOptions)+TERRAIN_DEPTH.overlay+TERRAIN_DEPTH.actor);
+ }
+ return currentContactDepth;
+}
+
+/** 접지 윗면을 보정한 뒤 높은 지형의 가림 한계를 적용한다. */
 function resolveSceneryBaseDepth(currentObjectRecord,currentMapSurface,currentRenderOptions=FIELD_RENDER_METRICS){
  const currentAnchorOffset=resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions);
  const currentActorSideOffset=currentAnchorOffset.column+currentAnchorOffset.row>0?TERRAIN_DEPTH.actor:0;
  const currentAnchorDepthOffset=['tile-bottom-center','tile-intersection'].includes(currentObjectRecord.billboardAnchorMode)?(currentAnchorOffset.column+currentAnchorOffset.row)*TERRAIN_DEPTH.stride:0;
  const currentBaseDepth=resolveFieldSurfaceDepth(currentObjectRecord.position,currentMapSurface,currentRenderOptions)+currentAnchorDepthOffset+TERRAIN_DEPTH.overlay+currentActorSideOffset;
- return constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,currentBaseDepth);
+ return constrainBillboardTerrainDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,resolveRaisedContactDepth(currentObjectRecord,currentMapSurface,currentRenderOptions,currentBaseDepth));
 }
 
 const BILLBOARD_ORDER_DEPTH_GAP = 0.01;

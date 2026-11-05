@@ -1,6 +1,6 @@
 import {resolveBridgeTextureKeys} from './bridge-geometry.mjs';
 import {resolveFieldTerrainFrame} from '../../src/game/terrain/fieldTileRendering';
-import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../../src/game/terrain/textures';
+import {resolveCityCliffTexture,resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from '../../src/game/terrain/textures';
 export {loadMapResourceImages} from './map-resource-loader.mjs';
 export type MapResourceSurface={bridges?:{material:'timber'|'stone'|'farm-timber'}[];id:string;safeTown?:boolean;terrainRows?:string[];terrainCodes?:Record<string,string>;cells?:{terrain:string;column:number;row:number}[];objects?:{kind:string;textureKey?:string}[];cliffOverrides?:{position:{column:number;row:number};textureKey:string}[];cliffTextureKey?:string;groundDecals?:{textureKey:string}[];groundOverrides?:{textureKey:string}[];buildings?:{id:string;facilityKind:string;sprite:{textureKey:string}}[];connections?:unknown[];stairs?:unknown[]};
 /** 렌더러의 재질 선택 함수를 재사용하여 선택 맵의 텍스처 키를 산출한다. */
@@ -24,7 +24,7 @@ export function collectMapResourceKeys(currentMapRecord:MapResourceSurface,curre
   if(['water','boulder','flowers'].includes(currentTerrainName))currentTextureKeys.add('terrain-source-grass');
  }
  // 고도 벽과 계단은 셀 렌더러의 명시적 종속성이다.
- currentTextureKeys.add(CLIFF_WALL_TEXTURE);
+ currentTextureKeys.add(currentMapKind==='town'?resolveCityCliffTexture(currentMapRecord.id):CLIFF_WALL_TEXTURE);
  if(currentMapRecord.stairs?.length)currentTextureKeys.add(RAMP_TREAD_TEXTURE);
  if(currentMapRecord.cliffTextureKey)currentTextureKeys.add(currentMapRecord.cliffTextureKey);
  for(const currentObjectRecord of [...currentMapRecord.objects??[],...currentMapRecord.groundOverrides??[],...currentMapRecord.groundDecals??[],...currentMapRecord.cliffOverrides??[]])if(currentObjectRecord.textureKey)currentTextureKeys.add(currentObjectRecord.textureKey);

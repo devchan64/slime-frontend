@@ -77,3 +77,5 @@ mistLakeDeepWaterSource: assets/tiles/terrain/blocked/mist-lake-deep-water-v1.pn
 saltFlatCrustV2Source: assets/tiles/terrain/non-road/salt-flat-crust-v2.png
 saltFlatMixedSoilSource: assets/tiles/terrain/non-road/salt-flat-mixed-soil-v1.png
 saltFlatCalmBrineSource: assets/tiles/terrain/blocked/salt-flat-calm-brine-v1.png
+saltfordCreamPavingSource: assets/tiles/terrain/road/saltford-cream-paving-v1.png
+saltfordCalcareousEarthSource: assets/tiles/terrain/non-road/saltford-calcareous-earth-v1.png

@@ -2,7 +2,7 @@ import type {TerrainBridge} from './terrain-bridges.mjs';
 export type SurfacePosition = {column:number;row:number};
 export type SurfacePoint = {x:number;y:number};
 export type SurfaceStair = {cell:SurfacePosition;lower:SurfacePosition};
-export type SurfaceRecord = {ambientTint?:string;bridges?:TerrainBridge[];columns:number;rows:number;elevations?:number[][];heightSource?:{surface:SurfaceRecord;position:(currentCellPosition:SurfacePosition)=>SurfacePosition};elevationTiles?:SurfaceStair[];elevationTileIndex?:ReadonlyMap<string,SurfaceStair>};
+export type SurfaceRecord = {id?:string;terrainRows?:string[];terrainCodes?:Record<string,string>;ambientTint?:string;bridges?:TerrainBridge[];columns:number;rows:number;elevations?:number[][];heightSource?:{surface:SurfaceRecord;position:(currentCellPosition:SurfacePosition)=>SurfacePosition};elevationTiles?:SurfaceStair[];elevationTileIndex?:ReadonlyMap<string,SurfaceStair>};
 export type RenderOptions = {billboardScale?:number;tileWidth:number;tileHeight:number;elevationHeight:number;baseThickness:number;originX?:number;originY?:number;rotation?:number};
 export const FIELD_SURFACE_VERSION:string;
 export const FIELD_RENDER_METRICS:Readonly<RenderOptions>;
@@ -20,3 +20,5 @@ export function resolveCliffTextureScale(currentRenderOptions:RenderOptions,curr
 export const CHARACTER_OUTLINE_STYLE:Readonly<{color:number;cssColor:string;width:number;outerStrength:number;quality:number}>;
 
 export function readGroundSurfaceHeight(currentCellPosition:SurfacePosition,currentMapSurface:SurfaceRecord):number;
+
+export function readRoadSurfaceVertexHeight(currentCellPosition:SurfacePosition,currentColumnOffset:number,currentRowOffset:number,currentMapSurface:SurfaceRecord):number;

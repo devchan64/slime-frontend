@@ -93,6 +93,8 @@ export const REEDHAVEN_DIRT_ROAD_FRAME = "reedhaven-dirt-road";
 const SOURCES = { "dry-soil-branches": drySoilBranchesSource, "deep-water": deepWaterTileSource, "shallow-water": shallowWaterTileSource, cactus: cactusTileImageSource, grass: grassTileImageSource, dew, road, flowers, water: shallowWaterTileSource, "ash": extendedAshSource, "boulder": extendedBoulderSource, "gravel": extendedGravelSource, "leaf-litter": extendedLeafLitterSource, "moss": extendedMossSource, "mud": extendedMudSource, "paving": iseulonLimestoneRoadSource, "reed-bed": extendedReedBedSource, "stone": extendedStoneSource, "wall": cliffWallPatternSource };
 const SOURCE_KINDS = BASE_FIELD_TERRAIN_KINDS;
 const SPECIAL_TERRAIN_SOURCES = [
+  { frame: "saltford-calcareous-earth-v1", source: terrainAssetPaths.saltfordCalcareousEarthSource },
+  { frame: "saltford-cream-paving-v1", source: terrainAssetPaths.saltfordCreamPavingSource },
   { frame: "brine-bank-road-sheet-v1", source: brineBankRoadSheetSource },
   { frame: "brine-bank-gravel-sparse-sheet-v1", source: brineBankGravelSparseSheetSource },
   { frame: "brine-bank-shallow-water-v1", source: brineBankShallowWaterSource },
@@ -199,10 +201,15 @@ export function resolveGrassFrameForMap(currentMapIdentifier: string) {
   return currentMapIdentifier === "iseulon" ? ISEULON_GRASS_FRAME : "grass";
 }
 
+/** 도시 돌둑의 표시와 리소스 수집이 같은 벽면을 사용한다. */
+export function resolveCityCliffTexture(currentMapIdentifier:string):string {
+ return currentMapIdentifier==='saltford'?'saltford-ashlar-wall-v1':CLIFF_WALL_TEXTURE;
+}
+
 export function resolvePavingFrameForMap(currentMapIdentifier: string) {
   if (currentMapIdentifier === "iseulon") return "iseulon-courtyard-paving";
   if (currentMapIdentifier === "stonewarm") return "iseulon-courtyard-paving";
-  if (currentMapIdentifier === "saltford") return STONEWARM_PAVING_FRAME;
+  if (currentMapIdentifier === "saltford") return "saltford-cream-paving-v1";
   if (currentMapIdentifier === "reedhaven") return "stonewarm-granite-paving";
   if (currentMapIdentifier === "grainstead") return "pebble-sand-base-v1";
   return "paving";
@@ -294,7 +301,7 @@ export function resolveReedFrameForMap(currentMapIdentifier: string) {
 
 export function resolveTownGroundFrame(currentMapIdentifier: string,currentTerrainName: string) {
  if(currentMapIdentifier==="grainstead" && ["dry-soil-branches","gravel","stone"].includes(currentTerrainName))return "pebble-sand-base-v1";
- if(currentMapIdentifier==="saltford")return ({gravel:"stonewarm-pebble-ground",stone:"stonewarm-exposed-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
+ if(currentMapIdentifier==="saltford")return ({gravel:"saltford-calcareous-earth-v1",stone:"salt-flat-crust-v2",water:"salt-flat-calm-brine-v1","dry-soil-branches":"saltford-calcareous-earth-v1"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
  if(currentMapIdentifier!=="stonewarm")return currentTerrainName;
  return ({gravel:"stonewarm-exposed-ground",stone:"stonewarm-pebble-ground","dry-soil-branches":"reedhaven-dry-embankment"} as Record<string,string>)[currentTerrainName]??currentTerrainName;
 }

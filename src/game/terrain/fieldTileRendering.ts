@@ -4,7 +4,7 @@ import fieldMaterialFrames from './field-material-frames.yaml';
 import type Phaser from 'phaser';
 import type {Position} from '../../client/types';
 import {resolveFieldGroundMaterial} from '../../../packages/field-renderer/field-renderer.mjs';
-import {resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from './textures';
+import {resolveCityCliffTexture,resolveTownGroundFrame,resolveGrassFrameForMap,resolvePavingFrameForMap,resolveReedFrameForMap,CLIFF_WALL_TEXTURE,RAMP_TREAD_TEXTURE} from './textures';
 
 
 // 모래 위 자갈 변형은 같은 지면이므로 재질 경계선을 만들지 않는다.
@@ -99,5 +99,5 @@ export function resolveFieldTileTextures(currentGameScene:Phaser.Scene,currentTe
 export function resolveCityTileTextures(currentGameScene:Phaser.Scene,currentTerrainName:string,currentMapIdentifier:string,currentConnectionMask:number){
  const currentTerrainFrame=currentTerrainName==='grass'?resolveGrassFrameForMap(currentMapIdentifier):currentTerrainName==='paving'?resolvePavingFrameForMap(currentMapIdentifier):currentTerrainName==='reed-bed'?resolveReedFrameForMap(currentMapIdentifier):resolveTownGroundFrame(currentMapIdentifier,currentTerrainName);
  const currentGroundKey='terrain-source-'+currentTerrainFrame;
- return {ground:currentGroundKey,cliff:CLIFF_WALL_TEXTURE,tread:RAMP_TREAD_TEXTURE};
+ return {ground:currentGroundKey,cliff:resolveCityCliffTexture(currentMapIdentifier),tread:RAMP_TREAD_TEXTURE};
 }
