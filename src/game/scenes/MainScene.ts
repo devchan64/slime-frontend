@@ -289,9 +289,16 @@ export class MainScene extends Phaser.Scene {
       for (const activityEventName of idleActivityEventNames) document.removeEventListener(activityEventName, resetFieldIdleAction, true);
       document.removeEventListener('pointermove', recordFieldPointerDrag, true);
     });
-    // 화면 회전 후 새 캔버스 크기를 기준으로 전장을 다시 맞춘다.
-    const resize = () => this.game.events.once(Phaser.Core.Events.POST_STEP, this.focus, this);
-    this.scale.on(Phaser.Scale.Events.RESIZE, resize);
+    // 크기 변경은 수동 줌을 초기화하지 않고 새 카메라 범위만 반영한다.
+    const refreshResizedViewport = () => {
+      this.syncTerrainViewport();
+      this.syncActorViewport();
+    };
+    const scheduleViewportRefresh = () => {
+      this.game.events.off(Phaser.Core.Events.POST_STEP, refreshResizedViewport);
+      this.game.events.once(Phaser.Core.Events.POST_STEP, refreshResizedViewport);
+    };
+    this.scale.on(Phaser.Scale.Events.RESIZE, scheduleViewportRefresh);
     registerSceneCleanup(() => {
       this.currentImageLoadController?.abort();
       this.currentImageLoadController=null;
@@ -306,8 +313,8 @@ export class MainScene extends Phaser.Scene {
       this.movingObjects=[];
       this.terrainCache?.clear();
       this.terrainCache=null;
-      this.scale.off(Phaser.Scale.Events.RESIZE, resize);
-      this.game.events.off(Phaser.Core.Events.POST_STEP, this.focus, this);
+      this.scale.off(Phaser.Scale.Events.RESIZE, scheduleViewportRefresh);
+      this.game.events.off(Phaser.Core.Events.POST_STEP, refreshResizedViewport);
     });
     try { createTerrainAtlas(this,this.currentMapResourceKeys); }
     catch (terrainInitializationError) {
