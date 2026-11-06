@@ -91,9 +91,6 @@ files:
 - path: assets/structures/ward-tower-v1.png
   source_path: assets/buildings/ward-tower-v1.png
   sha256: deef1809ee1c41ef1c0d77c9d017e8baa85c2b542e88f1e217ff62b7fe701fdf
-- path: assets/characters/default/cutins/default-punch-v1.png
-  source_path: assets/characters/default/battle-cutins/default-punch-v1.png
-  sha256: a62577881f3ccbead5890553750f461015b1b519664a3f1d0782891c1dceaa1b
 - path: assets/monsters/standing-v1/moss-turtle-idle-v1.png
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png
   sha256: 8cfd43954bb54499d56fb8b41383d57d4c3b4301bf45654e73d41b813f757011
@@ -160,9 +157,6 @@ files:
 - path: assets/structures/guard-center-teal-v1.png
   source_path: assets/buildings/guard-center-teal-v1.png
   sha256: 85ed8eb8b442f8c74601de7ccf4ac496e6903ee03124b374e4a77cc0069297fe
-- path: assets/characters/female/cutins/female-roundhouse-kick-v1.png
-  source_path: assets/characters/female-a/battle-cutins/female-roundhouse-kick-v1.png
-  sha256: 563b08d6f0d9d4d585252f8500e501dd9e5d76ca83cdd998ac902f18177e8ad0
 - path: assets/structures/orchard-apple-tree-v2.png
   source_path: assets/billboards/orchard-apple-tree-v2.png
   sha256: 067562caf938e8d66e7f946ebe4e1d4b32f24f53effcf58866e3ce74ff2bb93b

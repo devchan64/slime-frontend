@@ -3,14 +3,11 @@ import {DeveloperToolsPanel} from './DeveloperToolsPanel';
 import {AutomaticBattlePatternPanel} from './AutomaticBattlePatternPanel';
 import {DirectMessages} from './DirectMessages';
 import {ParcelArrivalNotice} from './ParcelArrivalNotice';
-import {ActionCutinSettingNotice, ActionCutinSettingsControl} from './ActionCutinSettings';
 import {CostumeInventoryPanel} from './CostumeInventoryPanel';
 import {ChannelPanel} from './ChannelPanel';
 import {WorldMapPanel} from './WorldMapPanel';
 import {RefiningMissionPanel} from './RefiningMissionPanel';
 import {MainEventJournal} from './MainEventJournal';
-import { ActionCutinOverlay } from './ActionCutin';
-import { ActionCutinTracker, watchActionCutinVisibility, appendActionCutinQueue, loadActionCutinPreference, saveActionCutinPreference, type ActionCutinDuration, type ActionCutinEvent } from './actionCutins';
 import { FieldRestControls } from './FieldRestControls';
 import { FieldFirstAid } from './FieldFirstAid';
 import { BorrowedLoansPanel } from './BorrowedLoansPanel';
@@ -75,19 +72,6 @@ export function App() {
     return () => {window.removeEventListener("error",handleWindowError);window.removeEventListener("unhandledrejection",handleUnhandledRejection);};
   }, []);
 
-  const [actionCutinSettingState, setActionCutinSettingState] = useState(() => loadActionCutinPreference(() => localStorage));
-  const actionCutinDurationSeconds = actionCutinSettingState.durationSeconds ?? 0;
-  const actionCutinEnabledReference = useRef(actionCutinDurationSeconds > 0);
-  actionCutinEnabledReference.current = actionCutinDurationSeconds > 0;
-  const actionCutinEventTracker = useRef(new ActionCutinTracker());
-  const [pendingActionCutinEvents, setPendingActionCutinEvents] = useState<ActionCutinEvent[]>([]);
-  useEffect(() => watchActionCutinVisibility(document, () => setPendingActionCutinEvents([])), []);
-  const updateActionCutinSetting = (nextDurationSeconds: ActionCutinDuration) => {
-    const currentSaveResult = saveActionCutinPreference(() => localStorage, actionCutinSettingState, nextDurationSeconds);
-    setActionCutinSettingState(currentSaveResult);
-    actionCutinEnabledReference.current = (currentSaveResult.durationSeconds ?? 0) > 0;
-    if (!currentSaveResult.durationSeconds) setPendingActionCutinEvents([]);
-  };
   const [battleSelectionIntent, setBattleSelectionIntent] = useState(0);
   const battleReportSceneSnapshot = useRef<State | null>(null);
   const [battleReport, setBattleReport] = useState<NonNullable<State["me"]["lastResult"]> | null>(null);
@@ -208,18 +192,6 @@ export function App() {
     client.onState = (s) => {
       serverOffset.current = s.serverTime * 1000 - Date.now();
       const previous = stateRef.current;
-      let incomingActionCutinEvents: ReturnType<ActionCutinTracker['collectNewActionCutins']> = [];
-      try {
-        incomingActionCutinEvents = actionCutinEventTracker.current.collectNewActionCutins(s);
-      } catch (currentCutinContractError) {
-        // 연출 계약 오류는 표시하되 서버 상태·결과 리포트·스트림 처리를 계속한다.
-        setStatus(currentCutinContractError as Error);
-        setPendingActionCutinEvents([]);
-      }
-      if (previous?.me.id !== s.me.id || (s.battle && previous?.battle?.id !== s.battle.id)) setPendingActionCutinEvents([]);
-      if (document.visibilityState === 'visible' && actionCutinEnabledReference.current && incomingActionCutinEvents.length) {
-        setPendingActionCutinEvents(currentActionCutinQueue => appendActionCutinQueue(currentActionCutinQueue, incomingActionCutinEvents));
-      }
       if (s.me.lastFieldInterruption?.battleId
           && s.me.lastFieldInterruption.battleId !== previous?.me.lastFieldInterruption?.battleId) {
         stopWalking.current = true;
@@ -243,8 +215,6 @@ export function App() {
     client.onStatus = (ready, msg) => {
       if (!ready) {
         stopWalking.current = true;
-        actionCutinEventTracker.current = new ActionCutinTracker();
-        setPendingActionCutinEvents([]);
       }
       setConnected(ready);
       setStatus(msg);
@@ -267,7 +237,7 @@ export function App() {
     renderer.current?.scene.selectCell(null);
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
   const currentMusicController = useMapBackgroundMusic(state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY" ? state.map.id : null);
-  const battleReportIsReady = !!battleReport && pendingActionCutinEvents.length === 0;
+  const battleReportIsReady = !!battleReport;
   const inWorld = !battleReportIsReady && !menuPage && !userTermsPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
@@ -418,7 +388,7 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
-  const disabled = !!battleReport || busy || !connected || renderFailed || loading || pendingActionCutinEvents.length > 0;
+  const disabled = !!battleReport || busy || !connected || renderFailed || loading;
   const battle = (battleReport ? battleReportSceneSnapshot.current : state)?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
   const battleCommand = (type: string, targetId?: string, selectedActionIdentifier?: string, requestedAutomaticState?: boolean) =>
@@ -499,7 +469,6 @@ export function App() {
             {t('common.logout')}</button>
         )}
       </header>
-      <ActionCutinSettingNotice currentSettingState={actionCutinSettingState} updateSettingDuration={updateActionCutinSetting}/>
       {!loading && <FieldInterruptionNotice interruption={state?.me.lastFieldInterruption} battleId={battle?.id} />}
       {!state ? (
         <main class="welcome">
@@ -647,7 +616,6 @@ export function App() {
         <main class="lobby field-menu-page"><section class="card">
           <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
-          <ActionCutinSettingsControl currentSettingState={actionCutinSettingState} updateSettingDuration={updateActionCutinSetting}/>
           <MapMusicSettingsControl currentMusicController={currentMusicController}/>
         </section></main>
       ) : settingsPage ? (
@@ -731,13 +699,6 @@ export function App() {
               </button>
 </nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
-      {actionCutinDurationSeconds !== 0 && pendingActionCutinEvents[0] && <ActionCutinOverlay key={pendingActionCutinEvents[0].actionId}
-        actionCutinEventRecord={pendingActionCutinEvents[0]} actionCutinDurationSeconds={actionCutinDurationSeconds}
-        finishActionCutinDisplay={() => {
-          const displayedActionIdentity = pendingActionCutinEvents[0].actionId;
-          setPendingActionCutinEvents(currentActionCutinQueue => currentActionCutinQueue[0]?.actionId === displayedActionIdentity
-            ? currentActionCutinQueue.slice(1) : currentActionCutinQueue);
-        }} />}
 </div>
             {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
               <div ref={selectedFieldCommands} class="field-selected-commands">
