@@ -1,3 +1,4 @@
+import {attachRenderPerformance} from './renderPerformance';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from './renderQuality';
 import type {Notice} from '../client/notice';
 import Phaser from "phaser";
@@ -36,5 +37,6 @@ export function createGame(
       currentGameInstance.events.once(Phaser.Core.Events.DESTROY, () => currentViewportObserver.disconnect());
     } },
   });
+  attachRenderPerformance(game,scene);
   return { game, scene };
 }

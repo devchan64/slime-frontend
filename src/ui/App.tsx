@@ -1,3 +1,4 @@
+import {useRenderPerformanceSettings,RenderPerformanceSettings,RenderPerformanceOverlay} from './RenderPerformance';
 import {useMapBackgroundMusic, MapMusicSettingsControl} from './MapBackgroundMusic';
 import {DeveloperToolsPanel} from './DeveloperToolsPanel';
 import {AutomaticBattlePatternPanel} from './AutomaticBattlePatternPanel';
@@ -63,6 +64,7 @@ function reportFrontendError(currentErrorStage:"terrain-validation"|"renderer-in
 }
 
 export function App() {
+  const currentPerformanceSettings=useRenderPerformanceSettings();
   const { t, locale } = useTranslation();
   useEffect(() => {
     const handleWindowError = (currentErrorEvent:ErrorEvent) => reportFrontendError("runtime",currentErrorEvent.error || new Error(currentErrorEvent.message),client.state?.map.id);
@@ -413,6 +415,7 @@ export function App() {
     });
   return (
     <div class={`app-shell ${!state ? "login-shell" : inWorld ? "world-shell" : ""}`}>
+      {inWorld&&currentPerformanceSettings.currentDisplayEnabled&&<RenderPerformanceOverlay currentLoadingActive={loading} currentMovementRequested={!!walking}/>}
       {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label={t('app.loadingRegion')}>
         <section class="loading-card" aria-live="polite">
           <h2>{renderFailed ? t('app.loadingFailed') : t('app.loading')}</h2>
@@ -632,6 +635,7 @@ export function App() {
           <div class="field-card-heading"><h1>{t('app.gameSettings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
           <MapMusicSettingsControl currentMusicController={currentMusicController}/>
+          <RenderPerformanceSettings {...currentPerformanceSettings}/>
         </section></main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">

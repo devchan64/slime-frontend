@@ -693,6 +693,33 @@ export function shouldFadeFieldOccluder(currentOccluderBounds,currentOccluderDep
 }
 const FIELD_OCCLUSION_SAMPLE_COUNT = 24;
 const FIELD_OCCLUSION_ALPHA_THRESHOLD = 32;
+// 정적 등록 이미지의 프레임별로 보관하며 텍스처 폐기 후에는 회수한다.
+const fieldOcclusionAlphaCache = new WeakMap();
+
+/** 프레임당 한 번만 픽셀을 읽고, 겹침 표본은 메모리에서 판정한다. */
+function readFieldFrameAlpha(currentSceneObject,currentPixelColumn,currentPixelRow){
+ const currentTextureFrame=currentSceneObject.frame;
+ const currentFrameCut=currentTextureFrame.data.cut;
+ const currentLocalColumn=currentPixelColumn-currentTextureFrame.x;
+ const currentLocalRow=currentPixelRow-currentTextureFrame.y;
+ const currentFrameWidth=currentFrameCut.r-currentFrameCut.x;
+ const currentFrameHeight=currentFrameCut.b-currentFrameCut.y;
+ if(currentLocalColumn<0||currentLocalRow<0||currentLocalColumn>=currentFrameWidth||currentLocalRow>=currentFrameHeight)return null;
+ let currentCachedAlpha=fieldOcclusionAlphaCache.get(currentTextureFrame);
+ if(!currentCachedAlpha){
+  const currentReadCanvas=document.createElement('canvas');
+  currentReadCanvas.width=currentFrameWidth;currentReadCanvas.height=currentFrameHeight;
+  const currentReadContext=currentReadCanvas.getContext('2d',{willReadFrequently:true});
+  if(!currentReadContext)throw new Error('가림 판정용 픽셀 읽기 컨텍스트를 만들 수 없습니다.');
+  currentReadContext.drawImage(currentTextureFrame.source.image,currentFrameCut.x,currentFrameCut.y,currentFrameWidth,currentFrameHeight,0,0,currentFrameWidth,currentFrameHeight);
+  const currentPixelData=currentReadContext.getImageData(0,0,currentFrameWidth,currentFrameHeight).data;
+  currentCachedAlpha=new Uint8Array(currentFrameWidth*currentFrameHeight);
+  for(let currentPixelIndex=0;currentPixelIndex<currentCachedAlpha.length;currentPixelIndex++)currentCachedAlpha[currentPixelIndex]=currentPixelData[currentPixelIndex*4+3];
+  fieldOcclusionAlphaCache.set(currentTextureFrame,currentCachedAlpha);
+  currentReadCanvas.width=0;currentReadCanvas.height=0;
+ }
+ return currentCachedAlpha[currentLocalRow*currentFrameWidth+currentLocalColumn];
+}
 
 /** 투명 여백과 지형 면 밖을 제외한 실제 겹침을 검사한다. */
 export function containsFieldOcclusionPoint(currentPolygonPoints,currentPointValue){
@@ -711,7 +738,7 @@ function containsFieldOpaquePixel(currentSceneObject,currentWorldPoint){
  const currentLocalPoint=currentSceneObject.getWorldTransformMatrix().applyInverse(currentWorldPoint.x,currentWorldPoint.y);
  const currentPixelColumn=Math.floor(currentLocalPoint.x+currentSceneObject.displayOriginX);
  const currentPixelRow=Math.floor(currentLocalPoint.y+currentSceneObject.displayOriginY);
- const currentPixelAlpha=currentSceneObject.scene.textures.getPixelAlpha(currentSceneObject.flipX?currentSceneObject.width-1-currentPixelColumn:currentPixelColumn,currentSceneObject.flipY?currentSceneObject.height-1-currentPixelRow:currentPixelRow,currentSceneObject.texture.key,currentSceneObject.frame.name);
+ const currentPixelAlpha=readFieldFrameAlpha(currentSceneObject,currentSceneObject.flipX?currentSceneObject.width-1-currentPixelColumn:currentPixelColumn,currentSceneObject.flipY?currentSceneObject.height-1-currentPixelRow:currentPixelRow);
  return currentPixelAlpha!==null&&currentPixelAlpha>=FIELD_OCCLUSION_ALPHA_THRESHOLD;
 }
 export function updateFieldActorOcclusion(currentGameScene){

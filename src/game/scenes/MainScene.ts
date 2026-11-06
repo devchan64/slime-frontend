@@ -1,3 +1,4 @@
+import {BOARD_ANIMATION_FRAME_RATE} from '../animation/boardAnimation';
 import {findNearestWalkableTile} from '../terrain/nearestWalkableTile';
 import {applyTerrainAmbientTint,mountTerrainEffectLayer} from '../../../packages/field-renderer/field-renderer.mjs';
 import {loadMapResourceImages} from '../../../packages/field-renderer/map-resource-loader.mjs';
@@ -22,6 +23,7 @@ import { FieldIdleAction } from "../animation/fieldIdleAction";
 import { FieldRestAnimation } from "../animation/fieldRestAnimation";
 import { calculateRestExitDuration, updateActorRestPlayback, calculateFieldIdleDuration } from "../animation/idleActors";
 import type {Notice} from '../../client/notice';
+import {createRenderContentSignature} from '../terrain/renderContentSignature';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
 import { screenFacing, shouldMirrorActorSprite, type WorldFacing } from "../animation/facing";
 import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
@@ -106,6 +108,16 @@ const TERRAIN_MUSHROOM_SINGLE_SOURCE=new URL('../../../../slime-assets/assets/sp
 const TERRAIN_MUSHROOM_CLUSTER_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-mushroom-cluster-sheet-v1.png',import.meta.url).href;
 const TERRAIN_MUSHROOM_GROUP_SOURCE=new URL('../../../../slime-assets/assets/sprites/effects/terrain/glow-mushroom-group-sheet-v1.png',import.meta.url).href;
 export class MainScene extends Phaser.Scene {
+  readPerformanceActor(){
+    const currentCharacterKey=this.state?.battle?`battle:${this.state.me.id}`:`member:${this.state?.me.id}`;
+    const currentCharacterImage=this.movingObjects.find(currentMovingObject=>currentMovingObject.key===currentCharacterKey&&currentMovingObject.object.getData('actorIdleKind')==='human')?.object;
+    return {identity:this.state?`${this.state.generation}:${this.state.epoch}:${this.state.location.id}`:'loading',frame:currentCharacterImage?`${currentCharacterImage.texture.key}/${currentCharacterImage.frame.name}`:null};
+  }
+  readRenderPerformance(){
+    const currentActorRecord=this.readPerformanceActor();
+    const currentCameraRecord=this.cameras?.main;
+    return {...currentActorRecord,animationFps:currentActorRecord.frame?BOARD_ANIMATION_FRAME_RATE:null,mapId:this.state?.location.mapId??null,objects:this.children?.list.length??null,visible:currentCameraRecord?.renderList.length??null,zoom:currentCameraRecord?.zoom??null,width:this.game.canvas.clientWidth,height:this.game.canvas.clientHeight,dpr:window.devicePixelRatio,renderer:this.game.renderer.type===Phaser.WEBGL?'WebGL':'Canvas',moving:this.state?(this.state.battle?this.battleMotion.movementElapsedMilliseconds(this.state.me.id,performance.now())!==undefined:this.fieldMotion.isMovementActive(`member:${this.state.me.id}`,performance.now())):false};
+  }
   private fieldBattleTimeline = new FieldBattleTimeline();
   private fieldBattleEffectLayer = new FieldBattleEffectLayer();
   private battleSpawnRegionsVisible=false;
@@ -835,7 +847,7 @@ export class MainScene extends Phaser.Scene {
   /** 고정 소품과 이펙트는 맵·투영·에셋이 변할 때만 다시 만든다. */
   private syncSceneryRenderLayer(currentSceneState: State) {
     const currentMapRecord = currentSceneState.battle?.field ?? currentSceneState.map;
-    const currentLayerSignature = JSON.stringify([this.terrainSignature, currentMapRecord.objects ?? [], currentMapRecord.terrainEffects ?? [], (currentMapRecord as {effectProfiles?:unknown}).effectProfiles ?? null]);
+    const currentLayerSignature = createRenderContentSignature([this.terrainSignature, currentMapRecord.objects ?? [], currentMapRecord.terrainEffects ?? [], (currentMapRecord as {effectProfiles?:unknown}).effectProfiles ?? null]);
     if(currentLayerSignature === this.sceneryLayerSignature)return;
     for(const currentSceneryObject of this.sceneryLayerObjects)currentSceneryObject.destroy();
     this.sceneryLayerObjects.clear();
@@ -853,7 +865,7 @@ export class MainScene extends Phaser.Scene {
   private syncBuildingRenderLayer(currentSceneState: State) {
     const currentBuildingRecords = currentSceneState.battle ? [] : currentSceneState.map.buildings ?? [];
     const selectedBuildingRecord = findCityBuilding(currentBuildingRecords, this.selected);
-    const currentLayerSignature = JSON.stringify([this.terrainSignature, currentSceneState.map.id,
+    const currentLayerSignature = createRenderContentSignature([this.terrainSignature, currentSceneState.map.id,
       currentBuildingRecords, selectedBuildingRecord?.id, this.annotationDepth()]);
     if (currentLayerSignature === this.buildingLayerSignature) return;
     for (const currentBuildingObject of this.buildingLayerObjects) currentBuildingObject.destroy();

@@ -70,3 +70,16 @@ test('전장은 공용 리소스를 자신의 배치로 사용하고 야외 배�
  currentBattleState.battle.field.groundOverrides.push({position:{column:2,row:1},textureKey:'shared-floor'});
  assert.notEqual(terrainRenderSignature(currentBattleState,0),currentMovedSignature);
 });
+
+
+test('HTTP와 실시간 메시지의 중첩 키 순서만 달라도 고정 지형 계획을 재사용한다',()=>{
+ const currentInitialState=field();
+ currentInitialState.map.objects=[{id:'tree',position:{column:2,row:3},shadow:{x:1,y:2}}];
+ const currentInitialPlan=prepareTerrain(currentInitialState,0,null);
+ const reorderNestedKeys=currentContentValue=>Array.isArray(currentContentValue)?currentContentValue.map(reorderNestedKeys)
+  :currentContentValue&&typeof currentContentValue==='object'?Object.fromEntries(Object.entries(currentContentValue).reverse().map(([currentPropertyKey,currentPropertyValue])=>[currentPropertyKey,reorderNestedKeys(currentPropertyValue)])):currentContentValue;
+ const currentReorderedState=reorderNestedKeys(currentInitialState);
+ for(let currentUpdateIndex=0;currentUpdateIndex<16;currentUpdateIndex++)assert.equal(prepareTerrain(currentUpdateIndex%2?currentInitialState:currentReorderedState,0,currentInitialPlan),currentInitialPlan);
+ currentReorderedState.map.objects[0].position.row++;
+ assert.notEqual(prepareTerrain(currentReorderedState,0,currentInitialPlan),currentInitialPlan,'실제 지형 내용 변경은 무효화한다');
+});

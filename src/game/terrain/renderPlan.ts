@@ -1,3 +1,4 @@
+import {createRenderContentSignature} from './renderContentSignature';
 import {validateBridgeSurfaces} from '../../../packages/field-surface/terrain-bridges.mjs';
 import type { Position, State } from '../../client/types';
 import { elevationRange } from './viewport';
@@ -7,7 +8,7 @@ import { rotatedSurface, type MapRotation } from './rotation';
 /** 표시 이름·잔고·턴 변경은 고정 지형을 다시 만들지 않는다. */
 export function terrainRenderSignature(state: State, rotation: number): string {
   const field=state.battle?.field, map=field ?? state.map;
-  return JSON.stringify([rotation, map.ambientTint, map.terrainMovementVersion, map.columns, map.rows, map.bridges, map.elevations, map.ramps, map.elevationTiles,
+  return createRenderContentSignature([rotation, map.ambientTint, map.terrainMovementVersion, map.columns, map.rows, map.bridges, map.elevations, map.ramps, map.elevationTiles,
     field?.cells, map.objects, map.groundOverrides,map.groundDecals,map.cliffTextureKey,map.cliffOverrides, field ? null : [state.map.terrainRows, state.map.terrainCodes], state.battle?.blocked ?? state.map.blocked, field?.environment?.themeId ?? state.map.id,
     field ? null : [state.map.startPoint,state.map.safeRadius,state.map.safeTown,state.map.buildings,state.map.objects,state.map.groundOverrides,map.groundDecals,map.cliffTextureKey,map.cliffOverrides,
       state.map.connections.map(({column,row})=>({column,row}))]]);

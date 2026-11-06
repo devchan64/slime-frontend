@@ -1496,3 +1496,12 @@ header .message-notice-button:hover, header .message-notice-button.has-notices {
 
 .world-map-thumbnail { width:128px;height:128px;object-fit:cover;align-self:center;border-radius:6px;pointer-events:none; }
 .world-map-detail-thumbnail { display:block;width:min(256px,100%);height:auto;aspect-ratio:1;object-fit:cover; }
+
+.render-performance-panel { position: fixed; top: 8px; right: 8px; z-index: 1001; max-width: min(360px, calc(100vw - 16px)); max-height: 35dvh; overflow: auto; padding: 8px 12px; background: #071821ed; color: #e5f3f7; border: 1px solid #35515d; border-radius: 8px; font-size: 12px; pointer-events: none; }
+.render-performance-panel p { margin: 4px 0; }
+.render-performance-panel summary { pointer-events: auto; cursor: pointer; }
+.render-performance-frame { overflow-wrap: anywhere; }
+
+.render-performance-setting { display: flex; align-items: center; gap: 8px; }
+.render-performance-setting input { width: auto; margin: 0; }
+.render-performance-panel details[open] { pointer-events: auto; max-height: 24dvh; overflow-y: auto; }

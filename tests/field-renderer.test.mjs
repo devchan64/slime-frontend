@@ -314,6 +314,24 @@ test('표시 타일 덮어쓰기를 기준으로 재질 경계를 판정한다',
 });
 
 
+// 실제 Canvas I/O 경계를 모의하고 프레임별 읽기 횟수를 검증한다.
+let currentPixelReadCount=0;
+function createOcclusionFrameFixture(currentAlphaValue=255){
+ return {name:0,x:0,y:0,data:{cut:{x:0,y:0,r:128,b:128}},source:{image:{alpha:currentAlphaValue}}};
+}
+globalThis.document={createElement(){
+ let currentSourceImage;
+ return {width:0,height:0,getContext(){return {
+  drawImage(currentImageValue){currentSourceImage=currentImageValue;},
+  getImageData(currentPixelX,currentPixelY,currentPixelWidth,currentPixelHeight){
+   currentPixelReadCount++;
+   const currentPixelArray=new Uint8ClampedArray(currentPixelWidth*currentPixelHeight*4);
+   for(let currentPixelIndex=3;currentPixelIndex<currentPixelArray.length;currentPixelIndex+=4)currentPixelArray[currentPixelIndex]=currentSourceImage.alpha;
+   return {data:currentPixelArray};
+  },
+ };}};
+}};
+
 test('앞쪽에서 배우와 겹치는 지형만 흐리게 하고 이동 후 복원한다',async()=>{
  const {updateFieldActorOcclusion,FIELD_OCCLUSION_ALPHA}=await import('../packages/field-renderer/field-renderer.mjs');
  const currentActorBounds={x:10,y:10,width:10,height:20};
@@ -322,17 +340,20 @@ test('앞쪽에서 배우와 겹치는 지형만 흐리게 하고 이동 후 복
  const currentFrontObject=createOccludingObject(11,{x:15,y:15,width:20,height:20});
  const currentBehindObject=createOccludingObject(9,{x:15,y:15,width:20,height:20});
  const currentDistantObject=createOccludingObject(12,{x:80,y:15,width:20,height:20});
- const currentPixelFixture={displayOriginX:0,displayOriginY:0,texture:{key:'fixture'},frame:{name:0},scene:{textures:{getPixelAlpha:()=>255}},getWorldTransformMatrix:()=>({applyInverse:(currentPointColumn,currentPointRow)=>({x:currentPointColumn,y:currentPointRow})})};
+ const currentPixelFixture={displayOriginX:0,displayOriginY:0,texture:{key:'fixture'},frame:createOcclusionFrameFixture(),scene:{textures:{getPixelAlpha:()=>{throw Error('개별 픽셀 읽기 금지');}}},getWorldTransformMatrix:()=>({applyInverse:(currentPointColumn,currentPointRow)=>({x:currentPointColumn,y:currentPointRow})})};
  for(const currentTestObject of [currentActorObject,currentFrontObject,currentBehindObject,currentDistantObject])Object.assign(currentTestObject,currentPixelFixture);
  const currentGameScene={children:{list:[currentActorObject,currentFrontObject,currentBehindObject,currentDistantObject]}};
  updateFieldActorOcclusion(currentGameScene);
  assert.equal(currentFrontObject.alpha,.8*FIELD_OCCLUSION_ALPHA);
  assert.equal(currentBehindObject.alpha,.8);
  assert.equal(currentDistantObject.alpha,.8);
- currentFrontObject.scene={textures:{getPixelAlpha:()=>0}};
+ const currentReadCountBeforeRepeat=currentPixelReadCount;
+ updateFieldActorOcclusion(currentGameScene);
+ assert.equal(currentPixelReadCount,currentReadCountBeforeRepeat,'같은 프레임은 Canvas를 다시 읽지 않는다');
+ currentFrontObject.frame=createOcclusionFrameFixture(0);
  updateFieldActorOcclusion(currentGameScene);
  assert.equal(currentFrontObject.alpha,.8,'투명 여백만 겹치면 불투명 유지');
- currentFrontObject.scene=currentPixelFixture.scene;
+ currentFrontObject.frame=currentPixelFixture.frame;
  currentActorBounds.x=100;
  updateFieldActorOcclusion(currentGameScene);
  assert.equal(currentFrontObject.alpha,.8);
@@ -357,7 +378,7 @@ test('가리지 않는 발 앞 타일과 경계는 불투명을 유지한다',as
 test('가리는 윗면과 같은 타일 벽면은 40%로 함께 감쇠하고 복원한다',async()=>{
  const {updateFieldActorOcclusion}=await import('../packages/field-renderer/field-renderer.mjs');
  const currentActorBounds={x:0,y:0,width:10,height:10};
- const currentActorObject={visible:true,depth:10,getBounds:()=>currentActorBounds,getData:currentDataKey=>currentDataKey==='fieldActorVisibility'?true:undefined,displayOriginX:0,displayOriginY:0,texture:{key:'actor'},frame:{name:0},scene:{textures:{getPixelAlpha:()=>255}},getWorldTransformMatrix:()=>({applyInverse:(currentPointColumn,currentPointRow)=>({x:currentPointColumn,y:currentPointRow})})};
+ const currentActorObject={visible:true,depth:10,getBounds:()=>currentActorBounds,getData:currentDataKey=>currentDataKey==='fieldActorVisibility'?true:undefined,displayOriginX:0,displayOriginY:0,texture:{key:'actor'},frame:createOcclusionFrameFixture(),scene:{textures:{getPixelAlpha:()=>{throw Error('개별 픽셀 읽기 금지');}}},getWorldTransformMatrix:()=>({applyInverse:(currentPointColumn,currentPointRow)=>({x:currentPointColumn,y:currentPointRow})})};
  const currentCellSources=[];
  for(const currentPanelRow of [5,15])currentCellSources.push({visible:true,depth:11,alpha:1,getBounds:()=>({x:0,y:currentPanelRow,width:10,height:10}),getData:currentDataKey=>({fieldOcclusionBaseAlpha:1,fieldOcclusionCellSources:currentCellSources,fieldOcclusionPolygon:[{x:0,y:currentPanelRow},{x:10,y:currentPanelRow},{x:10,y:currentPanelRow+10},{x:0,y:currentPanelRow+10}]}[currentDataKey]),setAlpha(currentAlphaValue){this.alpha=currentAlphaValue;}});
  const currentTestScene={children:{list:[currentActorObject,...currentCellSources]}};
