@@ -9,7 +9,7 @@ files:
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
 - path: assets/characters/default/idle-v6/idle-v6.animation.json
   source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/idle-v6-anchor-v3.animation.json
-  sha256: 8739eff6c25e40648091845883f2de1a04577076d962b6bcfe2ba6855644151e
+  sha256: 5a89717e8c431ef4b51dbb64e6f6b0651239313abae6519b759f4e6735e93585
 - path: assets/characters/default/idle-v6/idle-v6.png
   source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/idle-v6.png
   sha256: e633cdae9ddbcca07ab9b393eaf9381729a7d13d0ae11bae610b5af2876e9139
@@ -1080,13 +1080,13 @@ files:
   sha256: f0c85c42282e6467a5e01d60d53d57381660aa18312c6ad70a779efd37d15a91
 - path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
   source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/character-default-light-leather-walk-front-left-sprite-v1.png
-  sha256: bc6f2c4969cb84f79f4936840cdce9ec8ceb6d71c6d563dc3d28ee685a446cda
+  sha256: 9ad60f9da78a966a23cc45d833c26a5355684e27e413bafd836c60c9e10440d1
 - path: assets/characters/default/walk-light-leather-v1/source.yaml
   source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/source.yaml
-  sha256: e67ca0da4c5396499478027443e3cf01e76f26f4bb7499067ac769f73113c7a2
+  sha256: 0c50c5be8e3f55d13c8842ccebdd3d00298c3b857e5746774d912948e14c5fc9
 - path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
   source_path: assets/characters/default/animations/walk/light-leather/down-left-8frames-v1/walk-light-leather-v1.animation.json
-  sha256: ed72ce14199b3c4a7c9ee0d5b5bde60276514225ad86770075c0f60c22d5c8cd
+  sha256: e7990b57ccb4285fed0fc40f2b6d5368a99a9724af138ace626dd57a4994ef56
 - path: assets/structures/brine-bank-painted-hill-v1.png
   source_path: assets/billboards/brine-bank-painted-hill-v1.png
   sha256: a177e079b1bd8d7fc2ffc3e431e2b9c8fedc5052fc7818bcaf52979791a37cf2
