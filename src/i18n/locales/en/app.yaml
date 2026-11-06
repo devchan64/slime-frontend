@@ -170,3 +170,15 @@ developerResetConfirm: "Type RESET test to confirm."
 developerResetUncertain: "The reset result is unknown. Check again using the same request."
 
 gameSettings: Game settings
+developerMapMove: Move to map
+developerMapDestination: Destination map
+developerMapMoveDescription: Move to a safe tile beside the barrier tower, or the designated city start. Finish combat and encounter preparation and leave your party first.
+loadingDestination: "Destination confirmed"
+loadingMap: "Map display ready"
+loadingConnection: "Connection ready"
+loadingSponsor: "Sponsor and chat ready"
+loadingPreparation: "Entry ready"
+loadingStepDone: "Done"
+loadingStepWaiting: "Preparing"
+loadingStepCount: "{completed}/{total} preparation steps complete"
+loadingParticipants: "{ready}/{total} participants ready"

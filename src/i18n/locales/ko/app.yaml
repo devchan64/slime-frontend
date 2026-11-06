@@ -170,3 +170,15 @@ developerResetConfirm: "확인하려면 RESET test를 입력하세요."
 developerResetUncertain: "초기화 결과를 확인하지 못했습니다. 같은 요청으로 결과를 다시 확인하세요."
 
 gameSettings: 게임설정
+developerMapMove: 맵 이동
+developerMapDestination: 목적지 맵
+developerMapMoveDescription: 선택한 맵의 결계탑 인접 안전 칸으로 이동합니다. 도시는 지정 시작점으로 이동합니다. 전투·조우 준비를 종료하고 파티에서 탈퇴한 뒤 사용하세요.
+loadingDestination: "목적지 확인"
+loadingMap: "맵 화면 준비"
+loadingConnection: "연결 준비"
+loadingSponsor: "스폰서 광고 및 채팅 준비"
+loadingPreparation: "입장 준비"
+loadingStepDone: "완료"
+loadingStepWaiting: "준비 중"
+loadingStepCount: "준비 항목 {completed}/{total} 완료"
+loadingParticipants: "참가자 {ready}/{total}명 준비 완료"

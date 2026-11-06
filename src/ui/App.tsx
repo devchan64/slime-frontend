@@ -308,8 +308,17 @@ export function App() {
   const sponsorKey = state ? `${state.generation}:${state.epoch}:${state.location.id}` : '';
   const sponsorPending = inWorld && sponsorApproved !== sponsorKey;
   const loadingRequested = !battleReport && (transferPending || (inWorld &&
-    (renderFailed || sponsorPending || renderedLocation !== state.location.id || !connected || state.battle?.status === "PREPARING")));
+    (renderFailed || sponsorPending || renderedLocation !== state.location.id || !connected || !state.location.roomReady || state.battle?.status === "PREPARING")));
   const { loading, minimumElapsed } = useMinimumLoading(loadingRequested);
+  const currentLoadingSteps = [
+    {label:'app.loadingDestination', complete:!!state && !transferPending},
+    {label:'app.loadingMap', complete:!!state && renderedLocation===state.location.id && !renderFailed},
+    {label:'app.loadingConnection', complete:connected && !!state?.location.roomReady},
+    {label:'app.loadingSponsor', complete:!!state && !sponsorPending},
+    {label:'app.loadingPreparation', complete:minimumElapsed && state?.battle?.status!=='PREPARING'},
+  ];
+  const currentCompletedSteps = currentLoadingSteps.filter(currentLoadingStep=>currentLoadingStep.complete).length;
+
   useEffect(() => {
     const battle = state?.battle;
     if (!battle || battle.status !== "PREPARING" || sponsorPending || !minimumElapsed || !connected || renderFailed ||
@@ -409,8 +418,8 @@ export function App() {
           <h2>{renderFailed ? t('app.loadingFailed') : t('app.loading')}</h2>
           <FieldInterruptionNotice interruption={state?.me.lastFieldInterruption} battleId={battle?.id} />
           {preparationError && <p role="alert">{preparationError}</p>}
-          {sponsorPending && state && <SponsorGate key={sponsorKey} client={client}
-            generation={state.generation} epoch={state.epoch} room={state.location.chatRoomId}
+          {state && <SponsorGate key={sponsorKey} client={client}
+            generation={state.generation} epoch={state.epoch} room={state.location.chatRoomId} approved={!sponsorPending}
             onReady={() => {
               const current = stateRef.current;
               if (current && `${current.generation}:${current.epoch}:${current.location.id}` === sponsorKey)
@@ -419,6 +428,12 @@ export function App() {
               if (!await client.logout()) return; setBattleReport(null); setState(null); setWorldGeneration(null);
               setConnected(false); setPassword('');
             })} />}
+          <div class="loading-progress" role="status">
+            <p>{t('app.loadingStepCount',{completed:currentCompletedSteps,total:currentLoadingSteps.length})}</p>
+            <progress max={currentLoadingSteps.length} value={currentCompletedSteps} aria-label={t('app.loadingStepCount',{completed:currentCompletedSteps,total:currentLoadingSteps.length})}/>
+            <ul>{currentLoadingSteps.map(currentLoadingStep=><li key={currentLoadingStep.label}>{t(currentLoadingStep.label)} · {t(currentLoadingStep.complete?'app.loadingStepDone':'app.loadingStepWaiting')}</li>)}</ul>
+            {state?.battle?.status==='PREPARING'&&<p>{t('app.loadingParticipants',{ready:state.battle.ready?.length??0,total:state.battle.participants.length})}</p>}
+          </div>
           {renderFailed || !connected ? <><p>{renderError || status}</p><button onClick={() => location.reload()}>{t('app.reconnect')}</button></> : null}
         </section>
       </div>}

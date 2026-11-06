@@ -15,6 +15,8 @@ const DEVELOPER_ASSET_NAMES:DeveloperAssetName[]=['CP','SP','P'];
 
 export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
  const {t:translateDeveloperText,locale:currentDisplayLocale}=useTranslation();
+ const [currentMapEntries,setCurrentMapEntries]=useState<{mapId:string;nameTranslations:{ko:string;en:string}}[]>([]);
+ const [currentSelectedMap,setCurrentSelectedMap]=useState('');
  const [currentResetPending,setCurrentResetPending]=useState(false);
  const [currentAccessAllowed,setCurrentAccessAllowed]=useState(false);
  const [currentPanelOpened,setCurrentPanelOpened]=useState(false);
@@ -64,6 +66,10 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
   setCurrentPermitIssuers(currentCatalog.permitIssuers);
   if(!Array.isArray(currentCatalog.productionRecipes)||currentCatalog.productionRecipes.some((currentRecipeEntry:DeveloperCatalogEntry)=>typeof currentRecipeEntry.itemId!=='string'||typeof currentRecipeEntry.nameTranslations?.ko!=='string'||typeof currentRecipeEntry.nameTranslations?.en!=='string'||!Array.isArray(currentRecipeEntry.itemLevels)||!currentRecipeEntry.itemLevels.length||currentRecipeEntry.itemLevels.some(currentLevelValue=>![1,2].includes(currentLevelValue))))throw new Error(translateDeveloperText('app.developerInvalid'));
   setCurrentCatalogEntries([...currentCatalog.entries,...currentCatalog.productionRecipes.map((currentRecipeEntry:DeveloperCatalogEntry)=>({...currentRecipeEntry,category:'production_batch',supportedOperations:['ADD','REMOVE']}))]);
+  const currentMapCatalog=await gameSessionClient.request('/v1/developer/maps');
+  if(!matchesCurrentDeveloperSession())return;
+  if(!Array.isArray(currentMapCatalog.entries)||currentMapCatalog.entries.some((currentMapEntry:{mapId:string;nameTranslations:{ko:string;en:string}})=>typeof currentMapEntry.mapId!=='string'||typeof currentMapEntry.nameTranslations?.ko!=='string'||typeof currentMapEntry.nameTranslations?.en!=='string'))throw new Error(translateDeveloperText('app.developerInvalid'));
+  setCurrentMapEntries(currentMapCatalog.entries);
   const currentHistory=await gameSessionClient.request('/v1/developer/adjustments'+(currentNextCursor?'?after='+encodeURIComponent(currentNextCursor):''));
   if(!matchesCurrentDeveloperSession())return;
   if(currentHistory.characterId!==currentOwnerContext.current.character||!Array.isArray(currentHistory.entries)
@@ -183,6 +189,15 @@ export function DeveloperToolsPanel({gameSessionClient,actionsAreDisabled}:{game
    {currentMutationBlocked&&<p>{translateDeveloperText('app.developerFieldOnly')}</p>}
    {currentRequestUncertain&&<><p role="status">{translateDeveloperText('app.developerUncertain')}</p><button disabled={currentRequestBusy} onClick={()=>void runDeveloperPanelAction(()=>submitDeveloperAdjustment(true))}>{translateDeveloperText('app.developerRetry')}</button></>}
    <DeveloperResetPanel currentGameClient={gameSessionClient} onResetPendingChange={setCurrentResetPending} currentActionsDisabled={actionsAreDisabled||currentRequestBusy||currentRequestUncertain}/>
+   <fieldset disabled={actionsAreDisabled||currentResetPending||currentRequestBusy||currentRequestUncertain||!!gameSessionClient.state?.battle||!!gameSessionClient.state?.reservation||!!gameSessionClient.state?.me.partyId}>
+    <legend>{translateDeveloperText('app.developerMapMove')}</legend>
+    <p>{translateDeveloperText('app.developerMapMoveDescription')}</p>
+    <label>{translateDeveloperText('app.developerMapDestination')}<select value={currentSelectedMap} onChange={currentInputEvent=>setCurrentSelectedMap(currentInputEvent.currentTarget.value)}>
+     <option value="">{translateDeveloperText('app.developerSelectItem')}</option>
+     {currentMapEntries.map(currentMapEntry=><option value={currentMapEntry.mapId}>{currentMapEntry.nameTranslations[currentDisplayLocale]} · {currentMapEntry.mapId}</option>)}
+    </select></label>
+    <button disabled={!currentSelectedMap} onClick={()=>void runDeveloperPanelAction(async()=>{await gameSessionClient.command('/v1/developer/map-move',{mapId:currentSelectedMap});window.location.hash='/world';})}>{translateDeveloperText('app.developerMapMove')}</button>
+   </fieldset>
    <h3>{translateDeveloperText('app.developerHistory')}</h3>
    <ul>{currentHistoryEntries.map(currentEntry=><li key={currentEntry.requestId}>{currentEntry.asset==='ITEM'?currentEntry.category+' '+currentEntry.itemId:currentEntry.asset}: {currentEntry.before} → {currentEntry.after} {currentEntry.batchId&&<small>{currentEntry.batchId} </small>}{currentEntry.instanceId&&<small>{currentEntry.instanceId} </small>}<small>{currentEntry.requestId}</small></li>)}</ul>
    {currentHistoryCursor&&<button disabled={currentRequestBusy||currentRequestUncertain||currentResetPending} onClick={()=>void runDeveloperPanelAction(()=>loadDeveloperPanelData(currentHistoryCursor))}>{translateDeveloperText('app.developerNext')}</button>}

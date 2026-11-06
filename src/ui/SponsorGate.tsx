@@ -8,8 +8,8 @@ const DEFAULT_AD_DISPLAY_MS = 1500;
 type Attempt = { attemptId: string; campaignId: string; displayUrl: string | null; text: string; verification: 'unavailable' | 'provider' | 'default_timer'; verified: boolean;
   generation: number; epoch: number; room: string; expiresAt: number; notBefore: number };
 
-export function SponsorGate({ client, generation, epoch, room, onReady, onExit }: {
-  client: Client; generation: number; epoch: number; room: string; onReady: () => void; onExit: () => void;
+export function SponsorGate({ client, generation, epoch, room, approved = false, onReady, onExit }: {
+  client: Client; generation: number; epoch: number; room: string; approved?: boolean; onReady: () => void; onExit: () => void;
 }) {
   const { t, locale } = useTranslation();
   const [attempt, setAttempt] = useState<Attempt | null>(null);
@@ -17,6 +17,7 @@ export function SponsorGate({ client, generation, epoch, room, onReady, onExit }
   const error = noticeText(errorNotice, locale, t);
   const [retry, setRetry] = useState(0);
   useEffect(() => {
+    if (approved && attempt) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     setError(''); setAttempt(null);
@@ -38,7 +39,7 @@ export function SponsorGate({ client, generation, epoch, room, onReady, onExit }
     };
     void poll();
     return () => { cancelled = true; if (timer) clearTimeout(timer); };
-  }, [client, generation, epoch, room, retry]);
+  }, [client, generation, epoch, room, retry, approved]);
   const source = attempt?.displayUrl ? new URL(attempt.displayUrl) : null;
   if (source && attempt) source.searchParams.set('attemptId', attempt.attemptId);
   return <section class="sponsor-gate" aria-label={t('sponsor.region')}>
@@ -46,7 +47,7 @@ export function SponsorGate({ client, generation, epoch, room, onReady, onExit }
       <span>SLIME</span>
       <strong>{attempt?.text ?? t('sponsor.welcome')}</strong>
     </div>}
-    {source && !attempt?.verified && !error && <iframe title={t('sponsor.playback')} src={source.href}
+    {source && !error && <iframe title={t('sponsor.playback')} src={source.href}
       sandbox="allow-scripts allow-same-origin" allow="autoplay; fullscreen" referrerPolicy="no-referrer" />}
     {error && <p role="alert">{error}</p>}
     {error && <button onClick={() => setRetry(value => value + 1)}>{t('sponsor.retry')}</button>}
