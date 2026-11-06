@@ -9,7 +9,7 @@ files:
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
 - path: assets/characters/default/idle-v6/idle-v6.animation.json
   source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/idle-v6-anchor-v3.animation.json
-  sha256: 5a89717e8c431ef4b51dbb64e6f6b0651239313abae6519b759f4e6735e93585
+  sha256: e73eb0a9267292c9408cbc38e2277f208b5133b5c6a78abe190b50eaf0ace611
 - path: assets/characters/default/idle-v6/idle-v6.png
   source_path: assets/characters/default/animations/idle/light-leather/down-left-8frames-v5/idle-v6.png
   sha256: e633cdae9ddbcca07ab9b393eaf9381729a7d13d0ae11bae610b5af2876e9139
