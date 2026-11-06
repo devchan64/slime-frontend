@@ -133,9 +133,17 @@ export class MainScene extends Phaser.Scene {
   private battleMotion = new BattleMotion();
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
+  private actorRenderObjects = new Set<Phaser.GameObjects.GameObject>();
+  private actorRenderContext = "";
   private actorEntries: ActorEntry<Phaser.GameObjects.GameObject[]>[] = [];
   private queueUnit(id:string,...args:Parameters<MainScene['unit']>) {
-    this.actorEntries.push({id,...this.calculateActorPlacement(args[0], args[6]),create:()=>this.unit(...args)});
+    const currentSelectionMatches=this.selected?.column===args[0].column&&this.selected?.row===args[0].row;
+    const currentActorSignature=this.actorRenderContext+createRenderContentSignature([args,currentSelectionMatches]);
+    this.actorEntries.push({id,...this.calculateActorPlacement(args[0], args[6]),signature:currentActorSignature,create:()=>{
+      const currentCreatedObjects=this.unit(...args);
+      for(const currentActorObject of currentCreatedObjects)this.actorRenderObjects.add(currentActorObject);
+      return currentCreatedObjects;
+    }});
   }
   private syncFieldMotion() {
     const s=this.state!;
@@ -542,12 +550,10 @@ export class MainScene extends Phaser.Scene {
     const s = this.state;
     if (!s || this.loadFailed) return;
     if (!this.prepareCurrentMapImages(s)) return;
-    this.actorCache?.clear();
-    this.actorCache=null;
     this.actorEntries=[];
-    this.movingObjects=[];
+    this.actorRenderContext=createRenderContentSignature([s.location.id,s.generation,s.epoch,s.battle?.id,this.rotation,this.terrainPlan?.signature,s.map.imageManifest]);
     for (const child of [...this.children.list])
-      if (!this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && !this.sceneryLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
+      if (!this.actorRenderObjects.has(child) && !this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && !this.sceneryLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.personalMarkerGraphics = [];
     this.safeBarrierSprites = [];
     const meadow = !s.battle;
@@ -905,10 +911,11 @@ export class MainScene extends Phaser.Scene {
     return result;
   }
   private rebuildActorViewport() {
-    this.actorCache=new ActorWindowCache(this.actorEntries,objects=>{
+    if(this.actorCache)this.actorCache.updateEntries(this.actorEntries);
+    else this.actorCache=new ActorWindowCache(this.actorEntries,objects=>{
       const removed=new Set(objects);
       this.movingObjects=this.movingObjects.filter(item=>!removed.has(item.object));
-      for(const object of objects)if(object.scene)object.destroy();
+      for(const object of objects){this.actorRenderObjects.delete(object);if(object.scene)object.destroy();}
     });
     this.syncActorViewport();
   }

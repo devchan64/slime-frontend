@@ -1,6 +1,6 @@
 import type {ViewBounds} from './viewport';
 
-export type ActorEntry<T> = {id:string;x:number;y:number;create:()=>T};
+export type ActorEntry<T> = {id:string;x:number;y:number;create:()=>T;signature?:string};
 // 초대형 몸체·이름표·그림자와 인접 타일 이동 보간을 함께 포함한다.
 const ACTOR_MARGIN = 256;
 const BUCKET_SIZE = 256;
@@ -10,8 +10,23 @@ export class ActorWindowCache<T> {
   private buckets = new Map<string,ActorEntry<T>[]>();
   private visible = new Map<string,T>();
   private previous = '';
+  private currentActorEntries = new Map<string,ActorEntry<T>>();
   constructor(entries:ActorEntry<T>[], private dispose:(value:T)=>void) {
-    for (const entry of entries) {
+    this.updateEntries(entries);
+  }
+  /** 내용이 같은 개체는 유지하고 변경·삭제된 개체만 폐기한다. */
+  updateEntries(currentNextEntries:ActorEntry<T>[]) {
+    const currentNextLookup=new Map(currentNextEntries.map(currentActorEntry=>[currentActorEntry.id,currentActorEntry]));
+    for(const [currentActorIdentifier,currentActorValue] of this.visible){
+      const currentPreviousEntry=this.currentActorEntries.get(currentActorIdentifier);
+      const currentNextEntry=currentNextLookup.get(currentActorIdentifier);
+      if(!currentNextEntry || currentNextEntry.signature===undefined || currentNextEntry.signature!==currentPreviousEntry?.signature){
+        this.dispose(currentActorValue);this.visible.delete(currentActorIdentifier);
+      }
+    }
+    this.currentActorEntries=currentNextLookup;
+    this.buckets.clear();this.previous='';
+    for (const entry of currentNextEntries) {
       const key = `${Math.floor(entry.x/BUCKET_SIZE)},${Math.floor(entry.y/BUCKET_SIZE)}`;
       const bucket = this.buckets.get(key) ?? [];
       bucket.push(entry);
@@ -39,6 +54,6 @@ export class ActorWindowCache<T> {
   }
   clear() {
     for(const value of this.visible.values())this.dispose(value);
-    this.visible.clear();this.buckets.clear();this.previous='';
+    this.visible.clear();this.buckets.clear();this.currentActorEntries.clear();this.previous='';
   }
 }
