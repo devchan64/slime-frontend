@@ -15,7 +15,6 @@ import type {GuildMembershipSummary} from './guildMembership';
 import type {CostumeAppearanceReference} from './costumeAppearance';
 import type {TerrainBlockRecord} from '../game/terrain/blockGeometry';
 import type { WorldFacing } from "../game/animation/facing";
-import type { ActionCutinEvent } from '../ui/actionCutins';
 import type { FieldTerrainKind } from "../game/terrain/meadow";
 import type { Surface } from "../game/terrain/elevation";
 import type { SkillDefinition } from "./skillText";
@@ -73,7 +72,7 @@ export type Battle = {
     moves: { position: Position; path: Position[]; cost: number; apCost?: number; apAfter?: number; expectedApCost?: number; maximumApCost?: number; attackRange: Position[]; attacks: { targetId: string; damage: number; apCost?: number }[] }[];
     attacks: { targetId: string; damage: number; apCost?: number }[];
   };
-  log: { unitId: string; action: string; turnId: number; at: number; enabled?: boolean; stillshot?: ActionCutinEvent;
+  log: { unitId: string; action: string; turnId: number; at: number; enabled?: boolean;
          damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean; apCost?: number; apAfter?: number; movementStopped?: boolean }[];
   id: string;
   version: number;
@@ -144,7 +143,7 @@ export type State = {
     battleId: string | null;
     lastFieldInterruption?: { reason: 'AGGRO'; battleId: string; monsterId: string; mapId: string; position: Position; at: number };
     partyId: string | null;
-    lastResult: { dissection?: {operatorId:string;usableLevel:number}; rewardDistribution?: PartyRewardReportData; stillshots?: ActionCutinEvent[]; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}> } | null;
+    lastResult: { dissection?: {operatorId:string;usableLevel:number}; rewardDistribution?: PartyRewardReportData; battleId?: string; result: string; xp: number; coins: number; lostMaterials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}>; materials?: Array<{materialId: string; name: string; nameTranslations: Record<"ko" | "en", string>; quantity: number; useAction?: ConsumableUseAction}> } | null;
   };
   map: Surface & {
     contentGeneration?: number;

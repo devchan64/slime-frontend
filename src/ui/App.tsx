@@ -578,7 +578,7 @@ export function App() {
               <button class="secondary" aria-haspopup="dialog" onClick={() => openAccountStorageCategory()}>{t("rewards.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("journal")}>{t("journal.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("loans")}>{t("loans.title")}</button>
-              <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("cutins.settings")}</button>
+              <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("app.gameSettings")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/terms")}>{t("terms.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
               <>{state.party && <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("party")}>{t('common.party')}</button>}</>
@@ -614,7 +614,7 @@ export function App() {
         </article></main>
       ) : gameSettingsPage ? (
         <main class="lobby field-menu-page"><section class="card">
-          <div class="field-card-heading"><h1>{t('cutins.settings')}</h1>
+          <div class="field-card-heading"><h1>{t('app.gameSettings')}</h1>
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
           <MapMusicSettingsControl currentMusicController={currentMusicController}/>
         </section></main>
