@@ -6,13 +6,13 @@ import {parseNpcDialogue,type NpcDialoguePage,type NpcQuestEntry} from '../clien
 import {noticeText,type Notice} from '../client/notice';
 import {getLocale,useTranslation} from '../i18n';
 
-export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcName,actionsAreDisabled,currentCharacterVersion,currentQuestCategory='main'}:{
-  gameSessionClient:Client;currentNpcIdentifier:string;currentNpcName:string;actionsAreDisabled:boolean;currentCharacterVersion:number;currentQuestCategory?:'main'|'timed'}){
+export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcName,actionsAreDisabled,currentCharacterVersion,currentQuestCategory='main',embeddedPanelEnabled=false}:{
+  gameSessionClient:Client;currentNpcIdentifier:string;currentNpcName:string;actionsAreDisabled:boolean;currentCharacterVersion:number;currentQuestCategory?:'main'|'timed';embeddedPanelEnabled?:boolean}){
   const {t:translateDialogueText,locale:currentDialogueLocale}=useTranslation();
   const [currentDialoguePage,setCurrentDialoguePage]=useState<NpcDialoguePage|TimedEventPage|null>(null);
   const [currentDialogueNotice,setCurrentDialogueNotice]=useState<Notice>('');
   const [dialogueRequestPending,setDialogueRequestPending]=useState(false);
-  const [dialoguePanelOpened,setDialoguePanelOpened]=useState(false);
+  const [dialoguePanelOpened,setDialoguePanelOpened]=useState(embeddedPanelEnabled);
   const [pendingDeliveryEntry,setPendingDeliveryEntry]=useState<NpcQuestEntry|TimedEventEntry|null>(null);
   const confirmedDeliveryReference=useRef<NpcQuestEntry|TimedEventEntry|null>(null);
   const activeDialogueReference=useRef(false);
@@ -77,8 +77,8 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   useEffect(()=>{activeDialogueReference.current=true;return()=>{activeDialogueReference.current=false;};},[]);
   useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue(currentDialogueNotice);},[dialoguePanelOpened,currentCharacterVersion,currentDialogueLocale]);
   return <section class="npc-dialogue">
-    <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} aria-expanded={dialoguePanelOpened}
-      onClick={()=>{clearDeliveryConfirmation();setDialoguePanelOpened(!dialoguePanelOpened);}}>{translateDialogueText(currentQuestCategory==='timed'?'timedquests.talk':'npc.talk',{name:currentNpcName})}</button>
+    {!embeddedPanelEnabled && <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} aria-expanded={dialoguePanelOpened}
+      onClick={()=>{clearDeliveryConfirmation();setDialoguePanelOpened(!dialoguePanelOpened);}}>{translateDialogueText(currentQuestCategory==='timed'?'timedquests.talk':'npc.talk',{name:currentNpcName})}</button>}
     {dialoguePanelOpened&&<div>
       <div class="npc-dialogue-heading"><h3>{currentDialoguePage?.npc?.name??translateDialogueText('npc.title')}</h3>
         <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void loadNpcDialogue('',true)}>{translateDialogueText('journal.refresh')}</button></div>

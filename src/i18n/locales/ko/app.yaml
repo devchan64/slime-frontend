@@ -200,3 +200,5 @@ renderPerformanceAnimation: "설정 {fps}fps · 프레임 변경 {changes}회 ·
 renderPerformanceActorMissing: "본인 캐릭터 프레임 미관측"
 renderPerformanceUpdated: "갱신"
 renderPerformanceLimit: "최근 최대 5초 관측. CPU는 갱신~렌더 제출 구간이며 GPU 시간이 아닙니다. draw call·GPU·VRAM은 미측정. 프레임 변경은 실제 표시 횟수와 다릅니다."
+
+returnToMap: 맵으로 돌아가기

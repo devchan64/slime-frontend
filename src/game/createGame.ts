@@ -1,3 +1,4 @@
+import {observeMapViewportRendering} from './mapViewportRendering';
 import {attachRenderPerformance} from './renderPerformance';
 import {GAME_INTERNAL_RESOLUTION_SCALE} from './renderQuality';
 import type {Notice} from '../client/notice';
@@ -25,6 +26,8 @@ export function createGame(
     scene: [scene],
     render: { antialias: true, pixelArt: false, roundPixels: false },
     callbacks: { postBoot: (currentGameInstance: Phaser.Game) => {
+      const releaseViewportObservation = observeMapViewportRendering(parent,currentGameInstance);
+      currentGameInstance.events.once(Phaser.Core.Events.DESTROY,releaseViewportObservation);
       // NONE의 resize는 표시 배율과 포인터 좌표 변환을 함께 갱신한다.
       const currentViewportObserver = new ResizeObserver(() => {
         if (parent.clientWidth <= 0 || parent.clientHeight <= 0) return;

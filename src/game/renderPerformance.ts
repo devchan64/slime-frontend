@@ -44,7 +44,8 @@ export function attachRenderPerformance(currentGameInstance:Phaser.Game,currentM
  let currentRefreshTimer:ReturnType<typeof setInterval>|null=null;
  function resetPerformanceSamples(){currentFrameSamples=[];currentFrameStart=null;currentPreviousFinish=null;currentPreviousFrame=null;currentLastChange=null;publishPerformanceReport(null);}
  function observePerformanceStart(){if(!document.hidden)currentFrameStart=performance.now();}
- function observePerformanceFinish(){
+ function observePerformanceFinish(currentFrameRenderer:unknown){
+  if(currentFrameRenderer===null){if(currentPreviousFinish!==null)resetPerformanceSamples();return;}
   if(document.hidden||currentFrameStart===null)return;
   const currentFinishTime=performance.now();
   const currentActorRecord=currentMapScene.readPerformanceActor();

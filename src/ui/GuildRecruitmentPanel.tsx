@@ -6,7 +6,7 @@ import {noticeText,type Notice} from '../client/notice';
 import {parseGuildRecruitmentPage,validateGuildRegistrationResult,type GuildRecruitmentPage} from '../client/guildRecruitment';
 import {useTranslation} from '../i18n';
 
-export function GuildRecruitmentPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function GuildRecruitmentPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled,embeddedPanelEnabled=false}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean;embeddedPanelEnabled?:boolean}){
   const {t:translateRecruitmentText,locale:currentRecruitmentLocale}=useTranslation();
   const [currentRegistrationPage,setCurrentRegistrationPage]=useState<GuildRecruitmentPage|null>(null);
   const [currentRecruitmentNotice,setCurrentRecruitmentNotice]=useState<Notice>('');
@@ -51,9 +51,14 @@ export function GuildRecruitmentPanel({gameSessionClient,currentFacilityIdentifi
     }
   });}
   useEffect(()=>{activePanelReference.current=true;return()=>{activePanelReference.current=false;};},[]);
+  const initialEmbeddedRequest=useRef(false);
+  useEffect(()=>{
+    if(!embeddedPanelEnabled||actionsAreDisabled||initialEmbeddedRequest.current)return;
+    initialEmbeddedRequest.current=true;void loadRecruitmentStatus();
+  },[embeddedPanelEnabled,actionsAreDisabled]);
   const currentRegistrationEnabled=currentRegistrationPage?.entries.some(currentRegistrationEntry=>currentRegistrationEntry.cityId===initialSessionReference.current.map)??false;
   return <section class="guild-trade-panel">
-    <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void loadRecruitmentStatus()}>{translateRecruitmentText('guild.registrationStatus')}</button>
+    <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending} onClick={()=>void loadRecruitmentStatus()}>{translateRecruitmentText(embeddedPanelEnabled?'journal.refresh':('guild.registrationStatus'))}</button>
     {currentRegistrationPage&&<div>
       <p>{translateRecruitmentText(currentRegistrationEnabled?'guild.registered':'guild.unregistered')}</p>
       <p>{translateRecruitmentText('guild.registrationHelp')}</p>

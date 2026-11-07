@@ -1,17 +1,11 @@
+import {BuildingFacilityNavigation} from './BuildingFacilityNavigation';
 import {FieldExploration} from './FieldExploration';
 import {isHealthDepleted} from '../client/health-state.mjs';
 import {BorrowedParticipationPreview} from './BorrowedParticipation';
 import {FieldScouting} from './FieldScouting';
 import {MapKindIcon} from './MapKindIcon';
-import {PartyFormationPanel} from './PartyFormationPanel';
-import {GuildRecruitmentPanel} from './GuildRecruitmentPanel';
 import {TravelerPermitPanel} from './TravelerPermitPanel';
 import {findFieldGuardCenter} from '../client/travelerIssuance';
-import {CitizenshipPricePanel} from './CitizenshipPricePanel';
-import {GuildTradePanel} from './GuildTradePanel';
-import {SkillCardPanel} from './SkillCardPanel';
-import {WorkshopPanel} from './WorkshopPanel';
-import {NpcDialogue} from './NpcDialogue';
 import type {Client} from '../client/api';
 import { fieldMovementEstimate } from "./terrainMovementCost";
 import { findCityBuilding } from "../game/terrain/cityBuildings";
@@ -119,31 +113,16 @@ export function FieldSelection({ state, selected, disabled, select, command, wal
         {!!selectedCityBuilding.npcs?.length && <small>{t('city.staff',{names:selectedCityBuilding.npcs.map(currentFacilityNpc=>currentFacilityNpc.name).join(', ')})}</small>}
         <small>{atBuildingEntrance?t('city.arrived'):t('city.safeTown')}</small></div>
         <button class="secondary compact" onClick={()=>select(null)}>{t('field.clear')}</button>
-        <button disabled={disabled || !field || !canStep || atBuildingEntrance || !currentEntranceRoute?.length}
-          onClick={()=>walk(selectedCityBuilding.entrance)}>{t('city.approach')}</button></div>}
-      {selectedCityBuilding && atBuildingEntrance && field && gameSessionClient && selectedCityBuilding.npcs?.map(currentFacilityNpc=><NpcDialogue
-        key={`${state.generation}:${state.me.id}:${state.location.id}:${currentFacilityNpc.id}`} gameSessionClient={gameSessionClient}
-        currentNpcIdentifier={currentFacilityNpc.id} currentNpcName={currentFacilityNpc.name} actionsAreDisabled={disabled} currentCharacterVersion={state.me.version} />)}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <PartyFormationPanel
-        key={`formation:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
-        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && field && gameSessionClient && <GuildRecruitmentPanel
-        key={`recruitment:${state.generation}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
-        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
+        {!atBuildingEntrance && <button disabled={disabled || !field || !canStep || !currentEntranceRoute?.length}
+          onClick={()=>walk(selectedCityBuilding.entrance)}>{t('city.approach')}</button>}</div>}
+      {selectedCityBuilding && atBuildingEntrance && field && gameSessionClient && <BuildingFacilityNavigation
+        key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.id}`}
+        currentBuildingDefinition={selectedCityBuilding} gameSessionClient={gameSessionClient}
+        actionsAreDisabled={disabled} facilityInteractionAvailable={facilityInteractionAvailable} currentCharacterVersion={state.me.version}/>}
       {selectedGuardCenter && field && <p class="field-target-summary">{t('field.guardCenterHelp')}</p>}
       {selectedGuardCenter && here && facilityInteractionAvailable && gameSessionClient && <TravelerPermitPanel
         key={`permit:${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedGuardCenter.id}`}
         gameSessionClient={gameSessionClient} currentGuardDefinition={selectedGuardCenter} actionsAreDisabled={disabled}/>}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <CitizenshipPricePanel
-        key={`price:${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
-        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
-      {selectedCityBuilding?.facilityKind==='guild' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <GuildTradePanel
-        key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
-        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
-      {selectedCityBuilding?.facilityKind==='bookshop' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <SkillCardPanel key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled}/> }
-      {selectedCityBuilding?.facilityKind==='workshop' && atBuildingEntrance && facilityInteractionAvailable && gameSessionClient && <WorkshopPanel
-        key={`${state.generation}:${state.epoch}:${state.map.id}:${state.me.id}:${state.location.id}:${selectedCityBuilding.facilityId}`} gameSessionClient={gameSessionClient}
-        currentFacilityIdentifier={selectedCityBuilding.facilityId} actionsAreDisabled={disabled} />}
       {!monsters.length && !selectedCityBuilding && <div class="field-target">
         <div class="field-target-summary">
           <strong>{blocked ? t('field.blockedTerrain') : gate ? t('field.destinationHeading', {name:gate.targetName ?? gate.target}) : here ? t('field.currentPosition') : safe ? t('field.safeArea') : t('field.explorationPoint')}</strong>
@@ -178,6 +157,7 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
     <span><strong class={`monster-name ${m.disposition === "AGGRESSIVE" ? "is-aggressive" : "is-passive"}`}>{monsterName(localizedMonster(m, locale))}</strong><small>{m.state === "AVAILABLE" ? t('field.available') : t('field.unavailable')}</small></span>
     <span>{t('field.gridDistance',{count:fieldDistance(state.me.position, m.position)})} <span aria-hidden="true">›</span></span>
   </button>;
+  const currentWaypointBuildings = state.map.buildings?.filter(currentCityBuilding => currentCityBuilding.facilityKind !== 'residence') ?? [];
   const reservation = state.reservation;
   return <section class="card field-panel">
     {reservation ? <div class="field-reservation" aria-label={t('field.preparation')}>
@@ -185,8 +165,8 @@ export function FieldPanel({ state, selected, disabled, now, select, command }: 
       <div class="actions"><button disabled={disabled || isHealthDepleted(state.me) || (state.me.fp !== undefined && state.me.fp < 0) || reservation.ready.includes(state.me.id)} onClick={() => command("/v1/game/encounters/ready", { reservationId: reservation.id })}>{reservation.ready.includes(state.me.id) ? t('field.waitingParty') : t('field.ready')}</button>
       <button class="secondary" disabled={disabled} onClick={() => command("/v1/game/encounters/cancel", { reservationId: reservation.id })}>{t('field.cancelReservation')}</button></div>
     </div> : !state.map.safeTown ? <><h3>{t('field.nearby')}</h3><p class="field-subtitle">{t('field.nearbyHelp')}</p></> : <p>{t('city.safeTown')}</p>}
-    {state.map.buildings?.length ? <><h3>{t('city.facilities')}</h3>{state.map.buildings.map(currentCityBuilding=><button
-      key={currentCityBuilding.id} class="field-monster secondary" onClick={()=>select(currentCityBuilding.origin)}>
+    {currentWaypointBuildings.length ? <><h3>{t('city.facilities')}</h3>{currentWaypointBuildings.map(currentCityBuilding=><button
+      key={currentCityBuilding.id} class="field-monster secondary" onClick={()=>select(currentCityBuilding.entrance)}>
       <span><strong>{t(`city.${currentCityBuilding.facilityKind}`)}</strong>
         {!!currentCityBuilding.npcs?.length && <small>{t('city.staff',{names:currentCityBuilding.npcs.map(currentFacilityNpc=>currentFacilityNpc.name).join(', ')})}</small>}</span></button>)}</>:null}
     {monsters.slice(0, NEARBY_LIMIT).map(renderMonster)}

@@ -9,7 +9,7 @@ import {useTranslation} from '../i18n';
 
 const PARTY_CANDIDATE_LABELS={AVAILABLE:'formation.available',ALREADY_BORROWED:'formation.borrowed',CP_OUT_OF_RANGE:'formation.cpBlocked',CAPACITY_FULL:'formation.full'};
 type PendingFormationRequest={body:Record<string,unknown>;path:string;action:'ADD'|'REMOVE';loanId?:string};
-export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier?:string;actionsAreDisabled:boolean}){
+export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled,embeddedPanelEnabled=false}:{gameSessionClient:Client;currentFacilityIdentifier?:string;actionsAreDisabled:boolean;embeddedPanelEnabled?:boolean}){
   const {t:translateFormationText,locale:currentFormationLocale}=useTranslation();
   const [currentFormationLoaded,setCurrentFormationLoaded]=useState(false);
   const [currentCandidatePage,setCurrentCandidatePage]=useState<PartyCandidatePage|null>(null);
@@ -72,12 +72,17 @@ export function PartyFormationPanel({gameSessionClient,currentFacilityIdentifier
     if(formationSessionMatches())setCurrentFormationNotice({key:'formation.saved'});
   });}
   useEffect(()=>{activePanelReference.current=true;return()=>{activePanelReference.current=false;};},[]);
+  const initialEmbeddedRequest=useRef(false);
+  useEffect(()=>{
+    if(!embeddedPanelEnabled||actionsAreDisabled||initialEmbeddedRequest.current)return;
+    initialEmbeddedRequest.current=true;void runFormationRequest(()=>loadFormationContents());
+  },[embeddedPanelEnabled,actionsAreDisabled]);
   function displayFormationMemberName(currentSourceIdentifier:string|undefined,currentMemberName:string){return currentSourceIdentifier==='guild:novice'?translateFormationText('formation.noviceName'):currentMemberName;}
   const currentSelectedLoanIds=gameSessionClient.state?.me.borrowedPartyLoanIds??[];
   const currentSelectedMembers=currentBorrowedEntries.filter(currentLoanEntry=>currentSelectedLoanIds.includes(currentLoanEntry.id));
   const currentControlsDisabled=actionsAreDisabled||currentRequestPending||currentFormationUncertain;
   return <section class="guild-trade-panel">
-    <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runFormationRequest(()=>loadFormationContents())}>{translateFormationText(currentFacilityIdentifier?'formation.title':'formation.manage')}</button>
+    <button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runFormationRequest(()=>loadFormationContents())}>{translateFormationText(embeddedPanelEnabled?'journal.refresh':(currentFacilityIdentifier?'formation.title':'formation.manage'))}</button>
     {currentFormationLoaded&&<div>
       <p>{translateFormationText('formation.count',{count:currentSelectedMembers.filter(currentLoanEntry=>!currentLoanEntry.expired).length+1})}</p>
       <p>{translateFormationText(currentFacilityIdentifier?'formation.help':'formation.fieldHelp')}</p>

@@ -18,9 +18,10 @@ function validateWorkshopMaterialSlot(currentMaterialSlot:WorkshopMaterialSelect
     return currentMaterialSlot.choices.reduce((currentTotalValue,currentChoice)=>currentTotalValue+(currentMaterialQuantities[currentChoice.materialId]??0),0)===currentRequiredQuantity
       &&currentMaterialSlot.choices.every(currentChoice=>{const currentSelectedQuantity=currentMaterialQuantities[currentChoice.materialId]??0;return Number.isSafeInteger(currentSelectedQuantity)&&currentSelectedQuantity>=0&&currentSelectedQuantity<=currentRequiredQuantity&&(currentMaterialSlot.source!=='inventory_material'||currentSelectedQuantity<=currentChoice.ownedQuantity);});
 }
-export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled,embeddedPanelEnabled=false}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean;embeddedPanelEnabled?:boolean}){
   const {t:translateWorkshopText,locale:currentWorkshopLocale}=useTranslation();
-  const [workshopPanelOpened,setWorkshopPanelOpened]=useState(false);
+  const [workshopPanelOpened,setWorkshopPanelOpened]=useState(embeddedPanelEnabled);
+  const [currentWorkshopView,setCurrentWorkshopView]=useState<'request'|'contracts'>('request');
   const [currentContractKind,setCurrentContractKind]=useState<WorkshopContractKind>('craft');
   const [currentSelectionOptions,setCurrentSelectionOptions]=useState<WorkshopSelectionOption[]>([]);
   const [currentTargetIdentifier,setCurrentTargetIdentifier]=useState('');
@@ -107,6 +108,11 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
     if(currentActionSucceeded)await loadWorkshopContents(currentContractKind);
   }
   useEffect(()=>{activeWorkshopReference.current=true;return()=>{activeWorkshopReference.current=false;};},[]);
+  const initialEmbeddedRequest=useRef(false);
+  useEffect(()=>{
+    if(!embeddedPanelEnabled||actionsAreDisabled||initialEmbeddedRequest.current)return;
+    initialEmbeddedRequest.current=true;void loadWorkshopContents(currentContractKind);
+  },[embeddedPanelEnabled,actionsAreDisabled]);
   useEffect(()=>{
     if(!workshopPanelOpened||!currentContractPage||actionsAreDisabled||workshopRequestPending||workshopCreationUncertain)return;
     const pendingContractTimes=currentContractPage.entries.filter(currentContractEntry=>currentContractEntry.status==='IN_PROGRESS')
@@ -139,9 +145,13 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
   const currentQuoteBalanceInsufficient=currentQuoteResponse?.ownedCoins!==undefined
     &&currentQuoteResponse.ownedCoins<currentQuoteResponse.quote.costP;
   return <section class="workshop-panel">
-    <button class="secondary compact" aria-expanded={workshopPanelOpened} disabled={currentControlsDisabled}
-      onClick={()=>{setWorkshopPanelOpened(!workshopPanelOpened);if(!workshopPanelOpened)void loadWorkshopContents(currentContractKind);}}>{translateWorkshopText('workshop.title')}</button>
+    {!embeddedPanelEnabled && <button class="secondary compact" aria-expanded={workshopPanelOpened} disabled={currentControlsDisabled}
+      onClick={()=>{setWorkshopPanelOpened(!workshopPanelOpened);if(!workshopPanelOpened)void loadWorkshopContents(currentContractKind);}}>{translateWorkshopText('workshop.title')}</button>}
     {workshopPanelOpened&&<div>
+      <nav class="workshop-controls" aria-label={translateWorkshopText('city.workshopNavigation')}>
+        <button class="secondary compact" aria-pressed={currentWorkshopView==='request'} onClick={()=>setCurrentWorkshopView('request')}>{translateWorkshopText('city.workshopRequest')}</button>
+        <button class="secondary compact" aria-pressed={currentWorkshopView==='contracts'} onClick={()=>setCurrentWorkshopView('contracts')}>{translateWorkshopText('city.workshopContracts')}</button>
+      </nav>
       <p>{translateWorkshopText('workshop.citizenship')}</p>
       <div class="workshop-controls">{(['craft','consumable','material','repair'] as const).map(currentKindOption=><button class="secondary compact" aria-pressed={currentContractKind===currentKindOption}
         disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentKindOption)}>{translateWorkshopText(`workshop.${currentKindOption}`)}</button>)}
@@ -149,6 +159,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       {currentWorkshopNotice&&<p role="alert">{noticeText(currentWorkshopNotice,currentWorkshopLocale,translateWorkshopText)}</p>}
       {workshopCreationUncertain&&<p role="status">{translateWorkshopText('workshop.uncertain')}</p>}
       {workshopRequestPending&&<p role="status">{translateWorkshopText('workshop.pending')}</p>}
+      <div hidden={currentWorkshopView!=='request'}>
       <label>{translateWorkshopText('workshop.item')}<select value={currentTargetIdentifier} disabled={currentControlsDisabled} onChange={currentSelectionEvent=>{
         setCurrentTargetIdentifier(currentSelectionEvent.currentTarget.value);setCurrentBatchQuantities({});
         const currentSelectedOption=currentSelectionOptions.find(currentSelectionOption=>currentSelectionOption.id===currentSelectionEvent.currentTarget.value);
@@ -195,6 +206,8 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
         <p>{translateWorkshopText('workshop.noCancel')}</p>
         <button class="compact" disabled={actionsAreDisabled||workshopRequestPending||(!workshopCreationUncertain&&currentQuoteBalanceInsufficient)} onClick={()=>void submitWorkshopContract()}>{translateWorkshopText('workshop.confirm')}</button>
     </div>}
+      </div>
+      <div hidden={currentWorkshopView!=='contracts'}>
       <h3>{translateWorkshopText('workshop.contracts')}</h3>
       {currentContractPage&&!currentContractPage.entries.length&&<p>{translateWorkshopText('workshop.empty')}</p>}
       <ul>{currentContractPage?.entries.map(currentContractEntry=><li key={currentContractEntry.contractId}>
@@ -208,6 +221,7 @@ export function WorkshopPanel({gameSessionClient,currentFacilityIdentifier,actio
       </li>)}</ul>
       {currentContractPage?.nextCursor&&<button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void loadWorkshopContents(currentContractKind,currentContractPage.nextCursor)}>{translateWorkshopText('workshop.next')}</button>}
       <RefiningContractsPanel key={`${currentFacilityIdentifier}:${gameSessionClient.state?.generation}`} gameSessionClient={gameSessionClient} currentFacilityIdentifier={currentFacilityIdentifier} actionsAreDisabled={currentControlsDisabled} />
+      </div>
     </div>}
   </section>;
 }

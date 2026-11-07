@@ -200,3 +200,5 @@ renderPerformanceAnimation: "Configured {fps}fps · {changes} frame changes · {
 renderPerformanceActorMissing: "Own character frame not observed"
 renderPerformanceUpdated: "Updated"
 renderPerformanceLimit: "Up to 5 seconds observed. CPU spans update through render submission, not GPU time. Draw calls, GPU and VRAM are unmeasured. Frame changes are not presented-frame counts."
+
+returnToMap: Return to map

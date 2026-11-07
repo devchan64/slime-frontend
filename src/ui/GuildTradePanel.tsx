@@ -7,9 +7,9 @@ import {parseGuildMaterialCatalog,parseGuildMaterialQuote,validateGuildSaleRecei
 import {useTranslation} from '../i18n';
 import './guildTrade.css';
 
-export function GuildTradePanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function GuildTradePanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled,embeddedPanelEnabled=false}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean;embeddedPanelEnabled?:boolean}){
   const {t:translateGuildText,locale:currentGuildLocale}=useTranslation();
-  const [guildPanelOpened,setGuildPanelOpened]=useState(false);
+  const [guildPanelOpened,setGuildPanelOpened]=useState(embeddedPanelEnabled);
   const [currentMaterialCatalog,setCurrentMaterialCatalog]=useState<GuildMaterialCatalog|null>(null);
   const [currentMaterialIdentifier,setCurrentMaterialIdentifier]=useState('');
   const [currentSaleQuantity,setCurrentSaleQuantity]=useState(1);
@@ -73,13 +73,19 @@ export function GuildTradePanel({gameSessionClient,currentFacilityIdentifier,act
     await loadGuildMaterials();
   });}
   useEffect(()=>{activeGuildReference.current=true;return()=>{activeGuildReference.current=false;};},[]);
+  const initialEmbeddedRequest=useRef(false);
+  useEffect(()=>{
+    if(!embeddedPanelEnabled||actionsAreDisabled||initialEmbeddedRequest.current)return;
+    initialEmbeddedRequest.current=true;void runGuildRequest(loadGuildMaterials);
+  },[embeddedPanelEnabled,actionsAreDisabled]);
   const currentSelectedMaterial=currentMaterialCatalog?.items.find(currentMaterialEntry=>currentMaterialEntry.materialId===currentMaterialIdentifier);
   const currentMaximumQuantity=Math.min(currentSelectedMaterial?.quantity??0,currentMaterialCatalog?.maximumQuantity??0);
   const currentControlsDisabled=actionsAreDisabled||guildRequestPending||guildSaleUncertain;
   return <section class="guild-trade-panel">
-    <button class="secondary compact" aria-expanded={guildPanelOpened} disabled={currentControlsDisabled} onClick={()=>{
+    {!embeddedPanelEnabled && <button class="secondary compact" aria-expanded={guildPanelOpened} disabled={currentControlsDisabled} onClick={()=>{
       setGuildPanelOpened(!guildPanelOpened);if(!guildPanelOpened)void runGuildRequest(loadGuildMaterials);
-    }}>{translateGuildText('guild.title')}</button>
+    }}>{translateGuildText('guild.title')}</button>}
+    {embeddedPanelEnabled&&<button class="secondary compact" disabled={currentControlsDisabled} onClick={()=>void runGuildRequest(loadGuildMaterials)}>{translateGuildText('journal.refresh')}</button>}
     {guildPanelOpened&&<div>
       <p>{translateGuildText('guild.help')}</p>
       {currentMaterialCatalog&&!currentMaterialCatalog.items.length&&<p>{translateGuildText('guild.empty')}</p>}

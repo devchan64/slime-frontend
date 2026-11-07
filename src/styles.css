@@ -1505,3 +1505,5 @@ header .message-notice-button:hover, header .message-notice-button.has-notices {
 .render-performance-setting { display: flex; align-items: center; gap: 8px; }
 .render-performance-setting input { width: auto; margin: 0; }
 .render-performance-panel details[open] { pointer-events: auto; max-height: 24dvh; overflow-y: auto; }
+
+.map-viewport-return{position:fixed;right:16px;bottom:48px;z-index:10;width:auto;min-height:44px;padding:8px 14px;box-shadow:0 3px 12px #0006}

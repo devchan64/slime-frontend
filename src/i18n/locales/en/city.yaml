@@ -10,3 +10,14 @@ safeTown: The entire city is a safe area
 staff: 'NPC: {names}'
 
 residence: Residence
+serviceNavigation: Building services
+formation: Party formation
+recruitment: Recruitment
+citizenship: Citizenship
+materialSale: Sell materials
+workshopServices: Crafting, repairs and contracts
+noServices: No building services are currently available.
+serviceUnavailable: Finish combat or preparation to use this service.
+workshopNavigation: Workshop services
+workshopRequest: Craft, process and repair
+workshopContracts: Contracts and collection

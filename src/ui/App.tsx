@@ -1,3 +1,4 @@
+import {MapViewportReturn} from './MapViewportReturn';
 import {useRenderPerformanceSettings,RenderPerformanceSettings,RenderPerformanceOverlay} from './RenderPerformance';
 import {useMapBackgroundMusic, MapMusicSettingsControl} from './MapBackgroundMusic';
 import {DeveloperToolsPanel} from './DeveloperToolsPanel';
@@ -719,6 +720,7 @@ export function App() {
 </nav>
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
 </div>
+            <MapViewportReturn currentMapReference={container}/>
             {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
               <div ref={selectedFieldCommands} class="field-selected-commands">
               <FieldSelection state={state} selected={selected} disabled={disabled} gameSessionClient={client} now={(clock + serverOffset.current) / 1000}

@@ -1,0 +1,16 @@
+.building-facility-layout{display:grid;grid-template-columns:minmax(120px,160px) minmax(0,1fr);gap:12px;margin-top:10px;align-items:start}
+.building-facility-navigation{display:flex;flex-direction:column;gap:4px}
+.building-facility-navigation button{text-align:left;justify-content:flex-start;width:100%;white-space:normal}
+.building-facility-navigation [aria-current=page]{border-color:var(--accent,#a0e7c9);background:#244b43;color:#fff}
+.building-facility-content{min-width:0;border-left:1px solid var(--border);padding-left:12px}
+.building-facility-content>section[hidden]{display:none}
+.building-facility-content :is(.guild-trade-panel,.workshop-panel,.bag-panel,.npc-dialogue){margin:0}
+.building-facility-content .bag-panel{padding:0;border:0}
+@media(max-width:600px){
+ .building-facility-layout{grid-template-columns:minmax(0,1fr);gap:8px}
+ .building-facility-navigation{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+ .building-facility-navigation button{width:auto;flex:0 0 auto}
+ .building-facility-content{border-left:0;border-top:1px solid var(--border);padding:8px 0 0}
+}
+.building-facility-layout.has-single-service{grid-template-columns:minmax(0,1fr)}
+.building-facility-layout.has-single-service .building-facility-content{border:0;padding:0}

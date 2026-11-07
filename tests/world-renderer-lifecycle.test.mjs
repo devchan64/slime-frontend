@@ -76,3 +76,26 @@ test('현재 화면의 초기화 실패는 연결을 끊고 오류를 표시한�
  assert.ok(currentRendererHarness.currentRecordedEvents.some(currentEvent=>currentEvent[0]==='setRenderError'&&currentEvent[1].key==='app.webglUnsupported'));
  currentRendererHarness.cleanupCurrentEffect();
 });
+
+test('맵 일부라도 화면 밖이면 그리기를 생략하고 복귀·파괴를 처리한다',async()=>{
+ const currentViewportSource=ts.transpileModule(await readFile('src/game/mapViewportRendering.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
+ const {observeMapViewportRendering}=await import('data:text/javascript;base64,'+Buffer.from(currentViewportSource).toString('base64'));
+ const originalViewportObserver=globalThis.IntersectionObserver;
+ let receiveViewportEntries;let observedMapElement;let viewportObserverDisconnected=false;
+ globalThis.IntersectionObserver=class{constructor(currentObserverCallback,currentObserverOptions){assert.equal(currentObserverOptions.threshold,1);receiveViewportEntries=currentObserverCallback;}observe(currentElementValue){observedMapElement=currentElementValue;}disconnect(){viewportObserverDisconnected=true;}};
+ const currentMapElement={dataset:{}};
+ const currentFrameEvents=[];
+ const currentGameInstance={step(currentFrameTime){currentFrameEvents.push(['render',currentFrameTime]);},headlessStep(currentFrameTime){currentFrameEvents.push(['update',currentFrameTime]);}};
+ const originalGameStep=currentGameInstance.step;
+ try{
+  const releaseViewportObservation=observeMapViewportRendering(currentMapElement,currentGameInstance);
+  assert.equal(observedMapElement,currentMapElement);
+  const currentLoopCallback=currentGameInstance.step.bind(currentGameInstance);
+  receiveViewportEntries([{target:currentMapElement,isIntersecting:true,intersectionRatio:0.99,intersectionRect:{width:100,height:79}}]);currentLoopCallback(1,16);
+  receiveViewportEntries([{target:currentMapElement,isIntersecting:false,intersectionRatio:0,intersectionRect:{width:0,height:0}}]);currentLoopCallback(2,16);
+  assert.equal(currentMapElement.dataset.viewportRendering,'suspended');
+  receiveViewportEntries([{target:currentMapElement,isIntersecting:true,intersectionRatio:1,intersectionRect:{width:100,height:80}}]);currentLoopCallback(3,16);
+  assert.deepEqual(currentFrameEvents,[['update',1],['update',2],['render',3]]);
+  releaseViewportObservation();assert.ok(viewportObserverDisconnected);assert.equal(currentGameInstance.step,originalGameStep);assert.equal(currentMapElement.dataset.viewportRendering,undefined);
+ }finally{if(originalViewportObserver===undefined)delete globalThis.IntersectionObserver;else globalThis.IntersectionObserver=originalViewportObserver;}
+});

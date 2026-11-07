@@ -8,7 +8,7 @@ import {useTranslation} from '../i18n';
 
 const CITIZENSHIP_PRICE_TICK_MS=1000;
 type CitizenshipPriceQuote={price:number;deadline:number;policyVersion:number;quotedExpiresAt:number;characterVersion:number};
-export function CitizenshipPricePanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean}){
+export function CitizenshipPricePanel({gameSessionClient,currentFacilityIdentifier,actionsAreDisabled,embeddedPanelEnabled=false}:{gameSessionClient:Client;currentFacilityIdentifier:string;actionsAreDisabled:boolean;embeddedPanelEnabled?:boolean}){
   const {t:translateCitizenshipText,locale:currentCitizenshipLocale}=useTranslation();
   const [currentPriceQuote,setCurrentPriceQuote]=useState<CitizenshipPriceQuote|null>(null);
   const [currentRemainingSeconds,setCurrentRemainingSeconds]=useState(0);
@@ -60,13 +60,18 @@ export function CitizenshipPricePanel({gameSessionClient,currentFacilityIdentifi
     }finally{pendingRequestReference.current=false;if(citizenshipSessionMatches())setCurrentRequestPending(false);}
   }
   useEffect(()=>{activePanelReference.current=true;return()=>{activePanelReference.current=false;};},[]);
+  const initialEmbeddedRequest=useRef(false);
+  useEffect(()=>{
+    if(!embeddedPanelEnabled||actionsAreDisabled||initialEmbeddedRequest.current)return;
+    initialEmbeddedRequest.current=true;void requestCitizenshipPrice();
+  },[embeddedPanelEnabled,actionsAreDisabled]);
   useEffect(()=>{
     if(!currentPriceQuote)return;
     const currentRefreshTimer=window.setInterval(()=>setCurrentRemainingSeconds(Math.max(0,Math.ceil((currentPriceQuote.deadline-performance.now())/1000))),CITIZENSHIP_PRICE_TICK_MS);
     return()=>window.clearInterval(currentRefreshTimer);
   },[currentPriceQuote]);
   return <section class="guild-trade-panel">
-    <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||currentPurchaseUncertain} onClick={()=>void requestCitizenshipPrice()}>{translateCitizenshipText('guild.citizenshipPrice')}</button>
+    <button class="secondary compact" disabled={actionsAreDisabled||currentRequestPending||currentPurchaseUncertain} onClick={()=>void requestCitizenshipPrice()}>{translateCitizenshipText(embeddedPanelEnabled?'journal.refresh':('guild.citizenshipPrice'))}</button>
     {currentPriceQuote&&<div>{currentRemainingSeconds>0?<p>{translateCitizenshipText('guild.citizenshipQuote',{price:currentPriceQuote.price,seconds:currentRemainingSeconds})}</p>
       :<p role="status">{translateCitizenshipText('guild.citizenshipExpired')}</p>}
       {(currentRemainingSeconds>0||currentPurchaseUncertain)&&<><small>{translateCitizenshipText('guild.citizenshipPurchaseHelp',{price:currentPriceQuote.price})}</small>
