@@ -6,7 +6,7 @@ import {parseCostumeInventory,type CostumeInventoryPage} from '../client/costume
 import {noticeText,type Notice} from '../client/notice';
 import {useTranslation} from '../i18n';
 
-export function CostumeInventoryPanel({gameSessionClient,actionsAreDisabled}:{gameSessionClient:Client;actionsAreDisabled:boolean}){
+export function CostumeInventoryPanel({gameSessionClient,actionsAreDisabled,showPanelHeading=true}:{gameSessionClient:Client;actionsAreDisabled:boolean;showPanelHeading?:boolean}){
  const {t:translateCostumeText,locale:currentCostumeLocale}=useTranslation();
  const [currentInventoryPage,setCurrentInventoryPage]=useState<CostumeInventoryPage|null>(null);
  const [currentInventoryNotice,setCurrentInventoryNotice]=useState<Notice>('');
@@ -46,8 +46,8 @@ export function CostumeInventoryPanel({gameSessionClient,actionsAreDisabled}:{ga
   }}finally{currentPendingReference.current=false;if(costumeInventorySessionMatches())setCurrentRequestPending(false);}
  }
  useEffect(()=>{currentActiveReference.current=true;return()=>{currentActiveReference.current=false;};},[]);
- return <section class="card" aria-label={translateCostumeText('wardrobe.title')}>
-  <h2>{translateCostumeText('wardrobe.title')}</h2><p>{translateCostumeText('wardrobe.help')}</p>
+ return <section class={`card ${showPanelHeading?'':'panel-content-only'}`} aria-label={translateCostumeText('wardrobe.title')}>
+  {showPanelHeading&&<h2>{translateCostumeText('wardrobe.title')}</h2>}<p>{translateCostumeText('wardrobe.help')}</p>
   <button class="secondary" disabled={actionsAreDisabled||currentRequestPending||currentEquipUncertain} onClick={()=>void loadCostumeInventory()}>{translateCostumeText('wardrobe.refresh')}</button>
   {currentInventoryPage&&<button class="secondary" disabled={actionsAreDisabled||currentRequestPending||currentEquipUncertain||!costumeChangeAvailable()} onClick={()=>void equipSelectedCostume(currentInventoryPage.defaultCostumeId)}>{translateCostumeText('wardrobe.default')}</button>}
   {currentEquipUncertain&&<><p>{translateCostumeText('wardrobe.uncertain')}</p><button disabled={actionsAreDisabled||currentRequestPending||!costumeChangeAvailable()} onClick={()=>void equipSelectedCostume(currentEquipRequest.current!.costumeId)}>{translateCostumeText('wardrobe.retry')}</button></>}

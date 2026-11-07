@@ -200,3 +200,5 @@ patternSave: "Save pattern"
 patternReload: "Reload saved rules"
 patternDelete: "Delete saved pattern"
 patternSaved: "Changes saved."
+
+patternNotRegistered: "There is no saved pattern to delete. Edit the rules and save a pattern first."

@@ -617,13 +617,13 @@ export function App() {
         <main class="lobby field-menu-page">
           <div class="field-card-heading"><h1>{t('battle.patternTitle')}</h1><button class="secondary" onClick={()=>navigateCharacterPage('#/menu')}>{t('app.menu')}</button></div>
           <p>{t('app.patternDraftHelp')}</p>
-          <AutomaticBattlePatternPanel key={`pattern:${currentDraftIdentity}`} currentCharacterState={state.me} currentActionsDisabled={disabled} submitPatternCommand={command}
+          <AutomaticBattlePatternPanel showPanelHeading={false} key={`pattern:${currentDraftIdentity}`} currentCharacterState={state.me} currentActionsDisabled={disabled} submitPatternCommand={command}
             initialDraftRules={automaticPatternDraft.current?.rules} onDraftRulesChange={currentDraftRules=>{automaticPatternDraft.current=currentDraftRules?{identity:currentDraftIdentity,rules:structuredClone(currentDraftRules)}:null;}}/>
         </main>
       ) : costumeInventoryPage ? (
         <main class="lobby field-menu-page">
           <div class="field-card-heading"><h1>{t('wardrobe.title')}</h1><button class="secondary" onClick={()=>navigateCharacterPage('#/menu')}>{t('app.menu')}</button></div>
-          <CostumeInventoryPanel key={`wardrobe:${state.generation}:${state.epoch}:${state.me.id}:${state.me.mode}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
+          <CostumeInventoryPanel showPanelHeading={false} key={`wardrobe:${state.generation}:${state.epoch}:${state.me.id}:${state.me.mode}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
         </main>
       ) : userTermsPage ? (
         <main class="lobby field-menu-page"><article class="card" aria-labelledby="user-terms-title">

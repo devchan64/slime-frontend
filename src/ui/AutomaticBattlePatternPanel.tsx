@@ -9,7 +9,8 @@ const AUTOMATIC_PATTERN_CONDITION_LABELS = {ALWAYS:'patternConditionAlways',SELF
 const AUTOMATIC_PATTERN_ACTION_LABELS = {ATTACK:'patternActionAttack',SKILL:'patternActionSkill',APPROACH:'patternActionApproach',END_TURN:'patternActionEndTurn'} as const;
 const AUTOMATIC_PATTERN_END_RULE: AutomaticBattleRule = {condition:'ALWAYS',action:'END_TURN'};
 
-export function AutomaticBattlePatternPanel({currentCharacterState, currentActionsDisabled, submitPatternCommand,initialDraftRules,onDraftRulesChange}: {
+export function AutomaticBattlePatternPanel({currentCharacterState, currentActionsDisabled, submitPatternCommand,initialDraftRules,onDraftRulesChange,showPanelHeading=true}: {
+  showPanelHeading?:boolean;
   initialDraftRules?:AutomaticBattleRule[];onDraftRulesChange?:(currentDraftRules:AutomaticBattleRule[]|null)=>void;
   currentCharacterState: State['me']; currentActionsDisabled: boolean;
   submitPatternCommand: (currentCommandPath: string, currentCommandBody: Record<string, unknown>, currentSuccessHandler: () => void) => unknown;
@@ -36,8 +37,8 @@ export function AutomaticBattlePatternPanel({currentCharacterState, currentActio
     [requestedPatternRules[currentRuleIndex],requestedPatternRules[requestedTargetIndex]] = [requestedPatternRules[requestedTargetIndex],requestedPatternRules[currentRuleIndex]];
     updatePatternRules(requestedPatternRules);
   };
-  return <section class="card automatic-pattern-panel" aria-labelledby="automatic-pattern-heading">
-    <h2 id="automatic-pattern-heading">{t('battle.patternTitle')}</h2>
+  return <section class={`card automatic-pattern-panel ${showPanelHeading?'':'panel-content-only'}`} aria-label={t('battle.patternTitle')}>
+    {showPanelHeading&&<h2>{t('battle.patternTitle')}</h2>}
     <p>{t('battle.patternHelp')}</p>
     <fieldset disabled={currentActionsDisabled}>
       {currentPatternRules.map((currentRuleRecord, currentRuleIndex) => <fieldset key={currentRuleIndex}>
@@ -75,6 +76,7 @@ export function AutomaticBattlePatternPanel({currentCharacterState, currentActio
         })}>{t('battle.patternDelete')}</button>
       </div>
     </fieldset>
+    {!currentCharacterState.automaticPattern && <p>{t('battle.patternNotRegistered')}</p>}
     {currentSaveComplete && <p role="status">{t('battle.patternSaved')}</p>}
   </section>;
 }
