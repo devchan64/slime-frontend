@@ -1157,14 +1157,12 @@ body.battle-preview-shell .preview-hud { display: contents; }
 .world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap { position: relative; width: 100%; height: auto; min-height: 0; aspect-ratio: 4 / 3; }
 .field-preview-canvas canvas,
 .world-shell .world > :is(.field-map-card, .battle-map-card) .canvas-wrap canvas { position: absolute; inset: 0; }
-/* 낮은 가로 화면에서는 헤더·제목·조작 접근 공간을 남기고 맵의 두 축을 함께 줄인다. */
-:root { --field-map-viewport-reserve: 160px; }
-@media (orientation: landscape) and (max-height: 600px) {
-  .world-shell .world:is(.is-field, .is-battle) > :is(.field-map-card, .battle-map-card) {
+/* 모든 화면에서 가용 높이를 넘지 않도록 맵의 두 축을 함께 줄인다. */
+:root { --field-map-viewport-reserve: clamp(160px, 30dvh, 240px); }
+.world-shell .world:is(.is-field, .is-battle) > :is(.field-map-card, .battle-map-card) {
     width: min(100%, max(0px, calc((100dvh - var(--field-map-viewport-reserve)) * 4 / 3)));
     align-self: center;
   }
-}
 
 .world-shell .world.is-field > :is(.field-control-card, .field-help-card) { position: static; flex: 0 0 auto; width: 100%; height: auto; min-height: 0; max-height: none; margin: 0; padding: var(--field-card-padding); border: 1px solid var(--border); border-radius: var(--ui-radius-panel); overflow: visible; }
 .world-shell .world.is-field .field-control-card .field-selection { height: auto; max-height: none; padding: 0; border: 0; background: transparent; overflow: visible; }
@@ -1479,9 +1477,9 @@ header .message-notice-button:hover, header .message-notice-button.has-notices {
 .world-map-thumbnail { width:128px;height:128px;object-fit:cover;align-self:center;border-radius: var(--ui-radius-panel);pointer-events:none; }
 .world-map-detail-thumbnail { display:block;width:min(256px,100%);height:auto;aspect-ratio:1;object-fit:cover; }
 
-.render-performance-panel { position: fixed; top: 8px; right: 8px; z-index: 1001; max-width: min(360px, calc(100vw - 16px)); max-height: 35dvh; overflow: auto; padding: 8px 12px; background: #071821ed; color: #e5f3f7; border: 1px solid #35515d; border-radius: var(--ui-radius-panel); font-size: 12px; pointer-events: none; }
+.render-performance-panel { position: static; flex: 0 0 auto; width: 100%; min-width: 0; overflow-wrap: anywhere; padding: 8px 12px; background: #071821ed; color: #e5f3f7; border: 1px solid #35515d; border-radius: var(--ui-radius-panel); font-size: var(--ui-font-meta); }
 .render-performance-panel p { margin: 4px 0; }
-.render-performance-panel summary { pointer-events: auto; cursor: pointer; }
+.render-performance-panel summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .render-performance-frame { overflow-wrap: anywhere; }
 
 .render-performance-setting { display: flex; align-items: center; gap: 8px; }

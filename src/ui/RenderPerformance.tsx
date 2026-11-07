@@ -20,11 +20,15 @@ export function RenderPerformanceOverlay({currentLoadingActive,currentMovementRe
  useEffect(()=>subscribeMapViewportStatus(()=>setCurrentViewportStatus(readMapViewportStatus())),[]);
  useEffect(()=>{const updateDocumentVisibility=()=>setCurrentDocumentHidden(document.hidden);document.addEventListener('visibilitychange',updateDocumentVisibility);return()=>document.removeEventListener('visibilitychange',updateDocumentVisibility);},[]);
  const [currentReportValue,setCurrentReportValue]=useState(readPerformanceReport);
- useEffect(()=>subscribePerformanceReports(()=>setCurrentReportValue(readPerformanceReport())),[]);
+ useEffect(()=>subscribePerformanceReports(()=>{
+  const currentNextReport=readPerformanceReport();
+  setCurrentReportValue(currentPreviousReport=>currentNextReport??(readMapViewportStatus()==='suspended'||document.hidden?currentPreviousReport:null));
+ }),[]);
  const formatPerformanceValue=(currentMetricValue:number|null|undefined)=>currentMetricValue==null?'—':currentMetricValue.toFixed(1);
  return <aside class="render-performance-panel" aria-label={translatePerformanceText('app.renderPerformanceTitle')}>
   <strong>{translatePerformanceText('app.renderPerformanceTitle')}</strong>
-  {currentDocumentHidden?<p>{translatePerformanceText('app.renderPerformanceTabHidden')}</p>:currentViewportStatus==='suspended'?<p>{translatePerformanceText('app.mapRenderingSuspended')}</p>:!currentReportValue?<p>{translatePerformanceText('app.renderPerformanceCollecting')}</p>:<>
+  {currentDocumentHidden?<p>{translatePerformanceText('app.renderPerformanceTabHidden')}</p>:currentViewportStatus==='suspended'?<p>{translatePerformanceText('app.mapRenderingSuspended')}</p>:null}
+  {!currentReportValue?<p>{translatePerformanceText('app.renderPerformanceCollecting')}</p>:<>
    <p>FPS {formatPerformanceValue(currentReportValue.fps)} · {translatePerformanceText('app.renderPerformanceFrames',{count:currentReportValue.samples,seconds:formatPerformanceValue(currentReportValue.seconds)})}</p>
    <p>{translatePerformanceText('app.renderPerformanceIntervals')} {formatPerformanceValue(currentReportValue.average)} / {formatPerformanceValue(currentReportValue.p95)} / {formatPerformanceValue(currentReportValue.maximum)} ms</p>
    <details><summary>{translatePerformanceText('app.renderPerformanceDetails')}</summary>

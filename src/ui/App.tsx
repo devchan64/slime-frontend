@@ -421,7 +421,6 @@ export function App() {
     });
   return (
     <div class={`app-shell ${!state ? "login-shell" : inWorld ? "world-shell" : ""}`}>
-      {inWorld&&currentPerformanceSettings.currentDisplayEnabled&&<RenderPerformanceOverlay currentLoadingActive={loading} currentMovementRequested={!!walking}/>}
       {loading && !battleReport && <div class="location-loading" role="dialog" aria-modal="true" aria-label={t('app.loadingRegion')}>
         <section class="loading-card" aria-live="polite">
           <h2>{renderFailed ? t('app.loadingFailed') : t('app.loading')}</h2>
@@ -738,6 +737,8 @@ export function App() {
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
 </div>
             <MapViewportReturn currentMapReference={container}/>
+      {inWorld&&currentPerformanceSettings.currentDisplayEnabled&&<RenderPerformanceOverlay currentLoadingActive={loading} currentMovementRequested={!!walking}/>}
+
             {!battle && <section class="card field-command-dock field-control-card" aria-label={t('app.fieldControls')}>
               <div ref={selectedFieldCommands} class="field-selected-commands">
               <FieldSelection state={state} selected={selected} disabled={disabled} gameSessionClient={client} now={(clock + serverOffset.current) / 1000}
