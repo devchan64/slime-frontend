@@ -9,13 +9,14 @@ const AUTOMATIC_PATTERN_CONDITION_LABELS = {ALWAYS:'patternConditionAlways',SELF
 const AUTOMATIC_PATTERN_ACTION_LABELS = {ATTACK:'patternActionAttack',SKILL:'patternActionSkill',APPROACH:'patternActionApproach',END_TURN:'patternActionEndTurn'} as const;
 const AUTOMATIC_PATTERN_END_RULE: AutomaticBattleRule = {condition:'ALWAYS',action:'END_TURN'};
 
-export function AutomaticBattlePatternPanel({currentCharacterState, currentActionsDisabled, submitPatternCommand}: {
+export function AutomaticBattlePatternPanel({currentCharacterState, currentActionsDisabled, submitPatternCommand,initialDraftRules,onDraftRulesChange}: {
+  initialDraftRules?:AutomaticBattleRule[];onDraftRulesChange?:(currentDraftRules:AutomaticBattleRule[]|null)=>void;
   currentCharacterState: State['me']; currentActionsDisabled: boolean;
   submitPatternCommand: (currentCommandPath: string, currentCommandBody: Record<string, unknown>, currentSuccessHandler: () => void) => unknown;
 }) {
   const {t} = useTranslation();
   const [currentPatternRules, setCurrentPatternRules] = useState<AutomaticBattleRule[]>(() =>
-    structuredClone(currentCharacterState.automaticPattern?.rules ?? [AUTOMATIC_PATTERN_END_RULE]));
+    structuredClone(initialDraftRules??currentCharacterState.automaticPattern?.rules ?? [AUTOMATIC_PATTERN_END_RULE]));
   const [currentSaveComplete, setCurrentSaveComplete] = useState(false);
   const currentAvailableActions = (currentCharacterState.battleSkillLoadout ?? []).flatMap(currentSkillIdentifier =>
     currentCharacterState.skillUseLocks?.[currentSkillIdentifier] ? [] :
@@ -25,7 +26,7 @@ export function AutomaticBattlePatternPanel({currentCharacterState, currentActio
     (currentRuleRecord.condition !== 'ALWAYS' && (!Number.isInteger(currentRuleRecord.hpPercent) || currentRuleRecord.hpPercent! < 1 || currentRuleRecord.hpPercent! > 100)) ||
     (currentRuleRecord.action === 'SKILL' && !currentAvailableActions.some(currentActionRecord => currentActionRecord.actionId === currentRuleRecord.actionId)));
   const updatePatternRules = (requestedPatternRules: AutomaticBattleRule[]) => {
-    setCurrentPatternRules(requestedPatternRules); setCurrentSaveComplete(false);
+    setCurrentPatternRules(requestedPatternRules);onDraftRulesChange?.(requestedPatternRules); setCurrentSaveComplete(false);
   };
   const replacePatternRule = (currentRuleIndex: number, requestedRuleRecord: AutomaticBattleRule) =>
     updatePatternRules(currentPatternRules.map((currentRuleRecord, currentEntryIndex) => currentEntryIndex === currentRuleIndex ? requestedRuleRecord : currentRuleRecord));
@@ -67,10 +68,10 @@ export function AutomaticBattlePatternPanel({currentCharacterState, currentActio
       {currentPatternRules.length>=AUTOMATIC_PATTERN_RULE_LIMIT && <p>{t('battle.patternRuleLimit')}</p>}
       {currentInvalidRules && <p role="alert">{t('battle.patternInvalidRules')}</p>}
       <div class="field-menu-actions">
-        <button disabled={currentInvalidRules} onClick={() => submitPatternCommand('/v1/characters/me/automatic-pattern',{pattern:{version:1,rules:currentPatternRules}},() => setCurrentSaveComplete(true))}>{t('battle.patternSave')}</button>
+        <button disabled={currentInvalidRules} onClick={() => submitPatternCommand('/v1/characters/me/automatic-pattern',{pattern:{version:1,rules:currentPatternRules}},() => {setCurrentSaveComplete(true);onDraftRulesChange?.(null);})}>{t('battle.patternSave')}</button>
         <button class="secondary" onClick={() => updatePatternRules(structuredClone(currentCharacterState.automaticPattern?.rules ?? [AUTOMATIC_PATTERN_END_RULE]))}>{t('battle.patternReload')}</button>
         <button class="secondary" disabled={!currentCharacterState.automaticPattern} onClick={() => submitPatternCommand('/v1/characters/me/automatic-pattern',{pattern:null},() => {
-          setCurrentPatternRules([AUTOMATIC_PATTERN_END_RULE]); setCurrentSaveComplete(true);
+          setCurrentPatternRules([AUTOMATIC_PATTERN_END_RULE]);onDraftRulesChange?.(null); setCurrentSaveComplete(true);
         })}>{t('battle.patternDelete')}</button>
       </div>
     </fieldset>

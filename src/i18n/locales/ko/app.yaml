@@ -185,7 +185,7 @@ loadingParticipants: "참가자 {ready}/{total}명 준비 완료"
 renderPerformanceTitle: "렌더링 성능 표시"
 renderPerformanceStorage: "이 브라우저에 저장됩니다. 끄면 측정도 중단합니다."
 renderPerformanceStorageError: "설정을 저장하거나 읽지 못했습니다. 측정은 꺼졌습니다. 브라우저 저장소를 확인하고 다시 선택하세요."
-renderPerformanceCollecting: "표본 수집 중 · 탭 비활성 시 일시 중지"
+renderPerformanceCollecting: "렌더링 표본을 수집하고 있습니다."
 renderPerformanceFrames: "{seconds}초 · {count}개 표본"
 renderPerformanceIntervals: "프레임 평균 / p95 / 최대"
 renderPerformanceDetails: "상세 측정"
@@ -202,3 +202,7 @@ renderPerformanceUpdated: "갱신"
 renderPerformanceLimit: "최근 최대 5초 관측. CPU는 갱신~렌더 제출 구간이며 GPU 시간이 아닙니다. draw call·GPU·VRAM은 미측정. 프레임 변경은 실제 표시 횟수와 다릅니다."
 
 returnToMap: 맵으로 돌아가기
+
+mapRenderingSuspended: 맵 일부가 화면을 벗어나 표시와 맵 입력을 중지했습니다.
+renderPerformanceTabHidden: 탭이 숨겨져 측정을 중지했습니다.
+patternDraftHelp: 저장 전 변경은 같은 접속의 화면 이동 동안 유지됩니다. 새로고침·로그아웃 시 사라지며, 패턴 저장을 눌러야 게임에 적용됩니다.

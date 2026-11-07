@@ -1,3 +1,4 @@
+import {readMapViewportStatus,subscribeMapViewportStatus} from '../game/mapViewportRendering';
 import {useEffect,useState} from 'preact/hooks';
 import {useTranslation} from '../i18n';
 import {initializePerformanceSettings,readPerformanceEnabled,readPerformanceReport,savePerformanceSettings,subscribePerformanceSettings,subscribePerformanceReports} from '../game/renderPerformance';
@@ -14,12 +15,16 @@ export function RenderPerformanceSettings(currentSettingsProps:ReturnType<typeof
 }
 export function RenderPerformanceOverlay({currentLoadingActive,currentMovementRequested}:{currentLoadingActive:boolean;currentMovementRequested:boolean}){
  const {t:translatePerformanceText}=useTranslation();
+ const [currentViewportStatus,setCurrentViewportStatus]=useState(readMapViewportStatus);
+ const [currentDocumentHidden,setCurrentDocumentHidden]=useState(document.hidden);
+ useEffect(()=>subscribeMapViewportStatus(()=>setCurrentViewportStatus(readMapViewportStatus())),[]);
+ useEffect(()=>{const updateDocumentVisibility=()=>setCurrentDocumentHidden(document.hidden);document.addEventListener('visibilitychange',updateDocumentVisibility);return()=>document.removeEventListener('visibilitychange',updateDocumentVisibility);},[]);
  const [currentReportValue,setCurrentReportValue]=useState(readPerformanceReport);
  useEffect(()=>subscribePerformanceReports(()=>setCurrentReportValue(readPerformanceReport())),[]);
  const formatPerformanceValue=(currentMetricValue:number|null|undefined)=>currentMetricValue==null?'—':currentMetricValue.toFixed(1);
  return <aside class="render-performance-panel" aria-label={translatePerformanceText('app.renderPerformanceTitle')}>
   <strong>{translatePerformanceText('app.renderPerformanceTitle')}</strong>
-  {!currentReportValue?<p>{translatePerformanceText('app.renderPerformanceCollecting')}</p>:<>
+  {currentDocumentHidden?<p>{translatePerformanceText('app.renderPerformanceTabHidden')}</p>:currentViewportStatus==='suspended'?<p>{translatePerformanceText('app.mapRenderingSuspended')}</p>:!currentReportValue?<p>{translatePerformanceText('app.renderPerformanceCollecting')}</p>:<>
    <p>FPS {formatPerformanceValue(currentReportValue.fps)} · {translatePerformanceText('app.renderPerformanceFrames',{count:currentReportValue.samples,seconds:formatPerformanceValue(currentReportValue.seconds)})}</p>
    <p>{translatePerformanceText('app.renderPerformanceIntervals')} {formatPerformanceValue(currentReportValue.average)} / {formatPerformanceValue(currentReportValue.p95)} / {formatPerformanceValue(currentReportValue.maximum)} ms</p>
    <details><summary>{translatePerformanceText('app.renderPerformanceDetails')}</summary>

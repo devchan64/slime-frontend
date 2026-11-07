@@ -1506,4 +1506,14 @@ header .message-notice-button:hover, header .message-notice-button.has-notices {
 .render-performance-setting input { width: auto; margin: 0; }
 .render-performance-panel details[open] { pointer-events: auto; max-height: 24dvh; overflow-y: auto; }
 
-.map-viewport-return{position:fixed;right:16px;bottom:48px;z-index:10;width:auto;min-height:44px;padding:8px 14px;box-shadow:0 3px 12px #0006}
+.map-viewport-notice{position:sticky;top:64px;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg,#081f23)}
+.map-viewport-notice p{margin:0;font-size:12px}
+.map-viewport-return{width:auto;min-height:44px;margin:0;flex-shrink:0}
+.map-stage[data-viewport-rendering=suspended] canvas,.map-stage[data-viewport-rendering=suspended] .map-camera-controls{visibility:hidden}
+.map-stage[data-viewport-rendering=suspended]{pointer-events:none}
+.npc-quest-summary-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.npc-quest-summary-list button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;min-height:44px}
+.npc-quest-summary-list strong{min-width:0;overflow-wrap:anywhere}
+.npc-quest-pages{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.npc-quest-detail{min-width:0}
+.npc-quest-detail>h4{margin:8px 0}

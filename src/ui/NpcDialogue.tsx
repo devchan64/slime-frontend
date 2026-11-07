@@ -6,6 +6,8 @@ import {parseNpcDialogue,type NpcDialoguePage,type NpcQuestEntry} from '../clien
 import {noticeText,type Notice} from '../client/notice';
 import {getLocale,useTranslation} from '../i18n';
 
+const NPC_QUEST_PAGE_SIZE=5;
+
 export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcName,actionsAreDisabled,currentCharacterVersion,currentQuestCategory='main',embeddedPanelEnabled=false}:{
   gameSessionClient:Client;currentNpcIdentifier:string;currentNpcName:string;actionsAreDisabled:boolean;currentCharacterVersion:number;currentQuestCategory?:'main'|'timed';embeddedPanelEnabled?:boolean}){
   const {t:translateDialogueText,locale:currentDialogueLocale}=useTranslation();
@@ -14,6 +16,8 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   const [dialogueRequestPending,setDialogueRequestPending]=useState(false);
   const [dialoguePanelOpened,setDialoguePanelOpened]=useState(embeddedPanelEnabled);
   const [pendingDeliveryEntry,setPendingDeliveryEntry]=useState<NpcQuestEntry|TimedEventEntry|null>(null);
+  const [selectedQuestIdentifier,setSelectedQuestIdentifier]=useState<string|null>(null);
+  const [currentQuestPageIndex,setCurrentQuestPageIndex]=useState(0);
   const confirmedDeliveryReference=useRef<NpcQuestEntry|TimedEventEntry|null>(null);
   const activeDialogueReference=useRef(false);
   const pendingDialogueReference=useRef(false);
@@ -76,6 +80,10 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
   }
   useEffect(()=>{activeDialogueReference.current=true;return()=>{activeDialogueReference.current=false;};},[]);
   useEffect(()=>{if(dialoguePanelOpened&&!pendingDialogueReference.current)void loadNpcDialogue(currentDialogueNotice);},[dialoguePanelOpened,currentCharacterVersion,currentDialogueLocale]);
+  const currentQuestEntries=currentDialoguePage?.entries??[];
+  const currentQuestPageCount=Math.max(1,Math.ceil(currentQuestEntries.length/NPC_QUEST_PAGE_SIZE));
+  const resolvedQuestPageIndex=Math.min(currentQuestPageIndex,currentQuestPageCount-1);
+  const selectedQuestEntry=currentQuestEntries.find(currentQuestEntry=>('offerId' in currentQuestEntry?currentQuestEntry.offerId:currentQuestEntry.eventId)===selectedQuestIdentifier);
   return <section class="npc-dialogue">
     {!embeddedPanelEnabled && <button class="secondary compact" disabled={actionsAreDisabled||dialogueRequestPending} aria-expanded={dialoguePanelOpened}
       onClick={()=>{clearDeliveryConfirmation();setDialoguePanelOpened(!dialoguePanelOpened);}}>{translateDialogueText(currentQuestCategory==='timed'?'timedquests.talk':'npc.talk',{name:currentNpcName})}</button>}
@@ -87,8 +95,23 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
       {!dialogueRequestPending&&!currentDialoguePage&&<p>{translateDialogueText('npc.reload')}</p>}
       {currentDialoguePage&&<p>{translateDialogueText('npc.capacity',{count:currentDialoguePage.acceptedCount,max:currentDialoguePage.maximumAcceptedCount})}</p>}
       {currentDialoguePage&&!currentDialoguePage.entries.length&&<p>{translateDialogueText(currentQuestCategory==='timed'?'timedquests.empty':'npc.empty')}</p>}
-      <ul class="npc-quest-list">{currentDialoguePage?.entries.map(currentQuestEntry=><li key={'offerId' in currentQuestEntry?currentQuestEntry.offerId:currentQuestEntry.eventId}>
-        <strong>{currentQuestEntry.title}</strong><small>{translateDialogueText(currentQuestEntry.status==='EXPIRED'?'timedquests.expired':`npc.${currentQuestEntry.status.toLowerCase()}`)}</small>
+      {!selectedQuestEntry&&<>
+        <ul class="npc-quest-summary-list">{currentQuestEntries.slice(resolvedQuestPageIndex*NPC_QUEST_PAGE_SIZE,(resolvedQuestPageIndex+1)*NPC_QUEST_PAGE_SIZE).map(currentQuestEntry=>{
+          const currentQuestIdentifier='offerId' in currentQuestEntry?currentQuestEntry.offerId:currentQuestEntry.eventId;
+          return <li key={currentQuestIdentifier}><button class="secondary" aria-label={currentQuestEntry.title} disabled={dialogueRequestPending} onClick={()=>{clearDeliveryConfirmation();setSelectedQuestIdentifier(currentQuestIdentifier);}}>
+            <strong>{currentQuestEntry.title}</strong><span>{translateDialogueText(currentQuestEntry.status==='EXPIRED'?'timedquests.expired':`npc.${currentQuestEntry.status.toLowerCase()}`)}</span>
+          </button></li>;
+        })}</ul>
+        {currentQuestPageCount>1&&<nav class="npc-quest-pages" aria-label={translateDialogueText('npc.questPages')}>
+          <button class="secondary" disabled={dialogueRequestPending||resolvedQuestPageIndex===0} onClick={()=>setCurrentQuestPageIndex(resolvedQuestPageIndex-1)}>{translateDialogueText('npc.previousPage')}</button>
+          <span>{translateDialogueText('npc.pageNumber',{current:resolvedQuestPageIndex+1,total:currentQuestPageCount})}</span>
+          <button class="secondary" disabled={dialogueRequestPending||resolvedQuestPageIndex+1>=currentQuestPageCount} onClick={()=>setCurrentQuestPageIndex(resolvedQuestPageIndex+1)}>{translateDialogueText('npc.nextPage')}</button>
+        </nav>}
+      </>}
+      {selectedQuestEntry&&<section class="npc-quest-detail" aria-label={translateDialogueText('npc.questDetail')}>
+        <button class="secondary" disabled={dialogueRequestPending} onClick={()=>{clearDeliveryConfirmation();setSelectedQuestIdentifier(null);}}>{translateDialogueText('npc.backToList')}</button>
+        {[selectedQuestEntry].map(currentQuestEntry=><div key={'offerId' in currentQuestEntry?currentQuestEntry.offerId:currentQuestEntry.eventId}>
+        <h4>{currentQuestEntry.title}</h4><small>{translateDialogueText(currentQuestEntry.status==='EXPIRED'?'timedquests.expired':`npc.${currentQuestEntry.status.toLowerCase()}`)}</small>
         <p>{currentQuestEntry.dialogue}</p>
         {'deliveryDeadline' in currentQuestEntry&&<><p>{translateDialogueText(currentQuestEntry.acceptedAt===null?'timedquests.acceptBefore':'timedquests.deliverBefore',{time:new Date((currentQuestEntry.acceptedAt===null?currentQuestEntry.acceptanceEndsAt:currentQuestEntry.deliveryDeadline)*1000).toLocaleString(currentDialogueLocale)})}</p>{currentQuestEntry.acceptedAt===null&&<p>{currentQuestEntry.type==='random'?translateDialogueText('timedquests.randomDeadline'):translateDialogueText('timedquests.seasonDeadline',{time:new Date(currentQuestEntry.deliveryDeadline*1000).toLocaleString(currentDialogueLocale)})}</p>}</>}
         {currentQuestEntry.destination&&'cityNameTranslations' in currentQuestEntry.destination&&<p>{translateDialogueText('npc.destination',{city:currentQuestEntry.destination.cityNameTranslations[currentDialogueLocale],name:currentQuestEntry.destination.name})}</p>}
@@ -97,10 +120,11 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
           name:currentMaterialItem.nameTranslations[currentDialogueLocale],owned:currentMaterialItem.owned,required:currentMaterialItem.required})}</p>)}
         {currentQuestEntry.status!=='EXPIRED'&&<p>{translateDialogueText(currentQuestEntry.status==='COMPLETED'?'journal.paid':'journal.reward',{amount:currentQuestEntry.moneyP})}</p>}
         {currentQuestEntry.blockedReasons.map(currentReasonCode=><p class="is-warning" key={currentReasonCode}>{translateDialogueText(`npc.${currentReasonCode.toLowerCase().replaceAll('_','')}`)}</p>)}
-        {currentQuestEntry.action&&<button class="compact" disabled={actionsAreDisabled||dialogueRequestPending||!currentQuestEntry.canExecute||currentDialoguePage.characterVersion!==currentCharacterVersion}
+        {currentQuestEntry.action&&<button class="compact" disabled={actionsAreDisabled||dialogueRequestPending||!currentQuestEntry.canExecute||currentDialoguePage?.characterVersion!==currentCharacterVersion}
           onClick={()=>currentQuestEntry.action==='complete'?selectDeliveryEntry(currentQuestEntry):void executeNpcQuest(currentQuestEntry)}>{translateDialogueText(`npc.${currentQuestEntry.action}`)}</button>}
-      </li>)}</ul>
-      {currentDialoguePage&&'nextOffset' in currentDialoguePage&&currentDialoguePage.nextOffset!==null&&<button disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void loadNpcDialogue('',false,(currentDialoguePage as TimedEventPage).nextOffset!)}>{translateDialogueText('timedquests.next')}</button>}
+      </div>)}
+      </section>}
+      {!selectedQuestEntry&&currentDialoguePage&&'nextOffset' in currentDialoguePage&&currentDialoguePage.nextOffset!==null&&<button disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>{setCurrentQuestPageIndex(0);void loadNpcDialogue('',false,(currentDialoguePage as TimedEventPage).nextOffset!);}}>{translateDialogueText('timedquests.next')}</button>}
       {pendingDeliveryEntry&&currentDialoguePage?.characterVersion===currentCharacterVersion&&<section aria-label={translateDialogueText('npc.deliveryReview')}>
         <h4>{translateDialogueText('npc.deliveryReview')}: {pendingDeliveryEntry.title}</h4>
         <p>{translateDialogueText('npc.deliveryCharacter',{name:gameSessionClient.state?.me.name??''})}</p>
@@ -110,7 +134,7 @@ export function NpcDialogue({gameSessionClient,currentNpcIdentifier,currentNpcNa
         <button disabled={actionsAreDisabled||dialogueRequestPending} onClick={()=>void executeNpcQuest(pendingDeliveryEntry)}>{translateDialogueText('npc.deliveryConfirm')}</button>
         <button class="secondary" disabled={dialogueRequestPending} onClick={clearDeliveryConfirmation}>{translateDialogueText('npc.deliveryCancel')}</button>
       </section>}
-      {currentQuestCategory==='main'&&<NpcDialogue gameSessionClient={gameSessionClient} currentNpcIdentifier={currentNpcIdentifier} currentNpcName={currentNpcName} actionsAreDisabled={actionsAreDisabled||dialogueRequestPending} currentCharacterVersion={currentCharacterVersion} currentQuestCategory="timed"/>}
+      {!selectedQuestEntry&&currentQuestCategory==='main'&&<NpcDialogue gameSessionClient={gameSessionClient} currentNpcIdentifier={currentNpcIdentifier} currentNpcName={currentNpcName} actionsAreDisabled={actionsAreDisabled||dialogueRequestPending} currentCharacterVersion={currentCharacterVersion} currentQuestCategory="timed"/>}
     </div>}
   </section>;
 }

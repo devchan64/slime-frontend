@@ -83,9 +83,10 @@ test('맵 일부라도 화면 밖이면 그리기를 생략하고 복귀·파괴
  const originalViewportObserver=globalThis.IntersectionObserver;
  let receiveViewportEntries;let observedMapElement;let viewportObserverDisconnected=false;
  globalThis.IntersectionObserver=class{constructor(currentObserverCallback,currentObserverOptions){assert.equal(currentObserverOptions.threshold,1);receiveViewportEntries=currentObserverCallback;}observe(currentElementValue){observedMapElement=currentElementValue;}disconnect(){viewportObserverDisconnected=true;}};
- const currentMapElement={dataset:{}};
+ const currentMapStage={dataset:{},inert:false};
+ const currentMapElement={dataset:{},closest:()=>currentMapStage};
  const currentFrameEvents=[];
- const currentGameInstance={step(currentFrameTime){currentFrameEvents.push(['render',currentFrameTime]);},headlessStep(currentFrameTime){currentFrameEvents.push(['update',currentFrameTime]);}};
+ const currentGameInstance={input:{enabled:true},canvas:new EventTarget(),step(currentFrameTime){currentFrameEvents.push(['render',currentFrameTime]);},headlessStep(currentFrameTime){currentFrameEvents.push(['update',currentFrameTime]);}};
  const originalGameStep=currentGameInstance.step;
  try{
   const releaseViewportObservation=observeMapViewportRendering(currentMapElement,currentGameInstance);
@@ -93,8 +94,9 @@ test('맵 일부라도 화면 밖이면 그리기를 생략하고 복귀·파괴
   const currentLoopCallback=currentGameInstance.step.bind(currentGameInstance);
   receiveViewportEntries([{target:currentMapElement,isIntersecting:true,intersectionRatio:0.99,intersectionRect:{width:100,height:79}}]);currentLoopCallback(1,16);
   receiveViewportEntries([{target:currentMapElement,isIntersecting:false,intersectionRatio:0,intersectionRect:{width:0,height:0}}]);currentLoopCallback(2,16);
-  assert.equal(currentMapElement.dataset.viewportRendering,'suspended');
+  assert.equal(currentMapElement.dataset.viewportRendering,'suspended');assert.equal(currentMapStage.inert,true);assert.equal(currentGameInstance.input.enabled,false);
   receiveViewportEntries([{target:currentMapElement,isIntersecting:true,intersectionRatio:1,intersectionRect:{width:100,height:80}}]);currentLoopCallback(3,16);
+  assert.equal(currentMapStage.inert,false);assert.equal(currentGameInstance.input.enabled,true);
   assert.deepEqual(currentFrameEvents,[['update',1],['update',2],['render',3]]);
   releaseViewportObservation();assert.ok(viewportObserverDisconnected);assert.equal(currentGameInstance.step,originalGameStep);assert.equal(currentMapElement.dataset.viewportRendering,undefined);
  }finally{if(originalViewportObserver===undefined)delete globalThis.IntersectionObserver;else globalThis.IntersectionObserver=originalViewportObserver;}

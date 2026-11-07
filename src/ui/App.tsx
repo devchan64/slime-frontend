@@ -159,6 +159,11 @@ export function App() {
     };
   }, []);
   const settingsAvailable = !battleReport && !!state && !state.battle && !state.me.battleId && state.me.mode !== "IN_BATTLE";
+  const automaticPatternPage=settingsAvailable&&characterRoute==='#/menu/automatic-pattern';
+  const costumeInventoryPage=settingsAvailable&&characterRoute==='#/menu/costumes';
+  const automaticPatternDraft=useRef<{identity:string;rules:NonNullable<State['me']['automaticPattern']>['rules']}|null>(null);
+  const currentDraftIdentity=`${client.tokens?.user_id}:${state?.generation}:${state?.epoch}:${state?.me.id}`;
+  if(automaticPatternDraft.current?.identity!==currentDraftIdentity)automaticPatternDraft.current=null;
   const menuPage = settingsAvailable && characterRoute === "#/menu";
   const userTermsPage = settingsAvailable && characterRoute === "#/terms";
   const gameSettingsPage = settingsAvailable && characterRoute === "#/settings/game";
@@ -241,7 +246,7 @@ export function App() {
   }, [state?.generation, state?.location.id, state?.map.id, state?.battle?.id, state?.battle?.turnId]);
   const currentMusicController = useMapBackgroundMusic(state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY" ? state.map.id : null);
   const battleReportIsReady = !!battleReport;
-  const inWorld = !battleReportIsReady && !menuPage && !userTermsPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
+  const inWorld = !battleReportIsReady && !menuPage && !automaticPatternPage && !costumeInventoryPage && !userTermsPage && !settingsPage && !gameSettingsPage && !!state && worldGeneration === state.generation && state.me.mode !== "LOBBY" && state.me.mode !== "AWAY";
   useEffect(() => {
     if (!inWorld || !container.current) return;
     setRenderFailed(false);
@@ -597,6 +602,8 @@ export function App() {
               <button class="secondary" aria-haspopup="dialog" onClick={() => openAccountStorageCategory()}>{t("rewards.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("journal")}>{t("journal.title")}</button>
               <button class="secondary" aria-haspopup="dialog" onClick={() => setDrawer("loans")}>{t("loans.title")}</button>
+              <button class="secondary" onClick={()=>navigateCharacterPage('#/menu/automatic-pattern')}>{t('battle.patternTitle')}</button>
+              <button class="secondary" onClick={()=>navigateCharacterPage('#/menu/costumes')}>{t('wardrobe.title')}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/settings/game")}>{t("app.gameSettings")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/terms")}>{t("terms.title")}</button>
               <button class="secondary" onClick={() => navigateCharacterPage("#/characters/settings")}>{t('common.settings')}</button>
@@ -605,7 +612,17 @@ export function App() {
             </nav>
           </section>
           <DeveloperToolsPanel key={`developer:${state.generation}:${state.epoch}:${state.me.id}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
-          <AutomaticBattlePatternPanel key={`pattern:${state.generation}:${state.epoch}:${state.me.id}`} currentCharacterState={state.me} currentActionsDisabled={disabled} submitPatternCommand={command}/>
+        </main>
+      ) : automaticPatternPage ? (
+        <main class="lobby field-menu-page">
+          <div class="field-card-heading"><h1>{t('battle.patternTitle')}</h1><button class="secondary" onClick={()=>navigateCharacterPage('#/menu')}>{t('app.menu')}</button></div>
+          <p>{t('app.patternDraftHelp')}</p>
+          <AutomaticBattlePatternPanel key={`pattern:${currentDraftIdentity}`} currentCharacterState={state.me} currentActionsDisabled={disabled} submitPatternCommand={command}
+            initialDraftRules={automaticPatternDraft.current?.rules} onDraftRulesChange={currentDraftRules=>{automaticPatternDraft.current=currentDraftRules?{identity:currentDraftIdentity,rules:structuredClone(currentDraftRules)}:null;}}/>
+        </main>
+      ) : costumeInventoryPage ? (
+        <main class="lobby field-menu-page">
+          <div class="field-card-heading"><h1>{t('wardrobe.title')}</h1><button class="secondary" onClick={()=>navigateCharacterPage('#/menu')}>{t('app.menu')}</button></div>
           <CostumeInventoryPanel key={`wardrobe:${state.generation}:${state.epoch}:${state.me.id}:${state.me.mode}`} gameSessionClient={client} actionsAreDisabled={disabled}/>
         </main>
       ) : userTermsPage ? (

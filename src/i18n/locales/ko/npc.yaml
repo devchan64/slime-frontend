@@ -23,3 +23,10 @@ deliveryConfirm: 전달하기
 deliveryCancel: 돌아가기
 destination: '전달처: {city} · {name}'
 destinationCitizenship: '완료하려면 {city}의 유효한 시민권이 필요합니다. 현지 모험가 길드에서 시민권을 발급받을 수 있으며, 시민권이 없어도 재료를 팔아 발급 비용을 마련할 수 있습니다.'
+
+questPages: 의뢰 목록 페이지
+previousPage: 이전
+nextPage: 다음
+pageNumber: "{current} / {total}"
+questDetail: 의뢰 상세
+backToList: 의뢰 목록으로

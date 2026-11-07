@@ -8,7 +8,7 @@ const currentBuildResult=await build({entryPoints:['src/ui/NpcDialogue.tsx'],bun
 const {NpcDialogue}=await import(`data:text/javascript;base64,${Buffer.from(currentBuildResult.outputFiles[0].text).toString('base64')}`);
 function findDeliveryButton(currentNodeValue,currentButtonText){
  if(!currentNodeValue||typeof currentNodeValue!=='object')return null;
- if(currentNodeValue.type==='button'&&String(currentNodeValue.props.children).startsWith(currentButtonText))return currentNodeValue;
+ if(currentNodeValue.type==='button'&&(currentNodeValue.props['aria-label']===currentButtonText||String(currentNodeValue.props.children).startsWith(currentButtonText)))return currentNodeValue;
  for(const currentChildNode of [currentNodeValue.props?.children].flat(Infinity)){const currentFoundNode=findDeliveryButton(currentChildNode,currentButtonText);if(currentFoundNode)return currentFoundNode;}return null;
 }
 for(const currentChangeKind of ['none','version','epoch','location'])test('전달 확인·취소·중복 클릭·상태 변경: '+currentChangeKind,async()=>{
@@ -24,6 +24,8 @@ for(const currentChangeKind of ['none','version','epoch','location'])test('전�
  try{
   let currentPanelTree=renderDeliveryPanel();currentEffectCallbacks[0]();findDeliveryButton(currentPanelTree,'npc.talk').props.onClick();
   currentPanelTree=renderDeliveryPanel();findDeliveryButton(currentPanelTree,'journal.refresh').props.onClick();await settleDeliveryWork();
+  currentPanelTree=renderDeliveryPanel();assert.equal(findDeliveryButton(currentPanelTree,'npc.complete'),null);
+  findDeliveryButton(currentPanelTree,'첫 납품').props.onClick();
   currentPanelTree=renderDeliveryPanel();findDeliveryButton(currentPanelTree,'npc.complete').props.onClick();
   currentPanelTree=renderDeliveryPanel();assert.match(JSON.stringify(currentPanelTree),/여행자/);assert.match(JSON.stringify(currentPanelTree),/단백질젤리/);assert.match(JSON.stringify(currentPanelTree),/quantity\\?":2/);
   assert.equal(currentRequestCalls.filter(currentRequestCall=>currentRequestCall.currentRequestBody).length,0);

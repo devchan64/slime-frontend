@@ -23,3 +23,10 @@ deliveryConfirm: Deliver
 deliveryCancel: Go back
 destination: 'Deliver to: {city} · {name}'
 destinationCitizenship: 'Completing this quest requires valid citizenship in {city}. Obtain it at the local Adventurers Guild. You can sell materials there to cover the fee even without citizenship.'
+
+questPages: Quest pages
+previousPage: Previous
+nextPage: Next
+pageNumber: "{current} / {total}"
+questDetail: Quest details
+backToList: Back to quests

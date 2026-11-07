@@ -185,7 +185,7 @@ loadingParticipants: "{ready}/{total} participants ready"
 renderPerformanceTitle: "Rendering performance"
 renderPerformanceStorage: "Saved in this browser. Turning off also stops collection."
 renderPerformanceStorageError: "Could not read or save settings. Collection is off. Check browser storage and select again."
-renderPerformanceCollecting: "Collecting samples · paused while the tab is hidden"
+renderPerformanceCollecting: "Collecting rendered frame samples."
 renderPerformanceFrames: "{seconds}s · {count} samples"
 renderPerformanceIntervals: "Frame mean / p95 / maximum"
 renderPerformanceDetails: "Measurement details"
@@ -202,3 +202,7 @@ renderPerformanceUpdated: "Updated"
 renderPerformanceLimit: "Up to 5 seconds observed. CPU spans update through render submission, not GPU time. Draw calls, GPU and VRAM are unmeasured. Frame changes are not presented-frame counts."
 
 returnToMap: Return to map
+
+mapRenderingSuspended: Map display and input are paused because part of the map is outside the viewport.
+renderPerformanceTabHidden: Measurement is paused while the tab is hidden.
+patternDraftHelp: Unsaved edits survive page navigation in this session, but not reload or logout. Save the pattern to apply it to the game.
