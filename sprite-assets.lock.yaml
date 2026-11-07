@@ -18,7 +18,7 @@ files:
   sha256: 58ca30570d7fe45959cb1f2bfe6b4e756520bcefcdccd917f4351ece6e71d1f1
 - path: assets/characters/default/rest-v2/rest-v2.animation.json
   source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v4/rest-v2.animation.json
-  sha256: 2838a8682cb0de0f4c106c29b12dda04a5342c5c742c114eacb17d467661db0f
+  sha256: 43e2c7b667e6e2567467174fce661efc4372c2ea72ccc61bfe5ab48a02314ad5
 - path: assets/characters/default/rest-v2/rest-v2.png
   source_path: assets/characters/default/animations/rest/light-leather/down-left-entry-exit-v4/rest-v2.png
   sha256: c2839fdc98830d283f556e59af64dc6f49f892623f10c97319c291611091245e
