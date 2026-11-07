@@ -198,3 +198,7 @@ CloudWatch의 만료 로그 실제 삭제에는 통상 최대 72시간이 추가
 `slime-assets/assets/audio/map-bgm.yaml`의 schema 2에서 맵별 `instrumental`·`vocal` MP3를 읽습니다. `scripts/map-bgm-module.mjs`가 등록부 버전·경로·SHA-256을 검증하며 Vite가 해시 파일명으로 번들링합니다. 미등록 맵·없는 버전은 무음입니다. 게임 설정에서 버전과 음량을 변경하며 브라우저에 저장합니다. 기본값은 MR·50%이고, 사용자 입력 후 자동재생 제한을 해제하며 숨겨진 탭은 일시 정지합니다. 별도 백엔드 API나 고정 운영 자원은 추가하지 않습니다.
 
 재생 전환 회귀검사: `node scripts/run-regression.mjs --with-checks tests/map-background-music.test.mjs`.
+
+### 개발 서버 포트 충돌
+
+`bash scripts/local_frontend_run.sh`는 시작 전에 8080 포트 점유 PID·시작 시각·명령을 표시하고 종료 여부를 묻습니다(`lsof` 필요). `y` 또는 `yes`로 동의하면 표시한 프로세스에 TERM을 보내고 최대 10초 동안 포트 해제를 확인한 뒤 재시작합니다. Enter·거절·입력 종료 시 기존 서버를 유지하고 취소합니다. 확인 중 대상 변경이나 종료 실패 시 실행을 중단하며 강제 종료하지 않습니다. 자동 실행에서도 명시적인 동의 입력 없이는 기존 서버를 종료하지 않습니다. 직접 `npm run dev`를 실행하면 이 프롬프트는 적용되지 않습니다.
