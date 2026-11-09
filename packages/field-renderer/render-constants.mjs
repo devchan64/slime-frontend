@@ -8,6 +8,7 @@ export const CHARACTER_SEPARATOR_BASE_COLOR = 0xfff2cc;
 export const CHARACTER_SEPARATOR_BASE_ALPHA = 0.5;
 export const CHARACTER_CONTACT_SHADOW_COLOR = 0x242424;
 export const CHARACTER_CONTACT_SHADOW_ALPHA_SCALE = 1.2;
+export const CHARACTER_CONTACT_SHADOW_SIZE_SCALE = 2;
 export const MAP_DEFAULT_ZOOM = 2;
 // 원장 표시 크기는 보존하고 모든 맵에 동일한 픽셀 변환을 적용한다.
 export const BILLBOARD_RENDER_SCALE = 0.5;

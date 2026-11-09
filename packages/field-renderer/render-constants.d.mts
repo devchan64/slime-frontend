@@ -3,6 +3,7 @@ export const ACTOR_CONTACT_SHADOW_CONTRACT:{profile:string};
 export const BUILDING_RENDER_BLOCK_HEIGHT:number;
 export const CHARACTER_BODY_HEIGHT:number;
 export const CHARACTER_CONTACT_SHADOW_ALPHA_SCALE:number;
+export const CHARACTER_CONTACT_SHADOW_SIZE_SCALE:number;
 export const CHARACTER_CONTACT_SHADOW_COLOR:number;
 export const CHARACTER_OUTLINE_BASE_COLOR:number;
 export const CHARACTER_OUTLINE_BASE_ALPHA:number;
