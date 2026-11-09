@@ -1,9 +1,11 @@
 /** 렌더링 조정값의 단일 원본. 게임·검수 배포본은 이 모듈에서만 값을 가져온다. */
 export const GAME_INTERNAL_RESOLUTION_SCALE = 2;
 export const CHARACTER_OUTLINE_BASE_WIDTH = 1;
-export const CHARACTER_OUTLINE_BASE_COLOR = 0x655d54;
+export const CHARACTER_OUTLINE_BASE_COLOR = 0x000000;
+export const CHARACTER_OUTLINE_BASE_ALPHA = 0.5;
 export const CHARACTER_SEPARATOR_BASE_WIDTH = 1;
 export const CHARACTER_SEPARATOR_BASE_COLOR = 0xfff2cc;
+export const CHARACTER_SEPARATOR_BASE_ALPHA = 0.5;
 export const CHARACTER_CONTACT_SHADOW_COLOR = 0x242424;
 export const CHARACTER_CONTACT_SHADOW_ALPHA_SCALE = 1.2;
 export const MAP_DEFAULT_ZOOM = 2;

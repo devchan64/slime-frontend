@@ -1,7 +1,7 @@
 import {CHARACTER_OUTLINE_DEPTH_STEP} from '../../../packages/field-renderer/render-constants.mjs';
 export {CHARACTER_OUTLINE_DEPTH_STEP} from '../../../packages/field-renderer/render-constants.mjs';
 import type Phaser from 'phaser';
-import {GAME_INTERNAL_RESOLUTION_SCALE, CHARACTER_OUTLINE_BASE_WIDTH, CHARACTER_OUTLINE_BASE_COLOR, CHARACTER_SEPARATOR_BASE_WIDTH, CHARACTER_SEPARATOR_BASE_COLOR} from '../renderQuality';
+import {GAME_INTERNAL_RESOLUTION_SCALE, CHARACTER_OUTLINE_BASE_WIDTH, CHARACTER_OUTLINE_BASE_COLOR, CHARACTER_OUTLINE_BASE_ALPHA, CHARACTER_SEPARATOR_BASE_WIDTH, CHARACTER_SEPARATOR_BASE_COLOR, CHARACTER_SEPARATOR_BASE_ALPHA} from '../renderQuality';
 
 const CHARACTER_OUTLINE_SAMPLE_OFFSETS = [[-1,0],[1,0],[0,-1],[0,1],[-0.707,-0.707],[0.707,-0.707],[-0.707,0.707],[0.707,0.707]];
 
@@ -9,8 +9,8 @@ const CHARACTER_OUTLINE_SAMPLE_OFFSETS = [[-1,0],[1,0],[0,-1],[0,1],[-0.707,-0.7
 export function attachCharacterOutlineLayers(currentActorImage: Phaser.GameObjects.Image) {
   const currentActorScene = currentActorImage.scene;
   const currentOutlineLayers = [
-    {color: CHARACTER_SEPARATOR_BASE_COLOR, radius: CHARACTER_OUTLINE_BASE_WIDTH + CHARACTER_SEPARATOR_BASE_WIDTH, depth: 2},
-    {color: CHARACTER_OUTLINE_BASE_COLOR, radius: CHARACTER_OUTLINE_BASE_WIDTH, depth: 1},
+    {color: CHARACTER_SEPARATOR_BASE_COLOR, alpha: CHARACTER_SEPARATOR_BASE_ALPHA, radius: CHARACTER_OUTLINE_BASE_WIDTH + CHARACTER_SEPARATOR_BASE_WIDTH, depth: 2},
+    {color: CHARACTER_OUTLINE_BASE_COLOR, alpha: CHARACTER_OUTLINE_BASE_ALPHA, radius: CHARACTER_OUTLINE_BASE_WIDTH, depth: 1},
   ].flatMap(currentLayerStyle => CHARACTER_OUTLINE_SAMPLE_OFFSETS.map(([currentOffsetHorizontal,currentOffsetVertical]) => ({
     image: currentActorScene.add.image(currentActorImage.x,currentActorImage.y,currentActorImage.texture.key,currentActorImage.frame.name)
       .setTintFill(currentLayerStyle.color).setData('characterOutlineLayer',true),
@@ -19,6 +19,7 @@ export function attachCharacterOutlineLayers(currentActorImage: Phaser.GameObjec
     radius: currentLayerStyle.radius,
     depth: currentLayerStyle.depth,
     color: currentLayerStyle.color,
+    alpha: currentLayerStyle.alpha,
     previousAmbientTint: -1,
   })));
   const synchronizeCharacterOutlineLayers = () => {
@@ -49,7 +50,8 @@ export function attachCharacterOutlineLayers(currentActorImage: Phaser.GameObjec
         currentOutlineImage.setPosition(currentOutlinePositionX,currentOutlinePositionY);
       if(currentOutlineImage.depth!==currentOutlineDepth)currentOutlineImage.setDepth(currentOutlineDepth);
       if(currentOutlineImage.visible!==currentActorImage.visible)currentOutlineImage.setVisible(currentActorImage.visible);
-      if(currentOutlineImage.alpha!==currentActorImage.alpha)currentOutlineImage.setAlpha(currentActorImage.alpha);
+      const currentOutlineAlpha=currentActorImage.alpha*currentOutlineLayer.alpha;
+      if(currentOutlineImage.alpha!==currentOutlineAlpha)currentOutlineImage.setAlpha(currentOutlineAlpha);
       if(currentOutlineImage.scrollFactorX!==currentActorImage.scrollFactorX || currentOutlineImage.scrollFactorY!==currentActorImage.scrollFactorY)
         currentOutlineImage.setScrollFactor(currentActorImage.scrollFactorX,currentActorImage.scrollFactorY);
     }

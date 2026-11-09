@@ -32,6 +32,8 @@ test('외곽선은 정지 600프레임 동안 속성 재설정과 깊이 정렬�
  for(let currentFrameIndex=0;currentFrameIndex<600;currentFrameIndex++)currentFixtureState.currentSceneEvents.emit('postupdate');
  assert.deepEqual(currentFixtureState.currentSetterCounts,currentInitialCounts);
  assert.equal(currentFixtureState.currentRenderImages.length,16);
+ assert.ok(currentFixtureState.currentRenderImages.slice(0,8).every(currentOutlineImage=>currentOutlineImage.alpha===0.5));
+ assert.ok(currentFixtureState.currentRenderImages.slice(8).every(currentOutlineImage=>currentOutlineImage.alpha===0.5 && currentOutlineImage.tint===0));
 });
 
 test('이동·걷기 프레임·줌·깊이 변경은 필요한 외곽선 속성에 반영하고 폐기 시 해제한다',()=>{
@@ -46,6 +48,8 @@ test('이동·걷기 프레임·줌·깊이 변경은 필요한 외곽선 속성
  assert.equal(currentSetterCounts.setDepth,currentInitialDepthCalls+16);
  currentActorImage.setOrigin(.2,.7).setScale(2,3).setFlip(true,false).setRotation(.3).setVisible(false).setAlpha(.4).setScrollFactor(.5,.6);
  currentSceneEvents.emit('postupdate');
- for(const currentOutlineImage of currentRenderImages)for(const currentPropertyName of ['originX','originY','scaleX','scaleY','flipX','flipY','rotation','visible','alpha','scrollFactorX','scrollFactorY'])assert.equal(currentOutlineImage[currentPropertyName],currentActorImage[currentPropertyName]);
+ for(const currentOutlineImage of currentRenderImages)for(const currentPropertyName of ['originX','originY','scaleX','scaleY','flipX','flipY','rotation','visible','scrollFactorX','scrollFactorY'])assert.equal(currentOutlineImage[currentPropertyName],currentActorImage[currentPropertyName]);
+ assert.ok(currentRenderImages.slice(0,8).every(currentOutlineImage=>currentOutlineImage.alpha===0.2));
+ assert.ok(currentRenderImages.slice(8).every(currentOutlineImage=>currentOutlineImage.alpha===0.2));
  currentActorImage.destroy();assert.equal(currentSceneEvents.listenerCount('postupdate'),0);assert.ok(currentRenderImages.every(currentOutlineImage=>currentOutlineImage.destroyed));
 });
