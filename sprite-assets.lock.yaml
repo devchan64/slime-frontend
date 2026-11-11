@@ -9,13 +9,13 @@ files:
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
 - path: assets/characters/default/idle-v6/idle-v6.animation.json
   source_path: assets/characters/default/animations/light-leather/idle/idle-v6-anchor-v3.animation.json
-  sha256: f5deb0e7243b0b895c9631b7cb377f7f671598ccc2b318f2cec36fe6ddea0561
+  sha256: 54a13d8c3f0566188ab610b06de35bb0b92f0e9024896d900e0300b61fbc5c85
 - path: assets/characters/default/idle-v6/idle-v6.png
   source_path: assets/characters/default/animations/light-leather/idle/idle-v6.png
-  sha256: 63c7c88ddef2946fc2bd7d0521e4c67eee1fb8b4843c2992f55a2b6fc98d000d
+  sha256: 30e8da680068e8d9c14ef43102c30367315563960a9f8392dbcff5385b0a6485
 - path: assets/characters/default/idle-v6/source.json
   source_path: assets/characters/default/animations/light-leather/idle/source.json
-  sha256: 745030fcd603ba5c51c653732c4aa9ad19efd463ac51b6acabd437709adfb314
+  sha256: c5342bb8d8e2d7b4cee0bb2011783b2514eb961bd0cfcfdf2478b19e8e8b9357
 - path: assets/characters/default/rest-v2/rest-v2.animation.json
   source_path: assets/characters/default/animations/light-leather/rest/rest-v2.animation.json
   sha256: d099b8cfcaa1ebaac6b2088b96915676948ea42e241adbcaba5ed9791cc68260

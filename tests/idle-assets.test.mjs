@@ -64,11 +64,13 @@ test('정면왼쪽 대기 시트는 한 번 로드하고 6fps로 재생한다',(
 test('정면왼쪽 대기 8프레임은 4열 2행의 등록된 셀을 사용한다',()=>{
  const currentAnimationData=ACTOR_IDLE_ASSETS.human.animation.data;
  assert.equal(currentAnimationData.frames.length,8);
- assert.deepEqual(currentAnimationData.sheet,{width:1448,height:1086});
+ assert.deepEqual(currentAnimationData.sheet,{width:1173,height:1341});
  assert.deepEqual(Object.keys(DEFAULT_IDLE_DIRECTION_ASSETS),['down_left']);
  currentAnimationData.frames.forEach((currentFrameRecord,frameColumnIndex)=>{
   assert.equal(currentFrameRecord.frameId,`down_left.${frameColumnIndex}`);
-  assert.deepEqual(currentFrameRecord.rect,{x:(frameColumnIndex%4)*362,y:Math.floor(frameColumnIndex/4)*543,width:362,height:543});
+  const currentColumnIndex=frameColumnIndex%4, currentRowIndex=Math.floor(frameColumnIndex/4);
+  const currentLeftPosition=Math.floor(currentColumnIndex*1173/4), currentTopPosition=Math.floor(currentRowIndex*1341/2);
+  assert.deepEqual(currentFrameRecord.rect,{x:currentLeftPosition,y:currentTopPosition,width:Math.floor((currentColumnIndex+1)*1173/4)-currentLeftPosition,height:Math.floor((currentRowIndex+1)*1341/2)-currentTopPosition});
  });
 });
 
@@ -103,5 +105,5 @@ test('휴식 해제 완료 시 이미지의 대기 텍스처와 입식 배율을
  updateActorIdleFrame(renderedCharacterImage,'down_left');
  assert.equal(renderedCharacterImage.textureKey,ACTOR_IDLE_ASSETS.human.key);
  assert.equal(renderedCharacterImage.getData('actorIdleKind'),'human');
- assert.equal(renderedCharacterImage.scaleValue,80/530);
+ assert.equal(renderedCharacterImage.scaleValue,80/631);
 });
