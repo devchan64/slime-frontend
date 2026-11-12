@@ -182,7 +182,10 @@ export class MainScene extends Phaser.Scene {
           item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "idle" : "stretch-placeholder");
         }
         const selectedWorldFacing = currentMovementFacing ?? item.object.getData("actorWorldFacing");
-        if (selectedWorldFacing) item.object.setFlipX(shouldMirrorActorSprite(selectedWorldFacing, this.rotation));
+        if (selectedWorldFacing) {
+          const walkingRightFacing = characterMovementElapsed !== undefined && item.object.getData("actorIdleKind") === "human" && !actorRestPlayback;
+          item.object.setFlipX(shouldMirrorActorSprite(selectedWorldFacing, this.rotation, walkingRightFacing ? "down_right" : "down_left"));
+        }
         if (!updateActorRestPlayback(item.object, selectedScreenFacing, actorRestPlayback))
           updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementElapsed);
         if (item.object.flipX) item.object.setOrigin(1 - item.object.originX, item.object.originY);

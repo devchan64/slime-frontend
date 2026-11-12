@@ -5,10 +5,10 @@ import { bindCellTexture } from "./cellActor";
 import { updateActorIdleFrame } from "./idleActors";
 import walkingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/walk/walk-light-leather-v1.animation.json";
 
-const WALKING_REFERENCE_BODY_HEIGHT = 509.0;
+const WALKING_REFERENCE_BODY_HEIGHT = 533.0;
 export const DEFAULT_CHARACTER_WALK_ASSET = {
   key: "walking-human-light-leather-v1",
-  url: new URL("../../../../slime-assets/assets/characters/default/animations/light-leather/walk/character-default-light-leather-walk-front-left-sprite-v1.png", import.meta.url).href,
+  url: new URL("../../../../slime-assets/assets/characters/default/animations/light-leather/walk/walk-v2.png", import.meta.url).href,
   animation: createBoardActorAnimation(walkingCharacterMetadata),
 } as const;
 
@@ -30,7 +30,7 @@ export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjec
     actorRenderImage.setData("walkingIdleScale", actorRenderImage.scaleX);
   }
   const sampledWalkingFrame = characterWalkAsset.animation.sample(
-    characterWalkAsset.animation.clip("walk", actorScreenDirection), movementElapsedMilliseconds!).frame;
+    characterWalkAsset.animation.clip("walk", "down_right"), movementElapsedMilliseconds!).frame;
   actorRenderImage.setTexture(characterWalkAsset.key,
     `cell:${characterWalkAsset.animation.data.animationId}@${characterWalkAsset.animation.data.version}:${sampledWalkingFrame.frameId}`)
     .setOrigin(sampledWalkingFrame.anchor.x / sampledWalkingFrame.rect.width, sampledWalkingFrame.anchor.y / sampledWalkingFrame.rect.height)

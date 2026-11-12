@@ -73,7 +73,7 @@ export function validateCellAnimation(value: unknown): CellAnimationData {
   }
   if (used.size !== frames.size) throw new Error('사용하지 않는 프레임이 있습니다.');
   const selectedClipDirections = new Set([...clips.values()].map(currentClipRecord => currentClipRecord.direction));
-  if (!(selectedClipDirections.size === 1 && selectedClipDirections.has('down_left')) && selectedClipDirections.size !== DIRECTIONS.length) throw new Error('정면왼쪽 단일 방향 또는 네 방향 클립이 필요합니다.');
+  if (!(selectedClipDirections.size === 1 && (selectedClipDirections.has('down_left') || selectedClipDirections.has('down_right'))) && selectedClipDirections.size !== DIRECTIONS.length) throw new Error('정면 대각 단일 방향 또는 네 방향 클립이 필요합니다.');
   for (const action of actions) for (const direction of selectedClipDirections)
     if (!pairs.has(JSON.stringify([action, direction]))) throw new Error('모든 동작의 방향 구성이 같아야 합니다.');
   for (const clip of clips.values()) if (clip.nextClipId !== null && clips.get(clip.nextClipId)?.direction !== clip.direction)

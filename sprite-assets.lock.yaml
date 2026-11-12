@@ -1078,15 +1078,15 @@ files:
 - path: assets/effects/terrain/lake-fog-sheet-v2.png
   source_path: assets/sprites/effects/terrain/lake-fog-sheet-v2.png
   sha256: f0c85c42282e6467a5e01d60d53d57381660aa18312c6ad70a779efd37d15a91
-- path: assets/characters/default/walk-light-leather-v1/character-default-light-leather-walk-front-left-sprite-v1.png
-  source_path: assets/characters/default/animations/light-leather/walk/character-default-light-leather-walk-front-left-sprite-v1.png
-  sha256: 649123a4c109d6b8128b43f7001b75b9946c5910d6e48375f37ee3d693bea0d9
+- path: assets/characters/default/walk-light-leather-v1/walk-v2.png
+  source_path: assets/characters/default/animations/light-leather/walk/walk-v2.png
+  sha256: 637cb2df2fd470a6ffc8dc654f41629765d09ba25d3926715635a4be8f78161b
 - path: assets/characters/default/walk-light-leather-v1/source.yaml
   source_path: assets/characters/default/animations/light-leather/walk/source.yaml
-  sha256: 40650bff1560b5ead2ced722633d64f9e52beae93417d065a6fb47ac7b551934
+  sha256: efe6fa63bc7f34950422cb518a68d78191df12048f553c338f874f7738aebd3b
 - path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
   source_path: assets/characters/default/animations/light-leather/walk/walk-light-leather-v1.animation.json
-  sha256: 0e2f71d04484dc95613519322b04a2bf0a2eb8e74e36e7680f1f302ce82ead63
+  sha256: ae48e90cb275f7fc99ff0e722f8621801893e67c964ff7e7b75427b31dee7334
 - path: assets/structures/brine-bank-painted-hill-v1.png
   source_path: assets/billboards/brine-bank-painted-hill-v1.png
   sha256: a177e079b1bd8d7fc2ffc3e431e2b9c8fedc5052fc7818bcaf52979791a37cf2

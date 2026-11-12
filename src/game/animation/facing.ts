@@ -12,10 +12,11 @@ export function screenFacing(actorWorldFacing: WorldFacing, currentMapRotation: 
   return BOARD_ACTOR_SCREEN_DIRECTION;
 }
 
-/** 정면왼쪽 원본을 화면의 오른쪽 이동 방향에 맞춰 반전한다. */
-export function shouldMirrorActorSprite(actorWorldFacing: WorldFacing, currentMapRotation: MapRotation): boolean {
+/** 원본 방향을 기준으로 화면의 이동 방향에 맞춰 반전한다. */
+export function shouldMirrorActorSprite(actorWorldFacing: WorldFacing, currentMapRotation: MapRotation, spriteBaseDirection: "down_left" | "down_right" = "down_left"): boolean {
   screenFacing(actorWorldFacing, currentMapRotation);
   const clockwiseWorldDirections: readonly WorldFacing[] = ['column_positive', 'row_positive', 'column_negative', 'row_negative'];
   const rotatedDirectionIndex = (clockwiseWorldDirections.indexOf(actorWorldFacing) + currentMapRotation) % clockwiseWorldDirections.length;
-  return rotatedDirectionIndex === 0 || rotatedDirectionIndex === 3;
+  const leftFacingMirror = rotatedDirectionIndex === 0 || rotatedDirectionIndex === 3;
+  return spriteBaseDirection === "down_right" ? !leftFacingMirror : leftFacingMirror;
 }

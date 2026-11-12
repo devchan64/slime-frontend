@@ -27,3 +27,9 @@ test('맵 회전 후 화면 좌우에 따라 반전하고 반대 방향은 반�
  assert.throws(()=>shouldMirrorActorSprite('unknown',0));
  assert.throws(()=>shouldMirrorActorSprite('column_positive',4));
 });
+
+test('오른쪽 앞 걷기는 모든 회전에서 왼쪽 앞 대기와 반대 반전을 사용한다',()=>{
+ for(const actorWorldFacing of supportedWorldFacings) for(const currentMapRotation of [0,1,2,3]) {
+  assert.equal(shouldMirrorActorSprite(actorWorldFacing,currentMapRotation,'down_right'),!shouldMirrorActorSprite(actorWorldFacing,currentMapRotation,'down_left'));
+ }
+});
