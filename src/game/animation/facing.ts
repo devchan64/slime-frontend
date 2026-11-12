@@ -28,3 +28,8 @@ export function resolveActorSpriteMirror(actorWorldFacing: WorldFacing | undefin
   if (actorWorldFacing !== undefined) return shouldMirrorActorSprite(actorWorldFacing, currentMapRotation, spriteBaseDirection);
   return characterActorFlag && spriteBaseDirection === "down_left";
 }
+
+/** 실제 캐릭터 대기·걷기·휴식 시트는 오른쪽 앞을 향한다. */
+export function resolveActorArtworkDirection(currentActorKind: string): "down_left" | "down_right" {
+  return currentActorKind === "human" || currentActorKind === "human-rest" ? "down_right" : "down_left";
+}

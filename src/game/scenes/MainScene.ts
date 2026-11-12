@@ -25,7 +25,7 @@ import { calculateRestExitDuration, updateActorRestPlayback, calculateFieldIdleD
 import type {Notice} from '../../client/notice';
 import {createRenderContentSignature} from '../terrain/renderContentSignature';
 import {selectedFieldRoute} from '../../ui/fieldNavigation';
-import { screenFacing, resolveActorSpriteMirror, CHARACTER_SCREEN_DIRECTION, type WorldFacing } from "../animation/facing";
+import { screenFacing, resolveActorSpriteMirror, resolveActorArtworkDirection, CHARACTER_SCREEN_DIRECTION, type WorldFacing } from "../animation/facing";
 import { pickActorPosition, type ActorPickRegion } from '../terrain/actorPicking';
 import {BattleMotion} from '../terrain/battleMotion';
 import {FieldMotion} from '../terrain/fieldMotion';
@@ -182,10 +182,13 @@ export class MainScene extends Phaser.Scene {
           idleActionElapsedTime = this.fieldIdleAction.sampleIdleAction(now, calculateFieldIdleDuration(selectedScreenFacing), idleActionAllowedFlag);
           item.object.setData("fieldIdleAction", idleActionElapsedTime === null ? "idle" : "stretch-placeholder");
         }
-        const selectedWorldFacing = currentMovementFacing ?? item.object.getData("actorWorldFacing");
+        if (currentMovementFacing) item.object.setData("actorWorldFacing", currentMovementFacing);
+        const settledFieldFacing = item.key.startsWith("battle:") ? undefined : this.fieldMotion.settledWorldFacing(item.key,now);
+        if (settledFieldFacing) item.object.setData("actorWorldFacing", settledFieldFacing);
+        const selectedWorldFacing = currentMovementFacing ?? settledFieldFacing ?? item.object.getData("actorWorldFacing");
         const characterActorFlag = ["human", "human-rest"].includes(currentActorKind);
-        const walkingRightFacing = (characterMovementElapsed !== undefined && currentActorKind === "human" && !actorRestPlayback) || (actorRestPlayback !== null && characterActorFlag);
-        item.object.setFlipX(resolveActorSpriteMirror(selectedWorldFacing, this.rotation, walkingRightFacing ? "down_right" : "down_left", characterActorFlag));
+        const currentArtworkDirection = resolveActorArtworkDirection(currentActorKind);
+        item.object.setFlipX(resolveActorSpriteMirror(selectedWorldFacing, this.rotation, currentArtworkDirection, characterActorFlag));
         if (!updateActorRestPlayback(item.object, selectedScreenFacing, actorRestPlayback))
           updateCharacterFacing(item.object, selectedScreenFacing, idleActionElapsedTime ?? undefined, characterMovementElapsed);
         if (item.object.flipX) item.object.setOrigin(1 - item.object.originX, item.object.originY);
@@ -942,7 +945,7 @@ export class MainScene extends Phaser.Scene {
       if (createdActorImage instanceof Phaser.GameObjects.Image && !createdActorImage.getData("characterOutlineLayer")) applyTerrainAmbientTint(createdActorImage,this.surface());
       if (createdActorImage instanceof Phaser.GameObjects.Image && createdActorImage.getData("actorIdleKind")) {
         createdActorImage.setData("actorWorldFacing", actorWorldFacing);
-        const currentSpriteBaseDirection = createdActorImage.getData("actorIdleKind") === "human-rest" ? "down_right" : "down_left";
+        const currentSpriteBaseDirection = resolveActorArtworkDirection(createdActorImage.getData("actorIdleKind"));
         const isCharacterActor = ["human", "human-rest"].includes(createdActorImage.getData("actorIdleKind"));
         createdActorImage.setFlipX(resolveActorSpriteMirror(actorWorldFacing, this.rotation, currentSpriteBaseDirection, isCharacterActor));
         if (createdActorImage.flipX) createdActorImage.setOrigin(1 - createdActorImage.originX, createdActorImage.originY);

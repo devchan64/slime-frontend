@@ -37,7 +37,7 @@ node scripts/verify-cell-animation-browser.mjs /usr/bin/google-chrome
 
 ## 전투 논리 방향
 
-새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation, actorBaseDirection)`은 입력을 검증하고 개체의 기본 방향을 반환한다. 캐릭터의 기본은 `down_right`, 몬스터의 기본은 `down_left`다. 캐릭터 걷기·휴식은 오른쪽 앞 시트를, 대기는 기존 왼쪽 앞 시트를 사용하며, 논리 이동 방향과 맵 회전에 따라 시트 원본 방향을 기준으로 좌우 반전한다. 방향 정보가 없는 캐릭터는 오른쪽 앞을 향한다. 정지 후에도 저장 방향을 유지하며 프레임 앵커도 반전해 발밑 좌표를 보존한다. 검증기는 네 방향 형식과 정면 대각 단일 방향 형식을 지원한다. ATTACK 로그의 방향은 보존하지만 공격·스킬 사용 맵 클립은 호출하지 않는다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.
+새 전투의 `visualVersion: 1`은 유닛 `facing`과 MOVE/ATTACK 로그의 방향을 제공한다. MOVE의 `pathFacings`는 확정 `path`의 각 구간에 대응한다. `screenFacing(worldFacing, mapRotation, actorBaseDirection)`은 입력을 검증하고 개체의 기본 방향을 반환한다. 캐릭터의 기본은 `down_right`, 몬스터의 기본은 `down_left`다. 캐릭터 대기·걷기·휴식은 실제 이미지가 오른쪽 앞을 향하며, 논리 이동 방향과 맵 회전에 따라 시트 원본 방향을 기준으로 좌우 반전한다. 방향 정보가 없는 캐릭터는 오른쪽 앞을 향한다. 정지 후에도 저장 방향을 유지하며 프레임 앵커도 반전해 발밑 좌표를 보존한다. 검증기는 네 방향 형식과 정면 대각 단일 방향 형식을 지원한다. ATTACK 로그의 방향은 보존하지만 공격·스킬 사용 맵 클립은 호출하지 않는다. 저장 방향을 회전값으로 덮어쓰거나 표시 대상의 방향을 좌표에서 다시 추측하지 않는다. 이전 전투에는 이 필드가 없으므로 애니메이션 소비 여부를 명시적으로 구분한다.
 
 필드에서는 자기 개체의 `me.fieldFacing`, 다른 구성원의 `members[].facing`, 몬스터의 `monsters[].facing`을 같은 `screenFacing()`에 전달한다. 이전 캐시에는 값이 없을 수 있으므로 현재 정적 이미지 표시 경로와 명시적으로 구분한다. 맵 전환·재접속의 위치 차이를 새 이동 방향으로 계산하지 않는다.
 

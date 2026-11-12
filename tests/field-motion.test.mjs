@@ -109,3 +109,16 @@ test('완료 구간을 정리해도 연속 걷기 프레임 시각은 유지한�
  currentMotionTracker.sync('phase',[actor(4,256)],3000);
  assert.equal(currentMotionTracker.movementElapsedMilliseconds('slime',3000),0);
 });
+
+test('이동 중 구간 방향을 유지하고 완료 후 서버가 확정한 마지막 방향을 반환한다',()=>{
+ const currentMotionTracker=new FieldMotion();
+ currentMotionTracker.sync('field',[{...actor(2,100),serverWorldFacing:'row_positive'}],0);
+ currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'column_positive'}],10);
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',676),'column_positive');
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',676),undefined);
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',677),'column_positive');
+ currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'row_negative'}],700);
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',700),'row_negative');
+ currentMotionTracker.sync('field',[actor(3,164)],800);
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',800),'row_negative');
+});

@@ -18,7 +18,7 @@ export class FieldMotion {
       const old=this.tracks.get(actor.id);
       if(old && old.cell.column===actor.cell.column && old.cell.row===actor.cell.row
           && old.point.x===actor.point.x && old.point.y===actor.point.y && old.point.depth===actor.point.depth){
-        next.set(actor.id,old);continue;
+        next.set(actor.id,{...old,serverWorldFacing:actor.serverWorldFacing ?? old.serverWorldFacing});continue;
       }
       const adjacent=old && Math.abs(old.cell.column-actor.cell.column)+Math.abs(old.cell.row-actor.cell.row)===1;
       const currentMotionTrack=adjacent && this.isMovementActive(actor.id,now) ? old : undefined;
@@ -38,6 +38,11 @@ export class FieldMotion {
     if(!currentMotionTrack)return undefined;
     const currentSegmentIndex=Math.floor(Math.max(0,currentRenderTime-currentMotionTrack.started)/FIELD_TILE_MOVEMENT_DURATION_MS);
     return currentMotionTrack.segmentWorldFacings[currentSegmentIndex];
+  }
+  /** 이동이 종료된 필드 개체의 서버 확정 방향을 반환한다. */
+  settledWorldFacing(actorStableIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
+    if(this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;
+    return this.tracks.get(actorStableIdentifier)?.serverWorldFacing;
   }
   movementElapsedMilliseconds(actorStableIdentifier:string,currentRenderTime:number):number|undefined {
     if(!this.isMovementActive(actorStableIdentifier,currentRenderTime))return undefined;
