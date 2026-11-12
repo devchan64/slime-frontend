@@ -1224,7 +1224,7 @@ files:
   sha256: 57033a5417397b3e7185d213ae8765217de8d81148f77fea8bedc1fdbbd6bf2e
 - path: assets/characters/default/boxing-v1/boxing-v1.animation.json
   source_path: assets/characters/default/animations/light-leather/boxing/boxing-v1.animation.json
-  sha256: 96aa96f6bf5ebecce35ad628c1b91b4452efd770162ec217c0f80ea2981b07cb
+  sha256: 8c3c622b008541d08af8496469b18ab7a57229b85a7a1a61554f8e8caf2d37b0
 - path: assets/characters/default/boxing-v1/source.yaml
   source_path: assets/characters/default/animations/light-leather/boxing/source.yaml
   sha256: 3397caeeb82581447fd2c6a383527ae88098a13f9eae7c13885392b9fd6d16b0
