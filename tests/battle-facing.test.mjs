@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 const compiledFacingModule = await build({stdin:{contents:`export * from './src/game/animation/facing';`,resolveDir:process.cwd()},bundle:true,write:false,format:'esm',platform:'node'});
-const {screenFacing,shouldMirrorActorSprite} = await import(`data:text/javascript;base64,${Buffer.from(compiledFacingModule.outputFiles[0].text).toString('base64')}`);
+const {screenFacing,shouldMirrorActorSprite,resolveActorSpriteMirror} = await import(`data:text/javascript;base64,${Buffer.from(compiledFacingModule.outputFiles[0].text).toString('base64')}`);
 const supportedWorldFacings = ['column_positive','column_negative','row_positive','row_negative'];
 test('모든 논리 이동 방향과 맵 회전에서 정면왼쪽 클립을 선택한다',()=>{
  for (const actorWorldFacing of supportedWorldFacings) for (const currentMapRotation of [0,1,2,3]) {
@@ -31,5 +31,23 @@ test('맵 회전 후 화면 좌우에 따라 반전하고 반대 방향은 반�
 test('오른쪽 앞 걷기는 모든 회전에서 왼쪽 앞 대기와 반대 반전을 사용한다',()=>{
  for(const actorWorldFacing of supportedWorldFacings) for(const currentMapRotation of [0,1,2,3]) {
   assert.equal(shouldMirrorActorSprite(actorWorldFacing,currentMapRotation,'down_right'),!shouldMirrorActorSprite(actorWorldFacing,currentMapRotation,'down_left'));
+ }
+});
+
+test('캐릭터 기본 방향은 오른쪽 앞이며 몬스터 기본 방향은 유지한다',()=>{
+ for(const actorWorldFacing of supportedWorldFacings) for(const currentMapRotation of [0,1,2,3]) {
+  assert.equal(screenFacing(actorWorldFacing,currentMapRotation,'down_right'),'down_right');
+  assert.equal(screenFacing(actorWorldFacing,currentMapRotation,'down_left'),'down_left');
+ }
+ assert.throws(()=>screenFacing('row_positive',0,'invalid'));
+});
+
+test('방향 없는 캐릭터는 대기와 오른쪽 앞 휴식 전환에서 오른쪽을 유지한다',()=>{
+ for(const currentMapRotation of [0,1,2,3]) {
+  assert.equal(resolveActorSpriteMirror(undefined,currentMapRotation,'down_left',true),true);
+  assert.equal(resolveActorSpriteMirror(undefined,currentMapRotation,'down_right',true),false);
+  assert.equal(resolveActorSpriteMirror(undefined,currentMapRotation,'down_left',false),false);
+  for(const actorWorldFacing of supportedWorldFacings) for(const spriteBaseDirection of ['down_left','down_right'])
+   assert.equal(resolveActorSpriteMirror(actorWorldFacing,currentMapRotation,spriteBaseDirection,true),shouldMirrorActorSprite(actorWorldFacing,currentMapRotation,spriteBaseDirection));
  }
 });

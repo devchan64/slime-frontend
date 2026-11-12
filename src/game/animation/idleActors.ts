@@ -1,3 +1,4 @@
+import { resolveCharacterBodyHeight } from './characterBodyHeight';
 import {attachCharacterOutlineLayers} from './characterOutline';
 import newMonsterMetadata4 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.animation.json";
 import newMonsterMetadata3 from "../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.animation.json";
@@ -55,13 +56,13 @@ export const ACTOR_IDLE_ASSETS = {
 } as const;
 export type IdleActorKind = keyof typeof ACTOR_IDLE_ASSETS;
 const IDLE_BODY_HEIGHT_RATIO = 0.75;
-const REST_REFERENCE_BODY_HEIGHT = characterRestSourceMetadata.referenceBodyHeight;
-const DEFAULT_IDLE_BODY_HEIGHT = characterIdleSourceMetadata.referenceBodyHeight;
+const REST_REFERENCE_BODY_HEIGHT = resolveCharacterBodyHeight(characterRestSourceMetadata, restingCharacterMetadata);
+const DEFAULT_IDLE_BODY_HEIGHT = resolveCharacterBodyHeight(characterIdleSourceMetadata, actorIdleMetadata0);
 if (!Number.isFinite(DEFAULT_IDLE_BODY_HEIGHT) || DEFAULT_IDLE_BODY_HEIGHT <= 0) throw new Error("기본 캐릭터 기준 높이가 올바르지 않습니다.");
 export const ACTOR_IDLE_TEXTURES = Object.values(ACTOR_IDLE_ASSETS);
 export function resolveActorIdleAsset(actorIdleKind: IdleActorKind, actorScreenDirection: Direction) {
-  if (actorScreenDirection !== "down_left") throw new Error("정면왼쪽 클립만 지원합니다.");
-  const selectedIdleAsset = actorIdleKind === "human" ? DEFAULT_IDLE_DIRECTION_ASSETS[actorScreenDirection] : ACTOR_IDLE_ASSETS[actorIdleKind];
+  if (actorScreenDirection !== "down_left" && !(actorScreenDirection === "down_right" && (actorIdleKind === "human" || actorIdleKind === "human-rest"))) throw new Error("지원하지 않는 개체 방향입니다.");
+  const selectedIdleAsset = actorIdleKind === "human" ? DEFAULT_IDLE_DIRECTION_ASSETS.down_left : ACTOR_IDLE_ASSETS[actorIdleKind];
   if (!selectedIdleAsset) throw new Error("등록되지 않은 대기 개체 또는 방향입니다.");
   return selectedIdleAsset;
 }
@@ -71,7 +72,7 @@ export function updateActorIdleFrame(actorRenderImage: Phaser.GameObjects.Image,
   const actorIdleAsset = resolveActorIdleAsset(actorIdleKind, actorScreenDirection);
   if (!actorIdleAsset) throw new Error("등록되지 않은 대기 개체입니다.");
   const actorIdleAnimation = actorIdleAsset.animation;
-  const sampledIdleFrame = actorIdleAnimation.sample(actorIdleAnimation.clip("idle", actorScreenDirection), actionElapsedMilliseconds ?? (actorRenderImage.scene.time.now + actorRenderImage.getData("idlePhaseOffset"))).frame;
+  const sampledIdleFrame = actorIdleAnimation.sample(actorIdleAnimation.clip("idle", actorIdleKind === "human-rest" ? "down_right" : actorIdleKind === "human" ? "down_left" : actorScreenDirection), actionElapsedMilliseconds ?? (actorRenderImage.scene.time.now + actorRenderImage.getData("idlePhaseOffset"))).frame;
   const selectedIdleFrame = `cell:${actorIdleAnimation.data.animationId}@${actorIdleAnimation.data.version}:${sampledIdleFrame.frameId}`;
   const selectedFrameOriginX = sampledIdleFrame.anchor.x / sampledIdleFrame.rect.width;
   const selectedFrameOriginY = sampledIdleFrame.anchor.y / sampledIdleFrame.rect.height;
@@ -86,7 +87,7 @@ export function createActorIdleImage(actorRenderScene: Phaser.Scene, actorIdleKi
   const actorIdleAsset = resolveActorIdleAsset(actorIdleKind, actorScreenDirection);
   const requiredIdleTextures = [actorIdleAsset];
   for (const currentIdleTexture of requiredIdleTextures) bindCellTexture(actorRenderScene, currentIdleTexture.key, currentIdleTexture.animation);
-  const idleCycleDuration = actorIdleAsset.animation.data.clips.find(idleClipRecord => idleClipRecord.direction === actorScreenDirection && idleClipRecord.action === "idle")!
+  const idleCycleDuration = actorIdleAsset.animation.data.clips.find(idleClipRecord => idleClipRecord.direction === (actorIdleKind === "human-rest" ? "down_right" : actorIdleKind === "human" ? "down_left" : actorScreenDirection) && idleClipRecord.action === "idle")!
     .frames.reduce((totalFrameDuration, idleFrameRecord) => totalFrameDuration + idleFrameRecord.durationMs, 0);
   const idlePhaseOffset = calculateIdlePhase(actorStableIdentifier, idleCycleDuration);
   const initialIdleFrame = actorIdleAsset.animation.data.frames[0];
@@ -100,7 +101,7 @@ export function createActorIdleImage(actorRenderScene: Phaser.Scene, actorIdleKi
 
 // 스트레칭 에셋 채택 전에는 현재 대기 한 주기를 대신 재생한다.
 export function calculateFieldIdleDuration(actorScreenDirection: Direction): number {
-  const selectedIdleClip = DEFAULT_IDLE_ANIMATION.data.clips.find(clipRecordValue => clipRecordValue.action === "idle" && clipRecordValue.direction === actorScreenDirection)!;
+  const selectedIdleClip = DEFAULT_IDLE_ANIMATION.data.clips.find(clipRecordValue => clipRecordValue.action === "idle" && clipRecordValue.direction === "down_left")!;
   return selectedIdleClip.frames.reduce((totalDurationValue, frameRecordValue) => totalDurationValue + frameRecordValue.durationMs, 0);
 }
 
@@ -122,7 +123,7 @@ export function updateActorRestPlayback(actorRenderImage: Phaser.GameObjects.Ima
   const restingActorAsset = ACTOR_IDLE_ASSETS['human-rest'];
   bindCellTexture(actorRenderImage.scene, restingActorAsset.key, restingActorAsset.animation);
   const sampledRestFrame = restingActorAsset.animation.sample(
-    restingActorAsset.animation.clip(restPlaybackSample.actionNameValue, actorScreenDirection), restPlaybackSample.elapsedTimeValue).frame;
+    restingActorAsset.animation.clip(restPlaybackSample.actionNameValue, "down_right"), restPlaybackSample.elapsedTimeValue).frame;
   actorRenderImage.setData('restPlaybackActive', true).setData('walkingIdleScale', undefined);
   actorRenderImage.setTexture(restingActorAsset.key, `cell:${restingActorAsset.animation.data.animationId}@${restingActorAsset.animation.data.version}:${sampledRestFrame.frameId}`)
     .setOrigin(sampledRestFrame.anchor.x / sampledRestFrame.rect.width, sampledRestFrame.anchor.y / sampledRestFrame.rect.height)

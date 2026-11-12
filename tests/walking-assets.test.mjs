@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 import {pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
-const walkingBundleResult = await build({entryPoints:['src/game/animation/walkingActors.ts'],bundle:true,write:false,format:'esm',platform:'node',define:{'import.meta.url':JSON.stringify(pathToFileURL(resolve('src/game/animation/walkingActors.ts')).href)}});
+const walkingBundleResult = await build({entryPoints:['src/game/animation/walkingActors.ts'],bundle:true,write:false,format:'esm',platform:'browser',loader:{'.yaml':'text'},define:{'import.meta.url':JSON.stringify(pathToFileURL(resolve('src/game/animation/walkingActors.ts')).href)}});
 const {DEFAULT_CHARACTER_WALK_ASSET,updateCharacterAnimationFrame} = await import(`data:text/javascript;base64,${Buffer.from(walkingBundleResult.outputFiles[0].text).toString('base64')}`);
 function createCharacterTestImage(actorIdleKindValue = 'human') {
   const characterDataValues = new Map(Object.entries({actorIdleKind:actorIdleKindValue,idlePhaseOffset:0,actorDisplayHeight:80}));

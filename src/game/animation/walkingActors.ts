@@ -1,3 +1,6 @@
+import { parseDocument } from 'yaml';
+import { resolveCharacterBodyHeight } from './characterBodyHeight';
+import walkingCharacterSource from '../../../../slime-assets/assets/characters/default/animations/light-leather/walk/source.yaml?raw';
 import { createBoardActorAnimation } from './boardAnimation';
 import type Phaser from "phaser";
 import { type Direction } from "./cellAnimation";
@@ -5,7 +8,9 @@ import { bindCellTexture } from "./cellActor";
 import { updateActorIdleFrame } from "./idleActors";
 import walkingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/walk/walk-light-leather-v1.animation.json";
 
-const WALKING_REFERENCE_BODY_HEIGHT = 533.0;
+const walkingSourceDocument = parseDocument(walkingCharacterSource, { uniqueKeys: true });
+if (walkingSourceDocument.errors.length) throw new Error('걷기 에셋 출처 YAML이 올바르지 않습니다.');
+const WALKING_REFERENCE_BODY_HEIGHT = resolveCharacterBodyHeight(walkingSourceDocument.toJS(), walkingCharacterMetadata);
 export const DEFAULT_CHARACTER_WALK_ASSET = {
   key: "walking-human-light-leather-v1",
   url: new URL("../../../../slime-assets/assets/characters/default/animations/light-leather/walk/walk-v2.png", import.meta.url).href,

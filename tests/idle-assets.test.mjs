@@ -74,16 +74,16 @@ test('정면왼쪽 대기 8프레임은 4열 2행의 등록된 셀을 사용한�
  });
 });
 
-test('휴식은 진입 12프레임 뒤 고정되고 해제 12프레임은 반복하지 않는다',()=>{
+test('휴식은 진입 9프레임 뒤 고정되고 해제 7프레임은 반복하지 않는다',()=>{
  const restAssetAnimation = ACTOR_IDLE_ASSETS['human-rest'].animation;
- const entryClipIdentifier = restAssetAnimation.clip('rest-entry','down_left');
- const exitClipIdentifier = restAssetAnimation.clip('rest-exit','down_left');
- assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===entryClipIdentifier).frames.length,12);
- assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===exitClipIdentifier).frames.length,12);
+ const entryClipIdentifier = restAssetAnimation.clip('rest-entry','down_right');
+ const exitClipIdentifier = restAssetAnimation.clip('rest-exit','down_right');
+ assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===entryClipIdentifier).frames.length,9);
+ assert.equal(restAssetAnimation.data.clips.find(currentClipRecord=>currentClipRecord.clipId===exitClipIdentifier).frames.length,7);
  for(const currentClipRecord of restAssetAnimation.data.clips) assert.equal(currentClipRecord.loop,false);
- for(const currentTimeValue of [2000,10000,3600000]) assert.equal(restAssetAnimation.sample(entryClipIdentifier,currentTimeValue).frame.frameId,'down_left.11');
- assert.equal(restAssetAnimation.sample(exitClipIdentifier,1999).frame.frameId,'down_left.23');
- assert.equal(restAssetAnimation.sample(exitClipIdentifier,2000).frame.frameId,'down_left.23');
+ for(const currentTimeValue of [2000,10000,3600000]) assert.equal(restAssetAnimation.sample(entryClipIdentifier,currentTimeValue).frame.frameId,'down_right.8');
+ assert.equal(restAssetAnimation.sample(exitClipIdentifier,1999).frame.frameId,'down_right.15');
+ assert.equal(restAssetAnimation.sample(exitClipIdentifier,2000).frame.frameId,'down_right.15');
 });
 
 test('휴식 해제 완료 시 이미지의 대기 텍스처와 입식 배율을 복구한다',()=>{
@@ -96,14 +96,20 @@ test('휴식 해제 완료 시 이미지의 대기 텍스처와 입식 배율을
   setTexture(currentTextureKey,currentFrameName){this.textureKey=currentTextureKey;this.frame.name=currentFrameName;return this;},
   setOrigin(currentOriginValueX,currentOriginValueY){this.originX=currentOriginValueX;this.originY=currentOriginValueY;return this;},
   setScale(currentScaleValue){this.scaleValue=currentScaleValue;return this;}};
- assert.equal(calculateRestExitDuration(),2000);
+ assert.equal(calculateRestExitDuration(),1167);
  assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-entry',elapsedTimeValue:10000}),true);
- assert.match(renderedCharacterImage.frame.name,/down_left\.11$/);
+ assert.match(renderedCharacterImage.frame.name,/down_right\.8$/);
  assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',{actionNameValue:'rest-exit',elapsedTimeValue:1999}),true);
- assert.match(renderedCharacterImage.frame.name,/down_left\.23$/);
+ assert.match(renderedCharacterImage.frame.name,/down_right\.15$/);
  assert.equal(updateActorRestPlayback(renderedCharacterImage,'down_left',null),false);
  updateActorIdleFrame(renderedCharacterImage,'down_left');
  assert.equal(renderedCharacterImage.textureKey,ACTOR_IDLE_ASSETS.human.key);
  assert.equal(renderedCharacterImage.getData('actorIdleKind'),'human');
  assert.equal(renderedCharacterImage.scaleValue,80/631);
+});
+
+test('오른쪽 앞 캐릭터 대기는 기존 왼쪽 앞 시트를 사용한다',()=>{
+ assert.equal(resolveActorIdleAsset('human','down_right'),ACTOR_IDLE_ASSETS.human);
+ assert.equal(resolveActorIdleAsset('human-rest','down_right'),ACTOR_IDLE_ASSETS['human-rest']);
+ assert.throws(()=>resolveActorIdleAsset('slime','down_right'));
 });

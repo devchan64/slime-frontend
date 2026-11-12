@@ -9,22 +9,22 @@ files:
   sha256: 5ebc13e35891bbc6c2541388fa670c02d5e50e7aeeed3d711641c542ea8d992f
 - path: assets/characters/default/idle-v6/idle-v6.animation.json
   source_path: assets/characters/default/animations/light-leather/idle/idle-v6-anchor-v3.animation.json
-  sha256: 54a13d8c3f0566188ab610b06de35bb0b92f0e9024896d900e0300b61fbc5c85
+  sha256: dcdd04ed99dde8f561b6e3cec2e2c339ad7af57c1cf906c8cba8a1ce15e27e6d
 - path: assets/characters/default/idle-v6/idle-v6.png
   source_path: assets/characters/default/animations/light-leather/idle/idle-v6.png
-  sha256: 30e8da680068e8d9c14ef43102c30367315563960a9f8392dbcff5385b0a6485
+  sha256: b10140b8a90ca435c44b3c4263fbbcbed0a9482ef258a5bd4dcc378f4c6cadde
 - path: assets/characters/default/idle-v6/source.json
   source_path: assets/characters/default/animations/light-leather/idle/source.json
-  sha256: c5342bb8d8e2d7b4cee0bb2011783b2514eb961bd0cfcfdf2478b19e8e8b9357
+  sha256: abfec14559cab9149e3cca92660236898f778f83e05a152f80bc72441769768c
 - path: assets/characters/default/rest-v2/rest-v2.animation.json
   source_path: assets/characters/default/animations/light-leather/rest/rest-v2.animation.json
-  sha256: d099b8cfcaa1ebaac6b2088b96915676948ea42e241adbcaba5ed9791cc68260
+  sha256: 3f22cd2bbc8a9c49ba673b939d2aceb6efab9b3af7bdef5423f480ae6cc7dcb3
 - path: assets/characters/default/rest-v2/rest-v2.png
   source_path: assets/characters/default/animations/light-leather/rest/rest-v2.png
-  sha256: a649b0b522c10f1a5e4d21119336713915bd312a86e35763cd20b6f9036513fb
+  sha256: ff628b45ef024f5c4ed08e89cc2fd9ccc4f21c445a3f4782a16eec274fe88847
 - path: assets/characters/default/rest-v2/source.json
   source_path: assets/characters/default/animations/light-leather/rest/source.json
-  sha256: 8382c372f46df90bf9181f50644ba083e25468dda68c73baa51493ad9a6e3d14
+  sha256: c7d5c83b76c5851506a7ae0ef4962e29eaaa63178c2349029ebc4c6f94125201
 - path: assets/monsters/standing-v1/ash-fox-idle-v1.animation.json
   source_path: assets/sprites/monsters/standing-v1/down-left-v1/ash-fox-idle-v1.animation.json
   sha256: 45b7d18d9fe74a63d00dc88874beae17a0ed334baec88b8f6bbef548fa591ca0
@@ -1086,7 +1086,7 @@ files:
   sha256: efe6fa63bc7f34950422cb518a68d78191df12048f553c338f874f7738aebd3b
 - path: assets/characters/default/walk-light-leather-v1/walk-light-leather-v1.animation.json
   source_path: assets/characters/default/animations/light-leather/walk/walk-light-leather-v1.animation.json
-  sha256: ae48e90cb275f7fc99ff0e722f8621801893e67c964ff7e7b75427b31dee7334
+  sha256: 40395e71803c259193990f3e57b6c66e964ebb09b00be5501a81178b94410399
 - path: assets/structures/brine-bank-painted-hill-v1.png
   source_path: assets/billboards/brine-bank-painted-hill-v1.png
   sha256: a177e079b1bd8d7fc2ffc3e431e2b9c8fedc5052fc7818bcaf52979791a37cf2
