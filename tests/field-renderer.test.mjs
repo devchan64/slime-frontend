@@ -246,6 +246,10 @@ test('지형지물은 타일 중심 접지와 깊이를 공유하고 결계타�
  const currentRenderedTower=drawFieldSceneryObject(currentMockScene,{id:'tower',kind:'ward-tower',position:{column:0,row:0}},{x:10,y:20},5,'tower-sprite');
  assert.equal(currentRenderedTower.key,'tower-sprite');
  assert.equal(currentRenderedTower.depth,5);
+ const currentAdjustedTower=drawFieldSceneryObject(currentMockScene,{id:'tower',kind:'ward-tower',position:{column:0,row:0},anchorX:.4,anchorY:.8,displayWidthAdjustment:20,displayHeightAdjustment:10},{x:10,y:20},5,'tower-sprite');
+ assert.deepEqual(currentAdjustedTower.origin,[.4,.8]);
+ assert.ok(currentAdjustedTower.scale>currentRenderedTower.scale);
+ assert.throws(()=>drawFieldSceneryObject(currentMockScene,{id:'tower',kind:'ward-tower',position:{column:0,row:0},displayWidthAdjustment:-1000},{x:10,y:20},5,'tower-sprite'),/양수/);
  assert.throws(()=>drawFieldSceneryObject(currentMockScene,{...currentObjectRecord,textureKey:'missing'},{x:0,y:0},1),/텍스처 누락/);
 });
 
@@ -709,4 +713,14 @@ test('높은 둑의 저울 받침은 이동한 접지점의 윗면에 잘리지 
  currentMapSurface.elevations[19][13]=8;
  const currentRaisedPosition={column:13,row:19};
  assert.ok(resolveFieldSceneryDepth(currentObjectRecord,currentMapSurface,FIELD_RENDER_METRICS)<resolveFieldSurfaceDepth(currentRaisedPosition,currentMapSurface,FIELD_RENDER_METRICS),'앞쪽의 더 높은 지형은 여전히 저울을 가린다');
+});
+
+test('건물 그림자 원형·사각형은 형태와 회전을 보존한다',()=>{
+ const currentRectanglePoints=buildBillboardShadowPolygon(2,1,{x:10,y:20},{tileWidth:80,tileHeight:40,shadowShape:'rectangle'});
+ const currentCirclePoints=buildBillboardShadowPolygon(2,1,{x:10,y:20},{tileWidth:80,tileHeight:40,shadowShape:'circle'});
+ assert.equal(currentRectanglePoints.length,4);assert.equal(currentCirclePoints.length,48);
+ assert.deepEqual(currentRectanglePoints[0],{x:-10,y:-10});
+ const currentRotatedPoints=buildBillboardShadowPolygon(2,1,{x:10,y:20},{tileWidth:80,tileHeight:40,rotation:1,shadowShape:'rectangle'});
+ assert.notDeepEqual(currentRotatedPoints,currentRectanglePoints);
+ assert.throws(()=>buildBillboardShadowPolygon(1,1,{x:0,y:0},{tileWidth:80,tileHeight:40,shadowShape:'triangle'}),/그림자 형태/);
 });

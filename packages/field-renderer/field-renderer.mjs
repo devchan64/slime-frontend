@@ -369,10 +369,14 @@ export function drawFieldAuraPanel(currentGameScene,currentPanelPoints,currentTe
  return currentAuraMesh;
 }
 
-export function drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTextureKey,currentRenderDepth=0){
+export function drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTextureKey,currentRenderDepth=0,currentTowerProperties={}){
  if(!currentGameScene.textures.exists(currentTextureKey))throw Error('결계탑 텍스처 누락');
  const currentTowerImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentTextureKey);
- return markFieldOcclusionObject(currentTowerImage).setOrigin(FIELD_SAFE_TOWER_PROFILE.anchorX/currentTowerImage.width,FIELD_SAFE_TOWER_PROFILE.anchorY/currentTowerImage.height).setScale(FIELD_SAFE_TOWER_PROFILE.displayHeight/FIELD_SAFE_TOWER_PROFILE.bodyReferenceHeight).setDepth(currentRenderDepth);
+ const currentBaseScale=FIELD_SAFE_TOWER_PROFILE.displayHeight/FIELD_SAFE_TOWER_PROFILE.bodyReferenceHeight;
+ const currentDisplayWidth=currentTowerImage.width*currentBaseScale+(currentTowerProperties.displayWidthAdjustment??0);
+ const currentDisplayHeight=currentTowerImage.height*currentBaseScale+(currentTowerProperties.displayHeightAdjustment??0);
+ if(!Number.isFinite(currentDisplayWidth)||!Number.isFinite(currentDisplayHeight)||currentDisplayWidth<=0||currentDisplayHeight<=0)throw Error('결계탑 표시 크기는 양수여야 합니다.');
+ return markFieldOcclusionObject(currentTowerImage).setOrigin(currentTowerProperties.anchorX??FIELD_SAFE_TOWER_PROFILE.anchorX/currentTowerImage.width,currentTowerProperties.anchorY??FIELD_SAFE_TOWER_PROFILE.anchorY/currentTowerImage.height).setScale(currentDisplayWidth/currentTowerImage.width,currentDisplayHeight/currentTowerImage.height).setDepth(currentRenderDepth);
 }
 
 export {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint};
@@ -415,12 +419,18 @@ function resolveBillboardDepthOffset(currentObjectRecord,currentRenderOptions){
  return rotateSurfacePosition(currentDepthPosition,currentRenderOptions.rotation??0);
 }
 
+const BUILDING_SHADOW_CIRCLE_SEGMENTS=48;
 const BILLBOARD_SHADOW_PROFILE=Object.freeze({color:0x18201b,insetRatio:.5,depthOffset:.5,cornerRatio:.35,cornerSteps:6,layers:[{scale:1,alpha:.14},{scale:.78,alpha:.20},{scale:.5,alpha:.26}]});
 /** 크기 1은 타일 한 칸의 열·행 길이이며 이미지 높이와 점유 수를 다시 곱하지 않는다. */
 export function buildBillboardShadowPolygon(currentColumnCount,currentRowCount,currentCenterPoint,currentRenderOptions,currentLayerScale=1){
  if(!Number.isInteger(currentColumnCount)||currentColumnCount<1||!Number.isInteger(currentRowCount)||currentRowCount<1)throw Error('그림자 점유 타일 수는 양의 정수여야 합니다');
  const currentHalfColumn=currentLayerScale*(currentRenderOptions.shadowScaleX??currentColumnCount)/2;
  const currentHalfRow=currentLayerScale*(currentRenderOptions.shadowScaleY??currentRowCount)/2;
+ if(currentRenderOptions.shadowShape!=null){
+  if(!['circle','rectangle'].includes(currentRenderOptions.shadowShape))throw Error('지원하지 않는 그림자 형태');
+  const currentShapePoints=currentRenderOptions.shadowShape==='circle'?Array.from({length:BUILDING_SHADOW_CIRCLE_SEGMENTS},(_,currentPointIndex)=>({column:Math.cos(currentPointIndex*Math.PI*2/BUILDING_SHADOW_CIRCLE_SEGMENTS)*currentHalfColumn,row:Math.sin(currentPointIndex*Math.PI*2/BUILDING_SHADOW_CIRCLE_SEGMENTS)*currentHalfRow})):[{column:-currentHalfColumn,row:-currentHalfRow},{column:currentHalfColumn,row:-currentHalfRow},{column:currentHalfColumn,row:currentHalfRow},{column:-currentHalfColumn,row:currentHalfRow}];
+  return currentShapePoints.map(currentShapePoint=>{const currentRotatedPoint=rotateSurfacePosition(currentShapePoint,currentRenderOptions.rotation??0);return {x:currentCenterPoint.x+(currentRotatedPoint.column-currentRotatedPoint.row)*currentRenderOptions.tileWidth/2,y:currentCenterPoint.y+(currentRotatedPoint.column+currentRotatedPoint.row)*currentRenderOptions.tileHeight/2};});
+ }
  const currentCornerRadius=Math.min(currentHalfColumn,currentHalfRow)*BILLBOARD_SHADOW_PROFILE.cornerRatio;
  const currentCornerCenters=[[currentHalfColumn-currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,currentHalfRow-currentCornerRadius],[-currentHalfColumn+currentCornerRadius,-currentHalfRow+currentCornerRadius],[currentHalfColumn-currentCornerRadius,-currentHalfRow+currentCornerRadius]];
  return currentCornerCenters.flatMap(([currentColumnOffset,currentRowOffset],currentCornerIndex)=>Array.from({length:BILLBOARD_SHADOW_PROFILE.cornerSteps+1},(_,currentStepIndex)=>{
@@ -474,7 +484,7 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  if(currentMapSurface){
   const currentShadowGraphics=[];
   const currentOriginHeight=readGroundSurfaceHeight(currentObjectRecord.position,currentMapSurface);
-  const currentLayerPolygons=BILLBOARD_SHADOW_PROFILE.layers.map(currentLayerProfile=>({alpha:currentLayerProfile.alpha,points:buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentShadowColumnLength,shadowScaleY:currentShadowRowLength},currentLayerProfile.scale)}));
+  const currentLayerPolygons=BILLBOARD_SHADOW_PROFILE.layers.map(currentLayerProfile=>({alpha:currentLayerProfile.alpha,points:buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentShadowColumnLength,shadowScaleY:currentShadowRowLength,shadowShape:currentObjectRecord.shadowShape},currentLayerProfile.scale)}));
   const currentOuterPoints=currentLayerPolygons[0].points;
   const currentShadowBounds={left:Math.min(...currentOuterPoints.map(currentPointValue=>currentPointValue.x)),right:Math.max(...currentOuterPoints.map(currentPointValue=>currentPointValue.x)),top:Math.min(...currentOuterPoints.map(currentPointValue=>currentPointValue.y)),bottom:Math.max(...currentOuterPoints.map(currentPointValue=>currentPointValue.y))};
   for(let currentRowIndex=0;currentRowIndex<currentMapSurface.rows;currentRowIndex++)for(let currentColumnIndex=0;currentColumnIndex<currentMapSurface.columns;currentColumnIndex++){
@@ -499,7 +509,7 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
  for(const currentLayerProfile of BILLBOARD_SHADOW_PROFILE.layers){
   currentShadowGraphic.fillStyle(BILLBOARD_SHADOW_PROFILE.color,currentLayerProfile.alpha);
   {
-   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentShadowColumnLength,shadowScaleY:currentShadowRowLength},currentLayerProfile.scale);
+   const currentShadowPoints=buildBillboardShadowPolygon(currentColumnCount,currentRowCount,{x:currentShadowX,y:currentShadowY},{tileWidth:currentTileWidth,tileHeight:currentTileHeight,rotation:currentRenderOptions.rotation??0,shadowScaleX:currentShadowColumnLength,shadowScaleY:currentShadowRowLength,shadowShape:currentObjectRecord.shadowShape},currentLayerProfile.scale);
    currentShadowGraphic.fillPoints(currentShadowPoints,true);
   }
  }
@@ -510,7 +520,10 @@ export function drawBillboardContactShadow(currentGameScene,currentObjectRecord,
 export function drawFieldSceneryObject(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentTowerTextureKey='structure-ward-tower-v1',currentRenderOptions=resolveMapRenderOptions()){
  const currentBillboardScale=currentRenderOptions.billboardScale??BILLBOARD_RENDER_SCALE;
  if(!Number.isFinite(currentBillboardScale)||currentBillboardScale<=0)throw Error('빌보드 렌더 배율은 양수여야 합니다.');
- if(currentObjectRecord.kind==='ward-tower')return applyTerrainAmbientTint(drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth),currentRenderOptions.shadowSurface);
+ if(currentObjectRecord.kind==='ward-tower'){
+  if(currentObjectRecord.shadowShape)drawBillboardContactShadow(currentGameScene,{...currentObjectRecord,shadowCoordinateVersion:2,shadowSizeVersion:2},currentScreenPosition,currentRenderDepth,currentRenderOptions);
+  return applyTerrainAmbientTint(drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTowerTextureKey,currentRenderDepth,currentObjectRecord),currentRenderOptions.shadowSurface);
+ }
  if(currentObjectRecord.kind==='billboard'){
   const currentLayerImages=drawLayeredFieldBillboard(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentBillboardScale);
   const currentContactShadow=drawBillboardContactShadow(currentGameScene,currentObjectRecord,currentScreenPosition,currentRenderDepth,currentRenderOptions);

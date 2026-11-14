@@ -900,7 +900,7 @@ export class MainScene extends Phaser.Scene {
     const previousSceneObjects = new Set(this.children.list);
     for (const currentBuildingRecord of currentBuildingRecords) {
       const currentBuildingRegion = drawCityBuildingSprite(this, currentBuildingRecord, this.project, this.depth,
-        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id,this.surface());
+        this.annotationDepth(), currentBuildingRecord.id === selectedBuildingRecord?.id,this.surface(),this.rotation);
       this.cityBuildingRegions.push(currentBuildingRegion);
     }
     for (const currentSceneObject of this.children.list)
