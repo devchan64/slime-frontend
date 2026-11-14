@@ -47,7 +47,7 @@ function createRendererFixture(currentFixtureOptions={}){
  const currentOriginalObject=createRenderObject('original');
  const currentHiddenObject=createRenderObject('hidden').setVisible(false);
  const currentRendererInstance=new BattleActionPresentation(currentSceneRecord);
- const currentBaseBattle={id:'fixture',status:'ACTIVE',units:[{id:'hero',name:'test',side:currentFixtureOptions.actorSide??'ally',appearance:'beast',hp:10,sizeScale:currentFixtureOptions.sizeScale??1},{id:'enemy',name:'beast',side:currentFixtureOptions.targetSide??'enemy',appearance:'beast',hp:10,sizeScale:currentFixtureOptions.sizeScale??.5}],log:[]};
+ const currentBaseBattle={id:'fixture',status:'ACTIVE',units:[{id:'hero',name:'test',automaticPlay:currentFixtureOptions.automaticPlay??false,side:currentFixtureOptions.actorSide??'ally',appearance:'beast',hp:10,sizeScale:currentFixtureOptions.sizeScale??1},{id:'enemy',name:'beast',side:currentFixtureOptions.targetSide??'enemy',appearance:'beast',hp:10,sizeScale:currentFixtureOptions.sizeScale??.5}],log:[]};
  currentRendererInstance.synchronizePresentationState(currentBaseBattle,'local-test');
  const currentActionBattle={...currentBaseBattle,log:[{action:'ATTACK',unitId:'hero',targetId:'enemy',damage:2,...currentFixtureOptions.resultOverrides}]};
  currentRendererInstance.synchronizePresentationState(currentActionBattle,'local-test');
@@ -237,6 +237,16 @@ test('빗나감과 무효는 접촉 효과 없이 확정 표식만 표시한다'
   currentTestFixture.currentRendererInstance.updateActionPresentation(340);
   assert.equal(currentOutcomeLabel.alpha,1);
   currentTestFixture.currentRendererInstance.updateActionPresentation(1200);
+  assertRendererRestored(currentTestFixture);
+ }
+});
+
+test('자동전투는 수동 연출과 같은 타격·복원 순서를 절반의 시간에 재생한다',()=>{
+ for(const currentPlaybackSpeed of [1,2]){
+  const currentTestFixture=createRendererFixture({automaticPlay:currentPlaybackSpeed===2});
+  currentTestFixture.currentRendererInstance.updateActionPresentation(240/currentPlaybackSpeed);
+  assert.equal(currentTestFixture.currentSceneRecord.game.canvas.dataset.battleEffect,'impact');
+  currentTestFixture.currentRendererInstance.updateActionPresentation(1200/currentPlaybackSpeed);
   assertRendererRestored(currentTestFixture);
  }
 });

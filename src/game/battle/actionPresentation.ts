@@ -174,7 +174,7 @@ export class BattleActionPresentation {
       if(!this.activeActionExecution){const currentNextEntry=this.currentActionTimeline.pendingActionEntries.shift();if(currentNextEntry)this.beginActionPresentation(currentNextEntry,currentRenderTimestamp);}
       const currentExecution=this.activeActionExecution;if(!currentExecution)return;
       if(this.currentRenderScene.cameras.main.width!==currentExecution.viewportWidth||this.currentRenderScene.cameras.main.height!==currentExecution.viewportHeight){this.skipActionPresentation('resized');return;}
-      const currentElapsedTime=currentRenderTimestamp-currentExecution.startedTimestamp;
+      const currentElapsedTime=(currentRenderTimestamp-currentExecution.startedTimestamp)*(currentExecution.actionEntry.playbackSpeedMultiplier??1);
       if(currentElapsedTime>PRESENTATION_MAX_DURATION)throw Error('전투 액션 연출 실제 재생 시간 한도 초과');
       for(const currentRenderObject of this.currentRenderScene.children.list){
         if(this.ownedRenderObjects.has(currentRenderObject)||currentRenderObject.getData('characterOutlineLayer'))continue;

@@ -1,7 +1,8 @@
 import type {Battle, Unit} from '../../client/types';
 
-export type BattleActionEntry = {executionIdentifier:string; actorSnapshot:Unit; targetSnapshot:Unit; resultRecord:Battle['log'][number]};
+export type BattleActionEntry = {executionIdentifier:string; actorSnapshot:Unit; targetSnapshot:Unit; resultRecord:Battle['log'][number]; playbackSpeedMultiplier?:number};
 export const ACTION_QUEUE_CAPACITY = 64;
+const AUTOMATIC_PRESENTATION_SPEED_MULTIPLIER = 2;
 /** 누적 로그의 위치는 전투 내 불변 실행 식별자다. 최초 스냅샷은 기준점으로만 사용한다. */
 export class BattleActionTimeline {
   private currentBattleIdentity = '';
@@ -30,7 +31,7 @@ export class BattleActionTimeline {
       const currentTargetSnapshot=this.previousUnitRecords.get(currentResultRecord.targetId)??currentUnitRecords.get(currentResultRecord.targetId);
       if(!currentActorSnapshot||!currentTargetSnapshot)throw Error('전투 액션의 행동자 또는 대상이 없습니다.');
       if(this.pendingActionEntries.length>=ACTION_QUEUE_CAPACITY)throw Error('전투 액션 연출 대기열 한도를 초과했습니다.');
-      this.pendingActionEntries.push({executionIdentifier:currentResultRecord.executionId?`${currentSessionIdentity}:${currentResultRecord.executionId}`:`${currentBattleIdentity}:${currentLogIndex}`,actorSnapshot:{...currentActorSnapshot},targetSnapshot:{...currentTargetSnapshot},resultRecord:currentResultRecord});
+      this.pendingActionEntries.push({executionIdentifier:currentResultRecord.executionId?`${currentSessionIdentity}:${currentResultRecord.executionId}`:`${currentBattleIdentity}:${currentLogIndex}`,actorSnapshot:{...currentActorSnapshot},targetSnapshot:{...currentTargetSnapshot},resultRecord:currentResultRecord,playbackSpeedMultiplier:currentBattleState.units.some(currentUnitRecord=>currentUnitRecord.side==='ally'&&currentUnitRecord.automaticPlay===true)?AUTOMATIC_PRESENTATION_SPEED_MULTIPLIER:1});
     }
     this.previousLogRecords=currentBattleState.log.slice();this.previousUnitRecords=currentUnitRecords;
     if(!currentPresentationEnabled)this.pendingActionEntries.length=0;
