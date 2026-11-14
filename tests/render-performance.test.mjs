@@ -7,7 +7,7 @@ const currentPerformanceModule=await import('data:text/javascript;base64,'+Buffe
 test('실측 프레임 간격으로 FPS·p95·긴 프레임을 계산하며 빈 표본은 미측정이다',()=>{
  assert.equal(currentPerformanceModule.summarizePerformanceFrames([]),null);
  const currentSummaryValue=currentPerformanceModule.summarizePerformanceFrames([10,20,70].map((currentFrameInterval,currentFrameIndex)=>({timestamp:currentFrameIndex,interval:currentFrameInterval,cpu:2,changed:currentFrameIndex===1})));
- assert.equal(currentSummaryValue.fps,30);assert.equal(currentSummaryValue.p95,70);assert.equal(currentSummaryValue.longFrames,1);assert.equal(currentSummaryValue.changes,1);assert.equal(currentSummaryValue.cpuAverage,2);
+ assert.equal(currentSummaryValue.fps,30);assert.equal(currentSummaryValue.p50,20);assert.equal(currentSummaryValue.p95,70);assert.equal(currentSummaryValue.longFrames,1);assert.equal(currentSummaryValue.changes,1);assert.equal(currentSummaryValue.cpuAverage,2);
 });
 test('끄기·숨김·맵 전환·파괴는 관측을 해제하거나 표본을 초기화한다',()=>{
  const currentOriginalGlobals=Object.fromEntries(['document','localStorage','performance','setInterval','clearInterval'].map(currentGlobalName=>[currentGlobalName,Object.getOwnPropertyDescriptor(globalThis,currentGlobalName)]));

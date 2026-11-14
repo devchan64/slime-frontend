@@ -187,7 +187,7 @@ renderPerformanceStorage: "Saved in this browser. Turning off also stops collect
 renderPerformanceStorageError: "Could not read or save settings. Collection is off. Check browser storage and select again."
 renderPerformanceCollecting: "Collecting rendered frame samples."
 renderPerformanceFrames: "{seconds}s · {count} samples"
-renderPerformanceIntervals: "Frame mean / p95 / maximum"
+renderPerformanceIntervals: "Frame mean / p50 / p95 / maximum"
 renderPerformanceDetails: "Measurement details"
 renderPerformanceCpu: "CPU loop mean / p95"
 renderPerformanceLongFrames: "{count} frames over 50ms"
@@ -206,3 +206,8 @@ returnToMap: Return to map
 mapRenderingSuspended: Map display and input are paused because part of the map is outside the viewport.
 renderPerformanceTabHidden: Measurement is paused while the tab is hidden.
 patternDraftHelp: Unsaved edits survive page navigation in this session, but not reload or logout. Save the pattern to apply it to the game.
+
+battleActionPresentation: "Battle action presentation"
+battleActionStorage: "Saved in this browser. Off shows action results immediately."
+battleActionStorageError: "Could not save settings. Applied now, but may not persist after reconnecting."
+battleActionSkip: "Skip remaining action presentations"

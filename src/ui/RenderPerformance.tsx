@@ -30,7 +30,7 @@ export function RenderPerformanceOverlay({currentLoadingActive,currentMovementRe
   {currentDocumentHidden?<p>{translatePerformanceText('app.renderPerformanceTabHidden')}</p>:currentViewportStatus==='suspended'?<p>{translatePerformanceText('app.mapRenderingSuspended')}</p>:null}
   {!currentReportValue?<p>{translatePerformanceText('app.renderPerformanceCollecting')}</p>:<>
    <p>FPS {formatPerformanceValue(currentReportValue.fps)} · {translatePerformanceText('app.renderPerformanceFrames',{count:currentReportValue.samples,seconds:formatPerformanceValue(currentReportValue.seconds)})}</p>
-   <p>{translatePerformanceText('app.renderPerformanceIntervals')} {formatPerformanceValue(currentReportValue.average)} / {formatPerformanceValue(currentReportValue.p95)} / {formatPerformanceValue(currentReportValue.maximum)} ms</p>
+   <p>{translatePerformanceText('app.renderPerformanceIntervals')} {formatPerformanceValue(currentReportValue.average)} / {formatPerformanceValue(currentReportValue.p50)} / {formatPerformanceValue(currentReportValue.p95)} / {formatPerformanceValue(currentReportValue.maximum)} ms</p>
    <details><summary>{translatePerformanceText('app.renderPerformanceDetails')}</summary>
     <p>{translatePerformanceText('app.renderPerformanceCpu')} {formatPerformanceValue(currentReportValue.cpuAverage)} / {formatPerformanceValue(currentReportValue.cpuP95)} ms</p>
     <p>{translatePerformanceText('app.renderPerformanceLongFrames',{count:currentReportValue.longFrames})}</p>

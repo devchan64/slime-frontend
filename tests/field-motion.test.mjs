@@ -1,6 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
+const {outputFiles: movementTimingFiles}=await build({entryPoints:['src/game/terrain/movementTransition.ts'],bundle:true,write:false,platform:'node',format:'esm'});
+const {FIELD_TILE_MOVEMENT_DURATION_MS: movementTileDuration}=await import(`data:text/javascript;base64,${Buffer.from(movementTimingFiles[0].text).toString('base64')}`);
+
 const {outputFiles}=await build({entryPoints:['src/game/terrain/fieldMotion.ts'],bundle:true,write:false,platform:'node',format:'esm'});
 const {FieldMotion}=await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 const actor=(column,x,id='slime')=>({id,cell:{column,row:2},point:{x,y:x/2,depth:column*10}});
@@ -9,30 +12,30 @@ test('서버 인접 이동은 위치를 보간하고 출발·도착 바닥보다
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);
  motion.sync('field',[actor(3,164)],10);
  assert.deepEqual(motion.offset('slime',10),{x:-64,y:-32,depth:0});
- assert.deepEqual(motion.offset('slime',260),{x:0,y:0,depth:0});
- assert.deepEqual(motion.offset('slime',510),{x:0,y:0,depth:0});
+ assert.deepEqual(motion.offset('slime',(10+movementTileDuration/2)),{x:0,y:0,depth:0});
+ assert.deepEqual(motion.offset('slime',(10+movementTileDuration)),{x:0,y:0,depth:0});
 });
 test('중복 상태와 선택 화면 재조회는 이동을 다시 시작하지 않는다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(3,164)],10);
- motion.sync('field',[actor(3,164)],260);
- assert.equal(motion.movementElapsedMilliseconds('slime',260),250);
- assert.equal(motion.movementElapsedMilliseconds('slime',510),undefined);
- assert.equal(motion.offset('slime',510).x,0);
+ motion.sync('field',[actor(3,164)],(10+movementTileDuration/2));
+ assert.equal(motion.movementElapsedMilliseconds('slime',(10+movementTileDuration/2)),(movementTileDuration/2));
+ assert.equal(motion.movementElapsedMilliseconds('slime',(10+movementTileDuration)),undefined);
+ assert.equal(motion.offset('slime',(10+movementTileDuration)).x,0);
 });
-test('연속 확정 이동은 각 칸의 0.5초를 보존하고 서버 좌표는 변경하지 않는다',()=>{
+test('연속 확정 이동은 각 칸의 한 칸를 보존하고 서버 좌표는 변경하지 않는다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(3,164)],10);
  const next=actor(4,228),original=structuredClone(next);
- motion.sync('field',[next],260);
- assert.equal(motion.offset('slime',260).x+next.point.x,164);
+ motion.sync('field',[next],(10+movementTileDuration/2));
+ assert.equal(motion.offset('slime',(10+movementTileDuration/2)).x+next.point.x,164);
  assert.deepEqual(next,original);
- assert.equal(motion.offset('slime',510).x+next.point.x,164);
- assert.equal(motion.isMovementActive('slime',1009),true);
- assert.equal(motion.isMovementActive('slime',1010),false);
- assert.equal(motion.offset('slime',1010).x,0);
+ assert.equal(motion.offset('slime',(10+movementTileDuration)).x+next.point.x,164);
+ assert.equal(motion.isMovementActive('slime',(10+movementTileDuration*2-1)),true);
+ assert.equal(motion.isMovementActive('slime',(10+movementTileDuration*2)),false);
+ assert.equal(motion.offset('slime',(10+movementTileDuration*2)).x,0);
  const subsequentActorRecord=actor(5,292);
  motion.sync('field',[subsequentActorRecord],5010);
- assert.equal(motion.isMovementActive('slime',5509),true);
- assert.equal(motion.isMovementActive('slime',5510),false);
+ assert.equal(motion.isMovementActive('slime',(5010+movementTileDuration-1)),true);
+ assert.equal(motion.isMovementActive('slime',(5010+movementTileDuration)),false);
 });
 test('공간/회전/세대 변경·원거리 보정·사라진 개체 재등장은 즉시 배치한다',()=>{
  const motion=new FieldMotion();motion.sync('field',[actor(2,100)],0);motion.sync('field',[actor(5,292)],10);
@@ -48,8 +51,8 @@ test('걷기 상태는 인접 이동 중에만 켜지고 완료·순간 배치 �
  fieldMotionTracker.sync('field',[actor(2,100)],0);
  assert.equal(fieldMotionTracker.isMovementActive('slime',0),false);
  fieldMotionTracker.sync('field',[actor(3,164)],10);
- assert.equal(fieldMotionTracker.isMovementActive('slime',509),true);
- assert.equal(fieldMotionTracker.isMovementActive('slime',510),false);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',(10+movementTileDuration-1)),true);
+ assert.equal(fieldMotionTracker.isMovementActive('slime',(10+movementTileDuration)),false);
  fieldMotionTracker.sync('field',[actor(6,356)],200);
  assert.equal(fieldMotionTracker.isMovementActive('slime',200),false);
 });
@@ -58,12 +61,12 @@ test('도착점을 조금 넘은 몸체·그림자는 복귀하고 깊이는 바
  const currentMotionTracker=new FieldMotion();
  currentMotionTracker.sync('field',[actor(2,100)],0);
  currentMotionTracker.sync('field',[actor(3,164)],10);
- const currentMotionOffset=currentMotionTracker.offset('slime',(10+500*2/3));
+ const currentMotionOffset=currentMotionTracker.offset('slime',(10+movementTileDuration*2/3));
  assert.ok(currentMotionOffset.x>0 && currentMotionOffset.x<64*.4);
  assert.ok(Math.abs(currentMotionOffset.y-currentMotionOffset.x/2)<1e-10);
  assert.equal(currentMotionOffset.depth,0);
- assert.ok(currentMotionTracker.offset('slime',460).x<currentMotionOffset.x);
- assert.deepEqual(currentMotionTracker.offset('slime',510),{x:0,y:0,depth:0});
+ assert.ok(currentMotionTracker.offset('slime',(10+movementTileDuration*.9)).x<currentMotionOffset.x);
+ assert.deepEqual(currentMotionTracker.offset('slime',(10+movementTileDuration)),{x:0,y:0,depth:0});
 });
 
 
@@ -71,10 +74,10 @@ test('필드의 서버 방향은 현재 재생 구간을 따르며 다음 도착
  const currentMotionTracker=new FieldMotion();
  currentMotionTracker.sync('field',[actor(2,100)],0);
  currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'column_positive'}],10);
- currentMotionTracker.sync('field',[{...actor(4,228),serverWorldFacing:'row_negative'}],260);
- assert.equal(currentMotionTracker.currentWorldFacing('slime',509),'column_positive');
- assert.equal(currentMotionTracker.currentWorldFacing('slime',510),'row_negative');
- assert.equal(currentMotionTracker.currentWorldFacing('slime',1010),undefined);
+ currentMotionTracker.sync('field',[{...actor(4,228),serverWorldFacing:'row_negative'}],(10+movementTileDuration/2));
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',(10+movementTileDuration-1)),'column_positive');
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',(10+movementTileDuration)),'row_negative');
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',(10+movementTileDuration*2)),undefined);
  currentMotionTracker.sync('field',[actor(5,292)],4010);
  assert.equal(currentMotionTracker.currentWorldFacing('slime',4100),undefined);
  assert.throws(()=>currentMotionTracker.sync('field',[{...actor(6,356),serverWorldFacing:'invalid'}],4200),/방향/);
@@ -89,10 +92,10 @@ test('양방향 이동의 모든 걷기 프레임에서 겹친 바닥에 가려�
   currentMotionTracker.sync('field',[currentStartActor],0);
   currentMotionTracker.sync('field',[currentEndActor],10);
   for(let currentFrameIndex=0;currentFrameIndex<4;currentFrameIndex++){
-   const currentRenderedDepth=currentEndActor.point.depth+currentMotionTracker.offset('slime',10+currentFrameIndex*125).depth;
+   const currentRenderedDepth=currentEndActor.point.depth+currentMotionTracker.offset('slime',10+currentFrameIndex*(movementTileDuration/4)).depth;
    assert.equal(currentRenderedDepth,Math.max(currentStartActor.point.depth,currentEndActor.point.depth));
   }
-  assert.equal(currentMotionTracker.offset('slime',510).depth,0);
+  assert.equal(currentMotionTracker.offset('slime',(10+movementTileDuration)).depth,0);
  }
 });
 
@@ -100,12 +103,12 @@ test('완료 구간을 정리해도 연속 걷기 프레임 시각은 유지한�
  const currentMotionTracker=new FieldMotion();
  currentMotionTracker.sync('phase',[actor(0,0)],0);
  currentMotionTracker.sync('phase',[actor(1,64)],10);
- currentMotionTracker.sync('phase',[actor(2,128)],310);
- const currentPreviousOffset=currentMotionTracker.offset('slime',710);
- currentMotionTracker.sync('phase',[actor(3,192)],710);
- assert.equal(currentMotionTracker.movementElapsedMilliseconds('slime',710),700);
- assert.equal(currentMotionTracker.offset('slime',710).x+192,currentPreviousOffset.x+128);
- assert.equal(currentMotionTracker.isMovementActive('slime',1510),false);
+ currentMotionTracker.sync('phase',[actor(2,128)],(10+movementTileDuration*.6));
+ const currentPreviousOffset=currentMotionTracker.offset('slime',(10+movementTileDuration*1.4));
+ currentMotionTracker.sync('phase',[actor(3,192)],(10+movementTileDuration*1.4));
+ assert.equal(currentMotionTracker.movementElapsedMilliseconds('slime',(10+movementTileDuration*1.4)),(movementTileDuration*1.4));
+ assert.equal(currentMotionTracker.offset('slime',(10+movementTileDuration*1.4)).x+192,currentPreviousOffset.x+128);
+ assert.equal(currentMotionTracker.isMovementActive('slime',(10+movementTileDuration*3)),false);
  currentMotionTracker.sync('phase',[actor(4,256)],3000);
  assert.equal(currentMotionTracker.movementElapsedMilliseconds('slime',3000),0);
 });
@@ -114,11 +117,21 @@ test('이동 중 구간 방향을 유지하고 완료 후 서버가 확정한 �
  const currentMotionTracker=new FieldMotion();
  currentMotionTracker.sync('field',[{...actor(2,100),serverWorldFacing:'row_positive'}],0);
  currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'column_positive'}],10);
- assert.equal(currentMotionTracker.currentWorldFacing('slime',676),'column_positive');
- assert.equal(currentMotionTracker.settledWorldFacing('slime',676),undefined);
- assert.equal(currentMotionTracker.settledWorldFacing('slime',677),'column_positive');
- currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'row_negative'}],700);
- assert.equal(currentMotionTracker.settledWorldFacing('slime',700),'row_negative');
+ assert.equal(currentMotionTracker.currentWorldFacing('slime',(10+movementTileDuration-1)),'column_positive');
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',(10+movementTileDuration-1)),undefined);
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',(10+movementTileDuration)),'column_positive');
+ currentMotionTracker.sync('field',[{...actor(3,164),serverWorldFacing:'row_negative'}],(movementTileDuration*1.4));
+ assert.equal(currentMotionTracker.settledWorldFacing('slime',(movementTileDuration*1.4)),'row_negative');
  currentMotionTracker.sync('field',[actor(3,164)],800);
  assert.equal(currentMotionTracker.settledWorldFacing('slime',800),'row_negative');
+});
+
+test('필드와 마을도 정지 시간을 제외하고 세 칸 걷기 위상을 이어간다',()=>{
+ const currentMotionTracker=new FieldMotion();
+ currentMotionTracker.sync('delayed',[actor(0,0)],0);
+ for(let currentStepIndex=0;currentStepIndex<4;currentStepIndex++){
+  const currentStepTime=100+currentStepIndex*2000;
+  currentMotionTracker.sync('delayed',[actor(currentStepIndex+1,(currentStepIndex+1)*64)],currentStepTime);
+  assert.ok(Math.abs(currentMotionTracker.movementElapsedMilliseconds('slime',currentStepTime)-(currentStepIndex%3)*movementTileDuration)<1e-7);
+ }
 });

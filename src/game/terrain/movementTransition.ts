@@ -1,12 +1,13 @@
-/** 전투·필드는 한 칸 4프레임, 세 칸 12프레임을 6 FPS로 재생한다. */
+/** 전투·필드는 한 칸 4프레임, 세 칸 12프레임을 실효 12 FPS로 재생한다. */
 const CHARACTER_WALK_FRAME_COUNT = 12;
 import {BOARD_ANIMATION_FRAME_RATE} from '../animation/boardAnimation';
-export const TILE_MOVEMENT_DURATION_MS = CHARACTER_WALK_FRAME_COUNT * 1000 / BOARD_ANIMATION_FRAME_RATE;
+export const CHARACTER_MOVEMENT_SPEED_MULTIPLIER = 2;
+export const TILE_MOVEMENT_DURATION_MS = CHARACTER_WALK_FRAME_COUNT * 1000 / (BOARD_ANIMATION_FRAME_RATE * CHARACTER_MOVEMENT_SPEED_MULTIPLIER);
 const FIELD_MOVEMENT_BATCH_TILES = 3;
 export const FIELD_TILE_MOVEMENT_DURATION_MS = TILE_MOVEMENT_DURATION_MS / FIELD_MOVEMENT_BATCH_TILES;
 export const BATTLE_TILE_MOVEMENT_DURATION_MS = TILE_MOVEMENT_DURATION_MS / FIELD_MOVEMENT_BATCH_TILES;
-const FIELD_MOVEMENT_SETTLE_MILLISECONDS = 90;
-const FIELD_STEP_REQUEST_MILLISECONDS = 300;
+const FIELD_MOVEMENT_SETTLE_MILLISECONDS = 90 / CHARACTER_MOVEMENT_SPEED_MULTIPLIER;
+const FIELD_STEP_REQUEST_MILLISECONDS = 300 / CHARACTER_MOVEMENT_SPEED_MULTIPLIER;
 /** 세 칸까지 먼저 확정하되 각 칸은 서버에서 독립 판정한다. */
 export function calculateFieldMovementPause(currentCompletedSteps: number, currentHasNextStep: boolean): number {
   if (currentCompletedSteps % FIELD_MOVEMENT_BATCH_TILES === 0)
@@ -27,4 +28,13 @@ export function calculateTileMovementProgress(linearMovementProgress: number): n
   const shiftedMovementProgress = clampedMovementProgress - 1;
   return 1 + (TILE_MOVEMENT_OVERSHOOT_STRENGTH + 1) * shiftedMovementProgress ** 3
     + TILE_MOVEMENT_OVERSHOOT_STRENGTH * shiftedMovementProgress ** 2;
+}
+
+/** 정지 시간은 제외하고 세 칸 걷기 루프의 완료 지점부터 다시 시작한다. */
+export function calculateResumedAnimationStart(currentRenderTime: number, previousTrackStart: number,
+  previousAnimationStart: number, previousSegmentCount: number): number {
+  const completedWalkingDuration = previousTrackStart - previousAnimationStart
+    + previousSegmentCount * FIELD_TILE_MOVEMENT_DURATION_MS;
+  const completedWalkingPhase = completedWalkingDuration % TILE_MOVEMENT_DURATION_MS;
+  return currentRenderTime - (Math.abs(completedWalkingPhase - TILE_MOVEMENT_DURATION_MS) < 1e-7 ? 0 : completedWalkingPhase);
 }

@@ -280,3 +280,7 @@ files:
 - path: assets/terrain/brine-bank-gravel-wide-sheet-v1.png
   source_path: assets/tiles/terrain/non-road/brine-bank-gravel-wide-sheet-v1.png
   sha256: 971d3fcc5ab5efaf5bd0321c3a501600dae3e9da88be31a0976e1be576393ee8
+
+- path: assets/backgrounds/battle/forest-clearing-v1.png
+  source_path: assets/backgrounds/battle/forest-clearing-v1.png
+  sha256: f8fd255dfe9ed1c270c51cc0df5e05bdcf20bd03df5b63c994c0d5beca2dcc3d

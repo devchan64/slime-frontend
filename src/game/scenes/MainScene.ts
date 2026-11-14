@@ -1,3 +1,5 @@
+import {preloadBattleActionEffects} from '../battle/actionEffects';
+import {BattleActionPresentation} from '../battle/actionPresentation';
 import {BOARD_ANIMATION_FRAME_RATE} from '../animation/boardAnimation';
 import {findNearestWalkableTile} from '../terrain/nearestWalkableTile';
 import {applyTerrainAmbientTint,mountTerrainEffectLayer} from '../../../packages/field-renderer/field-renderer.mjs';
@@ -131,6 +133,7 @@ export class MainScene extends Phaser.Scene {
   private fieldMotion = new FieldMotion();
   private fieldCameraFollowPending = false;
   private battleMotion = new BattleMotion();
+  private battleActionPresentation:BattleActionPresentation|null=null;
   private movingObjects: {key:string;object:Phaser.GameObjects.Image;x:number;y:number;depth:number}[] = [];
   private actorCache: ActorWindowCache<Phaser.GameObjects.GameObject[]> | null = null;
   private actorRenderObjects = new Set<Phaser.GameObjects.GameObject>();
@@ -264,6 +267,7 @@ export class MainScene extends Phaser.Scene {
     preloadActors(this,this.currentActorResourceKinds);
     preloadFieldBattleEffects(this);
     if(!this.currentMapResourceKeys)preloadFieldRestEffectSprite(this);
+    preloadBattleActionEffects(this);
     if(!this.currentMapResourceKeys)preloadSafeBarrierAuraSprite(this);
     if(!this.currentMapResourceKeys)preloadSafeTower(this);
     if(!this.currentMapResourceKeys)preloadFieldScenery(this);
@@ -324,6 +328,8 @@ export class MainScene extends Phaser.Scene {
       this.fieldBattleEffectLayer.clearBattleEffects();
       this.fieldMotion.clear();
       this.battleMotion.clear();
+      this.battleActionPresentation?.destroyActionPresentation();
+      this.battleActionPresentation=null;
       this.movingObjects=[];
       this.terrainCache?.clear();
       this.terrainCache=null;
@@ -339,7 +345,7 @@ export class MainScene extends Phaser.Scene {
     }
     this.cameras.main.setZoom(DEFAULT_TILE_ZOOM);
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
-      if(p.event.target !== this.game.canvas || this.panStart)return;
+      if(this.battleActionPresentation?.isPresentationActive()||p.event.target !== this.game.canvas || this.panStart)return;
       this.panStart={x:p.x,y:p.y,scrollX:this.cameras.main.scrollX,scrollY:this.cameras.main.scrollY,
         currentPointerIdentifier:p.id,currentStartPositionX:p.x,currentStartPositionY:p.y,currentDragOccurred:false};
       this.game.canvas.closest<HTMLElement>(".canvas-wrap")?.focus({preventScroll:true});
@@ -352,6 +358,7 @@ export class MainScene extends Phaser.Scene {
         this.panStart.scrollY-dy/this.cameras.main.zoom);
     });
     this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
+      if(this.battleActionPresentation?.isPresentationActive()){this.panStart=null;return;}
       const start=this.panStart;
       if (!start || !updateMapPointerGesture(start,p.id,p.x,p.y,DRAG_THRESHOLD)) return;
       this.panStart=null;
@@ -395,11 +402,12 @@ export class MainScene extends Phaser.Scene {
       if(this.panStart?.currentPointerIdentifier===currentPointerEvent.id)this.panStart=null;
     });
     this.input.on("wheel", (_p: unknown, _o: unknown, _x: number, dy: number) =>
-      this.cameras.main.setZoom(
+      !this.battleActionPresentation?.isPresentationActive() && this.cameras.main.setZoom(
         Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001 * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION, FIELD_ZOOM_MINIMUM, FIELD_ZOOM_MAXIMUM),
       ),
     );
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
+      if (this.battleActionPresentation?.isPresentationActive())return;
       if (!(e.target as HTMLElement)?.closest(".canvas-wrap") ||
           (e.target as HTMLElement)?.closest("dialog[open]")) return;
       const delta: Record<string, number[]> = {
@@ -430,6 +438,7 @@ export class MainScene extends Phaser.Scene {
     this.draw();
   }
   adjustZoom(delta: number) {
+    if(this.battleActionPresentation?.isPresentationActive())return;
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta * GAME_INTERNAL_RESOLUTION_SCALE / WORLD_UNIT_MIGRATION,FIELD_ZOOM_MINIMUM,FIELD_ZOOM_MAXIMUM));
   }
   setBattleMode(mode: "MOVE" | "ATTACK" | null) {
@@ -437,6 +446,7 @@ export class MainScene extends Phaser.Scene {
     if (this.sys.isActive()) this.draw();
   }
   selectCell(position: Position | null, focus = false) {
+    if(this.battleActionPresentation?.isPresentationActive())return;
     this.selected = position;
     if (this.sys.isActive()) {
       this.draw();
@@ -458,6 +468,8 @@ export class MainScene extends Phaser.Scene {
         Boolean(this.state.battle) !== Boolean(s.battle) || this.state.me.position.column !== s.me.position.column || this.state.me.position.row !== s.me.position.row)
       this.fieldIdleAction.resetIdleAction(performance.now());
     this.fieldBattleTimeline.synchronizeBattleEvents(s, performance.now());
+    if(!this.battleActionPresentation)this.battleActionPresentation=new BattleActionPresentation(this);
+    this.battleActionPresentation.synchronizePresentationState(s.battle,`${s.generation}:${s.epoch}:${s.location.id}`);
     this.state = s;
     this.receivedStateTimestamp = performance.now();
     this.terrainPlan = prepareTerrain(this.state!, this.rotation, this.terrainPlan);
@@ -479,8 +491,10 @@ export class MainScene extends Phaser.Scene {
     this.animateFieldActors();
     this.renderFieldBattleEffects();
     updateFieldActorOcclusion(this);
+    this.battleActionPresentation?.updateActionPresentation(performance.now());
   }
   resetCameraView() {
+    if(this.battleActionPresentation?.isPresentationActive())return;
     this.focus();
   }
   focus() {
@@ -559,7 +573,7 @@ export class MainScene extends Phaser.Scene {
     this.actorEntries=[];
     this.actorRenderContext=createRenderContentSignature([s.location.id,s.generation,s.epoch,s.battle?.id,this.rotation,this.terrainPlan?.signature,s.map.imageManifest]);
     for (const child of [...this.children.list])
-      if (!this.actorRenderObjects.has(child) && !this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && !this.sceneryLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
+      if (!this.battleActionPresentation?.ownsPresentationObject(child) && !this.actorRenderObjects.has(child) && !this.terrainObjects.has(child) && !this.buildingLayerObjects.has(child) && !this.sceneryLayerObjects.has(child) && child !== this.backdropLayer) child.destroy();
     this.personalMarkerGraphics = [];
     this.safeBarrierSprites = [];
     const meadow = !s.battle;

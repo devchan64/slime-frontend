@@ -6,7 +6,7 @@ const PERFORMANCE_SAMPLE_LIMIT = 2000;
 const PERFORMANCE_LONG_FRAME_MS = 50;
 const PERFORMANCE_STORAGE_KEY = 'slime.render-performance.v1';
 type FrameObservation = {timestamp:number;interval:number;cpu:number;changed:boolean};
-export type PerformanceReport = {fps:number;average:number;p95:number;maximum:number;cpuAverage:number;cpuP95:number;longFrames:number;samples:number;seconds:number;changes:number;lastChangeMs:number|null;scene:ReturnType<MainScene['readRenderPerformance']>;updatedAt:number};
+export type PerformanceReport = {fps:number;average:number;p50:number;p95:number;maximum:number;cpuAverage:number;cpuP95:number;longFrames:number;samples:number;seconds:number;changes:number;lastChangeMs:number|null;scene:ReturnType<MainScene['readRenderPerformance']>;updatedAt:number};
 let currentDisplayEnabled = false;
 let currentReportValue:PerformanceReport|null = null;
 const currentSettingListeners = new Set<()=>void>();
@@ -31,7 +31,7 @@ export function summarizePerformanceFrames(currentFrameSamples:FrameObservation[
  const currentTotalDuration=currentIntervalValues.reduce((currentTotalValue,currentIntervalValue)=>currentTotalValue+currentIntervalValue,0);
  const currentSampleCount=currentFrameSamples.length;
  if(!currentSampleCount||currentTotalDuration<=0)return null;
- return {fps:currentSampleCount*1000/currentTotalDuration,average:currentTotalDuration/currentSampleCount,p95:currentIntervalValues[Math.ceil(currentSampleCount*.95)-1],maximum:currentIntervalValues[currentSampleCount-1],cpuAverage:currentCpuValues.reduce((currentTotalValue,currentCpuValue)=>currentTotalValue+currentCpuValue,0)/currentSampleCount,cpuP95:currentCpuValues[Math.ceil(currentSampleCount*.95)-1],longFrames:currentIntervalValues.filter(currentIntervalValue=>currentIntervalValue>PERFORMANCE_LONG_FRAME_MS).length,samples:currentSampleCount,seconds:currentTotalDuration/1000,changes:currentFrameSamples.filter(currentFrameSample=>currentFrameSample.changed).length};
+ return {fps:currentSampleCount*1000/currentTotalDuration,average:currentTotalDuration/currentSampleCount,p50:currentIntervalValues[Math.ceil(currentSampleCount*.5)-1],p95:currentIntervalValues[Math.ceil(currentSampleCount*.95)-1],maximum:currentIntervalValues[currentSampleCount-1],cpuAverage:currentCpuValues.reduce((currentTotalValue,currentCpuValue)=>currentTotalValue+currentCpuValue,0)/currentSampleCount,cpuP95:currentCpuValues[Math.ceil(currentSampleCount*.95)-1],longFrames:currentIntervalValues.filter(currentIntervalValue=>currentIntervalValue>PERFORMANCE_LONG_FRAME_MS).length,samples:currentSampleCount,seconds:currentTotalDuration/1000,changes:currentFrameSamples.filter(currentFrameSample=>currentFrameSample.changed).length};
 }
 /** 기존 게임 루프에 연결하며 표시를 끄면 수집을 해제한다. */
 export function attachRenderPerformance(currentGameInstance:Phaser.Game,currentMapScene:MainScene){

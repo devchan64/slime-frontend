@@ -1,3 +1,5 @@
+import {readBattleActionSettings,skipPendingBattleActions} from '../game/battle/actionSettings';
+import {BattleActionSettings,BattleActionPlaybackControls,useBattleActionSettings} from './BattleActionSettings';
 import {MapViewportReturn} from './MapViewportReturn';
 import {useRenderPerformanceSettings,RenderPerformanceSettings,RenderPerformanceOverlay} from './RenderPerformance';
 import {useMapBackgroundMusic, MapMusicSettingsControl} from './MapBackgroundMusic';
@@ -66,6 +68,7 @@ function reportFrontendError(currentErrorStage:"terrain-validation"|"renderer-in
 
 export function App() {
   const currentPerformanceSettings=useRenderPerformanceSettings();
+  const currentBattleActionSettings=useBattleActionSettings();
   const { t, locale } = useTranslation();
   useEffect(() => {
     const handleWindowError = (currentErrorEvent:ErrorEvent) => reportFrontendError("runtime",currentErrorEvent.error || new Error(currentErrorEvent.message),client.state?.map.id);
@@ -405,11 +408,12 @@ export function App() {
     setSelected(position);
     renderer.current?.scene.selectCell(position, true);
   };
+  useEffect(()=>{if(!connected)skipPendingBattleActions();},[connected]);
   const disabled = !!battleReport || busy || !connected || renderFailed || loading;
   const battle = (battleReport ? battleReportSceneSnapshot.current : state)?.battle,
     turn = battle?.units.find((u) => u.id === battle.order[battle.index]);
   const battleCommand = (type: string, targetId?: string, selectedActionIdentifier?: string, requestedAutomaticState?: boolean) =>
-    command("/v1/game/battle/commands", {
+    !readBattleActionSettings().busy && command("/v1/game/battle/commands", {
       action: {
         type,
         turnId: battle?.turnId,
@@ -653,6 +657,7 @@ export function App() {
             <button class="secondary" onClick={() => navigateCharacterPage("#/menu")}>{t('app.menu')}</button></div>
           <MapMusicSettingsControl currentMusicController={currentMusicController}/>
           <RenderPerformanceSettings {...currentPerformanceSettings}/>
+          <BattleActionSettings/>
         </section></main>
       ) : settingsPage ? (
         <main class="lobby character-lobby">
@@ -760,8 +765,9 @@ export function App() {
               <FieldEventShortcuts state={state} selected={selected} select={selectField} disabled={loading || !!walking} />
 
 </section>}
+            {battle && <BattleActionPlaybackControls/>}
             {battle && <BattlePanel me={state.me} battle={battle} selectionIntent={battleSelectionIntent} actor={state.me.id} monsterLoreLevel={state.me.skillUseLocks?.monster_lore ? 0 : state.me.skills.monster_lore ?? 0} selected={selected}
-              disabled={disabled || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
+              disabled={disabled || currentBattleActionSettings.busy || state.me.requiresStartSpawn} onMode={mode => renderer.current?.scene.setBattleMode(mode)}
               select={p => { renderer.current?.scene.selectCell(p); setSelected(p); }} execute={battleCommand} />}
             {!battle && <>
             <FieldMapHelp currentFieldState={state} selectedFieldPosition={selected} />

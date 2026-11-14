@@ -73,7 +73,7 @@ export type Battle = {
     attacks: { targetId: string; damage: number; apCost?: number }[];
   };
   log: { unitId: string; action: string; turnId: number; at: number; enabled?: boolean;
-         damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean; apCost?: number; apAfter?: number; movementStopped?: boolean }[];
+         executionId?:string; presentationVersion?:1; presentationMotion?:'melee'|'ranged'|'support'; actionId?: string; healing?:number; drainHealing?:number; presentationHitTimesMs?:number[]; presentationHits?:{id?:string;targetId?:string;outcome?:'hit'|'guarded'|'miss'|'immune'|'healing';targetHealthDepleted?:boolean;damage?:number; healing?:number}[]; damage?: number; targetId?: string; targetHp?: number; path?: Position[]; origin?: Position; position?: Position; facing?: WorldFacing; pathFacings?: WorldFacing[]; autoGuard?: boolean; apCost?: number; apAfter?: number; movementStopped?: boolean }[];
   id: string;
   version: number;
   units: Unit[];

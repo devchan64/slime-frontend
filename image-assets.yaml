@@ -2,135 +2,95 @@ managementId: registry.images.frontend
 data:
   version: 1
   images:
-  - managementId: image.effects.field.safe-barrier-aura-v1-source
-    path: ../slime-assets/assets/sprites/effects/safe-barrier/safe-barrier-aura-v1-source.png
-  - managementId: image.effects.field.rest-recovery-v1-source
-    path: ../slime-assets/assets/sprites/effects/rest/rest-recovery-v1-source.png
-  - managementId: image.frontend.public.assets.brand.slime-favicon-v2-32.png
-    path: public/assets/brand/slime-favicon-v2-32.png
-  - managementId: image.frontend.public.assets.brand.slime-favicon-v2.ico
-    path: public/assets/brand/slime-favicon-v2.ico
-  - managementId: image.frontend.public.assets.brand.slime-favicon-v2.svg
-    path: public/assets/brand/slime-favicon-v2.svg
-  - managementId: image.frontend.public.assets.brand.slime-touch-icon-v2.png
-    path: public/assets/brand/slime-touch-icon-v2.png
-  - managementId: image.frontend.public.favicon.ico
-    path: public/favicon.ico
-  - managementId: image.frontend.src.assets.login.slime-welcome-v4.png
-    path: ../slime-assets/assets/ui/login/slime-welcome-v4.png
-  - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
-    path: ../slime-assets/assets/backgrounds/meadow-backdrop-v2.webp
-  - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
-    path: ../slime-assets/assets/buildings/ward-tower-v1.png
-  - managementId: image.frontend.src.assets.cutins.characters.default-punch-v1.png
-    path: ../slime-assets/assets/characters/default/battle-cutins/default-punch-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.giant-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.field-rabbit-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.stone-crab-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/stone-crab-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.ridge-boar-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ridge-boar-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.lantern-moth-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/lantern-moth-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.reed-crawler-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/reed-crawler-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.ash-fox-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ash-fox-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.crystal-lizard-idle-v1.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-lizard-idle-v1.png
-  - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png
-  - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v2.rest-v2.png
-    path: ../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v2.png
-  - managementId: image.world.stonewarm.stone-wall-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-v1.png
-  - managementId: image.world.stonewarm.stone-small-window-wall-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/stone-small-window-wall-v1.png
-  - managementId: image.world.stonewarm.stone-large-window-wall-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/stone-large-window-wall-v1.png
-  - managementId: image.world.stonewarm.stone-door-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/stone-door-v1.png
-  - managementId: image.character.default.idle-v6.sheet
-    path: ../slime-assets/assets/characters/default/animations/light-leather/idle/idle-v6.png
-  - managementId: image.world.stonewarm.stone-roof-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/stone-roof-v1.png
-  - managementId: tile.buildings.roof.marble-v3
-    path: ../slime-assets/assets/tiles/buildings/marble/marble-roof-v3.png
-  - managementId: image.frontend.src.assets.world.stonewarm.buildings.stone-wall-crossbar-v1.png
-    path: ../slime-assets/assets/tiles/buildings/stone/stone-wall-crossbar-v1.png
-  - managementId: tile.buildings.roof.red-stone-v3
-    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-roof-v3.png
-  - managementId: tile.buildings.door.red-stone-brick-gate-v2
-    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v2.png
-  - managementId: tile.buildings.door.red-stone-brick-gate-v3
-    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-brick-gate-v3.png
-  - managementId: tile.buildings.wall.red-stone-sky-blue-window-v1
-    path: ../slime-assets/assets/tiles/buildings/red-stone/red-stone-sky-blue-window-wall-v1.png
-  - managementId: tile.buildings.wall.adobe-mudbrick-v1
-    path: ../slime-assets/assets/tiles/buildings/adobe/adobe-mudbrick-wall-v1.png
-  - managementId: tile.buildings.wall.mossy-ancient-stone-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/mossy-ancient-stone-wall-v1.png
-  - managementId: tile.buildings.wall.white-plaster-timber-v1
-    path: ../slime-assets/assets/tiles/buildings/wood/white-plaster-timber-wall-v1.png
-  - managementId: tile.buildings.wall.dark-basalt-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/dark-basalt-wall-v1.png
-  - managementId: tile.buildings.wall.limestone-ashlar-v1
-    path: ../slime-assets/assets/tiles/buildings/stone/limestone-ashlar-wall-v1.png
-  - managementId: image.terrain.granite-slab-road-v1
-    path: ../slime-assets/assets/tiles/terrain/road/granite-slab-road-v1.png
-  - managementId: image.frontend.src.assets.world.common.buildings.wood-wall-v2.png
-    path: ../slime-assets/assets/tiles/buildings/wood/wood-wall-v2.png
-  - managementId: tile.buildings.roof.wood
-    path: ../slime-assets/assets/tiles/buildings/wood/wood-roof-v4.png
-  - managementId: image.terrain.cliff-rock-face-v1
-    path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
-  - managementId: image.terrain.limestone-road
-    path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png
-  - managementId: image.terrain.ochre-pebble-road
-    path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png
-  - managementId: image.terrain.marble-circular-road
-    path: ../slime-assets/assets/tiles/terrain/road/marble-circular-road-v1.png
-  - managementId: tile.buildings.wall.wood-window
-    path: ../slime-assets/assets/tiles/buildings/wood/wood-window-wall-v1.png
-  - managementId: tile.buildings.wall.wood-door
-    path: ../slime-assets/assets/tiles/buildings/wood/wood-door-wall-v1.png
-  - managementId: tile.buildings.wall.wood-crossbar
-    path: ../slime-assets/assets/tiles/buildings/wood/wood-crossbar-wall-v1.png
-  - managementId: image.terrain.sand-cactus-type-a
-    path: ../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
-  - managementId: image.terrain.transparent-shallow-water-v2
-    path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
-  - managementId: image.terrain.opaque-deep-water-v2
-    path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v2.png
-  - managementId: image.terrain.dry-ground-tree-stump
-    path: ../slime-assets/assets/tiles/terrain/blocked/dry-ground-tree-stump-v1.png
-  - managementId: image.terrain.ramp-earth-stone-wall-v1
-    path: ../slime-assets/assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
-  - managementId: image.monsters.moss-turtle.idle
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png
-  - managementId: image.monsters.mist-frog.idle
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png
-  - managementId: image.monsters.sand-scorpion.idle
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.png
-  - managementId: image.monsters.ember-hedgehog.idle
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.png
-  - managementId: image.monsters.crystal-bat.idle
-    path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.png
-  - managementId: image.character.female.idle-v1.sheet
-    path: ../slime-assets/assets/characters/female-a/animations/idle-v1/down-left-8frames-v2/idle-v1.png
-  - managementId: image.character.female.rest-v1.sheet
-    path: ../slime-assets/assets/characters/female-a/animations/rest-v1/down-left-entry-exit-v2/rest-v1.png
-  - managementId: sprite.characters.female.walk-v1.walk-v1.png
-    path: ../slime-assets/assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/walk-v1.png
-  - managementId: sprite.image.characters.default.walk-light-leather.front-left
-    path: ../slime-assets/assets/characters/default/animations/light-leather/walk/character-default-light-leather-walk-front-left-sprite-v1.png
-  - managementId: sprite.structures.guard-center-wood-v1.png
-    path: ../slime-assets/assets/buildings/guard-center-wood-v1.png
-  - managementId: sprite.structures.guard-center-red-tile-v1.png
-    path: ../slime-assets/assets/buildings/guard-center-red-tile-v1.png
-  - managementId: sprite.structures.guard-center-teal-v1.png
-    path: ../slime-assets/assets/buildings/guard-center-teal-v1.png
+    - managementId: image.effects.field.safe-barrier-aura-v1-source
+      path: ../slime-assets/assets/sprites/effects/safe-barrier/safe-barrier-aura-v1-source.png
+    - managementId: image.effects.field.rest-recovery-v1-source
+      path: ../slime-assets/assets/sprites/effects/rest/rest-recovery-v1-source.png
+    - managementId: image.frontend.public.assets.brand.slime-favicon-v2-32.png
+      path: public/assets/brand/slime-favicon-v2-32.png
+    - managementId: image.frontend.public.assets.brand.slime-favicon-v2.ico
+      path: public/assets/brand/slime-favicon-v2.ico
+    - managementId: image.frontend.public.assets.brand.slime-favicon-v2.svg
+      path: public/assets/brand/slime-favicon-v2.svg
+    - managementId: image.frontend.public.assets.brand.slime-touch-icon-v2.png
+      path: public/assets/brand/slime-touch-icon-v2.png
+    - managementId: image.frontend.public.favicon.ico
+      path: public/favicon.ico
+    - managementId: image.frontend.src.assets.login.slime-welcome-v4.png
+      path: ../slime-assets/assets/ui/login/slime-welcome-v4.png
+    - managementId: image.frontend.src.assets.terrain.meadow-backdrop-v2.webp
+      path: ../slime-assets/assets/backgrounds/meadow-backdrop-v2.webp
+    - managementId: image.frontend.src.assets.structures.ward-tower-v1.png
+      path: ../slime-assets/assets/buildings/ward-tower-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.slime-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/slime-idle-v2.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.giant-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/giant-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.field-rabbit-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/field-rabbit-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.stone-crab-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/stone-crab-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.ridge-boar-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ridge-boar-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.lantern-moth-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/lantern-moth-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.reed-crawler-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/reed-crawler-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.ash-fox-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ash-fox-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.crystal-lizard-idle-v1.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-lizard-idle-v1.png
+    - managementId: image.frontend.src.assets.monsters.standing-v1.beast-idle-v2.png
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/beast-idle-v2.png
+    - managementId: image.frontend.src.assets.characters.character-default-white-shirt-rest-v2.rest-v2.png
+      path: ../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v2.png
+    - managementId: image.character.default.idle-v6.sheet
+      path: ../slime-assets/assets/characters/default/animations/light-leather/idle/idle-v6.png
+    - managementId: image.terrain.granite-slab-road-v1
+      path: ../slime-assets/assets/tiles/terrain/road/granite-slab-road-v1.png
+    - managementId: image.terrain.cliff-rock-face-v1
+      path: ../slime-assets/assets/tiles/terrain/blocked/cliff-rock-face-v1.png
+    - managementId: image.terrain.limestone-road
+      path: ../slime-assets/assets/tiles/terrain/road/limestone-road-v3.png
+    - managementId: image.terrain.ochre-pebble-road
+      path: ../slime-assets/assets/tiles/terrain/road/ochre-pebble-road-v1.png
+    - managementId: image.terrain.marble-circular-road
+      path: ../slime-assets/assets/tiles/terrain/road/marble-circular-road-v1.png
+    - managementId: image.terrain.sand-cactus-type-a
+      path: ../slime-assets/assets/tiles/terrain/blocked/sand-cactus-type-a-v1.png
+    - managementId: image.terrain.transparent-shallow-water-v2
+      path: ../slime-assets/assets/tiles/terrain/blocked/transparent-shallow-water-v2.png
+    - managementId: image.terrain.opaque-deep-water-v2
+      path: ../slime-assets/assets/tiles/terrain/blocked/transparent-deep-water-v2.png
+    - managementId: image.terrain.ramp-earth-stone-wall-v1
+      path: ../slime-assets/assets/tiles/terrain/blocked/ramp-earth-stone-wall-v1.png
+    - managementId: image.monsters.moss-turtle.idle
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png
+    - managementId: image.monsters.mist-frog.idle
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png
+    - managementId: image.monsters.sand-scorpion.idle
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/sand-scorpion-idle-v1.png
+    - managementId: image.monsters.ember-hedgehog.idle
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/ember-hedgehog-idle-v1.png
+    - managementId: image.monsters.crystal-bat.idle
+      path: ../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/crystal-bat-idle-v1.png
+    - managementId: image.character.female.idle-v1.sheet
+      path: ../slime-assets/assets/characters/female-a/animations/idle-v1/down-left-8frames-v2/idle-v1.png
+    - managementId: image.character.female.rest-v1.sheet
+      path: ../slime-assets/assets/characters/female-a/animations/rest-v1/down-left-entry-exit-v2/rest-v1.png
+    - managementId: sprite.characters.female.walk-v1.walk-v1.png
+      path: ../slime-assets/assets/characters/female-a/animations/walk-v1/down-left-12frames-v2/walk-v1.png
+    - managementId: sprite.structures.guard-center-wood-v1.png
+      path: ../slime-assets/assets/buildings/guard-center-wood-v1.png
+    - managementId: sprite.structures.guard-center-red-tile-v1.png
+      path: ../slime-assets/assets/buildings/guard-center-red-tile-v1.png
+    - managementId: sprite.structures.guard-center-teal-v1.png
+      path: ../slime-assets/assets/buildings/guard-center-teal-v1.png
+
+    - managementId: image.effects.battle.healing-v1
+      path: ../slime-assets/assets/sprites/effects/battle/healing-v1.png
+
+    - managementId: image.effects.battle.impact-v1
+      path: ../slime-assets/assets/sprites/effects/battle/impact-v1.png
+    - managementId: image.backgrounds.battle.forest-clearing-v1
+      path: ../slime-assets/assets/backgrounds/battle/forest-clearing-v1.png

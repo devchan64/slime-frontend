@@ -1,3 +1,4 @@
+import {CHARACTER_MOVEMENT_SPEED_MULTIPLIER} from '../terrain/movementTransition';
 import { parseDocument } from 'yaml';
 import { resolveCharacterBodyHeight } from './characterBodyHeight';
 import walkingCharacterSource from '../../../../slime-assets/assets/characters/default/animations/light-leather/walk/source.yaml?raw';
@@ -35,7 +36,7 @@ export function updateCharacterAnimationFrame(actorRenderImage: Phaser.GameObjec
     actorRenderImage.setData("walkingIdleScale", actorRenderImage.scaleX);
   }
   const sampledWalkingFrame = characterWalkAsset.animation.sample(
-    characterWalkAsset.animation.clip("walk", "down_right"), movementElapsedMilliseconds!).frame;
+    characterWalkAsset.animation.clip("walk", "down_right"), movementElapsedMilliseconds! * CHARACTER_MOVEMENT_SPEED_MULTIPLIER).frame;
   actorRenderImage.setTexture(characterWalkAsset.key,
     `cell:${characterWalkAsset.animation.data.animationId}@${characterWalkAsset.animation.data.version}:${sampledWalkingFrame.frameId}`)
     .setOrigin(sampledWalkingFrame.anchor.x / sampledWalkingFrame.rect.width, sampledWalkingFrame.anchor.y / sampledWalkingFrame.rect.height)

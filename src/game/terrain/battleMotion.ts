@@ -1,39 +1,22 @@
 import {isHealthDepleted} from '../../client/health-state.mjs';
-import {calculateTileMovementProgress, BATTLE_TILE_MOVEMENT_DURATION_MS} from './movementTransition';
+import {calculateResumedAnimationStart, calculateTileMovementProgress, BATTLE_TILE_MOVEMENT_DURATION_MS} from './movementTransition';
 import { screenFacing, type WorldFacing } from '../animation/facing';
 import type {Battle, Position} from '../../client/types';
-const ATTACK_TRANSITION_MILLISECONDS = 300;
-const ATTACK_LUNGE_DISTANCE_RATIO = 0.32;
-const ATTACK_RECOIL_DISTANCE_RATIO = 0.08;
 type Point = {x:number;y:number;depth:number};
 type Track = {points:Point[];started:number;animationStartedAt:number;segmentWorldFacings:(WorldFacing|undefined)[]};
-type ImpactTrack = {vector:Point;started:number;distanceRatio:number};
 /** 새로 수신한 확정 이동 로그만 재생하며 초기 접속의 과거 기록은 재생하지 않는다. */
 export class BattleMotion {
   private space='';
   private logCount=0;
   private positions=new Map<string,Position>();
   private tracks=new Map<string,Track>();
-  private impactTracks=new Map<string,ImpactTrack>();
-  clear(){this.space='';this.logCount=0;this.positions.clear();this.tracks.clear();this.impactTracks.clear();}
+  clear(){this.space='';this.logCount=0;this.positions.clear();this.tracks.clear();}
   sync(space:string,battle:Battle|null,project:(p:Position, battleUnitIdentifier?: string)=>Point,now:number){
     if(!battle){this.clear();return;}
     if(space!==this.space || battle.log.length<this.logCount){
       this.clear();this.space=space;this.logCount=battle.log.length;
     }
     for(const event of battle.log.slice(this.logCount)){
-      if (event.action === 'ATTACK' && event.targetId) {
-        const actorPosition = this.positions.get(event.unitId);
-        const targetPosition = this.positions.get(event.targetId)
-          ?? battle.units.find(currentUnit => currentUnit.id === event.targetId)?.position;
-        if (actorPosition && targetPosition) {
-          const actorPoint = project(actorPosition, event.unitId);
-          const targetPoint = project(targetPosition, event.targetId);
-          const vector = {x:targetPoint.x-actorPoint.x,y:targetPoint.y-actorPoint.y,depth:targetPoint.depth-actorPoint.depth};
-          this.impactTracks.set(event.unitId,{vector,started:now,distanceRatio:ATTACK_LUNGE_DISTANCE_RATIO});
-          this.impactTracks.set(event.targetId,{vector:{x:-vector.x,y:-vector.y,depth:-vector.depth},started:now,distanceRatio:ATTACK_RECOIL_DISTANCE_RATIO});
-        }
-      }
       if(event.action!=='MOVE' || !event.path?.length)continue;
       if (event.pathFacings !== undefined) {
         if (event.pathFacings.length !== event.path.length) throw new Error('이동 경로와 구간별 방향 개수가 다릅니다.');
@@ -50,13 +33,12 @@ export class BattleMotion {
       const segmentWorldFacings=currentMotionTrack ? currentMotionTrack.segmentWorldFacings.slice(completedSegmentCount) : [];
       segmentWorldFacings.push(...event.path.map((_, pathSegmentIndex) => event.pathFacings?.[pathSegmentIndex]));
       points.push(...event.path.map(battlePathPosition => project(battlePathPosition, event.unitId)));
-      this.tracks.set(event.unitId,{points,started:currentMovementStart,animationStartedAt:currentMotionTrack?.animationStartedAt??now,segmentWorldFacings});
+      this.tracks.set(event.unitId,{points,started:currentMovementStart,animationStartedAt:currentMotionTrack?.animationStartedAt ?? (previousMotionTrack ? calculateResumedAnimationStart(now, previousMotionTrack.started, previousMotionTrack.animationStartedAt, previousMotionTrack.points.length - 1) : now),segmentWorldFacings});
       this.positions.set(event.unitId,event.path[event.path.length-1]);
     }
     this.logCount=battle.log.length;
     for(const unit of battle.units)this.positions.set(unit.id,{...unit.position});
     for(const id of this.tracks.keys())if(!battle.units.some(u=>u.id===id && !isHealthDepleted(u)))this.tracks.delete(id);
-    for(const id of this.impactTracks.keys())if(!battle.units.some(u=>u.id===id && !isHealthDepleted(u)))this.impactTracks.delete(id);
   }
   currentWorldFacing(battleUnitIdentifier:string,currentRenderTime:number):WorldFacing|undefined {
     const currentMotionTrack=this.tracks.get(battleUnitIdentifier);
@@ -77,13 +59,7 @@ export class BattleMotion {
     const track=this.tracks.get(id);
     const movementOffset=track ? (()=>{const at=this.sample(track,now),end=track.points[track.points.length-1];
       return {x:at.x-end.x,y:at.y-end.y,depth:at.depth-end.depth};})() : {x:0,y:0,depth:0};
-    const impactTrack=this.impactTracks.get(id);
-    if(!impactTrack)return movementOffset;
-    const progress=Math.max(0,Math.min(1,(now-impactTrack.started)/ATTACK_TRANSITION_MILLISECONDS));
-    const transitionProgress=progress<0.45 ? progress/0.45 : 1-(progress-0.45)/0.55;
-    return {x:movementOffset.x+impactTrack.vector.x*impactTrack.distanceRatio*transitionProgress,
-      y:movementOffset.y+impactTrack.vector.y*impactTrack.distanceRatio*transitionProgress,
-      depth:movementOffset.depth+impactTrack.vector.depth*impactTrack.distanceRatio*transitionProgress};
+    return movementOffset;
   }
   private sample(track:Track,now:number):Point{
     const progress=Math.max(0,now-track.started)/BATTLE_TILE_MOVEMENT_DURATION_MS;
