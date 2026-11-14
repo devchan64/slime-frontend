@@ -20,9 +20,14 @@ export function calculatePresentationActorLayout(currentViewportWidth:number,cur
       return currentAnchorPosition;
     })};
   }
-  return {scale:currentCommonScale,positions:currentActorBounds.map(currentActorBound=>currentActorBound.side==='ally'
-    ?currentViewportWidth/2-currentScaledGap/2-currentActorBound.maximumOffsetX*currentCommonScale
-    :currentViewportWidth/2+currentScaledGap/2-currentActorBound.minimumOffsetX*currentCommonScale)};
+  // 두 몸체와 간격을 하나의 영역으로 중앙 정렬하여 크기가 달라도 바깥 여백을 맞춘다.
+  const currentGroupWidth=(currentActorWidths[0]+currentActorWidths[1])*currentCommonScale+currentScaledGap;
+  const currentGroupLeftEdge=(currentViewportWidth-currentGroupWidth)/2;
+  const currentAllyActorIndex=currentActorBounds.findIndex(currentActorBound=>currentActorBound.side==='ally');
+  const currentAllyBodyWidth=currentActorWidths[currentAllyActorIndex]*currentCommonScale;
+  return {scale:currentCommonScale,positions:currentActorBounds.map(currentActorBound=>
+    currentGroupLeftEdge+(currentActorBound.side==='ally'?0:currentAllyBodyWidth+currentScaledGap)
+      -currentActorBound.minimumOffsetX*currentCommonScale)};
 }
 
 /** 원본 시선과 원하는 화면 시선이 다를 때만 반전한다. */

@@ -32,7 +32,8 @@ export const FIELD_ACTOR_CONTACT_SHADOW_PROFILES = Object.freeze({
  broad:Object.freeze({width:0.44,height:0.34,alpha:0.32,coreAlpha:0.26,coreScale:0.65,scale:0.65,opacityScale:1.5}),
 });
 export const FIELD_ACTOR_CONTACT_SHADOW_COLOR = 0x18392e;
-export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:128,anchorY:223.5,bodyTop:16.5,displayHeight:56});
+// 받침부 지면 면적의 중심(원본 Y 약 180~240)을 타일 중심에 맞춘다. 크기 기준은 앵커와 분리한다.
+export const FIELD_SAFE_TOWER_PROFILE = Object.freeze({anchorX:128,anchorY:210,bodyTop:16.5,bodyReferenceHeight:207,displayHeight:112});
 export const EFFECT_ANIMATION_FRAME_RATE = 6;
 export const EFFECT_ANIMATION_FRAME_DURATION = 1000 / EFFECT_ANIMATION_FRAME_RATE;
 export const FIELD_SAFE_AURA_PROFILE = Object.freeze({columns:4,rows:2,frames:8,height:7.5,alpha:0.7,frameDuration:EFFECT_ANIMATION_FRAME_DURATION,horizontalCrop:0.02,topCrop:0.25,bottomCrop:0.1});

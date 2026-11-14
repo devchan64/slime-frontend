@@ -92,8 +92,17 @@ test('소형부터 대형까지 몸체 경계와 진영을 보존하고 좁은 �
     const currentLeftEdge=currentLayoutResult.positions[currentActorIndex]+currentActorBound.minimumOffsetX*currentLayoutResult.scale;
     const currentRightEdge=currentLayoutResult.positions[currentActorIndex]+currentActorBound.maximumOffsetX*currentLayoutResult.scale;
     assert.ok(currentLeftEdge>=0&&currentRightEdge<=currentViewportWidth);
-    assert.ok(currentActorBound.side==='ally'?currentRightEdge<=currentViewportWidth/2:currentLeftEdge>=currentViewportWidth/2);
+    if(currentActorSides[0]===currentActorSides[1])assert.ok(currentActorBound.side==='ally'?currentRightEdge<=currentViewportWidth/2:currentLeftEdge>=currentViewportWidth/2);
    });
+   if(currentActorSides[0]!==currentActorSides[1]){
+    const currentAllyIndex=currentActorSides.indexOf('ally'),currentEnemyIndex=currentActorSides.indexOf('enemy');
+    const currentAllyLeft=currentLayoutResult.positions[currentAllyIndex]+currentActorBounds[currentAllyIndex].minimumOffsetX*currentLayoutResult.scale;
+    const currentAllyRight=currentLayoutResult.positions[currentAllyIndex]+currentActorBounds[currentAllyIndex].maximumOffsetX*currentLayoutResult.scale;
+    const currentEnemyLeft=currentLayoutResult.positions[currentEnemyIndex]+currentActorBounds[currentEnemyIndex].minimumOffsetX*currentLayoutResult.scale;
+    const currentEnemyRight=currentLayoutResult.positions[currentEnemyIndex]+currentActorBounds[currentEnemyIndex].maximumOffsetX*currentLayoutResult.scale;
+    assert.ok(Math.abs(currentAllyLeft-(currentViewportWidth-currentEnemyRight))<1e-8);
+    assert.ok(Math.abs(currentEnemyLeft-currentAllyRight-20*currentLayoutResult.scale)<1e-8);
+   }
   }
  }
  const currentSingleActor=calculatePresentationActorLayout(800,[{side:'ally',minimumOffsetX:-10,maximumOffsetX:80}],20);

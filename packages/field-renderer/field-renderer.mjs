@@ -372,7 +372,7 @@ export function drawFieldAuraPanel(currentGameScene,currentPanelPoints,currentTe
 export function drawFieldTowerObject(currentGameScene,currentScreenPosition,currentTextureKey,currentRenderDepth=0){
  if(!currentGameScene.textures.exists(currentTextureKey))throw Error('결계탑 텍스처 누락');
  const currentTowerImage=currentGameScene.add.image(currentScreenPosition.x,currentScreenPosition.y,currentTextureKey);
- return markFieldOcclusionObject(currentTowerImage).setOrigin(FIELD_SAFE_TOWER_PROFILE.anchorX/currentTowerImage.width,FIELD_SAFE_TOWER_PROFILE.anchorY/currentTowerImage.height).setScale(FIELD_SAFE_TOWER_PROFILE.displayHeight/(FIELD_SAFE_TOWER_PROFILE.anchorY-FIELD_SAFE_TOWER_PROFILE.bodyTop)).setDepth(currentRenderDepth);
+ return markFieldOcclusionObject(currentTowerImage).setOrigin(FIELD_SAFE_TOWER_PROFILE.anchorX/currentTowerImage.width,FIELD_SAFE_TOWER_PROFILE.anchorY/currentTowerImage.height).setScale(FIELD_SAFE_TOWER_PROFILE.displayHeight/FIELD_SAFE_TOWER_PROFILE.bodyReferenceHeight).setDepth(currentRenderDepth);
 }
 
 export {FIELD_RENDER_METRICS,projectSurfaceCell,projectSurfaceVertex,rotateSurfacePosition,containsSurfacePoint};

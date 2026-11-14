@@ -729,7 +729,7 @@ export function App() {
               {!battle && <FieldPoints fp={state.me.fp} max={state.me.fpMax} hp={state.me.hp} maxHp={state.me.maxHp} healthRecoveryPending={state.me.healthRecoveryPending} nextChargeAt={state.me.fpNextChargeAt} now={(clock + serverOffset.current) / 1000} />}
             </div>
             <div class={`map-stage card ${battle ? "battle-map-card" : "field-map-card"}`} role="region" aria-label={battle ? t('app.battleMap') : state.map.safeTown ? t('app.townMap') : t('app.fieldMap')}>
-              <nav class="map-camera-controls" aria-label={t('app.cameraControls')}>              <button class="secondary compact" aria-label={t('app.zoomOut')} onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
+              {!currentBattleActionSettings.busy && <nav class="map-camera-controls" aria-label={t('app.cameraControls')}>              <button class="secondary compact" aria-label={t('app.zoomOut')} onClick={() => renderer.current?.scene.adjustZoom(-MAP_ZOOM_STEP)}>−</button>
               <button class="secondary compact" aria-label={t('app.zoomIn')} onClick={() => renderer.current?.scene.adjustZoom(MAP_ZOOM_STEP)}>＋</button>
               <button
                 class="secondary compact"
@@ -738,7 +738,7 @@ export function App() {
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="6" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4" /><circle cx="12" cy="12" r="1" /></svg>
               </button>
-</nav>
+</nav>}
               <div class="canvas-wrap" ref={container} tabIndex={0} role="region" aria-label={t('app.mapExplore')} />
 </div>
             <MapViewportReturn currentMapReference={container}/>
