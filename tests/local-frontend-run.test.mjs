@@ -21,14 +21,14 @@ for (const currentTestScenario of [
       await mkdir(join(currentFixtureRoot,'scripts'));
       await mkdir(join(currentFixtureRoot,'node_modules/.bin'),{recursive:true});
       await mkdir(join(currentFixtureRoot,'bin'));
-      await copyFile(new URL('../scripts/local_frontend_run.sh',import.meta.url),join(currentFixtureRoot,'scripts/local_frontend_run.sh'));
+      await copyFile(new URL('../scripts/frontend.sh',import.meta.url),join(currentFixtureRoot,'scripts/frontend.sh'));
       await writeFile(join(currentFixtureRoot,'scripts/script_logging.sh'),'SCRIPT_LOG_ROOT="'+currentFixtureRoot+'"\n');
       await writeFile(join(currentFixtureRoot,'node_modules/.bin/vite'),'#!/bin/sh\n',{mode:0o755});
       await writeFile(join(currentFixtureRoot,'bin/npm'),'#!/bin/sh\ntouch "'+currentFixtureRoot+'/started"\n',{mode:0o755});
       await writeFile(join(currentFixtureRoot,'bin/lsof'),currentTestScenario.occupied
         ? '#!/bin/sh\nif kill -0 '+currentServerProcess.pid+' 2>/dev/null; then echo '+currentServerProcess.pid+'; else exit 1; fi\n'
         : '#!/bin/sh\nexit 1\n',{mode:0o755});
-      const currentRunProcess=spawn('bash',[join(currentFixtureRoot,'scripts/local_frontend_run.sh')],{
+      const currentRunProcess=spawn('bash',[join(currentFixtureRoot,'scripts/frontend.sh'),'dev','start'],{
         env:{...process.env,PATH:join(currentFixtureRoot,'bin')+':'+process.env.PATH},stdio:['pipe','pipe','pipe'],
       });
       let currentRunOutput='';

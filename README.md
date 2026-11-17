@@ -2,13 +2,25 @@
 
 Preact·TypeScript·Phaser WebGL 클라이언트다. 코드 MIT, 프로젝트 에셋 CC BY 4.0이며 자세한 고지는 `LICENSE`와 `ASSET_LICENSE.md`를 확인한다.
 
+## 통합 관리 명령
+
+`bash scripts/frontend.sh --help`에서 개발 및 로컬 서비스 빌드·검증 명령을 확인한다. 명령별 도움말은 `bash scripts/frontend.sh dev test --help`처럼 조회한다. 서비스 명령은 운영 배포를 수행하지 않는다. 기존 npm 빌드 명령과 회귀 실행기도 사용할 수 있다.
+
+```bash
+bash scripts/frontend.sh dev setup
+bash scripts/frontend.sh dev start
+bash scripts/frontend.sh dev test tests/field-navigation.test.mjs
+bash scripts/frontend.sh service build
+bash scripts/frontend.sh service preview
+```
+
 ## 개발 실행
 
 ```bash
 # 최초 1회 및 package-lock.json 변경 때만
-bash scripts/local_frontend_setup.sh
+bash scripts/frontend.sh dev setup
 # 매일 실행: 배포 빌드 없이 Vite HMR
-bash scripts/local_frontend_run.sh
+bash scripts/frontend.sh dev start
 ```
 
 http://localhost:8080 으로 접속한다. 소스 저장 시 Vite가 즉시 반영하며 `npm run build`나 Docker 이미지 빌드는 필요 없다. `npm run dev`로 직접 실행해도 같다. Ctrl+C로 종료한다. 포트가 사용 중이면 다른 포트로 자동 변경하지 않고 오류를 낸다. Docker 웹이 실행 중이면 `docker compose -f docker-compose.local.yml stop web`으로 먼저 종료한다. 기본 `/v1/`·`/v2/` HTTP·WebSocket 프록시는 http://127.0.0.1:18080 의 별도 백엔드를 사용한다. 다른 API를 쓸 때는 비밀이 아닌 빌드 설정 `VITE_API_BASE_URL`을 지정하고 서버에 해당 웹 origin을 등록한다.
@@ -201,4 +213,4 @@ CloudWatch의 만료 로그 실제 삭제에는 통상 최대 72시간이 추가
 
 ### 개발 서버 포트 충돌
 
-`bash scripts/local_frontend_run.sh`는 시작 전에 8080 포트 점유 PID·시작 시각·명령을 표시하고 종료 여부를 묻습니다(`lsof` 필요). `y` 또는 `yes`로 동의하면 표시한 프로세스에 TERM을 보내고 최대 10초 동안 포트 해제를 확인한 뒤 재시작합니다. Enter·거절·입력 종료 시 기존 서버를 유지하고 취소합니다. 확인 중 대상 변경이나 종료 실패 시 실행을 중단하며 강제 종료하지 않습니다. 자동 실행에서도 명시적인 동의 입력 없이는 기존 서버를 종료하지 않습니다. 직접 `npm run dev`를 실행하면 이 프롬프트는 적용되지 않습니다.
+`bash scripts/frontend.sh dev start`는 시작 전에 8080 포트 점유 PID·시작 시각·명령을 표시하고 종료 여부를 묻습니다(`lsof` 필요). `y` 또는 `yes`로 동의하면 표시한 프로세스에 TERM을 보내고 최대 10초 동안 포트 해제를 확인한 뒤 재시작합니다. Enter·거절·입력 종료 시 기존 서버를 유지하고 취소합니다. 확인 중 대상 변경이나 종료 실패 시 실행을 중단하며 강제 종료하지 않습니다. 자동 실행에서도 명시적인 동의 입력 없이는 기존 서버를 종료하지 않습니다. 직접 `npm run dev`를 실행하면 이 프롬프트는 적용되지 않습니다.
