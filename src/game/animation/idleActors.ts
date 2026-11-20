@@ -10,8 +10,8 @@ import { calculateIdlePhase } from "./idlePhase";
 import type Phaser from "phaser";
 import { type Direction } from "./cellAnimation";
 import { bindCellTexture } from "./cellActor";
-import restingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v2.animation.json";
-import characterRestSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/rest/source.json";
+import restingCharacterMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v5.animation.json";
+import characterRestSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v5.source.json";
 import type { RestPlaybackSample } from "./fieldRestAnimation";
 import characterIdleSourceMetadata from "../../../../slime-assets/assets/characters/default/animations/light-leather/idle/source.json";
 import actorIdleMetadata0 from "../../../../slime-assets/assets/characters/default/animations/light-leather/idle/idle-v6-anchor-v3.animation.json";
@@ -36,7 +36,7 @@ export const DEFAULT_IDLE_DIRECTION_ASSETS = {
 } as const;
 
 export const ACTOR_IDLE_ASSETS = {
-  "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v2.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
+  "human-rest": { key: "resting-human", url: new URL("../../../../slime-assets/assets/characters/default/animations/light-leather/rest/rest-v5.png", import.meta.url).href, animation: createBoardActorAnimation(restingCharacterMetadata) },
   "human": DEFAULT_IDLE_DIRECTION_ASSETS.down_left,
   "moss-turtle": { key: "idle-moss-turtle", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/moss-turtle-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata0) },
   "mist-frog": { key: "idle-mist-frog", url: new URL("../../../../slime-assets/assets/sprites/monsters/standing-v1/down-left-v1/mist-frog-idle-v1.png", import.meta.url).href, animation: createBoardActorAnimation(newMonsterMetadata1) },
