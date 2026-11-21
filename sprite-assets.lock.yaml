@@ -1228,11 +1228,9 @@ files:
 - path: assets/characters/default/boxing-v1/source.yaml
   source_path: assets/characters/default/animations/light-leather/boxing/source.yaml
   sha256: 3397caeeb82581447fd2c6a383527ae88098a13f9eae7c13885392b9fd6d16b0
-
 - path: assets/effects/battle/healing-v1.png
   source_path: assets/sprites/effects/battle/healing-v1.png
   sha256: 871563e3c3703f0b3cf41ee06e3ff353b4c22d6ed05896cfd95d6d0b6fcae8b0
-
 - path: assets/effects/battle/impact-v1.png
   source_path: assets/sprites/effects/battle/impact-v1.png
   sha256: aea607be3a8fe50713c0dda1b4477b8dbe5cc44231cffdd6128f738ca4b1a9e8
