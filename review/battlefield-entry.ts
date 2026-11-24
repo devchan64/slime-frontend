@@ -1,4 +1,5 @@
 import {setLocale} from '../src/i18n';
+import './battlefield-preview.css';
 import {mountBattlefieldReview,BATTLE_REVIEW_DEFAULT_FIELD} from './battlefield-runtime';
 
 const currentReviewParameters=new URLSearchParams(location.search);
