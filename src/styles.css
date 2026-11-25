@@ -21,6 +21,8 @@ button {
   min-height: var(--ui-control-height);
   font-size: var(--ui-font-body);
   line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   color: var(--brand-ink);
   font-weight: 600;
   transition: filter 0.15s;
