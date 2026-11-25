@@ -65,7 +65,7 @@ export function mountBattlefieldReview(currentReviewRoot:HTMLElement,currentRevi
    const currentFieldRecord=currentBattleRecord.field!;
    const currentSectionElement=document.createElement('section');
    const currentTitleElement=document.createElement('h2');currentTitleElement.textContent=(currentFieldRecord.selection==='random'?'랜덤 · ':'이벤트 고정 · ')+currentFieldRecord.name;
-   const currentCanvasElement=document.createElement('div');currentCanvasElement.setAttribute('aria-label','전장 캔버스');
+   const currentCanvasElement=document.createElement('div');currentCanvasElement.setAttribute('role','img');currentCanvasElement.setAttribute('aria-label',`${currentFieldRecord.name} 전장 미리보기 · ${currentFieldRecord.columns}×${currentFieldRecord.rows} 타일`);
    // WebGL 표시 영역의 종횡비·클리핑만 지정한다. UI 테마는 Gradio가 담당한다.
    currentCanvasElement.style.aspectRatio=BATTLE_CANVAS_ASPECT_RATIO;
    currentCanvasElement.style.position='relative';
