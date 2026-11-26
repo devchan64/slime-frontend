@@ -73,10 +73,10 @@ test('중간재 선택 재료 견적은 주문량·종류·총 재료량을 계�
  assert.equal(currentRequestEntries.length,2);
 });
 
-for(const [currentContractKind,currentProductIdentifier,currentMaterialIdentifier,currentRequiredQuantity] of [['craft','round-shield','processed-lumber-low',4],['consumable','clean-bandage','clean-water',1]])test(currentContractKind+' 배치와 일반 재료 입력을 견적부터 계약까지 보존한다',async()=>{
+for(const [currentContractKind,currentProductIdentifier,currentMaterialIdentifier,currentRequiredQuantity] of [['craft','iron-sword','processed-lumber-low',4],['consumable','clean-bandage','clean-water',1]])test(currentContractKind+' 배치와 일반 재료 입력을 견적부터 계약까지 보존한다',async()=>{
  const currentMaterialInputs=[{materialId:currentMaterialIdentifier,quantity:currentRequiredQuantity}];
  const currentBatchInputs=[{batchId:CURRENT_INSTANCE_IDENTIFIER,quantity:1}];
- const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:currentProductIdentifier,definitionSnapshot:{name:'목제 원방패',englishName:'Shield'},costP:12,durationSeconds:600,...(currentContractKind==='consumable'?{quantity:1,unitCostP:12,unitDurationSeconds:600}:{}),selectedMaterials:currentMaterialInputs,requiredMaterials:currentMaterialInputs,requestedBatches:currentBatchInputs},materials:currentMaterialInputs.map(currentMaterialEntry=>({...currentMaterialEntry,nameTranslations:{ko:'목재',en:'Wood'},ownedQuantity:4,consumedQuantity:currentRequiredQuantity,missingQuantity:0}))};
+ const currentQuoteData={characterVersion:4,ownedCoins:100,quoteToken:'a'.repeat(64),quote:{definitionId:currentProductIdentifier,definitionSnapshot:{name:'철 한손검',englishName:'Iron Sword'},costP:12,durationSeconds:600,...(currentContractKind==='consumable'?{quantity:1,unitCostP:12,unitDurationSeconds:600}:{}),selectedMaterials:currentMaterialInputs,requiredMaterials:currentMaterialInputs,requestedBatches:currentBatchInputs},materials:currentMaterialInputs.map(currentMaterialEntry=>({...currentMaterialEntry,nameTranslations:{ko:'목재',en:'Wood'},ownedQuantity:4,consumedQuantity:currentRequiredQuantity,missingQuantity:0}))};
  const {currentTextClient,currentRequestEntries}=createWorkshopClient([currentQuoteData,{state:createWorkshopState()}]);
  await currentTextClient.execute('workshop '+currentContractKind+' quote iseulon-workshop '+currentProductIdentifier+(currentContractKind==='consumable'?' 1':'')+' '+currentMaterialIdentifier+'='+currentRequiredQuantity+' batch:'+CURRENT_INSTANCE_IDENTIFIER+'=1');
  await currentTextClient.execute('workshop '+currentContractKind+' create iseulon-workshop');

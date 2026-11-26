@@ -91,17 +91,17 @@ function findProductionButton(currentLocaleKey:string){const currentButton=[...d
  assertProductionCondition(currentCreatedRequests.at(-1).kind==='material'&&currentCreatedRequests.at(-1).quantity===4&&JSON.stringify(currentCreatedRequests.at(-1).materialInputs)===JSON.stringify(currentQuotedRequests.at(-1).materialInputs),'중간재 견적과 같은 수량·재료 계약');
  const currentBeforeBatchRequest=currentGameClient.request;
  currentGameClient.request=async(currentPath:string,currentBody?:any)=>{
-  if(currentPath.includes('/catalog?kind=craft'))return {items:[{id:'round-shield',name:'원방패',englishName:'Shield',materialSlots:[{slotId:'wood',requiredQuantity:4,defaultMaterialId:'processed-lumber-low',choices:[{materialId:'processed-lumber-low',grade:'low',ownedQuantity:4,nameTranslations:{ko:'목재',en:'Wood'}}]}],batchSlots:[{materialId:'leather-cord',requiredQuantity:1,nameTranslations:{ko:'가죽끈',en:'Leather Cord'},choices:[{batchId:'selected-batch',ownedQuantity:1,itemLevel:1}]}]}]};
+  if(currentPath.includes('/catalog?kind=craft'))return {items:[{id:'iron-sword',name:'철 한손검',englishName:'Iron Sword',materialSlots:[{slotId:'iron',requiredQuantity:4,defaultMaterialId:'iron-ingot-low',choices:[{materialId:'iron-ingot-low',grade:'low',ownedQuantity:4,nameTranslations:{ko:'철괴',en:'Iron Ingot'}}]},{slotId:'wood',requiredQuantity:1,defaultMaterialId:'processed-lumber-low',choices:[{materialId:'processed-lumber-low',grade:'low',ownedQuantity:4,nameTranslations:{ko:'목재',en:'Wood'}}]}],batchSlots:[{materialId:'leather-cord',requiredQuantity:1,nameTranslations:{ko:'가죽끈',en:'Leather Cord'},choices:[{batchId:'selected-batch',ownedQuantity:1,itemLevel:1}]}]}]};
   if(currentPath.endsWith('/production-quote')&&currentBody.batchInputs){
    currentQuotedRequests.push(currentBody);
-   return {characterVersion:5,ownedCoins:100,quoteToken:'d'.repeat(64),quote:{definitionId:'round-shield',definitionSnapshot:{name:'원방패',englishName:'Shield'},costP:12,durationSeconds:600,selectedMaterials:currentBody.materialInputs,requestedBatches:currentBody.batchInputs},materials:currentBody.materialInputs.map((currentInputRecord:any)=>({...currentInputRecord,ownedQuantity:4,consumedQuantity:4,missingQuantity:0,nameTranslations:{ko:'목재',en:'Wood'}}))};
+   return {characterVersion:5,ownedCoins:100,quoteToken:'d'.repeat(64),quote:{definitionId:'iron-sword',definitionSnapshot:{name:'철 한손검',englishName:'Iron Sword'},costP:12,durationSeconds:600,selectedMaterials:currentBody.materialInputs,requestedBatches:currentBody.batchInputs},materials:currentBody.materialInputs.map((currentInputRecord:any)=>({...currentInputRecord,ownedQuantity:4,consumedQuantity:currentInputRecord.quantity,missingQuantity:0,nameTranslations:{ko:'목재',en:'Wood'}}))};
   }
   return currentBeforeBatchRequest(currentPath,currentBody);
  };
  findProductionButton('workshop.craft').click();await settleProductionRender();
- const currentShieldSelect=document.querySelector('select')!;currentShieldSelect.value='round-shield';currentShieldSelect.dispatchEvent(new Event('change',{bubbles:true}));await settleProductionRender();
+ const currentSwordSelect=document.querySelector('select')!;currentSwordSelect.value='iron-sword';currentSwordSelect.dispatchEvent(new Event('change',{bubbles:true}));await settleProductionRender();
  assertProductionCondition(findProductionButton('workshop.quote').disabled,'장비 배치 미선택은 견적 차단');
- const currentBatchInput=document.querySelectorAll('fieldset')[1].querySelector('input')!;
+ const currentBatchInput=document.querySelectorAll('fieldset')[2].querySelector('input')!;
  currentBatchInput.value='2';currentBatchInput.dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();
  assertProductionCondition(findProductionButton('workshop.quote').disabled,'보유 배치 수량 초과는 견적 차단');
  currentBatchInput.value='1';currentBatchInput.dispatchEvent(new Event('input',{bubbles:true}));await settleProductionRender();

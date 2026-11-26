@@ -104,7 +104,7 @@ export function EquipmentPanel({gameSessionClient, actionsAreDisabled, character
         penalty:currentInventoryPage.actionPoints.penaltyAp,maximum:currentInventoryPage.actionPoints.effectiveMaxAp})}</p>}
       {currentInventoryPage.actionPoints?.effectiveMaxAp===0&&<p role="alert">{translateEquipmentText('equipment.zeroActionPoints')}</p>}
       <div class="equipment-slots" role="group" aria-label={translateEquipmentText('equipment.slots')}>
-        {EQUIPMENT_SLOT_NAMES.map(currentSlotName => <button key={currentSlotName} class="secondary" aria-pressed={selectedEquipmentSlot === currentSlotName} onClick={() => setSelectedEquipmentSlot(currentSlotName)}>
+        {EQUIPMENT_SLOT_NAMES.filter(currentSlotName => currentSlotName !== 'off_hand').map(currentSlotName => <button key={currentSlotName} class="secondary" aria-pressed={selectedEquipmentSlot === currentSlotName} onClick={() => setSelectedEquipmentSlot(currentSlotName)}>
           <strong>{translateEquipmentText(`equipment.${EQUIPMENT_SLOT_LABEL_KEYS[currentSlotName]}`)}</strong><span>{currentInventoryPage.slots[currentSlotName]?formatEquipmentItemName(currentInventoryPage.slots[currentSlotName]!,currentLocaleCode):translateEquipmentText('equipment.emptySlot')}</span>
         </button>)}
       </div>

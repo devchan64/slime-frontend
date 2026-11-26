@@ -19,6 +19,7 @@ function assertEquipmentBrowser(currentCondition:unknown,currentMessage:string){
  }};
  const renderEquipmentPanel=()=>render(<EquipmentPanel gameSessionClient={currentGameClient} actionsAreDisabled={false} characterStateVersion={currentInventoryPage.characterVersion}/>,currentRootElement);
  renderEquipmentPanel();await new Promise(currentResolveCallback=>setTimeout(currentResolveCallback,250));
+ assertEquipmentBrowser(document.querySelectorAll('.equipment-slots button').length===5&&!document.querySelector('.equipment-slots')!.textContent!.includes(t('equipment.offHand')),'폐기된 보조 손을 제외한 장비 슬롯 표시');
  assertEquipmentBrowser(document.body.textContent!.includes(t('equipment.actionPoints',{base:4,weight:0,penalty:0,maximum:4})),'미장착 무게 제외 요약');
  assertEquipmentBrowser(document.body.textContent!.includes(t('equipment.equipAp',{maximum:0})),'장착 전 최대 AP 0 안내');
  currentInventoryPage={...currentInventoryPage,characterVersion:2,items:[{...currentItemRecord,equippedSlot:'main_hand'}],slots:{main_hand:{...currentItemRecord,equippedSlot:'main_hand'}},actionPoints:currentHeavySummary,unequipActionPoints:{main_hand:currentBaseSummary}};
